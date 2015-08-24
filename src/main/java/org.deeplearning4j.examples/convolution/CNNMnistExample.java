@@ -49,7 +49,6 @@ public class CNNMnistExample {
         DataSet trainInput;
         List<INDArray> testInput = new ArrayList<>();
         List<INDArray> testLabels = new ArrayList<>();
-        Nd4j.ENFORCE_NUMERICAL_STABILITY = true;
 
         log.info("Load data....");
         DataSetIterator mnistIter = new MnistDataSetIterator(batchSize,numSamples, true);
@@ -74,7 +73,7 @@ public class CNNMnistExample {
                         .nIn(150)
                         .nOut(outputNum)
                         .weightInit(WeightInit.XAVIER)
-                        .activation("relu")
+                        .activation("softmax")
                         .build())
                 .inputPreProcessor(0, new FeedForwardToCnnPreProcessor(numRows, numColumns, 1))
                 .inputPreProcessor(2, new CnnToFeedForwardPreProcessor())
@@ -83,7 +82,6 @@ public class CNNMnistExample {
 
         MultiLayerNetwork model = new MultiLayerNetwork(conf);
         model.init();
-        model.reDistributeParams();
 
         log.info("Train model....");
         model.setListeners(Arrays.asList((IterationListener) new ScoreIterationListener(listenerFreq)));
