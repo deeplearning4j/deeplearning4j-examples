@@ -1,4 +1,4 @@
-package org.deeplearning4j.convolution;
+package org.deeplearning4j.examples.convolution;
 
 import org.deeplearning4j.datasets.iterator.DataSetIterator;
 import org.deeplearning4j.datasets.iterator.impl.IrisDataSetIterator;
@@ -61,7 +61,6 @@ public class CNNIrisExample {
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
                 .seed(seed)
                 .iterations(iterations)
-                .weightInit(WeightInit.XAVIER)
                 .batchSize(batchSize)
                 .optimizationAlgo(OptimizationAlgorithm.LBFGS)
                 .constrainGradientToUnitNorm(true)
@@ -73,10 +72,12 @@ public class CNNIrisExample {
                         .nIn(nChannels)
                         .nOut(6)
                         .activation("relu")
+                        .weightInit(WeightInit.XAVIER)
                         .build())
                 .layer(1, new OutputLayer.Builder(LossFunctions.LossFunction.MCXENT)
                         .nIn(6)
                         .nOut(outputNum)
+                        .weightInit(WeightInit.XAVIER)
                         .activation("softmax")
                         .build())
                 .inputPreProcessor(0, new FeedForwardToCnnPreProcessor(numRows, numColumns, nChannels))

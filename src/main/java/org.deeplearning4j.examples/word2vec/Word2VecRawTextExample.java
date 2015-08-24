@@ -1,4 +1,4 @@
-package org.deeplearning4j.word2vec;
+package org.deeplearning4j.examples.word2vec;
 
 import org.deeplearning4j.models.embeddings.WeightLookupTable;
 import org.deeplearning4j.models.embeddings.inmemory.InMemoryLookupTable;

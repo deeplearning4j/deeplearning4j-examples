@@ -1,4 +1,4 @@
-package org.deeplearning4j.convolution;
+package org.deeplearning4j.examples.convolution;
 
 import org.deeplearning4j.datasets.iterator.impl.MnistDataSetIterator;
 import org.deeplearning4j.eval.Evaluation;
@@ -59,20 +59,22 @@ public class CNNMnistExample {
                 .seed(seed)
                 .batchSize(batchSize)
                 .iterations(iterations)
-                .weightInit(WeightInit.XAVIER)
-                .activationFunction("relu")
                 .constrainGradientToUnitNorm(true)
                 .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
                 .list(3)
                 .layer(0, new ConvolutionLayer.Builder(10, 10)
                         .nIn(nChannels)
                         .nOut(6)
+                        .weightInit(WeightInit.XAVIER)
+                        .activation("relu")
                         .build())
                 .layer(1, new SubsamplingLayer.Builder(SubsamplingLayer.PoolingType.MAX, new int[] {2,2})
                         .build())
                 .layer(2, new OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD)
                         .nIn(150)
                         .nOut(outputNum)
+                        .weightInit(WeightInit.XAVIER)
+                        .activation("relu")
                         .build())
                 .inputPreProcessor(0, new FeedForwardToCnnPreProcessor(numRows, numColumns, 1))
                 .inputPreProcessor(2, new CnnToFeedForwardPreProcessor())

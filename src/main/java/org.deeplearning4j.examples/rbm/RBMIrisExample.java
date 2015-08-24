@@ -1,4 +1,4 @@
-package org.deeplearning4j.rbm;
+package org.deeplearning4j.examples.rbm;
 
 
 import org.deeplearning4j.datasets.iterator.DataSetIterator;
@@ -59,16 +59,15 @@ public class RBMIrisExample {
     NeuralNetConfiguration conf = new NeuralNetConfiguration.Builder()
         // Gaussian for visible; Rectified for hidden
         // Set contrastive divergence to 1
-        .layer(new RBM.Builder(HiddenUnit.RECTIFIED, VisibleUnit.GAUSSIAN, 1)
-            .nIn(numRows * numColumns) // Input nodes
-            .nOut(outputNum) // Output nodes
-            .activation("tanh") // Activation function type
-            .build())
+        .layer(new RBM.Builder()
+                .nIn(numRows * numColumns) // Input nodes
+                .nOut(outputNum) // Output nodes
+                .activation("tanh") // Activation function type
+                .weightInit(WeightInit.DISTRIBUTION) // Weight initialization
+                .dist(new UniformDistribution(0, 1)) // Weight distribution curve mean and st. deviation
+                .lossFunction(LossFunctions.LossFunction.SQUARED_LOSS)
+                .build())
         .seed(seed) // Locks in weight initialization for tuning
-        .weightInit(WeightInit.DISTRIBUTION) // Weight initialization
-        .dist(new UniformDistribution(0, 1)) 
-        // ^^ Weight distribution curve mean and st. deviation
-        .lossFunction(LossFunctions.LossFunction.SQUARED_LOSS) 
         .learningRate(1e-1f) // Backprop step size
         .momentum(0.9) // Speed of modifying learning rate
         .regularization(true) // Prevents overfitting

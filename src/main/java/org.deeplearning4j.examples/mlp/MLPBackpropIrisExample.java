@@ -1,4 +1,4 @@
-package org.deeplearning4j.multilayer;
+package org.deeplearning4j.examples.mlp;
 
 
 import org.deeplearning4j.datasets.iterator.DataSetIterator;
@@ -51,15 +51,22 @@ public class MLPBackpropIrisExample {
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
                 .seed(seed)
                 .iterations(iterations)
-                .weightInit(WeightInit.XAVIER)
-                .activationFunction("tanh")
+
                 .learningRate(1e-3)
                 .l1(0.3).regularization(true).l2(1e-3)
                 .constrainGradientToUnitNorm(true)
                 .list(3)
-                .layer(0, new DenseLayer.Builder().nIn(numInputs).nOut(3).build())
-                .layer(1, new DenseLayer.Builder().nIn(3).nOut(2).build())
-                .layer(2, new OutputLayer.Builder(LossFunction.MCXENT).activation("softmax")
+                .layer(0, new DenseLayer.Builder().nIn(numInputs).nOut(3)
+                        .activation("tanh")
+                        .weightInit(WeightInit.XAVIER)
+                        .build())
+                .layer(1, new DenseLayer.Builder().nIn(3).nOut(2)
+                        .activation("tanh")
+                        .weightInit(WeightInit.XAVIER)
+                        .build())
+                .layer(2, new OutputLayer.Builder(LossFunction.MCXENT)
+                        .weightInit(WeightInit.XAVIER)
+                        .activation("softmax")
                 		.nIn(2).nOut(outputNum).build())
                 .backprop(true).pretrain(false)
                 .build();

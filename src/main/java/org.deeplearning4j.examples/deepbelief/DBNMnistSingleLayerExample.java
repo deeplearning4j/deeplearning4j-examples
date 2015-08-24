@@ -1,4 +1,4 @@
-package org.deeplearning4j.deepbelief;
+package org.deeplearning4j.examples.deepbelief;
 
 
 import org.deeplearning4j.datasets.iterator.DataSetIterator;
@@ -48,18 +48,21 @@ public class DBNMnistSingleLayerExample {
         log.info("Build model....");
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
                 .seed(seed)
-                .weightInit(WeightInit.XAVIER)
-                .visibleUnit(RBM.VisibleUnit.GAUSSIAN)
-                .hiddenUnit(RBM.HiddenUnit.RECTIFIED)
                 .optimizationAlgo(OptimizationAlgorithm.LBFGS)
                 .constrainGradientToUnitNorm(true)
                 .maxNumLineSearchIterations(10)
                 .iterations(iterations)
                 .learningRate(1e-3f)
                 .list(2)
-                .layer(0, new RBM.Builder().nIn(numRows*numColumns).nOut(1000).activation("relu").build())
+                .layer(0, new RBM.Builder().nIn(numRows*numColumns).nOut(1000).activation("relu")
+                        .visibleUnit(RBM.VisibleUnit.GAUSSIAN)
+                        .hiddenUnit(RBM.HiddenUnit.RECTIFIED)
+                        .weightInit(WeightInit.XAVIER)
+                        .build())
                 .layer(1, new OutputLayer.Builder(LossFunction.NEGATIVELOGLIKELIHOOD).activation("softmax")
-                	.nIn(1000).nOut(outputNum).build())
+                	.nIn(1000).nOut(outputNum)
+                        .weightInit(WeightInit.XAVIER)
+                        .build())
                 .build();
         MultiLayerNetwork model = new MultiLayerNetwork(conf);
         model.init();

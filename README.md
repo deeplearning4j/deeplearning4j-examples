@@ -20,6 +20,7 @@ If you notice issues, please log them, and if you want to contribute, submit a p
 
 ## Performance
 
+Note: Example performance needs to be rerun and validated.
 
 | **Model Name**      | **Accuracy** | **F1** | **Status**   | **Training**  |
 |---------------------|--------------|--------|--------------|---------------|

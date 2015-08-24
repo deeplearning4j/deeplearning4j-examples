@@ -1,4 +1,4 @@
-package org.deeplearning4j.deepbelief;
+package org.deeplearning4j.examples.deepbelief;
 
 
 import org.deeplearning4j.datasets.iterator.DataSetIterator;
@@ -46,20 +46,31 @@ public class DBNMnistFullExample {
 
         log.info("Build model....");
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
-                .weightInit(WeightInit.DISTRIBUTION).dist(new NormalDistribution(0,0.01))
                 .seed(seed)
                 .constrainGradientToUnitNorm(true)
                 .iterations(iterations)
-                .updater(Updater.ADAGRAD)
                 .momentum(0.5)
                 .momentumAfter(Collections.singletonMap(3, 0.9))
                 .optimizationAlgo(OptimizationAlgorithm.CONJUGATE_GRADIENT)
-                .visibleUnit(RBM.VisibleUnit.BINARY)
-                .hiddenUnit(RBM.HiddenUnit.BINARY)
                 .list(4)
-                .layer(0, new RBM.Builder().nIn(numRows*numColumns).nOut(500).build())
-                .layer(1, new RBM.Builder().nIn(500).nOut(250).build())
-                .layer(2, new RBM.Builder().nIn(250).nOut(200).build())
+                .layer(0, new RBM.Builder().nIn(numRows*numColumns).nOut(500)
+                        .weightInit(WeightInit.DISTRIBUTION).dist(new NormalDistribution(0, 0.01))
+                        .updater(Updater.ADAGRAD)
+                        .visibleUnit(RBM.VisibleUnit.BINARY)
+                        .hiddenUnit(RBM.HiddenUnit.BINARY)
+                        .build())
+                .layer(1, new RBM.Builder().nIn(500).nOut(250)
+                        .weightInit(WeightInit.DISTRIBUTION).dist(new NormalDistribution(0, 0.01))
+                        .updater(Updater.ADAGRAD)
+                        .visibleUnit(RBM.VisibleUnit.BINARY)
+                        .hiddenUnit(RBM.HiddenUnit.BINARY)
+                        .build())
+                .layer(2, new RBM.Builder().nIn(250).nOut(200)
+                        .weightInit(WeightInit.DISTRIBUTION).dist(new NormalDistribution(0, 0.01))
+                        .updater(Updater.ADAGRAD)
+                        .visibleUnit(RBM.VisibleUnit.BINARY)
+                        .hiddenUnit(RBM.HiddenUnit.BINARY)
+                        .build())
                 .layer(3, new OutputLayer.Builder(LossFunction.RMSE_XENT).activation("softmax")
                 	.nIn(200).nOut(outputNum).build())
 		.pretrain(true).backprop(false)

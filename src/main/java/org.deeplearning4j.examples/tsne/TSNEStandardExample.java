@@ -1,4 +1,4 @@
-package org.deeplearning4j.tsne;
+package org.deeplearning4j.examples.tsne;
 
 import org.deeplearning4j.berkeley.Pair;
 import org.deeplearning4j.models.embeddings.inmemory.InMemoryLookupTable;
