@@ -1,4 +1,4 @@
-arget/
+target/
 .idea/*
 *.iml
 logs/
