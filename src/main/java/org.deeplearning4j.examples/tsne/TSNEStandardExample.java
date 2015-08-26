@@ -46,7 +46,9 @@ public class TSNEStandardExample {
                 .build();
 
         log.info("Store TSNE Coordinates for Plotting....");
-        tsne.plot(weights,2,cacheList,"target/archive-tmp/tsne-standard-coords.csv");
+        String outputFile = "target/archive-tmp/tsne-standard-coords.csv";
+        (new File(outputFile)).getParentFile().mkdirs();
+        tsne.plot(weights,2,cacheList,outputFile);
     }
 
 
