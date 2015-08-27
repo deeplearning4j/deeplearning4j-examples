@@ -23,7 +23,7 @@ logging:
 
     # Sets the level for 'com.example.app' to DEBUG.
     org.deeplearning4j: INFO
-    org.eclipse.jetty: DEBUG
+    org.eclipse.jetty: INFO
 
   appenders:
     - type: console
