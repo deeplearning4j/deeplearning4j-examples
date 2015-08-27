@@ -38,5 +38,4 @@ metastore_db
 *.ipynb*
 *.html
 *.csv
-*.txt
 Word2vec-index/
