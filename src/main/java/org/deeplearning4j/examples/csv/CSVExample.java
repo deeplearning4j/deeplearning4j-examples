@@ -37,7 +37,7 @@ public class CSVExample {
         RecordReader recordReader = new CSVRecordReader(0,",");
         recordReader.initialize(new FileSplit(new ClassPathResource("iris.txt").getFile()));
         //reader,label index,number of possible labels
-        DataSetIterator iterator = new RecordReaderDataSetIterator(recordReader,3,3);
+        DataSetIterator iterator = new RecordReaderDataSetIterator(recordReader,4,3);
         //get the dataset using the record reader. The datasetiterator handles vectorization
         DataSet next = iterator.next();
         // Customizing params
@@ -46,29 +46,29 @@ public class CSVExample {
 
         final int numInputs = 4;
         int outputNum = 3;
-        int iterations = 100;
+        int iterations = 3;
         long seed = 6;
-        int listenerFreq = iterations/5;
+        int listenerFreq = iterations;
 
 
         log.info("Build model....");
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
                 .seed(seed)
                 .iterations(iterations)
-
-                .learningRate(1e-3)
+                .constrainGradientToUnitNorm(true).useDropConnect(true)
+                .learningRate(1e-1)
                 .l1(0.3).regularization(true).l2(1e-3)
                 .constrainGradientToUnitNorm(true)
                 .list(3)
                 .layer(0, new DenseLayer.Builder().nIn(numInputs).nOut(3)
-                        .activation("tanh")
+                        .activation("relu").dropOut(0.5)
                         .weightInit(WeightInit.XAVIER)
                         .build())
                 .layer(1, new DenseLayer.Builder().nIn(3).nOut(2)
-                        .activation("tanh")
+                        .activation("relu")
                         .weightInit(WeightInit.XAVIER)
                         .build())
-                .layer(2, new OutputLayer.Builder(LossFunctions.LossFunction.MCXENT)
+                .layer(2, new OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD)
                         .weightInit(WeightInit.XAVIER)
                         .activation("softmax")
                         .nIn(2).nOut(outputNum).build())
@@ -80,12 +80,13 @@ public class CSVExample {
         model.init();
         model.setListeners(Arrays.asList((IterationListener) new ScoreIterationListener(listenerFreq)));
 
+        next.normalizeZeroMeanZeroUnitVariance();
         //split test and train
-        SplitTestAndTrain testAndTrain = next.splitTestAndTrain(0.8);
+        SplitTestAndTrain testAndTrain = next.splitTestAndTrain(0.5);
         model.fit(testAndTrain.getTrain());
 
         //evaluate the model
-        Evaluation eval = new Evaluation();
+        Evaluation eval = new Evaluation(3);
         DataSet test = testAndTrain.getTest();
         INDArray output = model.output(test.getFeatureMatrix());
         eval.eval(test.getLabels(), output);
