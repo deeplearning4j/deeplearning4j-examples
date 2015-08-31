@@ -97,7 +97,7 @@ public class CNNMnistExample {
         log.info("Evaluate weights....");
 
         log.info("Evaluate model....");
-        Evaluation eval = new Evaluation();
+        Evaluation eval = new Evaluation(outputNum);
         for(int i = 0; i < testInput.size(); i++) {
             INDArray output = model.output(testInput.get(i));
             eval.eval(testLabels.get(i), output);

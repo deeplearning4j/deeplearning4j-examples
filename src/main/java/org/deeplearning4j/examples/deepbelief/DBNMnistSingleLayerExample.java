@@ -83,7 +83,7 @@ public class DBNMnistSingleLayerExample {
         }
 
         log.info("Evaluate model....");
-        Evaluation eval = new Evaluation();
+        Evaluation eval = new Evaluation(outputNum);
         while(iter.hasNext()) {
             DataSet testData = iter.next();
             testData.normalizeZeroMeanZeroUnitVariance();
