@@ -81,7 +81,7 @@ public class DBNMnistFullExample {
         model.fit(iter); // achieves end to end pre-training
 
         log.info("Evaluate model....");
-        Evaluation eval = new Evaluation();
+        Evaluation eval = new Evaluation(outputNum);
 
         DataSetIterator testIter = new MnistDataSetIterator(100,10000);
         while(testIter.hasNext()) {

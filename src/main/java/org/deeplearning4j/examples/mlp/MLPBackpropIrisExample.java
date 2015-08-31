@@ -91,7 +91,7 @@ public class MLPBackpropIrisExample {
 
 
         log.info("Evaluate model....");
-        Evaluation eval = new Evaluation();
+        Evaluation eval = new Evaluation(outputNum);
         DataSetIterator iterTest = new IrisDataSetIterator(numSamples, numSamples);
         DataSet test = iterTest.next();
         test.normalizeZeroMeanZeroUnitVariance();
