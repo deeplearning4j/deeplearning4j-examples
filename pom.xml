@@ -3,7 +3,7 @@
 
   <groupId>org.deeplearning4j</groupId>
   <artifactId>deeplearning4j-examples</artifactId>
-  <version>0.4-rc0</version>
+  <version>0.4-rc0-SNAPSHOT</version>
 
   <name>DeepLearning4j Examples</name>
   <description>Examples of training different data sets</description>
@@ -11,7 +11,6 @@
     <nd4j.version>0.4-rc0</nd4j.version>
     <dl4j.version>0.4-rc0</dl4j.version>
     <canova.version>0.0.0.5</canova.version>
-
   </properties>
 
 
