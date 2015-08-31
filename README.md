@@ -26,7 +26,7 @@ Note: setSeed is not working for CNN
 |---------------------|--------------|--------|---------------|
 | CNNIris             |              |        | batch         | 
 | CNNMnist            |              |        | batch         |
-| DBNIris             |              |        | full          | 
+| DBNIris             | 0.33         | 0.5    | full          | 
 | DBNMnistFull        |              |        | batch         |
 | DBNMnistSingleLayer | 0.41         | 0.61   | full          |
 | MLPBackpropIris     | 0.55         | 0.70   | full          |
