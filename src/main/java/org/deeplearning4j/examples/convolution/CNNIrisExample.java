@@ -100,7 +100,7 @@ public class CNNIrisExample {
         }
 
         log.info("Evaluate model....");
-        Evaluation eval = new Evaluation();
+        Evaluation eval = new Evaluation(outputNum);
         INDArray output = model.output(trainTest.getTest().getFeatureMatrix());
         eval.eval(trainTest.getTest().getLabels(), output);
         log.info(eval.stats());
