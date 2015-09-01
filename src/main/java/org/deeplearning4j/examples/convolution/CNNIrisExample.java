@@ -54,7 +54,6 @@ public class CNNIrisExample {
         DataSetIterator irisIter = new IrisDataSetIterator(batchSize, numSamples);
         DataSet iris = irisIter.next();
         iris.normalizeZeroMeanZeroUnitVariance();
-        iris.shuffle();
 
         SplitTestAndTrain trainTest = iris.splitTestAndTrain(splitTrainNum, new Random(seed));
 
