@@ -12,7 +12,7 @@ import org.deeplearning4j.nn.api.OptimizationAlgorithm;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
 import org.deeplearning4j.nn.conf.Updater;
-import org.deeplearning4j.nn.conf.distribution.NormalDistribution;
+import org.deeplearning4j.nn.conf.distribution.UniformDistribution;
 import org.deeplearning4j.nn.conf.layers.GravesLSTM;
 import org.deeplearning4j.nn.conf.layers.RnnOutputLayer;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
@@ -68,7 +68,8 @@ public class GravesLSTMCharModellingExample {
 		//Set up network configuration:
 		MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
 			.optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT).iterations(1)
-			.learningRate(0.1)
+			.learningRate(2e-3)
+			.rmsDecay(0.95)
 			.seed(12345)
 			.regularization(true)
 			.l2(0.1)
@@ -76,15 +77,15 @@ public class GravesLSTMCharModellingExample {
 			.layer(0, new GravesLSTM.Builder().nIn(iter.inputColumns()).nOut(lstmLayerSize)
 					.updater(Updater.RMSPROP)
 					.activation("tanh").weightInit(WeightInit.DISTRIBUTION)
-					.dist(new NormalDistribution(0,0.3)).build())
+					.dist(new UniformDistribution(-0.08,0.08)).build())
 			.layer(1, new GravesLSTM.Builder().nIn(lstmLayerSize).nOut(lstmLayerSize)
 				.updater(Updater.RMSPROP)
 				.activation("tanh").weightInit(WeightInit.DISTRIBUTION)
-				.dist(new NormalDistribution(0,0.3)).build())
+				.dist(new UniformDistribution(-0.08,0.08)).build())
 			.layer(2, new RnnOutputLayer.Builder(LossFunction.MCXENT).activation("softmax")		//MCXENT + softmax for classification
 					.updater(Updater.RMSPROP)
 					.nIn(lstmLayerSize).nOut(nOut).weightInit(WeightInit.DISTRIBUTION)
-					.dist(new NormalDistribution(0,0.3)).build())
+					.dist(new UniformDistribution(-0.08,0.08)).build())
 			.pretrain(false).backprop(true)
 			.build();
 		
