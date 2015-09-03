@@ -72,7 +72,7 @@ public class GravesLSTMCharModellingExample {
 			.rmsDecay(0.95)
 			.seed(12345)
 			.regularization(true)
-			.l2(0.1)
+			.l2(0.001)
 			.list(3)
 			.layer(0, new GravesLSTM.Builder().nIn(iter.inputColumns()).nOut(lstmLayerSize)
 					.updater(Updater.RMSPROP)
