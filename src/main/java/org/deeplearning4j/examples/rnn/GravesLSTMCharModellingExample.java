@@ -17,6 +17,7 @@ import org.deeplearning4j.nn.conf.layers.GravesLSTM;
 import org.deeplearning4j.nn.conf.layers.RnnOutputLayer;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
+import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.lossfunctions.LossFunctions.LossFunction;
@@ -89,6 +90,7 @@ public class GravesLSTMCharModellingExample {
 		
 		MultiLayerNetwork net = new MultiLayerNetwork(conf);
 		net.init();
+		net.setListeners(new ScoreIterationListener(1));
 		
 		//Print the  number of parameters in the network (and for each layer)
 		Layer[] layers = net.getLayers();

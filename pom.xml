@@ -8,8 +8,8 @@
   <name>DeepLearning4j Examples</name>
   <description>Examples of training different data sets</description>
   <properties>
-    <nd4j.version>0.4-rc1.1</nd4j.version>
-    <dl4j.version>0.4-rc1</dl4j.version>
+    <nd4j.version>0.4-rc1.2</nd4j.version>
+    <dl4j.version>0.4-rc1.2</dl4j.version>
     <canova.version>0.0.0.5</canova.version>
   </properties>
 
@@ -34,12 +34,6 @@
         <artifactId>nd4j-x86</artifactId>
         <version>${nd4j.version}</version>
       </dependency>
-      <dependency>
-        <groupId>org.nd4j</groupId>
-        <artifactId>nd4j-jblas</artifactId>
-        <version>${nd4j.version}</version>
-        <scope>provided</scope>
-      </dependency>
     </dependencies>
   </dependencyManagement>
   <dependencies>
@@ -59,12 +53,22 @@
       <groupId>org.deeplearning4j</groupId>
       <artifactId>deeplearning4j-core</artifactId>
       <version>${dl4j.version}</version>
-
+      <exclusions>
+        <exclusion>
+          <artifactId>nd4j-api</artifactId>
+          <groupId>org.nd4j</groupId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.nd4j</groupId>
       <artifactId>nd4j-x86</artifactId>
       <version>${nd4j.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.jblas</groupId>
+      <artifactId>jblas</artifactId>
+      <version>1.2.4</version>
     </dependency>
     <dependency>
       <artifactId>canova-nd4j-image</artifactId>
@@ -114,7 +118,7 @@
           </execution>
         </executions>
       </plugin>
-      
+
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>

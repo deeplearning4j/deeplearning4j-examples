@@ -46,7 +46,7 @@ public class DBNIrisExample {
         int outputNum = 3;
         int numSamples = 150;
         int batchSize = 150;
-        int iterations = 2;
+        int iterations = 5;
         int splitTrainNum = (int) (batchSize * .8);
         int seed = 123;
         int listenerFreq = 1;
@@ -67,9 +67,8 @@ public class DBNIrisExample {
                 .seed(seed) // Seed to lock in weight initialization for tuning
                 .iterations(iterations) // # training iterations predict/classify & backprop
                 .learningRate(1e-3f) // Optimization step size
-                .optimizationAlgo(OptimizationAlgorithm.LINE_GRADIENT_DESCENT) // Backprop method (calculate the gradients)
-                .momentum(0.9)
-                .constrainGradientToUnitNorm(true)
+                .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT) // Backprop method (calculate the gradients)
+                .constrainGradientToUnitNorm(true).l1(1e-1).regularization(true).l2(2e-4)
                 .useDropConnect(true)
                 .list(2) // # NN layers (does not count input layer)
                 .layer(0, new RBM.Builder(RBM.HiddenUnit.RECTIFIED, RBM.VisibleUnit.GAUSSIAN)
