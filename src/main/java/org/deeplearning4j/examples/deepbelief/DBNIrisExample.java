@@ -54,7 +54,7 @@ public class DBNIrisExample {
         log.info("Load data....");
         DataSetIterator iter = new IrisDataSetIterator(batchSize, numSamples);
         DataSet next = iter.next();
-        next.scale();
+        next.normalizeZeroMeanZeroUnitVariance();
 
         log.info("Split data....");
         SplitTestAndTrain testAndTrain = next.splitTestAndTrain(splitTrainNum, new Random(seed));
@@ -66,9 +66,9 @@ public class DBNIrisExample {
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
                 .seed(seed) // Seed to lock in weight initialization for tuning
                 .iterations(iterations) // # training iterations predict/classify & backprop
-                .learningRate(1e-3f) // Optimization step size
-                .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT) // Backprop method (calculate the gradients)
-                .constrainGradientToUnitNorm(true).l1(1e-1).regularization(true).l2(2e-4)
+                .learningRate(1e-6f) // Optimization step size
+                .optimizationAlgo(OptimizationAlgorithm.CONJUGATE_GRADIENT) // Backprop method (calculate the gradients)
+                .l1(1e-1).regularization(true).l2(2e-4)
                 .useDropConnect(true)
                 .list(2) // # NN layers (does not count input layer)
                 .layer(0, new RBM.Builder(RBM.HiddenUnit.RECTIFIED, RBM.VisibleUnit.GAUSSIAN)
