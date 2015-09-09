@@ -1,6 +1,7 @@
 package org.deeplearning4j.examples.deepbelief;
 
 
+import org.apache.commons.io.FileUtils;
 import org.deeplearning4j.datasets.iterator.DataSetIterator;
 import org.deeplearning4j.datasets.iterator.impl.IrisDataSetIterator;
 import org.deeplearning4j.eval.Evaluation;
@@ -23,7 +24,9 @@ import org.nd4j.linalg.lossfunctions.LossFunctions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Random;
 
@@ -36,7 +39,7 @@ public class DBNIrisExample {
 
     private static Logger log = LoggerFactory.getLogger(DBNIrisExample.class);
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws Exception {
         // Customizing params
         Nd4j.MAX_SLICES_TO_PRINT = -1;
         Nd4j.MAX_ELEMENTS_PER_SLICE = -1;
@@ -119,6 +122,26 @@ public class DBNIrisExample {
         eval.eval(test.getLabels(), output);
         log.info(eval.stats());
         log.info("****************Example finished********************");
+
+
+        OutputStream fos = Files.newOutputStream(Paths.get("coefficients.bin"));
+        DataOutputStream dos = new DataOutputStream(fos);
+        Nd4j.write(model.params(), dos);
+        dos.flush();
+        dos.close();
+        FileUtils.write(new File("conf.json"), model.getLayerWiseConfigurations().toJson());
+
+        MultiLayerConfiguration confFromJson = MultiLayerConfiguration.fromJson(FileUtils.readFileToString(new File("conf.json")));
+        DataInputStream dis = new DataInputStream(new FileInputStream("coefficients.bin"));
+        INDArray newParams = Nd4j.read(dis);
+        dis.close();
+        MultiLayerNetwork savedNetwork = new MultiLayerNetwork(confFromJson);
+        savedNetwork.init();
+        savedNetwork.setParameters(newParams);
+        System.out.println("Original network params " + model.params());
+        System.out.println(savedNetwork.params());
+
+
 
     }
 }
