@@ -8,6 +8,7 @@ import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
 import org.deeplearning4j.nn.conf.layers.ConvolutionLayer;
 import org.deeplearning4j.nn.conf.layers.OutputLayer;
 import org.deeplearning4j.nn.conf.layers.SubsamplingLayer;
+import org.deeplearning4j.nn.conf.layers.setup.ConvolutionLayerSetup;
 import org.deeplearning4j.nn.conf.preprocessor.CnnToFeedForwardPreProcessor;
 import org.deeplearning4j.nn.conf.preprocessor.FeedForwardToCnnPreProcessor;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
@@ -54,7 +55,7 @@ public class CNNMnistExample {
         DataSetIterator mnistIter = new MnistDataSetIterator(batchSize,numSamples, true);
 
         log.info("Build model....");
-        MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
+        MultiLayerConfiguration.Builder builder = new NeuralNetConfiguration.Builder()
                 .seed(seed)
                 .batchSize(batchSize)
                 .iterations(iterations)
@@ -75,10 +76,10 @@ public class CNNMnistExample {
                         .weightInit(WeightInit.XAVIER)
                         .activation("softmax")
                         .build())
-                .inputPreProcessor(0, new FeedForwardToCnnPreProcessor(numRows, numColumns, 1))
-                .inputPreProcessor(2, new CnnToFeedForwardPreProcessor())
-                .backprop(true).pretrain(false)
-                .build();
+                .backprop(true).pretrain(false);
+        new ConvolutionLayerSetup(builder,28,28,1);
+
+        MultiLayerConfiguration conf = builder.build();
 
         MultiLayerNetwork model = new MultiLayerNetwork(conf);
         model.init();

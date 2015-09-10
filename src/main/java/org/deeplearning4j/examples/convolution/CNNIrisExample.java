@@ -8,6 +8,7 @@ import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
 import org.deeplearning4j.nn.conf.layers.ConvolutionLayer;
 import org.deeplearning4j.nn.conf.layers.OutputLayer;
+import org.deeplearning4j.nn.conf.layers.setup.ConvolutionLayerSetup;
 import org.deeplearning4j.nn.conf.preprocessor.CnnToFeedForwardPreProcessor;
 import org.deeplearning4j.nn.conf.preprocessor.FeedForwardToCnnPreProcessor;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
@@ -57,7 +58,7 @@ public class CNNIrisExample {
 
         SplitTestAndTrain trainTest = iris.splitTestAndTrain(splitTrainNum, new Random(seed));
 
-        MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
+        MultiLayerConfiguration.Builder builder = new NeuralNetConfiguration.Builder()
                 .seed(seed)
                 .iterations(iterations)
                 .batchSize(batchSize)
@@ -79,10 +80,11 @@ public class CNNIrisExample {
                         .weightInit(WeightInit.XAVIER)
                         .activation("softmax")
                         .build())
-                .inputPreProcessor(0, new FeedForwardToCnnPreProcessor(numRows, numColumns, nChannels))
-                .inputPreProcessor(1, new CnnToFeedForwardPreProcessor())
-                .backprop(true).pretrain(false)
-                .build();
+
+                .backprop(true).pretrain(false);
+        new ConvolutionLayerSetup(builder,2,2,1);
+
+        MultiLayerConfiguration conf = builder.build();
 
         log.info("Build model....");
         MultiLayerNetwork model = new MultiLayerNetwork(conf);

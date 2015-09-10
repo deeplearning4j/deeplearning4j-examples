@@ -81,8 +81,9 @@ public class CSVExample {
         model.setListeners(Arrays.asList((IterationListener) new ScoreIterationListener(listenerFreq)));
 
         next.normalizeZeroMeanZeroUnitVariance();
+        next.shuffle();
         //split test and train
-        SplitTestAndTrain testAndTrain = next.splitTestAndTrain(0.5);
+        SplitTestAndTrain testAndTrain = next.splitTestAndTrain(0.6);
         model.fit(testAndTrain.getTrain());
 
         //evaluate the model

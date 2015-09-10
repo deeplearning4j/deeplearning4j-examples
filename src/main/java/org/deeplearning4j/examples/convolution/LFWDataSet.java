@@ -1,5 +1,6 @@
 package org.deeplearning4j.examples.convolution;
 
+import org.deeplearning4j.datasets.fetchers.LFWDataFetcher;
 import org.deeplearning4j.datasets.iterator.DataSetIterator;
 import org.deeplearning4j.datasets.iterator.impl.LFWDataSetIterator;
 import org.deeplearning4j.nn.api.OptimizationAlgorithm;
@@ -8,6 +9,7 @@ import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
 import org.deeplearning4j.nn.conf.layers.ConvolutionLayer;
 import org.deeplearning4j.nn.conf.layers.OutputLayer;
 import org.deeplearning4j.nn.conf.layers.SubsamplingLayer;
+import org.deeplearning4j.nn.conf.layers.setup.ConvolutionLayerSetup;
 import org.deeplearning4j.nn.conf.preprocessor.CnnToFeedForwardPreProcessor;
 import org.deeplearning4j.nn.conf.preprocessor.FeedForwardToCnnPreProcessor;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
@@ -33,7 +35,7 @@ public class LFWDataSet {
         final int numRows = 28;
         final int numColumns = 28;
         int nChannels = 1;
-        int outputNum = 10;
+        int outputNum = 5749;
         int numSamples = 2000;
         int batchSize = 500;
         int iterations = 10;
@@ -43,7 +45,7 @@ public class LFWDataSet {
 
 
         log.info("Build model....");
-        MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
+        MultiLayerConfiguration.Builder builder = new NeuralNetConfiguration.Builder()
                 .seed(seed)
                 .batchSize(batchSize)
                 .iterations(iterations)
@@ -59,18 +61,14 @@ public class LFWDataSet {
                 .layer(1, new SubsamplingLayer.Builder(SubsamplingLayer.PoolingType.MAX, new int[] {2,2})
                         .build())
                 .layer(2, new OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD)
-                        .nIn(150)
                         .nOut(outputNum)
                         .weightInit(WeightInit.XAVIER)
                         .activation("softmax")
                         .build())
-                .inputPreProcessor(0, new FeedForwardToCnnPreProcessor(numRows, numColumns, 1))
-                .inputPreProcessor(2, new CnnToFeedForwardPreProcessor())
-                .backprop(true).pretrain(false)
-                .build();
+                .backprop(true).pretrain(false);
+        new ConvolutionLayerSetup(builder,28,28,1);
 
-
-        MultiLayerNetwork model = new MultiLayerNetwork(conf);
+        MultiLayerNetwork model = new MultiLayerNetwork(builder.build());
         model.init();
 
         log.info("Train model....");
@@ -79,7 +77,7 @@ public class LFWDataSet {
 
         while(lfw.hasNext()) {
             DataSet next = lfw.next();
-            next.normalizeZeroMeanZeroUnitVariance();
+            next.scale();
             model.fit(next);
         }
     }
