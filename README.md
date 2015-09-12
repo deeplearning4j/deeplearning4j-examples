@@ -1,5 +1,7 @@
 DL4J Release 0.4 Examples 
 =========================
+
+[![Join the chat at https://gitter.im/deeplearning4j/dl4j-0.4-examples](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/deeplearning4j/dl4j-0.4-examples?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 Repository of Deeplearning4J neural net examples:
 
 - Convolutional Neural Nets
