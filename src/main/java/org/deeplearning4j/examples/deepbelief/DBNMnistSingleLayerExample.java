@@ -16,6 +16,7 @@ import org.deeplearning4j.optimize.api.IterationListener;
 import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
+import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.lossfunctions.LossFunctions.LossFunction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,7 +34,7 @@ public class DBNMnistSingleLayerExample {
     private static Logger log = LoggerFactory.getLogger(DBNMnistSingleLayerExample.class);
 
     public static void main(String[] args) throws Exception {
-
+        Nd4j.ENFORCE_NUMERICAL_STABILITY = true;
         final int numRows = 28;
         final int numColumns = 28;
         int outputNum = 10;
@@ -44,26 +45,23 @@ public class DBNMnistSingleLayerExample {
         int listenerFreq = iterations/5;
 
         log.info("Load data....");
-        DataSetIterator iter = new MnistDataSetIterator(batchSize, numSamples);
+        DataSetIterator iter = new MnistDataSetIterator(batchSize, numSamples,true);
         log.info("Build model....");
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
                 .seed(seed)
                 .optimizationAlgo(OptimizationAlgorithm.LBFGS)
-                .constrainGradientToUnitNorm(true)
-                .maxNumLineSearchIterations(10)
-                .iterations(iterations)
-                .learningRate(1e-3f)
+                .iterations(iterations).constrainGradientToUnitNorm(true)
+                .learningRate(1e-1f)
                 .list(2)
-                .layer(0, new RBM.Builder().nIn(numRows*numColumns).nOut(1000).activation("relu")
-                        .visibleUnit(RBM.VisibleUnit.GAUSSIAN)
-                        .hiddenUnit(RBM.HiddenUnit.RECTIFIED)
-                        .weightInit(WeightInit.XAVIER)
+                .layer(0, new RBM.Builder().nIn(numRows * numColumns).nOut(500).activation("relu")
+                        .weightInit(WeightInit.XAVIER).lossFunction(LossFunction.RMSE_XENT)
                         .build())
                 .layer(1, new OutputLayer.Builder(LossFunction.NEGATIVELOGLIKELIHOOD).activation("softmax")
-                	.nIn(1000).nOut(outputNum)
+                        .nIn(500).nOut(outputNum)
                         .weightInit(WeightInit.XAVIER)
                         .build())
                 .build();
+
         MultiLayerNetwork model = new MultiLayerNetwork(conf);
         model.init();
         model.setListeners(Arrays.asList((IterationListener) new ScoreIterationListener(listenerFreq)));
@@ -71,22 +69,17 @@ public class DBNMnistSingleLayerExample {
         log.info("Train model....");
         while(iter.hasNext()) {
             DataSet mnist = iter.next();
-            mnist.normalizeZeroMeanZeroUnitVariance();
             model.fit(mnist);
         }
         iter.reset();
 
         log.info("Evaluate weights....");
-        for(org.deeplearning4j.nn.api.Layer layer : model.getLayers()) {
-            INDArray w = layer.getParam(DefaultParamInitializer.WEIGHT_KEY);
-            log.info("Weights: " + w);
-        }
+
 
         log.info("Evaluate model....");
         Evaluation eval = new Evaluation(outputNum);
         while(iter.hasNext()) {
             DataSet testData = iter.next();
-            testData.normalizeZeroMeanZeroUnitVariance();
             INDArray predict2 = model.output(testData.getFeatureMatrix());
             eval.eval(testData.getLabels(), predict2);
         }
