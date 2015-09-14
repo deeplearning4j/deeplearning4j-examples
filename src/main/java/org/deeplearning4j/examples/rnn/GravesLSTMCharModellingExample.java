@@ -68,7 +68,7 @@ public class GravesLSTMCharModellingExample {
 		//Set up network configuration:
 		MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
 			.optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT).iterations(1)
-			.learningRate(2e-3)
+			.learningRate(0.1)
 			.rmsDecay(0.95)
 			.seed(12345)
 			.regularization(true)
@@ -77,15 +77,15 @@ public class GravesLSTMCharModellingExample {
 			.layer(0, new GravesLSTM.Builder().nIn(iter.inputColumns()).nOut(lstmLayerSize)
 					.updater(Updater.RMSPROP)
 					.activation("tanh").weightInit(WeightInit.DISTRIBUTION)
-					.dist(new UniformDistribution(-0.08,0.08)).build())
+					.dist(new UniformDistribution(-0.08, 0.08)).build())
 			.layer(1, new GravesLSTM.Builder().nIn(lstmLayerSize).nOut(lstmLayerSize)
-				.updater(Updater.RMSPROP)
-				.activation("tanh").weightInit(WeightInit.DISTRIBUTION)
-				.dist(new UniformDistribution(-0.08,0.08)).build())
-			.layer(2, new RnnOutputLayer.Builder(LossFunction.MCXENT).activation("softmax")		//MCXENT + softmax for classification
+					.updater(Updater.RMSPROP)
+					.activation("tanh").weightInit(WeightInit.DISTRIBUTION)
+					.dist(new UniformDistribution(-0.08, 0.08)).build())
+			.layer(2, new RnnOutputLayer.Builder(LossFunction.MCXENT).activation("softmax")        //MCXENT + softmax for classification
 					.updater(Updater.RMSPROP)
 					.nIn(lstmLayerSize).nOut(nOut).weightInit(WeightInit.DISTRIBUTION)
-					.dist(new UniformDistribution(-0.08,0.08)).build())
+					.dist(new UniformDistribution(-0.08, 0.08)).build())
 			.pretrain(false).backprop(true)
 			.build();
 		
@@ -133,7 +133,7 @@ public class GravesLSTMCharModellingExample {
 		//The Complete Works of William Shakespeare
 		//5.3MB file in UTF-8 Encoding, ~5.4 million characters
 		//https://www.gutenberg.org/ebooks/100
-		String url = "https://www.gutenberg.org/cache/epub/100/pg100.txt";
+		String url = "https://s3.amazonaws.com/dl4j-distribution/pg100.txt";
 		String tempDir = System.getProperty("java.io.tmpdir");
 		String fileLocation = tempDir + "/Shakespeare.txt";	//Storage location from downloaded file
 		File f = new File(fileLocation);
