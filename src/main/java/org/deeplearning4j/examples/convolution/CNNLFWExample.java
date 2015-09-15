@@ -3,6 +3,7 @@ package org.deeplearning4j.examples.convolution;
 import org.deeplearning4j.datasets.fetchers.LFWDataFetcher;
 import org.deeplearning4j.datasets.iterator.DataSetIterator;
 import org.deeplearning4j.datasets.iterator.impl.LFWDataSetIterator;
+import org.deeplearning4j.eval.Evaluation;
 import org.deeplearning4j.nn.api.OptimizationAlgorithm;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
@@ -16,21 +17,26 @@ import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
 import org.deeplearning4j.optimize.api.IterationListener;
 import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
+import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
+import org.nd4j.linalg.dataset.SplitTestAndTrain;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
+import java.util.Random;
 
 /**
  * @author Adam Gibson
  */
-public class LFWDataSet {
+public class CNNLFWExample {
     private static final Logger log = LoggerFactory.getLogger(CNNMnistExample.class);
 
     public static void main(String[] args) {
-        DataSetIterator lfw = new LFWDataSetIterator(28,28);
+
 
         final int numRows = 28;
         final int numColumns = 28;
@@ -42,7 +48,15 @@ public class LFWDataSet {
         int splitTrainNum = (int) (batchSize*.8);
         int seed = 123;
         int listenerFreq = iterations/5;
+        DataSet lfwNext;
+        SplitTestAndTrain trainTest;
+        DataSet trainInput;
+        List<INDArray> testInput = new ArrayList<>();
+        List<INDArray> testLabels = new ArrayList<>();
 
+
+        log.info("Load data....");
+        DataSetIterator lfw = new LFWDataSetIterator(batchSize, numSamples);
 
         log.info("Build model....");
         MultiLayerConfiguration.Builder builder = new NeuralNetConfiguration.Builder()
@@ -66,7 +80,7 @@ public class LFWDataSet {
                         .activation("softmax")
                         .build())
                 .backprop(true).pretrain(false);
-        new ConvolutionLayerSetup(builder,28,28,1);
+        new ConvolutionLayerSetup(builder,numRows,numColumns,nChannels);
 
         MultiLayerNetwork model = new MultiLayerNetwork(builder.build());
         model.init();
@@ -74,12 +88,27 @@ public class LFWDataSet {
         log.info("Train model....");
         model.setListeners(Arrays.asList((IterationListener) new ScoreIterationListener(listenerFreq)));
 
-
         while(lfw.hasNext()) {
-            DataSet next = lfw.next();
-            next.scale();
-            model.fit(next);
+            lfwNext = lfw.next();
+            lfwNext.scale();
+            trainTest = lfwNext.splitTestAndTrain(splitTrainNum, new Random(seed)); // train set that is the result
+            trainInput = trainTest.getTrain(); // get feature matrix and labels for training
+            testInput.add(trainTest.getTest().getFeatureMatrix());
+            testLabels.add(trainTest.getTest().getLabels());
+            model.fit(trainInput);
         }
+
+        log.info("Evaluate model....");
+        Evaluation eval = new Evaluation(outputNum);
+        for(int i = 0; i < testInput.size(); i++) {
+            INDArray output = model.output(testInput.get(i));
+            eval.eval(testLabels.get(i), output);
+        }
+        INDArray output = model.output(testInput.get(0));
+        eval.eval(testLabels.get(0), output);
+        log.info(eval.stats());
+        log.info("****************Example finished********************");
+
     }
 
 }
