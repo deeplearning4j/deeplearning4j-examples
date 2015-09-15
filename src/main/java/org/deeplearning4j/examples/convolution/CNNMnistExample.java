@@ -77,7 +77,8 @@ public class CNNMnistExample {
                         .activation("softmax")
                         .build())
                 .backprop(true).pretrain(false);
-        new ConvolutionLayerSetup(builder,28,28,1);
+
+        new ConvolutionLayerSetup(builder,numRows,numColumns,nChannels);
 
         MultiLayerConfiguration conf = builder.build();
 
