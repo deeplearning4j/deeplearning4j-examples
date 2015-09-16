@@ -65,7 +65,7 @@ public class LenetMnistExample {
                 .iterations(iterations).useDropConnect(true)
                 .constrainGradientToUnitNorm(true).regularization(true)
                 .l2(2e-3)
-                .optimizationAlgo(OptimizationAlgorithm.CONJUGATE_GRADIENT)
+                .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
                 .list(6)
                 .layer(0, new ConvolutionLayer.Builder(5, 5)
                         .nIn(nChannels)
