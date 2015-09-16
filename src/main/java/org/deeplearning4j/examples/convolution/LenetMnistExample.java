@@ -43,7 +43,7 @@ public class LenetMnistExample {
         int outputNum = 10;
         int numSamples = 60000;
         int batchSize = 500;
-        int iterations = 10;
+        int iterations = 1;
         int splitTrainNum = (int) (batchSize*.8);
         int seed = 123;
         int listenerFreq = iterations/5;
