@@ -18,6 +18,7 @@ import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.dataset.SplitTestAndTrain;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
+import org.nd4j.linalg.dataset.api.iterator.MultipleEpochsIterator;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,7 +50,7 @@ public class LenetMnistExample {
         List<INDArray> testLabels = new ArrayList<>();
 
         log.info("Load data....");
-        DataSetIterator mnistIter = new MnistDataSetIterator(batchSize,numSamples, true);
+        DataSetIterator mnistIter = new MultipleEpochsIterator(5,new MnistDataSetIterator(batchSize,numSamples, true));
 
         log.info("Build model....");
         MultiLayerConfiguration.Builder builder = new NeuralNetConfiguration.Builder()
@@ -75,7 +76,7 @@ public class LenetMnistExample {
                         .build())
                 .layer(3, new SubsamplingLayer.Builder(SubsamplingLayer.PoolingType.MAX, new int[] {2,2})
                         .build())
-                  .layer(4,new DenseLayer.Builder().activation("relu")
+                  .layer(4,new DenseLayer.Builder().activation("tanh")
                           .nOut(500).build())
                 .layer(5, new OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD)
                         .nOut(outputNum)
