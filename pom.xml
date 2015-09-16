@@ -75,7 +75,7 @@
                 <executions>
                     <execution>
                         <goals>
-                            <goal>t pul</goal>
+                            <goal>exec</goal>
                         </goals>
                     </execution>
                 </executions>
