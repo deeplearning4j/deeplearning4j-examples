@@ -75,19 +75,12 @@
                 <executions>
                     <execution>
                         <goals>
-                            <goal>exec</goal>
+                            <goal>t pul</goal>
                         </goals>
                     </execution>
                 </executions>
                 <configuration>
-                    <executable>maven</executable>
-                    <!-- optional -->
-                    <workingDirectory>/tmp</workingDirectory>
-                    <arguments>
-                        <argument>-X</argument>
-                        <argument>myproject:dist</argument>
-                        ...
-                    </arguments>
+                    <executable>java</executable>
                 </configuration>
             </plugin>
             <plugin>
