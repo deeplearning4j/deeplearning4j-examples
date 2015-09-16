@@ -58,7 +58,7 @@ public class LenetMnistExample {
                 .batchSize(batchSize)
                 .iterations(iterations)
                 .constrainGradientToUnitNorm(true)
-                .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
+                .optimizationAlgo(OptimizationAlgorithm.CONJUGATE_GRADIENT)
                 .list(6)
                 .layer(0, new ConvolutionLayer.Builder(5, 5)
                         .nIn(nChannels)
