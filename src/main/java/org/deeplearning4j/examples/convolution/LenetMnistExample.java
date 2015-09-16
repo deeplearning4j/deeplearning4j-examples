@@ -39,6 +39,8 @@ public class LenetMnistExample {
     public static void main(String[] args) throws Exception {
         Nd4j.dtype = DataBuffer.Type.DOUBLE;
         Nd4j.factory().setDType(DataBuffer.Type.DOUBLE);
+        Nd4j.ENFORCE_NUMERICAL_STABILITY = true;
+
         int nChannels = 1;
         int outputNum = 10;
         int numSamples = 60000;
