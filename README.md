@@ -22,9 +22,9 @@ If you notice issues, please log them, and if you want to contribute, submit a p
 
 | **Model Name**      | **Accuracy** | **F1** | **Training**  |
 |---------------------|--------------|--------|---------------|
-| CNNIris             | 0.7          | 0.75   | batch         | 
+| CNNIris             | 0.9          | 0.94   | batch         | 
 | CNNMnist            | 0.73         | 0.74   | batch         |
-| DBNIris             | 0.33         | 0.5    | full          | 
+| DBNIris             | 0.67         | 0.8    | full          | 
 | DBNMnistFull        | 0.10         | 0.35   | batch         |
 | DBNMnistSingleLayer | 0.41         | 0.61   | full          |
 | MLPBackpropIris     | 0.55         | 0.70   | full          |
