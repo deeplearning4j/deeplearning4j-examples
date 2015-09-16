@@ -14,11 +14,13 @@ import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
 import org.deeplearning4j.optimize.api.IterationListener;
 import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
+import org.nd4j.linalg.api.buffer.DataBuffer;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.dataset.SplitTestAndTrain;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.nd4j.linalg.dataset.api.iterator.MultipleEpochsIterator;
+import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,6 +37,8 @@ public class LenetMnistExample {
     private static final Logger log = LoggerFactory.getLogger(CNNMnistExample.class);
 
     public static void main(String[] args) throws Exception {
+        Nd4j.dtype = DataBuffer.Type.DOUBLE;
+        Nd4j.factory().setDType(DataBuffer.Type.DOUBLE);
         int nChannels = 1;
         int outputNum = 10;
         int numSamples = 60000;
