@@ -107,6 +107,7 @@ public class LenetMnistExample {
             trainInput = trainTest.getTrain(); // get feature matrix and labels for training
             testInput.add(trainTest.getTest().getFeatureMatrix());
             testLabels.add(trainTest.getTest().getLabels());
+
             model.fit(trainInput);
         }
 

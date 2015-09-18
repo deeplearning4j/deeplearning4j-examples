@@ -8,9 +8,11 @@
     <name>DeepLearning4j Examples</name>
     <description>Examples of training different data sets</description>
     <properties>
-        <nd4j.version>0.4-rc3.2-SNAPSHOT</nd4j.version>
-        <dl4j.version>0.4-rc3.2-SNAPSHOT</dl4j.version>
-        <canova.version>0.0.0.7-SNAPSHOT</canova.version>
+        <nd4j.version>0.4-rc3.1</nd4j.version>
+        <dl4j.version>0.4-rc3.1</dl4j.version>
+        <canova.version>0.0.0.7</canova.version>
+        <jackson.version>2.5.1</jackson.version>
+
     </properties>
 
 
@@ -63,7 +65,11 @@
             <groupId>org.nd4j</groupId>
             <version>${canova.version}</version>
         </dependency>
-
+        <dependency>
+            <groupId>com.fasterxml.jackson.dataformat</groupId>
+            <artifactId>jackson-dataformat-yaml</artifactId>
+            <version>${jackson.version}</version>
+        </dependency>
     </dependencies>
 
     <build>
