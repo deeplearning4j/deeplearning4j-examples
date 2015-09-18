@@ -34,6 +34,8 @@ public class CNNMnistExample {
     private static final Logger log = LoggerFactory.getLogger(CNNMnistExample.class);
 
     public static void main(String[] args) throws Exception {
+        int numRows = 28;
+        int numColumns = 28;
         int nChannels = 1;
         int outputNum = 10;
         int numSamples = 2000;
