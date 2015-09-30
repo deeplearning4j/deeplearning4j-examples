@@ -114,7 +114,7 @@ public class DBNIrisExample {
         INDArray output = model.output(test.getFeatureMatrix());
 
         for (int i = 0; i < output.rows(); i++) {
-            String actual = train.getLabels().getRow(i).toString().trim();
+            String actual = test.getLabels().getRow(i).toString().trim();
             String predicted = output.getRow(i).toString().trim();
             log.info("actual " + actual + " vs predicted " + predicted);
         }
