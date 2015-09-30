@@ -86,9 +86,9 @@ public class Test {
         LOGGER.info("Train model....");
         model.fit(train);
 
-        for(int i=0; i<10; i++){
-            LOGGER.info("Output: {}", model.output(test.getFeatureMatrix(), Layer.TrainingMode.TEST).getRow(0));
-        }
+//        for(int i=0; i<10; i++){
+//            LOGGER.info("Output: {}", model.output(test.getFeatureMatrix(), Layer.TrainingMode.TEST).getRow(0));
+//        }
     }
 
 }

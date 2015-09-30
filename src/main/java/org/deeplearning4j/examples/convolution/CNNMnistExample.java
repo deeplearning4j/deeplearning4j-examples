@@ -34,6 +34,8 @@ public class CNNMnistExample {
     private static final Logger log = LoggerFactory.getLogger(CNNMnistExample.class);
 
     public static void main(String[] args) throws Exception {
+        int numRows = 28;
+        int numColumns = 28;
         int nChannels = 1;
         int outputNum = 10;
         int numSamples = 2000;
@@ -68,13 +70,13 @@ public class CNNMnistExample {
                 .layer(1, new SubsamplingLayer.Builder(SubsamplingLayer.PoolingType.MAX, new int[] {2,2})
                         .build())
                 .layer(2, new OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD)
-                        .nIn(150)
                         .nOut(outputNum)
                         .weightInit(WeightInit.XAVIER)
                         .activation("softmax")
                         .build())
                 .backprop(true).pretrain(false);
-        new ConvolutionLayerSetup(builder,28,28,1);
+
+        new ConvolutionLayerSetup(builder,numRows,numColumns,nChannels);
 
         MultiLayerConfiguration conf = builder.build();
 
