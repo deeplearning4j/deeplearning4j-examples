@@ -24,7 +24,7 @@ public class TSNEStandardExample {
     private static Logger log = LoggerFactory.getLogger(TSNEStandardExample.class);
 
     public static void main(String[] args) throws Exception  {
-        int iterations = 1000;
+        int iterations = 100;
         List<String> cacheList = new ArrayList<>();
 
         log.info("Load & Vectorize data....");
