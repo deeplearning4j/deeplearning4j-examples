@@ -14,7 +14,6 @@ import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
 import org.deeplearning4j.optimize.api.IterationListener;
 import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
-import org.deeplearning4j.ui.weights.HistogramIterationListener;
 import org.nd4j.linalg.api.buffer.DataBuffer;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
@@ -101,7 +100,7 @@ public class LenetMnistExample {
         model.init();
 
         log.info("Train model....");
-        model.setListeners(new ScoreIterationListener(listenerFreq),new HistogramIterationListener(1));
+        model.setListeners(new ScoreIterationListener(listenerFreq));
         while(mnistIter.hasNext()) {
             mnist = mnistIter.next();
             trainTest = mnist.splitTestAndTrain(splitTrainNum, new Random(seed)); // train set that is the result
