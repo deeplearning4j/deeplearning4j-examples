@@ -16,7 +16,6 @@ import org.deeplearning4j.nn.weights.WeightInit;
 import org.deeplearning4j.optimize.api.IterationListener;
 import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
 import org.nd4j.linalg.api.ndarray.INDArray;
-import org.nd4j.linalg.api.ops.impl.indexaccum.IMax;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.dataset.SplitTestAndTrain;
 import org.nd4j.linalg.factory.Nd4j;
@@ -87,7 +86,7 @@ public class MNISTAnomalyExample {
             featuresTrain.add(split.getTrain().getFeatureMatrix());
             DataSet dsTest = split.getTest();
             featuresTest.add(dsTest.getFeatureMatrix());
-            INDArray indexes = Nd4j.getExecutioner().exec(new IMax(dsTest.getLabels()), 1); //Convert from one-hot representation -> index
+            INDArray indexes = Nd4j.argMax(dsTest.getLabels(),1); //Convert from one-hot representation -> index
             labelsTest.add(indexes);
         }
 
