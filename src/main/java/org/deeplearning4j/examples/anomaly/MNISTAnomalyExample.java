@@ -1,6 +1,5 @@
 package org.deeplearning4j.examples.anomaly;
 
-import lombok.AllArgsConstructor;
 import org.apache.commons.lang3.tuple.ImmutableTriple;
 import org.apache.commons.lang3.tuple.Triple;
 import org.deeplearning4j.datasets.iterator.DataSetIterator;
@@ -153,11 +152,16 @@ public class MNISTAnomalyExample {
         worstVisualizer.visualize();
     }
 
-    @AllArgsConstructor
     private static class MNISTVisualizer {
         private double imageScale;
         private List<INDArray> digits;  //Digits (as row vectors), one per INDArray
-        String title;
+        private String title;
+
+        private MNISTVisualizer(double imageScale, List<INDArray> digits, String title ){
+            this.imageScale = imageScale;
+            this.digits = digits;
+            this.title = title;
+        }
 
         public void visualize(){
             JFrame frame = new JFrame();
