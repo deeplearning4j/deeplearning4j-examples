@@ -16,22 +16,23 @@ import java.util.Random;
 
 /**A support class for generating a synthetic video data set
  * Nothing here is specific to DL4J
+ * @author Alex Black
  */
 public class VideoGenerator {
 
     public static final int NUM_SHAPES = 4;  //0=circle, 1=square, 2=arc, 3=line
     public static final int MAX_VELOCITY = 3;
     public static final int SHAPE_SIZE = 25;
-    public static final int SHAPE_MIN_DIST_FROM_EDGE = 10;
+    public static final int SHAPE_MIN_DIST_FROM_EDGE = 15;
     public static final int DISTRACTOR_MIN_DIST_FROM_EDGE = 0;
     public static final int LINE_STROKE_WIDTH = 6;  //Width of line (line shape only)
     public static final BasicStroke lineStroke = new BasicStroke(LINE_STROKE_WIDTH);
-    public static final int MIN_FRAMES = 10;
+    public static final int MIN_FRAMES = 10;    //Minimum number of frames the target shape to be present
 
     private static int[] generateVideo(String path, int nFrames, int width, int height, int numShapes, Random r,
                                       boolean backgroundNoise, int numDistractorsPerFrame) throws Exception {
 
-        //First: decide where splits are.
+        //First: decide where transitions between one shape and another are
         double[] rns = new double[numShapes];
         double sum = 0;
         for (int i = 0; i < numShapes; i++) {
@@ -46,6 +47,7 @@ public class VideoGenerator {
             startFrames[i] = (int) (startFrames[i - 1] + MIN_FRAMES + rns[i] * (nFrames - numShapes * MIN_FRAMES));
         }
 
+        //Randomly generate shape positions, velocities, colors, and type
         int[] shapeTypes = new int[numShapes];
         int[] initialX = new int[numShapes];
         int[] initialY = new int[numShapes];
@@ -61,8 +63,7 @@ public class VideoGenerator {
             color[i] = new Color(r.nextFloat(), r.nextFloat(), r.nextFloat());
         }
 
-        //Generate a sequence of BufferedImages, and write them to the video
-
+        //Generate a sequence of BufferedImages with the given shapes, and write them to the video
         SequenceEncoder enc = new SequenceEncoder(new File(path));
         int currShape = 0;
         int[] labels = new int[nFrames];
@@ -84,9 +85,11 @@ public class VideoGenerator {
 
             g2d.setColor(color[currShape]);
 
+            //Position of shape this frame
             int currX = (int) (initialX[currShape] + (i - startFrames[currShape]) * velocityX[currShape] * MAX_VELOCITY);
             int currY = (int) (initialY[currShape] + (i - startFrames[currShape]) * velocityY[currShape] * MAX_VELOCITY);
 
+            //Render the shape
             switch (shapeTypes[currShape]) {
                 case 0:
                     //Circle
@@ -109,7 +112,7 @@ public class VideoGenerator {
                     throw new RuntimeException();
             }
 
-            //Add some distractor shapes for one frame
+            //Add some distractor shapes, which are present for one frame only
             for( int j=0; j<numDistractorsPerFrame; j++ ){
                 int distractorShapeIdx = r.nextInt(NUM_SHAPES);
 
@@ -138,13 +141,10 @@ public class VideoGenerator {
             }
 
             enc.encodeImage(bi);
-
-//            System.out.println(currShape + "\t" + shapeTypes[currShape] + "\t(" + currX + "," + currY + ")");
             g2d.dispose();
-
             labels[i] = shapeTypes[currShape];
         }
-        enc.finish();
+        enc.finish();   //write .mp4
 
         return labels;
     }
@@ -160,6 +160,8 @@ public class VideoGenerator {
             String videoPath = outputFolder + filePrefix + "_" + i + ".mp4";
             String labelsPath = outputFolder + filePrefix + "_" + i + ".txt";
             int[] labels = generateVideo(videoPath, nFrames, width, height, numShapesPerVideo, r, backgroundNoise, numDistractorsPerFrame);
+
+            //Write labels to text file
             StringBuilder sb = new StringBuilder();
             for (int j = 0; j < labels.length; j++) {
                 sb.append(labels[j]);
