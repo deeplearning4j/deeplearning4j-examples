@@ -177,14 +177,6 @@ public class CharacterIterator implements DataSetIterator {
 				int nextCharIdx = charToIdxMap.get(fileCharacters[j]);		//Next character to predict
 				input.putScalar(new int[]{i,currCharIdx,c}, 1.0);
 				labels.putScalar(new int[]{i,nextCharIdx,c}, 1.0);
-				float temp = input.getFloat(new int[]{i,currCharIdx,c});
-				float temp2 = labels.getFloat(new int[]{i,nextCharIdx,c});
-				if(temp != 1.0f){
-					throw new RuntimeException();
-				}
-				if(temp2 != 1.0f){
-					throw new RuntimeException();
-				}
 				currCharIdx = nextCharIdx;
 			}
 		}
