@@ -113,10 +113,7 @@ public class MNISTAnomalyExample {
             for( int j=0; j<nRows; j++){
                 INDArray example = testData.getRow(j);
                 int label = (int)labels.getDouble(j);
-                net.setInput(example);
-                net.setLabels(example);
-                net.computeGradientAndScore();
-                double score = net.score();
+                double score = net.score(new DataSet(example,example));
                 listsByDigit.get(label).add(new ImmutableTriple<>(score, count++, example));
             }
         }
