@@ -65,8 +65,10 @@ public class AlexNet {
                 .seed(seed)
                 .iterations(iterations)
                 .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
-                .learningRate(1e-2) // TODO setup to decrease by 10 when validation error rate stops improving
+//                .learningRate(1e-2) // TODO setup to decrease by 10 when validation error rate stops improving
                         // TODO add lr_mult & decay_mult for weights and biases separately apply 1 & 1 to weights and 2 & 0 to bias
+                .learningRate(1e-2)
+                .learningRateScoreBasedDecayRate(10)
                 .l2(5 * 1e-4)
                 .momentum(0.9)
                 .list(11)
