@@ -12,9 +12,7 @@ import org.deeplearning4j.datasets.iterator.DataSetIterator;
 import org.deeplearning4j.eval.Evaluation;
 import org.deeplearning4j.nn.api.OptimizationAlgorithm;
 import org.deeplearning4j.nn.conf.*;
-import org.deeplearning4j.nn.conf.layers.ConvolutionLayer;
-import org.deeplearning4j.nn.conf.layers.GravesLSTM;
-import org.deeplearning4j.nn.conf.layers.RnnOutputLayer;
+import org.deeplearning4j.nn.conf.layers.*;
 import org.deeplearning4j.nn.conf.preprocessor.*;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
@@ -23,6 +21,7 @@ import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
 import org.deeplearning4j.ui.weights.HistogramIterationListener;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
+import org.nd4j.linalg.dataset.api.DataSetPreProcessor;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 
 import java.io.File;
@@ -77,33 +76,52 @@ public class VideoClassificationExample {
                 .regularization(true).l2(0.001) //l2 regularization on all layers
                 .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
                 .iterations(1)
-                .learningRate(0.1)
+                .learningRate(0.002)
                 .rmsDecay(0.95)
-                .list(3)
-                .layer(0, new ConvolutionLayer.Builder(8, 8)
+                .list(6)
+                .layer(0, new ConvolutionLayer.Builder(5, 5)
                         .nIn(3) //3 channels: RGB
-                        .nOut(6)
-                        .stride(4, 4)
+                        .nOut(30)
+                        .stride(3, 3)
                         .activation("relu")
                         .weightInit(WeightInit.XAVIER)
                         .updater(Updater.RMSPROP)
-                        .build())
-                .layer(1, new GravesLSTM.Builder()
-                        .activation("tanh")
-                        .nIn(31 * 31 * 6)   //128x128: (128-8)/4+1 = 31
-                        .nOut(200)  //200 LSTM units/neurons
+                        .build())   //Output: (128-5+0)/3+1 = 42 -> 42*42*30 = 52920
+                .layer(1, new SubsamplingLayer.Builder(SubsamplingLayer.PoolingType.MAX)
+                        .kernelSize(2,2)
+                        .stride(2,2).build())   //Output: 21x21x30 = 13230
+                .layer(2, new ConvolutionLayer.Builder(3,3)
+                        .nIn(30)
+                        .nOut(10)
+                        .stride(1, 1)
+                        .activation("relu")
+                        .weightInit(WeightInit.XAVIER)
+                        .updater(Updater.RMSPROP)
+                        .build())   //Output: (21-3+0)/1+1 = 19 -> 19*19*10 = 3610
+                .layer(3, new DenseLayer.Builder()
+                        .activation("relu")
+                        .nIn(3610)
+                        .nOut(100)
                         .weightInit(WeightInit.XAVIER)
                         .updater(Updater.RMSPROP)
                         .build())
-                .layer(2, new RnnOutputLayer.Builder(LossFunctions.LossFunction.MCXENT)
+                .layer(4, new GravesLSTM.Builder()
+                        .activation("tanh")
+                        .nIn(100)
+                        .nOut(100)
+                        .weightInit(WeightInit.XAVIER)
+                        .updater(Updater.RMSPROP)
+                        .build())
+                .layer(5, new RnnOutputLayer.Builder(LossFunctions.LossFunction.MCXENT)
                         .activation("softmax")
-                        .nIn(200)
+                        .nIn(100)
                         .nOut(4)    //4 possible shapes: circle, square, arc, line
                         .updater(Updater.RMSPROP)
                         .weightInit(WeightInit.XAVIER)
                         .build())
                 .inputPreProcessor(0, new RnnToCnnPreProcessor(V_HEIGHT, V_WIDTH, 3))
-                .inputPreProcessor(1, new CnnToRnnPreProcessor(31, 31, 6))
+                .inputPreProcessor(3, new CnnToFeedForwardPreProcessor(19, 19, 10))
+                .inputPreProcessor(4, new FeedForwardToRnnPreProcessor())
                 .pretrain(false).backprop(true)
                 .backpropType(BackpropType.TruncatedBPTT)
                 .tBPTTForwardLength(V_NFRAMES / 5)
@@ -112,9 +130,14 @@ public class VideoClassificationExample {
 
         MultiLayerNetwork net = new MultiLayerNetwork(conf);
         net.init();
-//        net.setListeners(Arrays.asList((IterationListener) new ScoreIterationListener(1)));
-        net.setListeners(Arrays.asList((IterationListener) new ScoreIterationListener(1),
-                new HistogramIterationListener(1)));
+        net.setListeners(Arrays.asList((IterationListener) new ScoreIterationListener(1)));
+//        net.setListeners(Arrays.asList((IterationListener) new ScoreIterationListener(1),
+//                new HistogramIterationListener(1)));
+
+        System.out.println("Number of parameters in network: " + net.numParams());
+        for( int i=0; i<net.getnLayers(); i++ ){
+            System.out.println("Layer " + i + " nParams = " + net.getLayer(i).numParams());
+        }
 
         int testStartIdx = (int) (0.8 * N_VIDEOS_TO_GENERATE);  //80% in train, 20% in test
         int nTrain = testStartIdx;
@@ -126,9 +149,9 @@ public class VideoClassificationExample {
         for (int i = 0; i < nTrainEpochs; i++) {
             //Use 80% of the generated videos to train, 20% to test
             DataSetIterator trainData = getDataSetIterator(outputDirectory, 0, nTrain - 1, miniBatchSize);
-            DataSet ds = trainData.next();
-            System.out.println(ds.getLabels());
-            System.out.println(ds.getFeatureMatrix());
+//            DataSet ds = trainData.next();
+//            System.out.println(ds.getLabels());
+//            System.out.println(ds.getFeatureMatrix());
             net.fit(trainData);
             System.out.println("Epoch " + i + " complete");
         }
@@ -176,6 +199,7 @@ public class VideoClassificationExample {
 
         SequenceRecordReaderDataSetIterator sequenceIter =
                 new SequenceRecordReaderDataSetIterator(featuresTrain, labelsTrain, miniBatchSize, 4, false);
+        sequenceIter.setPreProcessor(new VideoPreProcessor());
 
         //AsyncDataSetIterator: Used to (pre-load) load data in a separate thread
         AsyncDataSetIterator trainIter = new AsyncDataSetIterator(sequenceIter,1);
@@ -202,5 +226,12 @@ public class VideoClassificationExample {
         CSVSequenceRecordReader csvSeq = new CSVSequenceRecordReader();
         csvSeq.initialize(isLabels);
         return csvSeq;
+    }
+
+    private static class VideoPreProcessor implements DataSetPreProcessor {
+        @Override
+        public void preProcess(org.nd4j.linalg.dataset.api.DataSet toPreProcess) {
+            toPreProcess.getFeatureMatrix().divi(255);  //[0,255] -> [0,1] for input pixel values
+        }
     }
 }
