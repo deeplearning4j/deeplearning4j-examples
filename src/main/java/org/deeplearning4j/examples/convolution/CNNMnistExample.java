@@ -62,6 +62,7 @@ public class CNNMnistExample {
                 .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
                 .list(3)
                 .layer(0, new ConvolutionLayer.Builder(10, 10)
+                        .stride(2,2)
                         .nIn(nChannels)
                         .nOut(6)
                         .weightInit(WeightInit.XAVIER)

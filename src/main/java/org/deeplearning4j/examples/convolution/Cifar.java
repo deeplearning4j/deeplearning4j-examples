@@ -45,15 +45,16 @@ public class Cifar {
                 .list(6)
                 .layer(0, new ConvolutionLayer.Builder(5, 5)
                         .nOut(5).dropOut(0.5)
+                        .stride(2, 2)
                         .weightInit(WeightInit.XAVIER)
                         .activation("relu")
                         .build())
-
                 .layer(1, new SubsamplingLayer
                         .Builder(SubsamplingLayer.PoolingType.MAX, new int[]{2, 2})
                         .build())
                 .layer(2, new ConvolutionLayer.Builder(3, 3)
                         .nOut(10).dropOut(0.5)
+                        .stride(2, 2)
                         .weightInit(WeightInit.XAVIER)
                         .activation("relu")
                         .build())
@@ -62,7 +63,6 @@ public class Cifar {
                         .build())
                 .layer(4, new DenseLayer.Builder().nOut(100).activation("relu")
                         .build())
-
                 .layer(5, new OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD)
                         .nOut(outputNum)
                         .weightInit(WeightInit.XAVIER)
