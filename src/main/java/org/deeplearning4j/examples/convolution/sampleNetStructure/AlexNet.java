@@ -1,6 +1,7 @@
 package org.deeplearning4j.examples.convolution.sampleNetStructure;
 
 import org.deeplearning4j.nn.api.OptimizationAlgorithm;
+import org.deeplearning4j.nn.conf.GradientNormalization;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
 import org.deeplearning4j.nn.conf.Updater;
@@ -51,10 +52,6 @@ public class AlexNet {
     }
 
     public MultiLayerNetwork init() {
-        Updater updater = Updater.NESTEROVS;
-        String activation = "relu";
-        WeightInit weightStrategy = WeightInit.DISTRIBUTION;
-        GaussianDistribution distribution = new GaussianDistribution(0, 0.01);
         double nonZeroBias = 1;
         double dropOut = 0.5;
         SubsamplingLayer.PoolingType poolingType = SubsamplingLayer.PoolingType.MAX;
@@ -63,12 +60,16 @@ public class AlexNet {
         // TODO add local response normalization after 1st, 2nd convolution and before max-pooling
         MultiLayerConfiguration.Builder conf = new NeuralNetConfiguration.Builder()
                 .seed(seed)
+                .weightInit(WeightInit.DISTRIBUTION)
+                .dist(new GaussianDistribution(0.0, 0.01))
+                .activation("relu")
+                .updater(Updater.NESTEROVS)
                 .iterations(iterations)
+                .gradientNormalization(GradientNormalization.RenormalizeL2PerLayer) // TODO confirm this is required
                 .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
-//                .learningRate(1e-2) // TODO setup to decrease by 10 when validation error rate stops improving
                         // TODO add lr_mult & decay_mult for weights and biases separately apply 1 & 1 to weights and 2 & 0 to bias
-                .learningRate(1e-2)
-                .learningRateScoreBasedDecayRate(10)
+                .learningRate(1e-3)
+                .learningRateScoreBasedDecayRate(1e-1)
                 .l2(5 * 1e-4)
                 .momentum(0.9)
                 .list(11)
@@ -76,20 +77,12 @@ public class AlexNet {
                 .layer(0, new ConvolutionLayer.Builder(new int[]{11, 11}, new int[]{4, 4}, new int[]{3, 3})
                         .nIn(channels)
                         .nOut(96)
-                        .activation(activation)
-                        .weightInit(weightStrategy)
-                        .dist(distribution)
-                        .updater(updater)
                         .build())
                 .layer(1, new SubsamplingLayer.Builder(poolingType, new int[]{3, 3}, new int[]{2, 2})
                         .build())
                         //conv2
                 .layer(2, new ConvolutionLayer.Builder(new int[]{5, 5}, new int[]{1, 1}, new int[]{2, 2}) // TODO verrify stride
                         .nOut(256)
-                        .activation(activation)
-                        .weightInit(weightStrategy)
-                        .dist(distribution)
-                        .updater(updater)
                         .biasInit(nonZeroBias)
                         .build())
                 .layer(3, new SubsamplingLayer.Builder(poolingType, new int[]{3, 3}, new int[]{2, 2})
@@ -97,55 +90,34 @@ public class AlexNet {
                         //conv3
                 .layer(4, new ConvolutionLayer.Builder(new int[]{3, 3}, new int[]{1, 1}, new int[]{1, 1})
                         .nOut(384)
-                        .activation(activation)
-                        .weightInit(weightStrategy)
-                        .dist(distribution)
-                        .updater(updater)
                         .build())
                         //conv4
                 .layer(5, new ConvolutionLayer.Builder(new int[]{3, 3}, new int[]{1, 1}, new int[]{1, 1})
                         .nOut(384)
-                        .activation(activation)
-                        .weightInit(weightStrategy)
-                        .dist(distribution)
-                        .updater(updater)
                         .biasInit(nonZeroBias)
                         .build())
                         //conv5
                 .layer(6, new ConvolutionLayer.Builder(new int[]{3, 3}, new int[]{1, 1}, new int[]{1, 1})
                         .nOut(256)
-                        .activation(activation)
-                        .weightInit(weightStrategy)
-                        .dist(distribution)
-                        .updater(updater)
                         .biasInit(nonZeroBias)
                         .build())
                 .layer(7, new SubsamplingLayer.Builder(poolingType, new int[]{3, 3}, new int[]{2, 2})
                         .build())
                 .layer(8, new DenseLayer.Builder()
                         .nOut(4096)
-                        .activation(activation)
-                        .weightInit(weightStrategy)
-                        .dist(new GaussianDistribution(0, 0.005))
-                        .updater(updater)
+//                        .dist(new GaussianDistribution(0, 0.005))
                         .biasInit(nonZeroBias)
                         .dropOut(dropOut)
                         .build())
                 .layer(9, new DenseLayer.Builder()
                         .nOut(4096)
-                        .activation(activation)
-                        .weightInit(weightStrategy)
-                        .dist(new GaussianDistribution(0, 0.005))
-                        .updater(updater)
+//                        .dist(new GaussianDistribution(0, 0.005))
                         .biasInit(nonZeroBias)
                         .dropOut(dropOut)
                         .build())
                 .layer(10, new OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD)
                         .nOut(outputNum)
                         .activation("softmax")
-                        .weightInit(weightStrategy)
-                        .dist(distribution)
-                        .updater(updater)
                         .build())
                 .backprop(true)
                 .pretrain(false);
