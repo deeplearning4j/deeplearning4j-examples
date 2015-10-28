@@ -1,6 +1,7 @@
 package org.deeplearning4j.examples.convolution.sampleNetStructure;
 
 import org.deeplearning4j.nn.api.OptimizationAlgorithm;
+import org.deeplearning4j.nn.conf.GradientNormalization;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
 import org.deeplearning4j.nn.conf.Updater;
@@ -39,59 +40,40 @@ public class LeNet {
     }
 
     public MultiLayerNetwork init() {
-        Updater updater = Updater.NESTEROVS;
-        String activation = "sigmoid";
-        WeightInit weightStrategy = WeightInit.DISTRIBUTION;
-        GaussianDistribution distribution = new GaussianDistribution(0, 0.1); // TODO confirm std
 
         MultiLayerConfiguration.Builder conf = new NeuralNetConfiguration.Builder()
                 .seed(seed)
                 .iterations(iterations)
+                .activation("sigmoid")
+                .weightInit(WeightInit.DISTRIBUTION)
+                .dist(new GaussianDistribution(0.0, 0.01))
+
 //                .learningRate(7*10e-5)
                 .learningRate(1e-3)
-                .learningRateScoreBasedDecayRate(10)
+                .learningRateScoreBasedDecayRate(1e-1)
                 .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
                 .list(7)
                 .layer(0, new ConvolutionLayer.Builder(new int[]{5, 5}, new int[]{1, 1})
                         .nIn(channels)
                         .nOut(6)
-                        .activation(activation)
-                        .weightInit(weightStrategy)
-                        .dist(distribution)
-                        .updater(updater)
                         .build())
                 .layer(1, new SubsamplingLayer.Builder(SubsamplingLayer.PoolingType.MAX, new int[]{2, 2}, new int[]{2, 2})
                         .build())
                 .layer(2, new ConvolutionLayer.Builder(new int[]{5, 5}, new int[]{1, 1})
                         .nOut(16)
-                        .activation(activation)
-                        .weightInit(weightStrategy)
-                        .dist(distribution)
-                        .updater(updater)
                         .biasInit(1)
                         .build())
                 .layer(3, new SubsamplingLayer.Builder(SubsamplingLayer.PoolingType.MAX, new int[]{2, 2}, new int[]{2, 2})
                         .build())
                 .layer(4, new DenseLayer.Builder()
                         .nOut(120)
-                        .activation(activation)
-                        .weightInit(weightStrategy)
-                        .dist(distribution)
-                        .updater(updater)
                         .build())
                 .layer(5, new DenseLayer.Builder()
                         .nOut(84)
-                        .activation(activation)
-                        .weightInit(weightStrategy)
-                        .dist(distribution)
-                        .updater(updater)
                         .build())
-                .layer(6, new OutputLayer.Builder(LossFunctions.LossFunction.MSE)
+                .layer(6, new OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD)
                         .nOut(outputNum)
                         .activation("softmax") // radial basis function required
-                        .weightInit(weightStrategy)
-                        .dist(distribution)
-                        .updater(updater)
                         .build())
                 .backprop(true)
                 .pretrain(false);

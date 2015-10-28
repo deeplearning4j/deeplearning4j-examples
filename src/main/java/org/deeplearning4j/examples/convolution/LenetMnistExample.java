@@ -3,6 +3,7 @@ package org.deeplearning4j.examples.convolution;
 import org.deeplearning4j.datasets.iterator.impl.MnistDataSetIterator;
 import org.deeplearning4j.eval.Evaluation;
 import org.deeplearning4j.nn.api.OptimizationAlgorithm;
+import org.deeplearning4j.nn.conf.GradientNormalization;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
 import org.deeplearning4j.nn.conf.layers.ConvolutionLayer;
@@ -63,7 +64,8 @@ public class LenetMnistExample {
                 .seed(seed)
                 .batchSize(batchSize)
                 .iterations(iterations).useDropConnect(true)
-                .constrainGradientToUnitNorm(true).regularization(true)
+                .gradientNormalization(GradientNormalization.RenormalizeL2PerLayer)
+                .regularization(true)
                 .l2(2e-3)
                 .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
                 .list(6)

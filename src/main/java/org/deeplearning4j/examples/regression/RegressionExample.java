@@ -6,6 +6,7 @@ import org.canova.api.split.FileSplit;
 import org.deeplearning4j.datasets.canova.RecordReaderDataSetIterator;
 import org.deeplearning4j.datasets.iterator.DataSetIterator;
 import org.deeplearning4j.nn.api.OptimizationAlgorithm;
+import org.deeplearning4j.nn.conf.GradientNormalization;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
 import org.deeplearning4j.nn.conf.Updater;
@@ -33,7 +34,8 @@ public class RegressionExample {
                 .iterations(iterations) // # training iterations predict/classify & backprop
                 .learningRate(1e-3f) // Optimization step size
                 .optimizationAlgo(OptimizationAlgorithm.LBFGS) // Backprop method (calculate the gradients)
-                .constrainGradientToUnitNorm(true).l2(2e-4).regularization(true)
+                .gradientNormalization(GradientNormalization.RenormalizeL2PerLayer)
+                .l2(2e-4).regularization(true)
                 .list(1) // # NN layers (does not count input layer)
                 .layer(0, new OutputLayer.Builder(LossFunctions.LossFunction.MSE)
                                 .nIn(12) // # input nodes

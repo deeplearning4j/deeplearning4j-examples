@@ -11,6 +11,7 @@ import org.deeplearning4j.examples.convolution.sampleNetStructure.LeNet;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.optimize.api.IterationListener;
 import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
+import org.deeplearning4j.ui.weights.HistogramIterationListener;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.dataset.SplitTestAndTrain;
@@ -34,13 +35,13 @@ public class CNNImageNetExample {
 
     public static void main(String[] args) throws Exception {
         // libraries like Caffe scale to 256
-        final int numRows = 256;  // TODO should be 224 based on VGG and AlexNet original paper
-        final int numColumns = 256;
+        final int numRows = 120;  // TODO should be 224 based on VGG and AlexNet original paper
+        final int numColumns = 120;
         int nChannels = 3;
         int outputNum = 1860; // TODO currently testing 1 category but there are 1300 options
         int numBatches = 1; // TODO - total training amount for CSL is 1281167
-        int batchSize = 5;
-        int iterations = 3;
+        int batchSize = 30;
+        int iterations = 10;
         int seed = 123;
         int listenerFreq = 1;
         int splitTrainNum = (int) (batchSize*.5);
@@ -53,7 +54,7 @@ public class CNNImageNetExample {
         List<INDArray> testLabels = new ArrayList<>();
 
         String basePath = System.getProperty("user.home") + File.separator + "Documents" + File.separator + "skymind" + File.separator + "imagenet" + File.separator;
-        String dataPath = basePath + "dogs" + File.separator;
+        String dataPath = basePath + "dogs_resize" + File.separator;
         String labelPath = basePath + "cls-loc-labels.csv";
 
         //////////// TODO remove this when interface updated
@@ -87,10 +88,11 @@ public class CNNImageNetExample {
         DataSetIterator dataIter = new RecordReaderDataSetIterator(recordReader, batchSize, numRows*numColumns*nChannels, 1860);
 
         log.info("Build model....");
-//        MultiLayerNetwork model = new LeNet(numRows, numColumns, nChannels, outputNum, seed, iterations).init();
-        MultiLayerNetwork model = new AlexNet(numRows, numColumns, nChannels, outputNum, seed, iterations).init();
+        MultiLayerNetwork model = new LeNet(numRows, numColumns, nChannels, outputNum, seed, iterations).init();
+//        MultiLayerNetwork model = new AlexNet(numRows, numColumns, nChannels, outputNum, seed, iterations).init();
 //        MultiLayerNetwork model = new VGGNet(numRows, numColumns, nChannels, outputNum, seed, iterations).init();
 
+//        model.setListeners(Arrays.asList(new ScoreIterationListener(listenerFreq), new HistogramIterationListener(listenerFreq)));
         model.setListeners(Arrays.asList((IterationListener) new ScoreIterationListener(listenerFreq)));
 
         log.info("Train model....");
