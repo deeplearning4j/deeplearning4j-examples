@@ -93,9 +93,6 @@ public class MLPMnistSingleLayerExample {
             model.fit(trainInput);
         }
 
-        log.info("Evaluate weights....");
-
-
         log.info("Evaluate model....");
         Evaluation eval = new Evaluation(outputNum);
         for(int i = 0; i < testInput.size(); i++) {

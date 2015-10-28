@@ -80,7 +80,6 @@ public class CNNIrisExample {
                         .weightInit(WeightInit.XAVIER)
                         .activation("softmax")
                         .build())
-
                 .backprop(true).pretrain(false);
 
         new ConvolutionLayerSetup(builder,numRows,numColumns,nChannels);
