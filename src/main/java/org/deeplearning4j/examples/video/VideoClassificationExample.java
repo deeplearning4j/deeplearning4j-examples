@@ -18,33 +18,34 @@ import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
 import org.deeplearning4j.optimize.api.IterationListener;
 import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
-import org.deeplearning4j.ui.weights.HistogramIterationListener;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.dataset.api.DataSetPreProcessor;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 
 import java.io.File;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Example: Combine convolutional neural network layer and recurrent (LSTM) layer to classify
- * each frame of a video <p>
- * Specifically, each video contains a number of shapes (randomly selected: circles, squares, lines, arcs)
- * One of these shapes is a target shape that is present for multiple frames, though moves (straight line) between frames.
- * To make things more, difficult, each video frame contains, in addition to the target shape,
- * (a) background noise
- * (b) a number of 'distractor' shapes (which are present for one frame only)
- * the idea is that the classification problem is not possible to solve in isolation
- * (i.e., it's not possible to determine the target shape by looking at a single video frame)
- * <p>
+ * Example: Combine convolutional, max pooling, dense (feed forward) and recurrent (LSTM) layers to classify each
+ * frame of a video (using a generated/synthetic video data set)
+ * Specifically, each video contains a shape (randomly selected: circles, squares, lines, arcs) which persist for
+ * multiple frames (though move between frames) and may leave the frame. Each video contains multiple shapes which
+ * are shown for some random number of frames.
+ * The network needs to classify these shapes, even when the shape has left the frame.
+ *
+ * This example is somewhat contrived (and current version could be further tuned), but shows data import and network
+ * configuration for classifying video frames.
+ *
+ * Note that the data generation code does support the addition of background noise and distractor shapes (shapes which
+ * are shown for one frame only in addition to the target shape) but these are disabled by default. These can be enabled
+ * to increase the complexity of the learning task.
  * *******************************************************
  * WARNING: THIS EXAMPLE GENERATES A LARGE DATA SET
  * This examples does NOT automatically delete this data set after the example is complete.
  * *******************************************************
- *
  * @author Alex Black
  */
 public class VideoClassificationExample {
@@ -56,14 +57,13 @@ public class VideoClassificationExample {
 
     public static void main(String[] args) throws Exception {
 
-        int miniBatchSize = 5;
+        int miniBatchSize = 10;
         boolean generateData = true;
 
-//        String tempDir = System.getProperty("java.io.tmpdir");
-        String tempDir = "c:/Temp/";
-        String outputDirectory = tempDir + "DL4JVideoShapesExample/";
+        String tempDir = System.getProperty("java.io.tmpdir");
+        String outputDirectory = tempDir + "DL4JVideoShapesExample/";   //Location to store generated data set
 
-
+        //Generate data: number of .mp4 videos for input, plus .txt files for the labels
         if (generateData) {
             System.out.println("Starting data generation...");
             generateData(outputDirectory);
@@ -71,57 +71,72 @@ public class VideoClassificationExample {
         }
 
         //Set up network architecture:
+        Updater updater = Updater.RMSPROP;
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
                 .seed(12345)
                 .regularization(true).l2(0.001) //l2 regularization on all layers
                 .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
+                .momentum(0.9)
                 .iterations(1)
-                .learningRate(0.002)
+                .learningRate(0.001)
                 .rmsDecay(0.95)
-                .list(6)
+                .list(7)
                 .layer(0, new ConvolutionLayer.Builder(5, 5)
                         .nIn(3) //3 channels: RGB
                         .nOut(30)
                         .stride(3, 3)
                         .activation("relu")
                         .weightInit(WeightInit.XAVIER)
-                        .updater(Updater.RMSPROP)
+                        .updater(updater)
                         .build())   //Output: (128-5+0)/3+1 = 42 -> 42*42*30 = 52920
                 .layer(1, new SubsamplingLayer.Builder(SubsamplingLayer.PoolingType.MAX)
-                        .kernelSize(2,2)
-                        .stride(2,2).build())   //Output: 21x21x30 = 13230
-                .layer(2, new ConvolutionLayer.Builder(3,3)
+                        .kernelSize(2, 2)
+                        .stride(2, 2).build())   //Output: 21x21x30 = 13230
+                .layer(2, new ConvolutionLayer.Builder(3, 3)
                         .nIn(30)
                         .nOut(10)
                         .stride(1, 1)
                         .activation("relu")
                         .weightInit(WeightInit.XAVIER)
-                        .updater(Updater.RMSPROP)
+                        .updater(updater)
                         .build())   //Output: (21-3+0)/1+1 = 19 -> 19*19*10 = 3610
-                .layer(3, new DenseLayer.Builder()
+                .layer(3, new SubsamplingLayer.Builder(SubsamplingLayer.PoolingType.MAX)
+                        .kernelSize(3, 3)
+                        .stride(2, 2)
+                        .build())   //Output: (19-3)/2+1 = 9 -> 9x9x10 = 810
+                .layer(4, new DenseLayer.Builder()
                         .activation("relu")
-                        .nIn(3610)
-                        .nOut(100)
+                        .nIn(810)
+                        .nOut(50)
                         .weightInit(WeightInit.XAVIER)
-                        .updater(Updater.RMSPROP)
+                        .updater(updater)
+                        .gradientNormalization(GradientNormalization.ClipElementWiseAbsoluteValue)
+                        .gradientNormalizationThreshold(10)
+                        .learningRate(0.0005)
                         .build())
-                .layer(4, new GravesLSTM.Builder()
+                .layer(5, new GravesLSTM.Builder()
                         .activation("tanh")
-                        .nIn(100)
-                        .nOut(100)
+                        .nIn(50)
+                        .nOut(50)
                         .weightInit(WeightInit.XAVIER)
-                        .updater(Updater.RMSPROP)
+                        .updater(updater)
+                        .gradientNormalization(GradientNormalization.ClipElementWiseAbsoluteValue)
+                        .gradientNormalizationThreshold(10)
+                        .learningRate(0.0005)
                         .build())
-                .layer(5, new RnnOutputLayer.Builder(LossFunctions.LossFunction.MCXENT)
+                .layer(6, new RnnOutputLayer.Builder(LossFunctions.LossFunction.MCXENT)
                         .activation("softmax")
-                        .nIn(100)
+                        .nIn(50)
                         .nOut(4)    //4 possible shapes: circle, square, arc, line
-                        .updater(Updater.RMSPROP)
+                        .updater(updater)
                         .weightInit(WeightInit.XAVIER)
+                        .gradientNormalization(GradientNormalization.ClipElementWiseAbsoluteValue)
+                        .gradientNormalizationThreshold(10)
+                        .learningRate(0.001)
                         .build())
                 .inputPreProcessor(0, new RnnToCnnPreProcessor(V_HEIGHT, V_WIDTH, 3))
-                .inputPreProcessor(3, new CnnToFeedForwardPreProcessor(19, 19, 10))
-                .inputPreProcessor(4, new FeedForwardToRnnPreProcessor())
+                .inputPreProcessor(4, new CnnToFeedForwardPreProcessor(9, 9, 10))
+                .inputPreProcessor(5, new FeedForwardToRnnPreProcessor())
                 .pretrain(false).backprop(true)
                 .backpropType(BackpropType.TruncatedBPTT)
                 .tBPTTForwardLength(V_NFRAMES / 5)
@@ -130,9 +145,7 @@ public class VideoClassificationExample {
 
         MultiLayerNetwork net = new MultiLayerNetwork(conf);
         net.init();
-        net.setListeners(Arrays.asList((IterationListener) new ScoreIterationListener(1)));
-//        net.setListeners(Arrays.asList((IterationListener) new ScoreIterationListener(1),
-//                new HistogramIterationListener(1)));
+        net.setListeners(Collections.singletonList((IterationListener) new ScoreIterationListener(1)));
 
         System.out.println("Number of parameters in network: " + net.numParams());
         for( int i=0; i<net.getnLayers(); i++ ){
@@ -149,9 +162,6 @@ public class VideoClassificationExample {
         for (int i = 0; i < nTrainEpochs; i++) {
             //Use 80% of the generated videos to train, 20% to test
             DataSetIterator trainData = getDataSetIterator(outputDirectory, 0, nTrain - 1, miniBatchSize);
-//            DataSet ds = trainData.next();
-//            System.out.println(ds.getLabels());
-//            System.out.println(ds.getFeatureMatrix());
             net.fit(trainData);
             System.out.println("Epoch " + i + " complete");
         }
@@ -160,7 +170,7 @@ public class VideoClassificationExample {
         System.out.println("Starting evaluation:");
         DataSetIterator testData = getDataSetIterator(outputDirectory, testStartIdx, nTest, nTest);
         DataSet dsTest = testData.next();
-        INDArray predicted = net.activate(dsTest.getFeatureMatrix(), false);
+        INDArray predicted = net.output(dsTest.getFeatureMatrix(), false);
         INDArray actual = dsTest.getLabels();
 
         Map<Integer, String> labelMap = new HashMap<>();
@@ -184,7 +194,7 @@ public class VideoClassificationExample {
                 V_NFRAMES, V_WIDTH, V_HEIGHT,
                 3,      //Number of shapes per video. Switches from one shape to another over time
                 false,   //Background noise. Significantly increases video file size
-                3,      //Number of distractors per frame ('distractors' are shapes show for one frame only)
+                0,      //Number of distractors per frame ('distractors' are shapes show for one frame only)
                 12345L);    //Seed, for reproducability when generating data
 
     }
