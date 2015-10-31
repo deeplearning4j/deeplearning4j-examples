@@ -24,9 +24,7 @@ import org.nd4j.linalg.dataset.api.DataSetPreProcessor;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 
 import java.io.File;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Example: Combine convolutional, max pooling, dense (feed forward) and recurrent (LSTM) layers to classify each
@@ -61,32 +59,30 @@ public class VideoClassificationExample {
         boolean generateData = true;
 
         String tempDir = System.getProperty("java.io.tmpdir");
-        String outputDirectory = tempDir + "DL4JVideoShapesExample/";   //Location to store generated data set
+        String dataDirectory = tempDir + "DL4JVideoShapesExample/";   //Location to store generated data set
 
         //Generate data: number of .mp4 videos for input, plus .txt files for the labels
         if (generateData) {
             System.out.println("Starting data generation...");
-            generateData(outputDirectory);
+            generateData(dataDirectory);
             System.out.println("Data generation complete");
         }
 
         //Set up network architecture:
-        Updater updater = Updater.RMSPROP;
+        Updater updater = Updater.ADAGRAD;
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
                 .seed(12345)
                 .regularization(true).l2(0.001) //l2 regularization on all layers
                 .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
-                .momentum(0.9)
                 .iterations(1)
-                .learningRate(0.001)
-                .rmsDecay(0.95)
+                .learningRate(0.04)
                 .list(7)
                 .layer(0, new ConvolutionLayer.Builder(5, 5)
                         .nIn(3) //3 channels: RGB
                         .nOut(30)
                         .stride(3, 3)
                         .activation("relu")
-                        .weightInit(WeightInit.XAVIER)
+                        .weightInit(WeightInit.RELU)
                         .updater(updater)
                         .build())   //Output: (128-5+0)/3+1 = 42 -> 42*42*30 = 52920
                 .layer(1, new SubsamplingLayer.Builder(SubsamplingLayer.PoolingType.MAX)
@@ -97,7 +93,7 @@ public class VideoClassificationExample {
                         .nOut(10)
                         .stride(1, 1)
                         .activation("relu")
-                        .weightInit(WeightInit.XAVIER)
+                        .weightInit(WeightInit.RELU)
                         .updater(updater)
                         .build())   //Output: (21-3+0)/1+1 = 19 -> 19*19*10 = 3610
                 .layer(3, new SubsamplingLayer.Builder(SubsamplingLayer.PoolingType.MAX)
@@ -108,21 +104,21 @@ public class VideoClassificationExample {
                         .activation("relu")
                         .nIn(810)
                         .nOut(50)
-                        .weightInit(WeightInit.XAVIER)
+                        .weightInit(WeightInit.RELU)
                         .updater(updater)
                         .gradientNormalization(GradientNormalization.ClipElementWiseAbsoluteValue)
                         .gradientNormalizationThreshold(10)
-                        .learningRate(0.0005)
+                        .learningRate(0.01)
                         .build())
                 .layer(5, new GravesLSTM.Builder()
-                        .activation("tanh")
+                        .activation("softsign")
                         .nIn(50)
                         .nOut(50)
                         .weightInit(WeightInit.XAVIER)
                         .updater(updater)
                         .gradientNormalization(GradientNormalization.ClipElementWiseAbsoluteValue)
                         .gradientNormalizationThreshold(10)
-                        .learningRate(0.0005)
+                        .learningRate(0.008)
                         .build())
                 .layer(6, new RnnOutputLayer.Builder(LossFunctions.LossFunction.MCXENT)
                         .activation("softmax")
@@ -132,7 +128,6 @@ public class VideoClassificationExample {
                         .weightInit(WeightInit.XAVIER)
                         .gradientNormalization(GradientNormalization.ClipElementWiseAbsoluteValue)
                         .gradientNormalizationThreshold(10)
-                        .learningRate(0.001)
                         .build())
                 .inputPreProcessor(0, new RnnToCnnPreProcessor(V_HEIGHT, V_WIDTH, 3))
                 .inputPreProcessor(4, new CnnToFeedForwardPreProcessor(9, 9, 10))
@@ -146,44 +141,28 @@ public class VideoClassificationExample {
         MultiLayerNetwork net = new MultiLayerNetwork(conf);
         net.init();
         net.setListeners(Collections.singletonList((IterationListener) new ScoreIterationListener(1)));
+//        net.setListeners(Arrays.asList(new ScoreIterationListener(1), new HistogramIterationListener(1)));
 
         System.out.println("Number of parameters in network: " + net.numParams());
         for( int i=0; i<net.getnLayers(); i++ ){
             System.out.println("Layer " + i + " nParams = " + net.getLayer(i).numParams());
         }
 
-        int testStartIdx = (int) (0.8 * N_VIDEOS_TO_GENERATE);  //80% in train, 20% in test
+        int testStartIdx = (int) (0.9 * N_VIDEOS_TO_GENERATE);  //90% in train, 10% in test
         int nTrain = testStartIdx;
         int nTest = N_VIDEOS_TO_GENERATE - nTrain;
 
         //Conduct learning
         System.out.println("Starting training...");
-        int nTrainEpochs = 5;
+        int nTrainEpochs = 10;
         for (int i = 0; i < nTrainEpochs; i++) {
-            //Use 80% of the generated videos to train, 20% to test
-            DataSetIterator trainData = getDataSetIterator(outputDirectory, 0, nTrain - 1, miniBatchSize);
+            DataSetIterator trainData = getDataSetIterator(dataDirectory, 0, nTrain - 1, miniBatchSize);
             net.fit(trainData);
             System.out.println("Epoch " + i + " complete");
+
+            //Evaluate classification performance:
+            evaluatePerformance(net,testStartIdx,nTest,dataDirectory);
         }
-
-        //Evaluate the network's classification peformance:
-        System.out.println("Starting evaluation:");
-        DataSetIterator testData = getDataSetIterator(outputDirectory, testStartIdx, nTest, nTest);
-        DataSet dsTest = testData.next();
-        INDArray predicted = net.output(dsTest.getFeatureMatrix(), false);
-        INDArray actual = dsTest.getLabels();
-
-        Map<Integer, String> labelMap = new HashMap<>();
-        labelMap.put(0, "circle");
-        labelMap.put(1, "square");
-        labelMap.put(2, "arc");
-        labelMap.put(3, "line");
-
-        Evaluation evaluation = new Evaluation(labelMap);
-        evaluation.evalTimeSeries(actual, predicted);
-
-        System.out.println("Test set evaluation:");
-        System.out.println(evaluation.stats());
     }
 
     private static void generateData(String path) throws Exception {
@@ -196,7 +175,28 @@ public class VideoClassificationExample {
                 false,   //Background noise. Significantly increases video file size
                 0,      //Number of distractors per frame ('distractors' are shapes show for one frame only)
                 12345L);    //Seed, for reproducability when generating data
+    }
 
+    private static void evaluatePerformance(MultiLayerNetwork net, int testStartIdx, int nExamples, String outputDirectory) throws Exception {
+        //Assuming here that the full test data set doesn't fit in memory -> load 10 examples at a time
+        Map<Integer, String> labelMap = new HashMap<>();
+        labelMap.put(0, "circle");
+        labelMap.put(1, "square");
+        labelMap.put(2, "arc");
+        labelMap.put(3, "line");
+        Evaluation evaluation = new Evaluation(labelMap);
+
+        DataSetIterator testData = getDataSetIterator(outputDirectory, testStartIdx, nExamples, 10);
+        while(testData.hasNext()) {
+            DataSet dsTest = testData.next();
+            INDArray predicted = net.output(dsTest.getFeatureMatrix(), false);
+            INDArray actual = dsTest.getLabels();
+            System.out.print("*");
+            evaluation.evalTimeSeries(predicted,actual);
+            System.out.println(".");
+        }
+
+        System.out.println(evaluation.stats());
     }
 
     private static DataSetIterator getDataSetIterator(String dataDirectory, int startIdx, int nExamples, int miniBatchSize) throws Exception {

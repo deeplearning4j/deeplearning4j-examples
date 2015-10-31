@@ -28,6 +28,7 @@ public class VideoGenerator {
     public static final int LINE_STROKE_WIDTH = 6;  //Width of line (line shape only)
     public static final BasicStroke lineStroke = new BasicStroke(LINE_STROKE_WIDTH);
     public static final int MIN_FRAMES = 10;    //Minimum number of frames the target shape to be present
+    public static final float MAX_NOISE_VALUE = 0.5f;
 
     private static int[] generateVideo(String path, int nFrames, int width, int height, int numShapes, Random r,
                                       boolean backgroundNoise, int numDistractorsPerFrame) throws Exception {
@@ -78,7 +79,7 @@ public class VideoGenerator {
             if(backgroundNoise){
                 for( int x=0; x<width; x++ ){
                     for( int y=0; y<height; y++ ){
-                        bi.setRGB(x,y,new Color(r.nextFloat(),r.nextFloat(),r.nextFloat()).getRGB());
+                        bi.setRGB(x,y,new Color(r.nextFloat()*MAX_NOISE_VALUE,r.nextFloat()*MAX_NOISE_VALUE,r.nextFloat()*MAX_NOISE_VALUE).getRGB());
                     }
                 }
             }
