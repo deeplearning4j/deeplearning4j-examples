@@ -34,12 +34,8 @@ import java.util.*;
  * are shown for some random number of frames.
  * The network needs to classify these shapes, even when the shape has left the frame.
  *
- * This example is somewhat contrived (and current version could be further tuned), but shows data import and network
- * configuration for classifying video frames.
+ * This example is somewhat contrived, but shows data import and network configuration for classifying video frames.
  *
- * Note that the data generation code does support the addition of background noise and distractor shapes (shapes which
- * are shown for one frame only in addition to the target shape) but these are disabled by default. These can be enabled
- * to increase the complexity of the learning task.
  * *******************************************************
  * WARNING: THIS EXAMPLE GENERATES A LARGE DATA SET
  * This examples does NOT automatically delete this data set after the example is complete.
@@ -82,7 +78,7 @@ public class VideoClassificationExample {
                         .nOut(30)
                         .stride(3, 3)
                         .activation("relu")
-                        .weightInit(WeightInit.RELU)
+                        .weightInit(WeightInit.XAVIER)
                         .updater(updater)
                         .build())   //Output: (128-5+0)/3+1 = 42 -> 42*42*30 = 52920
                 .layer(1, new SubsamplingLayer.Builder(SubsamplingLayer.PoolingType.MAX)
@@ -93,7 +89,7 @@ public class VideoClassificationExample {
                         .nOut(10)
                         .stride(1, 1)
                         .activation("relu")
-                        .weightInit(WeightInit.RELU)
+                        .weightInit(WeightInit.XAVIER)
                         .updater(updater)
                         .build())   //Output: (21-3+0)/1+1 = 19 -> 19*19*10 = 3610
                 .layer(3, new SubsamplingLayer.Builder(SubsamplingLayer.PoolingType.MAX)
@@ -104,7 +100,7 @@ public class VideoClassificationExample {
                         .activation("relu")
                         .nIn(810)
                         .nOut(50)
-                        .weightInit(WeightInit.RELU)
+                        .weightInit(WeightInit.XAVIER)
                         .updater(updater)
                         .gradientNormalization(GradientNormalization.ClipElementWiseAbsoluteValue)
                         .gradientNormalizationThreshold(10)
@@ -169,9 +165,13 @@ public class VideoClassificationExample {
         File f = new File(path);
         if (!f.exists()) f.mkdir();
 
+        /** The data generation code does support the addition of background noise and distractor shapes (shapes which
+         * are shown for one frame only in addition to the target shape) but these are disabled by default.
+         * These can be enabled to increase the complexity of the learning task.
+         */
         VideoGenerator.generateVideoData(path, "shapes", N_VIDEOS_TO_GENERATE,
                 V_NFRAMES, V_WIDTH, V_HEIGHT,
-                3,      //Number of shapes per video. Switches from one shape to another over time
+                3,      //Number of shapes per video. Switches from one shape to another randomly over time
                 false,   //Background noise. Significantly increases video file size
                 0,      //Number of distractors per frame ('distractors' are shapes show for one frame only)
                 12345L);    //Seed, for reproducability when generating data
@@ -191,9 +191,7 @@ public class VideoClassificationExample {
             DataSet dsTest = testData.next();
             INDArray predicted = net.output(dsTest.getFeatureMatrix(), false);
             INDArray actual = dsTest.getLabels();
-            System.out.print("*");
-            evaluation.evalTimeSeries(predicted,actual);
-            System.out.println(".");
+            evaluation.evalTimeSeries(predicted, actual);
         }
 
         System.out.println(evaluation.stats());
