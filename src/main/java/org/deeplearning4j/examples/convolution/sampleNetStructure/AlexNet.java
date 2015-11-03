@@ -6,10 +6,7 @@ import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
 import org.deeplearning4j.nn.conf.Updater;
 import org.deeplearning4j.nn.conf.distribution.GaussianDistribution;
-import org.deeplearning4j.nn.conf.layers.ConvolutionLayer;
-import org.deeplearning4j.nn.conf.layers.DenseLayer;
-import org.deeplearning4j.nn.conf.layers.OutputLayer;
-import org.deeplearning4j.nn.conf.layers.SubsamplingLayer;
+import org.deeplearning4j.nn.conf.layers.*;
 import org.deeplearning4j.nn.conf.layers.setup.ConvolutionLayerSetup;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
@@ -57,65 +54,73 @@ public class AlexNet {
         SubsamplingLayer.PoolingType poolingType = SubsamplingLayer.PoolingType.MAX;
 
         // TODO split and link kernel maps on GPUs - 2nd, 4th, 5th convolution should only connect maps on the same gpu, 3rd connects to all in 2nd
-        // TODO add local response normalization after 1st, 2nd convolution and before max-pooling
         MultiLayerConfiguration.Builder conf = new NeuralNetConfiguration.Builder()
                 .seed(seed)
                 .weightInit(WeightInit.DISTRIBUTION)
                 .dist(new GaussianDistribution(0.0, 0.01))
                 .activation("relu")
-                .updater(Updater.NESTEROVS)
+                .updater(Updater.NESTEROVS
+
+                )
                 .iterations(iterations)
                 .gradientNormalization(GradientNormalization.RenormalizeL2PerLayer) // TODO confirm this is required
                 .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
                         // TODO add lr_mult & decay_mult for weights and biases separately apply 1 & 1 to weights and 2 & 0 to bias
                 .learningRate(1e-3)
                 .learningRateScoreBasedDecayRate(1e-1)
-                .l2(5 * 1e-4)
+//                .regularization(true) // TODO fix regularization true error
+//                .l2(5 * 1e-4)
                 .momentum(0.9)
-                .list(11)
+                .miniBatch(false)
+                .list(13)
                         //conv1
                 .layer(0, new ConvolutionLayer.Builder(new int[]{11, 11}, new int[]{4, 4}, new int[]{3, 3})
                         .nIn(channels)
                         .nOut(96)
                         .build())
-                .layer(1, new SubsamplingLayer.Builder(poolingType, new int[]{3, 3}, new int[]{2, 2})
+                .layer(1, new LocalResponseNormalization.Builder()
+                        .build())
+                .layer(2, new SubsamplingLayer.Builder(poolingType, new int[]{3, 3}, new int[]{2, 2})
                         .build())
                         //conv2
-                .layer(2, new ConvolutionLayer.Builder(new int[]{5, 5}, new int[]{1, 1}, new int[]{2, 2}) // TODO verrify stride
+                .layer(3, new ConvolutionLayer.Builder(new int[]{5, 5}, new int[]{1, 1}, new int[]{2, 2}) // TODO verrify stride
                         .nOut(256)
                         .biasInit(nonZeroBias)
                         .build())
-                .layer(3, new SubsamplingLayer.Builder(poolingType, new int[]{3, 3}, new int[]{2, 2})
+                .layer(4, new LocalResponseNormalization.Builder()
+                        .k(2).n(5).alpha(1e-4).beta(0.75)
+                        .build())
+                .layer(5, new SubsamplingLayer.Builder(poolingType, new int[]{3, 3}, new int[]{2, 2})
                         .build())
                         //conv3
-                .layer(4, new ConvolutionLayer.Builder(new int[]{3, 3}, new int[]{1, 1}, new int[]{1, 1})
+                .layer(6, new ConvolutionLayer.Builder(new int[]{3, 3}, new int[]{1, 1}, new int[]{1, 1})
                         .nOut(384)
                         .build())
                         //conv4
-                .layer(5, new ConvolutionLayer.Builder(new int[]{3, 3}, new int[]{1, 1}, new int[]{1, 1})
+                .layer(7, new ConvolutionLayer.Builder(new int[]{3, 3}, new int[]{1, 1}, new int[]{1, 1})
                         .nOut(384)
                         .biasInit(nonZeroBias)
                         .build())
                         //conv5
-                .layer(6, new ConvolutionLayer.Builder(new int[]{3, 3}, new int[]{1, 1}, new int[]{1, 1})
+                .layer(8, new ConvolutionLayer.Builder(new int[]{3, 3}, new int[]{1, 1}, new int[]{1, 1})
                         .nOut(256)
                         .biasInit(nonZeroBias)
                         .build())
-                .layer(7, new SubsamplingLayer.Builder(poolingType, new int[]{3, 3}, new int[]{2, 2})
+                .layer(9, new SubsamplingLayer.Builder(poolingType, new int[]{3, 3}, new int[]{2, 2})
                         .build())
-                .layer(8, new DenseLayer.Builder()
+                .layer(10, new DenseLayer.Builder()
                         .nOut(4096)
-//                        .dist(new GaussianDistribution(0, 0.005))
+                        .dist(new GaussianDistribution(0, 0.005))
                         .biasInit(nonZeroBias)
                         .dropOut(dropOut)
                         .build())
-                .layer(9, new DenseLayer.Builder()
+                .layer(11, new DenseLayer.Builder()
                         .nOut(4096)
-//                        .dist(new GaussianDistribution(0, 0.005))
+                        .dist(new GaussianDistribution(0, 0.005))
                         .biasInit(nonZeroBias)
                         .dropOut(dropOut)
                         .build())
-                .layer(10, new OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD)
+                .layer(12, new OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD)
                         .nOut(outputNum)
                         .activation("softmax")
                         .build())

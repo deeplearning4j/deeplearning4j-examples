@@ -47,7 +47,6 @@ public class LeNet {
                 .activation("sigmoid")
                 .weightInit(WeightInit.DISTRIBUTION)
                 .dist(new GaussianDistribution(0.0, 0.01))
-
 //                .learningRate(7*10e-5)
                 .learningRate(1e-3)
                 .learningRateScoreBasedDecayRate(1e-1)

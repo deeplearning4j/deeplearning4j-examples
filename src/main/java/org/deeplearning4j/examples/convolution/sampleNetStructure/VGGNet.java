@@ -45,7 +45,7 @@ public class VGGNet {
 
     // TODO pretrain with smaller net for first couple CNN layer weights or http://jmlr.org/proceedings/papers/v9/glorot10a/glorot10a.pdf
     public MultiLayerNetwork init() {
-            MultiLayerConfiguration.Builder conf = new NeuralNetConfiguration.Builder()
+        MultiLayerConfiguration.Builder conf = new NeuralNetConfiguration.Builder()
                 .seed(seed)
                 .activation("relu")
                 .updater(Updater.NESTEROVS)
@@ -53,7 +53,8 @@ public class VGGNet {
                 .dist(new GaussianDistribution(0.0, 0.01))
                 .iterations(iterations)
                 .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
-                .learningRate(1e-4) // TODO start at 10^-2 and decrease by factor of 10 when validation set accuracy stops improving
+                .learningRate(1e-1)
+                .learningRateScoreBasedDecayRate(1e-1)
                 .regularization(true)
                 .l2(5 * 1e-4)
                 .momentum(0.9)
