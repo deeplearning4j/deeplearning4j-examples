@@ -1,6 +1,7 @@
 package org.deeplearning4j.examples.convolution;
 
 import org.deeplearning4j.nn.api.OptimizationAlgorithm;
+import org.deeplearning4j.nn.conf.GradientNormalization;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
 import org.deeplearning4j.nn.conf.layers.ConvolutionLayer;
@@ -40,7 +41,8 @@ public class Cifar {
                 .batchSize(batchSize)
                 .iterations(iterations).regularization(true)
                 .l1(1e-1).l2(2e-4).useDropConnect(true)
-                .constrainGradientToUnitNorm(true).miniBatch(true)
+                .gradientNormalization(GradientNormalization.RenormalizeL2PerLayer) // TODO confirm this is required
+                .miniBatch(true)
                 .optimizationAlgo(OptimizationAlgorithm.CONJUGATE_GRADIENT)
                 .list(6)
                 .layer(0, new ConvolutionLayer.Builder(5, 5)
