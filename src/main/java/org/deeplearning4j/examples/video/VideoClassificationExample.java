@@ -45,8 +45,8 @@ import java.util.*;
 public class VideoClassificationExample {
 
     public static final int N_VIDEOS_TO_GENERATE = 500;
-    public static final int V_WIDTH = 128;
-    public static final int V_HEIGHT = 128;
+    public static final int V_WIDTH = 130;
+    public static final int V_HEIGHT = 130;
     public static final int V_NFRAMES = 150;
 
     public static void main(String[] args) throws Exception {
@@ -72,33 +72,29 @@ public class VideoClassificationExample {
                 .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
                 .iterations(1)
                 .learningRate(0.04)
-                .list(7)
-                .layer(0, new ConvolutionLayer.Builder(5, 5)
+                .list(6)
+                .layer(0, new ConvolutionLayer.Builder(10, 10)
                         .nIn(3) //3 channels: RGB
                         .nOut(30)
-                        .stride(3, 3)
+                        .stride(4, 4)
                         .activation("relu")
                         .weightInit(WeightInit.XAVIER)
                         .updater(updater)
-                        .build())   //Output: (128-5+0)/3+1 = 42 -> 42*42*30 = 52920
+                        .build())   //Output: (130-10+0)/4+1 = 31 -> 31*31*30
                 .layer(1, new SubsamplingLayer.Builder(SubsamplingLayer.PoolingType.MAX)
-                        .kernelSize(2, 2)
-                        .stride(2, 2).build())   //Output: 21x21x30 = 13230
+                        .kernelSize(3, 3)
+                        .stride(2, 2).build())   //(31-3+0)/2+1 = 15
                 .layer(2, new ConvolutionLayer.Builder(3, 3)
                         .nIn(30)
                         .nOut(10)
-                        .stride(1, 1)
+                        .stride(2, 2)
                         .activation("relu")
                         .weightInit(WeightInit.XAVIER)
                         .updater(updater)
-                        .build())   //Output: (21-3+0)/1+1 = 19 -> 19*19*10 = 3610
-                .layer(3, new SubsamplingLayer.Builder(SubsamplingLayer.PoolingType.MAX)
-                        .kernelSize(3, 3)
-                        .stride(2, 2)
-                        .build())   //Output: (19-3)/2+1 = 9 -> 9x9x10 = 810
-                .layer(4, new DenseLayer.Builder()
+                        .build())   //Output: (15-3+0)/2+1 = 7 -> 7*7*10 = 490
+                .layer(3, new DenseLayer.Builder()
                         .activation("relu")
-                        .nIn(810)
+                        .nIn(490)
                         .nOut(50)
                         .weightInit(WeightInit.XAVIER)
                         .updater(updater)
@@ -106,7 +102,7 @@ public class VideoClassificationExample {
                         .gradientNormalizationThreshold(10)
                         .learningRate(0.01)
                         .build())
-                .layer(5, new GravesLSTM.Builder()
+                .layer(4, new GravesLSTM.Builder()
                         .activation("softsign")
                         .nIn(50)
                         .nOut(50)
@@ -116,7 +112,7 @@ public class VideoClassificationExample {
                         .gradientNormalizationThreshold(10)
                         .learningRate(0.008)
                         .build())
-                .layer(6, new RnnOutputLayer.Builder(LossFunctions.LossFunction.MCXENT)
+                .layer(5, new RnnOutputLayer.Builder(LossFunctions.LossFunction.MCXENT)
                         .activation("softmax")
                         .nIn(50)
                         .nOut(4)    //4 possible shapes: circle, square, arc, line
@@ -126,8 +122,8 @@ public class VideoClassificationExample {
                         .gradientNormalizationThreshold(10)
                         .build())
                 .inputPreProcessor(0, new RnnToCnnPreProcessor(V_HEIGHT, V_WIDTH, 3))
-                .inputPreProcessor(4, new CnnToFeedForwardPreProcessor(9, 9, 10))
-                .inputPreProcessor(5, new FeedForwardToRnnPreProcessor())
+                .inputPreProcessor(3, new CnnToFeedForwardPreProcessor(7, 7, 10))
+                .inputPreProcessor(4, new FeedForwardToRnnPreProcessor())
                 .pretrain(false).backprop(true)
                 .backpropType(BackpropType.TruncatedBPTT)
                 .tBPTTForwardLength(V_NFRAMES / 5)
@@ -150,7 +146,7 @@ public class VideoClassificationExample {
 
         //Conduct learning
         System.out.println("Starting training...");
-        int nTrainEpochs = 10;
+        int nTrainEpochs = 15;
         for (int i = 0; i < nTrainEpochs; i++) {
             DataSetIterator trainData = getDataSetIterator(dataDirectory, 0, nTrain - 1, miniBatchSize);
             net.fit(trainData);
