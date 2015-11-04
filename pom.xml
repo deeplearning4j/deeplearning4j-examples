@@ -8,11 +8,10 @@
     <name>DeepLearning4j Examples</name>
     <description>Examples of training different data sets</description>
     <properties>
-        <nd4j.version>0.4-rc3.6-SNAPSHOT</nd4j.version>
-        <dl4j.version>0.4-rc4.4-SNAPSHOT</dl4j.version>
-        <canova.version>0.0.0.12-SNAPSHOT</canova.version>
+        <nd4j.version>0.4-rc3.6</nd4j.version>
+        <dl4j.version>	0.4-rc3.6 </dl4j.version>
+        <canova.version>0.0.0.12</canova.version>
         <jackson.version>2.5.1</jackson.version>
-
     </properties>
 
 
@@ -43,7 +42,6 @@
             <groupId>org.deeplearning4j</groupId>
             <artifactId>deeplearning4j-nlp</artifactId>
             <version>${dl4j.version}</version>
-
         </dependency>
 
         <dependency>
@@ -63,6 +61,11 @@
         </dependency>
         <dependency>
             <artifactId>canova-nd4j-image</artifactId>
+            <groupId>org.nd4j</groupId>
+            <version>${canova.version}</version>
+        </dependency>
+        <dependency>
+            <artifactId>canova-nd4j-codec</artifactId>
             <groupId>org.nd4j</groupId>
             <version>${canova.version}</version>
         </dependency>
