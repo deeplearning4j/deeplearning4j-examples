@@ -68,8 +68,8 @@ public class AlexNet {
                         // TODO add lr_mult & decay_mult for weights and biases separately apply 1 & 1 to weights and 2 & 0 to bias
                 .learningRate(1e-3)
                 .learningRateScoreBasedDecayRate(1e-1)
-//                .regularization(true) // TODO fix regularization true error
-//                .l2(5 * 1e-4)
+                .regularization(true)
+                .l2(5 * 1e-4)
                 .momentum(0.9)
                 .miniBatch(false)
                 .list(13)

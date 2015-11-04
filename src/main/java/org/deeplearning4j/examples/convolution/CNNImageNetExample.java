@@ -4,10 +4,13 @@ import org.canova.api.records.reader.RecordReader;
 import org.canova.api.split.FileSplit;
 import org.canova.image.recordreader.ImageNetRecordReader;
 import org.deeplearning4j.datasets.canova.RecordReaderDataSetIterator;
+import org.deeplearning4j.datasets.iterator.AsyncDataSetIterator;
 import org.deeplearning4j.datasets.iterator.DataSetIterator;
+import org.deeplearning4j.datasets.iterator.SamplingDataSetIterator;
 import org.deeplearning4j.eval.Evaluation;
 import org.deeplearning4j.examples.convolution.sampleNetStructure.AlexNet;
 import org.deeplearning4j.examples.convolution.sampleNetStructure.LeNet;
+import org.deeplearning4j.examples.convolution.sampleNetStructure.VGGNet;
 import org.deeplearning4j.gradientcheck.GradientCheckUtil;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.optimize.api.IterationListener;
@@ -36,70 +39,53 @@ public class CNNImageNetExample {
     private static final Logger log = LoggerFactory.getLogger(CNNImageNetExample.class);
 
     public static void main(String[] args) throws Exception {
-        // libraries like Caffe scale to 256
+        // libraries like Caffe scale to 256?
         final int numRows = 120;  // TODO should be 224 based on VGG and AlexNet original paper
         final int numColumns = 120;
         int nChannels = 3;
         int outputNum = 1860; // TODO currently testing 1 category but there are 1300 options
-        int numBatches = 1; // TODO - total training amount for CSL is 1281167
-        int batchSize = 60;
+        int numBatches = 2; // TODO - total training amount for CSL is 1281167
+        int batchSize = 10;
         int iterations = 5;
         int seed = 123;
         int listenerFreq = 1;
-        int splitTrainNum = (int) (batchSize*.5);
+        int splitTrainNum = (int) (batchSize * .9);
+        MultiLayerNetwork model = null;
+        String modelType = "LeNet";
         boolean gradientCheck = false;
         boolean train = true;
-
-//        Collection<Writable> imNet;
-        SplitTestAndTrain trainTest;
-        DataSet trainInput;
+        DataSetIterator dataIter;
+        AsyncDataSetIterator asyncIter;
         DataSet imgNet;
-        List<INDArray> testInput = new ArrayList<>();
-        List<INDArray> testLabels = new ArrayList<>();
 
         String basePath = System.getProperty("user.home") + File.separator + "Documents" + File.separator + "skymind" + File.separator + "imagenet" + File.separator;
         String dataPath = basePath + "dogs_resize" + File.separator;
         String labelPath = basePath + "cls-loc-labels.csv";
 
-        //////////// TODO remove this when interface updated
-
-        Map<String,String> labelIdMap = new LinkedHashMap<>();
-
-        BufferedReader br = new BufferedReader(new FileReader(labelPath));
-        String line;
-
-        while((line = br.readLine())!=null){
-            String row[] = line.split(",");
-            labelIdMap.put(row[0], row[1]);
-        }
-        List<String> labels = new ArrayList<>(labelIdMap.values());
-
-        Map<Integer,String> testLabelMap = new LinkedHashMap<>();
-
-        int j = 0;
-        for (String label : labels){
-            testLabelMap.put(j, label);
-            j++;
-        }
-
-        ////////////
-
         log.info("Load data....");
         RecordReader recordReader = new ImageNetRecordReader(numColumns, numRows, nChannels, true, labelPath);
         recordReader.initialize(new FileSplit(new File(dataPath)));
-        DataSetIterator dataIter = new RecordReaderDataSetIterator(recordReader, batchSize, numRows*numColumns*nChannels, 1860);
+        dataIter = new RecordReaderDataSetIterator(recordReader, batchSize, numRows * numColumns * nChannels, 1860);
+        Evaluation eval = new Evaluation(recordReader.getLabelsMap()); //TODO pass in different labels on each iteration
 
         log.info("Build model....");
-//        MultiLayerNetwork model = new LeNet(numRows, numColumns, nChannels, outputNum, seed, iterations).init();
-        MultiLayerNetwork model = new AlexNet(numRows, numColumns, nChannels, outputNum, seed, iterations).init();
-//        MultiLayerNetwork model = new VGGNet(numRows, numColumns, nChannels, outputNum, seed, iterations).init();
+        switch (modelType) {
+            case "LeNet":
+                model = new LeNet(numRows, numColumns, nChannels, outputNum, seed, iterations).init();
+                break;
+            case "AlexNet":
+                model = new AlexNet(numRows, numColumns, nChannels, outputNum, seed, iterations).init();
+                break;
+            case "VGGNet":
+                model = new VGGNet(numRows, numColumns, nChannels, outputNum, seed, iterations).init();
+                break;
+        }
 
 //        model.setListeners(Arrays.asList(new ScoreIterationListener(listenerFreq), new HistogramIterationListener(listenerFreq)));
         model.setListeners(Arrays.asList((IterationListener) new ScoreIterationListener(listenerFreq)));
 
-
-        log.info("Gradient Check....");
-        if(gradientCheck) {
+        if (gradientCheck) {
+            log.info("Gradient Check....");
 
             imgNet = dataIter.next();
             String name = new Object() {
@@ -109,13 +95,13 @@ public class CNNImageNetExample {
             model.setLabels(imgNet.getLabels());
             model.computeGradientAndScore();
             double scoreBefore = model.score();
-            for (j = 0; j < 1; j++)
+            for (int j = 0; j < 1; j++)
                 model.fit(imgNet);
             model.computeGradientAndScore();
             double scoreAfter = model.score();
 //            String msg = name + " - score did not (sufficiently) decrease during learning (before=" + scoreBefore + ", scoreAfter=" + scoreAfter + ")";
 //            assertTrue(msg, scoreAfter < 0.8 * scoreBefore);
-            for (j = 0; j < model.getnLayers(); j++)
+            for (int j = 0; j < model.getnLayers(); j++)
                 System.out.println("Layer " + j + " # params: " + model.getLayer(j).numParams());
 
             double default_eps = 1e-6;
@@ -130,32 +116,63 @@ public class CNNImageNetExample {
             assertTrue(gradOK);
         }
 
+        if (train) {
+            log.info("Train model....");
 
-        log.info("Train model....");
-        if(train) {
-        for(int i = 0; i < numBatches; i++) {
+            int nTrainEpochs = 5;
+            for (int i = 0; i < nTrainEpochs; i++) {
+                //TODO need dataIter that loops through set number of examples like SamplingIter but takes iter vs dataset
+                dataIter = new RecordReaderDataSetIterator(recordReader, batchSize, numRows * numColumns * nChannels, 1860);
+//                asyncIter = new AsyncDataSetIterator(dataIter, 1); TODO doesn't have next(num)
+                for (int j = 0; j < numBatches; j++)
+                    model.fit(dataIter.next(batchSize*splitTrainNum));
+                System.out.println("Epoch " + i + " complete");
 
-            imgNet = dataIter.next();
-            imgNet.normalizeZeroMeanZeroUnitVariance();
-            trainTest = imgNet.splitTestAndTrain(splitTrainNum, new Random(seed)); // train set that is the result
-            trainInput = trainTest.getTrain(); // get feature matrix and labels for training
-            testInput.add(trainTest.getTest().getFeatureMatrix());
-            testLabels.add(trainTest.getTest().getLabels());
-            model.fit(trainInput);
+                //Evaluate classification performance:
+                eval = evaluatePerformance(model, dataIter, batchSize*(1-splitTrainNum), numBatches, eval);
+            }
+
+            //        SplitTestAndTrain trainTest;
+//        DataSet trainInput;
+//        List<INDArray> testInput = new ArrayList<>();
+//        List<INDArray> testLabels = new ArrayList<>();
+//        Map<Integer, String> testLabelMap = new LinkedHashMap<>();
+
+            // Small sample run - can't scale too far
+//            for(int i = 0; i < numBatches; i++) {
+//                imgNet = dataIter.next();
+//                imgNet.normalizeZeroMeanZeroUnitVariance();
+//                trainTest = imgNet.splitTestAndTrain(splitTrainNum, new Random(seed)); // train set that is the result
+//                trainInput = trainTest.getTrain(); // get feature matrix and labels for training
+//                testInput.add(trainTest.getTest().getFeatureMatrix());
+//                testLabels.add(trainTest.getTest().getLabels());
+//                model.fit(trainInput);
+//            }
+            // Small test setup
+//            Evaluation eval = new Evaluation(dataIter.labelMap());
+//            for(int i = 0; i < testInput.size(); i++) {
+//                INDArray output = model.output(testInput.get(i));
+//                eval.eval(testLabels.get(i), output);
+//            }
+
+            log.info(eval.stats());
+
+            log.info("****************Example finished********************");
         }
+    }
 
+    private static Evaluation evaluatePerformance(MultiLayerNetwork model, DataSetIterator iter, int numExamples, int numBatches, Evaluation eval){
         log.info("Evaluate model....");
-        Evaluation eval = new Evaluation(testLabelMap);
+        DataSet imgNet;
+        INDArray output;
 
-        for(int i = 0; i < testInput.size(); i++) {
-            INDArray output = model.output(testInput.get(i));
-            eval.eval(testLabels.get(i), output);
+        //TODO setup iterator to randomize and split test and train
+        for(int i=0; i < numBatches; i++){
+            imgNet = iter.next();
+            output = model.output(imgNet.getFeatureMatrix());
+            eval.eval(imgNet.getLabels(), output);
         }
-
-        log.info(eval.stats());
-        }
-        log.info("****************Example finished********************");
-
+        return eval;
     }
 
 }
