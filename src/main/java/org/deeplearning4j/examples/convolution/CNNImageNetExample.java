@@ -1,5 +1,6 @@
 package org.deeplearning4j.examples.convolution;
 
+import org.apache.commons.io.FileUtils;
 import org.canova.api.records.reader.RecordReader;
 import org.canova.api.split.FileSplit;
 import org.canova.image.recordreader.ImageNetRecordReader;
@@ -14,6 +15,7 @@ import org.deeplearning4j.examples.convolution.sampleNetStructure.VGGNet;
 import org.deeplearning4j.gradientcheck.GradientCheckUtil;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.optimize.api.IterationListener;
+import org.deeplearning4j.ui.weights.HistogramIterationListener;
 import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
@@ -22,7 +24,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
+import java.nio.file.FileVisitOption;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
+import java.util.stream.Stream;
 
 import static org.junit.Assert.assertTrue;
 
@@ -40,13 +47,14 @@ public class CNNImageNetExample {
 
     public static void main(String[] args) throws Exception {
         // libraries like Caffe scale to 256?
-        final int numRows = 120;  // TODO should be 224 based on VGG and AlexNet original paper
-        final int numColumns = 120;
+        final int numRows = 224;  // TODO should be 224 based on VGG and AlexNet original paper
+        final int numColumns = 224;
         int nChannels = 3;
-        int outputNum = 1860; // TODO currently testing 1 category but there are 1300 options
-        int numBatches = 2; // TODO - total training amount for CSL is 1281167
-        int batchSize = 10;
+        int outputNum = 1860;
+        int numBatches = 1; // TODO - total training amount for CSL is 1281167
+        int batchSize = 20;
         int iterations = 5;
+        int nTrainEpochs = 1;
         int seed = 123;
         int listenerFreq = 1;
         int splitTrainNum = (int) (batchSize * .9);
@@ -56,17 +64,42 @@ public class CNNImageNetExample {
         boolean train = true;
         DataSetIterator dataIter;
         AsyncDataSetIterator asyncIter;
-        DataSet imgNet;
 
         String basePath = System.getProperty("user.home") + File.separator + "Documents" + File.separator + "skymind" + File.separator + "imagenet" + File.separator;
-        String dataPath = basePath + "dogs_resize" + File.separator;
+        String dataPath = basePath + "sample-pics" + File.separator;
         String labelPath = basePath + "cls-loc-labels.csv";
+
+        List<File> someFiles = new ArrayList<>();
+        Random rnd = new Random();
+        rnd.setSeed(seed);
+        boolean val;
+
+        File fileBase = new File(dataPath);
+        final List<String> allForm = Arrays.asList("jpg", "jpeg", "JPG", "JPEG");
+        File[] paths = fileBase.listFiles(new FileFilter() {
+            @Override
+            public boolean accept(File pathname) {
+                if (pathname.toString().endsWith("jpeg") || pathname.toString().endsWith("JPEG")) {
+                    return true;
+                }
+                return false;
+            }
+        });
+// TODO need to recursively loop through dir - haven't found a method yet that does this
+        for(File p: paths) {
+            System.out.println(p.getName());
+            if(rnd.nextBoolean())
+                someFiles.add(new File(p.getPath()));
+        }
+
+
 
         log.info("Load data....");
         RecordReader recordReader = new ImageNetRecordReader(numColumns, numRows, nChannels, true, labelPath);
-        recordReader.initialize(new FileSplit(new File(dataPath)));
+//        recordReader.initialize(new FileSplit(new File(dataPath)));
+        recordReader.initialize(dataPath, seed, numBatches*splitTrainNum);
         dataIter = new RecordReaderDataSetIterator(recordReader, batchSize, numRows * numColumns * nChannels, 1860);
-        Evaluation eval = new Evaluation(recordReader.getLabelsMap()); //TODO pass in different labels on each iteration
+        Evaluation eval = new Evaluation(recordReader.getLabels());
 
         log.info("Build model....");
         switch (modelType) {
@@ -84,42 +117,12 @@ public class CNNImageNetExample {
 //        model.setListeners(Arrays.asList(new ScoreIterationListener(listenerFreq), new HistogramIterationListener(listenerFreq)));
         model.setListeners(Arrays.asList((IterationListener) new ScoreIterationListener(listenerFreq)));
 
-        if (gradientCheck) {
-            log.info("Gradient Check....");
+        if (gradientCheck) gradientCheck(dataIter, model);
 
-            imgNet = dataIter.next();
-            String name = new Object() {
-            }.getClass().getEnclosingMethod().getName();
-
-            model.setInput(imgNet.getFeatures());
-            model.setLabels(imgNet.getLabels());
-            model.computeGradientAndScore();
-            double scoreBefore = model.score();
-            for (int j = 0; j < 1; j++)
-                model.fit(imgNet);
-            model.computeGradientAndScore();
-            double scoreAfter = model.score();
-//            String msg = name + " - score did not (sufficiently) decrease during learning (before=" + scoreBefore + ", scoreAfter=" + scoreAfter + ")";
-//            assertTrue(msg, scoreAfter < 0.8 * scoreBefore);
-            for (int j = 0; j < model.getnLayers(); j++)
-                System.out.println("Layer " + j + " # params: " + model.getLayer(j).numParams());
-
-            double default_eps = 1e-6;
-            double default_max_rel_error = 0.25;
-            boolean print_results = true;
-            boolean return_on_first_failure = false;
-            boolean useUpdater = true;
-
-            boolean gradOK = GradientCheckUtil.checkGradients(model, default_eps, default_max_rel_error,
-                    print_results, return_on_first_failure, imgNet.getFeatures(), imgNet.getLabels(), useUpdater);
-
-            assertTrue(gradOK);
-        }
 
         if (train) {
             log.info("Train model....");
 
-            int nTrainEpochs = 5;
             for (int i = 0; i < nTrainEpochs; i++) {
                 //TODO need dataIter that loops through set number of examples like SamplingIter but takes iter vs dataset
                 dataIter = new RecordReaderDataSetIterator(recordReader, batchSize, numRows * numColumns * nChannels, 1860);
@@ -159,6 +162,41 @@ public class CNNImageNetExample {
 
             log.info("****************Example finished********************");
         }
+    }
+
+
+    private static void gradientCheck(DataSetIterator dataIter, MultiLayerNetwork model){
+        DataSet imgNet;
+        log.info("Gradient Check....");
+
+        imgNet = dataIter.next();
+        String name = new Object() {
+        }.getClass().getEnclosingMethod().getName();
+
+        model.setInput(imgNet.getFeatures());
+        model.setLabels(imgNet.getLabels());
+        model.computeGradientAndScore();
+        double scoreBefore = model.score();
+        for (int j = 0; j < 1; j++)
+            model.fit(imgNet);
+        model.computeGradientAndScore();
+        double scoreAfter = model.score();
+//            String msg = name + " - score did not (sufficiently) decrease during learning (before=" + scoreBefore + ", scoreAfter=" + scoreAfter + ")";
+//            assertTrue(msg, scoreAfter < 0.8 * scoreBefore);
+        for (int j = 0; j < model.getnLayers(); j++)
+            System.out.println("Layer " + j + " # params: " + model.getLayer(j).numParams());
+
+        double default_eps = 1e-6;
+        double default_max_rel_error = 0.25;
+        boolean print_results = true;
+        boolean return_on_first_failure = false;
+        boolean useUpdater = true;
+
+        boolean gradOK = GradientCheckUtil.checkGradients(model, default_eps, default_max_rel_error,
+                print_results, return_on_first_failure, imgNet.getFeatures(), imgNet.getLabels(), useUpdater);
+
+        assertTrue(gradOK);
+
     }
 
     private static Evaluation evaluatePerformance(MultiLayerNetwork model, DataSetIterator iter, int numExamples, int numBatches, Evaluation eval){
