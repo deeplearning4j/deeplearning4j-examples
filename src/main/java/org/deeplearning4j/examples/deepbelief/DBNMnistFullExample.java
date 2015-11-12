@@ -46,7 +46,7 @@ public class DBNMnistFullExample {
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
                                            .seed(seed)
                                            .gradientNormalization(GradientNormalization.ClipElementWiseAbsoluteValue)
-                                           //.constrainGradientToUnitNorm(true)
+                                           .gradientNormalizationThreshold(1.0)
                                            .iterations(iterations)
                                            .momentum(0.5)
                                            .momentumAfter(Collections.singletonMap(3, 0.9))
