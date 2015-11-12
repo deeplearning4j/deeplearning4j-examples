@@ -17,11 +17,13 @@ import org.deeplearning4j.examples.convolution.sampleNetStructure.VGGNet;
 import org.deeplearning4j.gradientcheck.GradientCheckUtil;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.optimize.api.IterationListener;
+import org.deeplearning4j.optimize.listeners.ParamAndGradientIterationListener;
 import org.deeplearning4j.ui.weights.HistogramIterationListener;
 import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.dataset.SplitTestAndTrain;
+import org.nd4j.linalg.dataset.api.iterator.MultipleEpochsIterator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,10 +56,10 @@ public class CNNImageNetExample {
         final int numColumns = 224;
         int nChannels = 3;
         int outputNum = 1860;
-        int numBatches = 5; // TODO - total training amount for CSL is 1281167
-        int batchSize = 20;
-        int iterations = 1;
-        int numTrainEpochs = 5;
+        int numBatches = 1; // TODO - total training amount for CSL is 1281167
+        int batchSize = 6;
+        int iterations = 2;
+        int numTrainEpochs = 2;
         int seed = 123;
         int listenerFreq = 1;
         MultiLayerNetwork model = null;
@@ -94,25 +96,46 @@ public class CNNImageNetExample {
                 break;
         }
 
+        IterationListener paramListener = ParamAndGradientIterationListener.builder()
+                .outputToFile(true)
+                .file(new File(System.getProperty("java.io.tmpdir") + "/paramAndGradTest.txt"))
+                .outputToConsole(true).outputToLogger(false)
+                .iterations(1).printHeader(true)
+                .printMean(false)
+                .printMinMax(false)
+                .printMeanAbsValue(true)
+                .delimiter("\t").build();
+
 //        model.setListeners(Arrays.asList(new ScoreIterationListener(listenerFreq), new HistogramIterationListener(listenerFreq)));
-        model.setListeners(Arrays.asList((IterationListener) new ScoreIterationListener(listenerFreq)));
+        model.setListeners(Arrays.asList(new ScoreIterationListener(listenerFreq), paramListener));
 
         if (gradientCheck) gradientCheck(dataIter, model);
         
         if (train) {
             log.info("Train model....");
 
+            // TODO split out eval for its own dataset
+            dataIter = new RecordReaderDataSetIterator(recordReader, batchSize, numRows * numColumns * nChannels, 1860);
+            MultipleEpochsIterator epochIter = new MultipleEpochsIterator(numTrainEpochs, dataIter);
+            
             for (int i = 0; i < numTrainEpochs; i++) {
-                //TODO need dataIter that loops through set number of examples like SamplingIter but takes iter vs dataset
-                dataIter = new RecordReaderDataSetIterator(recordReader, batchSize, numRows * numColumns * nChannels, 1860);
-//                asyncIter = new AsyncDataSetIterator(dataIter, 1); TODO doesn't have next(num)
                 for (int j = 0; j < numBatches; j++)
-                    model.fit(dataIter.next(splitTrainNum));
-                System.out.println("Epoch " + i + " complete");
-
-                //Evaluate classification performance:
-                eval = evaluatePerformance(model, dataIter, numTestExamples, numBatches, eval);
+                    model.fit(epochIter.next(splitTrainNum));
+                eval = evaluatePerformance(model, epochIter, numTestExamples, numBatches, eval);
             }
+
+//                //TODO need dataIter that loops through set number of examples like SamplingIter but takes iter vs dataset
+//                dataIter = new RecordReaderDataSetIterator(recordReader, batchSize, numRows * numColumns * nChannels, 1860);
+////                asyncIter = new AsyncDataSetIterator(dataIter, 1); TODO doesn't have next(num)
+
+//            for (int i = 0; i < numTrainEpochs; i++) {
+//                for (int j = 0; j < numBatches; j++)
+//                    model.fit(dataIter.next(splitTrainNum));
+//                System.out.println("Epoch " + i + " complete");
+
+//                //Evaluate classification performance:
+//                eval = evaluatePerformance(model, dataIter, numTestExamples, numBatches, eval);
+//            }
             log.info(eval.stats());
 
             log.info("****************Example finished********************");
@@ -120,7 +143,7 @@ public class CNNImageNetExample {
     }
 
 
-    private static Evaluation evaluatePerformance(MultiLayerNetwork model, DataSetIterator iter, int numExamples, int numBatches, Evaluation eval){
+    private static Evaluation evaluatePerformance(MultiLayerNetwork model, MultipleEpochsIterator iter, int numExamples, int numBatches, Evaluation eval){
         log.info("Evaluate model....");
         DataSet imgNet;
         INDArray output;
