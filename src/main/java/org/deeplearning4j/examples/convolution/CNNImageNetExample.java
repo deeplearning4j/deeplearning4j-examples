@@ -1,14 +1,12 @@
 package org.deeplearning4j.examples.convolution;
 
-import com.google.common.io.LimitInputStream;
-import org.apache.commons.io.FileUtils;
 import org.canova.api.records.reader.RecordReader;
-import org.canova.api.split.FileSplit;
 import org.canova.api.split.LimitFileSplit;
 import org.canova.image.recordreader.ImageNetRecordReader;
 import org.deeplearning4j.datasets.canova.RecordReaderDataSetIterator;
 import org.deeplearning4j.datasets.iterator.AsyncDataSetIterator;
 import org.deeplearning4j.datasets.iterator.DataSetIterator;
+import org.deeplearning4j.datasets.iterator.MultipleEpochsIterator;
 import org.deeplearning4j.datasets.iterator.SamplingDataSetIterator;
 import org.deeplearning4j.eval.Evaluation;
 import org.deeplearning4j.examples.convolution.sampleNetStructure.AlexNet;
@@ -23,7 +21,6 @@ import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.dataset.SplitTestAndTrain;
-import org.nd4j.linalg.dataset.api.iterator.MultipleEpochsIterator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -63,13 +60,13 @@ public class CNNImageNetExample {
         int seed = 123;
         int listenerFreq = 1;
         MultiLayerNetwork model = null;
-        String modelType = "AlexNet";
+        String modelType = "LeNet";
         boolean gradientCheck = false;
         boolean train = true;
         DataSetIterator dataIter;
-        int totalNumExamples = batchSize*numBatches*numTrainEpochs;
+        int totalNumExamples = batchSize*numBatches;
         int splitTrainNum = (int) (batchSize * .8);
-        int numTestExamples = totalNumExamples/(numBatches*numTrainEpochs) - splitTrainNum;
+        int numTestExamples = totalNumExamples/(numBatches) - splitTrainNum;
 
         String basePath = System.getProperty("user.home") + File.separator + "Documents" + File.separator + "skymind" + File.separator + "imagenet" + File.separator;
         String dataPath = basePath + "sample-pics" + File.separator;
@@ -106,27 +103,29 @@ public class CNNImageNetExample {
                 .printMeanAbsValue(true)
                 .delimiter("\t").build();
 
-//        model.setListeners(Arrays.asList(new ScoreIterationListener(listenerFreq), new HistogramIterationListener(listenerFreq)));
-        model.setListeners(Arrays.asList(new ScoreIterationListener(listenerFreq), paramListener));
+        model.setListeners(Arrays.asList((IterationListener) new ScoreIterationListener(listenerFreq)));
+
+//        model.setListeners(Arrays.asList((IterationListener) new HistogramIterationListener(listenerFreq)));
+//        model.setListeners(Arrays.asList(new ScoreIterationListener(listenerFreq), paramListener));
+        model.setListeners(Arrays.asList((IterationListener)  new ScoreIterationListener(listenerFreq)));
 
         if (gradientCheck) gradientCheck(dataIter, model);
         
         if (train) {
             log.info("Train model....");
 
-            // TODO split out eval for its own dataset
+            //TODO need dataIter that loops through set number of examples like SamplingIter but takes iter vs dataset
             dataIter = new RecordReaderDataSetIterator(recordReader, batchSize, numRows * numColumns * nChannels, 1860);
             MultipleEpochsIterator epochIter = new MultipleEpochsIterator(numTrainEpochs, dataIter);
-            
+////                asyncIter = new AsyncDataSetIterator(dataIter, 1); TODO doesn't have next(num)
+
             for (int i = 0; i < numTrainEpochs; i++) {
                 for (int j = 0; j < numBatches; j++)
                     model.fit(epochIter.next(splitTrainNum));
-                eval = evaluatePerformance(model, epochIter, numTestExamples, numBatches, eval);
+                eval = evaluatePerformance(model, epochIter, numTestExamples, numBatches, eval);// TODO split out eval for its own dataset
             }
 
-//                //TODO need dataIter that loops through set number of examples like SamplingIter but takes iter vs dataset
 //                dataIter = new RecordReaderDataSetIterator(recordReader, batchSize, numRows * numColumns * nChannels, 1860);
-////                asyncIter = new AsyncDataSetIterator(dataIter, 1); TODO doesn't have next(num)
 
 //            for (int i = 0; i < numTrainEpochs; i++) {
 //                for (int j = 0; j < numBatches; j++)

@@ -49,7 +49,7 @@ public class VGGNet {
                 .seed(seed)
                 .activation("relu")
                 .updater(Updater.NESTEROVS)
-                .weightInit(WeightInit.DISTRIBUTION)
+                .weightInit(WeightInit.RELU) // TODO Distribution in original paper but recommended Xavier & Bengio's weight approach - check relu or xavier
                 .dist(new GaussianDistribution(0.0, 0.01))
                 .iterations(iterations)
                 .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
