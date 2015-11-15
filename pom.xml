@@ -8,8 +8,8 @@
     <name>DeepLearning4j Examples</name>
     <description>Examples of training different data sets</description>
     <properties>
-        <nd4j.version>0.4-rc3.6</nd4j.version>
-        <dl4j.version>	0.4-rc3.6 </dl4j.version>
+        <nd4j.version>0.4-rc3.7-SNAPSHOT</nd4j.version>
+        <dl4j.version>	0.4-rc3.7-SNAPSHOT </dl4j.version>
         <canova.version>0.0.0.12</canova.version>
         <jackson.version>2.5.1</jackson.version>
     </properties>
@@ -43,6 +43,22 @@
             <artifactId>deeplearning4j-nlp</artifactId>
             <version>${dl4j.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.deeplearning4j</groupId>
+            <artifactId>deeplearning4j-graph</artifactId>
+            <version>${dl4j.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.deeplearning4j</groupId>
+            <artifactId>deeplearning4j-ui</artifactId>
+            <version>${dl4j.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>18.0</version>
+        </dependency>
 
         <dependency>
             <groupId>org.deeplearning4j</groupId>
@@ -74,6 +90,14 @@
             <artifactId>jackson-dataformat-yaml</artifactId>
             <version>${jackson.version}</version>
         </dependency>
+
+        <!-- Zip4j library - used in DeepWalkGraphExample -->
+        <dependency>
+            <groupId>net.lingala.zip4j</groupId>
+            <artifactId>zip4j</artifactId>
+            <version>1.3.2</version>
+        </dependency>
+
 
     </dependencies>
 
