@@ -1,6 +1,7 @@
 package org.deeplearning4j.examples.convolution.sampleNetStructure;
 
 import org.deeplearning4j.nn.api.OptimizationAlgorithm;
+import org.deeplearning4j.nn.conf.GradientNormalization;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
 import org.deeplearning4j.nn.conf.Updater;
@@ -52,6 +53,7 @@ public class VGGNetD {
                 .weightInit(WeightInit.DISTRIBUTION) // TODO Distribution in original paper but recommended Xavier & Bengio's weight approach - check relu or xavier
                 .dist(new GaussianDistribution(0.0, 0.01))
                 .iterations(iterations)
+                .gradientNormalization(GradientNormalization.RenormalizeL2PerLayer) // TODO confirm this is required
                 .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
                 .learningRate(1e-1)
                 .learningRateScoreBasedDecayRate(1e-1)
