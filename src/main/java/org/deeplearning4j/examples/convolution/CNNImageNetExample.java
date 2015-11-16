@@ -4,34 +4,26 @@ import org.canova.api.records.reader.RecordReader;
 import org.canova.api.split.LimitFileSplit;
 import org.canova.image.recordreader.ImageNetRecordReader;
 import org.deeplearning4j.datasets.canova.RecordReaderDataSetIterator;
-import org.deeplearning4j.datasets.iterator.AsyncDataSetIterator;
 import org.deeplearning4j.datasets.iterator.DataSetIterator;
 import org.deeplearning4j.datasets.iterator.MultipleEpochsIterator;
-import org.deeplearning4j.datasets.iterator.SamplingDataSetIterator;
 import org.deeplearning4j.eval.Evaluation;
 import org.deeplearning4j.examples.convolution.sampleNetStructure.AlexNet;
 import org.deeplearning4j.examples.convolution.sampleNetStructure.LeNet;
-import org.deeplearning4j.examples.convolution.sampleNetStructure.VGGNet;
+import org.deeplearning4j.examples.convolution.sampleNetStructure.VGGNetA;
+import org.deeplearning4j.examples.convolution.sampleNetStructure.VGGNetD;
 import org.deeplearning4j.gradientcheck.GradientCheckUtil;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.optimize.api.IterationListener;
 import org.deeplearning4j.optimize.listeners.ParamAndGradientIterationListener;
-import org.deeplearning4j.ui.weights.HistogramIterationListener;
 import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
-import org.nd4j.linalg.dataset.SplitTestAndTrain;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
-import java.nio.file.FileVisitOption;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.*;
 import java.util.regex.Pattern;
-import java.util.stream.Stream;
 
 import static org.junit.Assert.assertTrue;
 
@@ -60,7 +52,7 @@ public class CNNImageNetExample {
         int seed = 123;
         int listenerFreq = 1;
         MultiLayerNetwork model = null;
-        String modelType = "LeNet";
+        String modelType = "VGGNetA";
         boolean gradientCheck = false;
         boolean train = true;
         DataSetIterator dataIter;
@@ -88,8 +80,11 @@ public class CNNImageNetExample {
             case "AlexNet":
                 model = new AlexNet(numRows, numColumns, nChannels, outputNum, seed, iterations).init();
                 break;
-            case "VGGNet":
-                model = new VGGNet(numRows, numColumns, nChannels, outputNum, seed, iterations).init();
+            case "VGGNetA":
+                model = new VGGNetA(numRows, numColumns, nChannels, outputNum, seed, iterations).init();
+                break;
+            case "VGGNetD":
+                model = new VGGNetD(numRows, numColumns, nChannels, outputNum, seed, iterations).init();
                 break;
         }
 

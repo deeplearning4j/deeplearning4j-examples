@@ -26,15 +26,15 @@ import org.nd4j.linalg.lossfunctions.LossFunctions;
  * Created by nyghtowl on 9/11/15.
  */
 
-public class VGGNet {
+public class VGGNetD {
     private int height;
     private int width;
     private int channels = 3;
-    private int outputNum = 1300;
+    private int outputNum = 1000;
     private long seed = 123;
     private int iterations = 370; // 74 epochs - this based on batch of 256
 
-    public VGGNet(int height, int width, int channels, int outputNum, long seed, int iterations) {
+    public VGGNetD(int height, int width, int channels, int outputNum, long seed, int iterations) {
         this.height = height; // TODO configure inputs to be 224 (Based on paper) but this can and should vary
         this.width = width; // TODO configure inputs to be 224 (Based on paper)
         this.channels = channels; // TODO prepare input to subtract mean RGB value from each pixel
@@ -49,7 +49,7 @@ public class VGGNet {
                 .seed(seed)
                 .activation("relu")
                 .updater(Updater.NESTEROVS)
-                .weightInit(WeightInit.RELU) // TODO Distribution in original paper but recommended Xavier & Bengio's weight approach - check relu or xavier
+                .weightInit(WeightInit.DISTRIBUTION) // TODO Distribution in original paper but recommended Xavier & Bengio's weight approach - check relu or xavier
                 .dist(new GaussianDistribution(0.0, 0.01))
                 .iterations(iterations)
                 .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
