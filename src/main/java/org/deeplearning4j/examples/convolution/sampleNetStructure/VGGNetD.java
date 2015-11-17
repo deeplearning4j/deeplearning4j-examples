@@ -36,24 +36,23 @@ public class VGGNetD {
     private int iterations = 370; // 74 epochs - this based on batch of 256
 
     public VGGNetD(int height, int width, int channels, int outputNum, long seed, int iterations) {
-        this.height = height; // TODO configure inputs to be 224 (Based on paper) but this can and should vary
-        this.width = width; // TODO configure inputs to be 224 (Based on paper)
+        this.height = height; // Paper sets size to 224 but this can and should vary - limit to min 100 based on depth & convolutions
+        this.width = width; // Paper sets size to 224 but this can and should vary - limit to min 100 based on depth & convolutions
         this.channels = channels; // TODO prepare input to subtract mean RGB value from each pixel
         this.outputNum = outputNum;
         this.seed = seed;
         this.iterations = iterations;
     }
-
-    // TODO pretrain with smaller net for first couple CNN layer weights or http://jmlr.org/proceedings/papers/v9/glorot10a/glorot10a.pdf
     public MultiLayerNetwork init() {
         MultiLayerConfiguration.Builder conf = new NeuralNetConfiguration.Builder()
                 .seed(seed)
                 .activation("relu")
                 .updater(Updater.NESTEROVS)
-                .weightInit(WeightInit.DISTRIBUTION) // TODO Distribution in original paper but recommended Xavier & Bengio's weight approach - check relu or xavier
-                .dist(new GaussianDistribution(0.0, 0.01))
+                // TODO pretrain with smaller net for first couple CNN layer weights, use Distribution for rest OR http://jmlr.org/proceedings/papers/v9/glorot10a/glorot10a.pdf with Relu
+                .weightInit(WeightInit.RELU)
+//                .dist(new GaussianDistribution(0.0, 0.01)) // uncomment if using WeightInit.DISTRIBUTION
                 .iterations(iterations)
-                .gradientNormalization(GradientNormalization.RenormalizeL2PerLayer) // TODO confirm this is required
+                .gradientNormalization(GradientNormalization.RenormalizeL2PerLayer) // normalize to prevent vanishing or exploding gradients
                 .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
                 .learningRate(1e-1)
                 .learningRateScoreBasedDecayRate(1e-1)

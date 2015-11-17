@@ -53,7 +53,7 @@ public class VGGNetA {
                 .weightInit(WeightInit.DISTRIBUTION) // TODO Distribution in original paper but recommended Xavier & Bengio's weight approach - check relu or xavier
                 .dist(new GaussianDistribution(0.0, 0.01))
                 .iterations(iterations)
-                .gradientNormalization(GradientNormalization.RenormalizeL2PerLayer) // TODO confirm this is required
+                .gradientNormalization(GradientNormalization.RenormalizeL2PerLayer) // normalize to prevent vanishing or exploding gradients
                 .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
                 .learningRate(1e-1)
                 .learningRateScoreBasedDecayRate(1e-1)

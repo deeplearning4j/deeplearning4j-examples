@@ -63,7 +63,7 @@ public class AlexNet {
 
                 )
                 .iterations(iterations)
-                .gradientNormalization(GradientNormalization.RenormalizeL2PerLayer) // TODO confirm this is required
+                .gradientNormalization(GradientNormalization.RenormalizeL2PerLayer) // normalize to prevent vanishing or exploding gradients
                 .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
                         // TODO add lr_mult & decay_mult for weights and biases separately apply 1 & 1 to weights and 2 & 0 to bias
                 .learningRate(1e-3)
@@ -83,7 +83,7 @@ public class AlexNet {
                 .layer(2, new SubsamplingLayer.Builder(poolingType, new int[]{3, 3}, new int[]{2, 2})
                         .build())
                         //conv2
-                .layer(3, new ConvolutionLayer.Builder(new int[]{5, 5}, new int[]{1, 1}, new int[]{2, 2}) // TODO verrify stride
+                .layer(3, new ConvolutionLayer.Builder(new int[]{5, 5}, new int[]{1, 1}, new int[]{2, 2})
                         .nOut(256)
                         .biasInit(nonZeroBias)
                         .build())
