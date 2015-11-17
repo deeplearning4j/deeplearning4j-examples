@@ -52,9 +52,9 @@ public class CNNImageNetExample {
     @Option(name="--numTestBatches",usage="Number of test batches",aliases   = "-nTB")
     private static int numTestBatches = 5;
     @Option(name="--numEpochs",usage="Number of epochs",aliases   = "-nE")
-    private static int numEpochs = 2;
+    private static int numEpochs = 5;
     @Option(name="--iterations",usage="Number of iterations",aliases   = "-i")
-    private static int iterations = 5;
+    private static int iterations =5;
     @Option(name="--numCategories",usage="Number of categories",aliases   = "-nC")
     private static int numCategories = 4;
     @Option(name="--trainFolder",usage="Train folder",aliases   = "-taF")
@@ -164,9 +164,12 @@ public class CNNImageNetExample {
                 endTimeTrain = System.currentTimeMillis();
 
                 // use different data sets for train and test
-                RecordReader testRecordReader = new ImageNetRecordReader(numColumns, numRows, nChannels, true, labelPath, valLabelMap);
-                testRecordReader.initialize(new LimitFileSplit(new File(testData), allForms, totalNumExamples, numCategories, Pattern.quote("_"), 0, new Random(123)));
-                testIter = new RecordReaderDataSetIterator(testRecordReader, batchSize, numRows * numColumns * nChannels, 1860);
+//                RecordReader testRecordReader = new ImageNetRecordReader(numColumns, numRows, nChannels, true, labelPath, valLabelMap); // use when pulling from main val for all labels
+//                testRecordReader.initialize(new LimitFileSplit(new File(testData), allForms, totalNumExamples, numCategories, Pattern.quote("_"), 0, new Random(123)));
+//                testIter = new RecordReaderDataSetIterator(testRecordReader, batchSize, numRows * numColumns * nChannels, 1860);
+
+                recordReader.initialize(new LimitFileSplit(new File(testData), allForms, totalNumExamples, numCategories, Pattern.quote("_"), 0, new Random(123)));
+                testIter = new RecordReaderDataSetIterator(recordReader, batchSize, numRows * numColumns * nChannels, 1860);
 
                 MultipleEpochsIterator testEpochIter = new MultipleEpochsIterator(numEpochs, testIter);
 
