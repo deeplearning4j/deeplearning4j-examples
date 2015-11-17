@@ -12,10 +12,12 @@ import org.deeplearning4j.examples.convolution.sampleNetStructure.LeNet;
 import org.deeplearning4j.examples.convolution.sampleNetStructure.VGGNetA;
 import org.deeplearning4j.examples.convolution.sampleNetStructure.VGGNetD;
 import org.deeplearning4j.gradientcheck.GradientCheckUtil;
+import org.deeplearning4j.nn.api.Layer;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.optimize.api.IterationListener;
 import org.deeplearning4j.optimize.listeners.ParamAndGradientIterationListener;
 import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
+import org.kohsuke.args4j.Option;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
 import org.slf4j.Logger;
@@ -37,40 +39,63 @@ import static org.junit.Assert.assertTrue;
  * Created by nyghtowl on 9/24/15.
  */
 public class CNNImageNetExample {
+
     private static final Logger log = LoggerFactory.getLogger(CNNImageNetExample.class);
 
+    // values to pass in from command line when compiled, esp running remotely
+    @Option(name="--modelType",usage="Type of model (AlexNet, VGGNetA, VGGNetB)",aliases = "-mT")
+    private static String modelType ="AlexNet";
+    @Option(name="--batchSize",usage="Batch size",aliases   = "-b")
+    private static int batchSize = 20;
+    @Option(name="--numBatches",usage="Number of batches",aliases   = "-nB")
+    private static int numBatches = 5;
+    @Option(name="--numTestBatches",usage="Number of test batches",aliases   = "-nTB")
+    private static int numTestBatches = 10;
+    @Option(name="--numEpochs",usage="Number of epochs",aliases   = "-nE")
+    private static int numEpochs = 2;
+    @Option(name="--iterations",usage="Number of iterations",aliases   = "-i")
+    private static int iterations = 5;
+    @Option(name="--numCategories",usage="Number of categories",aliases   = "-nC")
+    private static int numCategories = 4;
+    @Option(name="--trainFolder",usage="Train folder",aliases   = "-taF")
+    private static String trainFolder = "train";
+    @Option(name="--testFolder",usage="Test folder",aliases   = "-teF")
+    private static String testFolder = "val";
+    @Option(name="--saveParams",usage="Save parameters",aliases   = "-sP")
+    private static boolean saveParams = false;
+
     public static void main(String[] args) throws Exception {
+        MultiLayerNetwork model = null;
+        boolean gradientCheck = false;
+        boolean train = true;
+        boolean splitTrainData = true;
+        DataSetIterator dataIter, testIter;
+
         // libraries like Caffe scale to 256?
         final int numRows = 224;
         final int numColumns = 224;
         int nChannels = 3;
         int outputNum = 1860;
-        int numBatches = 1; // TODO - total training amount for CSL is 1281167
-        int batchSize = 6;
-        int iterations = 2;
-        int numTrainEpochs = 2;
         int seed = 123;
         int listenerFreq = 1;
-        MultiLayerNetwork model = null;
-        String modelType = "VGGNetA";
-        boolean gradientCheck = false;
-        boolean train = true;
-        DataSetIterator dataIter;
-        int totalNumExamples = batchSize*numBatches;
-        int splitTrainNum = (int) (batchSize * .8);
-        int numTestExamples = totalNumExamples/(numBatches) - splitTrainNum;
+
+        int totalCSLExamples2013 = 1281167;
+        int totalCSLValExamples2013 = 50000;
+        int totalNumExamples = batchSize * numBatches;
 
         String basePath = System.getProperty("user.home") + File.separator + "Documents" + File.separator + "skymind" + File.separator + "imagenet" + File.separator;
-        String dataPath = basePath + "sample-pics" + File.separator;
+        String trainData = basePath + trainFolder + File.separator;
+        String testData = basePath + testFolder + File.separator;
         String labelPath = basePath + "cls-loc-labels.csv";
+        String valLabelMap = basePath + "cls-loc-val-map.csv";
         String[] allForms = {"jpg", "jpeg", "JPG", "JPEG"};
 
 
         log.info("Load data....");
         RecordReader recordReader = new ImageNetRecordReader(numColumns, numRows, nChannels, true, labelPath);
-        recordReader.initialize(new LimitFileSplit(new File(dataPath), allForms, totalNumExamples, 2, Pattern.quote("_"), 0, new Random(123)));
+        recordReader.initialize(new LimitFileSplit(new File(trainData), allForms, totalNumExamples, numCategories, Pattern.quote("_"), 0, new Random(123)));
         dataIter = new RecordReaderDataSetIterator(recordReader, batchSize, numRows * numColumns * nChannels, 1860);
-        Evaluation eval = new Evaluation(recordReader.getLabels());
+
 
         log.info("Build model....");
         switch (modelType) {
@@ -88,6 +113,7 @@ public class CNNImageNetExample {
                 break;
         }
 
+        // Listeners
         IterationListener paramListener = ParamAndGradientIterationListener.builder()
                 .outputToFile(true)
                 .file(new File(System.getProperty("java.io.tmpdir") + "/paramAndGradTest.txt"))
@@ -99,10 +125,8 @@ public class CNNImageNetExample {
                 .delimiter("\t").build();
 
         model.setListeners(Arrays.asList((IterationListener) new ScoreIterationListener(listenerFreq)));
-
 //        model.setListeners(Arrays.asList((IterationListener) new HistogramIterationListener(listenerFreq)));
 //        model.setListeners(Arrays.asList(new ScoreIterationListener(listenerFreq), paramListener));
-        model.setListeners(Arrays.asList((IterationListener)  new ScoreIterationListener(listenerFreq)));
 
         if (gradientCheck) gradientCheck(dataIter, model);
         
@@ -111,25 +135,38 @@ public class CNNImageNetExample {
 
             //TODO need dataIter that loops through set number of examples like SamplingIter but takes iter vs dataset
             dataIter = new RecordReaderDataSetIterator(recordReader, batchSize, numRows * numColumns * nChannels, 1860);
-            MultipleEpochsIterator epochIter = new MultipleEpochsIterator(numTrainEpochs, dataIter);
+            MultipleEpochsIterator epochIter = new MultipleEpochsIterator(numEpochs, dataIter);
 ////                asyncIter = new AsyncDataSetIterator(dataIter, 1); TODO doesn't have next(num)
+            Evaluation eval = new Evaluation(recordReader.getLabels());
 
-            for (int i = 0; i < numTrainEpochs; i++) {
-                for (int j = 0; j < numBatches; j++)
-                    model.fit(epochIter.next(splitTrainNum));
-                eval = evaluatePerformance(model, epochIter, numTestExamples, numBatches, eval);// TODO split out eval for its own dataset
+
+            // split training and evaluatioin out of same DataSetIterator
+            if (splitTrainData) {
+                int splitTrainNum = (int) (batchSize * .8);
+                int numTestExamples = totalNumExamples / (numBatches) - splitTrainNum;
+
+                for (int i = 0; i < numEpochs; i++) {
+                    for (int j = 0; j < numBatches; j++)
+                        model.fit(epochIter.next(splitTrainNum)); // if spliting test train in same dataset - put size of train in next
+                    eval = evaluatePerformance(model, epochIter, numTestExamples, eval);
+                }
+            } else{
+                // use different data sets for train and test
+                recordReader.initialize(new LimitFileSplit(new File(testData), allForms, totalNumExamples, numCategories, Pattern.quote("_"), 0, new Random(123)));
+                testIter = new RecordReaderDataSetIterator(recordReader, batchSize, numRows * numColumns * nChannels, 1860);
+
+                MultipleEpochsIterator testEpochIter = new MultipleEpochsIterator(numEpochs, testIter);
+
+                for (int i = 0; i < numEpochs; i++) {
+                    for (int j = 0; j < numBatches; j++)
+                        model.fit(epochIter.next());
+
+                }
+                for (int i = 0; i < numEpochs; i++) {
+                    eval = evaluatePerformance(model, testEpochIter, batchSize, eval);
+                }
             }
 
-//                dataIter = new RecordReaderDataSetIterator(recordReader, batchSize, numRows * numColumns * nChannels, 1860);
-
-//            for (int i = 0; i < numTrainEpochs; i++) {
-//                for (int j = 0; j < numBatches; j++)
-//                    model.fit(dataIter.next(splitTrainNum));
-//                System.out.println("Epoch " + i + " complete");
-
-//                //Evaluate classification performance:
-//                eval = evaluatePerformance(model, dataIter, numTestExamples, numBatches, eval);
-//            }
             log.info(eval.stats());
 
             log.info("****************Example finished********************");
@@ -137,18 +174,28 @@ public class CNNImageNetExample {
     }
 
 
-    private static Evaluation evaluatePerformance(MultiLayerNetwork model, MultipleEpochsIterator iter, int numExamples, int numBatches, Evaluation eval){
+    private static Evaluation evaluatePerformance(MultiLayerNetwork model, MultipleEpochsIterator iter, int testBatchSize, Evaluation eval){
         log.info("Evaluate model....");
         DataSet imgNet;
         INDArray output;
 
-        //TODO setup iterator to randomize and split test and train
-        for(int i=0; i < numBatches; i++){
-            imgNet = iter.next(numExamples);
+        //TODO setup iterator to randomize
+        for(int i=0; i < numTestBatches; i++){
+            imgNet = iter.next(testBatchSize);
             output = model.output(imgNet.getFeatureMatrix());
             eval.eval(imgNet.getLabels(), output);
         }
         return eval;
+    }
+
+    private static void saveModelAndParameters(MultiLayerNetwork net){
+
+        // save parameters
+        for (Layer layer : net.getLayers()) {
+            layer.paramTable(); // TODO save functionality
+        }
+
+        // save model configuration
     }
 
     private static void gradientCheck(DataSetIterator dataIter, MultiLayerNetwork model){
