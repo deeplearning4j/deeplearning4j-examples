@@ -50,7 +50,7 @@ public class CNNImageNetExample {
     @Option(name="--numBatches",usage="Number of batches",aliases   = "-nB")
     private static int numBatches = 5;
     @Option(name="--numTestBatches",usage="Number of test batches",aliases   = "-nTB")
-    private static int numTestBatches = 10;
+    private static int numTestBatches = 5;
     @Option(name="--numEpochs",usage="Number of epochs",aliases   = "-nE")
     private static int numEpochs = 2;
     @Option(name="--iterations",usage="Number of iterations",aliases   = "-i")
@@ -60,7 +60,7 @@ public class CNNImageNetExample {
     @Option(name="--trainFolder",usage="Train folder",aliases   = "-taF")
     private static String trainFolder = "train";
     @Option(name="--testFolder",usage="Test folder",aliases   = "-teF")
-    private static String testFolder = "val";
+    private static String testFolder = "val/val-sample";
     @Option(name="--saveParams",usage="Save parameters",aliases   = "-sP")
     private static boolean saveParams = false;
 
@@ -68,8 +68,12 @@ public class CNNImageNetExample {
         MultiLayerNetwork model = null;
         boolean gradientCheck = false;
         boolean train = true;
-        boolean splitTrainData = true;
+        boolean splitTrainData = false;
         DataSetIterator dataIter, testIter;
+        long startTimeTrain = 0;
+        long endTimeTrain = 0;
+        long startTimeEval = 0;
+        long endTimeEval = 0;
 
         // libraries like Caffe scale to 256?
         final int numRows = 224;
@@ -151,24 +155,32 @@ public class CNNImageNetExample {
                     eval = evaluatePerformance(model, epochIter, numTestExamples, eval);
                 }
             } else{
-                // use different data sets for train and test
-                recordReader.initialize(new LimitFileSplit(new File(testData), allForms, totalNumExamples, numCategories, Pattern.quote("_"), 0, new Random(123)));
-                testIter = new RecordReaderDataSetIterator(recordReader, batchSize, numRows * numColumns * nChannels, 1860);
-
-                MultipleEpochsIterator testEpochIter = new MultipleEpochsIterator(numEpochs, testIter);
-
+                // track training time
+                startTimeTrain = System.currentTimeMillis();
                 for (int i = 0; i < numEpochs; i++) {
                     for (int j = 0; j < numBatches; j++)
                         model.fit(epochIter.next());
+                }
+                endTimeTrain = System.currentTimeMillis();
 
-                }
-                for (int i = 0; i < numEpochs; i++) {
-                    eval = evaluatePerformance(model, testEpochIter, batchSize, eval);
-                }
+                // use different data sets for train and test
+                RecordReader testRecordReader = new ImageNetRecordReader(numColumns, numRows, nChannels, true, labelPath, valLabelMap);
+                testRecordReader.initialize(new LimitFileSplit(new File(testData), allForms, totalNumExamples, numCategories, Pattern.quote("_"), 0, new Random(123)));
+                testIter = new RecordReaderDataSetIterator(testRecordReader, batchSize, numRows * numColumns * nChannels, 1860);
+
+                MultipleEpochsIterator testEpochIter = new MultipleEpochsIterator(numEpochs, testIter);
+
+                // track evaluating time
+                startTimeEval = System.currentTimeMillis();
+                eval = evaluatePerformance(model, testEpochIter, batchSize, eval);
+
+                endTimeEval = System.currentTimeMillis();
+
             }
 
             log.info(eval.stats());
-
+            System.out.println("Total training runtime: " + (endTimeTrain-startTimeTrain));
+            System.out.println("Total evaluation runtime: " + (endTimeEval-startTimeEval));
             log.info("****************Example finished********************");
         }
     }
