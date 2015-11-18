@@ -44,17 +44,17 @@ public class CNNImageNetExample {
 
     // values to pass in from command line when compiled, esp running remotely
     @Option(name="--modelType",usage="Type of model (AlexNet, VGGNetA, VGGNetB)",aliases = "-mT")
-    private static String modelType ="AlexNet";
+    private static String modelType ="VGGNet";
     @Option(name="--batchSize",usage="Batch size",aliases   = "-b")
-    private static int batchSize = 20;
+    private static int batchSize = 8;
     @Option(name="--numBatches",usage="Number of batches",aliases   = "-nB")
-    private static int numBatches = 5;
+    private static int numBatches = 2;
     @Option(name="--numTestBatches",usage="Number of test batches",aliases   = "-nTB")
-    private static int numTestBatches = 5;
+    private static int numTestBatches = 2;
     @Option(name="--numEpochs",usage="Number of epochs",aliases   = "-nE")
-    private static int numEpochs = 5;
+    private static int numEpochs = 1;
     @Option(name="--iterations",usage="Number of iterations",aliases   = "-i")
-    private static int iterations =5;
+    private static int iterations = 1;
     @Option(name="--numCategories",usage="Number of categories",aliases   = "-nC")
     private static int numCategories = 4;
     @Option(name="--trainFolder",usage="Train folder",aliases   = "-taF")
@@ -68,7 +68,7 @@ public class CNNImageNetExample {
         MultiLayerNetwork model = null;
         boolean gradientCheck = false;
         boolean train = true;
-        boolean splitTrainData = false;
+        boolean splitTrainData = true;
         DataSetIterator dataIter, testIter;
         long startTimeTrain = 0;
         long endTimeTrain = 0;
@@ -85,7 +85,8 @@ public class CNNImageNetExample {
 
         int totalCSLExamples2013 = 1281167;
         int totalCSLValExamples2013 = 50000;
-        int totalNumExamples = batchSize * numBatches;
+        int totalTrainNumExamples = batchSize * numBatches;
+        int totalTestNumExamples = batchSize * numTestBatches;
 
         String basePath = System.getProperty("user.home") + File.separator + "Documents" + File.separator + "skymind" + File.separator + "imagenet" + File.separator;
         String trainData = basePath + trainFolder + File.separator;
@@ -97,7 +98,7 @@ public class CNNImageNetExample {
 
         log.info("Load data....");
         RecordReader recordReader = new ImageNetRecordReader(numColumns, numRows, nChannels, true, labelPath);
-        recordReader.initialize(new LimitFileSplit(new File(trainData), allForms, totalNumExamples, numCategories, Pattern.quote("_"), 0, new Random(123)));
+        recordReader.initialize(new LimitFileSplit(new File(trainData), allForms, totalTrainNumExamples, numCategories, Pattern.quote("_"), 0, new Random(123)));
         dataIter = new RecordReaderDataSetIterator(recordReader, batchSize, numRows * numColumns * nChannels, 1860);
 
 
@@ -138,7 +139,6 @@ public class CNNImageNetExample {
             log.info("Train model....");
 
             //TODO need dataIter that loops through set number of examples like SamplingIter but takes iter vs dataset
-            dataIter = new RecordReaderDataSetIterator(recordReader, batchSize, numRows * numColumns * nChannels, 1860);
             MultipleEpochsIterator epochIter = new MultipleEpochsIterator(numEpochs, dataIter);
 ////                asyncIter = new AsyncDataSetIterator(dataIter, 1); TODO doesn't have next(num)
             Evaluation eval = new Evaluation(recordReader.getLabels());
@@ -147,7 +147,7 @@ public class CNNImageNetExample {
             // split training and evaluatioin out of same DataSetIterator
             if (splitTrainData) {
                 int splitTrainNum = (int) (batchSize * .8);
-                int numTestExamples = totalNumExamples / (numBatches) - splitTrainNum;
+                int numTestExamples = totalTrainNumExamples / (numBatches) - splitTrainNum;
 
                 for (int i = 0; i < numEpochs; i++) {
                     for (int j = 0; j < numBatches; j++)
@@ -168,7 +168,7 @@ public class CNNImageNetExample {
 //                testRecordReader.initialize(new LimitFileSplit(new File(testData), allForms, totalNumExamples, numCategories, Pattern.quote("_"), 0, new Random(123)));
 //                testIter = new RecordReaderDataSetIterator(testRecordReader, batchSize, numRows * numColumns * nChannels, 1860);
 
-                recordReader.initialize(new LimitFileSplit(new File(testData), allForms, totalNumExamples, numCategories, Pattern.quote("_"), 0, new Random(123)));
+                recordReader.initialize(new LimitFileSplit(new File(testData), allForms, totalTestNumExamples, numCategories, Pattern.quote("_"), 0, new Random(123)));
                 testIter = new RecordReaderDataSetIterator(recordReader, batchSize, numRows * numColumns * nChannels, 1860);
 
                 MultipleEpochsIterator testEpochIter = new MultipleEpochsIterator(numEpochs, testIter);
@@ -196,7 +196,7 @@ public class CNNImageNetExample {
 
         //TODO setup iterator to randomize
         for(int i=0; i < numTestBatches; i++){
-            imgNet = iter.next(testBatchSize);
+            imgNet = iter.next();
             output = model.output(imgNet.getFeatureMatrix());
             eval.eval(imgNet.getLabels(), output);
         }
