@@ -44,17 +44,17 @@ public class CNNImageNetExample {
 
     // values to pass in from command line when compiled, esp running remotely
     @Option(name="--modelType",usage="Type of model (AlexNet, VGGNetA, VGGNetB)",aliases = "-mT")
-    private static String modelType ="VGGNet";
+    private static String modelType ="AlexNet";
     @Option(name="--batchSize",usage="Batch size",aliases   = "-b")
-    private static int batchSize = 8;
+    private static int batchSize = 20;
     @Option(name="--numBatches",usage="Number of batches",aliases   = "-nB")
-    private static int numBatches = 2;
+    private static int numBatches = 5;
     @Option(name="--numTestBatches",usage="Number of test batches",aliases   = "-nTB")
-    private static int numTestBatches = 2;
+    private static int numTestBatches = 4;
     @Option(name="--numEpochs",usage="Number of epochs",aliases   = "-nE")
     private static int numEpochs = 1;
     @Option(name="--iterations",usage="Number of iterations",aliases   = "-i")
-    private static int iterations = 1;
+    private static int iterations = 5;
     @Option(name="--numCategories",usage="Number of categories",aliases   = "-nC")
     private static int numCategories = 4;
     @Option(name="--trainFolder",usage="Train folder",aliases   = "-taF")
@@ -68,7 +68,7 @@ public class CNNImageNetExample {
         MultiLayerNetwork model = null;
         boolean gradientCheck = false;
         boolean train = true;
-        boolean splitTrainData = true;
+        boolean splitTrainData = false;
         DataSetIterator dataIter, testIter;
         long startTimeTrain = 0;
         long endTimeTrain = 0;
@@ -182,8 +182,8 @@ public class CNNImageNetExample {
             }
 
             log.info(eval.stats());
-            System.out.println("Total training runtime: " + (endTimeTrain-startTimeTrain));
-            System.out.println("Total evaluation runtime: " + (endTimeEval-startTimeEval));
+            System.out.println("Total training runtime: " + ((endTimeTrain-startTimeTrain)/60000) + " minutes");
+            System.out.println("Total evaluation runtime: " + ((endTimeEval-startTimeEval)/60000) + " minutes");
             log.info("****************Example finished********************");
         }
     }
@@ -196,7 +196,7 @@ public class CNNImageNetExample {
 
         //TODO setup iterator to randomize
         for(int i=0; i < numTestBatches; i++){
-            imgNet = iter.next();
+            imgNet = iter.next(testBatchSize);
             output = model.output(imgNet.getFeatureMatrix());
             eval.eval(imgNet.getLabels(), output);
         }
