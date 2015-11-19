@@ -1,5 +1,8 @@
 package org.deeplearning4j.examples.convolution;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import net.didion.jwnl.data.Exc;
+import org.apache.commons.io.FileUtils;
 import org.canova.api.records.reader.RecordReader;
 import org.canova.api.split.LimitFileSplit;
 import org.canova.image.recordreader.ImageNetRecordReader;
@@ -13,6 +16,7 @@ import org.deeplearning4j.examples.convolution.sampleNetStructure.VGGNetA;
 import org.deeplearning4j.examples.convolution.sampleNetStructure.VGGNetD;
 import org.deeplearning4j.gradientcheck.GradientCheckUtil;
 import org.deeplearning4j.nn.api.Layer;
+import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.optimize.api.IterationListener;
 import org.deeplearning4j.optimize.listeners.ParamAndGradientIterationListener;
@@ -22,6 +26,7 @@ import org.kohsuke.args4j.CmdLineParser;
 import org.kohsuke.args4j.Option;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
+import org.nd4j.linalg.factory.Nd4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,18 +50,18 @@ public class CNNImageNetExample {
     private static final Logger log = LoggerFactory.getLogger(CNNImageNetExample.class);
 
     // values to pass in from command line when compiled, esp running remotely
-    @Option(name="--modelType",usage="Type of model (AlexNet, VGGNetA, VGGNetB)")
+    @Option(name="--modelType",usage="Type of model (AlexNet, VGGNetA, VGGNetB)",aliases = "-mT")
     private String modelType = "AlexNet";
     @Option(name="--batchSize",usage="Batch size",aliases="-b")
-    private int batchSize = 20;
+    private int batchSize = 8;
     @Option(name="--numBatches",usage="Number of batches",aliases="-nB")
-    private int numBatches = 10;
+    private int numBatches = 1;
     @Option(name="--numTestBatches",usage="Number of test batches",aliases="-nTB")
-    private int numTestBatches = 7;
+    private int numTestBatches = 1;
     @Option(name="--numEpochs",usage="Number of epochs",aliases="-nE")
     private int numEpochs = 1;
     @Option(name="--iterations",usage="Number of iterations",aliases="-i")
-    private int iterations = 5;
+    private int iterations = 1;
     @Option(name="--numCategories",usage="Number of categories",aliases="-nC")
     private int numCategories = 4;
     @Option(name="--trainFolder",usage="Train folder",aliases="-taF")
@@ -64,7 +69,7 @@ public class CNNImageNetExample {
     @Option(name="--testFolder",usage="Test folder",aliases="-teF")
     private String testFolder = "val/val-sample";
     @Option(name="--saveParams",usage="Save parameters",aliases="-sP")
-    private boolean saveParams = false;
+    private boolean saveParams = true;
 
     public CNNImageNetExample() {
     }
@@ -201,6 +206,9 @@ public class CNNImageNetExample {
             log.info(eval.stats());
             System.out.println("Total training runtime: " + ((endTimeTrain-startTimeTrain)/60000) + " minutes");
             System.out.println("Total evaluation runtime: " + ((endTimeEval-startTimeEval)/60000) + " minutes");
+
+            if (saveParams) saveModelAndParameters(model, defineDir());
+
             log.info("****************Example finished********************");
         }
     }
@@ -220,14 +228,54 @@ public class CNNImageNetExample {
         return eval;
     }
 
-    private void saveModelAndParameters(MultiLayerNetwork net){
+    private File defineDir(){
+        String tmpDir = System.getProperty("java.io.tmpdir");
+        String outputPath = File.separator + modelType.toString() + File.separator + "output";
+        File dataDir = new File(tmpDir,outputPath);
+        if (!dataDir.getParentFile().exists())
+            dataDir.mkdirs();
+        return dataDir;
 
-        // save parameters
-        for (Layer layer : net.getLayers()) {
-            layer.paramTable(); // TODO save functionality
-        }
+    }
+
+    private void saveModelAndParameters(MultiLayerNetwork net, File dataDir) throws Exception{
+        System.out.println("Saving model and parameters to " + dataDir.toString() + "...");
+
+        BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(dataDir + modelType.toString() + ".bin"));
+        Nd4j.write(bos, net.params());
+        bos.flush();
+        bos.close();
 
         // save model configuration
+        FileUtils.write(new File(dataDir + modelType.toString() + "-conf.yaml"), net.conf().toYaml());
+
+        // save parameter table into separate files
+        for (Layer layer : net.getLayers()) {
+            FileUtils.write(new File(dataDir + modelType.toString() + "-" + layer.conf().getLayer().getLayerName() + "-conf.json"), layer.paramTable().toString());
+        }
+    }
+
+    private MultiLayerNetwork loadModel(File confPath, File paramsBinPath) throws IOException {
+        System.out.println("Loading model...");
+        MultiLayerConfiguration confFromJson = MultiLayerConfiguration.fromJson(FileUtils.readFileToString(confPath));
+        DataInputStream dis = new DataInputStream(new FileInputStream(paramsBinPath.toString()));
+        INDArray newParams = Nd4j.read(dis);
+        dis.close();
+
+        MultiLayerNetwork savedNetwork = new MultiLayerNetwork(confFromJson);
+        savedNetwork.init();
+        savedNetwork.setParams(newParams);
+
+//        System.out.println(savedNetwork.params());
+        return savedNetwork;
+
+    }
+
+    private void loadParameters(Layer layer, File paramPath) throws IOException{
+        System.out.println("Loading parameters...");
+        String params = FileUtils.readFileToString(paramPath);
+        Map<String, INDArray> result = new ObjectMapper().readValue(params, HashMap.class);
+        layer.setParamTable(result);
     }
 
     private void gradientCheck(DataSetIterator dataIter, MultiLayerNetwork model){
