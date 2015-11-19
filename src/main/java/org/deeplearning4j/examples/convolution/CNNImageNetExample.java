@@ -17,6 +17,8 @@ import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.optimize.api.IterationListener;
 import org.deeplearning4j.optimize.listeners.ParamAndGradientIterationListener;
 import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
+import org.kohsuke.args4j.CmdLineException;
+import org.kohsuke.args4j.CmdLineParser;
 import org.kohsuke.args4j.Option;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
@@ -43,28 +45,43 @@ public class CNNImageNetExample {
     private static final Logger log = LoggerFactory.getLogger(CNNImageNetExample.class);
 
     // values to pass in from command line when compiled, esp running remotely
-    @Option(name="--modelType",usage="Type of model (AlexNet, VGGNetA, VGGNetB)",aliases = "-mT")
-    private static String modelType ="AlexNet";
-    @Option(name="--batchSize",usage="Batch size",aliases   = "-b")
-    private static int batchSize = 20;
-    @Option(name="--numBatches",usage="Number of batches",aliases   = "-nB")
-    private static int numBatches = 5;
-    @Option(name="--numTestBatches",usage="Number of test batches",aliases   = "-nTB")
-    private static int numTestBatches = 4;
-    @Option(name="--numEpochs",usage="Number of epochs",aliases   = "-nE")
-    private static int numEpochs = 1;
-    @Option(name="--iterations",usage="Number of iterations",aliases   = "-i")
-    private static int iterations = 5;
-    @Option(name="--numCategories",usage="Number of categories",aliases   = "-nC")
-    private static int numCategories = 4;
-    @Option(name="--trainFolder",usage="Train folder",aliases   = "-taF")
-    private static String trainFolder = "train";
-    @Option(name="--testFolder",usage="Test folder",aliases   = "-teF")
-    private static String testFolder = "val/val-sample";
-    @Option(name="--saveParams",usage="Save parameters",aliases   = "-sP")
-    private static boolean saveParams = false;
+    @Option(name="--modelType",usage="Type of model (AlexNet, VGGNetA, VGGNetB)")
+    private String modelType = "AlexNet";
+    @Option(name="--batchSize",usage="Batch size",aliases="-b")
+    private int batchSize = 20;
+    @Option(name="--numBatches",usage="Number of batches",aliases="-nB")
+    private int numBatches = 10;
+    @Option(name="--numTestBatches",usage="Number of test batches",aliases="-nTB")
+    private int numTestBatches = 7;
+    @Option(name="--numEpochs",usage="Number of epochs",aliases="-nE")
+    private int numEpochs = 1;
+    @Option(name="--iterations",usage="Number of iterations",aliases="-i")
+    private int iterations = 5;
+    @Option(name="--numCategories",usage="Number of categories",aliases="-nC")
+    private int numCategories = 4;
+    @Option(name="--trainFolder",usage="Train folder",aliases="-taF")
+    private String trainFolder = "train";
+    @Option(name="--testFolder",usage="Test folder",aliases="-teF")
+    private String testFolder = "val/val-sample";
+    @Option(name="--saveParams",usage="Save parameters",aliases="-sP")
+    private boolean saveParams = false;
 
-    public static void main(String[] args) throws Exception {
+    public CNNImageNetExample() {
+    }
+
+    public void doMain(String[] args) throws Exception {
+
+        // Parse command line arguments if they exist
+        CmdLineParser parser = new CmdLineParser(this);
+        try {
+            parser.parseArgument(args);
+
+        } catch (CmdLineException e) {
+            // handling of wrong arguments
+            System.err.println(e.getMessage());
+            parser.printUsage(System.err);
+        }
+
         MultiLayerNetwork model = null;
         boolean gradientCheck = false;
         boolean train = true;
@@ -95,7 +112,7 @@ public class CNNImageNetExample {
         String valLabelMap = basePath + "cls-loc-val-map.csv";
         String[] allForms = {"jpg", "jpeg", "JPG", "JPEG"};
 
-
+        System.out.println(modelType.toString());
         log.info("Load data....");
         RecordReader recordReader = new ImageNetRecordReader(numColumns, numRows, nChannels, true, labelPath);
         recordReader.initialize(new LimitFileSplit(new File(trainData), allForms, totalTrainNumExamples, numCategories, Pattern.quote("_"), 0, new Random(123)));
@@ -189,7 +206,7 @@ public class CNNImageNetExample {
     }
 
 
-    private static Evaluation evaluatePerformance(MultiLayerNetwork model, MultipleEpochsIterator iter, int testBatchSize, Evaluation eval){
+    private Evaluation evaluatePerformance(MultiLayerNetwork model, MultipleEpochsIterator iter, int testBatchSize, Evaluation eval){
         log.info("Evaluate model....");
         DataSet imgNet;
         INDArray output;
@@ -203,7 +220,7 @@ public class CNNImageNetExample {
         return eval;
     }
 
-    private static void saveModelAndParameters(MultiLayerNetwork net){
+    private void saveModelAndParameters(MultiLayerNetwork net){
 
         // save parameters
         for (Layer layer : net.getLayers()) {
@@ -213,7 +230,7 @@ public class CNNImageNetExample {
         // save model configuration
     }
 
-    private static void gradientCheck(DataSetIterator dataIter, MultiLayerNetwork model){
+    private void gradientCheck(DataSetIterator dataIter, MultiLayerNetwork model){
         DataSet imgNet;
         log.info("Gradient Check....");
 
@@ -245,6 +262,9 @@ public class CNNImageNetExample {
 
         assertTrue(gradOK);
 
+    }
+    public static void main(String[] args) throws Exception {
+        new CNNImageNetExample().doMain(args);
     }
 
 
