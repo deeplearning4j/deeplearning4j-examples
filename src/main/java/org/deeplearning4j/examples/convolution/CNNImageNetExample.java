@@ -1,6 +1,7 @@
 package org.deeplearning4j.examples.convolution;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import static org.junit.Assert.*;
 import net.didion.jwnl.data.Exc;
 import org.apache.commons.io.FileUtils;
 import org.canova.api.records.reader.RecordReader;
@@ -75,6 +76,7 @@ public class CNNImageNetExample {
     }
 
     public void doMain(String[] args) throws Exception {
+        File outputPath = defineOutputDir();
 
         // Parse command line arguments if they exist
         CmdLineParser parser = new CmdLineParser(this);
@@ -87,10 +89,12 @@ public class CNNImageNetExample {
             parser.printUsage(System.err);
         }
 
-        MultiLayerNetwork model = null;
-        boolean gradientCheck = false;
         boolean train = true;
         boolean splitTrainData = false;
+        boolean gradientCheck = false;
+        boolean loadParams = false;
+
+        MultiLayerNetwork model = null;
         DataSetIterator dataIter, testIter;
         long startTimeTrain = 0;
         long endTimeTrain = 0;
@@ -140,6 +144,23 @@ public class CNNImageNetExample {
                 break;
         }
 
+        if(loadParams) {
+            Layer layer;
+//            String[] specificLayers ={ "conv1", "conv2", "conv3", "conv4", "ffn1", "ff2n", "output"};
+//            for(String name: specificLayers) {
+//                layer = model.getLayer(name);
+//                loadParameters(layer, new File(outputPath + File.separator + layer.conf().getLayer().getLayerName() + ".json"));
+//            }
+
+            // Load specific layers for VGGD from VGGA
+            int[] layerIds = {0,1,3,4,18,19,20};
+            for(int layerId: layerIds) {
+                layer = model.getLayer(layerId);
+                loadParameters(layer, new File(outputPath + File.separator + layer.conf().getLayer().getLayerName() + ".json"));
+            }
+
+        }
+
         // Listeners
         IterationListener paramListener = ParamAndGradientIterationListener.builder()
                 .outputToFile(true)
@@ -186,6 +207,7 @@ public class CNNImageNetExample {
                 endTimeTrain = System.currentTimeMillis();
 
                 // use different data sets for train and test
+                // TODO uncomment code when using full validation set
 //                RecordReader testRecordReader = new ImageNetRecordReader(numColumns, numRows, nChannels, true, labelPath, valLabelMap); // use when pulling from main val for all labels
 //                testRecordReader.initialize(new LimitFileSplit(new File(testData), allForms, totalNumExamples, numCategories, Pattern.quote("_"), 0, new Random(123)));
 //                testIter = new RecordReaderDataSetIterator(testRecordReader, batchSize, numRows * numColumns * nChannels, 1860);
@@ -205,9 +227,13 @@ public class CNNImageNetExample {
 
             log.info(eval.stats());
             System.out.println("Total training runtime: " + ((endTimeTrain-startTimeTrain)/60000) + " minutes");
-            System.out.println("Total evaluation runtime: " + ((endTimeEval-startTimeEval)/60000) + " minutes");
+            System.out.println("Total evaluation runtime: " + ((endTimeEval - startTimeEval) / 60000) + " minutes");
+            log.info("****************************************************");
 
-            if (saveParams) saveModelAndParameters(model, defineDir());
+            if (saveParams) saveModelAndParameters(model, outputPath);
+
+            MultiLayerNetwork reloadedNet = loadModel(new File(outputPath + File.separator + modelType.toString() + "-conf.json"), new File(outputPath + File.separator + modelType.toString() + ".bin"));
+            assertEquals("Generated model and loaded model parameters are not equal", model.params(), reloadedNet.params());
 
             log.info("****************Example finished********************");
         }
@@ -228,7 +254,7 @@ public class CNNImageNetExample {
         return eval;
     }
 
-    private File defineDir(){
+    private File defineOutputDir(){
         String tmpDir = System.getProperty("java.io.tmpdir");
         String outputPath = File.separator + modelType.toString() + File.separator + "output";
         File dataDir = new File(tmpDir,outputPath);
@@ -238,25 +264,26 @@ public class CNNImageNetExample {
 
     }
 
-    private void saveModelAndParameters(MultiLayerNetwork net, File dataDir) throws Exception{
+    private void saveModelAndParameters(MultiLayerNetwork net, File dataDir) throws IOException {
         System.out.println("Saving model and parameters to " + dataDir.toString() + "...");
 
-        BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(dataDir + modelType.toString() + ".bin"));
+        BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(dataDir + File.separator + modelType.toString() + ".bin"));
         Nd4j.write(bos, net.params());
         bos.flush();
         bos.close();
 
         // save model configuration
-        FileUtils.write(new File(dataDir + modelType.toString() + "-conf.yaml"), net.conf().toYaml());
+        FileUtils.write(new File(dataDir + File.separator + modelType.toString() + "-conf.json"), net.conf().toJson());
 
-        // save parameter table into separate files
-        for (Layer layer : net.getLayers()) {
-            FileUtils.write(new File(dataDir + modelType.toString() + "-" + layer.conf().getLayer().getLayerName() + "-conf.json"), layer.paramTable().toString());
+        // save parameter table for each layer
+        for (Layer layer: net.getLayers()) {
+            if (layer.params() != null)
+                FileUtils.write(new File(dataDir + File.separator + layer.conf().getLayer().getLayerName() + ".json"), layer.paramTable().toString());
         }
     }
 
     private MultiLayerNetwork loadModel(File confPath, File paramsBinPath) throws IOException {
-        System.out.println("Loading model...");
+        System.out.println("Loading saved model...");
         MultiLayerConfiguration confFromJson = MultiLayerConfiguration.fromJson(FileUtils.readFileToString(confPath));
         DataInputStream dis = new DataInputStream(new FileInputStream(paramsBinPath.toString()));
         INDArray newParams = Nd4j.read(dis);
@@ -266,7 +293,6 @@ public class CNNImageNetExample {
         savedNetwork.init();
         savedNetwork.setParams(newParams);
 
-//        System.out.println(savedNetwork.params());
         return savedNetwork;
 
     }
