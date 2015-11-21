@@ -1,5 +1,6 @@
 package org.deeplearning4j.examples.video;
 
+import org.apache.commons.io.FilenameUtils;
 import org.canova.api.conf.Configuration;
 import org.canova.api.records.reader.SequenceRecordReader;
 import org.canova.api.records.reader.impl.CSVSequenceRecordReader;
@@ -55,7 +56,7 @@ public class VideoClassificationExample {
         boolean generateData = true;
 
         String tempDir = System.getProperty("java.io.tmpdir");
-        String dataDirectory = tempDir + "DL4JVideoShapesExample/";   //Location to store generated data set
+        String dataDirectory = FilenameUtils.concat(tempDir, "DL4JVideoShapesExample/");   //Location to store generated data set
 
         //Generate data: number of .mp4 videos for input, plus .txt files for the labels
         if (generateData) {
