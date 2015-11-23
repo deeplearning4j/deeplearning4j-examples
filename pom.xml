@@ -9,7 +9,7 @@
     <description>Examples of training different data sets</description>
     <properties>
         <nd4j.version>0.4-rc3.6</nd4j.version>
-        <dl4j.version>	0.4-rc3.6 </dl4j.version>
+        <dl4j.version>	0.4-rc3.6</dl4j.version>
         <canova.version>0.0.0.12</canova.version>
         <jackson.version>2.5.1</jackson.version>
     </properties>
@@ -32,7 +32,7 @@
         <dependencies>
             <dependency>
                 <groupId>org.nd4j</groupId>
-                <artifactId>nd4j-jcublas-7.5</artifactId>
+                <artifactId>nd4j-x86</artifactId>
                 <version>${nd4j.version}</version>
             </dependency>
         </dependencies>
@@ -50,14 +50,14 @@
             <version>${dl4j.version}</version>
         </dependency>
         <dependency>
+            <groupId>org.deeplearning4j</groupId>
+            <artifactId>deeplearning4j-ui</artifactId>
+            <version>${dl4j.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.nd4j</groupId>
             <artifactId>nd4j-x86</artifactId>
             <version>${nd4j.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.jblas</groupId>
-            <artifactId>jblas</artifactId>
-            <version>1.2.4</version>
         </dependency>
         <dependency>
             <artifactId>canova-nd4j-image</artifactId>

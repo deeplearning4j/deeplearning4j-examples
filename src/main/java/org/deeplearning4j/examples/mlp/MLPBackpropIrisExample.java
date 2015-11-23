@@ -4,6 +4,7 @@ package org.deeplearning4j.examples.mlp;
 import org.deeplearning4j.datasets.iterator.DataSetIterator;
 import org.deeplearning4j.datasets.iterator.impl.IrisDataSetIterator;
 import org.deeplearning4j.eval.Evaluation;
+import org.deeplearning4j.nn.conf.GradientNormalization;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
 import org.deeplearning4j.nn.conf.layers.DenseLayer;
@@ -54,7 +55,7 @@ public class MLPBackpropIrisExample {
 
                 .learningRate(1e-3)
                 .l1(0.3).regularization(true).l2(1e-3)
-                .constrainGradientToUnitNorm(true)
+                .gradientNormalization(GradientNormalization.RenormalizeL2PerLayer)
                 .list(3)
                 .layer(0, new DenseLayer.Builder().nIn(numInputs).nOut(3)
                         .activation("tanh")

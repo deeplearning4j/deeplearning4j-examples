@@ -5,6 +5,7 @@ import org.deeplearning4j.datasets.iterator.DataSetIterator;
 import org.deeplearning4j.datasets.iterator.impl.MnistDataSetIterator;
 import org.deeplearning4j.eval.Evaluation;
 import org.deeplearning4j.nn.api.OptimizationAlgorithm;
+import org.deeplearning4j.nn.conf.GradientNormalization;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
 import org.deeplearning4j.nn.conf.layers.DenseLayer;
@@ -58,7 +59,7 @@ public class MLPMnistSingleLayerExample {
                 .seed(seed)
                 .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
                 .iterations(iterations)
-                .constrainGradientToUnitNorm(true)
+                .gradientNormalization(GradientNormalization.RenormalizeL2PerLayer)
                 .learningRate(1e-1f)
                 .momentum(0.5)
                 .momentumAfter(Collections.singletonMap(3, 0.9))

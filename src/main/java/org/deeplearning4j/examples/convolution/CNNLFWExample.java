@@ -5,6 +5,7 @@ import org.deeplearning4j.datasets.iterator.DataSetIterator;
 import org.deeplearning4j.datasets.iterator.impl.LFWDataSetIterator;
 import org.deeplearning4j.eval.Evaluation;
 import org.deeplearning4j.nn.api.OptimizationAlgorithm;
+import org.deeplearning4j.nn.conf.GradientNormalization;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
 import org.deeplearning4j.nn.conf.layers.ConvolutionLayer;
@@ -63,7 +64,7 @@ public class CNNLFWExample {
                 .seed(seed)
                 .batchSize(batchSize)
                 .iterations(iterations)
-                .constrainGradientToUnitNorm(true)
+                .gradientNormalization(GradientNormalization.RenormalizeL2PerLayer)
                 .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
                 .list(3)
                 .layer(0, new ConvolutionLayer.Builder(10, 10)

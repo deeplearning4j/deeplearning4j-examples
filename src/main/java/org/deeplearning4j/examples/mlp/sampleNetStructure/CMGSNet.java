@@ -1,6 +1,7 @@
 package org.deeplearning4j.examples.mlp.sampleNetStructure;
 
 import org.deeplearning4j.nn.api.OptimizationAlgorithm;
+import org.deeplearning4j.nn.conf.GradientNormalization;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
 import org.deeplearning4j.nn.conf.distribution.UniformDistribution;
@@ -39,7 +40,7 @@ public class CMGSNet {
                 .seed(seed)
                 .iterations(iterations)
                 .optimizationAlgo(OptimizationAlgorithm.LINE_GRADIENT_DESCENT)
-                .constrainGradientToUnitNorm(true)
+                .gradientNormalization(GradientNormalization.RenormalizeL2PerLayer)
                 .learningRate(1e-3f) // TODO create learnable lr that shrinks by multiplicative constant after each epoch pg 3
                 .momentum(0)
                 .list(6)
