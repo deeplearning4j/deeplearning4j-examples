@@ -1,6 +1,5 @@
 package org.deeplearning4j.examples.deepbelief;
 
-
 import org.deeplearning4j.datasets.iterator.DataSetIterator;
 import org.deeplearning4j.datasets.iterator.impl.MnistDataSetIterator;
 import org.deeplearning4j.eval.Evaluation;
@@ -8,8 +7,7 @@ import org.deeplearning4j.nn.api.OptimizationAlgorithm;
 import org.deeplearning4j.nn.conf.GradientNormalization;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
-import org.deeplearning4j.nn.conf.Updater;
-import org.deeplearning4j.nn.conf.distribution.NormalDistribution;
+import org.deeplearning4j.nn.conf.GradientNormalization;
 import org.deeplearning4j.nn.conf.layers.OutputLayer;
 import org.deeplearning4j.nn.conf.layers.RBM;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
@@ -47,32 +45,33 @@ public class DBNMnistFullExample {
 
         log.info("Build model....");
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
-                .seed(seed)
-                .gradientNormalization(GradientNormalization.RenormalizeL2PerLayer)
-                .iterations(iterations)
-                .momentum(0.5)
-                .momentumAfter(Collections.singletonMap(3, 0.9))
-                .optimizationAlgo(OptimizationAlgorithm.CONJUGATE_GRADIENT)
-                .list(4)
-                .layer(0, new RBM.Builder().nIn(numRows*numColumns).nOut(500)
-                        .weightInit(WeightInit.XAVIER).lossFunction(LossFunction.RMSE_XENT)
-                        .visibleUnit(RBM.VisibleUnit.BINARY)
-                        .hiddenUnit(RBM.HiddenUnit.BINARY)
-                        .build())
-                .layer(1, new RBM.Builder().nIn(500).nOut(250)
-                        .weightInit(WeightInit.XAVIER).lossFunction(LossFunction.RMSE_XENT)
-                        .visibleUnit(RBM.VisibleUnit.BINARY)
-                        .hiddenUnit(RBM.HiddenUnit.BINARY)
-                        .build())
-                .layer(2, new RBM.Builder().nIn(250).nOut(200)
-                        .weightInit(WeightInit.XAVIER).lossFunction(LossFunction.RMSE_XENT)
-                        .visibleUnit(RBM.VisibleUnit.BINARY)
-                        .hiddenUnit(RBM.HiddenUnit.BINARY)
-                        .build())
-                .layer(3, new OutputLayer.Builder(LossFunction.NEGATIVELOGLIKELIHOOD).activation("softmax")
-                	.nIn(200).nOut(outputNum).build())
-		.pretrain(true).backprop(false)
-                .build();
+           .seed(seed)
+           .gradientNormalization(GradientNormalization.ClipElementWiseAbsoluteValue)
+           .gradientNormalizationThreshold(1.0)
+           .iterations(iterations)
+           .momentum(0.5)
+           .momentumAfter(Collections.singletonMap(3, 0.9))
+           .optimizationAlgo(OptimizationAlgorithm.CONJUGATE_GRADIENT)
+           .list(4)
+           .layer(0, new RBM.Builder().nIn(numRows*numColumns).nOut(500)
+                         .weightInit(WeightInit.XAVIER).lossFunction(LossFunction.RMSE_XENT)
+                         .visibleUnit(RBM.VisibleUnit.BINARY)
+                         .hiddenUnit(RBM.HiddenUnit.BINARY)
+                         .build())
+           .layer(1, new RBM.Builder().nIn(500).nOut(250)
+                         .weightInit(WeightInit.XAVIER).lossFunction(LossFunction.RMSE_XENT)
+                         .visibleUnit(RBM.VisibleUnit.BINARY)
+                         .hiddenUnit(RBM.HiddenUnit.BINARY)
+                         .build())
+           .layer(2, new RBM.Builder().nIn(250).nOut(200)
+                         .weightInit(WeightInit.XAVIER).lossFunction(LossFunction.RMSE_XENT)
+                         .visibleUnit(RBM.VisibleUnit.BINARY)
+                         .hiddenUnit(RBM.HiddenUnit.BINARY)
+                         .build())
+           .layer(3, new OutputLayer.Builder(LossFunction.NEGATIVELOGLIKELIHOOD).activation("softmax")
+                         .nIn(200).nOut(outputNum).build())
+           .pretrain(true).backprop(false)
+           .build();
 
         MultiLayerNetwork model = new MultiLayerNetwork(conf);
         model.init();

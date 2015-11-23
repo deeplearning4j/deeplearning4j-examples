@@ -2,10 +2,12 @@ package org.deeplearning4j.examples.convolution;
 
 import org.deeplearning4j.datasets.iterator.impl.MnistDataSetIterator;
 import org.deeplearning4j.eval.Evaluation;
+import org.deeplearning4j.nn.api.Layer;
 import org.deeplearning4j.nn.api.OptimizationAlgorithm;
 import org.deeplearning4j.nn.conf.GradientNormalization;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
+import org.deeplearning4j.nn.conf.Updater;
 import org.deeplearning4j.nn.conf.layers.ConvolutionLayer;
 import org.deeplearning4j.nn.conf.layers.DenseLayer;
 import org.deeplearning4j.nn.conf.layers.OutputLayer;
@@ -34,22 +36,16 @@ import java.util.Random;
  * Created by agibsonccc on 9/16/15.
  */
 public class LenetMnistExample {
-
-    private static final Logger log = LoggerFactory.getLogger(CNNMnistExample.class);
+    private static final Logger log = LoggerFactory.getLogger(LenetMnistExample.class);
 
     public static void main(String[] args) throws Exception {
-        Nd4j.dtype = DataBuffer.Type.DOUBLE;
-        Nd4j.factory().setDType(DataBuffer.Type.DOUBLE);
-        Nd4j.ENFORCE_NUMERICAL_STABILITY = true;
-
         int nChannels = 1;
         int outputNum = 10;
         int numSamples = 60000;
-        int batchSize = 500;
+        int batchSize = 100;
         int iterations = 1;
         int splitTrainNum = (int) (batchSize*.8);
         int seed = 123;
-        int listenerFreq = iterations/5;
         DataSet mnist;
         SplitTestAndTrain trainTest;
         DataSet trainInput;
@@ -57,21 +53,21 @@ public class LenetMnistExample {
         List<INDArray> testLabels = new ArrayList<>();
 
         log.info("Load data....");
-        DataSetIterator mnistIter = new MultipleEpochsIterator(5,new MnistDataSetIterator(batchSize,numSamples, true));
+        DataSetIterator mnistIter = new MnistDataSetIterator(batchSize,numSamples, true);
 
         log.info("Build model....");
         MultiLayerConfiguration.Builder builder = new NeuralNetConfiguration.Builder()
                 .seed(seed)
                 .batchSize(batchSize)
-                .iterations(iterations).useDropConnect(true)
-                .gradientNormalization(GradientNormalization.RenormalizeL2PerLayer)
-                .regularization(true)
-                .l2(2e-3)
+                .iterations(iterations)
+                .regularization(true).l2(0.0005)
+                .learningRate(0.01)
                 .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
+                .updater(Updater.NESTEROVS).momentum(0.9)
                 .list(6)
                 .layer(0, new ConvolutionLayer.Builder(5, 5)
                         .nIn(nChannels)
-                        .stride(2, 2)
+                        .stride(1, 1)
                         .nOut(20).dropOut(0.5)
                         .weightInit(WeightInit.XAVIER)
                         .activation("relu")
@@ -79,7 +75,7 @@ public class LenetMnistExample {
                 .layer(1, new SubsamplingLayer.Builder(SubsamplingLayer.PoolingType.MAX, new int[]{2, 2})
                         .build())
                 .layer(2, new ConvolutionLayer.Builder(5, 5)
-                        .nIn(nChannels)
+                        .nIn(20)
                         .nOut(50)
                         .stride(2,2)
                         .weightInit(WeightInit.XAVIER)
@@ -95,16 +91,15 @@ public class LenetMnistExample {
                         .activation("softmax")
                         .build())
                 .backprop(true).pretrain(false);
-
         new ConvolutionLayerSetup(builder,28,28,1);
 
         MultiLayerConfiguration conf = builder.build();
-
         MultiLayerNetwork model = new MultiLayerNetwork(conf);
         model.init();
 
+
         log.info("Train model....");
-        model.setListeners(new ScoreIterationListener(listenerFreq));
+        model.setListeners(new ScoreIterationListener(1));
         while(mnistIter.hasNext()) {
             mnist = mnistIter.next();
             trainTest = mnist.splitTestAndTrain(splitTrainNum, new Random(seed)); // train set that is the result
@@ -130,5 +125,4 @@ public class LenetMnistExample {
 
 
     }
-
 }
