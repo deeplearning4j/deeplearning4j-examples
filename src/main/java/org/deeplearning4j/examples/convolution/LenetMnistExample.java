@@ -58,7 +58,6 @@ public class LenetMnistExample {
         log.info("Build model....");
         MultiLayerConfiguration.Builder builder = new NeuralNetConfiguration.Builder()
                 .seed(seed)
-                .batchSize(batchSize)
                 .iterations(iterations)
                 .regularization(true).l2(0.0005)
                 .learningRate(0.01)

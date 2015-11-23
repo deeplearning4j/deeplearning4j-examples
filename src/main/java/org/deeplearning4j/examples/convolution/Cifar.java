@@ -38,7 +38,6 @@ public class Cifar {
         //setup the network
         MultiLayerConfiguration.Builder builder = new NeuralNetConfiguration.Builder()
                 .seed(seed)
-                .batchSize(batchSize)
                 .iterations(iterations).regularization(true)
                 .l1(1e-1).l2(2e-4).useDropConnect(true)
                 .gradientNormalization(GradientNormalization.RenormalizeL2PerLayer) // TODO confirm this is required
