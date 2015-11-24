@@ -49,7 +49,7 @@ public class GravesLSTMCharModellingExample {
 	public static void main( String[] args ) throws Exception {
 		int lstmLayerSize = 200;					//Number of units in each GravesLSTM layer
 		int miniBatchSize = 32;						//Size of mini batch to use when  training
-		int examplesPerEpoch = 50*miniBatchSize;	//i.e., how many examples to learn on between generating samples
+		int examplesPerEpoch = 50 * miniBatchSize;	//i.e., how many examples to learn on between generating samples
 		int exampleLength = 100;					//Length of each training example
 		int numEpochs = 30;							//Total number of training + sample generation epochs
 		int nSamplesToGenerate = 4;					//Number of samples to generate after each training epoch
