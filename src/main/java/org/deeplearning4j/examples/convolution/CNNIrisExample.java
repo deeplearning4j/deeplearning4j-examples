@@ -18,6 +18,7 @@ import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.dataset.SplitTestAndTrain;
+import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,29 +51,26 @@ public class CNNIrisExample {
          *Set a neural network configuration with multiple layers
          */
         log.info("Load data....");
-        DataSetIterator irisIter = new IrisDataSetIterator(batchSize, numSamples);
+        DataSetIterator irisIter = new IrisDataSetIterator(150, 150);
         DataSet iris = irisIter.next();
         iris.normalizeZeroMeanZeroUnitVariance();
-
+        System.out.println("Loaded " + iris.labelCounts());
+        Nd4j.shuffle(iris.getFeatureMatrix(), new Random(seed), 1);
+        Nd4j.shuffle(iris.getLabels(),new Random(seed),1);
         SplitTestAndTrain trainTest = iris.splitTestAndTrain(splitTrainNum, new Random(seed));
 
         MultiLayerConfiguration.Builder builder = new NeuralNetConfiguration.Builder()
                 .seed(seed)
                 .iterations(iterations)
-                .gradientNormalization(GradientNormalization.RenormalizeL2PerLayer)
                 .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
-                .l2(2e-4)
-                .regularization(true)
-                .useDropConnect(true)
                 .list(2)
                 .layer(0, new ConvolutionLayer.Builder(new int[]{1, 1})
                         .nIn(nChannels)
-                        .nOut(6).dropOut(0.5)
+                        .nOut(1000)
                         .activation("relu")
-                        .weightInit(WeightInit.XAVIER)
+                        .weightInit(WeightInit.RELU)
                         .build())
                 .layer(1, new OutputLayer.Builder(LossFunctions.LossFunction.MCXENT)
-                        .nIn(6)
                         .nOut(outputNum)
                         .weightInit(WeightInit.XAVIER)
                         .activation("softmax")
@@ -89,6 +87,7 @@ public class CNNIrisExample {
         model.setListeners(Arrays.asList((IterationListener) new ScoreIterationListener(listenerFreq)));
 
         log.info("Train model....");
+        System.out.println("Training on " + trainTest.getTrain().labelCounts());
         model.fit(trainTest.getTrain());
 
         log.info("Evaluate weights....");
@@ -98,6 +97,8 @@ public class CNNIrisExample {
         }
 
         log.info("Evaluate model....");
+        System.out.println("Training on " + trainTest.getTest().labelCounts());
+
         Evaluation eval = new Evaluation(outputNum);
         INDArray output = model.output(trainTest.getTest().getFeatureMatrix());
         eval.eval(trainTest.getTest().getLabels(), output);
