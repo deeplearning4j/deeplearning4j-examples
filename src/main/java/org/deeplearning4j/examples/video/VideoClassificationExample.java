@@ -1,6 +1,7 @@
 package org.deeplearning4j.examples.video;
 
 import org.apache.commons.io.FilenameUtils;
+import org.apache.uima.util.FileUtils;
 import org.canova.api.conf.Configuration;
 import org.canova.api.records.reader.SequenceRecordReader;
 import org.canova.api.records.reader.impl.CSVSequenceRecordReader;
@@ -22,6 +23,7 @@ import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.dataset.api.DataSetPreProcessor;
+import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 
 import java.io.File;
@@ -151,6 +153,8 @@ public class VideoClassificationExample {
         for (int i = 0; i < nTrainEpochs; i++) {
             DataSetIterator trainData = getDataSetIterator(dataDirectory, 0, nTrain - 1, miniBatchSize);
             net.fit(trainData);
+            Nd4j.saveBinary(net.params(),new File("videomodel.bin"));
+            FileUtils.saveString2File(conf.toJson(),new File("videoconf.json"));
             System.out.println("Epoch " + i + " complete");
 
             //Evaluate classification performance:
