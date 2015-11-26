@@ -1,5 +1,6 @@
 package org.deeplearning4j.examples.video;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.uima.util.FileUtils;
 import org.canova.api.conf.Configuration;
 import org.canova.api.records.reader.SequenceRecordReader;
@@ -57,10 +58,8 @@ public class VideoClassificationExample {
         boolean generateData = true;
 
         String tempDir = System.getProperty("java.io.tmpdir");
-        String dataDirectory = "DL4JVideoShapesExample/";   //Location to store generated data set
-        File videoDir = new File(tempDir,dataDirectory);
-        if(!videoDir.exists())
-            videoDir.mkdirs();
+        String dataDirectory = FilenameUtils.concat(tempDir, "DL4JVideoShapesExample/");   //Location to store generated data set
+
         //Generate data: number of .mp4 videos for input, plus .txt files for the labels
         if (generateData) {
             System.out.println("Starting data generation...");
@@ -154,11 +153,12 @@ public class VideoClassificationExample {
         for (int i = 0; i < nTrainEpochs; i++) {
             DataSetIterator trainData = getDataSetIterator(dataDirectory, 0, nTrain - 1, miniBatchSize);
             net.fit(trainData);
+            Nd4j.saveBinary(net.params(),new File("videomodel.bin"));
+            FileUtils.saveString2File(conf.toJson(),new File("videoconf.json"));
             System.out.println("Epoch " + i + " complete");
-            Nd4j.saveBinary(net.params(),new File("videoexample.bin"));
-            FileUtils.saveString2File(conf.toJson(),new File("videomodelconf.json"));
+
             //Evaluate classification performance:
-            evaluatePerformance(net, testStartIdx, nTest, dataDirectory);
+            evaluatePerformance(net,testStartIdx,nTest,dataDirectory);
         }
     }
 
