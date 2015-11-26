@@ -1,5 +1,6 @@
 package org.deeplearning4j.examples.video;
 
+import org.apache.commons.io.FilenameUtils;
 import org.jcodec.api.SequenceEncoder;
 
 import java.awt.*;
@@ -153,13 +154,11 @@ public class VideoGenerator {
     public static void generateVideoData(String outputFolder, String filePrefix, int nVideos, int nFrames,
                                          int width, int height, int numShapesPerVideo, boolean backgroundNoise,
                                          int numDistractorsPerFrame, long seed) throws Exception {
-        if (!outputFolder.endsWith("/") && !outputFolder.endsWith("\\")) outputFolder += "/";
-
         Random r = new Random(seed);
 
         for (int i = 0; i < nVideos; i++) {
-            String videoPath = outputFolder + filePrefix + "_" + i + ".mp4";
-            String labelsPath = outputFolder + filePrefix + "_" + i + ".txt";
+            String videoPath = FilenameUtils.concat(outputFolder, filePrefix + "_" + i + ".mp4");
+            String labelsPath = FilenameUtils.concat(outputFolder, filePrefix + "_" + i + ".txt");
             int[] labels = generateVideo(videoPath, nFrames, width, height, numShapesPerVideo, r, backgroundNoise, numDistractorsPerFrame);
 
             //Write labels to text file
