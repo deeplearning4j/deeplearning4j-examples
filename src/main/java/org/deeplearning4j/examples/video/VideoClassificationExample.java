@@ -1,5 +1,6 @@
 package org.deeplearning4j.examples.video;
 
+import org.apache.uima.util.FileUtils;
 import org.canova.api.conf.Configuration;
 import org.canova.api.records.reader.SequenceRecordReader;
 import org.canova.api.records.reader.impl.CSVSequenceRecordReader;
@@ -21,6 +22,7 @@ import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.dataset.api.DataSetPreProcessor;
+import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 
 import java.io.File;
@@ -55,8 +57,10 @@ public class VideoClassificationExample {
         boolean generateData = true;
 
         String tempDir = System.getProperty("java.io.tmpdir");
-        String dataDirectory = tempDir + "DL4JVideoShapesExample/";   //Location to store generated data set
-
+        String dataDirectory = "DL4JVideoShapesExample/";   //Location to store generated data set
+        File videoDir = new File(tempDir,dataDirectory);
+        if(!videoDir.exists())
+            videoDir.mkdirs();
         //Generate data: number of .mp4 videos for input, plus .txt files for the labels
         if (generateData) {
             System.out.println("Starting data generation...");
@@ -151,9 +155,10 @@ public class VideoClassificationExample {
             DataSetIterator trainData = getDataSetIterator(dataDirectory, 0, nTrain - 1, miniBatchSize);
             net.fit(trainData);
             System.out.println("Epoch " + i + " complete");
-
+            Nd4j.saveBinary(net.params(),new File("videoexample.bin"));
+            FileUtils.saveString2File(conf.toJson(),new File("videomodelconf.json"));
             //Evaluate classification performance:
-            evaluatePerformance(net,testStartIdx,nTest,dataDirectory);
+            evaluatePerformance(net, testStartIdx, nTest, dataDirectory);
         }
     }
 
