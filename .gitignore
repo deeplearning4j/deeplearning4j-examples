@@ -41,4 +41,5 @@ metastore_db
 Word2vec-index/
 *.txt
 *.conf
+*.json
 
