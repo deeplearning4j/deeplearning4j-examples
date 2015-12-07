@@ -81,7 +81,7 @@ public class VideoClassificationExample {
                         .nOut(30)
                         .stride(4, 4)
                         .activation("relu")
-                        .weightInit(WeightInit.XAVIER)
+                        .weightInit(WeightInit.RELU)
                         .updater(updater)
                         .build())   //Output: (130-10+0)/4+1 = 31 -> 31*31*30
                 .layer(1, new SubsamplingLayer.Builder(SubsamplingLayer.PoolingType.MAX)
@@ -92,14 +92,14 @@ public class VideoClassificationExample {
                         .nOut(10)
                         .stride(2, 2)
                         .activation("relu")
-                        .weightInit(WeightInit.XAVIER)
+                        .weightInit(WeightInit.RELU)
                         .updater(updater)
                         .build())   //Output: (15-3+0)/2+1 = 7 -> 7*7*10 = 490
                 .layer(3, new DenseLayer.Builder()
                         .activation("relu")
                         .nIn(490)
                         .nOut(50)
-                        .weightInit(WeightInit.XAVIER)
+                        .weightInit(WeightInit.RELU)
                         .updater(updater)
                         .gradientNormalization(GradientNormalization.ClipElementWiseAbsoluteValue)
                         .gradientNormalizationThreshold(10)
@@ -135,8 +135,7 @@ public class VideoClassificationExample {
 
         MultiLayerNetwork net = new MultiLayerNetwork(conf);
         net.init();
-        net.setListeners(Collections.singletonList((IterationListener) new ScoreIterationListener(1)));
-//        net.setListeners(Arrays.asList(new ScoreIterationListener(1), new HistogramIterationListener(1)));
+        net.setListeners(new ScoreIterationListener(1));
 
         System.out.println("Number of parameters in network: " + net.numParams());
         for( int i=0; i<net.getnLayers(); i++ ){
@@ -152,7 +151,8 @@ public class VideoClassificationExample {
         int nTrainEpochs = 15;
         for (int i = 0; i < nTrainEpochs; i++) {
             DataSetIterator trainData = getDataSetIterator(dataDirectory, 0, nTrain - 1, miniBatchSize);
-            net.fit(trainData);
+            while(trainData.hasNext())
+                net.fit(trainData.next());
             Nd4j.saveBinary(net.params(),new File("videomodel.bin"));
             FileUtils.saveString2File(conf.toJson(),new File("videoconf.json"));
             System.out.println("Epoch " + i + " complete");
