@@ -41,19 +41,14 @@ public class LenetMnistExample {
     public static void main(String[] args) throws Exception {
         int nChannels = 1;
         int outputNum = 10;
-        int numSamples = 60000;
-        int batchSize = 100;
+        int batchSize = 64;
+        int nEpochs = 10;
         int iterations = 1;
-        int splitTrainNum = (int) (batchSize*.8);
         int seed = 123;
-        DataSet mnist;
-        SplitTestAndTrain trainTest;
-        DataSet trainInput;
-        List<INDArray> testInput = new ArrayList<>();
-        List<INDArray> testLabels = new ArrayList<>();
 
         log.info("Load data....");
-        DataSetIterator mnistIter = new MnistDataSetIterator(batchSize,numSamples, true);
+        DataSetIterator mnistTrain = new MnistDataSetIterator(batchSize,true,12345);
+        DataSetIterator mnistTest = new MnistDataSetIterator(batchSize,false,12345);
 
         log.info("Build model....");
         MultiLayerConfiguration.Builder builder = new NeuralNetConfiguration.Builder()
@@ -61,32 +56,24 @@ public class LenetMnistExample {
                 .iterations(iterations)
                 .regularization(true).l2(0.0005)
                 .learningRate(0.01)
+                .weightInit(WeightInit.XAVIER)
                 .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
                 .updater(Updater.NESTEROVS).momentum(0.9)
-                .list(6)
+                .list(4)
                 .layer(0, new ConvolutionLayer.Builder(5, 5)
                         .nIn(nChannels)
                         .stride(1, 1)
                         .nOut(20).dropOut(0.5)
-                        .weightInit(WeightInit.XAVIER)
                         .activation("relu")
                         .build())
-                .layer(1, new SubsamplingLayer.Builder(SubsamplingLayer.PoolingType.MAX, new int[]{2, 2})
-                        .build())
-                .layer(2, new ConvolutionLayer.Builder(5, 5)
-                        .nIn(20)
-                        .nOut(50)
+                .layer(1, new SubsamplingLayer.Builder(SubsamplingLayer.PoolingType.MAX)
+                        .kernelSize(2,2)
                         .stride(2,2)
-                        .weightInit(WeightInit.XAVIER)
-                        .activation("relu")
                         .build())
-                .layer(3, new SubsamplingLayer.Builder(SubsamplingLayer.PoolingType.MAX, new int[]{2, 2})
-                        .build())
-                .layer(4, new DenseLayer.Builder().activation("tanh")
+                .layer(2, new DenseLayer.Builder().activation("relu")
                         .nOut(500).build())
-                .layer(5, new OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD)
+                .layer(3, new OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD)
                         .nOut(outputNum)
-                        .weightInit(WeightInit.XAVIER)
                         .activation("softmax")
                         .build())
                 .backprop(true).pretrain(false);
@@ -99,29 +86,20 @@ public class LenetMnistExample {
 
         log.info("Train model....");
         model.setListeners(new ScoreIterationListener(1));
-        while(mnistIter.hasNext()) {
-            mnist = mnistIter.next();
-            trainTest = mnist.splitTestAndTrain(splitTrainNum, new Random(seed)); // train set that is the result
-            trainInput = trainTest.getTrain(); // get feature matrix and labels for training
-            testInput.add(trainTest.getTest().getFeatureMatrix());
-            testLabels.add(trainTest.getTest().getLabels());
+        for( int i=0; i<nEpochs; i++ ) {
+            model.fit(mnistTrain);
+            log.info("*** Completed epoch {} ***", i);
 
-            model.fit(trainInput);
+            log.info("Evaluate model....");
+            Evaluation eval = new Evaluation(outputNum);
+            while(mnistTest.hasNext()){
+                DataSet ds = mnistTest.next();
+                INDArray output = model.output(ds.getFeatureMatrix());
+                eval.eval(ds.getLabels(), output);
+            }
+            log.info(eval.stats());
+            mnistTest.reset();
         }
-
-        log.info("Evaluate weights....");
-
-        log.info("Evaluate model....");
-        Evaluation eval = new Evaluation(outputNum);
-        for(int i = 0; i < testInput.size(); i++) {
-            INDArray output = model.output(testInput.get(i));
-            eval.eval(testLabels.get(i), output);
-        }
-        INDArray output = model.output(testInput.get(0));
-        eval.eval(testLabels.get(0), output);
-        log.info(eval.stats());
         log.info("****************Example finished********************");
-
-
     }
 }
