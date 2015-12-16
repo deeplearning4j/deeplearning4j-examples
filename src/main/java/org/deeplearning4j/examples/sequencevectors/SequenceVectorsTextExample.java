@@ -1,4 +1,4 @@
-package org.deeplearning4j.examples.abstractvectors;
+package org.deeplearning4j.examples.sequencevectors;
 
 import org.deeplearning4j.models.embeddings.WeightLookupTable;
 import org.deeplearning4j.models.embeddings.inmemory.InMemoryLookupTable;
@@ -12,9 +12,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
 import org.deeplearning4j.models.word2vec.wordstore.inmemory.AbstractCache;
-import org.deeplearning4j.models.abstractvectors.iterators.AbstractSequenceIterator;
-import org.deeplearning4j.models.abstractvectors.transformers.impl.SentenceTransformer;
-import org.deeplearning4j.models.abstractvectors.AbstractVectors;
+import org.deeplearning4j.models.sequencevectors.iterators.AbstractSequenceIterator;
+import org.deeplearning4j.models.sequencevectors.transformers.impl.SentenceTransformer;
+import org.deeplearning4j.models.sequencevectors.SequenceVectors;
 import org.deeplearning4j.models.embeddings.loader.VectorsConfiguration;
 
 import java.io.File;
@@ -32,9 +32,9 @@ import static org.junit.Assert.assertTrue;
  * *************************************************************************************************
  * @author raver119@gmail.com
  */
-public class AbstractVectorsTextExample {
+public class SequenceVectorsTextExample {
 
-    protected static final Logger logger = LoggerFactory.getLogger(AbstractVectorsTextExample.class);
+    protected static final Logger logger = LoggerFactory.getLogger(SequenceVectorsTextExample.class);
 
     public static void main(String[] args) throws Exception {
 
@@ -100,7 +100,7 @@ public class AbstractVectorsTextExample {
         /*
             Now we can build AbstractVectors model, that suits our needs
          */
-        AbstractVectors<VocabWord> vectors = new AbstractVectors.Builder<VocabWord>(new VectorsConfiguration())
+        SequenceVectors<VocabWord> vectors = new SequenceVectors.Builder<VocabWord>(new VectorsConfiguration())
                 // minimum number of occurencies for each element in training corpus. All elements below this value will be ignored
                 // Please note: this value has effect only if resetModel() set to TRUE, for internal model building. Otherwise it'll be ignored, and actual vocabulary content will be used
                 .minWordFrequency(5)
