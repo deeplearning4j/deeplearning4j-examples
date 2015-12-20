@@ -2,6 +2,7 @@ package org.deeplearning4j.examples.sequencevectors;
 
 import org.deeplearning4j.models.embeddings.WeightLookupTable;
 import org.deeplearning4j.models.embeddings.inmemory.InMemoryLookupTable;
+import org.deeplearning4j.models.embeddings.learning.impl.elements.SkipGram;
 import org.deeplearning4j.models.word2vec.VocabWord;
 import org.deeplearning4j.models.word2vec.wordstore.VocabConstructor;
 import org.deeplearning4j.text.sentenceiterator.BasicLineIterator;
@@ -134,6 +135,11 @@ public class SequenceVectorsTextExample {
                  */
                 .trainElementsRepresentation(true)
                 .trainSequencesRepresentation(false)
+
+                /*
+                    Specifies elements learning algorithms. SkipGram, for example.
+                 */
+                .elementsLearningAlgorithm(new SkipGram<VocabWord>())
 
                 .build();
 
