@@ -24,6 +24,7 @@ public class GloVeExample {
     public static void main(String[] args) throws Exception {
         File inputFile = new ClassPathResource("raw_sentences.txt").getFile();
 
+        // creating SentenceIterator wrapping our training corpus
         SentenceIterator iter = new BasicLineIterator(inputFile.getAbsolutePath());
 
         // Split on white spaces in the line to get words
@@ -33,11 +34,24 @@ public class GloVeExample {
         Glove glove = new Glove.Builder()
                 .iterate(iter)
                 .tokenizerFactory(t)
+
+
                 .alpha(0.75)
-                .learningRate(0.05)
+                .learningRate(0.1)
+
+                // number of epochs for training
                 .epochs(25)
+
+                // cutoff for weighting function
                 .xMax(100)
+
+                // training is done in batches taken from training corpus
+                .batchSize(1000)
+
+                // if set to true, batches will be shuffled before training
                 .shuffle(true)
+
+                // if set to true word pairs will be built in both directions, LTR and RTL
                 .symmetric(true)
                 .build();
 
