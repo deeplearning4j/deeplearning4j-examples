@@ -42,12 +42,6 @@ public class Word2VecUptrainingExample {
         TokenizerFactory t = new DefaultTokenizerFactory();
         t.setTokenPreProcessor(new CommonPreprocessor());
 
-        InMemoryLookupCache cache = new InMemoryLookupCache();
-        WeightLookupTable table = new InMemoryLookupTable.Builder()
-                .vectorLength(100)
-                .useAdaGrad(false)
-                .cache(cache)
-                .lr(0.025f).build();
 
         log.info("Building model....");
         Word2Vec vec = new Word2Vec.Builder()
@@ -55,8 +49,6 @@ public class Word2VecUptrainingExample {
                 .iterations(1)
                 .epochs(1)
                 .layerSize(100)
-                .lookupTable(table)
-                .vocabCache(cache)
                 .seed(42)
                 .windowSize(5)
                 .iterate(iter)

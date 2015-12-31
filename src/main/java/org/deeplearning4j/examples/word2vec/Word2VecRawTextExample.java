@@ -35,26 +35,23 @@ public class Word2VecRawTextExample {
         TokenizerFactory t = new DefaultTokenizerFactory();
         t.setTokenPreProcessor(new CommonPreprocessor());
 
-        InMemoryLookupCache cache = new InMemoryLookupCache();
-        WeightLookupTable table = new InMemoryLookupTable.Builder()
-                .vectorLength(100)
-                .useAdaGrad(false)
-                .cache(cache)
-                .lr(0.025f).build();
-
         log.info("Building model....");
         Word2Vec vec = new Word2Vec.Builder()
-                .minWordFrequency(5).iterations(1)
-                .layerSize(100).lookupTable(table)
-                .stopWords(new ArrayList<String>())
-                .vocabCache(cache).seed(42)
-                .windowSize(5).iterate(iter).tokenizerFactory(t).build();
+                .minWordFrequency(5)
+                .iterations(1)
+                .layerSize(100)
+                .seed(42)
+                .windowSize(5)
+                .iterate(iter)
+                .tokenizerFactory(t)
+                .build();
 
         log.info("Fitting Word2Vec model....");
         vec.fit();
 
         log.info("Writing word vectors to text file....");
-        // Write word
+
+        // Write word vectors
         WordVectorSerializer.writeWordVectors(vec, "pathToWriteto.txt");
 
         log.info("Closest Words:");
