@@ -189,6 +189,11 @@ public class SentimentExampleIterator implements DataSetIterator {
     }
 
     @Override
+    public List<String> getLabels() {
+        return Arrays.asList("positive","negative");
+    }
+
+    @Override
     public boolean hasNext() {
         return cursor < numExamples();
     }
