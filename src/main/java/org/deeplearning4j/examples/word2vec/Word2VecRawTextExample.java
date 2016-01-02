@@ -1,10 +1,12 @@
 package org.deeplearning4j.examples.word2vec;
 
+import org.canova.api.util.ClassPathResource;
 import org.deeplearning4j.models.embeddings.WeightLookupTable;
 import org.deeplearning4j.models.embeddings.inmemory.InMemoryLookupTable;
 import org.deeplearning4j.models.embeddings.loader.WordVectorSerializer;
 import org.deeplearning4j.models.word2vec.Word2Vec;
 import org.deeplearning4j.models.word2vec.wordstore.inmemory.InMemoryLookupCache;
+import org.deeplearning4j.text.sentenceiterator.BasicLineIterator;
 import org.deeplearning4j.text.sentenceiterator.SentenceIterator;
 import org.deeplearning4j.text.sentenceiterator.UimaSentenceIterator;
 import org.deeplearning4j.text.tokenization.tokenizer.preprocessor.CommonPreprocessor;
@@ -12,7 +14,7 @@ import org.deeplearning4j.text.tokenization.tokenizerfactory.DefaultTokenizerFac
 import org.deeplearning4j.text.tokenization.tokenizerfactory.TokenizerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.core.io.ClassPathResource;
+
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -30,7 +32,7 @@ public class Word2VecRawTextExample {
 
         log.info("Load & Vectorize Sentences....");
         // Strip white space before and after for each line
-        SentenceIterator iter = UimaSentenceIterator.createWithPath(filePath);
+        SentenceIterator iter = new BasicLineIterator(filePath);
         // Split on white spaces in the line to get words
         TokenizerFactory t = new DefaultTokenizerFactory();
         t.setTokenPreProcessor(new CommonPreprocessor());
