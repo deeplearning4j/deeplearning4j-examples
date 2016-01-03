@@ -5,6 +5,7 @@ import org.apache.commons.io.FileUtils;
 import org.deeplearning4j.datasets.iterator.DataSetIterator;
 import org.deeplearning4j.datasets.iterator.impl.IrisDataSetIterator;
 import org.deeplearning4j.eval.Evaluation;
+import org.deeplearning4j.nn.api.Layer;
 import org.deeplearning4j.nn.api.OptimizationAlgorithm;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
@@ -67,37 +68,33 @@ public class DBNIrisExample {
 
         log.info("Build model....");
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
-            .seed(seed) // Locks in weight initialization for tuning
-            .iterations(iterations) // # training iterations predict/classify & backprop
-            .learningRate(1e-6f) // Optimization step size
-            .optimizationAlgo(OptimizationAlgorithm.CONJUGATE_GRADIENT) // Backprop to calculate gradients
-            .l1(1e-1).regularization(true).l2(2e-4)
-            .useDropConnect(true)
-            .list(2) // # NN layers (doesn't count input layer)
-          .layer(0, new RBM.Builder(RBM.HiddenUnit.RECTIFIED, RBM.VisibleUnit.GAUSSIAN)
-            .nIn(numRows * numColumns) // # input nodes
-            .nOut(3) // # fully connected hidden layer nodes. Add list if multiple layers.
-            .weightInit(WeightInit.XAVIER) // Weight initialization
-            .k(1) // # contrastive divergence iterations
-            .activation("relu") // Activation function type
-            .lossFunction(LossFunctions.LossFunction.RMSE_XENT) // Loss function type
-            .updater(Updater.ADAGRAD)
-            .dropOut(0.5)
-            .build()
-          ) // NN layer type
-          .layer(1, new OutputLayer.Builder(LossFunctions.LossFunction.MCXENT)
-            .nIn(3) // # input nodes
-            .nOut(outputNum) // # output nodes
-            .activation("softmax")
-            .build()
-        ) // NN layer type
-        .build();
+                .seed(seed) // Locks in weight initialization for tuning
+                .iterations(iterations) // # training iterations predict/classify & backprop
+                .learningRate(1e-6f) // Optimization step size
+                .optimizationAlgo(OptimizationAlgorithm.CONJUGATE_GRADIENT) // Backprop to calculate gradients
+                .l1(1e-1).regularization(true).l2(2e-4)
+                .useDropConnect(true)
+                .list(2) // # NN layers (doesn't count input layer)
+                .layer(0, new RBM.Builder(RBM.HiddenUnit.RECTIFIED, RBM.VisibleUnit.GAUSSIAN)
+                                .nIn(numRows * numColumns) // # input nodes
+                                .nOut(3) // # fully connected hidden layer nodes. Add list if multiple layers.
+                                .weightInit(WeightInit.XAVIER) // Weight initialization
+                                .k(1) // # contrastive divergence iterations
+                                .activation("relu") // Activation function type
+                                .lossFunction(LossFunctions.LossFunction.RMSE_XENT) // Loss function type
+                                .updater(Updater.ADAGRAD)
+                                .dropOut(0.5)
+                                .build()
+                ) // NN layer type
+                .layer(1, new OutputLayer.Builder(LossFunctions.LossFunction.MCXENT)
+                                .nIn(3) // # input nodes
+                                .nOut(outputNum) // # output nodes
+                                .activation("softmax")
+                                .build()
+                ) // NN layer type
+                .build();
         MultiLayerNetwork model = new MultiLayerNetwork(conf);
         model.init();
-//        model.setListeners(Arrays.asList(new ScoreIterationListener(listenerFreq),
-//                new GradientPlotterIterationListener(listenerFreq),
-//                new LossPlotterIterationListener(listenerFreq)));
-
 
         model.setListeners(Arrays.asList((IterationListener) new ScoreIterationListener(listenerFreq)));
         log.info("Train model....");
@@ -111,16 +108,19 @@ public class DBNIrisExample {
 
         log.info("Evaluate model....");
         Evaluation eval = new Evaluation(outputNum);
-        INDArray output = model.output(test.getFeatureMatrix());
+        for(int j = 0; j < 2; j++) {
+            INDArray output = model.output(test.getFeatureMatrix(), Layer.TrainingMode.TEST);
 
-        for (int i = 0; i < output.rows(); i++) {
-            String actual = test.getLabels().getRow(i).toString().trim();
-            String predicted = output.getRow(i).toString().trim();
-            log.info("actual " + actual + " vs predicted " + predicted);
+            for (int i = 0; i < output.rows(); i++) {
+                String actual = test.getLabels().getRow(i).toString().trim();
+                String predicted = output.getRow(i).toString().trim();
+                log.info("actual " + actual + " vs predicted " + predicted);
+            }
+
+            eval.eval(test.getLabels(), output);
+            log.info(eval.stats());
         }
 
-        eval.eval(test.getLabels(), output);
-        log.info(eval.stats());
         log.info("****************Example finished********************");
 
 
