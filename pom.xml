@@ -55,6 +55,11 @@
             <version>${dl4j.version}</version>
         </dependency>
         <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>19.0</version>
+        </dependency>
+        <dependency>
             <groupId>org.nd4j</groupId>
             <artifactId>nd4j-x86</artifactId>
             <version>${nd4j.version}</version>
