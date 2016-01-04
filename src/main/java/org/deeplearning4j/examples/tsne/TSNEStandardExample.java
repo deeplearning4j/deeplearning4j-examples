@@ -4,8 +4,11 @@ import org.deeplearning4j.berkeley.Pair;
 import org.deeplearning4j.models.embeddings.inmemory.InMemoryLookupTable;
 import org.deeplearning4j.models.embeddings.loader.WordVectorSerializer;
 import org.deeplearning4j.models.word2vec.wordstore.VocabCache;
+import org.deeplearning4j.plot.BarnesHutTsne;
 import org.deeplearning4j.plot.Tsne;
+import org.nd4j.linalg.api.buffer.DataBuffer;
 import org.nd4j.linalg.api.ndarray.INDArray;
+import org.nd4j.linalg.factory.Nd4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
@@ -25,6 +28,8 @@ public class TSNEStandardExample {
 
     public static void main(String[] args) throws Exception  {
         int iterations = 100;
+        Nd4j.dtype = DataBuffer.Type.DOUBLE;
+        Nd4j.factory().setDType(DataBuffer.Type.DOUBLE);
         List<String> cacheList = new ArrayList<>();
 
         log.info("Load & Vectorize data....");
@@ -37,8 +42,8 @@ public class TSNEStandardExample {
             cacheList.add(cache.wordAtIndex(i));
 
         log.info("Build model....");
-        Tsne tsne = new Tsne.Builder()
-                .setMaxIter(iterations)
+        BarnesHutTsne tsne = new BarnesHutTsne.Builder()
+                .setMaxIter(iterations).theta(0.5)
                 .normalize(false)
                 .learningRate(500)
                 .useAdaGrad(false)

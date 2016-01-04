@@ -203,6 +203,11 @@ public class SentimentExampleIterator implements DataSetIterator {
         return next(batchSize);
     }
 
+    @Override
+    public void remove() {
+
+    }
+
     /** Convenience method for loading review to String */
     public String loadReviewToString(int index) throws IOException{
         File f;
