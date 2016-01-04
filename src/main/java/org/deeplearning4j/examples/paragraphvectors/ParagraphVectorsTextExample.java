@@ -29,7 +29,7 @@ public class ParagraphVectorsTextExample {
     private static final Logger log = LoggerFactory.getLogger(ParagraphVectorsTextExample.class);
 
     public static void main(String[] args) throws Exception {
-        ClassPathResource resource = new ClassPathResource("/big/raw_sentences.txt");
+        ClassPathResource resource = new ClassPathResource("/raw_sentences.txt");
         File file = resource.getFile();
         SentenceIterator iter = new BasicLineIterator(file);
 
