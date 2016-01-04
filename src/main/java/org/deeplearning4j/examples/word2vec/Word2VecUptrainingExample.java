@@ -4,6 +4,7 @@ import org.canova.api.util.ClassPathResource;
 import org.deeplearning4j.models.embeddings.WeightLookupTable;
 import org.deeplearning4j.models.embeddings.inmemory.InMemoryLookupTable;
 import org.deeplearning4j.models.embeddings.loader.WordVectorSerializer;
+import org.deeplearning4j.models.word2vec.VocabWord;
 import org.deeplearning4j.models.word2vec.Word2Vec;
 import org.deeplearning4j.models.word2vec.wordstore.inmemory.InMemoryLookupCache;
 import org.deeplearning4j.text.sentenceiterator.BasicLineIterator;
@@ -43,6 +44,14 @@ public class Word2VecUptrainingExample {
         TokenizerFactory t = new DefaultTokenizerFactory();
         t.setTokenPreProcessor(new CommonPreprocessor());
 
+        // manual creation of VocabCache and WeightLookupTable usually isn't necessary
+        // but in this case we'll need them
+        InMemoryLookupCache cache = new InMemoryLookupCache();
+        WeightLookupTable<VocabWord> table = new InMemoryLookupTable.Builder<VocabWord>()
+                .vectorLength(100)
+                .useAdaGrad(false)
+                .cache(cache)
+                .lr(0.025f).build();
 
         log.info("Building model....");
         Word2Vec vec = new Word2Vec.Builder()
@@ -54,6 +63,8 @@ public class Word2VecUptrainingExample {
                 .windowSize(5)
                 .iterate(iter)
                 .tokenizerFactory(t)
+                .lookupTable(table)
+                .vocabCache(cache)
                 .build();
 
         log.info("Fitting Word2Vec model....");
