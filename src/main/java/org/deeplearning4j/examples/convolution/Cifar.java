@@ -18,7 +18,8 @@ import java.io.File;
 import java.util.Arrays;
 
 /**
- * Created by agibsonccc on 9/21/15.
+ * Dataset url:
+ * https://s3.amazonaws.com/dl4j-distribution/cifar-small.bin
  */
 public class Cifar {
     public static void main(String[] args) {
