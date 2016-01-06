@@ -41,7 +41,7 @@ public class MeansBuilder {
         cnt.set(0);
         for (String word: documentAsTokens) {
             if (vocabCache.containsWord(word))
-                allWords.putRow(cnt.incrementAndGet(), lookupTable.vector(word));
+                allWords.putRow(cnt.getAndIncrement(), lookupTable.vector(word));
         }
 
         INDArray mean = allWords.mean(0);

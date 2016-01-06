@@ -21,7 +21,7 @@ public class LabelSeeker {
     private InMemoryLookupTable<VocabWord> lookupTable;
 
     public LabelSeeker(@NonNull List<String> labelsUsed, @NonNull InMemoryLookupTable<VocabWord> lookupTable) {
-        if (this.labelsUsed.isEmpty()) throw new IllegalStateException("You can't have 0 labels used for ParagraphVectors");
+        if (labelsUsed.isEmpty()) throw new IllegalStateException("You can't have 0 labels used for ParagraphVectors");
         this.lookupTable = lookupTable;
         this.labelsUsed = labelsUsed;
     }

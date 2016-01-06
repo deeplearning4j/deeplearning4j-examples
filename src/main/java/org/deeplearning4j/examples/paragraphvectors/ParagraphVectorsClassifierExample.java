@@ -52,7 +52,7 @@ public class ParagraphVectorsClassifierExample {
                 .learningRate(0.025)
                 .minLearningRate(0.001)
                 .batchSize(1000)
-                .epochs(10)
+                .epochs(20)
                 .iterate(iterator)
                 .trainWordVectors(true)
                 .tokenizerFactory(t)
