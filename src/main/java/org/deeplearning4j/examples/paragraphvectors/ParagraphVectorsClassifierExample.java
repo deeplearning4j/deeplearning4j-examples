@@ -86,11 +86,30 @@ public class ParagraphVectorsClassifierExample {
             INDArray documentAsCentroid = meansBuilder.documentAsVector(document);
             List<Pair<String, Double>> scores = seeker.getScores(documentAsCentroid);
 
-            // please note, document.getLabel() is used just to show which document we're looking at now, as a substitute for printing out the whole document itself
+            /*
+             please note, document.getLabel() is used just to show which document we're looking at now, as a substitute for printing out the whole document itself.
+             So, labels on these two documents are used like titles, just to visualize our classification done properly
+            */
             log.info("Document '" + document.getLabel() + "' falls into the following categories: ");
             for (Pair<String, Double> score: scores) {
                 log.info("        " + score.getFirst() + ": " + score.getSecond());
             }
+
+            /*
+                Your output should be like this:
+
+                Document 'health' falls into the following categories:
+                    health: 0.29721372296220205
+                    science: 0.011684473733853906
+                    finance: -0.14755302887323793
+
+                Document 'finance' falls into the following categories:
+                    health: -0.17290237675941766
+                    science: -0.09579267574606627
+                    finance: 0.4460859189453788
+
+                    so,now we know categories for yet unseen documents
+             */
         }
     }
 }

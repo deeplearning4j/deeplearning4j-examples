@@ -30,6 +30,12 @@ public class MeansBuilder {
         this.tokenizerFactory = tokenizerFactory;
     }
 
+    /**
+     * This method returns centroid (mean vector) for document.
+     *
+     * @param document
+     * @return
+     */
     public INDArray documentAsVector(@NonNull LabelledDocument document) {
         List<String> documentAsTokens = tokenizerFactory.create(document.getContent()).getTokens();
         AtomicInteger cnt = new AtomicInteger(0);
