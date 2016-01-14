@@ -58,6 +58,7 @@ public class DBNIrisExample {
         log.info("Load data....");
         DataSetIterator iter = new IrisDataSetIterator(batchSize, numSamples);
         DataSet next = iter.next();
+        next.shuffle();
         next.normalizeZeroMeanZeroUnitVariance();
 
         log.info("Split data....");
@@ -96,7 +97,7 @@ public class DBNIrisExample {
         MultiLayerNetwork model = new MultiLayerNetwork(conf);
         model.init();
 
-        model.setListeners(Arrays.asList((IterationListener) new ScoreIterationListener(listenerFreq)));
+        model.setListeners(new ScoreIterationListener(listenerFreq));
         log.info("Train model....");
         model.fit(train);
 
@@ -108,18 +109,8 @@ public class DBNIrisExample {
 
         log.info("Evaluate model....");
         Evaluation eval = new Evaluation(outputNum);
-        for(int j = 0; j < 2; j++) {
-            INDArray output = model.output(test.getFeatureMatrix(), Layer.TrainingMode.TEST);
-
-            for (int i = 0; i < output.rows(); i++) {
-                String actual = test.getLabels().getRow(i).toString().trim();
-                String predicted = output.getRow(i).toString().trim();
-                log.info("actual " + actual + " vs predicted " + predicted);
-            }
-
-            eval.eval(test.getLabels(), output);
-            log.info(eval.stats());
-        }
+        eval.eval(test.getLabels(), model.output(test.getFeatureMatrix(), Layer.TrainingMode.TEST));
+        log.info(eval.stats());
 
         log.info("****************Example finished********************");
 
