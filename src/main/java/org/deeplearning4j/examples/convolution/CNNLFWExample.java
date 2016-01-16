@@ -36,7 +36,7 @@ import java.util.Random;
  * Ideally train on a larger dataset like celebs to get params.
  *
  * Currently set to only use the subset images, names starting with A.
- * Switch to NUM_LABELS & NUM_IMAGES to use full dataset.
+ * Switch to NUM_LABELS & NUM_IMAGES and set subset to false to use full dataset.
  */
 
 public class CNNLFWExample {
@@ -48,14 +48,15 @@ public class CNNLFWExample {
         final int numRows = 40;
         final int numColumns = 40;
         int nChannels = 3;
-        int outputNum = LFWLoader.SUB_NUM_LABELS;
-        int numSamples = LFWLoader.SUB_NUM_IMAGES-4;
-        int batchSize = numSamples/10;
+        int outputNum = LFWLoader.NUM_LABELS;
+        int numSamples = 5000; //LFWLoader.NUM_IMAGES;
+        int batchSize = 250;//numSamples/10;
+        boolean useSubset = false;
+
         int iterations = 5;
         int splitTrainNum = (int) (batchSize*.8);
         int seed = 123;
         int listenerFreq = iterations/5;
-        boolean useSubset = true;
         DataSet lfwNext;
         SplitTestAndTrain trainTest;
         DataSet trainInput;
