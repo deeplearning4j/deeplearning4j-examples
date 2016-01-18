@@ -14,8 +14,10 @@ import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
 import org.deeplearning4j.optimize.api.IterationListener;
 import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
+import org.nd4j.linalg.api.buffer.DataBuffer;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
+import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 import org.springframework.core.io.ClassPathResource;
 
@@ -29,6 +31,8 @@ import java.util.Arrays;
  */
 public class Cifar {
     public static void main(String[] args) throws IOException {
+        Nd4j.dtype = DataBuffer.Type.DOUBLE;
+
         int height = 32;
         int width = 32;
         int channels = 3;
@@ -36,7 +40,7 @@ public class Cifar {
         int numTestSamples = 5000;
         int batchSize = 100;
         int outputNum = 10;
-        int iterations = 5;
+        int iterations = 10;
         int seed = 123;
         int listenerFreq = 5;
 
@@ -48,44 +52,55 @@ public class Cifar {
         MultiLayerConfiguration.Builder builder = new NeuralNetConfiguration.Builder()
                 .seed(seed)
                 .iterations(iterations)
-                .weightInit(WeightInit.XAVIER)
                 .activation("relu")
-                .learningRate(1e-3)
-                .momentum(0.9)
-                .updater(Updater.NESTEROVS)
-                .regularization(true)
-                .l1(1e-1).l2(2e-4)
-                .useDropConnect(true)
-                .gradientNormalization(GradientNormalization.RenormalizeL2PerParamType)
+                .weightInit(WeightInit.XAVIER) // consider standard distribution with std .05
+                .gradientNormalization(GradientNormalization.RenormalizeL2PerLayer)
                 .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
-                .list(6)
+                .learningRate(0.01)
+                .momentum(0.9)
+                .regularization(true)
+                .l2(0.04)
+                .updater(Updater.NESTEROVS)
+                .useDropConnect(true)
+                .list(10)
                 .layer(0, new ConvolutionLayer.Builder(5, 5)
                         .name("cnn1")
-                        .nOut(6)
+                        .nIn(channels)
                         .stride(1, 1)
                         .padding(2, 2)
+                        .nOut(32)
                         .build())
                 .layer(1, new SubsamplingLayer.Builder(SubsamplingLayer.PoolingType.MAX, new int[]{3, 3})
-                        .name("maxpool1")
+                        .name("pool1")
                         .build())
-                .layer(2, new ConvolutionLayer.Builder(5, 5)
+                .layer(2, new LocalResponseNormalization.Builder(3, 5e-05, 0.75).build())
+                .layer(3, new ConvolutionLayer.Builder(5, 5)
                         .name("cnn2")
-                        .nOut(6)
                         .stride(1, 1)
                         .padding(2, 2)
-                        .build())
-                .layer(3, new SubsamplingLayer.Builder(SubsamplingLayer.PoolingType.MAX, new int[]{3, 3})
-                        .name("maxpool2")
-                        .build())
-                .layer(4, new DenseLayer.Builder()
                         .nOut(32)
-                        .dropOut(0.5)
-                        .learningRate(4e-3)
                         .build())
-                .layer(5, new OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD)
+                .layer(4, new SubsamplingLayer.Builder(SubsamplingLayer.PoolingType.MAX, new int[]{3, 3})
+                        .name("pool2")
+                        .build())
+                .layer(5, new LocalResponseNormalization.Builder(3, 5e-05, 0.75).build())
+                .layer(6, new ConvolutionLayer.Builder(5, 5)
+                        .name("cnn3")
+                        .stride(1, 1)
+                        .padding(2, 2)
+                        .nOut(64)
+                        .build())
+                .layer(7, new SubsamplingLayer.Builder(SubsamplingLayer.PoolingType.MAX, new int[]{3, 3})
+                        .name("pool3")
+                        .build())
+                .layer(8, new DenseLayer.Builder()
+                        .name("ffn1")
+                        .nOut(250)
+                        .dropOut(0.5)
+                        .build())
+                .layer(9, new OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD)
                         .nOut(outputNum)
                         .activation("softmax")
-                        .learningRate(1e-2)
                         .build())
                 .backprop(true).pretrain(false)
                 .cnnInputSize(height, width, channels);
