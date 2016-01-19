@@ -26,7 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
@@ -51,7 +51,6 @@ public class CNNLFWExample {
         int outputNum = LFWLoader.NUM_LABELS;
         int numSamples = 5000; //LFWLoader.NUM_IMAGES;
         int batchSize = 250;//numSamples/10;
-        boolean useSubset = false;
 
         int iterations = 5;
         int splitTrainNum = (int) (batchSize*.8);
@@ -63,9 +62,8 @@ public class CNNLFWExample {
         List<INDArray> testInput = new ArrayList<>();
         List<INDArray> testLabels = new ArrayList<>();
 
-
         log.info("Load data....");
-        DataSetIterator lfw = new LFWDataSetIterator(batchSize, numSamples, new int[] {numRows, numColumns, nChannels}, outputNum, useSubset, new Random(seed));
+        DataSetIterator lfw = new LFWDataSetIterator(batchSize, numSamples, new int[] {numRows, numColumns, nChannels}, outputNum, false, new Random(seed));
 
         log.info("Build model....");
         MultiLayerConfiguration.Builder builder = new NeuralNetConfiguration.Builder()
@@ -127,7 +125,7 @@ public class CNNLFWExample {
         model.init();
 
         log.info("Train model....");
-        model.setListeners(Arrays.asList((IterationListener) new ScoreIterationListener(listenerFreq)));
+        model.setListeners(Collections.singletonList((IterationListener) new ScoreIterationListener(listenerFreq)));
 
         while(lfw.hasNext()) {
             lfwNext = lfw.next();
