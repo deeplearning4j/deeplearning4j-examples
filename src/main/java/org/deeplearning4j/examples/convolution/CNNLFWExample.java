@@ -31,9 +31,19 @@ import java.util.List;
 import java.util.Random;
 
 /**
- * Reference: architecture partially based on DeepFace: http://mmlab.ie.cuhk.edu.hk/pdf/YiSun_CVPR14.pdf
+ * Labeled Faces in the Wild is a data set created by Erik Learned-Miller, Gary Huang, Aruni RoyChowdhury,
+ * Haoxiang Li, Gang Hua. This is used to study unconstrained face recognition. There are over 13K images.
+ * Each face has been labeled with the name of the person pictured.
+ *
+ * 5749 unique classes (different people)
+ * 1680 people have 2+ photos
+ *
+ * References:
+ * General information is at http://vis-www.cs.umass.edu/lfw/. Architecture partially based on DeepFace:
+ * http://mmlab.ie.cuhk.edu.hk/pdf/YiSun_CVPR14.pdf
+ *
  * Note: this is a sparse dataset with only 1 example for many of the faces; thus, performance is low.
- * Ideally train on a larger dataset like celebs to get params.
+ * Ideally train on a larger dataset like celebs to get params and/or generate variations of the image examples.
  *
  * Currently set to only use the subset images, names starting with A.
  * Switch to NUM_LABELS & NUM_IMAGES and set subset to false to use full dataset.
