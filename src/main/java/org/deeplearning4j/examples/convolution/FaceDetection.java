@@ -34,7 +34,12 @@ import java.util.List;
 import java.util.Random;
 
 /**
- * Data Reference: http://research.microsoft.com/en-us/projects/msra-cfw/
+ * MSRA-CFW Dataset of Celebrity Faces on the Web is a data set created by MicrosoftResearch.
+ * This is based of of the thumbnails data set which is a smaller subset. It includes 2215 images
+ * and 10 classifications with each image only including one face.
+ *
+ * More information and the data set can be found at: http://research.microsoft.com/en-us/projects/msra-cfw/
+ *
  */
 public class FaceDetection {
     private static final Logger log = LoggerFactory.getLogger(FaceDetection.class);
