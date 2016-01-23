@@ -31,9 +31,19 @@ import java.util.List;
 import java.util.Random;
 
 /**
- * Reference: architecture partially based on DeepFace: http://mmlab.ie.cuhk.edu.hk/pdf/YiSun_CVPR14.pdf
+ * Labeled Faces in the Wild is a data set created by Erik Learned-Miller, Gary Huang, Aruni RoyChowdhury,
+ * Haoxiang Li, Gang Hua. This is used to study unconstrained face recognition. There are over 13K images.
+ * Each face has been labeled with the name of the person pictured.
+ *
+ * 5749 unique classes (different people)
+ * 1680 people have 2+ photos
+ *
+ * References:
+ * General information is at http://vis-www.cs.umass.edu/lfw/. Architecture partially based on DeepFace:
+ * http://mmlab.ie.cuhk.edu.hk/pdf/YiSun_CVPR14.pdf
+ *
  * Note: this is a sparse dataset with only 1 example for many of the faces; thus, performance is low.
- * Ideally train on a larger dataset like celebs to get params.
+ * Ideally train on a larger dataset like celebs to get params and/or generate variations of the image examples.
  *
  * Currently set to only use the subset images, names starting with A.
  * Switch to NUM_LABELS & NUM_IMAGES and set subset to false to use full dataset.
@@ -49,9 +59,9 @@ public class CNNLFWExample {
         final int numColumns = 40;
         int nChannels = 3;
         int outputNum = LFWLoader.NUM_LABELS;
-        int numSamples = 5000; //LFWLoader.NUM_IMAGES;
-        int batchSize = 250;//numSamples/10;
-
+        int numSamples = 1000; // LFWLoader.NUM_IMAGES;
+        boolean useSubset = false;
+        int batchSize = 200;// numSamples/10;
         int iterations = 5;
         int splitTrainNum = (int) (batchSize*.8);
         int seed = 123;
@@ -63,7 +73,7 @@ public class CNNLFWExample {
         List<INDArray> testLabels = new ArrayList<>();
 
         log.info("Load data....");
-        DataSetIterator lfw = new LFWDataSetIterator(batchSize, numSamples, new int[] {numRows, numColumns, nChannels}, outputNum, false, new Random(seed));
+        DataSetIterator lfw = new LFWDataSetIterator(batchSize, numSamples, new int[] {numRows, numColumns, nChannels}, outputNum, useSubset, new Random(seed));
 
         log.info("Build model....");
         MultiLayerConfiguration.Builder builder = new NeuralNetConfiguration.Builder()
