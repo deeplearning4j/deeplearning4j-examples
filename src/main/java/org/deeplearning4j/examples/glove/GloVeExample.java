@@ -62,5 +62,7 @@ public class GloVeExample {
 
         Collection<String> words = glove.wordsNearest("day", 10);
         log.info("Nearest words to 'day': " + words);
+
+        System.exit(0);
     }
 }

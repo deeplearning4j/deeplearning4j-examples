@@ -26,7 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
@@ -61,7 +61,6 @@ public class CNNLFWExample {
         int outputNum = LFWLoader.NUM_LABELS;
         int numSamples = 1000; // LFWLoader.NUM_IMAGES;
         boolean useSubset = false;
-
         int batchSize = 200;// numSamples/10;
         int iterations = 5;
         int splitTrainNum = (int) (batchSize*.8);
@@ -72,7 +71,6 @@ public class CNNLFWExample {
         DataSet trainInput;
         List<INDArray> testInput = new ArrayList<>();
         List<INDArray> testLabels = new ArrayList<>();
-
 
         log.info("Load data....");
         DataSetIterator lfw = new LFWDataSetIterator(batchSize, numSamples, new int[] {numRows, numColumns, nChannels}, outputNum, useSubset, new Random(seed));
@@ -137,7 +135,7 @@ public class CNNLFWExample {
         model.init();
 
         log.info("Train model....");
-        model.setListeners(Arrays.asList((IterationListener) new ScoreIterationListener(listenerFreq)));
+        model.setListeners(Collections.singletonList((IterationListener) new ScoreIterationListener(listenerFreq)));
 
         while(lfw.hasNext()) {
             lfwNext = lfw.next();
