@@ -46,8 +46,8 @@ public class FaceDetection {
 
     public final static int NUM_IMAGES = 2215; // # examples per person range 50 to 700
     public final static int NUM_LABELS = 10;
-    public final static int WIDTH = 50; // size varies
-    public final static int HEIGHT = 50;
+    public final static int WIDTH = 80; // size varies
+    public final static int HEIGHT = 80;
     public final static int CHANNELS = 3;
 
     public static void main(String[] args) {
@@ -136,7 +136,21 @@ public class FaceDetection {
 //                        .nOut(NUM_LABELS)
 //                        .activation("softmax")
 //                        .build())
-                .list(9)
+//
+//                .list(3)
+//                .layer(0, new ConvolutionLayer.Builder(10, 10)
+//                        .stride(2,2)
+//                        .nIn(CHANNELS)
+//                        .nOut(6)
+//                        .build())
+//                .layer(1, new SubsamplingLayer.Builder(SubsamplingLayer.PoolingType.MAX, new int[] {2,2})
+//                        .build())
+//                .layer(2, new OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD)
+//                        .nOut(NUM_IMAGES)
+//                        .activation("softmax")
+//                        .build())
+
+                .list(10)
                 .layer(0, new ConvolutionLayer.Builder(3, 3)
                         .name("cnn1")
                         .nIn(CHANNELS)
@@ -144,14 +158,14 @@ public class FaceDetection {
                         .padding(1, 1)
                         .nOut(128)
                         .build())
-                .layer(1, new ConvolutionLayer.Builder(3, 3)
+                .layer(1, new SubsamplingLayer.Builder(SubsamplingLayer.PoolingType.MAX, new int[]{2, 2})
+                        .name("pool1")
+                        .build())
+                .layer(2, new ConvolutionLayer.Builder(3, 3)
                         .name("cnn2")
                         .stride(1, 1)
                         .padding(1, 1)
                         .nOut(128)
-                        .build())
-                .layer(2, new SubsamplingLayer.Builder(SubsamplingLayer.PoolingType.MAX, new int[]{2, 2})
-                        .name("pool1")
                         .build())
                 .layer(3, new SubsamplingLayer.Builder(SubsamplingLayer.PoolingType.MAX, new int[]{2, 2})
                         .name("pool2")
@@ -172,11 +186,16 @@ public class FaceDetection {
                         .dropOut(0.5)
                         .build())
                 .layer(7, new DenseLayer.Builder()
+                        .name("ffn2")
+                        .nOut(400)
+                        .dropOut(0.5)
+                        .build())
+                .layer(8, new DenseLayer.Builder()
                         .name("ffn3")
                         .nOut(200)
                         .dropOut(0.5)
                         .build())
-                .layer(8, new OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD)
+                .layer(9, new OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD)
                         .nOut(NUM_LABELS)
                         .activation("softmax")
                         .build())
@@ -186,6 +205,37 @@ public class FaceDetection {
         MultiLayerNetwork model = new MultiLayerNetwork(builder.build());
         model.init();
         model.setListeners(Arrays.asList((IterationListener) new ScoreIterationListener(listenerFreq)));
+
+        // Early Stopping
+
+//        EarlyStoppingModelSaver saver = new LocalFileModelSaver(exampleDirectory);
+//        EarlyStoppingConfiguration esConf = new EarlyStoppingConfiguration.Builder()
+//                .epochTerminationConditions(new MaxEpochsTerminationCondition(50)) //Max of 50 epochs
+//                .evaluateEveryNEpochs(1)
+//                .iterationTerminationConditions(new MaxTimeIterationTerminationCondition(20, TimeUnit.MINUTES)) //Max of 20 minutes
+//                .scoreCalculator(new DataSetLossCalculator(mnistTest512, true))     //Calculate test set score
+//                .modelSaver(saver)
+//                .build();
+//
+//        EarlyStoppingTrainer trainer = new EarlyStoppingTrainer(esConf,configuration,mnistTrain1024);
+//
+//        //Conduct early stopping training:
+//        EarlyStoppingResult result = trainer.fit();
+//        System.out.println("Termination reason: " + result.getTerminationReason());
+//        System.out.println("Termination details: " + result.getTerminationDetails());
+//        System.out.println("Total epochs: " + result.getTotalEpochs());
+//        System.out.println("Best epoch number: " + result.getBestModelEpoch());
+//        System.out.println("Score at best epoch: " + result.getBestModelScore());
+//
+//        //Print score vs. epoch
+//        Map<Integer,Double> scoreVsEpoch = result.getScoreVsEpoch();
+//        List<Integer> list = new ArrayList<>(scoreVsEpoch.keySet());
+//        Collections.sort(list);
+//        System.out.println("Score vs. Epoch:");
+//        for( Integer i : list){
+//            System.out.println(i + "\t" + scoreVsEpoch.get(i));
+//        }
+
 
         log.info("Train model....");
         while(dataIter.hasNext()) {
