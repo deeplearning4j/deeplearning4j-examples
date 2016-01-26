@@ -16,7 +16,11 @@ import org.deeplearning4j.nn.conf.layers.*;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
 import org.deeplearning4j.optimize.api.IterationListener;
+import org.deeplearning4j.optimize.listeners.ParamAndGradientIterationListener;
 import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
+import org.kohsuke.args4j.CmdLineException;
+import org.kohsuke.args4j.CmdLineParser;
+import org.kohsuke.args4j.Option;
 import org.nd4j.linalg.api.buffer.DataBuffer;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
@@ -44,56 +48,97 @@ import java.util.Random;
 public class FaceDetection {
     private static final Logger log = LoggerFactory.getLogger(FaceDetection.class);
 
+    // based on small sample
     public final static int NUM_IMAGES = 2215; // # examples per person range 50 to 700
-    public final static int NUM_LABELS = 10;
+    public final static int NUM_ABELS = 10;
     public final static int WIDTH = 80; // size varies
     public final static int HEIGHT = 80;
     public final static int CHANNELS = 3;
 
-    public static void main(String[] args) {
-        Nd4j.dtype = DataBuffer.Type.DOUBLE;
-        
-        boolean appendLabels = true;
-        int numExamples = 100;
-        int batchSize = 20;
+    // values to pass in from command line when compiled, esp running remotely
+    @Option(name="--numExamples",usage="Number of examples",aliases="-nE")
+    protected int numExamples = 100;
+    @Option(name="--batchSize",usage="Batch size",aliases="-b")
+    protected int batchSize = 20;
+    @Option(name="--epochs",usage="Number of epochs",aliases="-ep")
+    protected int epochs = 2;
+    @Option(name="--iter",usage="Number of iterations",aliases="-i")
+    protected int iterations = 2;
+    @Option(name="--numLabels",usage="Number of categories",aliases="-nL")
+    protected int numLabels = 4;
 
-        int iterations = 5;
-        int splitTrainNum = (int) (batchSize*.8);
+    @Option(name="--weightInit",usage="How to initialize weights",aliases="-wI")
+    protected WeightInit weightInit = WeightInit.XAVIER;
+    @Option(name="--activation",usage="Activation function to use",aliases="-a")
+    protected String activation = "relu";
+    @Option(name="--updater",usage="Updater to apply gradient changes",aliases="-up")
+    protected Updater updater = Updater.NESTEROVS;
+    @Option(name="--learningRate", usage="Learning rate", aliases="-lr")
+    protected double lr = 1e-2;
+    @Option(name="--momentum",usage="Momentum rate",aliases="-mu")
+    protected double mu = 0.9;
+    @Option(name="--lambda",usage="L2 weight decay",aliases="-l2")
+    protected double l2 = 1e-3;
+    @Option(name="--regularization",usage="Boolean to apply regularization",aliases="-reg")
+    protected boolean regularization = true;
+    @Option(name="--split",usage="Percent to split for training",aliases="-split")
+    protected double split = 0.8;
+
+    public void run(String[] args) {
+        Nd4j.dtype = DataBuffer.Type.DOUBLE;
+
+        // Parse command line arguments if they exist
+        CmdLineParser parser = new CmdLineParser(this);
+        try {
+            parser.parseArgument(args);
+        } catch (CmdLineException e) {
+            // handling of wrong arguments
+            System.err.println(e.getMessage());
+            parser.printUsage(System.err);
+        }
+
         int seed = 123;
-        int listenerFreq = batchSize;
+        int listenerFreq = 1;
+        boolean appendLabels = true;
+        int splitTrainNum = (int) (batchSize*split);
+
         SplitTestAndTrain trainTest;
         DataSet trainInput;
         List<INDArray> testInput = new ArrayList<>();
         List<INDArray> testLabels = new ArrayList<>();
         DataSet dsNext;
 
-        // TODO setup to download and untar the example - currently need to manually download
+
+        // TODO setup to download and untar the example - currently needs manual download
         log.info("Load data....");
-        File mainPath = new File(BaseImageLoader.BASE_DIR, "thumbnails_features_deduped_sample");
+//        File mainPath = new File(BaseImageLoader.BASE_DIR, "thumbnails_features_deduped_sample"); // 10 labels
+        File mainPath = new File(BaseImageLoader.BASE_DIR, "ms_sample"); // 4 labels
         RecordReader recordReader = new ImageRecordReader(WIDTH, HEIGHT, CHANNELS, appendLabels);
         try {
-            recordReader.initialize(new LimitFileSplit(mainPath, BaseImageLoader.ALLOWED_FORMATS, numExamples, NUM_LABELS, null, new Random(123)));
+            recordReader.initialize(new LimitFileSplit(mainPath, BaseImageLoader.ALLOWED_FORMATS, numExamples, numLabels, null, new Random(123)));
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }
-        DataSetIterator dataIter = new RecordReaderDataSetIterator(recordReader, batchSize, -1, NUM_LABELS);
+        DataSetIterator dataIter = new RecordReaderDataSetIterator(recordReader, batchSize, -1, numLabels);
 
-        List<String> labels = dataIter.getLabels();
+//        List<String> labels = dataIter.getLabels();
+        List<String> labels = Arrays.asList(new String[]{"liv_tyler", "michelle_obama", "aaron_carter", "al_gore"});
 
         log.info("Build model....");
         MultiLayerConfiguration.Builder builder = new NeuralNetConfiguration.Builder()
                 .seed(seed)
                 .iterations(iterations)
-                .activation("relu")
-                .weightInit(WeightInit.XAVIER)
+                .activation(activation)
+                .weightInit(weightInit)
                 .gradientNormalization(GradientNormalization.RenormalizeL2PerLayer)
                 .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
-                .learningRate(0.01)
-                .momentum(0.9)
-                .regularization(true)
-                .l2(1e-3)
-                .updater(Updater.NESTEROVS)
+                .learningRate(lr)
+                .momentum(mu)
+                .regularization(regularization)
+                .l2(l2)
+                .updater(updater)
                 .useDropConnect(true)
+                //////////// ? forgot where I got this ////////////
 //                .list(11)
 //                .layer(0, new ConvolutionLayer.Builder(7, 7)
 //                        .name("cnn1")
@@ -137,6 +182,7 @@ public class FaceDetection {
 //                        .activation("softmax")
 //                        .build())
 //
+                    //////////// MNIST version ////////////
 //                .list(3)
 //                .layer(0, new ConvolutionLayer.Builder(10, 10)
 //                        .stride(2,2)
@@ -150,6 +196,7 @@ public class FaceDetection {
 //                        .activation("softmax")
 //                        .build())
 
+                ///////////// Paper on tested approaches ////////////
                 .list(10)
                 .layer(0, new ConvolutionLayer.Builder(3, 3)
                         .name("cnn1")
@@ -196,7 +243,7 @@ public class FaceDetection {
                         .dropOut(0.5)
                         .build())
                 .layer(9, new OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD)
-                        .nOut(NUM_LABELS)
+                        .nOut(numLabels)
                         .activation("softmax")
                         .build())
                 .backprop(true).pretrain(false)
@@ -204,7 +251,20 @@ public class FaceDetection {
 
         MultiLayerNetwork model = new MultiLayerNetwork(builder.build());
         model.init();
+
+        // Listeners
         model.setListeners(Arrays.asList((IterationListener) new ScoreIterationListener(listenerFreq)));
+
+        IterationListener paramListener = ParamAndGradientIterationListener.builder()
+                .outputToFile(true)
+                .file(new File(System.getProperty("java.io.tmpdir") + "/paramAndGradTest.txt"))
+                .outputToConsole(true).outputToLogger(false)
+                .iterations(listenerFreq).printHeader(true)
+                .printMean(false)
+                .printMinMax(false)
+                .printMeanAbsValue(true)
+                .delimiter("\t").build();
+//        model.setListeners(Arrays.asList(new ScoreIterationListener(listenerFreq), paramListener));
 
         // Early Stopping
 
@@ -238,7 +298,8 @@ public class FaceDetection {
 
 
         log.info("Train model....");
-        while(dataIter.hasNext()) {
+        // one epoch
+        while (dataIter.hasNext()) {
             dsNext = dataIter.next();
             dsNext.scale();
             trainTest = dsNext.splitTestAndTrain(splitTrainNum, new Random(seed)); // train set that is the result
@@ -246,6 +307,17 @@ public class FaceDetection {
             testInput.add(trainTest.getTest().getFeatureMatrix());
             testLabels.add(trainTest.getTest().getLabels());
             model.fit(trainInput);
+        }
+
+        // more than 1 epoch for just training
+        for(int i = 1; i < epochs; i++) {
+            dataIter.reset();
+            while (dataIter.hasNext()) {
+                dsNext = dataIter.next();
+                trainTest = dsNext.splitTestAndTrain(splitTrainNum, new Random(seed));
+                trainInput = trainTest.getTrain();
+                model.fit(trainInput);
+            }
         }
 
         log.info("Evaluate model....");
@@ -259,7 +331,10 @@ public class FaceDetection {
         log.info(eval.stats());
         log.info("****************Example finished********************");
 
+    }
 
+    public static void main(String[] args) throws Exception {
+        new FaceDetection().run(args);
     }
 
 }
