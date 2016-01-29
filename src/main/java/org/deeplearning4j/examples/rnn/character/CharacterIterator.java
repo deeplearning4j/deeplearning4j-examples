@@ -1,4 +1,4 @@
-package org.deeplearning4j.examples.rnn;
+package org.deeplearning4j.examples.rnn.character;
 
 import java.io.File;
 import java.io.IOException;
