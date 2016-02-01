@@ -16,6 +16,7 @@ import org.deeplearning4j.models.word2vec.wordstore.inmemory.AbstractCache;
 import org.deeplearning4j.nn.api.OptimizationAlgorithm;
 import org.deeplearning4j.nn.conf.ComputationGraphConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
+import org.deeplearning4j.nn.conf.Updater;
 import org.deeplearning4j.nn.conf.graph.PreprocessorVertex;
 import org.deeplearning4j.nn.conf.graph.rnn.DuplicateToTimeSeriesVertex;
 import org.deeplearning4j.nn.conf.graph.rnn.LastTimeStepVertex;
@@ -48,7 +49,6 @@ import java.util.Map;
  * Created by Alex on 28/01/2016.
  */
 public class Sequence2Sequence {
-
     //    public static String enPath = "D:\\Data\\training-giga-fren\\giga-fren.release2.en\\giga-fren.release2.en";
 //    public static String frPath = "D:\\Data\\training-giga-fren\\giga-fren-release2.fr";
     public static String enPath = "D:\\Data\\dev\\newstest2010.en";
@@ -86,8 +86,9 @@ public class Sequence2Sequence {
         ComputationGraphConfiguration configuration = new NeuralNetConfiguration.Builder()
                 .regularization(true).l2(0.0001)
                 .weightInit(WeightInit.XAVIER)
-                .learningRate(0.0001)
-                .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
+                .learningRate(0.01)
+                .updater(Updater.RMSPROP)
+                .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT).iterations(1)
                 .graphBuilder()
                 .addInputs("inEn", "inFr")
                 .setInputTypes(InputType.recurrent(), InputType.recurrent())
@@ -98,13 +99,15 @@ public class Sequence2Sequence {
                 .addLayer("embeddingFr", new EmbeddingLayer.Builder().nIn(VOCAB_SIZE+1).nOut(128).activation("identity").build(),"inFr")
                 .addVertex("embeddingFrSeq", new PreprocessorVertex(new FeedForwardToRnnPreProcessor()), "embeddingFr")
                 .addLayer("decoder", new GravesLSTM.Builder().nIn(128 + 256).nOut(256).activation("softsign").build(), "embeddingFrSeq", "duplicateTimeStep")
-                .addLayer("output", new RnnOutputLayer.Builder().nIn(256).nOut(VOCAB_SIZE+1).activation("softmax").build(), "decoder")
+                .addLayer("output", new RnnOutputLayer.Builder().nIn(256).nOut(VOCAB_SIZE + 1).activation("softmax").build(), "decoder")
                 .setOutputs("output")
                 .pretrain(false).backprop(true)
                 .build();
 
         ComputationGraph net = new ComputationGraph(configuration);
         net.init();
+
+
 
 //        Map<String,INDArray> mapTemp = net.paramTable();
 //        System.out.println(mapTemp.keySet());
@@ -249,7 +252,7 @@ public class Sequence2Sequence {
                     arr1[2] = j++;
                     in2.putScalar(arr1, vw.getIndex());
                 }
-                for (; j < in1Length; j++) {
+                for (; j < in2Length; j++) {
                     arr2[1] = j;
                     in2Mask.putScalar(arr2, 0.0);
                 }
@@ -276,7 +279,7 @@ public class Sequence2Sequence {
                 arr1[2] = j++;
                 out.putScalar(arr1, 1.0);
 
-                for (; j < in1Length; j++) {
+                for (; j < in2Length; j++) {
                     arr2[1] = j;
                     outMask.putScalar(arr2, 0.0);
                 }

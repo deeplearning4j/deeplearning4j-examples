@@ -1,17 +1,13 @@
 package org.deeplearning4j.examples.rnn.character;
 
-import org.apache.commons.io.FileUtils;
-import org.deeplearning4j.nn.api.Layer;
 import org.deeplearning4j.nn.api.OptimizationAlgorithm;
-//import org.deeplearning4j.nn.conf.ComputationGraphConfiguration;
-import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
+import org.deeplearning4j.nn.conf.ComputationGraphConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
 import org.deeplearning4j.nn.conf.Updater;
 import org.deeplearning4j.nn.conf.distribution.UniformDistribution;
 import org.deeplearning4j.nn.conf.layers.GravesLSTM;
 import org.deeplearning4j.nn.conf.layers.RnnOutputLayer;
-//import org.deeplearning4j.nn.graph.ComputationGraph;
-import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
+import org.deeplearning4j.nn.graph.ComputationGraph;
 import org.deeplearning4j.nn.weights.WeightInit;
 import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
 import org.deeplearning4j.ui.weights.HistogramIterationListener;
@@ -19,10 +15,6 @@ import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.lossfunctions.LossFunctions.LossFunction;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.URL;
-import java.nio.charset.Charset;
 import java.util.Random;
 
 /**GravesLSTM Character modelling example using ComputationGraph with the following changes:
@@ -32,7 +24,7 @@ import java.util.Random;
  * @author Alex Black
  */
 public class GravesLSTMCharModellingCompGraph {
-	/*
+
 	public static void main( String[] args ) throws Exception {
 		int lstmLayerSize = 200;					//Number of units in each GravesLSTM layer
 		int miniBatchSize = 32;						//Size of mini batch to use when  training
@@ -79,7 +71,8 @@ public class GravesLSTMCharModellingCompGraph {
 
 		ComputationGraph net = new ComputationGraph(conf);
 		net.init();
-		net.setListeners(new ScoreIterationListener(1));
+//		net.setListeners(new ScoreIterationListener(1));
+		net.setListeners(new ScoreIterationListener(1),new HistogramIterationListener(1));
 		
 		//Print the  number of parameters in the network (and for each layer)
 		int totalNumParams = 0;
@@ -108,7 +101,7 @@ public class GravesLSTMCharModellingCompGraph {
 		}
 		
 		System.out.println("\n\nExample complete");
-	}*/
+	}
 
 	/** Generate a sample from the network, given an (optional, possibly null) initialization. Initialization
 	 * can be used to 'prime' the RNN with a sequence you want to extend/continue.<br>
@@ -118,7 +111,6 @@ public class GravesLSTMCharModellingCompGraph {
 	 * @param net MultiLayerNetwork with one or more GravesLSTM/RNN layers and a softmax output layer
 	 * @param iter CharacterIterator. Used for going from indexes back to characters
 	 */
-	/*
 	private static String[] sampleCharactersFromNetwork( String initialization, ComputationGraph net,
 			CharacterIterator iter, Random rng, int charactersToSample, int numSamples ){
 		//Set up initialization. If no initialization: use a random character
@@ -164,5 +156,5 @@ public class GravesLSTMCharModellingCompGraph {
 		String[] out = new String[numSamples];
 		for( int i=0; i<numSamples; i++ ) out[i] = sb[i].toString();
 		return out;
-	}*/
+	}
 }
