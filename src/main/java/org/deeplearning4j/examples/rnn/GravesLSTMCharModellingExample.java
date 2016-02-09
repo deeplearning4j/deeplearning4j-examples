@@ -166,7 +166,7 @@ public class GravesLSTMCharModellingExample {
 		}
 		
 		//Create input for initialization
-		INDArray initializationInput = Nd4j.zeros(numSamples, iter.inputColumns(), initialization.length());
+		INDArray initializationInput = Nd4j.zeros(new int[]{numSamples, iter.inputColumns(), initialization.length()});
 		char[] init = initialization.toCharArray();
 		for( int i=0; i<init.length; i++ ){
 			int idx = iter.convertCharacterToIndex(init[i]);
@@ -182,7 +182,7 @@ public class GravesLSTMCharModellingExample {
 		//Sampling is done in parallel here
 		net.rnnClearPreviousState();
 		INDArray output = net.rnnTimeStep(initializationInput);
-		output = output.tensorAlongDimension(output.size(2)-1,1,0);	//Gets the last time step output
+		output = output.tensorAlongDimension(output.size(2)-1,new int[]{1,0});	//Gets the last time step output
 		
 		for( int i=0; i<charactersToSample; i++ ){
 			//Set up next input (single time step) by sampling from previous output
