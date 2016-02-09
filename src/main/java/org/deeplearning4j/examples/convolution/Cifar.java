@@ -29,12 +29,8 @@ public class Cifar {
         System.out.println(Arrays.toString(dataSet.getFeatureMatrix().shape()));
         int nChannels = 3;
         int outputNum = 10;
-        int numSamples = 2000;
-        int batchSize = 500;
         int iterations = 10;
-        int splitTrainNum = (int) (batchSize*.8);
         int seed = 123;
-        int listenerFreq = iterations/5;
 
         //setup the network
         MultiLayerConfiguration.Builder builder = new NeuralNetConfiguration.Builder()

@@ -48,7 +48,6 @@ public class Test {
         LOGGER.info("Split data....");
         SplitTestAndTrain testAndTrain = iris.splitTestAndTrain(splitTrainNum, new Random(seed));
         DataSet train = testAndTrain.getTrain();
-        DataSet test = testAndTrain.getTest();
         Nd4j.ENFORCE_NUMERICAL_STABILITY = true;
 
         MultiLayerNetwork model = null;
