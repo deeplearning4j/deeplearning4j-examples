@@ -166,7 +166,7 @@ public class GravesLSTMCharModellingExample {
 		}
 		
 		//Create input for initialization
-		INDArray initializationInput = Nd4j.zeros(numSamples, iter.inputColumns(), initialization.length());
+		INDArray initializationInput = Nd4j.zeros(new int[]{numSamples, iter.inputColumns(), initialization.length()});
 		char[] init = initialization.toCharArray();
 		for( int i=0; i<init.length; i++ ){
 			int idx = iter.convertCharacterToIndex(init[i]);
