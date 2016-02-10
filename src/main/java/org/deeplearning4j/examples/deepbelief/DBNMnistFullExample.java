@@ -7,7 +7,6 @@ import org.deeplearning4j.nn.api.OptimizationAlgorithm;
 import org.deeplearning4j.nn.conf.GradientNormalization;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
-import org.deeplearning4j.nn.conf.GradientNormalization;
 import org.deeplearning4j.nn.conf.layers.OutputLayer;
 import org.deeplearning4j.nn.conf.layers.RBM;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
@@ -20,7 +19,6 @@ import org.nd4j.linalg.lossfunctions.LossFunctions.LossFunction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Arrays;
 import java.util.Collections;
 
 /**
@@ -75,7 +73,7 @@ public class DBNMnistFullExample {
 
         MultiLayerNetwork model = new MultiLayerNetwork(conf);
         model.init();
-        model.setListeners(Arrays.asList((IterationListener) new ScoreIterationListener(listenerFreq)));
+        model.setListeners(Collections.singletonList((IterationListener) new ScoreIterationListener(listenerFreq)));
 
         log.info("Train model....");
         model.fit(iter); // achieves end to end pre-training
