@@ -50,7 +50,7 @@ public class Test {
         DataSet train = testAndTrain.getTrain();
         Nd4j.ENFORCE_NUMERICAL_STABILITY = true;
 
-        MultiLayerNetwork model = null;
+        MultiLayerNetwork model;
         LOGGER.info("Build model....");
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
                 .seed(seed) // Seed to lock in weight initialization for tuning

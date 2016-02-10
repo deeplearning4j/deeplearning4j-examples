@@ -57,7 +57,7 @@ public class FileLabelAwareIterator implements LabelAwareIterator {
             LabelledDocument document = new LabelledDocument();
             BufferedReader reader = new BufferedReader(new FileReader(fileToRead));
             StringBuilder builder = new StringBuilder();
-            String line = "";
+            String line;
             while ((line = reader.readLine()) != null) builder.append(line);
 
             document.setContent(builder.toString());

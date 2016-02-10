@@ -145,7 +145,7 @@ public class Word2VecSentimentRNN {
         System.out.print("Extracting files");
         try(TarArchiveInputStream tais = new TarArchiveInputStream(
                 new GzipCompressorInputStream( new BufferedInputStream( new FileInputStream(filePath))))){
-            TarArchiveEntry entry = null;
+            TarArchiveEntry entry;
 
             /** Read the tar entries using the getNextEntry method **/
             while ((entry = (TarArchiveEntry) tais.getNextEntry()) != null) {
