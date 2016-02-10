@@ -19,7 +19,7 @@ import java.util.Arrays;
 
 /**
  * Dataset url:
- * https://s3.amazonaws.com/dl4j-distribution/cifar-small.bin
+ * https://s3.amazonaws.com/dl4j-distribution/cifar-train.bin
  */
 public class Cifar {
     public static void main(String[] args) {
