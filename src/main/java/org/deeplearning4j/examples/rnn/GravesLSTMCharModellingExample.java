@@ -108,7 +108,7 @@ public class GravesLSTMCharModellingExample {
 			
 			System.out.println("--------------------");
 			System.out.println("Completed epoch " + i );
-			System.out.println("Sampling characters from network given initialization \""+ (generationInitialization == null ? "" : generationInitialization) +"\"");
+			System.out.println("Sampling characters from network given initialization \"" + ("") + "\"");
 			String[] samples = sampleCharactersFromNetwork(generationInitialization,net,iter,rng,nCharactersToSample,nSamplesToGenerate);
 			for( int j=0; j<samples.length; j++ ){
 				System.out.println("----- Sample " + j + " -----");

@@ -20,8 +20,6 @@ import org.deeplearning4j.models.embeddings.loader.VectorsConfiguration;
 
 import java.io.File;
 
-import static org.junit.Assert.assertTrue;
-
 /**
  * This is example of abstract sequence of data is learned using SequenceVectors. In this example, we use text sentences as Sequences, and VocabWords as SequenceElements.
  * So, this example is  a simple demonstration how one can learn distributed representation of data sequences.
@@ -66,8 +64,8 @@ public class SequenceVectorsTextExample {
         /*
             And we pack that transformer into AbstractSequenceIterator
          */
-        AbstractSequenceIterator<VocabWord> sequenceIterator = new AbstractSequenceIterator.Builder<VocabWord>(transformer)
-                .build();
+        AbstractSequenceIterator<VocabWord> sequenceIterator =
+            new AbstractSequenceIterator.Builder<>(transformer).build();
 
 
         /*
