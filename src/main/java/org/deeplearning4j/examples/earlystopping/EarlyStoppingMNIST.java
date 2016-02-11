@@ -112,10 +112,5 @@ public class EarlyStoppingMNIST {
         for( Integer i : list){
             System.out.println(i + "\t" + scoreVsEpoch.get(i));
         }
-
-        //Get the best model
-        MultiLayerNetwork bestModel = result.getBestModel();
-
     }
-
 }

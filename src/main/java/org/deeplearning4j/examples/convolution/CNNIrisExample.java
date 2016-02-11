@@ -39,8 +39,6 @@ public class CNNIrisExample {
         final int numColumns = 2;
         int nChannels = 1;
         int outputNum = 3;
-        int numSamples = 150;
-        int batchSize = 110;
         int iterations = 10;
         int splitTrainNum = 100;
         int seed = 123;
