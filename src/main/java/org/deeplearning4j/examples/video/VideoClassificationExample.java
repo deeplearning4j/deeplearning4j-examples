@@ -18,7 +18,6 @@ import org.deeplearning4j.nn.conf.layers.*;
 import org.deeplearning4j.nn.conf.preprocessor.*;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
-import org.deeplearning4j.optimize.api.IterationListener;
 import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
@@ -143,14 +142,13 @@ public class VideoClassificationExample {
         }
 
         int testStartIdx = (int) (0.9 * N_VIDEOS_TO_GENERATE);  //90% in train, 10% in test
-        int nTrain = testStartIdx;
-        int nTest = N_VIDEOS_TO_GENERATE - nTrain;
+        int nTest = N_VIDEOS_TO_GENERATE - testStartIdx;
 
         //Conduct learning
         System.out.println("Starting training...");
         int nTrainEpochs = 15;
         for (int i = 0; i < nTrainEpochs; i++) {
-            DataSetIterator trainData = getDataSetIterator(dataDirectory, 0, nTrain - 1, miniBatchSize);
+            DataSetIterator trainData = getDataSetIterator(dataDirectory, 0, testStartIdx - 1, miniBatchSize);
             while(trainData.hasNext())
                 net.fit(trainData.next());
             Nd4j.saveBinary(net.params(),new File("videomodel.bin"));
@@ -211,8 +209,7 @@ public class VideoClassificationExample {
         sequenceIter.setPreProcessor(new VideoPreProcessor());
 
         //AsyncDataSetIterator: Used to (pre-load) load data in a separate thread
-        AsyncDataSetIterator trainIter = new AsyncDataSetIterator(sequenceIter,1);
-        return trainIter;
+        return new AsyncDataSetIterator(sequenceIter,1);
     }
 
     private static SequenceRecordReader getFeaturesReader(String path, int startIdx, int num) throws Exception {
