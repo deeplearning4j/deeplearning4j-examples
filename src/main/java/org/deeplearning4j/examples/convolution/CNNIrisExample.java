@@ -31,7 +31,7 @@ import java.util.Random;
  */
 public class CNNIrisExample {
 
-    private static Logger log = LoggerFactory.getLogger(CNNIrisExample.class);
+    private static final Logger LOG = LoggerFactory.getLogger(CNNIrisExample.class);
 
     public static void main(String[] args) {
 
@@ -48,7 +48,7 @@ public class CNNIrisExample {
         /**
          *Set a neural network configuration with multiple layers
          */
-        log.info("Load data....");
+        LOG.info("Load data....");
         DataSetIterator irisIter = new IrisDataSetIterator(150, 150);
         DataSet iris = irisIter.next();
         iris.normalizeZeroMeanZeroUnitVariance();
@@ -79,29 +79,29 @@ public class CNNIrisExample {
 
         MultiLayerConfiguration conf = builder.build();
 
-        log.info("Build model....");
+        LOG.info("Build model....");
         MultiLayerNetwork model = new MultiLayerNetwork(conf);
         model.init();
         model.setListeners(Arrays.asList((IterationListener) new ScoreIterationListener(listenerFreq)));
 
-        log.info("Train model....");
+        LOG.info("Train model....");
         System.out.println("Training on " + trainTest.getTrain().labelCounts());
         model.fit(trainTest.getTrain());
 
-        log.info("Evaluate weights....");
+        LOG.info("Evaluate weights....");
         for(org.deeplearning4j.nn.api.Layer layer : model.getLayers()) {
             INDArray w = layer.getParam(DefaultParamInitializer.WEIGHT_KEY);
-            log.info("Weights: " + w);
+            LOG.info("Weights: " + w);
         }
 
-        log.info("Evaluate model....");
+        LOG.info("Evaluate model....");
         System.out.println("Training on " + trainTest.getTest().labelCounts());
 
         Evaluation eval = new Evaluation(outputNum);
         INDArray output = model.output(trainTest.getTest().getFeatureMatrix());
         eval.eval(trainTest.getTest().getLabels(), output);
-        log.info(eval.stats());
+        LOG.info(eval.stats());
 
-        log.info("****************Example finished********************");
+        LOG.info("****************Example finished********************");
     }
 }

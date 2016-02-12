@@ -19,7 +19,7 @@ import java.util.Collection;
  */
 public class GloVeExample {
 
-    private static final Logger log = LoggerFactory.getLogger(GloVeExample.class);
+    private static final Logger LOG = LoggerFactory.getLogger(GloVeExample.class);
 
     public static void main(String[] args) throws Exception {
         File inputFile = new ClassPathResource("raw_sentences.txt").getFile();
@@ -58,10 +58,10 @@ public class GloVeExample {
         glove.fit();
 
         double simD = glove.similarity("day", "night");
-        log.info("Day/night similarity: " + simD);
+        LOG.info("Day/night similarity: " + simD);
 
         Collection<String> words = glove.wordsNearest("day", 10);
-        log.info("Nearest words to 'day': " + words);
+        LOG.info("Nearest words to 'day': " + words);
 
         System.exit(0);
     }

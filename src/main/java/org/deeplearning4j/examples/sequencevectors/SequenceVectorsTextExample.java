@@ -35,7 +35,7 @@ import static org.junit.Assert.assertTrue;
  */
 public class SequenceVectorsTextExample {
 
-    protected static final Logger logger = LoggerFactory.getLogger(SequenceVectorsTextExample.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(SequenceVectorsTextExample.class);
 
     public static void main(String[] args) throws Exception {
 
@@ -154,7 +154,7 @@ public class SequenceVectorsTextExample {
             objects/relations please take care of Labels uniqueness and meaning for yourself.
          */
         double sim = vectors.similarity("day", "night");
-        logger.info("Day/night similarity: " + sim);
+        LOG.info("Day/night similarity: " + sim);
 
     }
 }

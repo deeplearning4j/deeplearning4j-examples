@@ -23,7 +23,7 @@ import java.util.Arrays;
  */
 public class DeepAutoEncoderExample {
 
-    private static Logger log = LoggerFactory.getLogger(DeepAutoEncoderExample.class);
+    private static final Logger LOG = LoggerFactory.getLogger(DeepAutoEncoderExample.class);
 
     public static void main(String[] args) throws Exception {
         final int numRows = 28;
@@ -34,10 +34,10 @@ public class DeepAutoEncoderExample {
         int iterations = 1;
         int listenerFreq = iterations/5;
 
-        log.info("Load data....");
+        LOG.info("Load data....");
         DataSetIterator iter = new MnistDataSetIterator(batchSize,numSamples,true);
 
-        log.info("Build model....");
+        LOG.info("Build model....");
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
                 .seed(seed)
                 .iterations(iterations)
@@ -61,7 +61,7 @@ public class DeepAutoEncoderExample {
 
         model.setListeners(Arrays.asList((IterationListener) new ScoreIterationListener(listenerFreq)));
 
-        log.info("Train model....");
+        LOG.info("Train model....");
         while(iter.hasNext()) {
             DataSet next = iter.next();
             model.fit(new DataSet(next.getFeatureMatrix(),next.getFeatureMatrix()));

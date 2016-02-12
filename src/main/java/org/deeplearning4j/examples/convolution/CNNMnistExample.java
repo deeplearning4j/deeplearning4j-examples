@@ -32,7 +32,7 @@ import java.util.*;
  */
 public class CNNMnistExample {
 
-    private static final Logger log = LoggerFactory.getLogger(CNNMnistExample.class);
+    private static final Logger LOG = LoggerFactory.getLogger(CNNMnistExample.class);
 
     public static void main(String[] args) throws Exception {
         int numRows = 28;
@@ -51,10 +51,10 @@ public class CNNMnistExample {
         List<INDArray> testInput = new ArrayList<>();
         List<INDArray> testLabels = new ArrayList<>();
 
-        log.info("Load data....");
+        LOG.info("Load data....");
         DataSetIterator mnistIter = new MnistDataSetIterator(batchSize,numSamples, true);
 
-        log.info("Build model....");
+        LOG.info("Build model....");
         MultiLayerConfiguration.Builder builder = new NeuralNetConfiguration.Builder()
                 .seed(seed)
                 .iterations(iterations)
@@ -84,7 +84,7 @@ public class CNNMnistExample {
         MultiLayerNetwork model = new MultiLayerNetwork(conf);
         model.init();
 
-        log.info("Train model....");
+        LOG.info("Train model....");
         model.setListeners(Arrays.asList((IterationListener) new ScoreIterationListener(listenerFreq)));
         while(mnistIter.hasNext()) {
             mnist = mnistIter.next();
@@ -95,9 +95,9 @@ public class CNNMnistExample {
             model.fit(trainInput);
         }
 
-        log.info("Evaluate weights....");
+        LOG.info("Evaluate weights....");
 
-        log.info("Evaluate model....");
+        LOG.info("Evaluate model....");
         Evaluation eval = new Evaluation(outputNum);
         for(int i = 0; i < testInput.size(); i++) {
             INDArray output = model.output(testInput.get(i));
@@ -105,8 +105,8 @@ public class CNNMnistExample {
         }
         INDArray output = model.output(testInput.get(0));
         eval.eval(testLabels.get(0), output);
-        log.info(eval.stats());
-        log.info("****************Example finished********************");
+        LOG.info(eval.stats());
+        LOG.info("****************Example finished********************");
 
 
     }

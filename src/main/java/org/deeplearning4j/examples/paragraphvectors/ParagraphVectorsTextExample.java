@@ -26,7 +26,7 @@ import java.io.File;
  */
 public class ParagraphVectorsTextExample {
 
-    private static final Logger log = LoggerFactory.getLogger(ParagraphVectorsTextExample.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ParagraphVectorsTextExample.class);
 
     public static void main(String[] args) throws Exception {
         ClassPathResource resource = new ClassPathResource("/raw_sentences.txt");
@@ -78,16 +78,16 @@ public class ParagraphVectorsTextExample {
          */
 
         double similarity1 = vec.similarity("DOC_9835", "DOC_12492");
-        log.info("9835/12492 similarity: " + similarity1);
+        LOG.info("9835/12492 similarity: " + similarity1);
 
         double similarity2 = vec.similarity("DOC_3720", "DOC_16392");
-        log.info("3720/16392 similarity: " + similarity2);
+        LOG.info("3720/16392 similarity: " + similarity2);
 
         double similarity3 = vec.similarity("DOC_6347", "DOC_3720");
-        log.info("6347/3720 similarity: " + similarity3);
+        LOG.info("6347/3720 similarity: " + similarity3);
 
         // likelihood in this case should be significantly lower
         double similarityX = vec.similarity("DOC_3720", "DOC_9852");
-        log.info("3720/9852 similarity: " + similarityX);
+        LOG.info("3720/9852 similarity: " + similarityX);
     }
 }

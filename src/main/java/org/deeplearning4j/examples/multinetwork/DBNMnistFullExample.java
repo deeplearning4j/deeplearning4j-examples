@@ -27,7 +27,7 @@ import java.util.Collections;
  */
 public class DBNMnistFullExample {
 
-    private static Logger log = LoggerFactory.getLogger(DBNMnistFullExample.class);
+    private static final Logger LOG = LoggerFactory.getLogger(DBNMnistFullExample.class);
 
     public static void main(String[] args) throws Exception {
         final int numRows = 28;
@@ -39,10 +39,10 @@ public class DBNMnistFullExample {
         int seed = 123;
         int listenerFreq = batchSize / 5;
 
-        log.info("Load data....");
+        LOG.info("Load data....");
         DataSetIterator iter = new MnistDataSetIterator(batchSize,numSamples,true);
         DataSet trainingSet = iter.next();
-        log.info("Build model....");
+        LOG.info("Build model....");
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
                 .seed(seed)
                 .gradientNormalization(GradientNormalization.ClipElementWiseAbsoluteValue)
@@ -73,7 +73,7 @@ public class DBNMnistFullExample {
         model.init();
         model.setListeners(new ScoreIterationListener(listenerFreq));
 
-        log.info("Train model....");
+        LOG.info("Train model....");
         model.fit(trainingSet); // achieves end to end pre-training
 
 
@@ -102,7 +102,7 @@ public class DBNMnistFullExample {
         modelRegression.fit(trainingSet);
 
  
-        log.info("****************Example finished********************");
+        LOG.info("****************Example finished********************");
 
     }
 

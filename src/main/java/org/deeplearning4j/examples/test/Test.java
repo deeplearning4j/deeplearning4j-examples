@@ -27,7 +27,7 @@ import org.slf4j.LoggerFactory;
  * Created by agibsonccc on 9/16/15.
  */
 public class Test {
-    private static Logger LOGGER = LoggerFactory.getLogger(Test.class);
+    private static final Logger LOG = LoggerFactory.getLogger(Test.class);
 
     public static void main(String[] args) {
         final int numRows = 4;
@@ -40,18 +40,18 @@ public class Test {
         int seed = 123;
         int listenerFreq = iterations/5;
         Nd4j.getRandom().setSeed(seed);
-        LOGGER.info("Load data....");
+        LOG.info("Load data....");
         DataSetIterator iter = new IrisDataSetIterator(batchSize, numSamples);
         DataSet iris = iter.next();
         iris.normalizeZeroMeanZeroUnitVariance();
 
-        LOGGER.info("Split data....");
+        LOG.info("Split data....");
         SplitTestAndTrain testAndTrain = iris.splitTestAndTrain(splitTrainNum, new Random(seed));
         DataSet train = testAndTrain.getTrain();
         Nd4j.ENFORCE_NUMERICAL_STABILITY = true;
 
         MultiLayerNetwork model;
-        LOGGER.info("Build model....");
+        LOG.info("Build model....");
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
                 .seed(seed) // Seed to lock in weight initialization for tuning
                 .iterations(iterations) // # training iterations predict/classify & backprop
@@ -82,7 +82,7 @@ public class Test {
         model.init();
         model.setListeners(Collections.singletonList((IterationListener) new ScoreIterationListener(listenerFreq)));
 
-        LOGGER.info("Train model....");
+        LOG.info("Train model....");
         model.fit(train);
 
 //        for(int i=0; i<10; i++){

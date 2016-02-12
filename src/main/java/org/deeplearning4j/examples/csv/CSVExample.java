@@ -32,7 +32,7 @@ import java.util.Arrays;
  */
 public class CSVExample {
 
-    private static Logger log = LoggerFactory.getLogger(CSVExample.class);
+    private static final Logger LOG = LoggerFactory.getLogger(CSVExample.class);
 
     public static void main(String[] args) throws  Exception {
         RecordReader recordReader = new CSVRecordReader(0,",");
@@ -52,7 +52,7 @@ public class CSVExample {
         int listenerFreq = iterations;
 
 
-        log.info("Build model....");
+        LOG.info("Build model....");
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
                 .seed(seed)
                 .iterations(iterations)
@@ -92,7 +92,7 @@ public class CSVExample {
         DataSet test = testAndTrain.getTest();
         INDArray output = model.output(test.getFeatureMatrix());
         eval.eval(test.getLabels(), output);
-        log.info(eval.stats());
+        LOG.info(eval.stats());
 
     }
 

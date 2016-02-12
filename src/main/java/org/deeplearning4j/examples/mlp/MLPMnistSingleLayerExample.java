@@ -32,7 +32,7 @@ import java.util.*;
  */
 public class MLPMnistSingleLayerExample {
 
-    private static Logger log = LoggerFactory.getLogger(MLPMnistSingleLayerExample.class);
+    private static final Logger LOG = LoggerFactory.getLogger(MLPMnistSingleLayerExample.class);
 
     public static void main(String[] args) throws Exception {
         Nd4j.ENFORCE_NUMERICAL_STABILITY = true;
@@ -51,10 +51,10 @@ public class MLPMnistSingleLayerExample {
         List<INDArray> testInput = new ArrayList<>();
         List<INDArray> testLabels = new ArrayList<>();
 
-        log.info("Load data....");
+        LOG.info("Load data....");
         DataSetIterator mnistIter = new MnistDataSetIterator(batchSize, numSamples,true);
 
-        log.info("Build model....");
+        LOG.info("Build model....");
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
                 .seed(seed)
                 .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
@@ -83,7 +83,7 @@ public class MLPMnistSingleLayerExample {
         model.init();
         model.setListeners(Arrays.asList((IterationListener) new ScoreIterationListener(listenerFreq)));
 
-        log.info("Train model....");
+        LOG.info("Train model....");
         model.setListeners(Arrays.asList((IterationListener) new ScoreIterationListener(listenerFreq)));
         while(mnistIter.hasNext()) {
             mnist = mnistIter.next();
@@ -94,15 +94,15 @@ public class MLPMnistSingleLayerExample {
             model.fit(trainInput);
         }
 
-        log.info("Evaluate model....");
+        LOG.info("Evaluate model....");
         Evaluation eval = new Evaluation(outputNum);
         for(int i = 0; i < testInput.size(); i++) {
             INDArray output = model.output(testInput.get(i));
             eval.eval(testLabels.get(i), output);
         }
 
-        log.info(eval.stats());
-        log.info("****************Example finished********************");
+        LOG.info(eval.stats());
+        LOG.info("****************Example finished********************");
 
     }
 

@@ -25,7 +25,7 @@ import org.slf4j.LoggerFactory;
  * Created by agibsonccc on 9/16/15.
  */
 public class LenetMnistExample {
-    private static final Logger log = LoggerFactory.getLogger(LenetMnistExample.class);
+    private static final Logger LOG = LoggerFactory.getLogger(LenetMnistExample.class);
 
     public static void main(String[] args) throws Exception {
         int nChannels = 1;
@@ -35,11 +35,11 @@ public class LenetMnistExample {
         int iterations = 1;
         int seed = 123;
 
-        log.info("Load data....");
+        LOG.info("Load data....");
         DataSetIterator mnistTrain = new MnistDataSetIterator(batchSize,true,12345);
         DataSetIterator mnistTest = new MnistDataSetIterator(batchSize,false,12345);
 
-        log.info("Build model....");
+        LOG.info("Build model....");
         MultiLayerConfiguration.Builder builder = new NeuralNetConfiguration.Builder()
                 .seed(seed)
                 .iterations(iterations)
@@ -73,22 +73,22 @@ public class LenetMnistExample {
         model.init();
 
 
-        log.info("Train model....");
+        LOG.info("Train model....");
         model.setListeners(new ScoreIterationListener(1));
         for( int i=0; i<nEpochs; i++ ) {
             model.fit(mnistTrain);
-            log.info("*** Completed epoch {} ***", i);
+            LOG.info("*** Completed epoch {} ***", i);
 
-            log.info("Evaluate model....");
+            LOG.info("Evaluate model....");
             Evaluation eval = new Evaluation(outputNum);
             while(mnistTest.hasNext()){
                 DataSet ds = mnistTest.next();
                 INDArray output = model.output(ds.getFeatureMatrix());
                 eval.eval(ds.getLabels(), output);
             }
-            log.info(eval.stats());
+            LOG.info(eval.stats());
             mnistTest.reset();
         }
-        log.info("****************Example finished********************");
+        LOG.info("****************Example finished********************");
     }
 }

@@ -50,7 +50,7 @@ import java.util.Random;
  */
 
 public class CNNLFWExample {
-    private static final Logger log = LoggerFactory.getLogger(CNNMnistExample.class);
+    private static final Logger LOG = LoggerFactory.getLogger(CNNMnistExample.class);
 
     public static void main(String[] args) {
 
@@ -72,10 +72,10 @@ public class CNNLFWExample {
         List<INDArray> testInput = new ArrayList<>();
         List<INDArray> testLabels = new ArrayList<>();
 
-        log.info("Load data....");
+        LOG.info("Load data....");
         DataSetIterator lfw = new LFWDataSetIterator(batchSize, numSamples, new int[] {numRows, numColumns, nChannels}, outputNum, useSubset, new Random(seed));
 
-        log.info("Build model....");
+        LOG.info("Build model....");
         MultiLayerConfiguration.Builder builder = new NeuralNetConfiguration.Builder()
                 .seed(seed)
                 .iterations(iterations)
@@ -134,7 +134,7 @@ public class CNNLFWExample {
         MultiLayerNetwork model = new MultiLayerNetwork(builder.build());
         model.init();
 
-        log.info("Train model....");
+        LOG.info("Train model....");
         model.setListeners(Collections.singletonList((IterationListener) new ScoreIterationListener(listenerFreq)));
 
         while(lfw.hasNext()) {
@@ -147,7 +147,7 @@ public class CNNLFWExample {
             model.fit(trainInput);
         }
 
-        log.info("Evaluate model....");
+        LOG.info("Evaluate model....");
         Evaluation eval = new Evaluation(lfw.getLabels());
         for(int i = 0; i < testInput.size(); i++) {
             INDArray output = model.output(testInput.get(i));
@@ -155,8 +155,8 @@ public class CNNLFWExample {
         }
         INDArray output = model.output(testInput.get(0));
         eval.eval(testLabels.get(0), output);
-        log.info(eval.stats());
-        log.info("****************Example finished********************");
+        LOG.info(eval.stats());
+        LOG.info("****************Example finished********************");
 
     }
 

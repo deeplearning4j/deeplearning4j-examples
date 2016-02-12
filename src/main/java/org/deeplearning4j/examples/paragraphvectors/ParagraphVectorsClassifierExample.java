@@ -34,7 +34,7 @@ import java.util.List;
  */
 public class ParagraphVectorsClassifierExample {
 
-    private static final Logger log = LoggerFactory.getLogger(ParagraphVectorsClassifierExample.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ParagraphVectorsClassifierExample.class);
 
     public static void main(String[] args) throws Exception {
         ClassPathResource resource = new ClassPathResource("paravec/labeled");
@@ -90,9 +90,9 @@ public class ParagraphVectorsClassifierExample {
              please note, document.getLabel() is used just to show which document we're looking at now, as a substitute for printing out the whole document itself.
              So, labels on these two documents are used like titles, just to visualize our classification done properly
             */
-            log.info("Document '" + document.getLabel() + "' falls into the following categories: ");
+            LOG.info("Document '" + document.getLabel() + "' falls into the following categories: ");
             for (Pair<String, Double> score: scores) {
-                log.info("        " + score.getFirst() + ": " + score.getSecond());
+                LOG.info("        " + score.getFirst() + ": " + score.getSecond());
             }
 
             /*

@@ -27,7 +27,7 @@ import java.util.Random;
  */
 public class MLPMnistCMGSExample {
 
-    private static Logger log = LoggerFactory.getLogger(MLPMnistCMGSExample.class);
+    private static final Logger LOG = LoggerFactory.getLogger(MLPMnistCMGSExample.class);
 
 
     public static void main(String[] args) throws Exception {
@@ -48,15 +48,15 @@ public class MLPMnistCMGSExample {
         List<INDArray> testLabels = new ArrayList<>();
 
 
-        log.info("Load data....");
+        LOG.info("Load data....");
         DataSetIterator iter = new MnistDataSetIterator(batchSize,numSamples);
 
-        log.info("Build model....");
+        LOG.info("Build model....");
         MultiLayerNetwork model = new CMGSNet(numRows, numColumns, outputNum, seed, iterations).init();
 
         model.setListeners(Arrays.asList((IterationListener) new ScoreIterationListener(listenerFreq)));
 
-        log.info("Train model....");
+        LOG.info("Train model....");
         while(iter.hasNext()) {
             mnist = iter.next();
             trainTest = mnist.splitTestAndTrain(splitTrainNum, new Random(seed)); // train set that is the result
@@ -66,7 +66,7 @@ public class MLPMnistCMGSExample {
             model.fit(trainInput);
         }
 
-        log.info("Evaluate model....");
+        LOG.info("Evaluate model....");
         Evaluation eval = new Evaluation(outputNum);
         for(int i = 0; i < testInput.size(); i++) {
             INDArray output = model.output(testInput.get(i));
@@ -74,8 +74,8 @@ public class MLPMnistCMGSExample {
         }
 
 
-        log.info(eval.stats());
-        log.info("****************Example finished********************");
+        LOG.info(eval.stats());
+        LOG.info("****************Example finished********************");
 
     }
 

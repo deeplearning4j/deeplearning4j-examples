@@ -28,7 +28,7 @@ import java.util.Collections;
  */
 public class StackedAutoEncoderMnistExample {
 
-    private static Logger log = LoggerFactory.getLogger(StackedAutoEncoderMnistExample.class);
+    private static final Logger LOG = LoggerFactory.getLogger(StackedAutoEncoderMnistExample.class);
 
     public static void main(String[] args) throws Exception {
         final int numRows = 28;
@@ -40,10 +40,10 @@ public class StackedAutoEncoderMnistExample {
         int seed = 123;
         int listenerFreq = batchSize / 5;
 
-        log.info("Load data....");
+        LOG.info("Load data....");
         DataSetIterator iter = new MnistDataSetIterator(batchSize,numSamples,true);
 
-        log.info("Build model....");
+        LOG.info("Build model....");
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
            .seed(seed)
            .gradientNormalization(GradientNormalization.ClipElementWiseAbsoluteValue)
@@ -75,10 +75,10 @@ public class StackedAutoEncoderMnistExample {
         model.init();
         model.setListeners(Arrays.asList((IterationListener) new ScoreIterationListener(listenerFreq)));
 
-        log.info("Train model....");
+        LOG.info("Train model....");
         model.fit(iter); // achieves end to end pre-training
 
-        log.info("Evaluate model....");
+        LOG.info("Evaluate model....");
         Evaluation eval = new Evaluation(outputNum);
 
         DataSetIterator testIter = new MnistDataSetIterator(100,10000);
@@ -88,8 +88,8 @@ public class StackedAutoEncoderMnistExample {
             eval.eval(testMnist.getLabels(), predict2);
         }
 
-        log.info(eval.stats());
-        log.info("****************Example finished********************");
+        LOG.info(eval.stats());
+        LOG.info("****************Example finished********************");
 
     }
 

@@ -38,7 +38,7 @@ import java.util.Random;
  */
 public class DBNIrisExample {
 
-    private static Logger log = LoggerFactory.getLogger(DBNIrisExample.class);
+    private static final Logger LOG = LoggerFactory.getLogger(DBNIrisExample.class);
 
     public static void main(String[] args) throws Exception {
         // Customizing params
@@ -55,19 +55,19 @@ public class DBNIrisExample {
         int seed = 123;
         int listenerFreq = 1;
 
-        log.info("Load data....");
+        LOG.info("Load data....");
         DataSetIterator iter = new IrisDataSetIterator(batchSize, numSamples);
         DataSet next = iter.next();
         next.shuffle();
         next.normalizeZeroMeanZeroUnitVariance();
 
-        log.info("Split data....");
+        LOG.info("Split data....");
         SplitTestAndTrain testAndTrain = next.splitTestAndTrain(splitTrainNum, new Random(seed));
         DataSet train = testAndTrain.getTrain();
         DataSet test = testAndTrain.getTest();
         Nd4j.ENFORCE_NUMERICAL_STABILITY = true;
 
-        log.info("Build model....");
+        LOG.info("Build model....");
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
                 .seed(seed) // Locks in weight initialization for tuning
                 .iterations(iterations) // # training iterations predict/classify & backprop
@@ -98,21 +98,21 @@ public class DBNIrisExample {
         model.init();
 
         model.setListeners(new ScoreIterationListener(listenerFreq));
-        log.info("Train model....");
+        LOG.info("Train model....");
         model.fit(train);
 
-        log.info("Evaluate weights....");
+        LOG.info("Evaluate weights....");
         for(org.deeplearning4j.nn.api.Layer layer : model.getLayers()) {
             INDArray w = layer.getParam(DefaultParamInitializer.WEIGHT_KEY);
-            log.info("Weights: " + w);
+            LOG.info("Weights: " + w);
         }
 
-        log.info("Evaluate model....");
+        LOG.info("Evaluate model....");
         Evaluation eval = new Evaluation(outputNum);
         eval.eval(test.getLabels(), model.output(test.getFeatureMatrix(), Layer.TrainingMode.TEST));
-        log.info(eval.stats());
+        LOG.info(eval.stats());
 
-        log.info("****************Example finished********************");
+        LOG.info("****************Example finished********************");
 
 
         OutputStream fos = Files.newOutputStream(Paths.get("coefficients.bin"));
