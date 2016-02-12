@@ -15,7 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
@@ -54,7 +54,7 @@ public class MLPMnistCMGSExample {
         log.info("Build model....");
         MultiLayerNetwork model = new CMGSNet(numRows, numColumns, outputNum, seed, iterations).init();
 
-        model.setListeners(Arrays.asList((IterationListener) new ScoreIterationListener(listenerFreq)));
+        model.setListeners(Collections.singletonList((IterationListener) new ScoreIterationListener(listenerFreq)));
 
         log.info("Train model....");
         while(iter.hasNext()) {
