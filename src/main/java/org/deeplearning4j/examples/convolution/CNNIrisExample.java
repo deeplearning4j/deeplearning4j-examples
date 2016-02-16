@@ -4,7 +4,6 @@ import org.deeplearning4j.datasets.iterator.DataSetIterator;
 import org.deeplearning4j.datasets.iterator.impl.IrisDataSetIterator;
 import org.deeplearning4j.eval.Evaluation;
 import org.deeplearning4j.nn.api.OptimizationAlgorithm;
-import org.deeplearning4j.nn.conf.GradientNormalization;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
 import org.deeplearning4j.nn.conf.layers.ConvolutionLayer;
@@ -23,7 +22,7 @@ import org.nd4j.linalg.lossfunctions.LossFunctions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.Random;
 
 /**
@@ -62,7 +61,7 @@ public class CNNIrisExample {
                 .iterations(iterations)
                 .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
                 .list(2)
-                .layer(0, new ConvolutionLayer.Builder(new int[]{1, 1})
+                .layer(0, new ConvolutionLayer.Builder(1, 1)
                         .nIn(nChannels)
                         .nOut(1000)
                         .activation("relu")
@@ -82,7 +81,7 @@ public class CNNIrisExample {
         LOG.info("Build model....");
         MultiLayerNetwork model = new MultiLayerNetwork(conf);
         model.init();
-        model.setListeners(Arrays.asList((IterationListener) new ScoreIterationListener(listenerFreq)));
+        model.setListeners(Collections.singletonList((IterationListener) new ScoreIterationListener(listenerFreq)));
 
         LOG.info("Train model....");
         System.out.println("Training on " + trainTest.getTrain().labelCounts());

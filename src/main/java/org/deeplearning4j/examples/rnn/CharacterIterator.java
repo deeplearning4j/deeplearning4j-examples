@@ -83,9 +83,9 @@ public class CharacterIterator implements DataSetIterator {
 		int currIdx = 0;
 		for( String s : lines ){
 			char[] thisLine = s.toCharArray();
-			for( int i=0; i<thisLine.length; i++ ){
-				if( !charToIdxMap.containsKey(thisLine[i]) ) continue;
-				characters[currIdx++] = thisLine[i];
+			for (char aThisLine : thisLine) {
+				if (!charToIdxMap.containsKey(aThisLine)) continue;
+				characters[currIdx++] = aThisLine;
 			}
 			if(newLineValid) characters[currIdx++] = '\n';
 		}
@@ -153,8 +153,8 @@ public class CharacterIterator implements DataSetIterator {
 	public DataSet next(int num) {
 		if( examplesSoFar+num > numExamplesToFetch ) throw new NoSuchElementException();
 		//Allocate space:
-		INDArray input = Nd4j.zeros(new int[]{num,numCharacters,exampleLength});
-		INDArray labels = Nd4j.zeros(new int[]{num,numCharacters,exampleLength});
+		INDArray input = Nd4j.zeros(num,numCharacters,exampleLength);
+		INDArray labels = Nd4j.zeros(num,numCharacters,exampleLength);
 		
 		int maxStartIdx = fileCharacters.length - exampleLength;
 		

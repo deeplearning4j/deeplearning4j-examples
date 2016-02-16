@@ -18,7 +18,7 @@ import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 import org.nd4j.linalg.util.FeatureUtil;
 
-import java.util.Arrays;
+import java.util.Collections;
 
 
 /**
@@ -63,8 +63,7 @@ public class CheckCNN {
 
         MultiLayerNetwork model = new MultiLayerNetwork(conf);
         model.init();
-        model.setListeners(
-                Arrays.asList((IterationListener) new ScoreIterationListener(5)));
+        model.setListeners(Collections.singletonList((IterationListener) new ScoreIterationListener(5)));
         model.fit(d);
     }
 

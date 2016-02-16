@@ -6,12 +6,10 @@ import org.deeplearning4j.examples.paragraphvectors.tools.FileLabelAwareIterator
 import org.deeplearning4j.examples.paragraphvectors.tools.LabelSeeker;
 import org.deeplearning4j.examples.paragraphvectors.tools.MeansBuilder;
 import org.deeplearning4j.models.embeddings.inmemory.InMemoryLookupTable;
-import org.deeplearning4j.models.embeddings.learning.impl.elements.SkipGram;
 import org.deeplearning4j.models.paragraphvectors.ParagraphVectors;
 import org.deeplearning4j.models.word2vec.VocabWord;
 import org.deeplearning4j.text.documentiterator.LabelAwareIterator;
 import org.deeplearning4j.text.documentiterator.LabelledDocument;
-import org.deeplearning4j.text.documentiterator.SimpleLabelAwareIterator;
 import org.deeplearning4j.text.tokenization.tokenizer.preprocessor.CommonPreprocessor;
 import org.deeplearning4j.text.tokenization.tokenizerfactory.DefaultTokenizerFactory;
 import org.deeplearning4j.text.tokenization.tokenizerfactory.TokenizerFactory;
