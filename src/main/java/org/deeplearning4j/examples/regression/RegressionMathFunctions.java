@@ -67,7 +67,7 @@ public class RegressionMathFunctions {
 
         //Generate the training data
         INDArray x = Nd4j.linspace(-10,10,nSamples).reshape(nSamples, 1);
-        DataSetIterator iterator = getTrainingData(x,fn,100,rng);
+        DataSetIterator iterator = getTrainingData(x,fn,batchSize,rng);
 
         //Create the network
         MultiLayerNetwork net = new MultiLayerNetwork(getNetworkConfiguration(useSimpleNetwork));
@@ -189,24 +189,19 @@ public class RegressionMathFunctions {
         addSeries(dataSet,x,y,"True Function (Labels)");
 
         for( int i=0; i<predicted.length; i++ ){
-            addSeries(dataSet,x,predicted[i],""+i);
+            addSeries(dataSet,x,predicted[i],String.valueOf(i));
         }
 
         JFreeChart chart = ChartFactory.createXYLineChart(
                 "Regression Example - " + function,      // chart title
                 "X",                      // x axis label
-                function + "(X)",                      // y axis label
+                function + "(X)",         // y axis label
                 dataSet,                  // data
                 PlotOrientation.VERTICAL,
                 true,                     // include legend
                 true,                     // tooltips
                 false                     // urls
         );
-
-        // get a reference to the plot for further customisation...
-        XYPlot plot = (XYPlot) chart.getPlot();
-        plot.setDomainPannable(true);
-        plot.setRangePannable(true);
 
         ChartPanel panel = new ChartPanel(chart);
 
