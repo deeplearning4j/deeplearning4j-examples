@@ -1,5 +1,6 @@
 package org.deeplearning4j.examples.convolution;
 
+import org.deeplearning4j.datasets.iterator.MultipleEpochsIterator;
 import org.deeplearning4j.datasets.iterator.impl.CifarDataSetIterator;
 import org.deeplearning4j.eval.Evaluation;
 import org.deeplearning4j.nn.api.OptimizationAlgorithm;
@@ -38,17 +39,18 @@ public class Cifar {
         int height = 32;
         int width = 32;
         int channels = 3;
-        int numTrainSamples = 50;
-        int numTestSamples = 50;
-        int batchSize = 10;
+        int numTrainSamples = 100;
+        int numTestSamples = 100;
+        int batchSize = 30;
 
         int outputNum = 10;
-        int iterations = 10;
+        int iterations = 5;
+        int epochs = 5;
         int seed = 123;
         int listenerFreq = 5;
 
         System.out.println("Load data...");
-        CifarDataSetIterator cifar = new CifarDataSetIterator(batchSize, numTrainSamples, "TRAIN");
+        MultipleEpochsIterator cifar = new MultipleEpochsIterator(epochs, new CifarDataSetIterator(batchSize, numTrainSamples, "TRAIN"));
 
         //setup the network
         MultiLayerConfiguration.Builder builder = new NeuralNetConfiguration.Builder()
@@ -115,10 +117,10 @@ public class Cifar {
         System.out.println("Train model...");
         network.fit(cifar);
 
-        cifar = new CifarDataSetIterator(batchSize, numTestSamples, "TEST");
-        Evaluation eval = new Evaluation(cifar.getLabels());
-        while(cifar.hasNext()) {
-            DataSet testDS = cifar.next(batchSize);
+        CifarDataSetIterator cifarTest = new CifarDataSetIterator(batchSize, numTestSamples, "TEST");
+        Evaluation eval = new Evaluation(cifarTest.getLabels());
+        while(cifarTest.hasNext()) {
+            DataSet testDS = cifarTest.next(batchSize);
             INDArray output = network.output(testDS.getFeatureMatrix());
             eval.eval(testDS.getLabels(), output);
         }
