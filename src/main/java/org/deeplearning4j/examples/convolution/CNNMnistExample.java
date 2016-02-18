@@ -104,8 +104,6 @@ public class CNNMnistExample {
             INDArray output = model.output(testInput.get(i));
             eval.eval(testLabels.get(i), output);
         }
-        INDArray output = model.output(testInput.get(0));
-        eval.eval(testLabels.get(0), output);
         log.info(eval.stats());
         log.info("****************Example finished********************");
 
