@@ -81,10 +81,10 @@ public class MLPMnistSingleLayerExample {
 
         MultiLayerNetwork model = new MultiLayerNetwork(conf);
         model.init();
-        model.setListeners(Arrays.asList((IterationListener) new ScoreIterationListener(listenerFreq)));
+        model.setListeners(Collections.singletonList((IterationListener) new ScoreIterationListener(listenerFreq)));
 
         log.info("Train model....");
-        model.setListeners(Arrays.asList((IterationListener) new ScoreIterationListener(listenerFreq)));
+        model.setListeners(Collections.singletonList((IterationListener) new ScoreIterationListener(listenerFreq)));
         while(mnistIter.hasNext()) {
             mnist = mnistIter.next();
             trainTest = mnist.splitTestAndTrain(splitTrainNum, new Random(seed)); // train set that is the result

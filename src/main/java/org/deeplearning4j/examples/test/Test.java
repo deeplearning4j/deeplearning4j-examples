@@ -5,7 +5,6 @@ import java.util.Random;
 
 import org.deeplearning4j.datasets.iterator.DataSetIterator;
 import org.deeplearning4j.datasets.iterator.impl.IrisDataSetIterator;
-import org.deeplearning4j.nn.api.Layer;
 import org.deeplearning4j.nn.api.OptimizationAlgorithm;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
@@ -48,10 +47,9 @@ public class Test {
         LOGGER.info("Split data....");
         SplitTestAndTrain testAndTrain = iris.splitTestAndTrain(splitTrainNum, new Random(seed));
         DataSet train = testAndTrain.getTrain();
-        DataSet test = testAndTrain.getTest();
         Nd4j.ENFORCE_NUMERICAL_STABILITY = true;
 
-        MultiLayerNetwork model = null;
+        MultiLayerNetwork model;
         LOGGER.info("Build model....");
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
                 .seed(seed) // Seed to lock in weight initialization for tuning

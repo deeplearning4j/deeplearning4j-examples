@@ -1,6 +1,5 @@
 package org.deeplearning4j.examples.convolution;
 
-import org.canova.image.loader.CifarLoader;
 import org.deeplearning4j.datasets.iterator.impl.CifarDataSetIterator;
 import org.deeplearning4j.eval.Evaluation;
 import org.deeplearning4j.nn.api.OptimizationAlgorithm;
@@ -19,9 +18,7 @@ import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
-import org.springframework.core.io.ClassPathResource;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 
@@ -41,9 +38,10 @@ public class Cifar {
         int height = 32;
         int width = 32;
         int channels = 3;
-        int numTrainSamples = 5000;
-        int numTestSamples = 5000;
-        int batchSize = 100;
+        int numTrainSamples = 50;
+        int numTestSamples = 50;
+        int batchSize = 10;
+
         int outputNum = 10;
         int iterations = 10;
         int seed = 123;
@@ -53,7 +51,6 @@ public class Cifar {
         CifarDataSetIterator cifar = new CifarDataSetIterator(batchSize, numTrainSamples, "TRAIN");
 
         //setup the network
-        System.out.println("Build model...");
         MultiLayerConfiguration.Builder builder = new NeuralNetConfiguration.Builder()
                 .seed(seed)
                 .iterations(iterations)
@@ -67,7 +64,7 @@ public class Cifar {
                 .l2(0.04)
                 .updater(Updater.NESTEROVS)
                 .useDropConnect(true)
-                .list(10)
+                .list()
                 .layer(0, new ConvolutionLayer.Builder(5, 5)
                         .name("cnn1")
                         .nIn(channels)
@@ -102,9 +99,10 @@ public class Cifar {
                         .name("ffn1")
                         .nOut(250)
                         .dropOut(0.5)
-                        .build())
+                    .build())
                 .layer(9, new OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD)
                         .nOut(outputNum)
+                        .weightInit(WeightInit.XAVIER)
                         .activation("softmax")
                         .build())
                 .backprop(true).pretrain(false)

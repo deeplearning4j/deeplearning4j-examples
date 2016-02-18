@@ -33,7 +33,7 @@ public class ParagraphVectorsTextExample {
         File file = resource.getFile();
         SentenceIterator iter = new BasicLineIterator(file);
 
-        InMemoryLookupCache cache = new InMemoryLookupCache(false);
+        InMemoryLookupCache cache = new InMemoryLookupCache();
 
         TokenizerFactory t = new DefaultTokenizerFactory();
         t.setTokenPreProcessor(new CommonPreprocessor());

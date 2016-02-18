@@ -118,8 +118,8 @@ public class VideoGenerator {
             for( int j=0; j<numDistractorsPerFrame; j++ ){
                 int distractorShapeIdx = r.nextInt(NUM_SHAPES);
 
-                int distractorX = DISTRACTOR_MIN_DIST_FROM_EDGE + r.nextInt(width - SHAPE_SIZE - 2*DISTRACTOR_MIN_DIST_FROM_EDGE );
-                int distractorY = DISTRACTOR_MIN_DIST_FROM_EDGE + r.nextInt(height - SHAPE_SIZE - 2*DISTRACTOR_MIN_DIST_FROM_EDGE );
+                int distractorX = DISTRACTOR_MIN_DIST_FROM_EDGE + r.nextInt(width - SHAPE_SIZE);
+                int distractorY = DISTRACTOR_MIN_DIST_FROM_EDGE + r.nextInt(height - SHAPE_SIZE);
 
                 g2d.setColor(new Color(r.nextFloat(), r.nextFloat(), r.nextFloat()));
 
