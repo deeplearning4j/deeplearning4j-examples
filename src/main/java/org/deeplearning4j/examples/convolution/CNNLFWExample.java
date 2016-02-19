@@ -50,7 +50,7 @@ import java.util.Random;
  */
 
 public class CNNLFWExample {
-    private static final Logger log = LoggerFactory.getLogger(CNNMnistExample.class);
+    private static final Logger log = LoggerFactory.getLogger(CNNLFWExample.class);
 
     public static void main(String[] args) {
 
@@ -60,7 +60,6 @@ public class CNNLFWExample {
         int nChannels = 3;
         int outputNum = LFWLoader.NUM_LABELS;
         int numSamples = 1000; // LFWLoader.NUM_IMAGES;
-        boolean useSubset = false;
         int batchSize = 200;// numSamples/10;
         int iterations = 5;
         int splitTrainNum = (int) (batchSize*.8);
@@ -73,7 +72,7 @@ public class CNNLFWExample {
         List<INDArray> testLabels = new ArrayList<>();
 
         log.info("Load data....");
-        DataSetIterator lfw = new LFWDataSetIterator(batchSize, numSamples, new int[] {numRows, numColumns, nChannels}, outputNum, useSubset, new Random(seed));
+        DataSetIterator lfw = new LFWDataSetIterator(batchSize, numSamples, new int[] {numRows, numColumns, nChannels}, outputNum, false, new Random(seed));
 
         log.info("Build model....");
         MultiLayerConfiguration.Builder builder = new NeuralNetConfiguration.Builder()

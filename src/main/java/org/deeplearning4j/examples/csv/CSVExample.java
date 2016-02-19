@@ -4,7 +4,6 @@ import org.canova.api.records.reader.RecordReader;
 import org.canova.api.records.reader.impl.CSVRecordReader;
 import org.canova.api.split.FileSplit;
 import org.deeplearning4j.datasets.canova.RecordReaderDataSetIterator;
-import org.deeplearning4j.datasets.iterator.impl.IrisDataSetIterator;
 import org.deeplearning4j.eval.Evaluation;
 import org.deeplearning4j.nn.conf.GradientNormalization;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
@@ -25,7 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
 
-import java.util.Arrays;
+import java.util.Collections;
 
 /**
  * @author Adam Gibson
@@ -49,7 +48,6 @@ public class CSVExample {
         int outputNum = 3;
         int iterations = 3;
         long seed = 6;
-        int listenerFreq = iterations;
 
 
         log.info("Build model....");
@@ -79,7 +77,7 @@ public class CSVExample {
         //run the model
         MultiLayerNetwork model = new MultiLayerNetwork(conf);
         model.init();
-        model.setListeners(Arrays.asList((IterationListener) new ScoreIterationListener(listenerFreq)));
+        model.setListeners(Collections.singletonList((IterationListener) new ScoreIterationListener(iterations)));
 
         next.normalizeZeroMeanZeroUnitVariance();
         next.shuffle();
