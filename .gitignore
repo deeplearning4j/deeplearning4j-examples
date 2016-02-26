@@ -37,7 +37,6 @@ deeplearning4j-scaleout/deeplearning4j-aws/src/main/java/org/deeplearning4j/aws/
 metastore_db
 *.ipynb*
 *.html
-*.csv
 Word2vec-index/
 *.conf
 *.json
