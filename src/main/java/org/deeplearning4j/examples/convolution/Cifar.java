@@ -34,7 +34,6 @@ import java.util.Arrays;
  */
 public class Cifar {
 
-    /*
     //This version of the example requires DL4J 0.4-rc3.9 or later (or, DL4J snapshots) and is disabled here
     public static void main(String[] args) throws IOException {
         Nd4j.dtype = DataBuffer.Type.DOUBLE;
@@ -130,6 +129,6 @@ public class Cifar {
         System.out.println(eval.stats());
 
     }
-    */
+
 
 }
