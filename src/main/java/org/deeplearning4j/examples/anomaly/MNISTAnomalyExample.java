@@ -46,7 +46,7 @@ public class MNISTAnomalyExample {
                 .iterations(1)
                 .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
                 .learningRate(0.05)
-                .l2(0.001)
+                .regularization(true).l2(0.0001)
                 .list(4)
                 .layer(0, new DenseLayer.Builder().nIn(784).nOut(250)
                         .weightInit(WeightInit.XAVIER)
