@@ -23,6 +23,8 @@ import java.util.Collections;
 
 /**
  * Created by agibsonccc on 9/11/14.
+ *
+ * ***** NOTE: This example has not been tuned. It requires additional work to produce sensible results *****
  */
 public class DBNMnistFullExample {
 

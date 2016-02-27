@@ -19,6 +19,8 @@ import org.slf4j.LoggerFactory;
 import java.util.Collections;
 
 /**
+ * ***** NOTE: This example has not been tuned. It requires additional work to produce sensible results *****
+ *
  * @author Adam Gibson
  */
 public class DeepAutoEncoderExample {
