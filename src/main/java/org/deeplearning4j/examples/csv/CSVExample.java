@@ -34,19 +34,25 @@ public class CSVExample {
     private static Logger log = LoggerFactory.getLogger(CSVExample.class);
 
     public static void main(String[] args) throws  Exception {
-        RecordReader recordReader = new CSVRecordReader(0,",");
+
+        //First: get the dataset using the record reader. CSVRecordReader handles loading/parsing
+        int numLinesToSkip = 0;
+        String delimiter = ",";
+        RecordReader recordReader = new CSVRecordReader(numLinesToSkip,delimiter);
         recordReader.initialize(new FileSplit(new ClassPathResource("iris.txt").getFile()));
-        //reader,label index,number of possible labels
-        DataSetIterator iterator = new RecordReaderDataSetIterator(recordReader,4,3);
-        //get the dataset using the record reader. The datasetiterator handles vectorization
+
+        //Second: the RecordReaderDataSetIterator handles conversion to DataSet objects, ready for use in neural network
+        int labelIndex = 4;
+        int numClasses = 3;
+        int batchSize = 150;    //Iris data set: 150 examples total. We are loading all of them into one DataSet (not recommended for large data sets)
+        DataSetIterator iterator = new RecordReaderDataSetIterator(recordReader,batchSize,labelIndex,numClasses);
+
+
         DataSet next = iterator.next();
-        // Customizing params
-        Nd4j.MAX_SLICES_TO_PRINT = 10;
-        Nd4j.MAX_ELEMENTS_PER_SLICE = 10;
 
         final int numInputs = 4;
         int outputNum = 3;
-        int iterations = 3;
+        int iterations = 1000;
         long seed = 6;
 
 
@@ -54,44 +60,44 @@ public class CSVExample {
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
                 .seed(seed)
                 .iterations(iterations)
-                .useDropConnect(true)
-                .learningRate(1e-1)
-                .l1(0.3).regularization(true).l2(1e-3)
-                .gradientNormalization(GradientNormalization.RenormalizeL2PerLayer)
+                .learningRate(0.1)
+                .regularization(true).l2(1e-4)
                 .list(3)
                 .layer(0, new DenseLayer.Builder().nIn(numInputs).nOut(3)
-                        .activation("relu").dropOut(0.5)
+                        .activation("tanh")
                         .weightInit(WeightInit.XAVIER)
                         .build())
-                .layer(1, new DenseLayer.Builder().nIn(3).nOut(2)
-                        .activation("relu")
+                .layer(1, new DenseLayer.Builder().nIn(3).nOut(3)
+                        .activation("tanh")
                         .weightInit(WeightInit.XAVIER)
                         .build())
                 .layer(2, new OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD)
                         .weightInit(WeightInit.XAVIER)
                         .activation("softmax")
-                        .nIn(2).nOut(outputNum).build())
+                        .nIn(3).nOut(outputNum).build())
                 .backprop(true).pretrain(false)
                 .build();
 
         //run the model
         MultiLayerNetwork model = new MultiLayerNetwork(conf);
         model.init();
-        model.setListeners(Collections.singletonList((IterationListener) new ScoreIterationListener(iterations)));
+        model.setListeners(new ScoreIterationListener(100));
 
+        //Normalize the full data set. Our DataSet 'next' contains the full 150 examples
         next.normalizeZeroMeanZeroUnitVariance();
         next.shuffle();
         //split test and train
-        SplitTestAndTrain testAndTrain = next.splitTestAndTrain(0.6);
-        model.fit(testAndTrain.getTrain());
+        SplitTestAndTrain testAndTrain = next.splitTestAndTrain(0.65);  //Use 65% of data for training
 
-        //evaluate the model
+        DataSet trainingData = testAndTrain.getTrain();
+        model.fit(trainingData);
+
+        //evaluate the model on the test set
         Evaluation eval = new Evaluation(3);
         DataSet test = testAndTrain.getTest();
         INDArray output = model.output(test.getFeatureMatrix());
         eval.eval(test.getLabels(), output);
         log.info(eval.stats());
-
     }
 
 }
