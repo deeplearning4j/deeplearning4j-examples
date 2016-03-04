@@ -1,5 +1,6 @@
 package org.deeplearning4j.examples.feedforward.regression;
 
+import org.deeplearning4j.datasets.iterator.DataSetIterator;
 import org.deeplearning4j.datasets.iterator.impl.ListDataSetIterator;
 import org.deeplearning4j.nn.api.OptimizationAlgorithm;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
@@ -20,7 +21,6 @@ import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.api.ops.impl.transforms.Sign;
 import org.nd4j.linalg.api.ops.impl.transforms.Sin;
 import org.nd4j.linalg.dataset.DataSet;
-import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 
@@ -134,7 +134,7 @@ public class RegressionMathFunctions {
     }
 
     //Calculate the function values (sin(x), etc) for a given function and x values
-    private static INDArray getFunctionValues(INDArray x, Function function){
+    public static INDArray getFunctionValues(INDArray x, Function function){
         switch (function){
             case Sin:
                 return Nd4j.getExecutioner().execAndReturn(new Sin(x.dup()));
@@ -170,7 +170,7 @@ public class RegressionMathFunctions {
      * @param batchSize Batch size (number of examples for every call of DataSetIterator.next())
      * @param rng Random number generator (for repeatability)
      */
-    private static DataSetIterator getTrainingData(INDArray x, Function function, int batchSize, Random rng){
+    public static DataSetIterator getTrainingData(INDArray x, Function function, int batchSize, Random rng){
         INDArray y = getFunctionValues(x,function);
         DataSet allData = new DataSet(x,y);
 
@@ -180,7 +180,7 @@ public class RegressionMathFunctions {
     }
 
     //Plot the data
-    private static void plot(Function function, INDArray x, INDArray y, INDArray... predicted){
+    public static void plot(Function function, INDArray x, INDArray y, INDArray... predicted){
         XYSeriesCollection dataSet = new XYSeriesCollection();
         addSeries(dataSet,x,y,"True Function (Labels)");
 
@@ -209,7 +209,7 @@ public class RegressionMathFunctions {
         f.setVisible(true);
     }
 
-    private static void addSeries(XYSeriesCollection dataSet, INDArray x, INDArray y, String label){
+    public static void addSeries(XYSeriesCollection dataSet, INDArray x, INDArray y, String label){
         double[] xd = x.data().asDouble();
         double[] yd = y.data().asDouble();
         XYSeries s = new XYSeries(label);
