@@ -170,7 +170,7 @@ public class RegressionMathFunctions {
      * @param batchSize Batch size (number of examples for every call of DataSetIterator.next())
      * @param rng Random number generator (for repeatability)
      */
-    public static DataSetIterator getTrainingData(INDArray x, Function function, int batchSize, Random rng){
+    private static DataSetIterator getTrainingData(INDArray x, Function function, int batchSize, Random rng){
         INDArray y = getFunctionValues(x,function);
         DataSet allData = new DataSet(x,y);
 
