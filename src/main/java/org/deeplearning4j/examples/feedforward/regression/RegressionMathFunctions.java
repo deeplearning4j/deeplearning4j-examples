@@ -134,7 +134,7 @@ public class RegressionMathFunctions {
     }
 
     //Calculate the function values (sin(x), etc) for a given function and x values
-    public static INDArray getFunctionValues(INDArray x, Function function){
+    private static INDArray getFunctionValues(INDArray x, Function function){
         switch (function){
             case Sin:
                 return Nd4j.getExecutioner().execAndReturn(new Sin(x.dup()));
@@ -180,7 +180,7 @@ public class RegressionMathFunctions {
     }
 
     //Plot the data
-    public static void plot(Function function, INDArray x, INDArray y, INDArray... predicted){
+    private static void plot(Function function, INDArray x, INDArray y, INDArray... predicted){
         XYSeriesCollection dataSet = new XYSeriesCollection();
         addSeries(dataSet,x,y,"True Function (Labels)");
 
@@ -209,7 +209,7 @@ public class RegressionMathFunctions {
         f.setVisible(true);
     }
 
-    public static void addSeries(XYSeriesCollection dataSet, INDArray x, INDArray y, String label){
+    private static void addSeries(XYSeriesCollection dataSet, INDArray x, INDArray y, String label){
         double[] xd = x.data().asDouble();
         double[] yd = y.data().asDouble();
         XYSeries s = new XYSeries(label);
