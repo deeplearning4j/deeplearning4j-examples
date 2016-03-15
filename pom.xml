@@ -9,7 +9,7 @@
     <description>Examples of training different data sets</description>
     <properties>
         <nd4j.version>0.4-rc3.8</nd4j.version>
-        <dl4j.version>	0.4-rc3.8</dl4j.version>
+        <dl4j.version>0.4-rc3.8</dl4j.version>
         <canova.version>0.0.0.14</canova.version>
         <jackson.version>2.5.1</jackson.version>
     </properties>
