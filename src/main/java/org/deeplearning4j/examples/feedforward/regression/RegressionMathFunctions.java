@@ -188,13 +188,13 @@ public class RegressionMathFunctions {
 
         final JFreeChart chart = ChartFactory.createXYLineChart(
                 "Regression Example - " + function.getName(),      // chart title
-                "X",                      // x axis label
-                function + "(X)",         // y axis label
-                dataSet,                  // data
+                "X",                        // x axis label
+                function.getName() + "(X)", // y axis label
+                dataSet,                    // data
                 PlotOrientation.VERTICAL,
-                true,                     // include legend
-                true,                     // tooltips
-                false                     // urls
+                true,                       // include legend
+                true,                       // tooltips
+                false                       // urls
         );
 
         final ChartPanel panel = new ChartPanel(chart);
