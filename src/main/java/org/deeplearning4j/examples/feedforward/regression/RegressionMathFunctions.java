@@ -2,6 +2,7 @@ package org.deeplearning4j.examples.feedforward.regression;
 
 import org.deeplearning4j.datasets.iterator.DataSetIterator;
 import org.deeplearning4j.datasets.iterator.impl.ListDataSetIterator;
+import org.deeplearning4j.examples.feedforward.regression.function.*;
 import org.deeplearning4j.nn.api.OptimizationAlgorithm;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
@@ -18,8 +19,6 @@ import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.nd4j.linalg.api.ndarray.INDArray;
-import org.nd4j.linalg.api.ops.impl.transforms.Sign;
-import org.nd4j.linalg.api.ops.impl.transforms.Sin;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
@@ -38,8 +37,6 @@ import java.util.Random;
  * @author Alex Black
  */
 public class RegressionMathFunctions {
-
-    public enum Function {Sin, SinXDivX, SquareWave, TriangleWave, Sawtooth};
 
     //Random number generator seed, for reproducability
     public static final int seed = 12345;
@@ -61,7 +58,7 @@ public class RegressionMathFunctions {
     public static void main(String[] args){
 
         //Switch these two options to do different functions with different networks
-        Function fn = Function.SinXDivX;
+        MathFunction fn = new SinXDivXMathFunction();
         boolean useSimpleNetwork = false;   //If true: Network with 1 hidden layer of size 20. False: 2 hidden layers of size 50
 
         //Generate the training data
@@ -83,7 +80,7 @@ public class RegressionMathFunctions {
         }
 
         //Plot the target data and the network predictions
-        plot(fn,x,getFunctionValues(x,fn),networkPredictions);
+        plot(fn,x,fn.getFunctionValues(x),networkPredictions);
     }
 
     /**Returns the network configuration
@@ -133,45 +130,14 @@ public class RegressionMathFunctions {
         }
     }
 
-    //Calculate the function values (sin(x), etc) for a given function and x values
-    private static INDArray getFunctionValues(INDArray x, Function function){
-        switch (function){
-            case Sin:
-                return Nd4j.getExecutioner().execAndReturn(new Sin(x.dup()));
-            case SinXDivX:
-                return Nd4j.getExecutioner().execAndReturn(new Sin(x.dup())).div(x);
-            case SquareWave:
-                INDArray sin = Nd4j.getExecutioner().execAndReturn(new Sin(x.dup()));
-                return Nd4j.getExecutioner().execAndReturn(new Sign(sin));
-            case TriangleWave:
-                double period = 6.0;
-                double[] xd = x.data().asDouble();
-                double[] yd = new double[xd.length];
-                for(int i=0; i<xd.length; i++ ){
-                    yd[i] = Math.abs(2*(xd[i]/period-Math.floor(xd[i]/period+0.5)));
-                }
-                return Nd4j.create(yd,new int[]{xd.length,1});  //Column vector
-            case Sawtooth:
-                double sawtoothPeriod = 4.0;
-                double[] xd2 = x.data().asDouble();
-                double[] yd2 = new double[xd2.length];
-                for(int i=0; i<xd2.length; i++ ){
-                    yd2[i] = 2*(xd2[i]/sawtoothPeriod-Math.floor(xd2[i]/sawtoothPeriod+0.5));
-                }
-                return Nd4j.create(yd2,new int[]{xd2.length,1});  //Column vector
-            default:
-                throw new RuntimeException();
-        }
-    }
-
     /** Create a DataSetIterator for training
      * @param x X values
      * @param function Function to evaluate
      * @param batchSize Batch size (number of examples for every call of DataSetIterator.next())
      * @param rng Random number generator (for repeatability)
      */
-    private static DataSetIterator getTrainingData(INDArray x, Function function, int batchSize, Random rng){
-        INDArray y = getFunctionValues(x,function);
+    private static DataSetIterator getTrainingData(final INDArray x, MathFunction function, int batchSize, Random rng) {
+        INDArray y = function.getFunctionValues(x);
         DataSet allData = new DataSet(x,y);
 
         List<DataSet> list = allData.asList();
@@ -180,7 +146,7 @@ public class RegressionMathFunctions {
     }
 
     //Plot the data
-    private static void plot(Function function, INDArray x, INDArray y, INDArray... predicted){
+    private static void plot(final MathFunction function, INDArray x, INDArray y, INDArray... predicted) {
         XYSeriesCollection dataSet = new XYSeriesCollection();
         addSeries(dataSet,x,y,"True Function (Labels)");
 
@@ -189,7 +155,7 @@ public class RegressionMathFunctions {
         }
 
         JFreeChart chart = ChartFactory.createXYLineChart(
-                "Regression Example - " + function,      // chart title
+                "Regression Example - " + function.getName(),      // chart title
                 "X",                      // x axis label
                 function + "(X)",         // y axis label
                 dataSet,                  // data
