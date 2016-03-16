@@ -60,24 +60,24 @@ public class RegressionMathFunctions {
     public static final int numOutputs = 1;
 
 
-    public static void main(String[] args){
+    public static void main(final String[] args){
 
         //Switch these two options to do different functions with different networks
-        MathFunction fn = new SinXDivXMathFunction();
+        final MathFunction fn = new SinXDivXMathFunction();
+        final MultiLayerConfiguration conf = getDeepDenseLayerNetworkConfiguration();
 
         //Generate the training data
-        INDArray x = Nd4j.linspace(-10,10,nSamples).reshape(nSamples, 1);
-        DataSetIterator iterator = getTrainingData(x,fn,batchSize,rng);
+        final INDArray x = Nd4j.linspace(-10,10,nSamples).reshape(nSamples, 1);
+        final DataSetIterator iterator = getTrainingData(x,fn,batchSize,rng);
 
         //Create the network
-        MultiLayerConfiguration conf = getDeepDenseLayerNetworkConfiguration();
-        MultiLayerNetwork net = new MultiLayerNetwork(conf);
+        final MultiLayerNetwork net = new MultiLayerNetwork(conf);
         net.init();
         net.setListeners(new ScoreIterationListener(1));
 
 
         //Train the network on the full data set, and evaluate in periodically
-        INDArray[] networkPredictions = new INDArray[nEpochs/ plotFrequency];
+        final INDArray[] networkPredictions = new INDArray[nEpochs/ plotFrequency];
         for( int i=0; i<nEpochs; i++ ){
             iterator.reset();
             net.fit(iterator);
@@ -168,25 +168,25 @@ public class RegressionMathFunctions {
      * @param batchSize Batch size (number of examples for every call of DataSetIterator.next())
      * @param rng Random number generator (for repeatability)
      */
-    private static DataSetIterator getTrainingData(final INDArray x, MathFunction function, int batchSize, Random rng) {
-        INDArray y = function.getFunctionValues(x);
-        DataSet allData = new DataSet(x,y);
+    private static DataSetIterator getTrainingData(final INDArray x, final MathFunction function, final int batchSize, final Random rng) {
+        final INDArray y = function.getFunctionValues(x);
+        final DataSet allData = new DataSet(x,y);
 
-        List<DataSet> list = allData.asList();
+        final List<DataSet> list = allData.asList();
         Collections.shuffle(list,rng);
         return new ListDataSetIterator(list,batchSize);
     }
 
     //Plot the data
-    private static void plot(final MathFunction function, INDArray x, INDArray y, INDArray... predicted) {
-        XYSeriesCollection dataSet = new XYSeriesCollection();
+    private static void plot(final MathFunction function, final INDArray x, final INDArray y, final INDArray... predicted) {
+        final XYSeriesCollection dataSet = new XYSeriesCollection();
         addSeries(dataSet,x,y,"True Function (Labels)");
 
         for( int i=0; i<predicted.length; i++ ){
             addSeries(dataSet,x,predicted[i],String.valueOf(i));
         }
 
-        JFreeChart chart = ChartFactory.createXYLineChart(
+        final JFreeChart chart = ChartFactory.createXYLineChart(
                 "Regression Example - " + function.getName(),      // chart title
                 "X",                      // x axis label
                 function + "(X)",         // y axis label
@@ -197,9 +197,9 @@ public class RegressionMathFunctions {
                 false                     // urls
         );
 
-        ChartPanel panel = new ChartPanel(chart);
+        final ChartPanel panel = new ChartPanel(chart);
 
-        JFrame f = new JFrame();
+        final JFrame f = new JFrame();
         f.add(panel);
         f.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         f.pack();
@@ -207,10 +207,10 @@ public class RegressionMathFunctions {
         f.setVisible(true);
     }
 
-    private static void addSeries(XYSeriesCollection dataSet, INDArray x, INDArray y, String label){
-        double[] xd = x.data().asDouble();
-        double[] yd = y.data().asDouble();
-        XYSeries s = new XYSeries(label);
+    private static void addSeries(final XYSeriesCollection dataSet, final INDArray x, final INDArray y, final String label){
+        final double[] xd = x.data().asDouble();
+        final double[] yd = y.data().asDouble();
+        final XYSeries s = new XYSeries(label);
         for( int j=0; j<xd.length; j++ ) s.add(xd[j],yd[j]);
         dataSet.addSeries(s);
     }
