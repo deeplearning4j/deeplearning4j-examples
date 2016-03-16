@@ -7,8 +7,11 @@ import org.deeplearning4j.nn.api.OptimizationAlgorithm;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
 import org.deeplearning4j.nn.conf.Updater;
+import org.deeplearning4j.nn.conf.distribution.UniformDistribution;
 import org.deeplearning4j.nn.conf.layers.DenseLayer;
+import org.deeplearning4j.nn.conf.layers.GravesLSTM;
 import org.deeplearning4j.nn.conf.layers.OutputLayer;
+import org.deeplearning4j.nn.conf.layers.RnnOutputLayer;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
 import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
@@ -83,6 +86,35 @@ public class RegressionMathFunctions {
 
         //Plot the target data and the network predictions
         plot(fn,x,fn.getFunctionValues(x),networkPredictions);
+    }
+
+    private static MultiLayerConfiguration getLSTMNetworkConfiguration() {
+        final int numHiddenNodes = 20;
+        return new NeuralNetConfiguration.Builder()
+                .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
+                .iterations(iterations)
+                .learningRate(learningRate)
+                .weightInit(WeightInit.DISTRIBUTION)
+                .rmsDecay(0.95)
+                .seed(seed)
+                .regularization(true)
+                .l2(0.001)
+                .list(3)
+                .layer(0, new GravesLSTM.Builder().nIn(numInputs).nOut(numHiddenNodes)
+                        .updater(Updater.RMSPROP)
+                        .activation("softsign")
+                        .dist(new UniformDistribution(-0.08, 0.08)).build())
+                .layer(1, new GravesLSTM.Builder().nIn(numHiddenNodes).nOut(numHiddenNodes)
+                        .updater(Updater.RMSPROP)
+                        .activation("softsign")
+                        .dist(new UniformDistribution(-0.08, 0.08)).build())
+                .layer(2, new RnnOutputLayer.Builder(LossFunctions.LossFunction.MCXENT)
+                        .activation("identity")
+                        .updater(Updater.RMSPROP)
+                        .nIn(numHiddenNodes).nOut(numOutputs)
+                        .dist(new UniformDistribution(-0.08, 0.08)).build())
+                .pretrain(false).backprop(true)
+                .build();
     }
 
     /** Returns the network configuration, 2 hidden DenseLayers of size 50.
