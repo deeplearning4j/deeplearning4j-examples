@@ -53,20 +53,22 @@ public class RegressionMathFunctions {
     //Network learning rate
     public static final double learningRate = 0.01;
     public static final Random rng = new Random(seed);
+    public static final int numInputs = 1;
+    public static final int numOutputs = 1;
 
 
     public static void main(String[] args){
 
         //Switch these two options to do different functions with different networks
         MathFunction fn = new SinXDivXMathFunction();
-        boolean useSimpleNetwork = false;   //If true: Network with 1 hidden layer of size 20. False: 2 hidden layers of size 50
 
         //Generate the training data
         INDArray x = Nd4j.linspace(-10,10,nSamples).reshape(nSamples, 1);
         DataSetIterator iterator = getTrainingData(x,fn,batchSize,rng);
 
         //Create the network
-        MultiLayerNetwork net = new MultiLayerNetwork(getNetworkConfiguration(useSimpleNetwork));
+        MultiLayerConfiguration conf = getDeepDenseLayerNetworkConfiguration();
+        MultiLayerNetwork net = new MultiLayerNetwork(conf);
         net.init();
         net.setListeners(new ScoreIterationListener(1));
 
@@ -83,51 +85,49 @@ public class RegressionMathFunctions {
         plot(fn,x,fn.getFunctionValues(x),networkPredictions);
     }
 
-    /**Returns the network configuration
-     * @param simple If true: return a simple network (1 hidden layer of size 20). If false: 2 hidden layers of size 50
+    /** Returns the network configuration, 2 hidden DenseLayers of size 50.
      */
-    public static MultiLayerConfiguration getNetworkConfiguration(boolean simple){
-        int numInputs = 1;
-        int numOutputs = 1;
+    private static MultiLayerConfiguration getDeepDenseLayerNetworkConfiguration() {
+        final int numHiddenNodes = 50;
+        return new NeuralNetConfiguration.Builder()
+                .seed(seed)
+                .iterations(iterations)
+                .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
+                .learningRate(learningRate)
+                .weightInit(WeightInit.XAVIER)
+                .updater(Updater.NESTEROVS).momentum(0.9)
+                .list(3)
+                .layer(0, new DenseLayer.Builder().nIn(numInputs).nOut(numHiddenNodes)
+                        .activation("tanh")
+                        .build())
+                .layer(1, new DenseLayer.Builder().nIn(numHiddenNodes).nOut(numHiddenNodes)
+                        .activation("tanh")
+                        .build())
+                .layer(2, new OutputLayer.Builder(LossFunctions.LossFunction.MSE)
+                        .activation("identity")
+                        .nIn(numHiddenNodes).nOut(numOutputs).build())
+                .pretrain(false).backprop(true).build();
+    }
 
-        if(simple) {
-            int numHiddenNodes = 20;
-            return new NeuralNetConfiguration.Builder()
-                    .seed(seed)
-                    .iterations(iterations)
-                    .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
-                    .learningRate(learningRate)
-                    .weightInit(WeightInit.XAVIER)
-                    .updater(Updater.NESTEROVS).momentum(0.9)
-                    .list(2)
-                    .layer(0, new DenseLayer.Builder().nIn(numInputs).nOut(numHiddenNodes)
-                            .activation("tanh")
-                            .build())
-                    .layer(1, new OutputLayer.Builder(LossFunctions.LossFunction.MSE)
-                            .activation("identity")
-                            .nIn(numHiddenNodes).nOut(numOutputs).build())
-                    .pretrain(false).backprop(true).build();
-        } else {
-            int numHiddenNodes = 50;
-            return new NeuralNetConfiguration.Builder()
-                    .seed(seed)
-                    .iterations(iterations)
-                    .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
-                    .learningRate(learningRate)
-                    .weightInit(WeightInit.XAVIER)
-                    .updater(Updater.NESTEROVS).momentum(0.9)
-                    .list(3)
-                    .layer(0, new DenseLayer.Builder().nIn(numInputs).nOut(numHiddenNodes)
-                            .activation("tanh")
-                            .build())
-                    .layer(1, new DenseLayer.Builder().nIn(numHiddenNodes).nOut(numHiddenNodes)
-                            .activation("tanh")
-                            .build())
-                    .layer(2, new OutputLayer.Builder(LossFunctions.LossFunction.MSE)
-                            .activation("identity")
-                            .nIn(numHiddenNodes).nOut(numOutputs).build())
-                    .pretrain(false).backprop(true).build();
-        }
+    /** Returns the network configuration, 1 hidden DenseLayer of size 20.
+     */
+    private static MultiLayerConfiguration getSimpleDenseLayerNetworkConfiguration() {
+        final int numHiddenNodes = 20;
+        return new NeuralNetConfiguration.Builder()
+                .seed(seed)
+                .iterations(iterations)
+                .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
+                .learningRate(learningRate)
+                .weightInit(WeightInit.XAVIER)
+                .updater(Updater.NESTEROVS).momentum(0.9)
+                .list(2)
+                .layer(0, new DenseLayer.Builder().nIn(numInputs).nOut(numHiddenNodes)
+                        .activation("tanh")
+                        .build())
+                .layer(1, new OutputLayer.Builder(LossFunctions.LossFunction.MSE)
+                        .activation("identity")
+                        .nIn(numHiddenNodes).nOut(numOutputs).build())
+                .pretrain(false).backprop(true).build();
     }
 
     /** Create a DataSetIterator for training
