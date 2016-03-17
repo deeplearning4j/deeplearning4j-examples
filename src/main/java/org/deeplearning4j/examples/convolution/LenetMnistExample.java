@@ -30,7 +30,7 @@ public class LenetMnistExample {
     public static void main(String[] args) throws Exception {
         int nChannels = 1;
         int outputNum = 10;
-        int batchSize = 64;
+        int batchSize = 1000;
         int nEpochs = 10;
         int iterations = 1;
         int seed = 123;
