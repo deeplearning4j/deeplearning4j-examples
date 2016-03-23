@@ -28,7 +28,7 @@ import org.nd4j.linalg.lossfunctions.LossFunctions;
  * I choose 2 output neurons, (the first fires for false, the second fires for
  * true) because the Evaluation class needs one neuron per classification.
  * 
- * @author Peter Groﬂmann
+ * @author Peter Gro√ümann
  *
  */
 public class XorExample {
@@ -126,7 +126,7 @@ public class XorExample {
 
 		// MCXENT or NEGATIVELOGLIKELIHOOD work ok for this example - this
 		// function calculates the error-value
-		// From homepage: Your netís purpose will determine the loss funtion you
+		// From homepage: Your net's purpose will determine the loss funtion you
 		// use. For pretraining, choose reconstruction entropy. For
 		// classification, use multiclass cross entropy.
 		Builder outputLayerBuilder = new OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD);
