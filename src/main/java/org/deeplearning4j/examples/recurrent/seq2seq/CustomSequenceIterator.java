@@ -24,10 +24,11 @@ public class CustomSequenceIterator implements MultiDataSetIterator {
     private final int encoderSeqLength;
     private final int decoderSeqLength;
     private final int outputSeqLength;
+    private final int timestep;
     private static final int SEQ_VECTOR_DIM = 12;
     private int currentBatch;
 
-    public CustomSequenceIterator (Random randnumG, int batchSize, int totalBatches, int numdigits) {
+    public CustomSequenceIterator (Random randnumG, int batchSize, int totalBatches, int numdigits, int timestep) {
 
         this.randnumG = randnumG;
 
@@ -35,6 +36,8 @@ public class CustomSequenceIterator implements MultiDataSetIterator {
         this.totalBatches = totalBatches;
 
         this.numdigits = numdigits;
+        this.timestep = timestep;
+
         this.encoderSeqLength = numdigits * 2 + 1;
         this.decoderSeqLength = numdigits + 2; // (numdigits + 1)max the sum can be + 1 (GO/END marker of seq)
         this.outputSeqLength = numdigits + 2; // (numdigits + 1)max the sum can be + 1 (GO/END marker of seq)
@@ -48,11 +51,13 @@ public class CustomSequenceIterator implements MultiDataSetIterator {
             This is to be fixed later. This however should not affect score and nans.
          */
         //Initialize everything with zeros - will eventually fill with one hot vectors
-        INDArray encoderSeq = Nd4j.zeros(sampleSize, encoderSeqLength, SEQ_VECTOR_DIM );
-        INDArray decoderSeq = Nd4j.zeros(sampleSize, decoderSeqLength, SEQ_VECTOR_DIM );
-        INDArray outputSeq = Nd4j.zeros(sampleSize, outputSeqLength, SEQ_VECTOR_DIM );
+        INDArray encoderSeq = Nd4j.zeros(sampleSize, SEQ_VECTOR_DIM, encoderSeqLength );
+        INDArray decoderSeq = Nd4j.zeros(sampleSize, SEQ_VECTOR_DIM, decoderSeqLength );
+        INDArray outputSeq = Nd4j.zeros(sampleSize, SEQ_VECTOR_DIM, outputSeqLength );
 
-        //Since these are fixed length sequences - Masks are only required for <GO> and <EOS>
+        //Since these are fixed length sequences of timestep
+        //Masks are not required at the input sequence which is padded to length timestep
+        //Masks are not required at the output for <GO> and <EOS>
         INDArray encoderMask = Nd4j.zeros(sampleSize, encoderSeqLength);
         INDArray decoderMask = Nd4j.zeros(sampleSize, decoderSeqLength);
         INDArray outputMask = Nd4j.zeros(sampleSize, outputSeqLength);
@@ -71,9 +76,10 @@ public class CustomSequenceIterator implements MultiDataSetIterator {
             Encoder sequence:
             Eg. with numdigits=4, num1=123, num2=90
                 123 + 90 is encoded as "   09+321"
-                Converted to a string to a fixed size given by 2*numdigits + 1 (for operator) and reversed
+                Converted to a string to a fixed size given by 2*numdigits + 1 (for operator)
+                then reversed and then masked
                 Reversing input gives significant gain: <HTTP link>
-                Each character is tranformed to a 12 dimensional one hot vector
+                Each character is transformed to a 12 dimensional one hot vector
                     (index 0-9 for corresponding digits, 10 for "+", 11 for " ")
             */
             int spaceFill = (encoderSeqLength) - (num1 + "+" + num2).length();
@@ -81,7 +87,7 @@ public class CustomSequenceIterator implements MultiDataSetIterator {
             //Fill in spaces, as necessary
             while (spaceFill > 0) {
                 //spaces encoded at index 12
-                encoderSeq.putScalar(new int[] {iSample,iPos,11},1);
+                encoderSeq.putScalar(new int[] {iSample,11,iPos},1);
                 iPos++;
                 spaceFill--;
             }
@@ -90,19 +96,24 @@ public class CustomSequenceIterator implements MultiDataSetIterator {
             String num2Str = String.valueOf(num2);
             for(int i = num2Str.length()-1; i >= 0; i--){
                 int onehot = Character.getNumericValue(num2Str.charAt(i));
-                encoderSeq.putScalar(new int[] {iSample,iPos,onehot},1);
+                encoderSeq.putScalar(new int[] {iSample,onehot,iPos},1);
                 iPos++;
             }
             //Fill in operator in this case "+", encoded at index 11
-            encoderSeq.putScalar(new int [] {iSample,iPos,10},1);
+            encoderSeq.putScalar(new int [] {iSample,10,iPos},1);
             iPos++;
             //Fill in the digits in num1 backwards
             String num1Str = String.valueOf(num1);
             for(int i = num1Str.length()-1; i >= 0; i--){
                 int onehot = Character.getNumericValue(num1Str.charAt(i));
-                encoderSeq.putScalar(new int[] {iSample,iPos,onehot},1);
+                encoderSeq.putScalar(new int[] {iSample,onehot,iPos},1);
                 iPos++;
             }
+            //Mask input for rest of the time series
+            //while (iPos < timestep) {
+            //    encoderMask.putScalar(new []{iSample,iPos},1);
+            //    iPos++;
+           // }
             /*
             Decoder and Output sequences:
             Following example above -
@@ -116,21 +127,21 @@ public class CustomSequenceIterator implements MultiDataSetIterator {
             char [] sumCharArr = String.valueOf(num1+num2).toCharArray();
             for(char c : sumCharArr) {
                 int digit = Character.getNumericValue(c);
-                outputSeq.putScalar(new int [] {iSample,iPos,digit},1);
-                decoderSeq.putScalar(new int [] {iSample,iPos+1,digit},1);
+                outputSeq.putScalar(new int [] {iSample,digit,iPos},1);
+                decoderSeq.putScalar(new int [] {iSample,digit,iPos+1},1);
                 iPos++;
             }
             //Fill in spaces, as necessary
             while (iPos < numdigits + 1) {
                 //spaces encoded at index 12
-                outputSeq.putScalar(new int [] {iSample,iPos,11}, 1);
-                decoderSeq.putScalar(new int [] {iSample,iPos+1,11}, 1);
+                outputSeq.putScalar(new int [] {iSample,11,iPos}, 1);
+                decoderSeq.putScalar(new int [] {iSample,11,iPos+1}, 1);
                 iPos++;
             }
             //Fill in mask for <END> in output sequence
-            outputMask.putScalar(new int [] {iSample,outputSeqLength-1}, 1);
+            //outputMask.putScalar(new int [] {iSample,outputSeqLength-1}, 1);
             //Fill in mask for <GO> in decode sequence
-            decoderMask.putScalar(new int[] {iSample,0}, 1);
+            //decoderMask.putScalar(new int[] {iSample,0}, 1);
         }
         /* ========================================================================== */
         //System.out.println("= = = = = ENCODER SEQUENCE = = = = = = = = = =");
