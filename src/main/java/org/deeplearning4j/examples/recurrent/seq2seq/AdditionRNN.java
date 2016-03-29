@@ -29,30 +29,24 @@ public class AdditionRNN {
 
     //Random number generator seed, for reproducability
     public static final int seed = 12345;
-    public static final Random rng = new Random(seed);
-    //A batch size of any more 1 was giving nans with earlier release
-    public static final int batchSize = 100;
-    public static final int totalBatches = 5000;
-    public static final int nIterations = 20;
-    public static final int NUM_DIGITS = 6;
 
-    //This is the number of steps the rnn encoder/decoder is unrolled to
-    //running with NUM_DIGITS * 5 gives NANs immediately, running with NUM_DIGITS * 7 gives some numbers
-    //I was seeing more scores with NUM_DIGITS * 5 with an earlier release
-    //Keras example uses 128. Below is 120. Score goes down, but interspersed with Nans.
-    public static final int featureSizeVector = 12;
-    public static int timeStepEncoder;
-    public static int timeStepDecoder;
+    public static final int NUM_DIGITS = 3;
+    public static final int FEATURE_VEC_SIZE = 12;
+
+    //Tweak these to tune - dataset size = batchSize * totalBatches
+    public static final int batchSize = 100;
+    public static final int totalBatches = 500;
+    public static final int nEpochs = 200;
+    public static final int nIterations = 1;
+    public static final int numHiddenNodes = 128;
 
 
     public static void main(String[] args) throws Exception {
         //Training data iterator
-        CustomSequenceIterator iterator = new CustomSequenceIterator(rng, batchSize, totalBatches, NUM_DIGITS,12);
+        CustomSequenceIterator iterator = new CustomSequenceIterator(seed, batchSize, totalBatches, NUM_DIGITS,12);
 
-        timeStepEncoder = NUM_DIGITS * 2 + 1 + 1;
-        timeStepDecoder = NUM_DIGITS + 1 + 1;
         ComputationGraphConfiguration configuration = new NeuralNetConfiguration.Builder()
-            .regularization(true).l2(0.0025)
+            .regularization(true).l2(0.000005)
             //.weightInit(WeightInit.XAVIER)
             .weightInit(WeightInit.DISTRIBUTION)
             .dist(new UniformDistribution(-0.08, 0.08))
@@ -62,12 +56,12 @@ public class AdditionRNN {
             .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT).iterations(nIterations)
             .graphBuilder()
             .addInputs("additionIn", "sumOut")
-            .setInputTypes(InputType.recurrent(timeStepEncoder), InputType.recurrent(timeStepDecoder))
-            .addLayer("encoder", new GravesLSTM.Builder().nIn(featureSizeVector).nOut(featureSizeVector).activation("softsign").build(),"additionIn")
+            .setInputTypes(InputType.recurrent(FEATURE_VEC_SIZE), InputType.recurrent(FEATURE_VEC_SIZE))
+            .addLayer("encoder", new GravesLSTM.Builder().nIn(FEATURE_VEC_SIZE).nOut(numHiddenNodes).activation("softsign").build(),"additionIn")
             .addVertex("lastTimeStep", new LastTimeStepVertex("additionIn"), "encoder")
             .addVertex("duplicateTimeStep", new DuplicateToTimeSeriesVertex("sumOut"), "lastTimeStep")
-            .addLayer("decoder", new GravesLSTM.Builder().nIn(2*featureSizeVector).nOut(featureSizeVector).activation("softsign").build(), "sumOut", "duplicateTimeStep")
-            .addLayer("output", new RnnOutputLayer.Builder().nIn(featureSizeVector).nOut(featureSizeVector).activation("softmax").lossFunction(LossFunctions.LossFunction.MCXENT).build(), "decoder")
+            .addLayer("decoder", new GravesLSTM.Builder().nIn(FEATURE_VEC_SIZE + numHiddenNodes).nOut(numHiddenNodes).activation("softsign").build(), "sumOut", "duplicateTimeStep")
+            .addLayer("output", new RnnOutputLayer.Builder().nIn(numHiddenNodes).nOut(FEATURE_VEC_SIZE).activation("softmax").lossFunction(LossFunctions.LossFunction.MCXENT).build(), "decoder")
             .setOutputs("output")
             .pretrain(false).backprop(true)
             .build();
@@ -75,16 +69,20 @@ public class AdditionRNN {
         ComputationGraph net = new ComputationGraph(configuration);
         net.init();
         net.setListeners(new ScoreIterationListener(1),new HistogramIterationListener(1));
-        int i = 0;
-        while (iterator.hasNext()) {
+        //Train model:
+        int iEpoch = 0;
+        //int testSize = (int) 0.2 * batchSize * totalBatches;
+        while (iEpoch < nEpochs) {
+            System.out.printf("* = * = * = ** EPOCH %d ** = * = * = * = * = *\n",iEpoch);
             net.fit(iterator);
-            i++;
-            System.out.println("Batch num:"+i);
-
+            //MultiDataSet testData = iterator.generateTest(testSize+1);
+            //System.out.println(testData.getFeatures(0));
+            //System.out.println(testData.getFeatures(1));
+            iterator.reset();
+            iEpoch++;
         }
+        System.out.println("* = * = * = * = * = * EPOCHS COMPLETE * = * = * = * = * = * = * = *");
 
-        // I have not called predict on model, WIP - generate test set from iterator and check accuracy with each batch
-        System.out.println("* = * = * = * = * = * DONE!! * = * = * = * = * = *");
     }
 }
 

@@ -1,5 +1,6 @@
 package org.deeplearning4j.examples.recurrent.seq2seq;
 
+import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.dataset.api.MultiDataSet;
 import org.nd4j.linalg.dataset.api.iterator.MultiDataSetIterator;
 import org.nd4j.linalg.dataset.api.MultiDataSetPreProcessor;
@@ -17,7 +18,9 @@ import java.util.Random;
 
 public class CustomSequenceIterator implements MultiDataSetIterator {
 
-    private final Random randnumG;
+    private Random randnumG;
+    private int currentBatch;
+    private final int seed;
     private final int batchSize;
     private final int totalBatches;
     private final int numdigits;
@@ -25,12 +28,13 @@ public class CustomSequenceIterator implements MultiDataSetIterator {
     private final int decoderSeqLength;
     private final int outputSeqLength;
     private final int timestep;
+
     private static final int SEQ_VECTOR_DIM = 12;
-    private int currentBatch;
 
-    public CustomSequenceIterator (Random randnumG, int batchSize, int totalBatches, int numdigits, int timestep) {
+    public CustomSequenceIterator (int seed, int batchSize, int totalBatches, int numdigits, int timestep) {
 
-        this.randnumG = randnumG;
+        this.seed = seed;
+        this.randnumG = new Random(seed);
 
         this.batchSize = batchSize;
         this.totalBatches = totalBatches;
@@ -43,6 +47,21 @@ public class CustomSequenceIterator implements MultiDataSetIterator {
         this.outputSeqLength = numdigits + 2; // (numdigits + 1)max the sum can be + 1 (GO/END marker of seq)
 
         this.currentBatch = 0;
+    }
+    public MultiDataSet generateTest(int testSize) {
+        MultiDataSet testData = next(testSize);
+        INDArray seq1 = testData.getFeatures(0);
+        INDArray seq2 = testData.getFeatures(1);
+        INDArray seq3 = testData.getLabels(0);
+        System.out.println("Printing TEST........");
+        System.out.println("Seq1........");
+        System.out.println(seq1);
+        System.out.println("Seq2........");
+        System.out.println(seq2);
+        System.out.println("Seq3........");
+        System.out.println(seq3);
+        //Handle processing of test results
+        return testData;
     }
     @Override
     public MultiDataSet next(int sampleSize) {
@@ -58,20 +77,16 @@ public class CustomSequenceIterator implements MultiDataSetIterator {
         //Since these are fixed length sequences of timestep
         //Masks are not required at the input sequence which is padded to length timestep
         //Masks are not required at the output for <GO> and <EOS>
-        INDArray encoderMask = Nd4j.zeros(sampleSize, encoderSeqLength);
-        INDArray decoderMask = Nd4j.zeros(sampleSize, decoderSeqLength);
-        INDArray outputMask = Nd4j.zeros(sampleSize, outputSeqLength);
+        INDArray encoderMask = Nd4j.ones(sampleSize, encoderSeqLength);
+        INDArray decoderMask = Nd4j.ones(sampleSize, decoderSeqLength);
+        INDArray outputMask = Nd4j.ones(sampleSize, outputSeqLength);
 
         /* ========================================================================== */
         for (int iSample = 0; iSample < sampleSize; iSample++) {
-            //System.out.println("= = = = = = = = = = = = = = = = = = = = = = =");
             //Generate two random numbers with numdigits
             int num1 = randnumG.nextInt((int)Math.pow(10,numdigits));
             int num2 = randnumG.nextInt((int)Math.pow(10,numdigits));
             int sum = num1 + num2;
-            //System.out.println(num1+"+"+num2);
-            //System.out.println(sum);
-            //System.out.println("= = = = = = = = = = = = = = = = = = = = = = =");
             /*
             Encoder sequence:
             Eg. with numdigits=4, num1=123, num2=90
@@ -144,16 +159,6 @@ public class CustomSequenceIterator implements MultiDataSetIterator {
             //decoderMask.putScalar(new int[] {iSample,0}, 1);
         }
         /* ========================================================================== */
-        //System.out.println("= = = = = ENCODER SEQUENCE = = = = = = = = = =");
-        //System.out.println(encoderSeq);
-        //System.out.println(encoderMask);
-        //System.out.println("= = = = = DECODER SEQUENCE = = = = = = = = = =");
-        //System.out.println(decoderSeq);
-        //System.out.println(decoderMask);
-        //System.out.println("= = = = = OUTPUT SEQUENCE = = = = = = = = = =");
-        //System.out.println(outputSeq);
-        //System.out.println(outputMask);
-        //System.out.println("= = = = = = = = = = = = = = = = = = = = = = =");
         INDArray[] inputs = new INDArray[]{encoderSeq, decoderSeq};
         INDArray[] inputMasks = new INDArray[]{encoderMask, decoderMask};
         INDArray[] labels = new INDArray[]{outputSeq};
@@ -165,10 +170,12 @@ public class CustomSequenceIterator implements MultiDataSetIterator {
     @Override
     public void reset() {
         currentBatch = 0;
+        randnumG = new Random(seed);
     }
 
     @Override
     public boolean hasNext() {
+        //This generates numbers on the fly
         return currentBatch < totalBatches;
     }
 
