@@ -44,8 +44,8 @@ public class AdditionRNN {
     public static final int FEATURE_VEC_SIZE = 12;
 
     //Tweak these to tune - dataset size = batchSize * totalBatches
-    public static final int batchSize = 10;
-    public static final int totalBatches = 5000;
+    public static final int batchSize = 100;
+    public static final int totalBatches = 500;
     public static final int nEpochs = 5;
     public static final int nIterations = 1;
     public static final int numHiddenNodes = 128;
@@ -81,6 +81,7 @@ public class AdditionRNN {
         net.init();
         net.setListeners(new ScoreIterationListener(200),new HistogramIterationListener(200));
         //net.setListeners(new ScoreIterationListener(1));
+        //net.setListeners(new HistogramIterationListener(200));
         //Train model:
         int iEpoch = 0;
         int testSize = 200;
@@ -133,10 +134,13 @@ public class AdditionRNN {
                 correct ++;
             }
         }
-        System.out.println("*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*");
+        double randomAcc = Math.pow(10,-1*NUM_DIGITS) * 100;
+        System.out.println("*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*==*=*=*=*=*");
         System.out.println("WRONG: "+wrong);
         System.out.println("CORRECT: "+correct);
-        System.out.println("*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*");
+        System.out.println("Note randomly guessing digits in succession gives lower than a accuracy of:"+randomAcc+"%");
+        System.out.println("Since the correct number of digits have to also be predicted the number above will be even lower");
+        System.out.println("*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*");
     }
 
 }
