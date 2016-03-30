@@ -134,7 +134,7 @@ public class AdditionRNN {
                 correct ++;
             }
         }
-        double randomAcc = Math.pow(10,-1*NUM_DIGITS) * 100;
+        double randomAcc = Math.pow(10,-1*(NUM_DIGITS+1)) * 100;
         System.out.println("*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*==*=*=*=*=*");
         System.out.println("WRONG: "+wrong);
         System.out.println("CORRECT: "+correct);
