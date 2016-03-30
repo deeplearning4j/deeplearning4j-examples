@@ -1,83 +1,68 @@
 package org.deeplearning4j.examples.recurrent.character;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.charset.Charset;
-import java.nio.file.Files;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.NoSuchElementException;
-import java.util.Random;
-
 import org.deeplearning4j.datasets.iterator.DataSetIterator;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.dataset.api.DataSetPreProcessor;
 import org.nd4j.linalg.factory.Nd4j;
 
-/** A very simple DataSetIterator for use in the GravesLSTMCharModellingExample.
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.util.*;
+
+/** A simple DataSetIterator for use in the GravesLSTMCharModellingExample.
  * Given a text file and a few options, generate feature vectors and labels for training,
  * where we want to predict the next character in the sequence.<br>
- * This is done by randomly choosing a position in the text file to start the sequence and
- * (optionally) scanning backwards to a new line (to ensure we don't start half way through a word
- * for example).<br>
+ * This is done by randomly choosing a position in the text file, at offsets of 0, exampleLength, 2*exampleLength, etc
+ * to start each sequence. Then we convert each character to an index, i.e., a one-hot vector.
+ * Then the character 'a' becomes [1,0,0,0,...], 'b' becomes [0,1,0,0,...], etc
+ *
  * Feature vectors and labels are both one-hot vectors of same length
  * @author Alex Black
  */
 public class CharacterIterator implements DataSetIterator {
-	private static final long serialVersionUID = -7287833919126626356L;
-	private static final int MAX_SCAN_LENGTH = 200; 
+    //Valid characters
 	private char[] validCharacters;
+    //Maps each character to an index ind the input/output
 	private Map<Character,Integer> charToIdxMap;
+    //All characters of the input file (after filtering to only those that are valid
 	private char[] fileCharacters;
+    //Length of each example/minibatch (number of characters)
 	private int exampleLength;
+    //Size of each minibatch (number of examples)
 	private int miniBatchSize;
-	private int numExamplesToFetch;
-	private int examplesSoFar = 0;
 	private Random rng;
-	private final int numCharacters;
-	private final boolean alwaysStartAtNewLine;
-	
-	public CharacterIterator(String path, int miniBatchSize, int exampleSize, int numExamplesToFetch ) throws IOException {
-		this(path,Charset.defaultCharset(),miniBatchSize,exampleSize,numExamplesToFetch,getDefaultCharacterSet(), new Random(),true);
-	}
-	
+    //Offsets for the start of each example
+    private LinkedList<Integer> exampleStartOffsets = new LinkedList<>();
+
 	/**
 	 * @param textFilePath Path to text file to use for generating samples
 	 * @param textFileEncoding Encoding of the text file. Can try Charset.defaultCharset()
 	 * @param miniBatchSize Number of examples per mini-batch
 	 * @param exampleLength Number of characters in each input/output vector
-	 * @param numExamplesToFetch Total number of examples to fetch (must be multiple of miniBatchSize). Used in hasNext() etc methods
 	 * @param validCharacters Character array of valid characters. Characters not present in this array will be removed
 	 * @param rng Random number generator, for repeatability if required
-	 * @param alwaysStartAtNewLine if true, scan backwards until we find a new line character (up to MAX_SCAN_LENGTH in case
-	 *  of no new line characters, to avoid scanning entire file)
 	 * @throws IOException If text file cannot  be loaded
 	 */
 	public CharacterIterator(String textFilePath, Charset textFileEncoding, int miniBatchSize, int exampleLength,
-			int numExamplesToFetch, char[] validCharacters, Random rng, boolean alwaysStartAtNewLine ) throws IOException {
+                             char[] validCharacters, Random rng) throws IOException {
 		if( !new File(textFilePath).exists()) throw new IOException("Could not access file (does not exist): " + textFilePath);
-		if(numExamplesToFetch % miniBatchSize != 0 ) throw new IllegalArgumentException("numExamplesToFetch must be a multiple of miniBatchSize");
 		if( miniBatchSize <= 0 ) throw new IllegalArgumentException("Invalid miniBatchSize (must be >0)");
 		this.validCharacters = validCharacters;
 		this.exampleLength = exampleLength;
 		this.miniBatchSize = miniBatchSize;
-		this.numExamplesToFetch = numExamplesToFetch;
 		this.rng = rng;
-		this.alwaysStartAtNewLine = alwaysStartAtNewLine;
-		
+
 		//Store valid characters is a map for later use in vectorization
 		charToIdxMap = new HashMap<>();
 		for( int i=0; i<validCharacters.length; i++ ) charToIdxMap.put(validCharacters[i], i);
-		numCharacters = validCharacters.length;
-		
-		//Load file and convert contents to a char[] 
+
+		//Load file and convert contents to a char[]
 		boolean newLineValid = charToIdxMap.containsKey('\n');
 		List<String> lines = Files.readAllLines(new File(textFilePath).toPath(),textFileEncoding);
-		int maxSize = lines.size();	//add lines.size() to account for newline characters at end of each line 
+		int maxSize = lines.size();	//add lines.size() to account for newline characters at end of each line
 		for( String s : lines ) maxSize += s.length();
 		char[] characters = new char[maxSize];
 		int currIdx = 0;
@@ -89,7 +74,7 @@ public class CharacterIterator implements DataSetIterator {
 			}
 			if(newLineValid) characters[currIdx++] = '\n';
 		}
-		
+
 		if( currIdx == characters.length ){
 			fileCharacters = characters;
 		} else {
@@ -97,12 +82,19 @@ public class CharacterIterator implements DataSetIterator {
 		}
 		if( exampleLength >= fileCharacters.length ) throw new IllegalArgumentException("exampleLength="+exampleLength
 				+" cannot exceed number of valid characters in file ("+fileCharacters.length+")");
-		
+
 		int nRemoved = maxSize - fileCharacters.length;
 		System.out.println("Loaded and converted file: " + fileCharacters.length + " valid characters of "
 		+ maxSize + " total characters (" + nRemoved + " removed)");
+
+        //This defines the order in which parts of the file are fetched
+        int nMinibatchesPerEpoch = (fileCharacters.length-1) / exampleLength - 2;   //-2: for end index, and for partial example
+        for( int i=0; i<nMinibatchesPerEpoch; i++ ){
+            exampleStartOffsets.add(i * exampleLength);
+        }
+        Collections.shuffle(exampleStartOffsets,rng);
 	}
-	
+
 	/** A minimal character set, with a-z, A-Z, 0-9 and common punctuation etc */
 	public static char[] getMinimalCharacterSet(){
 		List<Character> validChars = new LinkedList<>();
@@ -116,7 +108,7 @@ public class CharacterIterator implements DataSetIterator {
 		for( Character c : validChars ) out[i++] = c;
 		return out;
 	}
-	
+
 	/** As per getMinimalCharacterSet(), but with a few extra characters */
 	public static char[] getDefaultCharacterSet(){
 		List<Character> validChars = new LinkedList<>();
@@ -129,21 +121,21 @@ public class CharacterIterator implements DataSetIterator {
 		for( Character c : validChars ) out[i++] = c;
 		return out;
 	}
-	
+
 	public char convertIndexToCharacter( int idx ){
 		return validCharacters[idx];
 	}
-	
+
 	public int convertCharacterToIndex( char c ){
 		return charToIdxMap.get(c);
 	}
-	
+
 	public char getRandomCharacter(){
 		return validCharacters[(int) (rng.nextDouble()*validCharacters.length)];
 	}
 
 	public boolean hasNext() {
-		return examplesSoFar + miniBatchSize <= numExamplesToFetch;
+		return exampleStartOffsets.size() > 0;
 	}
 
 	public DataSet next() {
@@ -151,54 +143,52 @@ public class CharacterIterator implements DataSetIterator {
 	}
 
 	public DataSet next(int num) {
-		if( examplesSoFar+num > numExamplesToFetch ) throw new NoSuchElementException();
+		if( exampleStartOffsets.size() == 0 ) throw new NoSuchElementException();
+
+        int currMinibatchSize = Math.min(num, exampleStartOffsets.size());
 		//Allocate space:
-		INDArray input = Nd4j.zeros(num,numCharacters,exampleLength);
-		INDArray labels = Nd4j.zeros(num,numCharacters,exampleLength);
-		
-		int maxStartIdx = fileCharacters.length - exampleLength;
-		
-		//Randomly select a subset of the file. No attempt is made to avoid overlapping subsets
-		// of the file in the same minibatch
-		for( int i=0; i<num; i++ ){
-			int startIdx = (int) (rng.nextDouble()*maxStartIdx);
-			int endIdx = startIdx + exampleLength;
-			int scanLength = 0;
-			if(alwaysStartAtNewLine){
-				while(startIdx >= 1 && fileCharacters[startIdx-1] != '\n' && scanLength++ < MAX_SCAN_LENGTH ){
-					startIdx--;
-					endIdx--;
-				}
-			}
-			
-			int currCharIdx = charToIdxMap.get(fileCharacters[startIdx]);	//Current input
-			int c=0;
-			for( int j=startIdx+1; j<=endIdx; j++, c++ ){
-				int nextCharIdx = charToIdxMap.get(fileCharacters[j]);		//Next character to predict
-				input.putScalar(new int[]{i,currCharIdx,c}, 1.0);
-				labels.putScalar(new int[]{i,nextCharIdx,c}, 1.0);
-				currCharIdx = nextCharIdx;
-			}
-		}
-		
-		examplesSoFar += num;
+        //Note the order here:
+        // dimension 0 = number of examples in minibatch
+        // dimension 1 = size of each vector (i.e., number of characters)
+        // dimension 2 = length of each time series/example
+		INDArray input = Nd4j.zeros(currMinibatchSize,validCharacters.length,exampleLength);
+		INDArray labels = Nd4j.zeros(currMinibatchSize,validCharacters.length,exampleLength);
+
+        for( int i=0; i<currMinibatchSize; i++ ){
+            int startIdx = exampleStartOffsets.removeFirst();
+            int endIdx = startIdx + exampleLength;
+            int currCharIdx = charToIdxMap.get(fileCharacters[startIdx]);	//Current input
+            int c=0;
+            for( int j=startIdx+1; j<endIdx; j++, c++ ){
+                int nextCharIdx = charToIdxMap.get(fileCharacters[j]);		//Next character to predict
+                input.putScalar(new int[]{i,currCharIdx,c}, 1.0);
+                labels.putScalar(new int[]{i,nextCharIdx,c}, 1.0);
+                currCharIdx = nextCharIdx;
+            }
+        }
+
 		return new DataSet(input,labels);
 	}
 
 	public int totalExamples() {
-		return numExamplesToFetch;
+		return (fileCharacters.length-1) / miniBatchSize - 2;
 	}
 
 	public int inputColumns() {
-		return numCharacters;
+		return validCharacters.length;
 	}
 
 	public int totalOutcomes() {
-		return numCharacters;
+		return validCharacters.length;
 	}
 
 	public void reset() {
-		examplesSoFar = 0;
+        exampleStartOffsets.clear();
+		int nMinibatchesPerEpoch = totalExamples();
+        for( int i=0; i<nMinibatchesPerEpoch; i++ ){
+            exampleStartOffsets.add(i * miniBatchSize);
+        }
+        Collections.shuffle(exampleStartOffsets,rng);
 	}
 
 	public int batch() {
@@ -206,11 +196,11 @@ public class CharacterIterator implements DataSetIterator {
 	}
 
 	public int cursor() {
-		return examplesSoFar;
+		return totalExamples() - exampleStartOffsets.size();
 	}
 
 	public int numExamples() {
-		return numExamplesToFetch;
+		return totalExamples();
 	}
 
 	public void setPreProcessor(DataSetPreProcessor preProcessor) {
