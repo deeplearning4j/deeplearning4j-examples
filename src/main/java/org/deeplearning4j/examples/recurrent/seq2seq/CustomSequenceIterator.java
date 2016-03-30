@@ -20,6 +20,10 @@ public class CustomSequenceIterator implements MultiDataSetIterator {
 
     private Random randnumG;
     private int currentBatch;
+    private int [] num1Arr;
+    private int [] num2Arr;
+    private int [] sumArr;
+    private boolean toTestSet;
     private final int seed;
     private final int batchSize;
     private final int totalBatches;
@@ -43,31 +47,30 @@ public class CustomSequenceIterator implements MultiDataSetIterator {
         this.timestep = timestep;
 
         this.encoderSeqLength = numdigits * 2 + 1;
-        this.decoderSeqLength = numdigits + 2; // (numdigits + 1)max the sum can be + 1 (GO/END marker of seq)
-        this.outputSeqLength = numdigits + 2; // (numdigits + 1)max the sum can be + 1 (GO/END marker of seq)
+        this.decoderSeqLength = numdigits + 1; // (numdigits + 1)max the sum can be
+        this.outputSeqLength = numdigits + 1; // (numdigits + 1)max the sum can be
 
         this.currentBatch = 0;
     }
     public MultiDataSet generateTest(int testSize) {
+        toTestSet = true;
         MultiDataSet testData = next(testSize);
-        INDArray seq1 = testData.getFeatures(0);
-        INDArray seq2 = testData.getFeatures(1);
-        INDArray seq3 = testData.getLabels(0);
-        System.out.println("Printing TEST........");
-        System.out.println("Seq1........");
-        System.out.println(seq1);
-        System.out.println("Seq2........");
-        System.out.println(seq2);
-        System.out.println("Seq3........");
-        System.out.println(seq3);
-        //Handle processing of test results
         return testData;
+    }
+    public ArrayList<int[]> testFeatures (){
+        ArrayList<int[]> testNums = new ArrayList<int[]>();
+        testNums.add(num1Arr);
+        testNums.add(num2Arr);
+        return testNums;
+    }
+    public int[] testLabels (){
+        return sumArr;
     }
     @Override
     public MultiDataSet next(int sampleSize) {
         /* PLEASE NOTE:
             I don't check for repeats from pair to pair with the generator
-            This is to be fixed later. This however should not affect score and nans.
+            Enhancement, to be fixed later
          */
         //Initialize everything with zeros - will eventually fill with one hot vectors
         INDArray encoderSeq = Nd4j.zeros(sampleSize, SEQ_VECTOR_DIM, encoderSeqLength );
@@ -76,10 +79,16 @@ public class CustomSequenceIterator implements MultiDataSetIterator {
 
         //Since these are fixed length sequences of timestep
         //Masks are not required at the input sequence which is padded to length timestep
-        //Masks are not required at the output for <GO> and <EOS>
         INDArray encoderMask = Nd4j.ones(sampleSize, encoderSeqLength);
-        INDArray decoderMask = Nd4j.ones(sampleSize, decoderSeqLength);
+        //The "decoder" is empty
+        INDArray decoderMask = Nd4j.zeros(sampleSize, decoderSeqLength);
         INDArray outputMask = Nd4j.ones(sampleSize, outputSeqLength);
+
+        if (toTestSet) {
+            num1Arr = new int [sampleSize];
+            num2Arr = new int [sampleSize];
+            sumArr = new int [sampleSize];
+        }
 
         /* ========================================================================== */
         for (int iSample = 0; iSample < sampleSize; iSample++) {
@@ -87,6 +96,11 @@ public class CustomSequenceIterator implements MultiDataSetIterator {
             int num1 = randnumG.nextInt((int)Math.pow(10,numdigits));
             int num2 = randnumG.nextInt((int)Math.pow(10,numdigits));
             int sum = num1 + num2;
+            if (toTestSet) {
+                num1Arr[iSample] = num1;
+                num2Arr[iSample] = num2;
+                sumArr[iSample] = sum;
+            }
             /*
             Encoder sequence:
             Eg. with numdigits=4, num1=123, num2=90
@@ -131,11 +145,6 @@ public class CustomSequenceIterator implements MultiDataSetIterator {
            // }
             /*
             Decoder and Output sequences:
-            Following example above -
-            Decoder sequence, 213 becomes "<GO>213  "
-            Output sequence, 213 becomes "213  <END>"
-            The starting char represented by <GO> will be masked
-            The ending char represented by <END> will also be masked
             */
             //Fill in the digits from the sum
             iPos = 0;
@@ -143,20 +152,14 @@ public class CustomSequenceIterator implements MultiDataSetIterator {
             for(char c : sumCharArr) {
                 int digit = Character.getNumericValue(c);
                 outputSeq.putScalar(new int [] {iSample,digit,iPos},1);
-                decoderSeq.putScalar(new int [] {iSample,digit,iPos+1},1);
                 iPos++;
             }
             //Fill in spaces, as necessary
             while (iPos < numdigits + 1) {
                 //spaces encoded at index 12
                 outputSeq.putScalar(new int [] {iSample,11,iPos}, 1);
-                decoderSeq.putScalar(new int [] {iSample,11,iPos+1}, 1);
                 iPos++;
             }
-            //Fill in mask for <END> in output sequence
-            //outputMask.putScalar(new int [] {iSample,outputSeqLength-1}, 1);
-            //Fill in mask for <GO> in decode sequence
-            //decoderMask.putScalar(new int[] {iSample,0}, 1);
         }
         /* ========================================================================== */
         INDArray[] inputs = new INDArray[]{encoderSeq, decoderSeq};
@@ -170,6 +173,7 @@ public class CustomSequenceIterator implements MultiDataSetIterator {
     @Override
     public void reset() {
         currentBatch = 0;
+        toTestSet = false;
         randnumG = new Random(seed);
     }
 
