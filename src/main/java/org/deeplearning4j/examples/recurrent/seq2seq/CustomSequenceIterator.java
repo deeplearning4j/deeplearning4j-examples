@@ -47,8 +47,8 @@ public class CustomSequenceIterator implements MultiDataSetIterator {
         this.timestep = timestep;
 
         this.encoderSeqLength = numdigits * 2 + 1;
-        this.decoderSeqLength = numdigits + 1; // (numdigits + 1)max the sum can be
-        this.outputSeqLength = numdigits + 1; // (numdigits + 1)max the sum can be
+        this.decoderSeqLength = numdigits + 1 + 1; // (numdigits + 1)max the sum can be
+        this.outputSeqLength = numdigits + 1 + 1; // (numdigits + 1)max the sum can be and "."
 
         this.currentBatch = 0;
     }
@@ -78,10 +78,9 @@ public class CustomSequenceIterator implements MultiDataSetIterator {
         INDArray outputSeq = Nd4j.zeros(sampleSize, SEQ_VECTOR_DIM, outputSeqLength );
 
         //Since these are fixed length sequences of timestep
-        //Masks are not required at the input sequence which is padded to length timestep
+        //Masks are not required
         INDArray encoderMask = Nd4j.ones(sampleSize, encoderSeqLength);
-        //The "decoder" is empty
-        INDArray decoderMask = Nd4j.zeros(sampleSize, decoderSeqLength);
+        INDArray decoderMask = Nd4j.ones(sampleSize, decoderSeqLength);
         INDArray outputMask = Nd4j.ones(sampleSize, outputSeqLength);
 
         if (toTestSet) {
@@ -107,7 +106,7 @@ public class CustomSequenceIterator implements MultiDataSetIterator {
                 123 + 90 is encoded as "   09+321"
                 Converted to a string to a fixed size given by 2*numdigits + 1 (for operator)
                 then reversed and then masked
-                Reversing input gives significant gain: <HTTP link>
+                Reversing input gives significant gain
                 Each character is transformed to a 12 dimensional one hot vector
                     (index 0-9 for corresponding digits, 10 for "+", 11 for " ")
             */
@@ -152,15 +151,24 @@ public class CustomSequenceIterator implements MultiDataSetIterator {
             for(char c : sumCharArr) {
                 int digit = Character.getNumericValue(c);
                 outputSeq.putScalar(new int [] {iSample,digit,iPos},1);
+                //decoder input filled with spaces
+                decoderSeq.putScalar(new int [] {iSample,11,iPos},1);
                 iPos++;
             }
             //Fill in spaces, as necessary
+            //Leaves last index for "."
             while (iPos < numdigits + 1) {
                 //spaces encoded at index 12
                 outputSeq.putScalar(new int [] {iSample,11,iPos}, 1);
+                //decoder input filled with spaces
+                decoderSeq.putScalar(new int [] {iSample,11,iPos},1);
                 iPos++;
             }
+            //Predict final " "
+            outputSeq.putScalar(new int [] {iSample,10,iPos}, 1);
+            decoderSeq.putScalar(new int [] {iSample,11,iPos}, 1);
         }
+        //Predict "."
         /* ========================================================================== */
         INDArray[] inputs = new INDArray[]{encoderSeq, decoderSeq};
         INDArray[] inputMasks = new INDArray[]{encoderMask, decoderMask};
