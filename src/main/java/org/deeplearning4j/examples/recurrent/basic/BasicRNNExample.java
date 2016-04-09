@@ -115,7 +115,10 @@ public class BasicRNNExample {
 		DataSet trainingData = new DataSet(input, labels);
 
 		// some epochs
-		for (int epoch = 0; epoch < 10000; epoch++) {
+		for (int epoch = 0; epoch < 300; epoch++) {
+			
+			System.out.println("Epoch " + epoch);
+			
 			// train the data
 			net.fit(trainingData);
 
@@ -167,9 +170,10 @@ public class BasicRNNExample {
 			if (d <= sum)
 				return i;
 		}
-		// Should never happen if distribution is a valid probability
-		// distribution
-		throw new IllegalArgumentException("Distribution is invalid? d=" + d + ", sum=" + sum);
+		// return the last if sum < 1 - this may be caused by the limited
+		// numerical precision of java, and the sum of all possibilities adds up
+		// to someting like 0.999999982754303
+		return distribution.length - 1;
 	}
 
 }
