@@ -88,35 +88,6 @@ public class RegressionMathFunctions {
         plot(fn,x,fn.getFunctionValues(x),networkPredictions);
     }
 
-    private static MultiLayerConfiguration getLSTMNetworkConfiguration() {
-        final int numHiddenNodes = 20;
-        return new NeuralNetConfiguration.Builder()
-                .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
-                .iterations(iterations)
-                .learningRate(learningRate)
-                .weightInit(WeightInit.DISTRIBUTION)
-                .rmsDecay(0.95)
-                .seed(seed)
-                .regularization(true)
-                .l2(0.001)
-                .list(3)
-                .layer(0, new GravesLSTM.Builder().nIn(numInputs).nOut(numHiddenNodes)
-                        .updater(Updater.RMSPROP)
-                        .activation("softsign")
-                        .dist(new UniformDistribution(-0.08, 0.08)).build())
-                .layer(1, new GravesLSTM.Builder().nIn(numHiddenNodes).nOut(numHiddenNodes)
-                        .updater(Updater.RMSPROP)
-                        .activation("softsign")
-                        .dist(new UniformDistribution(-0.08, 0.08)).build())
-                .layer(2, new RnnOutputLayer.Builder(LossFunctions.LossFunction.MCXENT)
-                        .activation("identity")
-                        .updater(Updater.RMSPROP)
-                        .nIn(numHiddenNodes).nOut(numOutputs)
-                        .dist(new UniformDistribution(-0.08, 0.08)).build())
-                .pretrain(false).backprop(true)
-                .build();
-    }
-
     /** Returns the network configuration, 2 hidden DenseLayers of size 50.
      */
     private static MultiLayerConfiguration getDeepDenseLayerNetworkConfiguration() {
