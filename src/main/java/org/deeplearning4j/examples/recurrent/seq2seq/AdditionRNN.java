@@ -79,7 +79,7 @@ public class AdditionRNN {
 
         ComputationGraph net = new ComputationGraph(configuration);
         net.init();
-        net.setListeners(new ScoreIterationListener(200),new HistogramIterationListener(200));
+        //net.setListeners(new ScoreIterationListener(200),new HistogramIterationListener(200));
         //net.setListeners(new ScoreIterationListener(1));
         //net.setListeners(new HistogramIterationListener(200));
         //Train model:

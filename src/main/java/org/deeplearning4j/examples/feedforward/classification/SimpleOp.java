@@ -66,7 +66,8 @@ public class SimpleOp {
         System.out.println("======================");
         System.out.println("Exec and Return: Leaky Relu transformation with 0.5 ..");
         System.out.println("======================");
-        INDArray out = Nd4j.getExecutioner().execAndReturn(new LeakyReLU(myXSumY.dup(), 0.5));
+        INDArray out = Nd4j.getExecutioner().execAndReturn(new Pow(myXSumY.dup(), 2));
+
         System.out.println(out);
 
         out = Nd4j.getExecutioner().execAndReturn(new LeakyReLU(myXSumY.dup()));
