@@ -12,7 +12,8 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * Simple utility class that builds centroid vector for LabelledDocument based on previously trained ParagraphVectors model
+ * Simple utility class that builds centroid vector for LabelledDocument
+ * based on previously trained ParagraphVectors model
  *
  * @author raver119@gmail.com
  */
@@ -21,7 +22,8 @@ public class MeansBuilder {
     private InMemoryLookupTable<VocabWord> lookupTable;
     private TokenizerFactory tokenizerFactory;
 
-    public MeansBuilder(@NonNull InMemoryLookupTable<VocabWord> lookupTable, @NonNull TokenizerFactory tokenizerFactory) {
+    public MeansBuilder(@NonNull InMemoryLookupTable<VocabWord> lookupTable,
+        @NonNull TokenizerFactory tokenizerFactory) {
         this.lookupTable = lookupTable;
         this.vocabCache = lookupTable.getVocab();
         this.tokenizerFactory = tokenizerFactory;
