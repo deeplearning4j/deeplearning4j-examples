@@ -57,8 +57,7 @@ public class BasicRNNExample {
 		builder.biasInit(0);
 		builder.miniBatch(false);
 		builder.updater(Updater.RMSPROP);
-		builder.weightInit(WeightInit.DISTRIBUTION);
-		builder.dist(new UniformDistribution(-1, 1));
+		builder.weightInit(WeightInit.XAVIER);
 
 		ListBuilder listBuilder = builder.list(HIDDEN_LAYER_CONT + 1);
 
@@ -115,7 +114,7 @@ public class BasicRNNExample {
 		DataSet trainingData = new DataSet(input, labels);
 
 		// some epochs
-		for (int epoch = 0; epoch < 300; epoch++) {
+		for (int epoch = 0; epoch < 100; epoch++) {
 			
 			System.out.println("Epoch " + epoch);
 			
@@ -144,7 +143,7 @@ public class BasicRNNExample {
 				for (int k = 0; k < outputProbDistribution.length; k++) {
 					outputProbDistribution[k] = output.getDouble(k);
 				}
-				int sampledCharacterIdx = sampleFromDistribution(outputProbDistribution);
+				int sampledCharacterIdx = findIndexOfHighestValue(outputProbDistribution);
 
 				// print the chosen output
 				System.out.print(LEARNSTRING_CHARS_LIST.get(sampledCharacterIdx));
@@ -161,19 +160,16 @@ public class BasicRNNExample {
 
 	}
 
-	// c&p from GravesLSTMCharModellingExample
-	private static int sampleFromDistribution(double[] distribution) {
-		double d = r.nextDouble();
-		double sum = 0.0;
+	private static int findIndexOfHighestValue(double[] distribution) {
+		int maxValueIndex = 0;
+		double maxValue = 0;
 		for (int i = 0; i < distribution.length; i++) {
-			sum += distribution[i];
-			if (d <= sum)
-				return i;
+			if(distribution[i] > maxValue) {
+				maxValue = distribution[i];
+				maxValueIndex = i;
+			}
 		}
-		// return the last if sum < 1 - this may be caused by the limited
-		// numerical precision of java, and the sum of all possibilities adds up
-		// to someting like 0.999999982754303
-		return distribution.length - 1;
+		return maxValueIndex;
 	}
 
 }
