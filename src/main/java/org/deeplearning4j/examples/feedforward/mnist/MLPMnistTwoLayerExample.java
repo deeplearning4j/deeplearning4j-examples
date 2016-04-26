@@ -21,7 +21,7 @@ import org.slf4j.LoggerFactory;
 
 
 /** A MLP applied to digit classification for MNIST. */
-public class MLPMnistSingleLayerExample {
+public class MLPMnistTwoLayerExample {
 
     private static Logger log = LoggerFactory.getLogger(MLPMnistSingleLayerExample.class);
 
@@ -59,7 +59,7 @@ public class MLPMnistSingleLayerExample {
                 		.nOut(100)
                 		.activation("relu")
                 		.weightInit(WeightInit.XAVIER)
-                		.build())                
+                		.build())
                 .layer(2, new OutputLayer.Builder(LossFunction.NEGATIVELOGLIKELIHOOD)
                         .nIn(100)
                         .nOut(outputNum)
