@@ -95,7 +95,7 @@ public class LenetMnistExample {
             Evaluation eval = new Evaluation(outputNum);
             while(mnistTest.hasNext()){
                 DataSet ds = mnistTest.next();
-                INDArray output = model.output(ds.getFeatureMatrix());
+                INDArray output = model.output(ds.getFeatureMatrix(), false);
                 eval.eval(ds.getLabels(), output);
             }
             log.info(eval.stats());
