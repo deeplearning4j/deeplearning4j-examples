@@ -12,7 +12,8 @@ import java.util.List;
 
 /**
  * This is primitive seeker for nearest labels.
- * It's used instead of basic wordsNearest method because for ParagraphVectors only labels should be taken into account, not individual words
+ * It's used instead of basic wordsNearest method because for ParagraphVectors
+ * only labels should be taken into account, not individual words
  *
  * @author raver119@gmail.com
  */
@@ -27,7 +28,8 @@ public class LabelSeeker {
     }
 
     /**
-     * This method accepts vector, that represents any document, and returns distances between this document, and previously trained categories
+     * This method accepts vector, that represents any document,
+     * and returns distances between this document, and previously trained categories
      * @return
      */
     public List<Pair<String, Double>> getScores(@NonNull INDArray vector) {

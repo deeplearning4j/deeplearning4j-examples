@@ -19,9 +19,11 @@ import java.util.Collection;
 
 /**
  * This is simple example for model weights update after initial vocab building.
- * If you have built your w2v model, and some time later you've decided that it can be additionally trained over new corpus, here's an example how to do it.
+ * If you have built your w2v model, and some time later you've decided that it can be 
+ * additionally trained over new corpus, here's an example how to do it.
  *
- * PLEASE NOTE: At this moment, no new words will be added to vocabulary/model. Only weights update process will be issued. It's often called "frozen vocab training".
+ * PLEASE NOTE: At this moment, no new words will be added to vocabulary/model. 
+ * Only weights update process will be issued. It's often called "frozen vocab training".
  *
  * @author raver119@gmail.com
  */
@@ -73,7 +75,7 @@ public class Word2VecUptrainingExample {
         log.info("Closest words to 'day' on 1st run: " + lst);
 
         /*
-            at this momen we're supposed to have model built, and it can be saved for future use.
+            at this moment we're supposed to have model built, and it can be saved for future use.
          */
         WordVectorSerializer.writeFullModel(vec, "pathToSaveModel.txt");
 
