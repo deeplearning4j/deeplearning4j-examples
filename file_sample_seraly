@@ -1,0 +1,1342 @@
+Apache Maven 3.3.9 (bb52d8502b132ec0a5a3f4c09453c07478323dc5; 2015-11-10T08:41:47-08:00)
+Maven home: /Library/Apache/apache-maven-3.3.9
+Java version: 1.8.0_66, vendor: Oracle Corporation
+Java home: /Library/Java/JavaVirtualMachines/jdk1.8.0_66.jdk/Contents/Home/jre
+Default locale: en_US, platform encoding: UTF-8
+OS name: "mac os x", version: "10.11.3", arch: "x86_64", family: "mac"
+[DEBUG] Created new class realm maven.api
+[DEBUG] Importing foreign packages into class realm maven.api
+[DEBUG]   Imported: javax.enterprise.inject.* < plexus.core
+[DEBUG]   Imported: javax.enterprise.util.* < plexus.core
+[DEBUG]   Imported: javax.inject.* < plexus.core
+[DEBUG]   Imported: org.apache.maven.* < plexus.core
+[DEBUG]   Imported: org.apache.maven.artifact < plexus.core
+[DEBUG]   Imported: org.apache.maven.classrealm < plexus.core
+[DEBUG]   Imported: org.apache.maven.cli < plexus.core
+[DEBUG]   Imported: org.apache.maven.configuration < plexus.core
+[DEBUG]   Imported: org.apache.maven.exception < plexus.core
+[DEBUG]   Imported: org.apache.maven.execution < plexus.core
+[DEBUG]   Imported: org.apache.maven.execution.scope < plexus.core
+[DEBUG]   Imported: org.apache.maven.lifecycle < plexus.core
+[DEBUG]   Imported: org.apache.maven.model < plexus.core
+[DEBUG]   Imported: org.apache.maven.monitor < plexus.core
+[DEBUG]   Imported: org.apache.maven.plugin < plexus.core
+[DEBUG]   Imported: org.apache.maven.profiles < plexus.core
+[DEBUG]   Imported: org.apache.maven.project < plexus.core
+[DEBUG]   Imported: org.apache.maven.reporting < plexus.core
+[DEBUG]   Imported: org.apache.maven.repository < plexus.core
+[DEBUG]   Imported: org.apache.maven.rtinfo < plexus.core
+[DEBUG]   Imported: org.apache.maven.settings < plexus.core
+[DEBUG]   Imported: org.apache.maven.toolchain < plexus.core
+[DEBUG]   Imported: org.apache.maven.usability < plexus.core
+[DEBUG]   Imported: org.apache.maven.wagon.* < plexus.core
+[DEBUG]   Imported: org.apache.maven.wagon.authentication < plexus.core
+[DEBUG]   Imported: org.apache.maven.wagon.authorization < plexus.core
+[DEBUG]   Imported: org.apache.maven.wagon.events < plexus.core
+[DEBUG]   Imported: org.apache.maven.wagon.observers < plexus.core
+[DEBUG]   Imported: org.apache.maven.wagon.proxy < plexus.core
+[DEBUG]   Imported: org.apache.maven.wagon.repository < plexus.core
+[DEBUG]   Imported: org.apache.maven.wagon.resource < plexus.core
+[DEBUG]   Imported: org.codehaus.classworlds < plexus.core
+[DEBUG]   Imported: org.codehaus.plexus.* < plexus.core
+[DEBUG]   Imported: org.codehaus.plexus.classworlds < plexus.core
+[DEBUG]   Imported: org.codehaus.plexus.component < plexus.core
+[DEBUG]   Imported: org.codehaus.plexus.configuration < plexus.core
+[DEBUG]   Imported: org.codehaus.plexus.container < plexus.core
+[DEBUG]   Imported: org.codehaus.plexus.context < plexus.core
+[DEBUG]   Imported: org.codehaus.plexus.lifecycle < plexus.core
+[DEBUG]   Imported: org.codehaus.plexus.logging < plexus.core
+[DEBUG]   Imported: org.codehaus.plexus.personality < plexus.core
+[DEBUG]   Imported: org.codehaus.plexus.util.xml.Xpp3Dom < plexus.core
+[DEBUG]   Imported: org.codehaus.plexus.util.xml.pull.XmlPullParser < plexus.core
+[DEBUG]   Imported: org.codehaus.plexus.util.xml.pull.XmlPullParserException < plexus.core
+[DEBUG]   Imported: org.codehaus.plexus.util.xml.pull.XmlSerializer < plexus.core
+[DEBUG]   Imported: org.eclipse.aether.* < plexus.core
+[DEBUG]   Imported: org.eclipse.aether.artifact < plexus.core
+[DEBUG]   Imported: org.eclipse.aether.collection < plexus.core
+[DEBUG]   Imported: org.eclipse.aether.deployment < plexus.core
+[DEBUG]   Imported: org.eclipse.aether.graph < plexus.core
+[DEBUG]   Imported: org.eclipse.aether.impl < plexus.core
+[DEBUG]   Imported: org.eclipse.aether.installation < plexus.core
+[DEBUG]   Imported: org.eclipse.aether.internal.impl < plexus.core
+[DEBUG]   Imported: org.eclipse.aether.metadata < plexus.core
+[DEBUG]   Imported: org.eclipse.aether.repository < plexus.core
+[DEBUG]   Imported: org.eclipse.aether.resolution < plexus.core
+[DEBUG]   Imported: org.eclipse.aether.spi < plexus.core
+[DEBUG]   Imported: org.eclipse.aether.transfer < plexus.core
+[DEBUG]   Imported: org.eclipse.aether.version < plexus.core
+[DEBUG]   Imported: org.slf4j.* < plexus.core
+[DEBUG]   Imported: org.slf4j.helpers.* < plexus.core
+[DEBUG]   Imported: org.slf4j.spi.* < plexus.core
+[DEBUG] Populating class realm maven.api
+[INFO] Error stacktraces are turned on.
+[DEBUG] Reading global settings from /Library/Apache/apache-maven-3.3.9/conf/settings.xml
+[DEBUG] Reading user settings from /Users/susaneraly/.m2/settings.xml
+[DEBUG] Reading global toolchains from /Library/Apache/apache-maven-3.3.9/conf/toolchains.xml
+[DEBUG] Reading user toolchains from /Users/susaneraly/.m2/toolchains.xml
+[DEBUG] Using local repository at /Users/susaneraly/.m2/repository
+[DEBUG] Using manager EnhancedLocalRepositoryManager with priority 10.0 for /Users/susaneraly/.m2/repository
+[INFO] Scanning for projects...
+[DEBUG] Extension realms for project org.deeplearning4j:deeplearning4j-examples:jar:0.4-rc0-SNAPSHOT: (none)
+[DEBUG] Looking up lifecyle mappings for packaging jar from ClassRealm[plexus.core, parent: null]
+[DEBUG] Resolving plugin prefix exec from [org.apache.maven.plugins, org.codehaus.mojo]
+[DEBUG] Resolved plugin prefix exec to org.codehaus.mojo:exec-maven-plugin from POM org.deeplearning4j:deeplearning4j-examples:jar:0.4-rc0-SNAPSHOT
+[DEBUG] === REACTOR BUILD PLAN ================================================
+[DEBUG] Project: org.deeplearning4j:deeplearning4j-examples:jar:0.4-rc0-SNAPSHOT
+[DEBUG] Tasks:   [exec:java]
+[DEBUG] Style:   Regular
+[DEBUG] =======================================================================
+[INFO]                                                                         
+[INFO] ------------------------------------------------------------------------
+[INFO] Building DeepLearning4j Examples 0.4-rc0-SNAPSHOT
+[INFO] ------------------------------------------------------------------------
+[DEBUG] Resolving plugin prefix exec from [org.apache.maven.plugins, org.codehaus.mojo]
+[DEBUG] Resolved plugin prefix exec to org.codehaus.mojo:exec-maven-plugin from POM org.deeplearning4j:deeplearning4j-examples:jar:0.4-rc0-SNAPSHOT
+[DEBUG] Lifecycle default -> [validate, initialize, generate-sources, process-sources, generate-resources, process-resources, compile, process-classes, generate-test-sources, process-test-sources, generate-test-resources, process-test-resources, test-compile, process-test-classes, test, prepare-package, package, pre-integration-test, integration-test, post-integration-test, verify, install, deploy]
+[DEBUG] Lifecycle clean -> [pre-clean, clean, post-clean]
+[DEBUG] Lifecycle site -> [pre-site, site, post-site, site-deploy]
+[DEBUG] === PROJECT BUILD PLAN ================================================
+[DEBUG] Project:       org.deeplearning4j:deeplearning4j-examples:0.4-rc0-SNAPSHOT
+[DEBUG] Dependencies (collect): []
+[DEBUG] Dependencies (resolve): [test]
+[DEBUG] Repositories (dependencies): [snapshots-repo (https://oss.sonatype.org/content/repositories/snapshots, default, snapshots), central (https://repo.maven.apache.org/maven2, default, releases)]
+[DEBUG] Repositories (plugins)     : [central (https://repo.maven.apache.org/maven2, default, releases)]
+[DEBUG] -----------------------------------------------------------------------
+[DEBUG] Goal:          org.codehaus.mojo:exec-maven-plugin:1.4.0:java (default-cli)
+[DEBUG] Style:         Regular
+[DEBUG] Configuration: <?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+  <arguments>${exec.arguments}</arguments>
+  <classpathScope default-value="runtime">${exec.classpathScope}</classpathScope>
+  <cleanupDaemonThreads default-value="true">${exec.cleanupDaemonThreads}</cleanupDaemonThreads>
+  <commandlineArgs>${exec.args}</commandlineArgs>
+  <daemonThreadJoinTimeout default-value="15000">${exec.daemonThreadJoinTimeout}</daemonThreadJoinTimeout>
+  <includePluginDependencies default-value="false">${exec.includePluginsDependencies}</includePluginDependencies>
+  <includeProjectDependencies default-value="true">${exec.includeProjectDependencies}</includeProjectDependencies>
+  <keepAlive default-value="false">${exec.keepAlive}</keepAlive>
+  <killAfter default-value="-1">${exec.killAfter}</killAfter>
+  <localRepository default-value="${localRepository}"/>
+  <mainClass>${exec.mainClass}</mainClass>
+  <pluginDependencies default-value="${plugin.artifacts}"/>
+  <project default-value="${project}"/>
+  <remoteRepositories default-value="${project.remoteArtifactRepositories}"/>
+  <skip default-value="false">${exec.skip}</skip>
+  <sourceRoot>${sourceRoot}</sourceRoot>
+  <stopUnresponsiveDaemonThreads default-value="false">${exec.stopUnresponsiveDaemonThreads}</stopUnresponsiveDaemonThreads>
+  <testSourceRoot>${testSourceRoot}</testSourceRoot>
+</configuration>
+[DEBUG] =======================================================================
+[DEBUG] Skipped remote request for org.deeplearning4j:deeplearning4j-nlp:0.4-rc3.9-SNAPSHOT/maven-metadata.xml, locally installed metadata up-to-date.
+[DEBUG] Skipped remote request for org.deeplearning4j:deeplearning4j-nlp:0.4-rc3.9-SNAPSHOT/maven-metadata.xml, locally installed metadata up-to-date.
+[DEBUG] Skipped remote request for org.deeplearning4j:deeplearning4j-scaleout:0.4-rc3.9-SNAPSHOT/maven-metadata.xml, locally installed metadata up-to-date.
+[DEBUG] Skipped remote request for org.deeplearning4j:deeplearning4j-parent:0.4-rc3.9-SNAPSHOT/maven-metadata.xml, locally installed metadata up-to-date.
+[DEBUG] Skipped remote request for org.deeplearning4j:deeplearning4j-scaleout-akka:0.4-rc3.9-SNAPSHOT/maven-metadata.xml, locally installed metadata up-to-date.
+[DEBUG] Skipped remote request for org.deeplearning4j:deeplearning4j-scaleout-akka:0.4-rc3.9-SNAPSHOT/maven-metadata.xml, locally installed metadata up-to-date.
+[DEBUG] Skipped remote request for org.deeplearning4j:deeplearning4j-scaleout-akka:0.4-rc3.9-SNAPSHOT/maven-metadata.xml, locally installed metadata up-to-date.
+[DEBUG] Skipped remote request for org.deeplearning4j:deeplearning4j-scaleout-akka:0.4-rc3.9-SNAPSHOT/maven-metadata.xml, locally installed metadata up-to-date.
+[DEBUG] Skipped remote request for org.deeplearning4j:deeplearning4j-core:0.4-rc3.9-SNAPSHOT/maven-metadata.xml, locally installed metadata up-to-date.
+[DEBUG] Skipped remote request for org.deeplearning4j:deeplearning4j-core:0.4-rc3.9-SNAPSHOT/maven-metadata.xml, locally installed metadata up-to-date.
+[DEBUG] Skipped remote request for org.deeplearning4j:deeplearning4j-core:0.4-rc3.9-SNAPSHOT/maven-metadata.xml, locally installed metadata up-to-date.
+[DEBUG] Skipped remote request for org.deeplearning4j:deeplearning4j-core:0.4-rc3.9-SNAPSHOT/maven-metadata.xml, locally installed metadata up-to-date.
+[DEBUG] Could not find metadata org.nd4j:canova-api:0.0.0.15-SNAPSHOT/maven-metadata.xml in local (/Users/susaneraly/.m2/repository)
+[DEBUG] Skipped remote request for org.nd4j:canova-api:0.0.0.15-SNAPSHOT/maven-metadata.xml, locally cached metadata up-to-date.
+[DEBUG] Skipped remote request for org.nd4j:canova-api:0.0.0.15-SNAPSHOT/maven-metadata.xml, locally cached metadata up-to-date.
+[DEBUG] Could not find metadata org.nd4j:canova-api:0.0.0.15-SNAPSHOT/maven-metadata.xml in local (/Users/susaneraly/.m2/repository)
+[DEBUG] Skipped remote request for org.nd4j:canova-api:0.0.0.15-SNAPSHOT/maven-metadata.xml, locally cached metadata up-to-date.
+[DEBUG] Skipped remote request for org.nd4j:canova-api:0.0.0.15-SNAPSHOT/maven-metadata.xml, locally cached metadata up-to-date.
+[DEBUG] Could not find metadata org.nd4j:canova-parent:0.0.0.15-SNAPSHOT/maven-metadata.xml in local (/Users/susaneraly/.m2/repository)
+[DEBUG] Skipped remote request for org.nd4j:canova-parent:0.0.0.15-SNAPSHOT/maven-metadata.xml, locally cached metadata up-to-date.
+[DEBUG] Skipped remote request for org.nd4j:canova-parent:0.0.0.15-SNAPSHOT/maven-metadata.xml, locally cached metadata up-to-date.
+[DEBUG] Could not find metadata org.nd4j:canova-nd4j-image:0.0.0.15-SNAPSHOT/maven-metadata.xml in local (/Users/susaneraly/.m2/repository)
+[DEBUG] Skipped remote request for org.nd4j:canova-nd4j-image:0.0.0.15-SNAPSHOT/maven-metadata.xml, locally cached metadata up-to-date.
+[DEBUG] Skipped remote request for org.nd4j:canova-nd4j-image:0.0.0.15-SNAPSHOT/maven-metadata.xml, locally cached metadata up-to-date.
+[DEBUG] Could not find metadata org.nd4j:canova-nd4j-image:0.0.0.15-SNAPSHOT/maven-metadata.xml in local (/Users/susaneraly/.m2/repository)
+[DEBUG] Skipped remote request for org.nd4j:canova-nd4j-image:0.0.0.15-SNAPSHOT/maven-metadata.xml, locally cached metadata up-to-date.
+[DEBUG] Skipped remote request for org.nd4j:canova-nd4j-image:0.0.0.15-SNAPSHOT/maven-metadata.xml, locally cached metadata up-to-date.
+[DEBUG] Could not find metadata org.nd4j:canova-nd4j:0.0.0.15-SNAPSHOT/maven-metadata.xml in local (/Users/susaneraly/.m2/repository)
+[DEBUG] Skipped remote request for org.nd4j:canova-nd4j:0.0.0.15-SNAPSHOT/maven-metadata.xml, locally cached metadata up-to-date.
+[DEBUG] Skipped remote request for org.nd4j:canova-nd4j:0.0.0.15-SNAPSHOT/maven-metadata.xml, locally cached metadata up-to-date.
+[DEBUG] Skipped remote request for org.nd4j:nd4j-buffer:0.4-rc3.9-SNAPSHOT/maven-metadata.xml, locally cached metadata up-to-date.
+[DEBUG] Skipped remote request for org.nd4j:nd4j-buffer:0.4-rc3.9-SNAPSHOT/maven-metadata.xml, locally cached metadata up-to-date.
+[DEBUG] Skipped remote request for org.nd4j:nd4j-buffer:0.4-rc3.9-SNAPSHOT/maven-metadata.xml, locally cached metadata up-to-date.
+[DEBUG] Skipped remote request for org.nd4j:nd4j-buffer:0.4-rc3.9-SNAPSHOT/maven-metadata.xml, locally cached metadata up-to-date.
+[DEBUG] Skipped remote request for org.nd4j:nd4j:0.4-rc3.9-SNAPSHOT/maven-metadata.xml, locally cached metadata up-to-date.
+[DEBUG] Skipped remote request for org.nd4j:nd4j:0.4-rc3.9-SNAPSHOT/maven-metadata.xml, locally cached metadata up-to-date.
+[DEBUG] Skipped remote request for org.nd4j:nd4j-common:0.4-rc3.9-SNAPSHOT/maven-metadata.xml, locally cached metadata up-to-date.
+[DEBUG] Skipped remote request for org.nd4j:nd4j-common:0.4-rc3.9-SNAPSHOT/maven-metadata.xml, locally cached metadata up-to-date.
+[DEBUG] Skipped remote request for org.nd4j:nd4j-common:0.4-rc3.9-SNAPSHOT/maven-metadata.xml, locally cached metadata up-to-date.
+[DEBUG] Skipped remote request for org.nd4j:nd4j-common:0.4-rc3.9-SNAPSHOT/maven-metadata.xml, locally cached metadata up-to-date.
+[DEBUG] Skipped remote request for org.nd4j:nd4j-context:0.4-rc3.9-SNAPSHOT/maven-metadata.xml, locally cached metadata up-to-date.
+[DEBUG] Skipped remote request for org.nd4j:nd4j-context:0.4-rc3.9-SNAPSHOT/maven-metadata.xml, locally cached metadata up-to-date.
+[DEBUG] Skipped remote request for org.nd4j:nd4j-context:0.4-rc3.9-SNAPSHOT/maven-metadata.xml, locally cached metadata up-to-date.
+[DEBUG] Skipped remote request for org.nd4j:nd4j-context:0.4-rc3.9-SNAPSHOT/maven-metadata.xml, locally cached metadata up-to-date.
+[DEBUG] Skipped remote request for org.bytedeco:javacpp:1.2-SNAPSHOT/maven-metadata.xml, locally cached metadata up-to-date.
+[DEBUG] Skipped remote request for org.bytedeco:javacpp:1.2-SNAPSHOT/maven-metadata.xml, locally cached metadata up-to-date.
+[DEBUG] Skipped remote request for org.bytedeco:javacpp:1.2-SNAPSHOT/maven-metadata.xml, locally cached metadata up-to-date.
+[DEBUG] Skipped remote request for org.bytedeco:javacpp:1.2-SNAPSHOT/maven-metadata.xml, locally cached metadata up-to-date.
+[DEBUG] Could not find metadata org.nd4j:canova-nd4j-common:0.0.0.15-SNAPSHOT/maven-metadata.xml in local (/Users/susaneraly/.m2/repository)
+[DEBUG] Skipped remote request for org.nd4j:canova-nd4j-common:0.0.0.15-SNAPSHOT/maven-metadata.xml, locally cached metadata up-to-date.
+[DEBUG] Skipped remote request for org.nd4j:canova-nd4j-common:0.0.0.15-SNAPSHOT/maven-metadata.xml, locally cached metadata up-to-date.
+[DEBUG] Could not find metadata org.nd4j:canova-nd4j-common:0.0.0.15-SNAPSHOT/maven-metadata.xml in local (/Users/susaneraly/.m2/repository)
+[DEBUG] Skipped remote request for org.nd4j:canova-nd4j-common:0.0.0.15-SNAPSHOT/maven-metadata.xml, locally cached metadata up-to-date.
+[DEBUG] Skipped remote request for org.nd4j:canova-nd4j-common:0.0.0.15-SNAPSHOT/maven-metadata.xml, locally cached metadata up-to-date.
+[DEBUG] Skipped remote request for org.nd4j:nd4j-api:0.4-rc3.9-SNAPSHOT/maven-metadata.xml, locally cached metadata up-to-date.
+[DEBUG] Skipped remote request for org.nd4j:nd4j-api:0.4-rc3.9-SNAPSHOT/maven-metadata.xml, locally cached metadata up-to-date.
+[DEBUG] Skipped remote request for org.nd4j:nd4j-api:0.4-rc3.9-SNAPSHOT/maven-metadata.xml, locally cached metadata up-to-date.
+[DEBUG] Skipped remote request for org.nd4j:nd4j-api:0.4-rc3.9-SNAPSHOT/maven-metadata.xml, locally cached metadata up-to-date.
+[DEBUG] Skipped remote request for org.nd4j:nd4j-api-parent:0.4-rc3.9-SNAPSHOT/maven-metadata.xml, locally cached metadata up-to-date.
+[DEBUG] Skipped remote request for org.nd4j:nd4j-api-parent:0.4-rc3.9-SNAPSHOT/maven-metadata.xml, locally cached metadata up-to-date.
+[DEBUG] Skipped remote request for org.nd4j:nd4j-backends:0.4-rc3.9-SNAPSHOT/maven-metadata.xml, locally cached metadata up-to-date.
+[DEBUG] Skipped remote request for org.nd4j:nd4j-backends:0.4-rc3.9-SNAPSHOT/maven-metadata.xml, locally cached metadata up-to-date.
+[DEBUG] Could not find metadata org.nd4j:canova-data-image:0.0.0.15-SNAPSHOT/maven-metadata.xml in local (/Users/susaneraly/.m2/repository)
+[DEBUG] Skipped remote request for org.nd4j:canova-data-image:0.0.0.15-SNAPSHOT/maven-metadata.xml, locally cached metadata up-to-date.
+[DEBUG] Skipped remote request for org.nd4j:canova-data-image:0.0.0.15-SNAPSHOT/maven-metadata.xml, locally cached metadata up-to-date.
+[DEBUG] Could not find metadata org.nd4j:canova-data-image:0.0.0.15-SNAPSHOT/maven-metadata.xml in local (/Users/susaneraly/.m2/repository)
+[DEBUG] Skipped remote request for org.nd4j:canova-data-image:0.0.0.15-SNAPSHOT/maven-metadata.xml, locally cached metadata up-to-date.
+[DEBUG] Skipped remote request for org.nd4j:canova-data-image:0.0.0.15-SNAPSHOT/maven-metadata.xml, locally cached metadata up-to-date.
+[DEBUG] Could not find metadata org.nd4j:canova-data:0.0.0.15-SNAPSHOT/maven-metadata.xml in local (/Users/susaneraly/.m2/repository)
+[DEBUG] Skipped remote request for org.nd4j:canova-data:0.0.0.15-SNAPSHOT/maven-metadata.xml, locally cached metadata up-to-date.
+[DEBUG] Skipped remote request for org.nd4j:canova-data:0.0.0.15-SNAPSHOT/maven-metadata.xml, locally cached metadata up-to-date.
+[DEBUG] Skipped remote request for org.deeplearning4j:deeplearning4j-scaleout-zookeeper:0.4-rc3.9-SNAPSHOT/maven-metadata.xml, locally installed metadata up-to-date.
+[DEBUG] Skipped remote request for org.deeplearning4j:deeplearning4j-scaleout-zookeeper:0.4-rc3.9-SNAPSHOT/maven-metadata.xml, locally installed metadata up-to-date.
+[DEBUG] Skipped remote request for org.deeplearning4j:deeplearning4j-scaleout-zookeeper:0.4-rc3.9-SNAPSHOT/maven-metadata.xml, locally installed metadata up-to-date.
+[DEBUG] Skipped remote request for org.deeplearning4j:deeplearning4j-scaleout-zookeeper:0.4-rc3.9-SNAPSHOT/maven-metadata.xml, locally installed metadata up-to-date.
+[DEBUG] Skipped remote request for org.deeplearning4j:deeplearning4j-scaleout-api:0.4-rc3.9-SNAPSHOT/maven-metadata.xml, locally installed metadata up-to-date.
+[DEBUG] Skipped remote request for org.deeplearning4j:deeplearning4j-scaleout-api:0.4-rc3.9-SNAPSHOT/maven-metadata.xml, locally installed metadata up-to-date.
+[DEBUG] Skipped remote request for org.deeplearning4j:deeplearning4j-scaleout-api:0.4-rc3.9-SNAPSHOT/maven-metadata.xml, locally installed metadata up-to-date.
+[DEBUG] Skipped remote request for org.deeplearning4j:deeplearning4j-scaleout-api:0.4-rc3.9-SNAPSHOT/maven-metadata.xml, locally installed metadata up-to-date.
+[DEBUG] Skipped remote request for org.nd4j:nd4j-jackson:0.4-rc3.9-SNAPSHOT/maven-metadata.xml, locally cached metadata up-to-date.
+[DEBUG] Skipped remote request for org.nd4j:nd4j-jackson:0.4-rc3.9-SNAPSHOT/maven-metadata.xml, locally cached metadata up-to-date.
+[DEBUG] Skipped remote request for org.nd4j:nd4j-jackson:0.4-rc3.9-SNAPSHOT/maven-metadata.xml, locally cached metadata up-to-date.
+[DEBUG] Skipped remote request for org.nd4j:nd4j-jackson:0.4-rc3.9-SNAPSHOT/maven-metadata.xml, locally cached metadata up-to-date.
+[DEBUG] Skipped remote request for org.nd4j:nd4j-serde:0.4-rc3.9-SNAPSHOT/maven-metadata.xml, locally cached metadata up-to-date.
+[DEBUG] Skipped remote request for org.nd4j:nd4j-serde:0.4-rc3.9-SNAPSHOT/maven-metadata.xml, locally cached metadata up-to-date.
+[DEBUG] Skipped remote request for org.deeplearning4j:deeplearning4j-ui:0.4-rc3.9-SNAPSHOT/maven-metadata.xml, locally installed metadata up-to-date.
+[DEBUG] Skipped remote request for org.deeplearning4j:deeplearning4j-ui:0.4-rc3.9-SNAPSHOT/maven-metadata.xml, locally installed metadata up-to-date.
+[DEBUG] Skipped remote request for org.nd4j:nd4j-x86:0.4-rc3.9-SNAPSHOT/maven-metadata.xml, locally cached metadata up-to-date.
+[DEBUG] Skipped remote request for org.nd4j:nd4j-x86:0.4-rc3.9-SNAPSHOT/maven-metadata.xml, locally cached metadata up-to-date.
+[DEBUG] Skipped remote request for org.nd4j:nd4j-backend-impls:0.4-rc3.9-SNAPSHOT/maven-metadata.xml, locally cached metadata up-to-date.
+[DEBUG] Skipped remote request for org.nd4j:nd4j-native:0.4-rc3.9-SNAPSHOT/maven-metadata.xml, locally cached metadata up-to-date.
+[DEBUG] Skipped remote request for org.nd4j:nd4j-native:0.4-rc3.9-SNAPSHOT/maven-metadata.xml, locally cached metadata up-to-date.
+[DEBUG] Skipped remote request for org.nd4j:nd4j-native:0.4-rc3.9-SNAPSHOT/maven-metadata.xml, locally cached metadata up-to-date.
+[DEBUG] Skipped remote request for org.nd4j:nd4j-native:0.4-rc3.9-SNAPSHOT/maven-metadata.xml, locally cached metadata up-to-date.
+[DEBUG] Skipped remote request for org.nd4j:nd4j-native-api:0.4-rc3.9-SNAPSHOT/maven-metadata.xml, locally cached metadata up-to-date.
+[DEBUG] Skipped remote request for org.nd4j:nd4j-native-api:0.4-rc3.9-SNAPSHOT/maven-metadata.xml, locally cached metadata up-to-date.
+[DEBUG] Skipped remote request for org.nd4j:nd4j-native-api:0.4-rc3.9-SNAPSHOT/maven-metadata.xml, locally cached metadata up-to-date.
+[DEBUG] Skipped remote request for org.nd4j:nd4j-native-api:0.4-rc3.9-SNAPSHOT/maven-metadata.xml, locally cached metadata up-to-date.
+[DEBUG] Dependency collection stats: {ConflictMarker.analyzeTime=8, ConflictMarker.markTime=3, ConflictMarker.nodeCount=1011, ConflictIdSorter.graphTime=4, ConflictIdSorter.topsortTime=2, ConflictIdSorter.conflictIdCount=209, ConflictIdSorter.conflictIdCycleCount=0, ConflictResolver.totalTime=57, ConflictResolver.conflictItemCount=441, DefaultDependencyCollector.collectTime=2492, DefaultDependencyCollector.transformTime=78}
+[DEBUG] org.deeplearning4j:deeplearning4j-examples:jar:0.4-rc0-SNAPSHOT
+[DEBUG]    org.deeplearning4j:deeplearning4j-nlp:jar:0.4-rc3.9-SNAPSHOT:compile
+[DEBUG]       org.apache.lucene:lucene-analyzers-common:jar:5.3.1:compile
+[DEBUG]       org.apache.lucene:lucene-core:jar:5.3.1:compile
+[DEBUG]       org.apache.lucene:lucene-queryparser:jar:5.3.1:compile
+[DEBUG]          org.apache.lucene:lucene-queries:jar:5.3.1:compile
+[DEBUG]          org.apache.lucene:lucene-sandbox:jar:5.3.1:compile
+[DEBUG]       org.deeplearning4j:deeplearning4j-scaleout-akka:jar:0.4-rc3.9-SNAPSHOT:compile
+[DEBUG]          javax.ws.rs:javax.ws.rs-api:jar:2.0.1:compile
+[DEBUG]          io.dropwizard:dropwizard-core:jar:0.8.0:compile
+[DEBUG]             io.dropwizard:dropwizard-util:jar:0.8.0:compile
+[DEBUG]                com.google.code.findbugs:jsr305:jar:3.0.0:compile
+[DEBUG]                joda-time:joda-time:jar:2.7:compile
+[DEBUG]             io.dropwizard:dropwizard-jackson:jar:0.8.0:compile
+[DEBUG]                com.fasterxml.jackson.datatype:jackson-datatype-jdk7:jar:2.5.1:compile
+[DEBUG]                com.fasterxml.jackson.datatype:jackson-datatype-guava:jar:2.5.1:compile
+[DEBUG]                com.fasterxml.jackson.module:jackson-module-afterburner:jar:2.5.1:compile
+[DEBUG]                com.fasterxml.jackson.datatype:jackson-datatype-joda:jar:2.5.1:compile
+[DEBUG]             io.dropwizard:dropwizard-validation:jar:0.8.0:compile
+[DEBUG]                org.hibernate:hibernate-validator:jar:5.1.3.Final:compile
+[DEBUG]                   javax.validation:validation-api:jar:1.1.0.Final:compile
+[DEBUG]                   org.jboss.logging:jboss-logging:jar:3.1.3.GA:compile
+[DEBUG]                   com.fasterxml:classmate:jar:1.0.0:compile
+[DEBUG]                org.glassfish:javax.el:jar:3.0.0:compile
+[DEBUG]             io.dropwizard:dropwizard-configuration:jar:0.8.0:compile
+[DEBUG]             io.dropwizard:dropwizard-logging:jar:0.8.0:compile
+[DEBUG]                io.dropwizard.metrics:metrics-logback:jar:3.1.0:compile
+[DEBUG]                org.slf4j:jul-to-slf4j:jar:1.7.10:compile
+[DEBUG]                org.slf4j:jcl-over-slf4j:jar:1.7.10:compile
+[DEBUG]                org.eclipse.jetty:jetty-util:jar:9.2.9.v20150224:compile
+[DEBUG]             io.dropwizard:dropwizard-metrics:jar:0.8.0:compile
+[DEBUG]             io.dropwizard:dropwizard-jersey:jar:0.8.0:compile
+[DEBUG]                org.glassfish.jersey.core:jersey-server:jar:2.16:compile
+[DEBUG]                   org.glassfish.jersey.media:jersey-media-jaxb:jar:2.16:compile
+[DEBUG]                org.glassfish.jersey.ext:jersey-metainf-services:jar:2.16:compile
+[DEBUG]                io.dropwizard.metrics:metrics-jersey2:jar:3.1.0:compile
+[DEBUG]                com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider:jar:2.5.1:compile
+[DEBUG]                   com.fasterxml.jackson.jaxrs:jackson-jaxrs-base:jar:2.5.1:compile
+[DEBUG]                   com.fasterxml.jackson.module:jackson-module-jaxb-annotations:jar:2.5.1:compile
+[DEBUG]                org.glassfish.jersey.containers:jersey-container-servlet:jar:2.16:compile
+[DEBUG]                   org.glassfish.jersey.containers:jersey-container-servlet-core:jar:2.16:compile
+[DEBUG]                org.eclipse.jetty:jetty-server:jar:9.2.9.v20150224:compile
+[DEBUG]                   javax.servlet:javax.servlet-api:jar:3.1.0:compile
+[DEBUG]                   org.eclipse.jetty:jetty-io:jar:9.2.9.v20150224:compile
+[DEBUG]                org.eclipse.jetty:jetty-webapp:jar:9.2.9.v20150224:compile
+[DEBUG]                   org.eclipse.jetty:jetty-xml:jar:9.2.9.v20150224:compile
+[DEBUG]                org.eclipse.jetty:jetty-continuation:jar:9.2.9.v20150224:compile
+[DEBUG]             io.dropwizard:dropwizard-jetty:jar:0.8.0:compile
+[DEBUG]                io.dropwizard.metrics:metrics-jetty9:jar:3.1.0:compile
+[DEBUG]                org.eclipse.jetty:jetty-servlet:jar:9.2.9.v20150224:compile
+[DEBUG]                   org.eclipse.jetty:jetty-security:jar:9.2.9.v20150224:compile
+[DEBUG]                org.eclipse.jetty:jetty-servlets:jar:9.2.9.v20150224:compile
+[DEBUG]                org.eclipse.jetty:jetty-http:jar:9.2.9.v20150224:compile
+[DEBUG]             io.dropwizard:dropwizard-lifecycle:jar:0.8.0:compile
+[DEBUG]             io.dropwizard.metrics:metrics-core:jar:3.1.0:compile
+[DEBUG]             io.dropwizard.metrics:metrics-jvm:jar:3.1.0:compile
+[DEBUG]             io.dropwizard.metrics:metrics-servlets:jar:3.1.0:compile
+[DEBUG]                io.dropwizard.metrics:metrics-json:jar:3.1.0:compile
+[DEBUG]             io.dropwizard.metrics:metrics-healthchecks:jar:3.1.0:compile
+[DEBUG]             net.sourceforge.argparse4j:argparse4j:jar:0.4.4:compile
+[DEBUG]             org.eclipse.jetty.toolchain.setuid:jetty-setuid-java:jar:1.0.2:compile
+[DEBUG]          org.spark-project.akka:akka-remote_2.10:jar:2.3.4-spark:compile
+[DEBUG]             org.scala-lang:scala-library:jar:2.10.4:compile
+[DEBUG]             io.netty:netty:jar:3.8.0.Final:compile
+[DEBUG]             org.spark-project.protobuf:protobuf-java:jar:2.5.0-spark:compile
+[DEBUG]             org.uncommons.maths:uncommons-maths:jar:1.2.2a:compile
+[DEBUG]          org.spark-project.akka:akka-actor_2.10:jar:2.3.4-spark:compile
+[DEBUG]             com.typesafe:config:jar:1.2.1:compile
+[DEBUG]          com.typesafe.akka:akka-cluster_2.10:jar:2.3.4:compile
+[DEBUG]          com.typesafe.akka:akka-contrib_2.10:jar:2.3.4:compile
+[DEBUG]             com.typesafe.akka:akka-persistence-experimental_2.10:jar:2.3.4:compile
+[DEBUG]                org.iq80.leveldb:leveldb:jar:0.5:compile
+[DEBUG]                   org.iq80.leveldb:leveldb-api:jar:0.5:compile
+[DEBUG]                org.fusesource.leveldbjni:leveldbjni-all:jar:1.7:compile
+[DEBUG]                   org.fusesource.leveldbjni:leveldbjni:jar:1.7:compile
+[DEBUG]                      org.fusesource.hawtjni:hawtjni-runtime:jar:1.8:compile
+[DEBUG]                   org.fusesource.leveldbjni:leveldbjni-osx:jar:1.5:compile
+[DEBUG]                   org.fusesource.leveldbjni:leveldbjni-linux32:jar:1.5:compile
+[DEBUG]                   org.fusesource.leveldbjni:leveldbjni-linux64:jar:1.5:compile
+[DEBUG]                   org.fusesource.leveldbjni:leveldbjni-win32:jar:1.5:compile
+[DEBUG]                   org.fusesource.leveldbjni:leveldbjni-win64:jar:1.5:compile
+[DEBUG]                com.google.protobuf:protobuf-java:jar:2.5.0:compile
+[DEBUG]          org.spark-project.akka:akka-slf4j_2.10:jar:2.3.4-spark:compile
+[DEBUG]          args4j:args4j:jar:2.0.29:compile
+[DEBUG]          org.fusesource:sigar:jar:native:1.6.4:compile
+[DEBUG]          org.deeplearning4j:deeplearning4j-scaleout-zookeeper:jar:0.4-rc3.9-SNAPSHOT:compile
+[DEBUG]             org.deeplearning4j:deeplearning4j-scaleout-api:jar:0.4-rc3.9-SNAPSHOT:compile
+[DEBUG]             org.apache.zookeeper:zookeeper:jar:3.5.1-alpha:compile
+[DEBUG]                commons-cli:commons-cli:jar:1.2:compile
+[DEBUG]                net.java.dev.javacc:javacc:jar:5.0:compile
+[DEBUG]             org.apache.curator:curator-framework:jar:2.4.0:compile
+[DEBUG]                org.apache.curator:curator-client:jar:2.4.0:compile
+[DEBUG]             org.apache.curator:curator-test:jar:2.4.0:compile
+[DEBUG]                org.javassist:javassist:jar:3.15.0-GA:compile
+[DEBUG]                org.apache.commons:commons-math:jar:2.2:compile
+[DEBUG]             org.apache.curator:curator-recipes:jar:2.4.0:compile
+[DEBUG]          com.hazelcast:hazelcast-all:jar:3.4.2:compile
+[DEBUG]             net.sourceforge.findbugs:annotations:jar:1.3.2:compile
+[DEBUG]             com.eclipsesource.minimal-json:minimal-json:jar:0.9.1:compile
+[DEBUG]       org.apache.directory.studio:org.apache.commons.codec:jar:1.8:compile
+[DEBUG]          commons-codec:commons-codec:jar:1.8:compile
+[DEBUG]       it.unimi.dsi:dsiutils:jar:2.2.2:compile
+[DEBUG]          it.unimi.dsi:fastutil:jar:6.5.15:compile
+[DEBUG]          com.martiansoftware:jsap:jar:2.1:compile
+[DEBUG]          commons-configuration:commons-configuration:jar:1.8:compile
+[DEBUG]             commons-lang:commons-lang:jar:2.6:compile
+[DEBUG]             commons-logging:commons-logging:jar:1.1.1:compile
+[DEBUG]          commons-collections:commons-collections:jar:20040616:compile
+[DEBUG]       org.cleartk:cleartk-snowball:jar:2.0.0:compile
+[DEBUG]          org.apache.lucene:lucene-snowball:jar:3.0.3:compile
+[DEBUG]          org.cleartk:cleartk-util:jar:2.0.0:compile
+[DEBUG]             org.apache.uima:uimaj-core:jar:2.5.0:compile
+[DEBUG]             org.apache.uima:uimafit-core:jar:2.0.0:compile
+[DEBUG]                commons-logging:commons-logging-api:jar:1.1:compile
+[DEBUG]                org.springframework:spring-core:jar:3.1.2.RELEASE:compile
+[DEBUG]                   org.springframework:spring-asm:jar:3.1.2.RELEASE:compile
+[DEBUG]                org.springframework:spring-context:jar:3.1.2.RELEASE:compile
+[DEBUG]                   org.springframework:spring-aop:jar:3.1.2.RELEASE:compile
+[DEBUG]                      aopalliance:aopalliance:jar:1.0:compile
+[DEBUG]                   org.springframework:spring-expression:jar:3.1.2.RELEASE:compile
+[DEBUG]                org.springframework:spring-beans:jar:3.1.2.RELEASE:compile
+[DEBUG]          org.cleartk:cleartk-type-system:jar:2.0.0:compile
+[DEBUG]       org.cleartk:cleartk-opennlp-tools:jar:2.0.0:compile
+[DEBUG]          org.apache.opennlp:opennlp-maxent:jar:3.0.3:compile
+[DEBUG]          org.apache.opennlp:opennlp-tools:jar:1.5.3:compile
+[DEBUG]             net.sf.jwordnet:jwnl:jar:1.3.3:compile
+[DEBUG]          org.apache.opennlp:opennlp-uima:jar:1.5.3:compile
+[DEBUG]       io.dropwizard:dropwizard-assets:jar:0.8.0:compile
+[DEBUG]          io.dropwizard:dropwizard-servlets:jar:0.8.0:compile
+[DEBUG]             io.dropwizard.metrics:metrics-annotation:jar:3.1.0:compile
+[DEBUG]       io.dropwizard:dropwizard-views-mustache:jar:0.8.0:compile
+[DEBUG]          io.dropwizard:dropwizard-views:jar:0.8.0:compile
+[DEBUG]          com.github.spullara.mustache.java:compiler:jar:0.8.17:compile
+[DEBUG]       io.dropwizard:dropwizard-views-freemarker:jar:0.8.0:compile
+[DEBUG]          org.freemarker:freemarker:jar:2.3.21:compile
+[DEBUG]       org.nd4j:nd4j-jackson:jar:0.4-rc3.9-SNAPSHOT:compile
+[DEBUG]    org.deeplearning4j:deeplearning4j-core:jar:0.4-rc3.9-SNAPSHOT:compile
+[DEBUG]       io.netty:netty-buffer:jar:4.0.28.Final:compile
+[DEBUG]          io.netty:netty-common:jar:4.0.28.Final:compile
+[DEBUG]       org.nd4j:canova-api:jar:0.0.0.15-SNAPSHOT:compile
+[DEBUG]       org.slf4j:slf4j-api:jar:1.7.12:compile
+[DEBUG]       ch.qos.logback:logback-classic:jar:1.1.2:compile
+[DEBUG]       ch.qos.logback:logback-core:jar:1.1.2:compile
+[DEBUG]       org.apache.commons:commons-math3:jar:3.4.1:compile
+[DEBUG]       commons-io:commons-io:jar:2.4:compile
+[DEBUG]       org.apache.commons:commons-compress:jar:1.8:compile
+[DEBUG]          org.tukaani:xz:jar:1.5:compile
+[DEBUG]       org.nd4j:nd4j-api:jar:0.4-rc3.9-SNAPSHOT:compile
+[DEBUG]          org.nd4j:nd4j-buffer:jar:0.4-rc3.9-SNAPSHOT:compile
+[DEBUG]             org.nd4j:nd4j-common:jar:0.4-rc3.9-SNAPSHOT:compile
+[DEBUG]                org.reflections:reflections:jar:0.9.10:compile
+[DEBUG]                   com.google.code.findbugs:annotations:jar:2.0.1:compile
+[DEBUG]             org.bytedeco:javacpp:jar:1.2-SNAPSHOT:compile
+[DEBUG]          org.nd4j:nd4j-context:jar:0.4-rc3.9-SNAPSHOT:compile
+[DEBUG]       org.apache.commons:commons-lang3:jar:3.3.1:compile
+[DEBUG]       com.fasterxml.jackson.core:jackson-core:jar:2.5.1:compile
+[DEBUG]       com.fasterxml.jackson.core:jackson-databind:jar:2.5.1:compile
+[DEBUG]       org.json:json:jar:20131018:compile
+[DEBUG]       com.fasterxml.jackson.core:jackson-annotations:jar:2.5.1:compile
+[DEBUG]       org.projectlombok:lombok:jar:1.16.4:compile
+[DEBUG]       com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:jar:2.5.1:compile
+[DEBUG]          org.yaml:snakeyaml:jar:1.12:compile
+[DEBUG]    org.deeplearning4j:deeplearning4j-ui:jar:0.4-rc3.9-SNAPSHOT:compile
+[DEBUG]       io.dropwizard:dropwizard-client:jar:0.8.0:compile
+[DEBUG]          org.glassfish.jersey.core:jersey-client:jar:2.16:compile
+[DEBUG]             org.glassfish.hk2:hk2-api:jar:2.4.0-b09:compile
+[DEBUG]                org.glassfish.hk2:hk2-utils:jar:2.4.0-b09:compile
+[DEBUG]                org.glassfish.hk2.external:aopalliance-repackaged:jar:2.4.0-b09:compile
+[DEBUG]             org.glassfish.hk2.external:javax.inject:jar:2.4.0-b09:compile
+[DEBUG]             org.glassfish.hk2:hk2-locator:jar:2.4.0-b09:compile
+[DEBUG]          io.dropwizard.metrics:metrics-httpclient:jar:3.1.0:compile
+[DEBUG]             org.apache.httpcomponents:httpclient:jar:4.3.5:compile
+[DEBUG]                org.apache.httpcomponents:httpcore:jar:4.3.2:compile
+[DEBUG]          org.glassfish.jersey.connectors:jersey-apache-connector:jar:2.16:compile
+[DEBUG]       io.dropwizard:dropwizard-forms:jar:0.8.0:compile
+[DEBUG]       org.glassfish.jersey.media:jersey-media-multipart:jar:2.16:compile
+[DEBUG]          org.glassfish.jersey.core:jersey-common:jar:2.16:compile
+[DEBUG]             javax.annotation:javax.annotation-api:jar:1.2:compile
+[DEBUG]             org.glassfish.jersey.bundles.repackaged:jersey-guava:jar:2.16:compile
+[DEBUG]             org.glassfish.hk2:osgi-resource-locator:jar:1.0.1:compile
+[DEBUG]          org.jvnet.mimepull:mimepull:jar:1.9.3:compile
+[DEBUG]    com.google.guava:guava:jar:19.0:compile
+[DEBUG]    org.nd4j:nd4j-x86:jar:0.4-rc3.9-SNAPSHOT:compile
+[DEBUG]       org.nd4j:nd4j-native:jar:0.4-rc3.9-SNAPSHOT:compile
+[DEBUG]          org.nd4j:nd4j-native-api:jar:0.4-rc3.9-SNAPSHOT:compile
+[DEBUG]    org.nd4j:canova-nd4j-image:jar:0.0.0.14:compile
+[DEBUG]       org.nd4j:canova-nd4j-common:jar:0.0.0.14:compile
+[DEBUG]       org.nd4j:canova-data-image:jar:0.0.0.14:compile
+[DEBUG]       com.github.jai-imageio:jai-imageio-core:jar:1.3.0:compile
+[DEBUG]       com.twelvemonkeys.imageio:imageio-jpeg:jar:3.1.1:compile
+[DEBUG]          com.twelvemonkeys.imageio:imageio-core:jar:3.1.1:compile
+[DEBUG]          com.twelvemonkeys.imageio:imageio-metadata:jar:3.1.1:compile
+[DEBUG]          com.twelvemonkeys.common:common-lang:jar:3.1.1:compile
+[DEBUG]          com.twelvemonkeys.common:common-io:jar:3.1.1:compile
+[DEBUG]          com.twelvemonkeys.common:common-image:jar:3.1.1:compile
+[DEBUG]       com.twelvemonkeys.imageio:imageio-tiff:jar:3.1.1:compile
+[DEBUG]       com.twelvemonkeys.imageio:imageio-psd:jar:3.1.1:compile
+[DEBUG]       com.twelvemonkeys.imageio:imageio-bmp:jar:3.1.1:compile
+[DEBUG]    org.nd4j:canova-nd4j-codec:jar:0.0.0.14:compile
+[DEBUG]       org.jcodec:jcodec:jar:0.1.5:compile
+[DEBUG]    jfree:jfreechart:jar:1.0.13:compile
+[DEBUG]       jfree:jcommon:jar:1.0.16:compile
+[DEBUG] Skipped remote request for org.deeplearning4j:deeplearning4j-core:0.4-rc3.9-SNAPSHOT/maven-metadata.xml, locally installed metadata up-to-date.
+[INFO] 
+[INFO] --- exec-maven-plugin:1.4.0:java (default-cli) @ deeplearning4j-examples ---
+[DEBUG] Dependency collection stats: {ConflictMarker.analyzeTime=1, ConflictMarker.markTime=0, ConflictMarker.nodeCount=136, ConflictIdSorter.graphTime=0, ConflictIdSorter.topsortTime=0, ConflictIdSorter.conflictIdCount=35, ConflictIdSorter.conflictIdCycleCount=0, ConflictResolver.totalTime=3, ConflictResolver.conflictItemCount=78, DefaultDependencyCollector.collectTime=236, DefaultDependencyCollector.transformTime=4}
+[DEBUG] org.codehaus.mojo:exec-maven-plugin:jar:1.4.0:
+[DEBUG]    org.apache.maven:maven-toolchain:jar:1.0:compile
+[DEBUG]    org.apache.maven:maven-project:jar:2.2.1:compile
+[DEBUG]       org.apache.maven:maven-settings:jar:2.2.1:compile
+[DEBUG]       org.apache.maven:maven-profile:jar:2.2.1:compile
+[DEBUG]       org.apache.maven:maven-plugin-registry:jar:2.2.1:compile
+[DEBUG]       org.codehaus.plexus:plexus-interpolation:jar:1.11:compile
+[DEBUG]       org.codehaus.plexus:plexus-container-default:jar:1.0-alpha-9-stable-1:compile
+[DEBUG]          junit:junit:jar:4.11:test
+[DEBUG]             org.hamcrest:hamcrest-core:jar:1.3:test
+[DEBUG]    org.apache.maven:maven-model:jar:2.2.1:compile
+[DEBUG]    org.apache.maven:maven-artifact:jar:2.2.1:compile
+[DEBUG]    org.apache.maven:maven-artifact-manager:jar:2.2.1:compile
+[DEBUG]       org.apache.maven:maven-repository-metadata:jar:2.2.1:compile
+[DEBUG]       backport-util-concurrent:backport-util-concurrent:jar:3.1:compile
+[DEBUG]    org.apache.maven:maven-core:jar:2.2.1:compile
+[DEBUG]       org.apache.maven:maven-plugin-parameter-documenter:jar:2.2.1:compile
+[DEBUG]       org.slf4j:slf4j-jdk14:jar:1.5.6:runtime
+[DEBUG]          org.slf4j:slf4j-api:jar:1.5.6:runtime
+[DEBUG]       org.slf4j:jcl-over-slf4j:jar:1.5.6:runtime
+[DEBUG]       org.apache.maven.reporting:maven-reporting-api:jar:2.2.1:compile
+[DEBUG]          org.apache.maven.doxia:doxia-sink-api:jar:1.1:compile
+[DEBUG]          org.apache.maven.doxia:doxia-logging-api:jar:1.1:compile
+[DEBUG]       org.apache.maven:maven-error-diagnostics:jar:2.2.1:compile
+[DEBUG]       commons-cli:commons-cli:jar:1.2:compile
+[DEBUG]       org.apache.maven:maven-plugin-descriptor:jar:2.2.1:compile
+[DEBUG]       org.codehaus.plexus:plexus-interactivity-api:jar:1.0-alpha-4:compile
+[DEBUG]       org.apache.maven:maven-monitor:jar:2.2.1:compile
+[DEBUG]       classworlds:classworlds:jar:1.1:compile
+[DEBUG]       org.sonatype.plexus:plexus-sec-dispatcher:jar:1.3:compile
+[DEBUG]          org.sonatype.plexus:plexus-cipher:jar:1.4:compile
+[DEBUG]    org.apache.maven:maven-plugin-api:jar:2.2.1:compile
+[DEBUG]    org.codehaus.plexus:plexus-utils:jar:3.0.20:compile
+[DEBUG]    org.apache.commons:commons-exec:jar:1.3:compile
+[DEBUG] Created new class realm plugin>org.codehaus.mojo:exec-maven-plugin:1.4.0
+[DEBUG] Importing foreign packages into class realm plugin>org.codehaus.mojo:exec-maven-plugin:1.4.0
+[DEBUG]   Imported:  < maven.api
+[DEBUG] Populating class realm plugin>org.codehaus.mojo:exec-maven-plugin:1.4.0
+[DEBUG]   Included: org.codehaus.mojo:exec-maven-plugin:jar:1.4.0
+[DEBUG]   Included: org.codehaus.plexus:plexus-interpolation:jar:1.11
+[DEBUG]   Included: backport-util-concurrent:backport-util-concurrent:jar:3.1
+[DEBUG]   Included: org.slf4j:slf4j-jdk14:jar:1.5.6
+[DEBUG]   Included: org.slf4j:jcl-over-slf4j:jar:1.5.6
+[DEBUG]   Included: org.apache.maven.reporting:maven-reporting-api:jar:2.2.1
+[DEBUG]   Included: org.apache.maven.doxia:doxia-sink-api:jar:1.1
+[DEBUG]   Included: org.apache.maven.doxia:doxia-logging-api:jar:1.1
+[DEBUG]   Included: commons-cli:commons-cli:jar:1.2
+[DEBUG]   Included: org.codehaus.plexus:plexus-interactivity-api:jar:1.0-alpha-4
+[DEBUG]   Included: org.sonatype.plexus:plexus-sec-dispatcher:jar:1.3
+[DEBUG]   Included: org.sonatype.plexus:plexus-cipher:jar:1.4
+[DEBUG]   Included: org.codehaus.plexus:plexus-utils:jar:3.0.20
+[DEBUG]   Included: org.apache.commons:commons-exec:jar:1.3
+[DEBUG] Configuring mojo org.codehaus.mojo:exec-maven-plugin:1.4.0:java from plugin realm ClassRealm[plugin>org.codehaus.mojo:exec-maven-plugin:1.4.0, parent: sun.misc.Launcher$AppClassLoader@33909752]
+[DEBUG] Configuring mojo 'org.codehaus.mojo:exec-maven-plugin:1.4.0:java' with basic configurator -->
+[DEBUG]   (f) arguments = []
+[DEBUG]   (f) classpathScope = runtime
+[DEBUG]   (f) cleanupDaemonThreads = true
+[DEBUG]   (f) daemonThreadJoinTimeout = 15000
+[DEBUG]   (f) includePluginDependencies = false
+[DEBUG]   (f) includeProjectDependencies = true
+[DEBUG]   (f) keepAlive = false
+[DEBUG]   (f) killAfter = -1
+[DEBUG]   (f) localRepository =       id: local
+      url: file:///Users/susaneraly/.m2/repository/
+   layout: default
+snapshots: [enabled => true, update => always]
+ releases: [enabled => true, update => always]
+
+[DEBUG]   (f) mainClass = org.deeplearning4j.examples.feedforward.classification.MLPClassifierLinear
+[DEBUG]   (f) pluginDependencies = [org.codehaus.mojo:exec-maven-plugin:maven-plugin:1.4.0:, org.apache.maven:maven-toolchain:jar:1.0:compile, org.apache.maven:maven-project:jar:2.2.1:compile, org.apache.maven:maven-settings:jar:2.2.1:compile, org.apache.maven:maven-profile:jar:2.2.1:compile, org.apache.maven:maven-plugin-registry:jar:2.2.1:compile, org.codehaus.plexus:plexus-interpolation:jar:1.11:compile, org.codehaus.plexus:plexus-container-default:jar:1.0-alpha-9-stable-1:compile, org.apache.maven:maven-model:jar:2.2.1:compile, org.apache.maven:maven-artifact:jar:2.2.1:compile, org.apache.maven:maven-artifact-manager:jar:2.2.1:compile, org.apache.maven:maven-repository-metadata:jar:2.2.1:compile, backport-util-concurrent:backport-util-concurrent:jar:3.1:compile, org.apache.maven:maven-core:jar:2.2.1:compile, org.apache.maven:maven-plugin-parameter-documenter:jar:2.2.1:compile, org.slf4j:slf4j-jdk14:jar:1.5.6:runtime, org.slf4j:slf4j-api:jar:1.5.6:runtime, org.slf4j:jcl-over-slf4j:jar:1.5.6:runtime, org.apache.maven.reporting:maven-reporting-api:jar:2.2.1:compile, org.apache.maven.doxia:doxia-sink-api:jar:1.1:compile, org.apache.maven.doxia:doxia-logging-api:jar:1.1:compile, org.apache.maven:maven-error-diagnostics:jar:2.2.1:compile, commons-cli:commons-cli:jar:1.2:compile, org.apache.maven:maven-plugin-descriptor:jar:2.2.1:compile, org.codehaus.plexus:plexus-interactivity-api:jar:1.0-alpha-4:compile, org.apache.maven:maven-monitor:jar:2.2.1:compile, classworlds:classworlds:jar:1.1:compile, org.sonatype.plexus:plexus-sec-dispatcher:jar:1.3:compile, org.sonatype.plexus:plexus-cipher:jar:1.4:compile, org.apache.maven:maven-plugin-api:jar:2.2.1:compile, org.codehaus.plexus:plexus-utils:jar:3.0.20:compile, org.apache.commons:commons-exec:jar:1.3:compile]
+[DEBUG]   (f) project = MavenProject: org.deeplearning4j:deeplearning4j-examples:0.4-rc0-SNAPSHOT @ /Users/susaneraly/Blueprint/engineer/SKYMIND/dl4j-0.4-examples/pom.xml
+[DEBUG]   (f) remoteRepositories = [      id: snapshots-repo
+      url: https://oss.sonatype.org/content/repositories/snapshots
+   layout: default
+snapshots: [enabled => true, update => daily]
+ releases: [enabled => false, update => daily]
+,       id: central
+      url: https://repo.maven.apache.org/maven2
+   layout: default
+snapshots: [enabled => false, update => daily]
+ releases: [enabled => true, update => daily]
+]
+[DEBUG]   (f) skip = false
+[DEBUG]   (f) stopUnresponsiveDaemonThreads = false
+[DEBUG] -- end configuration --
+[DEBUG] Invoking : org.deeplearning4j.examples.feedforward.classification.MLPClassifierLinear.main()
+[DEBUG] Plugin Dependencies will be excluded.
+[DEBUG] Project Dependencies will be included.
+[DEBUG] Collected project artifacts [org.deeplearning4j:deeplearning4j-nlp:jar:0.4-rc3.9-SNAPSHOT:compile, org.apache.lucene:lucene-analyzers-common:jar:5.3.1:compile, org.apache.lucene:lucene-core:jar:5.3.1:compile, org.apache.lucene:lucene-queryparser:jar:5.3.1:compile, org.apache.lucene:lucene-queries:jar:5.3.1:compile, org.apache.lucene:lucene-sandbox:jar:5.3.1:compile, org.deeplearning4j:deeplearning4j-scaleout-akka:jar:0.4-rc3.9-SNAPSHOT:compile, javax.ws.rs:javax.ws.rs-api:jar:2.0.1:compile, io.dropwizard:dropwizard-core:jar:0.8.0:compile, io.dropwizard:dropwizard-util:jar:0.8.0:compile, com.google.code.findbugs:jsr305:jar:3.0.0:compile, joda-time:joda-time:jar:2.7:compile, io.dropwizard:dropwizard-jackson:jar:0.8.0:compile, com.fasterxml.jackson.datatype:jackson-datatype-jdk7:jar:2.5.1:compile, com.fasterxml.jackson.datatype:jackson-datatype-guava:jar:2.5.1:compile, com.fasterxml.jackson.module:jackson-module-afterburner:jar:2.5.1:compile, com.fasterxml.jackson.datatype:jackson-datatype-joda:jar:2.5.1:compile, io.dropwizard:dropwizard-validation:jar:0.8.0:compile, org.hibernate:hibernate-validator:jar:5.1.3.Final:compile, javax.validation:validation-api:jar:1.1.0.Final:compile, org.jboss.logging:jboss-logging:jar:3.1.3.GA:compile, com.fasterxml:classmate:jar:1.0.0:compile, org.glassfish:javax.el:jar:3.0.0:compile, io.dropwizard:dropwizard-configuration:jar:0.8.0:compile, io.dropwizard:dropwizard-logging:jar:0.8.0:compile, io.dropwizard.metrics:metrics-logback:jar:3.1.0:compile, org.slf4j:jul-to-slf4j:jar:1.7.10:compile, org.slf4j:jcl-over-slf4j:jar:1.7.10:compile, org.eclipse.jetty:jetty-util:jar:9.2.9.v20150224:compile, io.dropwizard:dropwizard-metrics:jar:0.8.0:compile, io.dropwizard:dropwizard-jersey:jar:0.8.0:compile, org.glassfish.jersey.core:jersey-server:jar:2.16:compile, org.glassfish.jersey.media:jersey-media-jaxb:jar:2.16:compile, org.glassfish.jersey.ext:jersey-metainf-services:jar:2.16:compile, io.dropwizard.metrics:metrics-jersey2:jar:3.1.0:compile, com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider:jar:2.5.1:compile, com.fasterxml.jackson.jaxrs:jackson-jaxrs-base:jar:2.5.1:compile, com.fasterxml.jackson.module:jackson-module-jaxb-annotations:jar:2.5.1:compile, org.glassfish.jersey.containers:jersey-container-servlet:jar:2.16:compile, org.glassfish.jersey.containers:jersey-container-servlet-core:jar:2.16:compile, org.eclipse.jetty:jetty-server:jar:9.2.9.v20150224:compile, javax.servlet:javax.servlet-api:jar:3.1.0:compile, org.eclipse.jetty:jetty-io:jar:9.2.9.v20150224:compile, org.eclipse.jetty:jetty-webapp:jar:9.2.9.v20150224:compile, org.eclipse.jetty:jetty-xml:jar:9.2.9.v20150224:compile, org.eclipse.jetty:jetty-continuation:jar:9.2.9.v20150224:compile, io.dropwizard:dropwizard-jetty:jar:0.8.0:compile, io.dropwizard.metrics:metrics-jetty9:jar:3.1.0:compile, org.eclipse.jetty:jetty-servlet:jar:9.2.9.v20150224:compile, org.eclipse.jetty:jetty-security:jar:9.2.9.v20150224:compile, org.eclipse.jetty:jetty-servlets:jar:9.2.9.v20150224:compile, org.eclipse.jetty:jetty-http:jar:9.2.9.v20150224:compile, io.dropwizard:dropwizard-lifecycle:jar:0.8.0:compile, io.dropwizard.metrics:metrics-core:jar:3.1.0:compile, io.dropwizard.metrics:metrics-jvm:jar:3.1.0:compile, io.dropwizard.metrics:metrics-servlets:jar:3.1.0:compile, io.dropwizard.metrics:metrics-json:jar:3.1.0:compile, io.dropwizard.metrics:metrics-healthchecks:jar:3.1.0:compile, net.sourceforge.argparse4j:argparse4j:jar:0.4.4:compile, org.eclipse.jetty.toolchain.setuid:jetty-setuid-java:jar:1.0.2:compile, org.spark-project.akka:akka-remote_2.10:jar:2.3.4-spark:compile, org.scala-lang:scala-library:jar:2.10.4:compile, io.netty:netty:jar:3.8.0.Final:compile, org.spark-project.protobuf:protobuf-java:jar:2.5.0-spark:compile, org.uncommons.maths:uncommons-maths:jar:1.2.2a:compile, org.spark-project.akka:akka-actor_2.10:jar:2.3.4-spark:compile, com.typesafe:config:jar:1.2.1:compile, com.typesafe.akka:akka-cluster_2.10:jar:2.3.4:compile, com.typesafe.akka:akka-contrib_2.10:jar:2.3.4:compile, com.typesafe.akka:akka-persistence-experimental_2.10:jar:2.3.4:compile, org.iq80.leveldb:leveldb:jar:0.5:compile, org.iq80.leveldb:leveldb-api:jar:0.5:compile, org.fusesource.leveldbjni:leveldbjni-all:jar:1.7:compile, org.fusesource.leveldbjni:leveldbjni:jar:1.7:compile, org.fusesource.hawtjni:hawtjni-runtime:jar:1.8:compile, org.fusesource.leveldbjni:leveldbjni-osx:jar:1.5:compile, org.fusesource.leveldbjni:leveldbjni-linux32:jar:1.5:compile, org.fusesource.leveldbjni:leveldbjni-linux64:jar:1.5:compile, org.fusesource.leveldbjni:leveldbjni-win32:jar:1.5:compile, org.fusesource.leveldbjni:leveldbjni-win64:jar:1.5:compile, com.google.protobuf:protobuf-java:jar:2.5.0:compile, org.spark-project.akka:akka-slf4j_2.10:jar:2.3.4-spark:compile, args4j:args4j:jar:2.0.29:compile, org.fusesource:sigar:jar:native:1.6.4:compile, org.deeplearning4j:deeplearning4j-scaleout-zookeeper:jar:0.4-rc3.9-SNAPSHOT:compile, org.deeplearning4j:deeplearning4j-scaleout-api:jar:0.4-rc3.9-SNAPSHOT:compile, org.apache.zookeeper:zookeeper:jar:3.5.1-alpha:compile, commons-cli:commons-cli:jar:1.2:compile, net.java.dev.javacc:javacc:jar:5.0:compile, org.apache.curator:curator-framework:jar:2.4.0:compile, org.apache.curator:curator-client:jar:2.4.0:compile, org.apache.curator:curator-test:jar:2.4.0:compile, org.javassist:javassist:jar:3.15.0-GA:compile, org.apache.commons:commons-math:jar:2.2:compile, org.apache.curator:curator-recipes:jar:2.4.0:compile, com.hazelcast:hazelcast-all:jar:3.4.2:compile, net.sourceforge.findbugs:annotations:jar:1.3.2:compile, com.eclipsesource.minimal-json:minimal-json:jar:0.9.1:compile, org.apache.directory.studio:org.apache.commons.codec:jar:1.8:compile, commons-codec:commons-codec:jar:1.8:compile, it.unimi.dsi:dsiutils:jar:2.2.2:compile, it.unimi.dsi:fastutil:jar:6.5.15:compile, com.martiansoftware:jsap:jar:2.1:compile, commons-configuration:commons-configuration:jar:1.8:compile, commons-lang:commons-lang:jar:2.6:compile, commons-logging:commons-logging:jar:1.1.1:compile, commons-collections:commons-collections:jar:20040616:compile, org.cleartk:cleartk-snowball:jar:2.0.0:compile, org.apache.lucene:lucene-snowball:jar:3.0.3:compile, org.cleartk:cleartk-util:jar:2.0.0:compile, org.apache.uima:uimaj-core:jar:2.5.0:compile, org.apache.uima:uimafit-core:jar:2.0.0:compile, commons-logging:commons-logging-api:jar:1.1:compile, org.springframework:spring-core:jar:3.1.2.RELEASE:compile, org.springframework:spring-asm:jar:3.1.2.RELEASE:compile, org.springframework:spring-context:jar:3.1.2.RELEASE:compile, org.springframework:spring-aop:jar:3.1.2.RELEASE:compile, aopalliance:aopalliance:jar:1.0:compile, org.springframework:spring-expression:jar:3.1.2.RELEASE:compile, org.springframework:spring-beans:jar:3.1.2.RELEASE:compile, org.cleartk:cleartk-type-system:jar:2.0.0:compile, org.cleartk:cleartk-opennlp-tools:jar:2.0.0:compile, org.apache.opennlp:opennlp-maxent:jar:3.0.3:compile, org.apache.opennlp:opennlp-tools:jar:1.5.3:compile, net.sf.jwordnet:jwnl:jar:1.3.3:compile, org.apache.opennlp:opennlp-uima:jar:1.5.3:compile, io.dropwizard:dropwizard-assets:jar:0.8.0:compile, io.dropwizard:dropwizard-servlets:jar:0.8.0:compile, io.dropwizard.metrics:metrics-annotation:jar:3.1.0:compile, io.dropwizard:dropwizard-views-mustache:jar:0.8.0:compile, io.dropwizard:dropwizard-views:jar:0.8.0:compile, com.github.spullara.mustache.java:compiler:jar:0.8.17:compile, io.dropwizard:dropwizard-views-freemarker:jar:0.8.0:compile, org.freemarker:freemarker:jar:2.3.21:compile, org.nd4j:nd4j-jackson:jar:0.4-rc3.9-SNAPSHOT:compile, org.deeplearning4j:deeplearning4j-core:jar:0.4-rc3.9-SNAPSHOT:compile, io.netty:netty-buffer:jar:4.0.28.Final:compile, io.netty:netty-common:jar:4.0.28.Final:compile, org.nd4j:canova-api:jar:0.0.0.15-SNAPSHOT:compile, org.slf4j:slf4j-api:jar:1.7.12:compile, ch.qos.logback:logback-classic:jar:1.1.2:compile, ch.qos.logback:logback-core:jar:1.1.2:compile, org.apache.commons:commons-math3:jar:3.4.1:compile, commons-io:commons-io:jar:2.4:compile, org.apache.commons:commons-compress:jar:1.8:compile, org.tukaani:xz:jar:1.5:compile, org.nd4j:nd4j-api:jar:0.4-rc3.9-SNAPSHOT:compile, org.nd4j:nd4j-buffer:jar:0.4-rc3.9-SNAPSHOT:compile, org.nd4j:nd4j-common:jar:0.4-rc3.9-SNAPSHOT:compile, org.reflections:reflections:jar:0.9.10:compile, com.google.code.findbugs:annotations:jar:2.0.1:compile, org.bytedeco:javacpp:jar:1.2-SNAPSHOT:compile, org.nd4j:nd4j-context:jar:0.4-rc3.9-SNAPSHOT:compile, org.apache.commons:commons-lang3:jar:3.3.1:compile, com.fasterxml.jackson.core:jackson-core:jar:2.5.1:compile, com.fasterxml.jackson.core:jackson-databind:jar:2.5.1:compile, org.json:json:jar:20131018:compile, com.fasterxml.jackson.core:jackson-annotations:jar:2.5.1:compile, org.projectlombok:lombok:jar:1.16.4:compile, com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:jar:2.5.1:compile, org.yaml:snakeyaml:jar:1.12:compile, org.deeplearning4j:deeplearning4j-ui:jar:0.4-rc3.9-SNAPSHOT:compile, io.dropwizard:dropwizard-client:jar:0.8.0:compile, org.glassfish.jersey.core:jersey-client:jar:2.16:compile, org.glassfish.hk2:hk2-api:jar:2.4.0-b09:compile, org.glassfish.hk2:hk2-utils:jar:2.4.0-b09:compile, org.glassfish.hk2.external:aopalliance-repackaged:jar:2.4.0-b09:compile, org.glassfish.hk2.external:javax.inject:jar:2.4.0-b09:compile, org.glassfish.hk2:hk2-locator:jar:2.4.0-b09:compile, io.dropwizard.metrics:metrics-httpclient:jar:3.1.0:compile, org.apache.httpcomponents:httpclient:jar:4.3.5:compile, org.apache.httpcomponents:httpcore:jar:4.3.2:compile, org.glassfish.jersey.connectors:jersey-apache-connector:jar:2.16:compile, io.dropwizard:dropwizard-forms:jar:0.8.0:compile, org.glassfish.jersey.media:jersey-media-multipart:jar:2.16:compile, org.glassfish.jersey.core:jersey-common:jar:2.16:compile, javax.annotation:javax.annotation-api:jar:1.2:compile, org.glassfish.jersey.bundles.repackaged:jersey-guava:jar:2.16:compile, org.glassfish.hk2:osgi-resource-locator:jar:1.0.1:compile, org.jvnet.mimepull:mimepull:jar:1.9.3:compile, com.google.guava:guava:jar:19.0:compile, org.nd4j:nd4j-x86:jar:0.4-rc3.9-SNAPSHOT:compile, org.nd4j:nd4j-native:jar:0.4-rc3.9-SNAPSHOT:compile, org.nd4j:nd4j-native-api:jar:0.4-rc3.9-SNAPSHOT:compile, org.nd4j:canova-nd4j-image:jar:0.0.0.14:compile, org.nd4j:canova-nd4j-common:jar:0.0.0.14:compile, org.nd4j:canova-data-image:jar:0.0.0.14:compile, com.github.jai-imageio:jai-imageio-core:jar:1.3.0:compile, com.twelvemonkeys.imageio:imageio-jpeg:jar:3.1.1:compile, com.twelvemonkeys.imageio:imageio-core:jar:3.1.1:compile, com.twelvemonkeys.imageio:imageio-metadata:jar:3.1.1:compile, com.twelvemonkeys.common:common-lang:jar:3.1.1:compile, com.twelvemonkeys.common:common-io:jar:3.1.1:compile, com.twelvemonkeys.common:common-image:jar:3.1.1:compile, com.twelvemonkeys.imageio:imageio-tiff:jar:3.1.1:compile, com.twelvemonkeys.imageio:imageio-psd:jar:3.1.1:compile, com.twelvemonkeys.imageio:imageio-bmp:jar:3.1.1:compile, org.nd4j:canova-nd4j-codec:jar:0.0.0.14:compile, org.jcodec:jcodec:jar:0.1.5:compile, jfree:jfreechart:jar:1.0.13:compile, jfree:jcommon:jar:1.0.16:compile]
+[DEBUG] Collected project classpath [/Users/susaneraly/Blueprint/engineer/SKYMIND/dl4j-0.4-examples/target/classes]
+[DEBUG] Adding to classpath : file:/Users/susaneraly/Blueprint/engineer/SKYMIND/dl4j-0.4-examples/target/classes/
+[DEBUG] Adding project dependency artifact: deeplearning4j-nlp to classpath
+[DEBUG] Adding project dependency artifact: lucene-analyzers-common to classpath
+[DEBUG] Adding project dependency artifact: lucene-core to classpath
+[DEBUG] Adding project dependency artifact: lucene-queryparser to classpath
+[DEBUG] Adding project dependency artifact: lucene-queries to classpath
+[DEBUG] Adding project dependency artifact: lucene-sandbox to classpath
+[DEBUG] Adding project dependency artifact: deeplearning4j-scaleout-akka to classpath
+[DEBUG] Adding project dependency artifact: javax.ws.rs-api to classpath
+[DEBUG] Adding project dependency artifact: dropwizard-core to classpath
+[DEBUG] Adding project dependency artifact: dropwizard-util to classpath
+[DEBUG] Adding project dependency artifact: jsr305 to classpath
+[DEBUG] Adding project dependency artifact: joda-time to classpath
+[DEBUG] Adding project dependency artifact: dropwizard-jackson to classpath
+[DEBUG] Adding project dependency artifact: jackson-datatype-jdk7 to classpath
+[DEBUG] Adding project dependency artifact: jackson-datatype-guava to classpath
+[DEBUG] Adding project dependency artifact: jackson-module-afterburner to classpath
+[DEBUG] Adding project dependency artifact: jackson-datatype-joda to classpath
+[DEBUG] Adding project dependency artifact: dropwizard-validation to classpath
+[DEBUG] Adding project dependency artifact: hibernate-validator to classpath
+[DEBUG] Adding project dependency artifact: validation-api to classpath
+[DEBUG] Adding project dependency artifact: jboss-logging to classpath
+[DEBUG] Adding project dependency artifact: classmate to classpath
+[DEBUG] Adding project dependency artifact: javax.el to classpath
+[DEBUG] Adding project dependency artifact: dropwizard-configuration to classpath
+[DEBUG] Adding project dependency artifact: dropwizard-logging to classpath
+[DEBUG] Adding project dependency artifact: metrics-logback to classpath
+[DEBUG] Adding project dependency artifact: jul-to-slf4j to classpath
+[DEBUG] Adding project dependency artifact: jcl-over-slf4j to classpath
+[DEBUG] Adding project dependency artifact: jetty-util to classpath
+[DEBUG] Adding project dependency artifact: dropwizard-metrics to classpath
+[DEBUG] Adding project dependency artifact: dropwizard-jersey to classpath
+[DEBUG] Adding project dependency artifact: jersey-server to classpath
+[DEBUG] Adding project dependency artifact: jersey-media-jaxb to classpath
+[DEBUG] Adding project dependency artifact: jersey-metainf-services to classpath
+[DEBUG] Adding project dependency artifact: metrics-jersey2 to classpath
+[DEBUG] Adding project dependency artifact: jackson-jaxrs-json-provider to classpath
+[DEBUG] Adding project dependency artifact: jackson-jaxrs-base to classpath
+[DEBUG] Adding project dependency artifact: jackson-module-jaxb-annotations to classpath
+[DEBUG] Adding project dependency artifact: jersey-container-servlet to classpath
+[DEBUG] Adding project dependency artifact: jersey-container-servlet-core to classpath
+[DEBUG] Adding project dependency artifact: jetty-server to classpath
+[DEBUG] Adding project dependency artifact: javax.servlet-api to classpath
+[DEBUG] Adding project dependency artifact: jetty-io to classpath
+[DEBUG] Adding project dependency artifact: jetty-webapp to classpath
+[DEBUG] Adding project dependency artifact: jetty-xml to classpath
+[DEBUG] Adding project dependency artifact: jetty-continuation to classpath
+[DEBUG] Adding project dependency artifact: dropwizard-jetty to classpath
+[DEBUG] Adding project dependency artifact: metrics-jetty9 to classpath
+[DEBUG] Adding project dependency artifact: jetty-servlet to classpath
+[DEBUG] Adding project dependency artifact: jetty-security to classpath
+[DEBUG] Adding project dependency artifact: jetty-servlets to classpath
+[DEBUG] Adding project dependency artifact: jetty-http to classpath
+[DEBUG] Adding project dependency artifact: dropwizard-lifecycle to classpath
+[DEBUG] Adding project dependency artifact: metrics-core to classpath
+[DEBUG] Adding project dependency artifact: metrics-jvm to classpath
+[DEBUG] Adding project dependency artifact: metrics-servlets to classpath
+[DEBUG] Adding project dependency artifact: metrics-json to classpath
+[DEBUG] Adding project dependency artifact: metrics-healthchecks to classpath
+[DEBUG] Adding project dependency artifact: argparse4j to classpath
+[DEBUG] Adding project dependency artifact: jetty-setuid-java to classpath
+[DEBUG] Adding project dependency artifact: akka-remote_2.10 to classpath
+[DEBUG] Adding project dependency artifact: scala-library to classpath
+[DEBUG] Adding project dependency artifact: netty to classpath
+[DEBUG] Adding project dependency artifact: protobuf-java to classpath
+[DEBUG] Adding project dependency artifact: uncommons-maths to classpath
+[DEBUG] Adding project dependency artifact: akka-actor_2.10 to classpath
+[DEBUG] Adding project dependency artifact: config to classpath
+[DEBUG] Adding project dependency artifact: akka-cluster_2.10 to classpath
+[DEBUG] Adding project dependency artifact: akka-contrib_2.10 to classpath
+[DEBUG] Adding project dependency artifact: akka-persistence-experimental_2.10 to classpath
+[DEBUG] Adding project dependency artifact: leveldb to classpath
+[DEBUG] Adding project dependency artifact: leveldb-api to classpath
+[DEBUG] Adding project dependency artifact: leveldbjni-all to classpath
+[DEBUG] Adding project dependency artifact: leveldbjni to classpath
+[DEBUG] Adding project dependency artifact: hawtjni-runtime to classpath
+[DEBUG] Adding project dependency artifact: leveldbjni-osx to classpath
+[DEBUG] Adding project dependency artifact: leveldbjni-linux32 to classpath
+[DEBUG] Adding project dependency artifact: leveldbjni-linux64 to classpath
+[DEBUG] Adding project dependency artifact: leveldbjni-win32 to classpath
+[DEBUG] Adding project dependency artifact: leveldbjni-win64 to classpath
+[DEBUG] Adding project dependency artifact: protobuf-java to classpath
+[DEBUG] Adding project dependency artifact: akka-slf4j_2.10 to classpath
+[DEBUG] Adding project dependency artifact: args4j to classpath
+[DEBUG] Adding project dependency artifact: sigar to classpath
+[DEBUG] Adding project dependency artifact: deeplearning4j-scaleout-zookeeper to classpath
+[DEBUG] Adding project dependency artifact: deeplearning4j-scaleout-api to classpath
+[DEBUG] Adding project dependency artifact: zookeeper to classpath
+[DEBUG] Adding project dependency artifact: commons-cli to classpath
+[DEBUG] Adding project dependency artifact: javacc to classpath
+[DEBUG] Adding project dependency artifact: curator-framework to classpath
+[DEBUG] Adding project dependency artifact: curator-client to classpath
+[DEBUG] Adding project dependency artifact: curator-test to classpath
+[DEBUG] Adding project dependency artifact: javassist to classpath
+[DEBUG] Adding project dependency artifact: commons-math to classpath
+[DEBUG] Adding project dependency artifact: curator-recipes to classpath
+[DEBUG] Adding project dependency artifact: hazelcast-all to classpath
+[DEBUG] Adding project dependency artifact: annotations to classpath
+[DEBUG] Adding project dependency artifact: minimal-json to classpath
+[DEBUG] Adding project dependency artifact: org.apache.commons.codec to classpath
+[DEBUG] Adding project dependency artifact: commons-codec to classpath
+[DEBUG] Adding project dependency artifact: dsiutils to classpath
+[DEBUG] Adding project dependency artifact: fastutil to classpath
+[DEBUG] Adding project dependency artifact: jsap to classpath
+[DEBUG] Adding project dependency artifact: commons-configuration to classpath
+[DEBUG] Adding project dependency artifact: commons-lang to classpath
+[DEBUG] Adding project dependency artifact: commons-logging to classpath
+[DEBUG] Adding project dependency artifact: commons-collections to classpath
+[DEBUG] Adding project dependency artifact: cleartk-snowball to classpath
+[DEBUG] Adding project dependency artifact: lucene-snowball to classpath
+[DEBUG] Adding project dependency artifact: cleartk-util to classpath
+[DEBUG] Adding project dependency artifact: uimaj-core to classpath
+[DEBUG] Adding project dependency artifact: uimafit-core to classpath
+[DEBUG] Adding project dependency artifact: commons-logging-api to classpath
+[DEBUG] Adding project dependency artifact: spring-core to classpath
+[DEBUG] Adding project dependency artifact: spring-asm to classpath
+[DEBUG] Adding project dependency artifact: spring-context to classpath
+[DEBUG] Adding project dependency artifact: spring-aop to classpath
+[DEBUG] Adding project dependency artifact: aopalliance to classpath
+[DEBUG] Adding project dependency artifact: spring-expression to classpath
+[DEBUG] Adding project dependency artifact: spring-beans to classpath
+[DEBUG] Adding project dependency artifact: cleartk-type-system to classpath
+[DEBUG] Adding project dependency artifact: cleartk-opennlp-tools to classpath
+[DEBUG] Adding project dependency artifact: opennlp-maxent to classpath
+[DEBUG] Adding project dependency artifact: opennlp-tools to classpath
+[DEBUG] Adding project dependency artifact: jwnl to classpath
+[DEBUG] Adding project dependency artifact: opennlp-uima to classpath
+[DEBUG] Adding project dependency artifact: dropwizard-assets to classpath
+[DEBUG] Adding project dependency artifact: dropwizard-servlets to classpath
+[DEBUG] Adding project dependency artifact: metrics-annotation to classpath
+[DEBUG] Adding project dependency artifact: dropwizard-views-mustache to classpath
+[DEBUG] Adding project dependency artifact: dropwizard-views to classpath
+[DEBUG] Adding project dependency artifact: compiler to classpath
+[DEBUG] Adding project dependency artifact: dropwizard-views-freemarker to classpath
+[DEBUG] Adding project dependency artifact: freemarker to classpath
+[DEBUG] Adding project dependency artifact: nd4j-jackson to classpath
+[DEBUG] Adding project dependency artifact: deeplearning4j-core to classpath
+[DEBUG] Adding project dependency artifact: netty-buffer to classpath
+[DEBUG] Adding project dependency artifact: netty-common to classpath
+[DEBUG] Adding project dependency artifact: canova-api to classpath
+[DEBUG] Adding project dependency artifact: slf4j-api to classpath
+[DEBUG] Adding project dependency artifact: logback-classic to classpath
+[DEBUG] Adding project dependency artifact: logback-core to classpath
+[DEBUG] Adding project dependency artifact: commons-math3 to classpath
+[DEBUG] Adding project dependency artifact: commons-io to classpath
+[DEBUG] Adding project dependency artifact: commons-compress to classpath
+[DEBUG] Adding project dependency artifact: xz to classpath
+[DEBUG] Adding project dependency artifact: nd4j-api to classpath
+[DEBUG] Adding project dependency artifact: nd4j-buffer to classpath
+[DEBUG] Adding project dependency artifact: nd4j-common to classpath
+[DEBUG] Adding project dependency artifact: reflections to classpath
+[DEBUG] Adding project dependency artifact: annotations to classpath
+[DEBUG] Adding project dependency artifact: javacpp to classpath
+[DEBUG] Adding project dependency artifact: nd4j-context to classpath
+[DEBUG] Adding project dependency artifact: commons-lang3 to classpath
+[DEBUG] Adding project dependency artifact: jackson-core to classpath
+[DEBUG] Adding project dependency artifact: jackson-databind to classpath
+[DEBUG] Adding project dependency artifact: json to classpath
+[DEBUG] Adding project dependency artifact: jackson-annotations to classpath
+[DEBUG] Adding project dependency artifact: lombok to classpath
+[DEBUG] Adding project dependency artifact: jackson-dataformat-yaml to classpath
+[DEBUG] Adding project dependency artifact: snakeyaml to classpath
+[DEBUG] Adding project dependency artifact: deeplearning4j-ui to classpath
+[DEBUG] Adding project dependency artifact: dropwizard-client to classpath
+[DEBUG] Adding project dependency artifact: jersey-client to classpath
+[DEBUG] Adding project dependency artifact: hk2-api to classpath
+[DEBUG] Adding project dependency artifact: hk2-utils to classpath
+[DEBUG] Adding project dependency artifact: aopalliance-repackaged to classpath
+[DEBUG] Adding project dependency artifact: javax.inject to classpath
+[DEBUG] Adding project dependency artifact: hk2-locator to classpath
+[DEBUG] Adding project dependency artifact: metrics-httpclient to classpath
+[DEBUG] Adding project dependency artifact: httpclient to classpath
+[DEBUG] Adding project dependency artifact: httpcore to classpath
+[DEBUG] Adding project dependency artifact: jersey-apache-connector to classpath
+[DEBUG] Adding project dependency artifact: dropwizard-forms to classpath
+[DEBUG] Adding project dependency artifact: jersey-media-multipart to classpath
+[DEBUG] Adding project dependency artifact: jersey-common to classpath
+[DEBUG] Adding project dependency artifact: javax.annotation-api to classpath
+[DEBUG] Adding project dependency artifact: jersey-guava to classpath
+[DEBUG] Adding project dependency artifact: osgi-resource-locator to classpath
+[DEBUG] Adding project dependency artifact: mimepull to classpath
+[DEBUG] Adding project dependency artifact: guava to classpath
+[DEBUG] Adding project dependency artifact: nd4j-x86 to classpath
+[DEBUG] Adding project dependency artifact: nd4j-native to classpath
+[DEBUG] Adding project dependency artifact: nd4j-native-api to classpath
+[DEBUG] Adding project dependency artifact: canova-nd4j-image to classpath
+[DEBUG] Adding project dependency artifact: canova-nd4j-common to classpath
+[DEBUG] Adding project dependency artifact: canova-data-image to classpath
+[DEBUG] Adding project dependency artifact: jai-imageio-core to classpath
+[DEBUG] Adding project dependency artifact: imageio-jpeg to classpath
+[DEBUG] Adding project dependency artifact: imageio-core to classpath
+[DEBUG] Adding project dependency artifact: imageio-metadata to classpath
+[DEBUG] Adding project dependency artifact: common-lang to classpath
+[DEBUG] Adding project dependency artifact: common-io to classpath
+[DEBUG] Adding project dependency artifact: common-image to classpath
+[DEBUG] Adding project dependency artifact: imageio-tiff to classpath
+[DEBUG] Adding project dependency artifact: imageio-psd to classpath
+[DEBUG] Adding project dependency artifact: imageio-bmp to classpath
+[DEBUG] Adding project dependency artifact: canova-nd4j-codec to classpath
+[DEBUG] Adding project dependency artifact: jcodec to classpath
+[DEBUG] Adding project dependency artifact: jfreechart to classpath
+[DEBUG] Adding project dependency artifact: jcommon to classpath
+[DEBUG] joining on thread Thread[org.deeplearning4j.examples.feedforward.classification.MLPClassifierLinear.main(),5,org.deeplearning4j.examples.feedforward.classification.MLPClassifierLinear]
+[DEBUG] Setting accessibility to true in order to invoke main().
+o.d.o.l.ScoreIterationListener - Score at iteration 0 is 0.6958647155761719
+o.d.o.l.ScoreIterationListener - Score at iteration 1 is 0.6931773376464844
+o.d.o.l.ScoreIterationListener - Score at iteration 2 is 0.6931434631347656
+o.d.o.l.ScoreIterationListener - Score at iteration 3 is 0.6931449127197266
+o.d.o.l.ScoreIterationListener - Score at iteration 4 is 0.6931233978271485
+o.d.o.l.ScoreIterationListener - Score at iteration 5 is 0.6899107360839843
+o.d.o.l.ScoreIterationListener - Score at iteration 6 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 7 is 0.6929233551025391
+o.d.o.l.ScoreIterationListener - Score at iteration 8 is 0.6931195068359375
+o.d.o.l.ScoreIterationListener - Score at iteration 9 is 0.6806071472167968
+o.d.o.l.ScoreIterationListener - Score at iteration 10 is 0.6928392028808594
+o.d.o.l.ScoreIterationListener - Score at iteration 11 is 0.691988754272461
+o.d.o.l.ScoreIterationListener - Score at iteration 12 is 0.6931674957275391
+o.d.o.l.ScoreIterationListener - Score at iteration 13 is 0.69145263671875
+o.d.o.l.ScoreIterationListener - Score at iteration 14 is 0.6931576538085937
+o.d.o.l.ScoreIterationListener - Score at iteration 15 is 0.6931543731689453
+o.d.o.l.ScoreIterationListener - Score at iteration 16 is 0.6940348815917968
+o.d.o.l.ScoreIterationListener - Score at iteration 17 is 0.6934675598144531
+o.d.o.l.ScoreIterationListener - Score at iteration 18 is 0.6922999572753906
+o.d.o.l.ScoreIterationListener - Score at iteration 19 is 0.6932762145996094
+o.d.o.l.ScoreIterationListener - Score at iteration 20 is 0.6939417266845703
+o.d.o.l.ScoreIterationListener - Score at iteration 21 is 0.6924342346191407
+o.d.o.l.ScoreIterationListener - Score at iteration 22 is 0.6932292175292969
+o.d.o.l.ScoreIterationListener - Score at iteration 23 is 0.6930659484863281
+o.d.o.l.ScoreIterationListener - Score at iteration 24 is 0.6936542510986328
+o.d.o.l.ScoreIterationListener - Score at iteration 25 is 0.6928254699707032
+o.d.o.l.ScoreIterationListener - Score at iteration 26 is 0.6932051849365234
+o.d.o.l.ScoreIterationListener - Score at iteration 27 is 0.6934043121337891
+o.d.o.l.ScoreIterationListener - Score at iteration 28 is 0.693192138671875
+o.d.o.l.ScoreIterationListener - Score at iteration 29 is 0.6932267761230468
+o.d.o.l.ScoreIterationListener - Score at iteration 30 is 0.6931117248535156
+o.d.o.l.ScoreIterationListener - Score at iteration 31 is 0.6930840301513672
+o.d.o.l.ScoreIterationListener - Score at iteration 32 is 0.6931468200683594
+o.d.o.l.ScoreIterationListener - Score at iteration 33 is 0.6934806060791016
+o.d.o.l.ScoreIterationListener - Score at iteration 34 is 0.6931467437744141
+o.d.o.l.ScoreIterationListener - Score at iteration 35 is 0.6931468200683594
+o.d.o.l.ScoreIterationListener - Score at iteration 36 is 0.6932258605957031
+o.d.o.l.ScoreIterationListener - Score at iteration 37 is 0.6931729125976562
+o.d.o.l.ScoreIterationListener - Score at iteration 38 is 0.6930788421630859
+o.d.o.l.ScoreIterationListener - Score at iteration 39 is 0.6931565856933594
+o.d.o.l.ScoreIterationListener - Score at iteration 40 is 0.6931995391845703
+o.d.o.l.ScoreIterationListener - Score at iteration 41 is 0.6931005859375
+o.d.o.l.ScoreIterationListener - Score at iteration 42 is 0.6931377410888672
+o.d.o.l.ScoreIterationListener - Score at iteration 43 is 0.693143081665039
+o.d.o.l.ScoreIterationListener - Score at iteration 44 is 0.6931668853759766
+o.d.o.l.ScoreIterationListener - Score at iteration 45 is 0.6931383514404297
+o.d.o.l.ScoreIterationListener - Score at iteration 46 is 0.6931488800048828
+o.d.o.l.ScoreIterationListener - Score at iteration 47 is 0.6931507110595703
+o.d.o.l.ScoreIterationListener - Score at iteration 48 is 0.6931461334228516
+o.d.o.l.ScoreIterationListener - Score at iteration 49 is 0.6931447601318359
+o.d.o.l.ScoreIterationListener - Score at iteration 50 is 0.6931489562988281
+o.d.o.l.ScoreIterationListener - Score at iteration 51 is 0.6931512451171875
+o.d.o.l.ScoreIterationListener - Score at iteration 52 is 0.6931471252441406
+o.d.o.l.ScoreIterationListener - Score at iteration 53 is 0.6931672668457032
+o.d.o.l.ScoreIterationListener - Score at iteration 54 is 0.6931474304199219
+o.d.o.l.ScoreIterationListener - Score at iteration 55 is 0.6931470489501953
+o.d.o.l.ScoreIterationListener - Score at iteration 56 is 0.6931224822998047
+o.d.o.l.ScoreIterationListener - Score at iteration 57 is 0.693042984008789
+o.d.o.l.ScoreIterationListener - Score at iteration 58 is 0.6931781005859375
+o.d.o.l.ScoreIterationListener - Score at iteration 59 is 0.6931419372558594
+o.d.o.l.ScoreIterationListener - Score at iteration 60 is 0.6931063842773437
+o.d.o.l.ScoreIterationListener - Score at iteration 61 is 0.6931853485107422
+o.d.o.l.ScoreIterationListener - Score at iteration 62 is 0.6931594085693359
+o.d.o.l.ScoreIterationListener - Score at iteration 63 is 0.6931532287597656
+o.d.o.l.ScoreIterationListener - Score at iteration 64 is 0.6931056976318359
+o.d.o.l.ScoreIterationListener - Score at iteration 65 is 0.693177719116211
+o.d.o.l.ScoreIterationListener - Score at iteration 66 is 0.6930992126464843
+o.d.o.l.ScoreIterationListener - Score at iteration 67 is 0.6931188201904297
+o.d.o.l.ScoreIterationListener - Score at iteration 68 is 0.6931404876708984
+o.d.o.l.ScoreIterationListener - Score at iteration 69 is 0.693134765625
+o.d.o.l.ScoreIterationListener - Score at iteration 70 is 0.6932011413574218
+o.d.o.l.ScoreIterationListener - Score at iteration 71 is 0.6931600189208984
+o.d.o.l.ScoreIterationListener - Score at iteration 72 is 0.6931478881835937
+o.d.o.l.ScoreIterationListener - Score at iteration 73 is 0.6931910705566406
+o.d.o.l.ScoreIterationListener - Score at iteration 74 is 0.6931474304199219
+o.d.o.l.ScoreIterationListener - Score at iteration 75 is 0.6931478881835937
+o.d.o.l.ScoreIterationListener - Score at iteration 76 is 0.6931149291992188
+o.d.o.l.ScoreIterationListener - Score at iteration 77 is 0.6931329345703126
+o.d.o.l.ScoreIterationListener - Score at iteration 78 is 0.6931881713867187
+o.d.o.l.ScoreIterationListener - Score at iteration 79 is 0.6931404113769531
+o.d.o.l.ScoreIterationListener - Score at iteration 80 is 0.6930970764160156
+o.d.o.l.ScoreIterationListener - Score at iteration 81 is 0.6931938934326172
+o.d.o.l.ScoreIterationListener - Score at iteration 82 is 0.6931620025634766
+o.d.o.l.ScoreIterationListener - Score at iteration 83 is 0.6931543731689453
+o.d.o.l.ScoreIterationListener - Score at iteration 84 is 0.6930998229980468
+o.d.o.l.ScoreIterationListener - Score at iteration 85 is 0.6931822204589844
+o.d.o.l.ScoreIterationListener - Score at iteration 86 is 0.6931409454345703
+o.d.o.l.ScoreIterationListener - Score at iteration 87 is 0.693115234375
+o.d.o.l.ScoreIterationListener - Score at iteration 88 is 0.6931402587890625
+o.d.o.l.ScoreIterationListener - Score at iteration 89 is 0.6931338500976563
+o.d.o.l.ScoreIterationListener - Score at iteration 90 is 0.6931546020507813
+o.d.o.l.ScoreIterationListener - Score at iteration 91 is 0.693160400390625
+o.d.o.l.ScoreIterationListener - Score at iteration 92 is 0.6931470489501953
+o.d.o.l.ScoreIterationListener - Score at iteration 93 is 0.6931939697265626
+o.d.o.l.ScoreIterationListener - Score at iteration 94 is 0.6931475067138672
+o.d.o.l.ScoreIterationListener - Score at iteration 95 is 0.6931470489501953
+o.d.o.l.ScoreIterationListener - Score at iteration 96 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 97 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 98 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 99 is 17.511854248046873
+o.d.o.l.ScoreIterationListener - Score at iteration 100 is 0.7140393829345704
+o.d.o.l.ScoreIterationListener - Score at iteration 101 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 102 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 103 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 104 is 0.6931436920166015
+o.d.o.l.ScoreIterationListener - Score at iteration 105 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 106 is 0.6931474304199219
+o.d.o.l.ScoreIterationListener - Score at iteration 107 is 0.6931473541259766
+o.d.o.l.ScoreIterationListener - Score at iteration 108 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 109 is 0.6931474304199219
+o.d.o.l.ScoreIterationListener - Score at iteration 110 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 111 is 0.6931474304199219
+o.d.o.l.ScoreIterationListener - Score at iteration 112 is 0.6931474304199219
+o.d.o.l.ScoreIterationListener - Score at iteration 113 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 114 is 0.6931474304199219
+o.d.o.l.ScoreIterationListener - Score at iteration 115 is 0.8139948272705078
+o.d.o.l.ScoreIterationListener - Score at iteration 116 is 0.6931474304199219
+o.d.o.l.ScoreIterationListener - Score at iteration 117 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 118 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 119 is 0.6931474304199219
+o.d.o.l.ScoreIterationListener - Score at iteration 120 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 121 is 0.6931474304199219
+o.d.o.l.ScoreIterationListener - Score at iteration 122 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 123 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 124 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 125 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 126 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 127 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 128 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 129 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 130 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 131 is 0.6931474304199219
+o.d.o.l.ScoreIterationListener - Score at iteration 132 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 133 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 134 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 135 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 136 is 0.6983816528320312
+o.d.o.l.ScoreIterationListener - Score at iteration 137 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 138 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 139 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 140 is 0.6866914367675782
+o.d.o.l.ScoreIterationListener - Score at iteration 141 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 142 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 143 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 144 is 0.8462299346923828
+o.d.o.l.ScoreIterationListener - Score at iteration 145 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 146 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 147 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 148 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 149 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 150 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 151 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 152 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 153 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 154 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 155 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 156 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 157 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 158 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 159 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 160 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 161 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 162 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 163 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 164 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 165 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 166 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 167 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 168 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 169 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 170 is 0.6995868682861328
+o.d.o.l.ScoreIterationListener - Score at iteration 171 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 172 is 0.6931474304199219
+o.d.o.l.ScoreIterationListener - Score at iteration 173 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 174 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 175 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 176 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 177 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 178 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 179 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 180 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 181 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 182 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 183 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 184 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 185 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 186 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 187 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 188 is 0.6931474304199219
+o.d.o.l.ScoreIterationListener - Score at iteration 189 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 190 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 191 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 192 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 193 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 194 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 195 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 196 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 197 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 198 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 199 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 200 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 201 is 0.6931474304199219
+o.d.o.l.ScoreIterationListener - Score at iteration 202 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 203 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 204 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 205 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 206 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 207 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 208 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 209 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 210 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 211 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 212 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 213 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 214 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 215 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 216 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 217 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 218 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 219 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 220 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 221 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 222 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 223 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 224 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 225 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 226 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 227 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 228 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 229 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 230 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 231 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 232 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 233 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 234 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 235 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 236 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 237 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 238 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 239 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 240 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 241 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 242 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 243 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 244 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 245 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 246 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 247 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 248 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 249 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 250 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 251 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 252 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 253 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 254 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 255 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 256 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 257 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 258 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 259 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 260 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 261 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 262 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 263 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 264 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 265 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 266 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 267 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 268 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 269 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 270 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 271 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 272 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 273 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 274 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 275 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 276 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 277 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 278 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 279 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 280 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 281 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 282 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 283 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 284 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 285 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 286 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 287 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 288 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 289 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 290 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 291 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 292 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 293 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 294 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 295 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 296 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 297 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 298 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 299 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 300 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 301 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 302 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 303 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 304 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 305 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 306 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 307 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 308 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 309 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 310 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 311 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 312 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 313 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 314 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 315 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 316 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 317 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 318 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 319 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 320 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 321 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 322 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 323 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 324 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 325 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 326 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 327 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 328 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 329 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 330 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 331 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 332 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 333 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 334 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 335 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 336 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 337 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 338 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 339 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 340 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 341 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 342 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 343 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 344 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 345 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 346 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 347 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 348 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 349 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 350 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 351 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 352 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 353 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 354 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 355 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 356 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 357 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 358 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 359 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 360 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 361 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 362 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 363 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 364 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 365 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 366 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 367 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 368 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 369 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 370 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 371 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 372 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 373 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 374 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 375 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 376 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 377 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 378 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 379 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 380 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 381 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 382 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 383 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 384 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 385 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 386 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 387 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 388 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 389 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 390 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 391 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 392 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 393 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 394 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 395 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 396 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 397 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 398 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 399 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 400 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 401 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 402 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 403 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 404 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 405 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 406 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 407 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 408 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 409 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 410 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 411 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 412 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 413 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 414 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 415 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 416 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 417 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 418 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 419 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 420 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 421 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 422 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 423 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 424 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 425 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 426 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 427 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 428 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 429 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 430 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 431 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 432 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 433 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 434 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 435 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 436 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 437 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 438 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 439 is 0.6931474304199219
+o.d.o.l.ScoreIterationListener - Score at iteration 440 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 441 is 0.6931474304199219
+o.d.o.l.ScoreIterationListener - Score at iteration 442 is 0.6931474304199219
+o.d.o.l.ScoreIterationListener - Score at iteration 443 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 444 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 445 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 446 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 447 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 448 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 449 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 450 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 451 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 452 is 0.7520384216308593
+o.d.o.l.ScoreIterationListener - Score at iteration 453 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 454 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 455 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 456 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 457 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 458 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 459 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 460 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 461 is 0.6931474304199219
+o.d.o.l.ScoreIterationListener - Score at iteration 462 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 463 is 0.6975311279296875
+o.d.o.l.ScoreIterationListener - Score at iteration 464 is 0.6931474304199219
+o.d.o.l.ScoreIterationListener - Score at iteration 465 is 0.6931474304199219
+o.d.o.l.ScoreIterationListener - Score at iteration 466 is 51.2655615234375
+o.d.o.l.ScoreIterationListener - Score at iteration 467 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 468 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 469 is 0.773261489868164
+o.d.o.l.ScoreIterationListener - Score at iteration 470 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 471 is 0.6931474304199219
+o.d.o.l.ScoreIterationListener - Score at iteration 472 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 473 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 474 is 0.6931474304199219
+o.d.o.l.ScoreIterationListener - Score at iteration 475 is 0.6931474304199219
+o.d.o.l.ScoreIterationListener - Score at iteration 476 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 477 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 478 is 0.6931474304199219
+o.d.o.l.ScoreIterationListener - Score at iteration 479 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 480 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 481 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 482 is 0.6931474304199219
+o.d.o.l.ScoreIterationListener - Score at iteration 483 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 484 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 485 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 486 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 487 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 488 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 489 is 0.6931474304199219
+o.d.o.l.ScoreIterationListener - Score at iteration 490 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 491 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 492 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 493 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 494 is 0.6931474304199219
+o.d.o.l.ScoreIterationListener - Score at iteration 495 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 496 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 497 is 0.6931474304199219
+o.d.o.l.ScoreIterationListener - Score at iteration 498 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 499 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 500 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 501 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 502 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 503 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 504 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 505 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 506 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 507 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 508 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 509 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 510 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 511 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 512 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 513 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 514 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 515 is 0.81326171875
+o.d.o.l.ScoreIterationListener - Score at iteration 516 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 517 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 518 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 519 is 0.6931474304199219
+o.d.o.l.ScoreIterationListener - Score at iteration 520 is 0.6931474304199219
+o.d.o.l.ScoreIterationListener - Score at iteration 521 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 522 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 523 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 524 is 0.6931474304199219
+o.d.o.l.ScoreIterationListener - Score at iteration 525 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 526 is 0.6931474304199219
+o.d.o.l.ScoreIterationListener - Score at iteration 527 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 528 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 529 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 530 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 531 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 532 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 533 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 534 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 535 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 536 is 0.7107174682617188
+o.d.o.l.ScoreIterationListener - Score at iteration 537 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 538 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 539 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 540 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 541 is 0.6931474304199219
+o.d.o.l.ScoreIterationListener - Score at iteration 542 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 543 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 544 is 5.040000305175782
+o.d.o.l.ScoreIterationListener - Score at iteration 545 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 546 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 547 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 548 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 549 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 550 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 551 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 552 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 553 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 554 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 555 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 556 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 557 is 0.6931474304199219
+o.d.o.l.ScoreIterationListener - Score at iteration 558 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 559 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 560 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 561 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 562 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 563 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 564 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 565 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 566 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 567 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 568 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 569 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 570 is 0.6931474304199219
+o.d.o.l.ScoreIterationListener - Score at iteration 571 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 572 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 573 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 574 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 575 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 576 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 577 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 578 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 579 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 580 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 581 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 582 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 583 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 584 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 585 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 586 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 587 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 588 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 589 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 590 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 591 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 592 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 593 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 594 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 595 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 596 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 597 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 598 is NaN
+o.d.o.l.ScoreIterationListener - Score at iteration 599 is NaN
+Evaluate model....
+
+Examples labeled as 0 classified by model as 0: 100 times
+Examples labeled as 1 classified by model as 0: 100 times
+
+Warning: class 1 was never predicted by the model. This class was excluded from the average precision
+
+==========================Scores========================================
+ Accuracy:  0.5
+ Precision: 0.5
+ Recall:    0.5
+ F1 Score:  0.5
+========================================================================
+****************Example finished********************
+[DEBUG] joining on thread Thread[AWT-EventQueue-0,6,org.deeplearning4j.examples.feedforward.classification.MLPClassifierLinear]
