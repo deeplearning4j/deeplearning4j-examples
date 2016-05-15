@@ -15,9 +15,9 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <shadedClassifier>bin</shadedClassifier>
         <java.version>1.7</java.version>
-        <nd4j.version>0.4-rc3.8</nd4j.version>
-        <dl4j.version>0.4-rc3.8</dl4j.version>
-        <canova.version>0.0.0.14</canova.version>
+        <nd4j.version>0.4-rc3.9-SNAPSHOT</nd4j.version>
+        <dl4j.version>0.4-rc3.9-SNAPSHOT</dl4j.version>
+        <canova.version>0.0.0.15-SNAPSHOT</canova.version>
         <guava.version>19.0</guava.version>
         <jfreechart.version>1.0.13</jfreechart.version>
         <maven-shade-plugin.version>2.4.3</maven-shade-plugin.version>
@@ -54,7 +54,7 @@
         <dependencies>
             <dependency>
                 <groupId>org.nd4j</groupId>
-                <artifactId>nd4j-x86</artifactId>
+                <artifactId>nd4j-native</artifactId>
                 <version>${nd4j.version}</version>
             </dependency>
         </dependencies>
@@ -83,7 +83,7 @@
         </dependency>
         <dependency>
             <groupId>org.nd4j</groupId>
-            <artifactId>nd4j-x86</artifactId>
+            <artifactId>nd4j-native</artifactId>
         </dependency>
         <dependency>
             <artifactId>canova-nd4j-image</artifactId>
