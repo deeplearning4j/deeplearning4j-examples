@@ -73,7 +73,7 @@ public class Word2VecSentimentRNN {
                 .weightInit(WeightInit.XAVIER)
                 .gradientNormalization(GradientNormalization.ClipElementWiseAbsoluteValue).gradientNormalizationThreshold(1.0)
                 .learningRate(0.0018)
-                .list(2)
+                .list()
                 .layer(0, new GravesLSTM.Builder().nIn(vectorSize).nOut(200)
                         .activation("softsign").build())
                 .layer(1, new RnnOutputLayer.Builder().activation("softmax")

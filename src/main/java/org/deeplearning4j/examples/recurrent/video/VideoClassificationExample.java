@@ -74,7 +74,7 @@ public class VideoClassificationExample {
                 .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
                 .iterations(1)
                 .learningRate(0.04)
-                .list(6)
+                .list()
                 .layer(0, new ConvolutionLayer.Builder(10, 10)
                         .nIn(3) //3 channels: RGB
                         .nOut(30)

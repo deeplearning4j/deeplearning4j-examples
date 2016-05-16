@@ -47,7 +47,7 @@ public class MLPMnistSingleLayerExample {
                 .learningRate(0.006)
                 .updater(Updater.NESTEROVS).momentum(0.9)
                 .regularization(true).l2(1e-4)
-                .list(2)
+                .list()
                 .layer(0, new DenseLayer.Builder()
                         .nIn(numRows * numColumns)
                         .nOut(1000)
