@@ -75,7 +75,7 @@ public class GravesLSTMCharModellingExample {
 			.l2(0.001)
             .weightInit(WeightInit.XAVIER)
             .updater(Updater.RMSPROP)
-			.list(3)
+			.list()
 			.layer(0, new GravesLSTM.Builder().nIn(iter.inputColumns()).nOut(lstmLayerSize)
 					.activation("tanh").build())
 			.layer(1, new GravesLSTM.Builder().nIn(lstmLayerSize).nOut(lstmLayerSize)
