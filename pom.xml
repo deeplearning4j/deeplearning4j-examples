@@ -109,23 +109,30 @@
         </dependency>
     </dependencies>
 
+
+
+
     <build>
+        <defaultGoal>compile exec:java@runAllExamples</defaultGoal>
         <plugins>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
                 <version>${exec-maven-plugin.version}</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>exec</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <executable>java</executable>
-                </configuration>
+                    <executions>
+                        <execution>
+                            <id>runAllExamples</id>
+                            <goals>
+                                <goal>exec</goal>
+                            </goals>
+                            <phase></phase>
+                            <configuration>
+                                <mainClass>org.deeplearning4j.examples.RunAllExamples</mainClass>
+                            </configuration>
+                        </execution>
+                    </executions>
             </plugin>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>

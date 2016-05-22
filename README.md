@@ -19,3 +19,15 @@ For more information, check out [deeplearning4j.org](http://deeplearning4j.org/)
 If you notice issues, please log them, and if you want to contribute, submit a pull request. Input is welcome here.
 
 
+
+## How to Run
+
+if you have [maven](https://maven.apache.org/install.html) installed, run mvn on command line. Default maven goal, will compile and run all examples for you.
+
+
+    mvn
+
+if you want to run only one example, try
+
+    mvn compile exec:java -Dexec.mainClass="org.deeplearning4j.examples.misc.csv.CSVExample"
+
