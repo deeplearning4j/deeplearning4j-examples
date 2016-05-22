@@ -29,5 +29,5 @@ if you have [maven](https://maven.apache.org/install.html) installed, run mvn on
 
 if you want to run only one example, try
 
-    mvn exec:java -Dexec.mainClass="org.deeplearning4j.examples.misc.csv.CSVExample"
+    mvn compile exec:java -Dexec.mainClass="org.deeplearning4j.examples.misc.csv.CSVExample"
 
