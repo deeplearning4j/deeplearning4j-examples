@@ -109,7 +109,9 @@
         </dependency>
     </dependencies>
 
+
     <build>
+    <defaultGoal>package exec:java</defaultGoal>
         <plugins>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
@@ -123,8 +125,9 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <executable>java</executable>
+                    <mainClass>org.deeplearning4j.examples.RunAllExamples</mainClass>
                 </configuration>
+
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
