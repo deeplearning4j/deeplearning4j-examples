@@ -151,8 +151,9 @@ public class CharacterIterator implements DataSetIterator {
         // dimension 0 = number of examples in minibatch
         // dimension 1 = size of each vector (i.e., number of characters)
         // dimension 2 = length of each time series/example
-		INDArray input = Nd4j.zeros(currMinibatchSize,validCharacters.length,exampleLength);
-		INDArray labels = Nd4j.zeros(currMinibatchSize,validCharacters.length,exampleLength);
+        //Why 'f' order here? See http://deeplearning4j.org/usingrnns.html#data section "Alternative: Implementing a custom DataSetIterator"
+		INDArray input = Nd4j.create(new int[]{currMinibatchSize,validCharacters.length,exampleLength}, 'f');
+		INDArray labels = Nd4j.create(new int[]{currMinibatchSize,validCharacters.length,exampleLength}, 'f');
 
         for( int i=0; i<currMinibatchSize; i++ ){
             int startIdx = exampleStartOffsets.removeFirst();
