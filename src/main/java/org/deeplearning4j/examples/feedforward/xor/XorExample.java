@@ -1,4 +1,4 @@
-package org.deeplearning4j.examples.xor;
+package org.deeplearning4j.examples.feedforward.xor;
 
 import org.deeplearning4j.eval.Evaluation;
 import org.deeplearning4j.nn.api.Layer;
@@ -21,13 +21,13 @@ import org.nd4j.linalg.lossfunctions.LossFunctions;
 /**
  * This basic example shows how to manually create a DataSet and train it to an
  * basic Network.
- * 
+ *
  * The network consists in 2 input-neurons, 1 hidden-layer with 4
  * hidden-neurons, and 2 output-neurons.
- * 
+ *
  * I choose 2 output neurons, (the first fires for false, the second fires for
  * true) because the Evaluation class needs one neuron per classification.
- * 
+ *
  * @author Peter Großmann
  *
  */
@@ -105,7 +105,7 @@ public class XorExample {
 
 		// create a multilayer network with 2 layers (including the output
 		// layer, excluding the input payer)
-		ListBuilder listBuilder = builder.list(2);
+		ListBuilder listBuilder = builder.list();
 
 		DenseLayer.Builder hiddenLayerBuilder = new DenseLayer.Builder();
 		// two input connections - simultaneously defines the number of input
@@ -155,8 +155,8 @@ public class XorExample {
 		MultiLayerNetwork net = new MultiLayerNetwork(conf);
 		net.init();
 
-		// add an litener which outputs the error every 10 samples
-		net.setListeners(new ScoreIterationListener(10));
+		// add an listener which outputs the error every 100 parameter updates
+		net.setListeners(new ScoreIterationListener(100));
 
 		// C&P from GravesLSTMCharModellingExample
 		// Print the number of parameters in the network (and for each layer)

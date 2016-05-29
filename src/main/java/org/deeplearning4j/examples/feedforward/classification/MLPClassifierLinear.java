@@ -63,7 +63,7 @@ public class MLPClassifierLinear {
                 .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
                 .learningRate(learningRate)
                 .updater(Updater.NESTEROVS).momentum(0.9)
-                .list(2)
+                .list()
                 .layer(0, new DenseLayer.Builder().nIn(numInputs).nOut(numHiddenNodes)
                         .weightInit(WeightInit.XAVIER)
                         .activation("relu")
@@ -77,7 +77,7 @@ public class MLPClassifierLinear {
 
         MultiLayerNetwork model = new MultiLayerNetwork(conf);
         model.init();
-        model.setListeners(Collections.singletonList((IterationListener) new ScoreIterationListener(1)));
+        model.setListeners(new ScoreIterationListener(10));  //Print score every 10 parameter updates
 
 
         for ( int n = 0; n < nEpochs; n++) {
