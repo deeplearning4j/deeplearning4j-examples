@@ -59,7 +59,7 @@ public class RegressionSum {
                 .learningRate(learningRate)
                 .weightInit(WeightInit.XAVIER)
                 .updater(Updater.NESTEROVS).momentum(0.9)
-                .list(2)
+                .list()
                 .layer(0, new DenseLayer.Builder().nIn(numInput).nOut(nHidden)
                         .activation("tanh")
                         .build())
