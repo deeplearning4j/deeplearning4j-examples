@@ -11,6 +11,7 @@ import org.deeplearning4j.nn.graph.ComputationGraph;
 import org.deeplearning4j.nn.weights.WeightInit;
 import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
 import org.nd4j.linalg.api.ndarray.INDArray;
+import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 
@@ -91,17 +92,22 @@ public class CompGraphLSTMExample {
         System.out.println("Total number of network parameters: " + totalNumParams);
 
         //Do training, and then generate and print samples from network
+        int miniBatchNumber = 0;
         for( int i=0; i<numEpochs; i++ ){
-            net.fit(iter);
-
-            System.out.println("--------------------");
-            System.out.println("Completed epoch " + i );
-            System.out.println("Sampling characters from network given initialization \""+ (generationInitialization == null ? "" : generationInitialization) +"\"");
-            String[] samples = sampleCharactersFromNetwork(generationInitialization,net,iter,rng,nCharactersToSample,nSamplesToGenerate);
-            for( int j=0; j<samples.length; j++ ){
-                System.out.println("----- Sample " + j + " -----");
-                System.out.println(samples[j]);
-                System.out.println();
+            while(iter.hasNext()){
+                DataSet ds = iter.next();
+                net.fit(ds);
+                if(++miniBatchNumber % generateSamplesEveryNMinibatches == 0){
+                    System.out.println("--------------------");
+                    System.out.println("Completed " + miniBatchNumber + " minibatches of size " + miniBatchSize + "x" + exampleLength + " characters" );
+                    System.out.println("Sampling characters from network given initialization \"" + (generationInitialization == null ? "" : generationInitialization) + "\"");
+                    String[] samples = sampleCharactersFromNetwork(generationInitialization,net,iter,rng,nCharactersToSample,nSamplesToGenerate);
+                    for( int j=0; j<samples.length; j++ ){
+                        System.out.println("----- Sample " + j + " -----");
+                        System.out.println(samples[j]);
+                        System.out.println();
+                    }
+                }
             }
 
             iter.reset();	//Reset iterator for another epoch
