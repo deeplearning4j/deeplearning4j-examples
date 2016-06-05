@@ -42,9 +42,12 @@ import java.util.concurrent.TimeUnit;
  * The two hyperparameters are learning rate and layer size, and the search is conducted for a simple multi-layer perceptron
  * on MNIST data.
  *
+ * Note that this example has a UI, but it (currently) does not start automatically.
+ * By default, the UI is accessible at http://localhost:8080/arbiter
+ *
  * @author Alex Black
  */
-public class BasicHyperparamOptExample {
+public class BasicHyperparameterOptimizationExample {
 
     public static void main(String[] args) throws Exception {
 
@@ -96,7 +99,8 @@ public class BasicHyperparamOptExample {
         //     This will result in examples being saved to arbiterExample/0/, arbiterExample/1/, arbiterExample/2/, ...
         String baseSaveDirectory = "arbiterExample/";
         File f = new File(baseSaveDirectory);
-        if(!f.exists()) f.mkdir();
+        if(f.exists()) f.delete();
+        f.mkdir();
         ResultSaver<DL4JConfiguration,MultiLayerNetwork,Object> modelSaver = new LocalMultiLayerNetworkSaver<>(baseSaveDirectory);
 
         // (d) What are we actually trying to optimize?
@@ -104,8 +108,8 @@ public class BasicHyperparamOptExample {
         ScoreFunction<MultiLayerNetwork,DataSetIterator> scoreFunction = new TestSetAccuracyScoreFunction();
 
         // (e) When should we stop searching? Specify this with termination conditions
-        //     For this example, let's try 30 minutes or 20 candidates - whichever comes first
-        TerminationCondition[] terminationConditions = {new MaxTimeCondition(5, TimeUnit.MINUTES), new MaxCandidatesCondition(20)};
+        //     For this example, we are stopping the search at 15 minutes or 20 candidates - whichever comes first
+        TerminationCondition[] terminationConditions = {new MaxTimeCondition(15, TimeUnit.MINUTES), new MaxCandidatesCondition(20)};
 
 
 
