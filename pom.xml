@@ -19,6 +19,7 @@
         <nd4j.version>0.4-rc3.10</nd4j.version>
         <dl4j.version>0.4-rc3.10</dl4j.version>
         <canova.version>0.0.0.16</canova.version>
+        <arbiter.version>0.0.0.7</arbiter.version>
         <guava.version>19.0</guava.version>
         <jfreechart.version>1.0.13</jfreechart.version>
         <maven-shade-plugin.version>2.4.3</maven-shade-plugin.version>
@@ -106,6 +107,13 @@
             <groupId>jfree</groupId>
             <artifactId>jfreechart</artifactId>
             <version>${jfreechart.version}</version>
+        </dependency>
+
+        <!-- Arbiter: used for hyperparameter optimization examples -->
+        <dependency>
+            <groupId>org.deeplearning4j</groupId>
+            <artifactId>arbiter-deeplearning4j</artifactId>
+            <version>${arbiter.version}</version>
         </dependency>
     </dependencies>
 
