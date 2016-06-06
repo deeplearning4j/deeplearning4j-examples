@@ -159,8 +159,9 @@ public class BasicHyperparameterOptimizationExample {
 
 
         //Note: UI server will shut down once execution is complete, as JVM will exit
-        //So do a Thread.sleep(2 minutes) to keep JVM alive, so that network configurations can be viewed
+        //So do a Thread.sleep(1 minute) to keep JVM alive, so that network configurations can be viewed
         Thread.sleep(60000);
+        System.exit(0);
     }
 
 }
