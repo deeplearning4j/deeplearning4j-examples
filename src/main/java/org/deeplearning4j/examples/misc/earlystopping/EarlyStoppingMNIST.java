@@ -21,6 +21,7 @@ import org.deeplearning4j.nn.conf.layers.OutputLayer;
 import org.deeplearning4j.nn.conf.layers.SubsamplingLayer;
 import org.deeplearning4j.nn.conf.layers.setup.ConvolutionLayerSetup;
 import org.deeplearning4j.nn.weights.WeightInit;
+import org.nd4j.linalg.api.buffer.util.DataTypeUtil;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 
 import java.util.ArrayList;
@@ -83,7 +84,6 @@ public class EarlyStoppingMNIST {
 
         String tempDir = System.getProperty("java.io.tmpdir");
         String exampleDirectory = FilenameUtils.concat(tempDir, "DL4JEarlyStoppingExample/");
-
         EarlyStoppingModelSaver saver = new LocalFileModelSaver(exampleDirectory);
         EarlyStoppingConfiguration esConf = new EarlyStoppingConfiguration.Builder()
                 .epochTerminationConditions(new MaxEpochsTerminationCondition(50)) //Max of 50 epochs
