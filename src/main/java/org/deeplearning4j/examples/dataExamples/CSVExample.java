@@ -1,4 +1,4 @@
-package org.deeplearning4j.examples.misc.csv;
+package org.deeplearning4j.examples.dataExamples;
 
 import org.canova.api.records.reader.RecordReader;
 import org.canova.api.records.reader.impl.CSVRecordReader;
@@ -53,22 +53,22 @@ public class CSVExample {
 
         log.info("Build model....");
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
-                .seed(seed)
-                .iterations(iterations)
-                .activation("tanh")
-                .weightInit(WeightInit.XAVIER)
-                .learningRate(0.1)
-                .regularization(true).l2(1e-4)
-                .list()
-                .layer(0, new DenseLayer.Builder().nIn(numInputs).nOut(3)
-                        .build())
-                .layer(1, new DenseLayer.Builder().nIn(3).nOut(3)
-                        .build())
-                .layer(2, new OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD)
-                        .activation("softmax")
-                        .nIn(3).nOut(outputNum).build())
-                .backprop(true).pretrain(false)
-                .build();
+            .seed(seed)
+            .iterations(iterations)
+            .activation("tanh")
+            .weightInit(WeightInit.XAVIER)
+            .learningRate(0.1)
+            .regularization(true).l2(1e-4)
+            .list()
+            .layer(0, new DenseLayer.Builder().nIn(numInputs).nOut(3)
+                .build())
+            .layer(1, new DenseLayer.Builder().nIn(3).nOut(3)
+                .build())
+            .layer(2, new OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD)
+                .activation("softmax")
+                .nIn(3).nOut(outputNum).build())
+            .backprop(true).pretrain(false)
+            .build();
 
         //run the model
         MultiLayerNetwork model = new MultiLayerNetwork(conf);
@@ -93,3 +93,4 @@ public class CSVExample {
     }
 
 }
+
