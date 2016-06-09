@@ -13,6 +13,9 @@ import org.springframework.core.io.ClassPathResource;
 
 /**
  * This basic example demonstrates how to use the preprocessors available
+ * 3.10 release works with only select iterators that have a valid total ex function
+ * Later releases and current master will work with all iterators.
+ * Run this example with current master
  * Created by susaneraly on 6/8/16.
  */
 public class preprocessNormalizerExample {
