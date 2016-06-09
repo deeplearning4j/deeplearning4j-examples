@@ -6,6 +6,7 @@ import org.canova.api.split.FileSplit;
 import org.deeplearning4j.datasets.canova.RecordReaderDataSetIterator;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
+import org.nd4j.linalg.dataset.api.preprocessor.NormalizerMinMaxScaler;
 import org.nd4j.linalg.dataset.api.preprocessor.NormalizerStandardize;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,14 +14,13 @@ import org.springframework.core.io.ClassPathResource;
 
 /**
  * This basic example demonstrates how to use the preprocessors available
- * 3.10 release works with only select iterators that have a valid total ex function
- * Later releases and current master will work with all iterators.
- * Run this example with current master
+ * This example uses the minmax scaler and will work with the 3.10 release and later
+ * Later releases and current master will work with all other preprocessors
  * Created by susaneraly on 6/8/16.
  */
-public class preprocessNormalizerExample {
+public class PreprocessNormalizerExample {
 
-    private static Logger log = LoggerFactory.getLogger(preprocessNormalizerExample.class);
+    private static Logger log = LoggerFactory.getLogger(PreprocessNormalizerExample.class);
 
     public static void main(String[] args) throws  Exception {
 
@@ -46,61 +46,74 @@ public class preprocessNormalizerExample {
         // iteratorA and iteratorB have batchsize of 10. So the full dataset is 150/10 = 15 batches
         //=====================================================================================================================
 
-        log.info("INFO: All preprocessors have to be fit to the intended metrics before they can be used to transform");
-        log.info("INFO: To have a transformation occur each time next on the iterator is called use the 'setpreprocessor', eg very end here\n");
-        log.info("This example demonstrates preprocessor use with the standard normalizer. Refer javadocs for MinMaxScaler");
+        log.info("All preprocessors have to be fit to the intended metrics before they can be used to transform");
+        log.info("To have a transformation occur when next on an iterator is called use the 'setpreprocessor', example at the very end here\n");
+        log.info("This example demonstrates preprocessor use with the min max normalizer.");
+        log.info("A standardizing preprocessor is also available.");
+        log.info("Usage for all preprocessors are the same - fit then transform a dataset or set as preprocessor to an iterator");
 
-        log.info("INFO: Standardizing - subtracts the mean and divides by the standard deviation");
-        log.info("INFO: Find further information here: https://en.wikipedia.org/wiki/Standard_score");
-        log.info("INFO: Instantiating a standardizing preprocessor...\n");
-
-        NormalizerStandardize preProcessor = new NormalizerStandardize();
-        log.info("INFO: During 'fit' the preprocessor calculates the metrics (std dev and mean for the standardizer) from the data given");
-        log.info("INFO: Fit can take a dataset or a dataset iterator\n");
+        log.info("Instantiating a preprocessor...\n");
+        NormalizerMinMaxScaler preProcessor = new NormalizerMinMaxScaler();
+        log.info("During 'fit' the preprocessor calculates the metrics (std dev and mean for the standardizer, min and max for minmaxscaler) from the data given");
+        log.info("Fit can take a dataset or a dataset iterator\n");
 
         //Fitting a preprocessor with a dataset
-        log.info("INFO: Fitting with a dataset...............");
+        log.info("Fitting with a dataset...............");
         preProcessor.fit(datasetX);
-        log.info("INFO: Calculated metrics");
-        log.info("INFO: Mean:"+ preProcessor.getMean().toString());
-        log.info("INFO: Std dev:" + preProcessor.getStd().toString()+"\n");
+        log.info("Calculated metrics");
+        log.info("Min: {}",preProcessor.getMin());
+        log.info("Max: {}",preProcessor.getMax());
 
-        log.info("INFO: Once fit the preprocessor can be used to transform data wrt to the metrics of the dataset it was fit to");
-        log.info("INFO: Transform takes a dataset and modifies it in place");
+        log.info("Once fit the preprocessor can be used to transform data wrt to the metrics of the dataset it was fit to");
+        log.info("Transform takes a dataset and modifies it in place");
 
-        log.info("INFO:Transforming a dataset, printing only the first ten.....");
+        log.info("Transforming a dataset, printing only the first ten.....");
         preProcessor.transform(datasetX);
-        log.info("\n"+datasetX.getRange(0,9).toString()+"\n");
+        log.info("\n{}\n",datasetX.getRange(0,9));
 
-        log.info("INFO: Transformed datasets can be reverted back as well...");
-        log.info("INFO: Note the reverting happens in place.");
-        log.info("INFO: Reverting back the dataset, printing only the first ten.....");
+        log.info("Transformed datasets can be reverted back as well...");
+        log.info("Note the reverting happens in place.");
+        log.info("Reverting back the dataset, printing only the first ten.....");
         preProcessor.revert(datasetX);
-        log.info("\n"+datasetX.getRange(0,9).toString()+"\n\n");
+        log.info("\n{}\n",datasetX.getRange(0,9));
 
         //Setting a preprocessor in an iterator
-        log.info("INFO: Fitting the preprocessor with iteratorB......");
-        NormalizerStandardize preProcessorIter = new NormalizerStandardize();
+        log.info("Fitting a preprocessor with iteratorB......");
+        NormalizerMinMaxScaler preProcessorIter = new NormalizerMinMaxScaler();
         preProcessorIter.fit(iteratorB);
         log.info("A fitted preprocessor can be set to an iterator so each time next is called the transform step happens automatically");
         log.info("Setting a preprocessor for iteratorA");
         iteratorA.setPreProcessor(preProcessorIter);
         while (iteratorA.hasNext()) {
             log.info("Calling next on iterator A that has a preprocessor on it");
-            log.info("\n"+iteratorA.next().toString());
+            log.info("\n{}",iteratorA.next());
             log.info("Calling next on iterator B that has no preprocessor on it");
-            log.info("\n"+iteratorB.next().toString());
-            log.info("Note the data is different - iteratorA is standardized, iteratorB is not");
+            DataSet firstBatch = iteratorB.next();
+            log.info("\n{}",firstBatch);
+            log.info("Note the data is different - iteratorA is preprocessed, iteratorB is not");
             log.info("Now using transform on the next datset on iteratorB");
             iteratorB.reset();
-            preProcessorIter.transform(iteratorB.next());
-            log.info("\n"+iteratorB.next().toString());
+            firstBatch = iteratorB.next();
+            preProcessorIter.transform(firstBatch);
+            log.info("\n{}",firstBatch);
             log.info("Note that this now gives the same results");
             break;
         }
 
-        log.info("INFO: If you are using batches and an iterator, set the preprocessor on your iterator to transform data automatically when next is called");
-        log.info("INFO: Use the .transform function only if you are working with a small dataset and no iterator");
+        log.info("If you are using batches and an iterator, set the preprocessor on your iterator to transform data automatically when next is called");
+        log.info("Use the .transform function only if you are working with a small dataset and no iterator");
 
+        log.info("MinMax scaler also takes a min-max range to scale to.");
+        log.info("Instantiating a new preprocessor and setting it's min-max scale to {-1,1}");
+        NormalizerMinMaxScaler preProcessorRange = new NormalizerMinMaxScaler();
+        preProcessor.setMinRange(-1);
+        preProcessor.setMaxRange(1);
+        log.info("Fitting to dataset");
+        preProcessorRange.fit(datasetY);
+        log.info("First ten before transforming");
+        log.info("\n{}",datasetY.getRange(0,9));
+        log.info("First ten after transforming");
+        preProcessorRange.transform(datasetY);
+        log.info("\n{}",datasetY.getRange(0,9));
     }
 }
