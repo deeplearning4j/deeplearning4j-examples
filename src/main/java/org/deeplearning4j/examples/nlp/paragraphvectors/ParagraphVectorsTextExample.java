@@ -48,7 +48,7 @@ public class ParagraphVectorsTextExample {
 
         ParagraphVectors vec = new ParagraphVectors.Builder()
                 .minWordFrequency(1)
-                .iterations(3)
+                .iterations(5)
                 .epochs(1)
                 .layerSize(100)
                 .learningRate(0.025)
@@ -75,19 +75,22 @@ public class ParagraphVectorsTextExample {
 
             this is special sentence, that has nothing common with previous sentences
             line 9853: We now have one .
+
+            Note that docs are indexed from 0
          */
 
         double similarity1 = vec.similarity("DOC_9835", "DOC_12492");
-        log.info("9835/12492 similarity: " + similarity1);
+        log.info("9836/12493 ('This is my house .'/'This is my world .') similarity: " + similarity1);
 
         double similarity2 = vec.similarity("DOC_3720", "DOC_16392");
-        log.info("3720/16392 similarity: " + similarity2);
+        log.info("3721/16393 ('This is my way .'/'This is my work .') similarity: " + similarity2);
 
         double similarity3 = vec.similarity("DOC_6347", "DOC_3720");
-        log.info("6347/3720 similarity: " + similarity3);
+        log.info("6348/3721 ('This is my case .'/'This is my way .') similarity: " + similarity3);
 
         // likelihood in this case should be significantly lower
         double similarityX = vec.similarity("DOC_3720", "DOC_9852");
-        log.info("3720/9852 similarity: " + similarityX);
+        log.info("3721/9853 ('This is my way .'/'We now have one .') similarity: " + similarityX +
+            "(should be significantly lower)");
     }
 }
