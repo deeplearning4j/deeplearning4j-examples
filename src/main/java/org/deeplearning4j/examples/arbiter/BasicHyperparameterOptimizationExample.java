@@ -1,5 +1,6 @@
 package org.deeplearning4j.examples.arbiter;
 
+import org.canova.api.util.ClassPathResource;
 import org.deeplearning4j.arbiter.DL4JConfiguration;
 import org.deeplearning4j.arbiter.MultiLayerSpace;
 import org.deeplearning4j.arbiter.data.DataSetIteratorProvider;
@@ -32,7 +33,6 @@ import org.deeplearning4j.datasets.iterator.impl.MnistDataSetIterator;
 import org.deeplearning4j.nn.api.OptimizationAlgorithm;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
-import org.springframework.core.io.ClassPathResource;
 
 import java.io.File;
 import java.util.List;
