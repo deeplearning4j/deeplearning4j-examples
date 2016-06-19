@@ -32,6 +32,7 @@ import org.deeplearning4j.datasets.iterator.impl.MnistDataSetIterator;
 import org.deeplearning4j.nn.api.OptimizationAlgorithm;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
+import org.springframework.core.io.ClassPathResource;
 
 import java.io.File;
 import java.util.List;
@@ -130,8 +131,9 @@ public class BasicHyperparameterOptimizationExample {
 
         //Start the UI
         ArbiterUIServer server = new ArbiterUIServer();
-        String[] str = new String[]{"server", "dropwizard.yml"};
-        server.run(str);
+        File serverProps = new ClassPathResource("dropwizard.yml").getFile();
+        String[] serverArgs = new String[]{"server", serverProps.getAbsolutePath()};
+        server.run(serverArgs);
         runner.addListeners(new UIOptimizationRunnerStatusListener(server));
 
 
