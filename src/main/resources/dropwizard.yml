@@ -1,3 +1,7 @@
+template: Hello, %s!
+
+defaultName: DL4J-Examples
+
 server:
 #  softNofileLimit: 1000
 #  hardNofileLimit: 1000

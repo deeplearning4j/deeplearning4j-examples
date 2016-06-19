@@ -1,5 +1,6 @@
 package org.deeplearning4j.examples.arbiter;
 
+import org.canova.api.util.ClassPathResource;
 import org.deeplearning4j.arbiter.DL4JConfiguration;
 import org.deeplearning4j.arbiter.MultiLayerSpace;
 import org.deeplearning4j.arbiter.data.DataSetIteratorProvider;
@@ -130,8 +131,9 @@ public class BasicHyperparameterOptimizationExample {
 
         //Start the UI
         ArbiterUIServer server = new ArbiterUIServer();
-        String[] str = new String[]{"server", "dropwizard.yml"};
-        server.run(str);
+        File serverProps = new ClassPathResource("dropwizard.yml").getFile();
+        String[] serverArgs = new String[]{"server", serverProps.getAbsolutePath()};
+        server.run(serverArgs);
         runner.addListeners(new UIOptimizationRunnerStatusListener(server));
 
 
