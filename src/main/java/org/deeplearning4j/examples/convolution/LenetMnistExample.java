@@ -62,7 +62,6 @@ public class LenetMnistExample {
                         .stride(2,2)
                         .build())
                 .layer(2, new ConvolutionLayer.Builder(5, 5)
-                        .nIn(nChannels)
                         .stride(1, 1)
                         .nOut(50)
                         .activation("identity")

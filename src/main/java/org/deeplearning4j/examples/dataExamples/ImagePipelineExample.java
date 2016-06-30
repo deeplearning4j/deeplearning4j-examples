@@ -89,14 +89,16 @@ public class ImagePipelineExample {
 
         //You can use the ShowImageTransform to view your images
         //Code below gives you a look before and after, for a side by side comparison
-        ImageTransform transform = new MultiImageTransform(randNumGen,new ShowImageTransform("Display - before "));
+        //ImageTransform transform = new MultiImageTransform(randNumGen,new ShowImageTransform("Display - before "));   //This functionality: available in 0.4-rc3.11 and later
 
         //Initialize the record reader with the train data and the transform chain
-        recordReader.initialize(trainData,transform);
+//        recordReader.initialize(trainData,transform); //0.4-rc3.11
+        recordReader.initialize(trainData);
         //convert the record reader to an iterator for training - Refer to other examples for how to use an iterator
         DataSetIterator dataIter = new RecordReaderDataSetIterator(recordReader, 10, 1, outputNum);
         while (dataIter.hasNext()) {
             DataSet ds = dataIter.next();
+            System.out.println(ds);
             try {
                 Thread.sleep(3000);                 //1000 milliseconds is one second.
             } catch(InterruptedException ex) {
@@ -105,8 +107,9 @@ public class ImagePipelineExample {
         }
         recordReader.reset();
 
-        transform = new MultiImageTransform(randNumGen,new CropImageTransform(50), new ShowImageTransform("Display - after"));
-        recordReader.initialize(trainData,transform);
+        //transform = new MultiImageTransform(randNumGen,new CropImageTransform(50), new ShowImageTransform("Display - after"));
+        //recordReader.initialize(trainData,transform);
+        recordReader.initialize(trainData);
         dataIter = new RecordReaderDataSetIterator(recordReader, 10, 1, outputNum);
         while (dataIter.hasNext()) {
             DataSet ds = dataIter.next();
