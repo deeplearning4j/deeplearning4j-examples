@@ -135,6 +135,7 @@ public class Word2VecSentimentRNN {
         } else {
             //Assume if archive (.tar.gz) exists, then data has already been extracted
             System.out.println("Data (.tar.gz file) already exists at " + archiveFile.getAbsolutePath());
+            extractTarGz(archizePath, DATA_PATH);
         }
     }
 
