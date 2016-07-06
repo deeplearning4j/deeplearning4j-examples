@@ -209,6 +209,11 @@ public class CharacterIterator implements DataSetIterator {
 	}
 
 	@Override
+	public DataSetPreProcessor getPreProcessor() {
+		throw new UnsupportedOperationException("Not implemented");
+	}
+
+	@Override
 	public List<String> getLabels() {
 		throw new UnsupportedOperationException("Not implemented");
 	}
