@@ -203,6 +203,10 @@ public class SentimentExampleIterator implements DataSetIterator {
     public void remove() {
 
     }
+    @Override
+    public  DataSetPreProcessor getPreProcessor() {
+        throw new UnsupportedOperationException("Not implemented");
+    }
 
     /** Convenience method for loading review to String */
     public String loadReviewToString(int index) throws IOException{
