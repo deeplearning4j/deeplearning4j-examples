@@ -12,6 +12,8 @@ import java.util.Random;
 
 /**
  * Created by susaneraly on 3/27/16.
+ * This is class to generate pairs of random numbers given a maximum number of digits
+ * This class can also be used as a reference for dataset iterators and writing one's own custom dataset iterator
  */
 
 public class CustomSequenceIterator implements MultiDataSetIterator {

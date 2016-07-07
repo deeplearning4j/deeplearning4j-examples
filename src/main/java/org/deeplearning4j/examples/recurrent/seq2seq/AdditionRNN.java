@@ -31,6 +31,9 @@ public class AdditionRNN {
         Two numbers and the addition operator are encoded as a sequence and passed through an "encoder" RNN
         The output from the last time step of the encoder RNN is reinterpreted as a time series and passed through the "decoder" RNN
         The result is the output of the decoder RNN which in training is the sum, encoded as a sequence.
+        One hot vectors are used for encoding/decoding
+        20 epochs give >85% accuracy for 2 digits
+        To try out addition for numbers with different number of digits simply change "NUM_DIGITS"
      */
 
     //Random number generator seed, for reproducability
@@ -82,7 +85,7 @@ public class AdditionRNN {
         int iEpoch = 0;
         int testSize = 200;
         while (iEpoch < nEpochs) {
-            System.out.printf("\n* = * = * = * = * = * = * = * = * = ** EPOCH %d ** = * = * = * = * = * = * = * = * = * = * = * = * = * =\n",iEpoch);
+            System.out.printf("* = * = * = * = * = * = * = * = * = ** EPOCH %d ** = * = * = * = * = * = * = * = * = * = * = * = * = * =\n",iEpoch);
             net.fit(iterator);
 
             MultiDataSet testData = iterator.generateTest(testSize);
@@ -103,6 +106,7 @@ public class AdditionRNN {
 
     }
 
+    //This is a helper function to make the predictions from the net more readable
     private static void encode_decode(int[] num1, int[] num2, int[] sum, INDArray answers) {
 
         int nTests = answers.size(0);
@@ -144,7 +148,6 @@ public class AdditionRNN {
         System.out.println("CORRECT: "+correct);
         System.out.println("Note randomly guessing digits in succession gives lower than a accuracy of:"+randomAcc+"%");
         System.out.println("The digits along with the spaces have to be predicted");
-        System.out.println("*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*");
     }
 
 }
