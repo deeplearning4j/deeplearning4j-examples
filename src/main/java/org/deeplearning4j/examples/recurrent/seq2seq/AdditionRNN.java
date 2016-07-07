@@ -15,6 +15,7 @@ import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.api.MultiDataSet;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
+import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
 
 import java.util.ArrayList;
 import java.lang.*;
@@ -79,7 +80,7 @@ public class AdditionRNN {
         ComputationGraph net = new ComputationGraph(configuration);
         net.init();
         //net.setListeners(new ScoreIterationListener(200),new HistogramIterationListener(200));
-        //net.setListeners(new ScoreIterationListener(1));
+        net.setListeners(new ScoreIterationListener(1));
         //net.setListeners(new HistogramIterationListener(200));
         //Train model:
         int iEpoch = 0;
@@ -147,7 +148,7 @@ public class AdditionRNN {
         System.out.println("WRONG: "+wrong);
         System.out.println("CORRECT: "+correct);
         System.out.println("Note randomly guessing digits in succession gives lower than a accuracy of:"+randomAcc+"%");
-        System.out.println("The digits along with the spaces have to be predicted");
+        System.out.println("The digits along with the spaces have to be predicted\n");
     }
 
 }
