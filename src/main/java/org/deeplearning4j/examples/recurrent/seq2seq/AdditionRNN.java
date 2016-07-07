@@ -35,13 +35,13 @@ public class AdditionRNN {
     //Random number generator seed, for reproducability
     public static final int seed = 1234;
 
-    public static final int NUM_DIGITS = 1;
+    public static final int NUM_DIGITS = 2;
     public static final int FEATURE_VEC_SIZE = 12;
 
     //Tweak these to tune - dataset size = batchSize * totalBatches
     public static final int batchSize = 10;
-    public static final int totalBatches = 50;
-    public static final int nEpochs = 1;
+    public static final int totalBatches = 500;
+    public static final int nEpochs = 50;
     public static final int nIterations = 1;
     public static final int numHiddenNodes = 128;
 
@@ -110,12 +110,13 @@ public class AdditionRNN {
         for (int iTest=0; iTest < nTests; iTest++) {
             int aDigit = NUM_DIGITS;
             int thisAnswer = 0;
+			int [] ans;
             while (aDigit >= 0) {
                 int thisDigit = (int) answers.getDouble(iTest,aDigit);
                 //System.out.println(thisDigit);
                 if (thisDigit > 9) {
                     // Need support to check if spaces are predicted correctly
-                    break;
+                    //break;
                 }
                 thisAnswer += thisDigit * (int) Math.pow(10,NUM_DIGITS-aDigit);
                 aDigit--;
