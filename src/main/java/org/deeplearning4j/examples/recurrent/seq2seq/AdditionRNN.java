@@ -35,7 +35,7 @@ public class AdditionRNN {
     //Random number generator seed, for reproducability
     public static final int seed = 1234;
 
-    public static final int NUM_DIGITS = 2;
+    public static final int NUM_DIGITS =2;
     public static final int FEATURE_VEC_SIZE = 12;
 
     //Tweak these to tune - dataset size = batchSize * totalBatches
@@ -108,21 +108,25 @@ public class AdditionRNN {
         int wrong = 0;
         int correct = 0;
         for (int iTest=0; iTest < nTests; iTest++) {
-            int aDigit = NUM_DIGITS;
+            int aDigit = 0;
             int thisAnswer = 0;
-			int [] ans;
-            while (aDigit >= 0) {
+            String strAnwer = " ";
+            while (aDigit <= NUM_DIGITS) {
+                //System.out.println("while"+aDigit+strAnwer);
                 int thisDigit = (int) answers.getDouble(iTest,aDigit);
                 //System.out.println(thisDigit);
+                thisAnswer += thisDigit * (int) Math.pow(10,aDigit);
                 if (thisDigit > 9) {
-                    // Need support to check if spaces are predicted correctly
-                    //break;
+                    strAnwer+="X";
                 }
-                thisAnswer += thisDigit * (int) Math.pow(10,NUM_DIGITS-aDigit);
-                aDigit--;
+                else {
+                    //System.out.println(thisDigit+" is string " + String.valueOf(thisDigit));
+                    strAnwer+= String.valueOf(thisDigit);
+                }
+                aDigit++;
             }
             if (thisAnswer != sum[iTest]) {
-                System.out.println(num1[iTest]+"+"+num2[iTest]+"!="+thisAnswer);
+                System.out.println(num1[iTest]+"+"+num2[iTest]+"!="+strAnwer);
                 wrong ++;
             }
             else {
