@@ -17,6 +17,8 @@ import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 
 import java.util.ArrayList;
+import java.lang.*;
+
 
 /**
  * Created by susaneraly on 3/27/16.
@@ -29,7 +31,6 @@ public class AdditionRNN {
         Two numbers and the addition operator are encoded as a sequence and passed through an "encoder" RNN
         The output from the last time step of the encoder RNN is reinterpreted as a time series and passed through the "decoder" RNN
         The result is the output of the decoder RNN which in training is the sum, encoded as a sequence.
-        Note: This example has not been tuned.
      */
 
     //Random number generator seed, for reproducability
@@ -81,7 +82,7 @@ public class AdditionRNN {
         int iEpoch = 0;
         int testSize = 200;
         while (iEpoch < nEpochs) {
-            System.out.printf("* = * = * = ** EPOCH %d ** = * = * = * = * = *\n",iEpoch);
+            System.out.printf("\n* = * = * = * = * = * = * = * = * = ** EPOCH %d ** = * = * = * = * = * = * = * = * = * = * = * = * = * =\n",iEpoch);
             net.fit(iterator);
 
             MultiDataSet testData = iterator.generateTest(testSize);
@@ -98,7 +99,7 @@ public class AdditionRNN {
             iterator.reset();
             iEpoch++;
         }
-        System.out.println("* = * = * = * = * = * EPOCHS COMPLETE * = * = * = * = * = * = * = *");
+        System.out.printf("\n* = * = * = * = * = * = * = * = * = ** EPOCH COMPLETE ** = * = * = * = * = * = * = * = * = * = * = * = * = * =\n",iEpoch);
 
     }
 
@@ -108,30 +109,33 @@ public class AdditionRNN {
         int wrong = 0;
         int correct = 0;
         for (int iTest=0; iTest < nTests; iTest++) {
-            int aDigit = 0;
+            int aDigit = NUM_DIGITS;
             int thisAnswer = 0;
-            String strAnwer = " ";
-            while (aDigit <= NUM_DIGITS) {
+			String strAnswer = "";
+            while (aDigit >= 0) {
                 //System.out.println("while"+aDigit+strAnwer);
                 int thisDigit = (int) answers.getDouble(iTest,aDigit);
                 //System.out.println(thisDigit);
-                thisAnswer += thisDigit * (int) Math.pow(10,aDigit);
-                if (thisDigit > 9) {
-                    strAnwer+="X";
+                if (thisDigit <= 9) {
+                    strAnswer+= String.valueOf(thisDigit);
+                	thisAnswer += thisDigit * (int) Math.pow(10,aDigit);
                 }
                 else {
                     //System.out.println(thisDigit+" is string " + String.valueOf(thisDigit));
-                    strAnwer+= String.valueOf(thisDigit);
+					strAnswer += " ";
+                    //break;
                 }
-                aDigit++;
+                aDigit--;
             }
-            if (thisAnswer != sum[iTest]) {
-                System.out.println(num1[iTest]+"+"+num2[iTest]+"!="+strAnwer);
-                wrong ++;
+			String strAnswerR = new StringBuilder(strAnswer).reverse().toString();
+		    strAnswerR = strAnswerR.replaceAll("\\s+","");
+            if (strAnswerR.equals(String.valueOf(sum[iTest]))) {
+                System.out.println(num1[iTest]+"+"+num2[iTest]+"=="+strAnswerR);
+                correct ++;
             }
             else {
-                System.out.println(num1[iTest]+"+"+num2[iTest]+"=="+thisAnswer);
-                correct ++;
+                System.out.println(num1[iTest]+"+"+num2[iTest]+"!="+strAnswerR+", should=="+sum[iTest]);
+                wrong ++;
             }
         }
         double randomAcc = Math.pow(10,-1*(NUM_DIGITS+1)) * 100;
@@ -139,7 +143,7 @@ public class AdditionRNN {
         System.out.println("WRONG: "+wrong);
         System.out.println("CORRECT: "+correct);
         System.out.println("Note randomly guessing digits in succession gives lower than a accuracy of:"+randomAcc+"%");
-        System.out.println("Since the correct number of digits have to also be predicted the number above will be even lower");
+        System.out.println("The digits along with the spaces have to be predicted");
         System.out.println("*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*");
     }
 
