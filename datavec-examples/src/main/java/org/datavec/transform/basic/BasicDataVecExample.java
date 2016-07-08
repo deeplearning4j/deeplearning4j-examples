@@ -30,7 +30,16 @@ import java.util.HashSet;
 import java.util.List;
 
 /**
- * Created by Alex on 08/07/2016.
+ * Basic DataVec example for preprocessing operations on some simple CSV data.
+ *
+ * The premise here is that some data regarding transactions is available in CSV format, and we want to do some some
+ * operations on this data, including:
+ * 1. Removing some unnecessary columns
+ * 2. Filtering examples to keep only examples with values "USA" or "CAN" for the "MerchantCountryCode" column
+ * 3. Replacing some invalid values in the "TransactionAmountUSD" column
+ * 4. Parsing the date string, and extracting the hour of day from it to create a new "HourOfDay" column
+ *
+ * @author Alex Black
  */
 public class BasicDataVecExample {
 
@@ -120,7 +129,7 @@ public class BasicDataVecExample {
 
 
         //=====================================================================
-        //           Step 3: Load our data and execute the operations
+        //      Step 3: Load our data and execute the operations on Spark
         //=====================================================================
 
         //We'll use Spark local to handle our data
@@ -150,14 +159,15 @@ public class BasicDataVecExample {
         List<String> processedCollected = processedAsString.collect();
         List<String> inputDataCollected = stringData.collect();
 
-        System.out.println("\n\n\n\n---- Original Data ----");
+
+        System.out.println("\n\n---- Original Data ----");
         for(String s : inputDataCollected) System.out.println(s);
 
-        System.out.println("\n\n\n\n---- Processed Data ----");
+        System.out.println("\n\n---- Processed Data ----");
         for(String s : processedCollected) System.out.println(s);
 
 
-        System.out.println("DONE");
+        System.out.println("\n\nDONE");
     }
 
 }
