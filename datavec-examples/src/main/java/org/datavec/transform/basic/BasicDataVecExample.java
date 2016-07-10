@@ -96,14 +96,14 @@ public class BasicDataVecExample {
             //Let's suppose our data source isn't perfect, and we have some invalid data: negative dollar amounts that we want to replace with 0.0
             //For positive dollar amounts, we don't want to modify those values
             //Use the ConditionalReplaceValueTransform on the "TransactionAmountUSD" column:
-            .transform(new ConditionalReplaceValueTransform(
+            .conditionalReplaceValueTransform(
                 "TransactionAmountUSD",     //Column to operate on
                 new DoubleWritable(0.0),    //New value to use, when the condition is satisfied
-                new DoubleColumnCondition("TransactionAmountUSD",ConditionOp.LessThan, 0.0))) //Condition: amount < 0.0
+                new DoubleColumnCondition("TransactionAmountUSD",ConditionOp.LessThan, 0.0)) //Condition: amount < 0.0
 
             //Finally, let's suppose we want to parse our date/time column in a format like "2016/01/01 17:50.000"
             //We use JodaTime internally, so formats can be specified as follows: http://www.joda.org/joda-time/apidocs/org/joda/time/format/DateTimeFormat.html
-            .transform(new StringToTimeTransform("DateTimeString","YYYY-MM-DD HH:mm:ss.SSS", DateTimeZone.UTC))
+            .stringToTimeTransform("DateTimeString","YYYY-MM-DD HH:mm:ss.SSS", DateTimeZone.UTC)
 
             //However, our time column ("DateTimeString") isn't a String anymore. So let's rename it to something better:
             .renameColumn("DateTimeString", "DateTime")
