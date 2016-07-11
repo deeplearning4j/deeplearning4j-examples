@@ -16,10 +16,10 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <shadedClassifier>bin</shadedClassifier>
         <java.version>1.7</java.version>
-        <nd4j.version>0.4-rc3.10</nd4j.version>
-        <dl4j.version>0.4-rc3.10</dl4j.version>
-        <canova.version>0.0.0.16</canova.version>
-        <arbiter.version>0.0.0.7</arbiter.version>
+        <nd4j.version>0.4.0</nd4j.version>
+        <dl4j.version>0.4.0</dl4j.version>
+        <canova.version>0.0.0.17</canova.version>
+        <arbiter.version>0.0.0.8</arbiter.version>
         <guava.version>19.0</guava.version>
         <jfreechart.version>1.0.13</jfreechart.version>
         <maven-shade-plugin.version>2.4.3</maven-shade-plugin.version>

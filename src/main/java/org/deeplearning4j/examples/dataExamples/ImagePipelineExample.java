@@ -1,26 +1,21 @@
 package org.deeplearning4j.examples.dataExamples;
 
-import org.apache.commons.io.FilenameUtils;
 import org.canova.api.io.filters.BalancedPathFilter;
 import org.canova.api.io.labels.ParentPathLabelGenerator;
-import org.canova.api.records.reader.RecordReader;
 import org.canova.api.split.FileSplit;
 import org.canova.api.split.InputSplit;
 import org.canova.image.loader.BaseImageLoader;
-import org.canova.image.recordreader.BaseImageRecordReader;
 import org.canova.image.recordreader.ImageRecordReader;
-import org.canova.image.transform.*;
+import org.canova.image.transform.ImageTransform;
+import org.canova.image.transform.MultiImageTransform;
+import org.canova.image.transform.ShowImageTransform;
 import org.deeplearning4j.datasets.canova.RecordReaderDataSetIterator;
-import org.deeplearning4j.datasets.iterator.DataSetIterator;
-import org.deeplearning4j.datasets.iterator.MultipleEpochsIterator;
-import org.deeplearning4j.util.NetSaverLoaderUtils;
 import org.nd4j.linalg.dataset.DataSet;
-
+import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.util.List;
 import java.util.Random;
 
 /**
@@ -89,11 +84,10 @@ public class ImagePipelineExample {
 
         //You can use the ShowImageTransform to view your images
         //Code below gives you a look before and after, for a side by side comparison
-        //ImageTransform transform = new MultiImageTransform(randNumGen,new ShowImageTransform("Display - before "));   //This functionality: available in 0.4-rc3.11 and later
+        ImageTransform transform = new MultiImageTransform(randNumGen,new ShowImageTransform("Display - before "));
 
         //Initialize the record reader with the train data and the transform chain
-//        recordReader.initialize(trainData,transform); //0.4-rc3.11
-        recordReader.initialize(trainData);
+        recordReader.initialize(trainData,transform);
         //convert the record reader to an iterator for training - Refer to other examples for how to use an iterator
         DataSetIterator dataIter = new RecordReaderDataSetIterator(recordReader, 10, 1, outputNum);
         while (dataIter.hasNext()) {

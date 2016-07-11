@@ -2,7 +2,7 @@ package org.deeplearning4j.examples.recurrent.word2vecsentiment;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
-import org.deeplearning4j.datasets.iterator.DataSetIterator;
+import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.deeplearning4j.models.embeddings.wordvectors.WordVectors;
 import org.deeplearning4j.text.tokenization.tokenizer.preprocessor.CommonPreprocessor;
 import org.deeplearning4j.text.tokenization.tokenizerfactory.DefaultTokenizerFactory;
@@ -202,6 +202,10 @@ public class SentimentExampleIterator implements DataSetIterator {
     @Override
     public void remove() {
 
+    }
+    @Override
+    public  DataSetPreProcessor getPreProcessor() {
+        throw new UnsupportedOperationException("Not implemented");
     }
 
     /** Convenience method for loading review to String */
