@@ -59,6 +59,7 @@ public class MLPMnistTwoLayerExample {
                     .nOut(100)
                     .build())
             .layer(2, new OutputLayer.Builder(LossFunction.NEGATIVELOGLIKELIHOOD)
+                    .activation("softmax")
                     .nIn(100)
                     .nOut(outputNum)
                     .build())
