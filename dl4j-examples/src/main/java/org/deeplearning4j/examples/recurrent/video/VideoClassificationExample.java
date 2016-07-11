@@ -10,7 +10,7 @@ import org.canova.api.split.NumberedFileInputSplit;
 import org.canova.codec.reader.CodecRecordReader;
 import org.deeplearning4j.datasets.canova.SequenceRecordReaderDataSetIterator;
 import org.deeplearning4j.datasets.iterator.AsyncDataSetIterator;
-import org.deeplearning4j.datasets.iterator.DataSetIterator;
+import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.deeplearning4j.eval.Evaluation;
 import org.deeplearning4j.nn.api.OptimizationAlgorithm;
 import org.deeplearning4j.nn.conf.*;

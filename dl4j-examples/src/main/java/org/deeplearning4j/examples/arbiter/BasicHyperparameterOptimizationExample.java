@@ -1,6 +1,5 @@
 package org.deeplearning4j.examples.arbiter;
 
-import org.canova.api.util.ClassPathResource;
 import org.deeplearning4j.arbiter.DL4JConfiguration;
 import org.deeplearning4j.arbiter.MultiLayerSpace;
 import org.deeplearning4j.arbiter.data.DataSetIteratorProvider;
@@ -27,11 +26,11 @@ import org.deeplearning4j.arbiter.optimize.ui.listener.UIOptimizationRunnerStatu
 import org.deeplearning4j.arbiter.saver.local.multilayer.LocalMultiLayerNetworkSaver;
 import org.deeplearning4j.arbiter.scoring.multilayer.TestSetAccuracyScoreFunction;
 import org.deeplearning4j.arbiter.task.MultiLayerNetworkTaskCreator;
-import org.deeplearning4j.datasets.iterator.DataSetIterator;
 import org.deeplearning4j.datasets.iterator.MultipleEpochsIterator;
 import org.deeplearning4j.datasets.iterator.impl.MnistDataSetIterator;
 import org.deeplearning4j.nn.api.OptimizationAlgorithm;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
+import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 
 import java.io.File;
@@ -130,10 +129,7 @@ public class BasicHyperparameterOptimizationExample {
 
 
         //Start the UI
-        ArbiterUIServer server = new ArbiterUIServer();
-        File serverProps = new ClassPathResource("dropwizard.yml").getFile();
-        String[] serverArgs = new String[]{"server", serverProps.getAbsolutePath()};
-        server.run(serverArgs);
+        ArbiterUIServer server = ArbiterUIServer.getInstance();
         runner.addListeners(new UIOptimizationRunnerStatusListener(server));
 
 

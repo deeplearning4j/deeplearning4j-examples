@@ -6,7 +6,7 @@ import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.deeplearning4j.datasets.iterator.AsyncDataSetIterator;
-import org.deeplearning4j.datasets.iterator.DataSetIterator;
+
 import org.deeplearning4j.eval.Evaluation;
 import org.deeplearning4j.models.embeddings.loader.WordVectorSerializer;
 import org.deeplearning4j.models.embeddings.wordvectors.WordVectors;
@@ -22,6 +22,7 @@ import org.deeplearning4j.nn.weights.WeightInit;
 import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
+import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 
 import java.io.*;
@@ -125,6 +126,8 @@ public class Word2VecSentimentRNN {
         //Download file:
         String archizePath = DATA_PATH + "aclImdb_v1.tar.gz";
         File archiveFile = new File(archizePath);
+        String extractedPath = DATA_PATH + "aclImdb";
+        File extractedFile = new File(extractedPath);
 
         if( !archiveFile.exists() ){
             System.out.println("Starting data download (80MB)...");
@@ -135,6 +138,12 @@ public class Word2VecSentimentRNN {
         } else {
             //Assume if archive (.tar.gz) exists, then data has already been extracted
             System.out.println("Data (.tar.gz file) already exists at " + archiveFile.getAbsolutePath());
+            if( !extractedFile.exists()){
+            	//Extract tar.gz file to output directory
+            	extractTarGz(archizePath, DATA_PATH);
+            } else {
+            	System.out.println("Data (extracted) already exists at " + extractedFile.getAbsolutePath());
+            }
         }
     }
 

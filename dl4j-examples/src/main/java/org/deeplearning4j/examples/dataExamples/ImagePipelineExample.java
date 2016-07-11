@@ -6,9 +6,12 @@ import org.canova.api.split.FileSplit;
 import org.canova.api.split.InputSplit;
 import org.canova.image.loader.BaseImageLoader;
 import org.canova.image.recordreader.ImageRecordReader;
+import org.canova.image.transform.ImageTransform;
+import org.canova.image.transform.MultiImageTransform;
+import org.canova.image.transform.ShowImageTransform;
 import org.deeplearning4j.datasets.canova.RecordReaderDataSetIterator;
-import org.deeplearning4j.datasets.iterator.DataSetIterator;
 import org.nd4j.linalg.dataset.DataSet;
+import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,7 +53,7 @@ public class ImagePipelineExample {
         //And these label/class directories live together in the parent directory
         //
         //
-        File parentDir = new File(System.getProperty("user.dir"), "src/main/resources/DataExamples/ImagePipeline/");
+        File parentDir = new File(System.getProperty("user.dir"), "dl4j-examples/src/main/resources/DataExamples/ImagePipeline/");
         //Files in directories under the parent dir that have "allowed extensions" plit needs a random number generator for reproducibility when splitting the files into train and test
         FileSplit filesInDir = new FileSplit(parentDir, allowedExtensions, randNumGen);
 
@@ -81,11 +84,10 @@ public class ImagePipelineExample {
 
         //You can use the ShowImageTransform to view your images
         //Code below gives you a look before and after, for a side by side comparison
-        //ImageTransform transform = new MultiImageTransform(randNumGen,new ShowImageTransform("Display - before "));   //This functionality: available in 0.4-rc3.11 and later
+        ImageTransform transform = new MultiImageTransform(randNumGen,new ShowImageTransform("Display - before "));
 
         //Initialize the record reader with the train data and the transform chain
-//        recordReader.initialize(trainData,transform); //0.4-rc3.11
-        recordReader.initialize(trainData);
+        recordReader.initialize(trainData,transform);
         //convert the record reader to an iterator for training - Refer to other examples for how to use an iterator
         DataSetIterator dataIter = new RecordReaderDataSetIterator(recordReader, 10, 1, outputNum);
         while (dataIter.hasNext()) {

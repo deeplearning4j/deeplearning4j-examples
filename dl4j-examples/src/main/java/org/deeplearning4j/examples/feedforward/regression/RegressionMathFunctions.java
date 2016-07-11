@@ -2,7 +2,7 @@ package org.deeplearning4j.examples.feedforward.regression;
 
 import org.deeplearning4j.examples.feedforward.regression.function.MathFunction;
 import org.deeplearning4j.examples.feedforward.regression.function.SinXDivXMathFunction;
-import org.deeplearning4j.datasets.iterator.DataSetIterator;
+import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.deeplearning4j.datasets.iterator.impl.ListDataSetIterator;
 import org.deeplearning4j.nn.api.OptimizationAlgorithm;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
