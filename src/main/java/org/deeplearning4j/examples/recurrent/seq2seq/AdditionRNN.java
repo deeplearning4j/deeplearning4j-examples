@@ -11,13 +11,15 @@ import org.deeplearning4j.nn.conf.layers.GravesLSTM;
 import org.deeplearning4j.nn.conf.layers.RnnOutputLayer;
 import org.deeplearning4j.nn.graph.ComputationGraph;
 import org.deeplearning4j.nn.weights.WeightInit;
+import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
+import org.nd4j.linalg.api.buffer.DataBuffer;
+import org.nd4j.linalg.api.buffer.util.DataTypeUtil;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.api.MultiDataSet;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 
 import java.util.ArrayList;
-import java.lang.*;
 
 
 /**
@@ -54,6 +56,8 @@ public class AdditionRNN {
     public static final int timeSteps = NUM_DIGITS * 2 + 1;
 
     public static void main(String[] args) throws Exception {
+
+        DataTypeUtil.setDTypeForContext(DataBuffer.Type.DOUBLE);
         //Training data iterator
         CustomSequenceIterator iterator = new CustomSequenceIterator(seed, batchSize, totalBatches, NUM_DIGITS,timeSteps);
 
@@ -79,7 +83,7 @@ public class AdditionRNN {
         ComputationGraph net = new ComputationGraph(configuration);
         net.init();
         //net.setListeners(new ScoreIterationListener(200),new HistogramIterationListener(200));
-        //net.setListeners(new ScoreIterationListener(1));
+        net.setListeners(new ScoreIterationListener(1));
         //net.setListeners(new HistogramIterationListener(200));
         //Train model:
         int iEpoch = 0;
@@ -147,7 +151,7 @@ public class AdditionRNN {
         System.out.println("WRONG: "+wrong);
         System.out.println("CORRECT: "+correct);
         System.out.println("Note randomly guessing digits in succession gives lower than a accuracy of:"+randomAcc+"%");
-        System.out.println("The digits along with the spaces have to be predicted");
+        System.out.println("The digits along with the spaces have to be predicted\n");
     }
 
 }
