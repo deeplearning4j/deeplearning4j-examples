@@ -2,11 +2,9 @@ DL4J Release 0.4 Examples
 =========================
 Repository of Deeplearning4J neural net examples:
 
+- MLP Neural Nets
 - Convolutional Neural Nets
 - Recurrent Neural Nets
-- Deep-belief Neural Nets
-- Restricted Boltzmann Machines
-- Recursive Neural Nets
 - TSNE
 - Word2Vec & GloVe
 - Anomaly Detection
