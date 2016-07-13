@@ -11,6 +11,9 @@ import org.deeplearning4j.nn.conf.layers.GravesLSTM;
 import org.deeplearning4j.nn.conf.layers.RnnOutputLayer;
 import org.deeplearning4j.nn.graph.ComputationGraph;
 import org.deeplearning4j.nn.weights.WeightInit;
+import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
+import org.nd4j.linalg.api.buffer.DataBuffer;
+import org.nd4j.linalg.api.buffer.util.DataTypeUtil;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.api.MultiDataSet;
 import org.nd4j.linalg.factory.Nd4j;
@@ -18,7 +21,6 @@ import org.nd4j.linalg.lossfunctions.LossFunctions;
 import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
 
 import java.util.ArrayList;
-import java.lang.*;
 
 
 /**
@@ -55,6 +57,8 @@ public class AdditionRNN {
     public static final int timeSteps = NUM_DIGITS * 2 + 1;
 
     public static void main(String[] args) throws Exception {
+
+        DataTypeUtil.setDTypeForContext(DataBuffer.Type.DOUBLE);
         //Training data iterator
         CustomSequenceIterator iterator = new CustomSequenceIterator(seed, batchSize, totalBatches, NUM_DIGITS,timeSteps);
 
