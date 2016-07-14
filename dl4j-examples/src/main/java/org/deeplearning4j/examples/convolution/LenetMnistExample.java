@@ -53,6 +53,7 @@ public class LenetMnistExample {
                 .updater(Updater.NESTEROVS).momentum(0.9)
                 .list()
                 .layer(0, new ConvolutionLayer.Builder(5, 5)
+                        //nIn and nOut specify depth. nIn here is the nChannels and nOut is the number of filters to be applied
                         .nIn(nChannels)
                         .stride(1, 1)
                         .nOut(20)
@@ -63,6 +64,7 @@ public class LenetMnistExample {
                         .stride(2,2)
                         .build())
                 .layer(2, new ConvolutionLayer.Builder(5, 5)
+                        //Note that nIn needed be specified in later layers
                         .stride(1, 1)
                         .nOut(50)
                         .activation("identity")
@@ -78,6 +80,7 @@ public class LenetMnistExample {
                         .activation("softmax")
                         .build())
                 .backprop(true).pretrain(false);
+        // The builder needs the dimensions of the image along with the number of channels. these are 28x28 images in one channel
         new ConvolutionLayerSetup(builder,28,28,1);
 
         MultiLayerConfiguration conf = builder.build();
