@@ -110,27 +110,6 @@ public class RegressionMathFunctions {
                 .pretrain(false).backprop(true).build();
     }
 
-    /** Returns the network configuration, 1 hidden DenseLayer of size 20.
-     */
-    private static MultiLayerConfiguration getSimpleDenseLayerNetworkConfiguration() {
-        final int numHiddenNodes = 20;
-        return new NeuralNetConfiguration.Builder()
-                .seed(seed)
-                .iterations(iterations)
-                .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
-                .learningRate(learningRate)
-                .weightInit(WeightInit.XAVIER)
-                .updater(Updater.NESTEROVS).momentum(0.9)
-                .list()
-                .layer(0, new DenseLayer.Builder().nIn(numInputs).nOut(numHiddenNodes)
-                        .activation("tanh")
-                        .build())
-                .layer(1, new OutputLayer.Builder(LossFunctions.LossFunction.MSE)
-                        .activation("identity")
-                        .nIn(numHiddenNodes).nOut(numOutputs).build())
-                .pretrain(false).backprop(true).build();
-    }
-
     /** Create a DataSetIterator for training
      * @param x X values
      * @param function Function to evaluate
