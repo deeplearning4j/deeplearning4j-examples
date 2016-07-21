@@ -42,17 +42,17 @@ import org.nd4j.linalg.lossfunctions.LossFunctions;
  */
 public class CSVPlotter {
 	
-	public static void main( String[] args ) throws IOException, InterruptedException
+    public static void main( String[] args ) throws IOException, InterruptedException
     {
-    	String filename = "src/main/resources/DataExamples/CSVplotData.csv";
-    	DataSet ds = ReadCSVDataset(filename);
+        String filename = "src/main/resources/DataExamples/CSVplotData.csv";
+    	DataSet ds = readCSVDataset(filename);
     	
     	ArrayList<DataSet> DataSetList = new ArrayList<DataSet>();
     	DataSetList.add(ds);
     	
-    	PlotDataset(DataSetList); //Plot the data, make sure we have the right data.
+    	plotDataset(DataSetList); //Plot the data, make sure we have the right data.
     	
-    	MultiLayerNetwork net =FitStraightline(ds);
+    	MultiLayerNetwork net =fitStraightline(ds);
     	
     	// Get the min and max x values, using Nd4j 
     	NormalizerMinMaxScaler preProcessor = new NormalizerMinMaxScaler();
@@ -63,7 +63,7 @@ public class CSVPlotter {
         DataSet modeloutput = new DataSet(x,y);
         DataSetList.add(modeloutput);
         
-    	PlotDataset(DataSetList);    //Plot data and model fit.
+    	plotDataset(DataSetList);    //Plot data and model fit.
     }
     
 	/**
@@ -71,7 +71,7 @@ public class CSVPlotter {
 	 * @param ds The dataset to fit.
 	 * @return The network fitted to the data
 	 */
-	public static MultiLayerNetwork FitStraightline(DataSet ds){
+	public static MultiLayerNetwork fitStraightline(DataSet ds){
 		int seed = 12345;
 		int iterations = 1;
 		int nEpochs = 200;
@@ -80,7 +80,7 @@ public class CSVPlotter {
 	    int numOutputs = 1;
 		
 	    //
-	    // Hook up the 1 input to the one output. 
+	    // Hook up one input to the one output. 
 	    // The resulting model is a straight line. 
 	    //
 		MultiLayerConfiguration conf = new  NeuralNetConfiguration.Builder()
@@ -111,10 +111,10 @@ public class CSVPlotter {
 	}
 	
     /**
-     * Read a CSV file into a datasetIterator.
+     * Read a CSV file into a dataset.
      * 
      * Use the correct constructor:
-     * DataSetIterator Iter  = new RecordReaderDataSetIterator(rr,batchSize);    
+     * DataSet ds = new RecordReaderDataSetIterator(rr,batchSize);    
      * returns the data as follows:
      * ===========INPUT===================
      *[[12.89, 22.70],
@@ -135,7 +135,7 @@ public class CSVPlotter {
      *  
      *  This can be used as is for regression.
      */
-	public static DataSet ReadCSVDataset(String filename) throws IOException, InterruptedException{
+	public static DataSet readCSVDataset(String filename) throws IOException, InterruptedException{
 		int batchSize = 1000;
 		RecordReader rr = new CSVRecordReader();
 		rr.initialize(new FileSplit(new File(filename)));
@@ -147,7 +147,7 @@ public class CSVPlotter {
 	/**
 	 * Generate an xy plot of the datasets provided.
 	 */
-	static void PlotDataset(ArrayList<DataSet> DataSetList ){
+	static void plotDataset(ArrayList<DataSet> DataSetList ){
 		
 		XYSeriesCollection c = new XYSeriesCollection();
 		
@@ -175,7 +175,7 @@ public class CSVPlotter {
 		boolean legend = false;
 		boolean tooltips = false;
 		boolean urls = false;
-		JFreeChart chart =ChartFactory.createScatterPlot(title , xAxisLabel, yAxisLabel, dataset , orientation , legend , tooltips , urls);
+		JFreeChart chart = ChartFactory.createScatterPlot(title , xAxisLabel, yAxisLabel, dataset , orientation , legend , tooltips , urls);
     	JPanel panel = new ChartPanel(chart);
     	
     	 JFrame f = new JFrame();
