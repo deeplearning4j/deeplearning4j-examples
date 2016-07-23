@@ -75,7 +75,7 @@ public class ImagePipelineExample {
         ImageRecordReader recordReader = new ImageRecordReader(height,width,channels,labelMaker);
 
         //Often there is a need to transforming images to artificially increase the size of the dataset
-        //Canova has built in powerful features from OpenCV
+        //DataVec has built in powerful features from OpenCV
         //You can chain transformations as shown below, write your own classes that will say detect a face and crop to size
         /*ImageTransform transform = new MultiImageTransform(randNumGen,
             new CropImageTransform(10), new FlipImageTransform(),
