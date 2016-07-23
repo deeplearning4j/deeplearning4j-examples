@@ -1,15 +1,15 @@
 package org.deeplearning4j.examples.dataExamples;
 
-import org.canova.api.io.filters.BalancedPathFilter;
-import org.canova.api.io.labels.ParentPathLabelGenerator;
-import org.canova.api.split.FileSplit;
-import org.canova.api.split.InputSplit;
-import org.canova.image.loader.BaseImageLoader;
-import org.canova.image.recordreader.ImageRecordReader;
-import org.canova.image.transform.ImageTransform;
-import org.canova.image.transform.MultiImageTransform;
-import org.canova.image.transform.ShowImageTransform;
-import org.deeplearning4j.datasets.canova.RecordReaderDataSetIterator;
+import org.datavec.api.io.filters.BalancedPathFilter;
+import org.datavec.api.io.labels.ParentPathLabelGenerator;
+import org.datavec.api.split.FileSplit;
+import org.datavec.api.split.InputSplit;
+import org.datavec.image.loader.BaseImageLoader;
+import org.datavec.image.recordreader.ImageRecordReader;
+import org.datavec.image.transform.ImageTransform;
+import org.datavec.image.transform.MultiImageTransform;
+import org.datavec.image.transform.ShowImageTransform;
+import org.deeplearning4j.datasets.datavec.RecordReaderDataSetIterator;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.slf4j.Logger;
@@ -75,7 +75,7 @@ public class ImagePipelineExample {
         ImageRecordReader recordReader = new ImageRecordReader(height,width,channels,labelMaker);
 
         //Often there is a need to transforming images to artificially increase the size of the dataset
-        //Canova has built in powerful features from OpenCV
+        //DataVec has built in powerful features from OpenCV
         //You can chain transformations as shown below, write your own classes that will say detect a face and crop to size
         /*ImageTransform transform = new MultiImageTransform(randNumGen,
             new CropImageTransform(10), new FlipImageTransform(),
