@@ -7,6 +7,7 @@ import org.datavec.api.records.reader.RecordReader;
 import org.datavec.api.records.reader.impl.csv.CSVRecordReader;
 import org.datavec.api.transform.DataAction;
 import org.datavec.api.transform.analysis.DataAnalysis;
+import org.datavec.api.transform.analysis.columns.DoubleAnalysis;
 import org.datavec.api.transform.schema.Schema;
 import org.datavec.api.transform.ui.HtmlAnalysis;
 import org.datavec.api.util.ClassPathResource;
@@ -49,6 +50,12 @@ public class IrisAnalysis {
 
         int maxHistogramBuckets = 10;
         DataAnalysis dataAnalysis = AnalyzeSpark.analyze(schema, parsedInputData, maxHistogramBuckets);
+
+        //We can get statistics on a per-column basis:
+        DoubleAnalysis da = (DoubleAnalysis)dataAnalysis.getColumnAnalysis("Sepal Length");
+        double minValue = da.getMin();
+        double maxValue = da.getMax();
+        double mean = da.getMean();
 
         HtmlAnalysis.createHtmlAnalysisFile(dataAnalysis, new File("DataVecIrisAnalysis.html"));
 
