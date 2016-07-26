@@ -1,6 +1,6 @@
 package org.deeplearning4j.examples.nlp.paragraphvectors;
 
-import org.canova.api.util.ClassPathResource;
+import org.datavec.api.util.ClassPathResource;
 import org.deeplearning4j.berkeley.Pair;
 import org.deeplearning4j.examples.nlp.paragraphvectors.tools.FileLabelAwareIterator;
 import org.deeplearning4j.examples.nlp.paragraphvectors.tools.LabelSeeker;
