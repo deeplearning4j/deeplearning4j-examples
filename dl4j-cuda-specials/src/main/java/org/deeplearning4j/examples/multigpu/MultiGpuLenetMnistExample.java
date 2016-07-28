@@ -40,7 +40,7 @@ public class MultiGpuLenetMnistExample {
 
     public static void main(String[] args) throws Exception {
         // PLEASE NOTE: For CUDA FP16 precision support is available
-        DataTypeUtil.setDTypeForContext(DataBuffer.Type.FLOAT);
+        DataTypeUtil.setDTypeForContext(DataBuffer.Type.HALF);
 
         CudaEnvironment.getInstance().getConfiguration()
             // key option enabled
