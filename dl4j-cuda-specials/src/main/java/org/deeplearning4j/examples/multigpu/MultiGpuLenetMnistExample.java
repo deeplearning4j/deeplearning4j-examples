@@ -1,5 +1,6 @@
 package org.deeplearning4j.examples.multigpu;
 
+import org.deeplearning4j.datasets.iterator.MultipleEpochsIterator;
 import org.deeplearning4j.datasets.iterator.impl.MnistDataSetIterator;
 import org.deeplearning4j.eval.Evaluation;
 import org.deeplearning4j.nn.api.OptimizationAlgorithm;
@@ -15,7 +16,7 @@ import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
 import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
 import org.deeplearning4j.parallelism.ParallelWrapper;
-import org.nd4j.jita.conf.CudaEnvironment;
+import org.nd4j.jita.conf.Configuration;
 import org.nd4j.linalg.api.buffer.DataBuffer;
 import org.nd4j.linalg.api.buffer.util.DataTypeUtil;
 import org.nd4j.linalg.api.ndarray.INDArray;
@@ -24,6 +25,8 @@ import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import org.nd4j.jita.conf.CudaEnvironment;
 
 
 /**
@@ -37,7 +40,7 @@ public class MultiGpuLenetMnistExample {
 
     public static void main(String[] args) throws Exception {
         // PLEASE NOTE: For CUDA FP16 precision support is available
-        DataTypeUtil.setDTypeForContext(DataBuffer.Type.HALF);
+        DataTypeUtil.setDTypeForContext(DataBuffer.Type.FLOAT);
 
         CudaEnvironment.getInstance().getConfiguration()
             // key option enabled
@@ -121,15 +124,24 @@ public class MultiGpuLenetMnistExample {
 
             // if set to TRUE, on every averaging model score will be reported
             .reportScoreAfterAveraging(true)
+
+            // optinal parameter, set to true ONLY if your system do not support P2P memory access across PCIe
+            .useLegacyAveraging(false)
+
             .build();
 
         log.info("Train model....");
         model.setListeners(new ScoreIterationListener(100));
         long timeX = System.currentTimeMillis();
+
+        // optionally you might want to use MultipleEpochsIterator instead of manually iterating/resetting over your iterator
+        //MultipleEpochsIterator mnistMultiEpochIterator = new MultipleEpochsIterator(nEpochs, mnistTrain);
+
         for( int i=0; i<nEpochs; i++ ) {
             long time1 = System.currentTimeMillis();
 
             // Please note: we're feeding ParallelWrapper with iterator, not model directly
+//            wrapper.fit(mnistMultiEpochIterator);
             wrapper.fit(mnistTrain);
             long time2 = System.currentTimeMillis();
             log.info("*** Completed epoch {}, time: {} ***", i, (time2 - time1));
