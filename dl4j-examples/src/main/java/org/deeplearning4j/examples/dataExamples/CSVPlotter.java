@@ -44,7 +44,7 @@ public class CSVPlotter {
 
     public static void main( String[] args ) throws IOException, InterruptedException
     {
-        String filename = "src/main/resources/DataExamples/CSVPlotData.csv";
+        String filename = "dl4j-examples/src/main/resources/DataExamples/CSVPlotData.csv";
     	DataSet ds = readCSVDataset(filename);
 
     	ArrayList<DataSet> DataSetList = new ArrayList<DataSet>();
