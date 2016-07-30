@@ -14,6 +14,7 @@ import org.deeplearning4j.nn.conf.layers.setup.ConvolutionLayerSetup;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
 import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
+
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
@@ -21,7 +22,9 @@ import org.nd4j.linalg.lossfunctions.LossFunctions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-//import org.deeplearning4j.nn.conf.LearningRatePolicy;
+//import org.nd4j.jita.conf.CudaEnvironment;
+//import org.nd4j.jita.perf.OpDashboard;
+import org.deeplearning4j.nn.conf.LearningRatePolicy;
 
 /**
  * Created by agibsonccc on 9/16/15.
@@ -30,6 +33,12 @@ public class LenetMnistExample {
     private static final Logger log = LoggerFactory.getLogger(LenetMnistExample.class);
 
     public static void main(String[] args) throws Exception {
+/*        CudaEnvironment.getInstance().getConfiguration()
+            .allowMultiGPU(false)
+            .enableStatisticsGathering(false)
+            .setVerbose(true)
+            .enableDebug(true);
+*/
         int nChannels = 1;
         int outputNum = 10;
         int batchSize = 64;
@@ -90,20 +99,24 @@ public class LenetMnistExample {
 
         log.info("Train model....");
         model.setListeners(new ScoreIterationListener(1));
+        nEpochs = 1;
         for( int i=0; i<nEpochs; i++ ) {
             model.fit(mnistTrain);
             log.info("*** Completed epoch {} ***", i);
-
-            log.info("Evaluate model....");
-            Evaluation eval = new Evaluation(outputNum);
-            while(mnistTest.hasNext()){
-                DataSet ds = mnistTest.next();
-                INDArray output = model.output(ds.getFeatureMatrix(), false);
-                eval.eval(ds.getLabels(), output);
-            }
-            log.info(eval.stats());
-            mnistTest.reset();
         }
+
+     //   OpDashboard.getInstance().printOutDashboard();
+/*
+        log.info("Evaluate model....");
+        Evaluation eval = new Evaluation(outputNum);
+        while(mnistTest.hasNext()){
+            DataSet ds = mnistTest.next();
+            INDArray output = model.output(ds.getFeatureMatrix(), false);
+            eval.eval(ds.getLabels(), output);
+        }
+        log.info(eval.stats());
+        mnistTest.reset();
+        */
         log.info("****************Example finished********************");
     }
 }
