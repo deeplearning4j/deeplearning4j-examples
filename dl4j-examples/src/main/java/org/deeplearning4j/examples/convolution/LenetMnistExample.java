@@ -15,6 +15,7 @@ import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
 import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
 
+import org.deeplearning4j.parallelism.ParallelWrapper;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
@@ -22,7 +23,7 @@ import org.nd4j.linalg.lossfunctions.LossFunctions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-//import org.nd4j.jita.conf.CudaEnvironment;
+import org.nd4j.jita.conf.CudaEnvironment;
 //import org.nd4j.jita.perf.OpDashboard;
 import org.deeplearning4j.nn.conf.LearningRatePolicy;
 
@@ -33,12 +34,12 @@ public class LenetMnistExample {
     private static final Logger log = LoggerFactory.getLogger(LenetMnistExample.class);
 
     public static void main(String[] args) throws Exception {
-/*        CudaEnvironment.getInstance().getConfiguration()
+        CudaEnvironment.getInstance().getConfiguration()
             .allowMultiGPU(false)
             .enableStatisticsGathering(false)
             .setVerbose(true)
             .enableDebug(true);
-*/
+
         int nChannels = 1;
         int outputNum = 10;
         int batchSize = 64;
@@ -96,12 +97,17 @@ public class LenetMnistExample {
         MultiLayerNetwork model = new MultiLayerNetwork(conf);
         model.init();
 
+        ParallelWrapper wrapper = new ParallelWrapper.Builder(model)
+            .averagingFrequency(1)
+            .prefetchBuffer(12)
+            .workers(4)
+            .build();
 
         log.info("Train model....");
         model.setListeners(new ScoreIterationListener(1));
         nEpochs = 1;
         for( int i=0; i<nEpochs; i++ ) {
-            model.fit(mnistTrain);
+            wrapper.fit(mnistTrain);
             log.info("*** Completed epoch {} ***", i);
         }
 

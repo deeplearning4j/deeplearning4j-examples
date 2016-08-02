@@ -183,7 +183,18 @@ public class CharacterIterator implements DataSetIterator {
 		return validCharacters.length;
 	}
 
-	public void reset() {
+    /**
+     * Is resetting supported by this DataSetIterator? Many DataSetIterators do support resetting,
+     * but some don't
+     *
+     * @return true if reset method is supported; false otherwise
+     */
+    @Override
+    public boolean resetSupported() {
+        return false;
+    }
+
+    public void reset() {
         exampleStartOffsets.clear();
 		int nMinibatchesPerEpoch = totalExamples();
         for( int i=0; i<nMinibatchesPerEpoch; i++ ){

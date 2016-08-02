@@ -60,13 +60,19 @@ public class SimpleFlowers {
         DataTypeUtil.setDTypeForContext(DataBuffer.Type.HALF);
 
         CudaEnvironment.getInstance().getConfiguration()
-            .allowMultiGPU(true)
+            .allowMultiGPU(false)
             .allowCrossDeviceAccess(true)
             .enableStatisticsGathering(false)
             .setMaximumGridSize(512)
             .setMaximumBlockSize(512)
+            .setMaximumDeviceCacheableLength(1024 * 1024 * 1024L)
+            .setMaximumDeviceCache(6L * 1024 * 1024 * 1024L)
+            .setMaximumHostCache(6L * 1024 * 1024 * 1024L)
+            .setMaximumHostCacheableLength(1024 * 1024 * 1024L)
             .setVerbose(false)
             .enableDebug(false);
+
+
 
 
 
@@ -93,8 +99,8 @@ public class SimpleFlowers {
         InputSplit trainData = inputSplit[0];
         InputSplit testData = inputSplit[1];
 
-        recordReader.initialize(trainData);
-        testRecordReader.initialize(testData);
+        recordReader.initialize(trainData, transform);
+        testRecordReader.initialize(testData, transform);
 
         RecordReaderDataSetIterator dataIter = new RecordReaderDataSetIterator(recordReader, config.getBatchSize(), -1,outputNum);
         RecordReaderDataSetIterator testDataIter = new RecordReaderDataSetIterator(testRecordReader, config.getBatchSize(), -1, outputNum);
@@ -142,16 +148,17 @@ public class SimpleFlowers {
 
         System.out.println("Train model....");
         model.setListeners(new ScoreIterationListener(10));
-
+/*
         ParallelWrapper wrapper = new ParallelWrapper.Builder(model)
-            .workers(4)
+            .workers(2)
             .prefetchBuffer(12)
-            .averagingFrequency(5)
+            .averagingFrequency(1000000)
+            .useLegacyAveraging(true)
             .build();
-
+*/
         for (int i = 0; i < config.getNumEpochs(); i++) {
             long time1 = System.currentTimeMillis();
-            wrapper.fit(dataIter);
+            model.fit(dataIter);
             long time2 = System.currentTimeMillis();
             System.out.println("Epoch execution time: " + (time2 - time1));
 

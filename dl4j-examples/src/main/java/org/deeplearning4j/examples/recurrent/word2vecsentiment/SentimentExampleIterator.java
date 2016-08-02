@@ -159,6 +159,17 @@ public class SentimentExampleIterator implements DataSetIterator {
         return 2;
     }
 
+    /**
+     * Is resetting supported by this DataSetIterator? Many DataSetIterators do support resetting,
+     * but some don't
+     *
+     * @return true if reset method is supported; false otherwise
+     */
+    @Override
+    public boolean resetSupported() {
+        return false;
+    }
+
     @Override
     public void reset() {
         cursor = 0;
