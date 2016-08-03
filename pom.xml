@@ -32,7 +32,7 @@
         <module>dl4j-examples</module>
         <module>dl4j-spark-examples</module>
         <module>datavec-examples</module>
-        <module>dl4j-cuda-specials</module>
+        <module>dl4j-cuda-specific-examples</module>
     </modules>
 
 </project>
