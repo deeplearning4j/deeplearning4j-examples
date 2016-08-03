@@ -83,7 +83,6 @@ public class BasicRNNExample {
 		// finish builder
 		listBuilder.pretrain(false);
 		listBuilder.backprop(true);
-		listBuilder.build();
 
 		// create network
 		MultiLayerConfiguration conf = listBuilder.build();
