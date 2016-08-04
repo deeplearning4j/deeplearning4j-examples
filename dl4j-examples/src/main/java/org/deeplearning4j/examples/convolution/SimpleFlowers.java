@@ -33,7 +33,7 @@ import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.dataset.api.DataSetPreProcessor;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 
-import org.nd4j.jita.conf.CudaEnvironment;
+//import org.nd4j.jita.conf.CudaEnvironment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,8 +57,8 @@ public class SimpleFlowers {
     }
 
     public static void main(String[] args) throws Exception {
-        DataTypeUtil.setDTypeForContext(DataBuffer.Type.HALF);
-
+        //DataTypeUtil.setDTypeForContext(DataBuffer.Type.HALF);
+/*
         CudaEnvironment.getInstance().getConfiguration()
             .allowMultiGPU(false)
             .allowCrossDeviceAccess(true)
@@ -71,7 +71,7 @@ public class SimpleFlowers {
             .setMaximumHostCacheableLength(1024 * 1024 * 1024L)
             .setVerbose(false)
             .enableDebug(false);
-
+*/
 
 
 
@@ -93,14 +93,14 @@ public class SimpleFlowers {
 
         BalancedPathFilter pathFilter = new BalancedPathFilter(randNumGen, allowedExtensions, labelMaker);
 
-        ImageTransform transform = new MultiImageTransform(randNumGen,new ResizeImageTransform(200, 200));
+        //ImageTransform transform = new MultiImageTransform(randNumGen,new ResizeImageTransform(200, 200));
 
         InputSplit[] inputSplit = fileSplit.sample(pathFilter,80,20);
         InputSplit trainData = inputSplit[0];
         InputSplit testData = inputSplit[1];
 
-        recordReader.initialize(trainData, transform);
-        testRecordReader.initialize(testData, transform);
+        //recordReader.initialize(trainData, transform);
+        //testRecordReader.initialize(testData, transform);
 
         RecordReaderDataSetIterator dataIter = new RecordReaderDataSetIterator(recordReader, config.getBatchSize(), -1,outputNum);
         RecordReaderDataSetIterator testDataIter = new RecordReaderDataSetIterator(testRecordReader, config.getBatchSize(), -1, outputNum);

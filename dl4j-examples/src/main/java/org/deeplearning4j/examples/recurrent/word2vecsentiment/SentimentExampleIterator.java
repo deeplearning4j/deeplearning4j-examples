@@ -165,7 +165,6 @@ public class SentimentExampleIterator implements DataSetIterator {
      *
      * @return true if reset method is supported; false otherwise
      */
-    @Override
     public boolean resetSupported() {
         return false;
     }
