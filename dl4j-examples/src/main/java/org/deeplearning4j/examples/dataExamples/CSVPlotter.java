@@ -34,6 +34,7 @@ import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.nd4j.linalg.dataset.api.preprocessor.NormalizerMinMaxScaler;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
+import org.springframework.core.io.ClassPathResource;
 
 /**
  * Read a csv file. Fit and plot the data using Deeplearning4J.
@@ -44,7 +45,7 @@ public class CSVPlotter {
 
     public static void main( String[] args ) throws IOException, InterruptedException
     {
-        String filename = "dl4j-examples/src/main/resources/DataExamples/CSVPlotData.csv";
+        String filename = new ClassPathResource("/DataExamples/CSVPlotData.csv").getFile().getPath();
     	DataSet ds = readCSVDataset(filename);
 
     	ArrayList<DataSet> DataSetList = new ArrayList<DataSet>();
