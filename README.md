@@ -1,4 +1,4 @@
-DL4J Release 0.4 Examples 
+Deeplearning4J Examples 
 =========================
 Repository of Deeplearning4J neural net examples:
 
