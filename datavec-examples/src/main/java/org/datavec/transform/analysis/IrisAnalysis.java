@@ -51,8 +51,10 @@ public class IrisAnalysis {
         int maxHistogramBuckets = 10;
         DataAnalysis dataAnalysis = AnalyzeSpark.analyze(schema, parsedInputData, maxHistogramBuckets);
 
+        System.out.println(dataAnalysis);
+
         //We can get statistics on a per-column basis:
-        DoubleAnalysis da = (DoubleAnalysis)dataAnalysis.getColumnAnalysis("Sepal Length");
+        DoubleAnalysis da = (DoubleAnalysis)dataAnalysis.getColumnAnalysis("Sepal length");
         double minValue = da.getMin();
         double maxValue = da.getMax();
         double mean = da.getMean();
