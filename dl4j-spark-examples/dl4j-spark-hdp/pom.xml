@@ -9,7 +9,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>dl4j-spark-hdp2.4</artifactId>
+    <artifactId>dl4j-spark-hdp</artifactId>
 
 
 </project>
