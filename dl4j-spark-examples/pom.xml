@@ -10,8 +10,8 @@
     <version>${project.version}</version>
     <modules>
         <module>dl4j-spark-local</module>
-        <module>dl4j-spark-cdh5</module>
-        <module>dl4j-spark-hdp2.4</module>
+        <module>dl4j-spark-cdh</module>
+        <module>dl4j-spark-hdp</module>
     </modules>
 
 
