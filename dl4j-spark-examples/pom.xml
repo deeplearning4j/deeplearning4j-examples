@@ -6,7 +6,13 @@
 
     <groupId>org.deeplearning4j</groupId>
     <artifactId>dl4j-spark-examples</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
+    <version>${project.version}</version>
+    <modules>
+        <module>dl4j-spark-local</module>
+        <module>dl4j-spark-cdh5</module>
+        <module>dl4j-spark-hdp2.4</module>
+    </modules>
 
 
 </project>
