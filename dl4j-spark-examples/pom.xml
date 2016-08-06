@@ -4,10 +4,16 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>org.deeplearning4j</groupId>
+    <parent>
+        <groupId>org.deeplearning4j</groupId>
+        <artifactId>deeplearning4j-examples-parent</artifactId>
+        <version>0.5-SNAPSHOT</version>
+    </parent>
+
     <artifactId>dl4j-spark-examples</artifactId>
     <packaging>pom</packaging>
-    <version>${project.version}</version>
+
+
     <modules>
         <module>dl4j-spark-local</module>
         <module>dl4j-spark-cdh</module>
