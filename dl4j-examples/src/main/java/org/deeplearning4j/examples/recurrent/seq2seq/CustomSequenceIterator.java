@@ -185,6 +185,10 @@ public class CustomSequenceIterator implements MultiDataSetIterator {
         randnumG = new Random(seed);
     }
 
+    public boolean resetSupported() {
+        return true;
+    }
+
     @Override
     public boolean hasNext() {
         //This generates numbers on the fly

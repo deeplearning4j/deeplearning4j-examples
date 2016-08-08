@@ -174,6 +174,10 @@ public class SentimentExampleIterator implements DataSetIterator {
         cursor = 0;
     }
 
+    public boolean resetSupported() {
+        return true;
+    }
+
     @Override
     public int batch() {
         return batchSize;
