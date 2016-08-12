@@ -1,5 +1,6 @@
 package org.deeplearning4j.examples.convolution;
 
+import org.deeplearning4j.datasets.iterator.AsyncDataSetIterator;
 import org.deeplearning4j.datasets.iterator.impl.MnistDataSetIterator;
 import org.deeplearning4j.eval.Evaluation;
 import org.deeplearning4j.nn.api.OptimizationAlgorithm;
@@ -13,7 +14,11 @@ import org.deeplearning4j.nn.conf.layers.SubsamplingLayer;
 import org.deeplearning4j.nn.conf.layers.setup.ConvolutionLayerSetup;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
+import org.deeplearning4j.optimize.listeners.PerformanceListener;
 import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
+//import org.nd4j.jita.conf.CudaEnvironment;
+import org.nd4j.linalg.api.buffer.DataBuffer;
+import org.nd4j.linalg.api.buffer.util.DataTypeUtil;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
@@ -32,11 +37,29 @@ public class LenetMnistExample {
     public static void main(String[] args) throws Exception {
         int nChannels = 1;
         int outputNum = 10;
-        int batchSize = 64;
+        int batchSize = 256;
         int nEpochs = 10;
         int iterations = 1;
         int seed = 123;
 
+
+/*
+        CudaEnvironment.getInstance().getConfiguration()
+            // key option enabled
+            .allowMultiGPU(true)
+
+            // we're allowing larger memory caches
+            .setMaximumDeviceCache(3L * 1024L * 1024L * 1024L)
+
+            .setMaximumHostCache(6L * 1024L * 1024L * 1024L)
+
+            .setMaximumGridSize(512)
+
+            .setMaximumBlockSize(512)
+
+            // cross-device access is used for faster model averaging over pcie
+            .allowCrossDeviceAccess(true);
+*/
         log.info("Load data....");
         DataSetIterator mnistTrain = new MnistDataSetIterator(batchSize,true,12345);
         DataSetIterator mnistTest = new MnistDataSetIterator(batchSize,false,12345);
@@ -89,21 +112,24 @@ public class LenetMnistExample {
 
 
         log.info("Train model....");
-        model.setListeners(new ScoreIterationListener(1));
+        model.setListeners(new PerformanceListener(200, true));
         for( int i=0; i<nEpochs; i++ ) {
+            long time1 = System.currentTimeMillis();
             model.fit(mnistTrain);
-            log.info("*** Completed epoch {} ***", i);
-
-            log.info("Evaluate model....");
-            Evaluation eval = new Evaluation(outputNum);
-            while(mnistTest.hasNext()){
-                DataSet ds = mnistTest.next();
-                INDArray output = model.output(ds.getFeatureMatrix(), false);
-                eval.eval(ds.getLabels(), output);
-            }
-            log.info(eval.stats());
-            mnistTest.reset();
+            long time2 = System.currentTimeMillis();
+            log.info("*** Completed epoch {}, time elapsed: {} ***", i, (time2 - time1));
         }
+
+        log.info("Evaluate model....");
+        Evaluation eval = new Evaluation(outputNum);
+        while(mnistTest.hasNext()){
+            DataSet ds = mnistTest.next();
+            INDArray output = model.output(ds.getFeatureMatrix(), false);
+            eval.eval(ds.getLabels(), output);
+        }
+        log.info(eval.stats());
+        mnistTest.reset();
+
         log.info("****************Example finished********************");
     }
 }
