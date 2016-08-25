@@ -203,9 +203,6 @@ public class CharacterIterator implements DataSetIterator {
         Collections.shuffle(exampleStartOffsets,rng);
 	}
 
-	public boolean resetSupported() {
-		return true;
-	}
 
 	public int batch() {
 		return miniBatchSize;
