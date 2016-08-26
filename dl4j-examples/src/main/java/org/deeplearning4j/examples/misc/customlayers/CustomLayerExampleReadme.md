@@ -24,8 +24,11 @@ The implementation layer ((2) above) class has parameters, and handles network f
 pass, backpropagation, etc. It is created from the org.deeplearning4j.nn.conf.layers.Layer.instantiate(...)
 method.
 
-An example of these are CustomLayerConfig and CustomLayer. Both of these classes have
-extensive comments regarding the methods and implementation.
+You'll note that in Deeplearning4j there are two DenseLayer clases, two GravesLSTM classes,
+etc: the reason is because one is for the configuration, one is for the implementation.
+
+An example of these are CustomLayer (configuration) and CustomLayerImpl. Both of these classes have
+extensive comments regarding the methods, etc.
 
 ## Testing Your Custom Layer
 
