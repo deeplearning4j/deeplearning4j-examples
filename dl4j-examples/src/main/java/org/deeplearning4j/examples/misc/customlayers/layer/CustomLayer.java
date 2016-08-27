@@ -1,4 +1,4 @@
-package org.deeplearning4j.examples.misc.customlayers;
+package org.deeplearning4j.examples.misc.customlayers.layer;
 
 import org.deeplearning4j.nn.api.Layer;
 import org.deeplearning4j.nn.api.ParamInitializer;
@@ -12,29 +12,31 @@ import java.util.Collection;
 import java.util.Map;
 
 /**
- * Created by Alex on 26/08/2016.
+ * Layer configuration class for the custom layer example
+ *
+ * @author Alex Black
  */
 public class CustomLayer extends FeedForwardLayer {
 
     private String secondActivationFunction;
 
-    public CustomLayer(){
+    public CustomLayer() {
         //We need a no-arg constructor so we can deserialize the configuration from JSON or YAML format
         // Without this, you will likely get an exception like the following:
-        //com.fasterxml.jackson.databind.JsonMappingException: No suitable constructor found for type [simple type, class org.deeplearning4j.examples.misc.customlayers.CustomLayer]: can not instantiate from JSON object (missing default constructor or creator, or perhaps need to add/enable type information?)
+        //com.fasterxml.jackson.databind.JsonMappingException: No suitable constructor found for type [simple type, class org.deeplearning4j.examples.misc.customlayers.layer.CustomLayer]: can not instantiate from JSON object (missing default constructor or creator, or perhaps need to add/enable type information?)
     }
 
-    private CustomLayer(Builder builder){
+    private CustomLayer(Builder builder) {
         super(builder);
-        this.secondActivationFunction = secondActivationFunction;
+        this.secondActivationFunction = builder.secondActivationFunction;
     }
 
-    public String getSecondActivationFunction(){
+    public String getSecondActivationFunction() {
         //We also need setter/getter methods for our layer configuration fields (if any) for JSON serialization
         return secondActivationFunction;
     }
 
-    public void setSecondActivationFunction(String secondActivationFunction){
+    public void setSecondActivationFunction(String secondActivationFunction) {
         //We also need setter/getter methods for our layer configuration fields (if any) for JSON serialization
         this.secondActivationFunction = secondActivationFunction;
     }
@@ -79,7 +81,7 @@ public class CustomLayer extends FeedForwardLayer {
 
     //Here's an implementation of a builder pattern, to allow us to easily configure the layer
     //Note that we are inheriting all of the FeedForwardLayer.Builder options: things like n
-    public static class Builder extends FeedForwardLayer.Builder<Builder>{
+    public static class Builder extends FeedForwardLayer.Builder<Builder> {
 
         private String secondActivationFunction;
 
@@ -88,9 +90,9 @@ public class CustomLayer extends FeedForwardLayer {
         /**
          * A custom property used in this custom layer example. See the CustomLayerExampleReadme.md for details
          *
-         * @param secondActivationFunction    Second activation function for the layer
+         * @param secondActivationFunction Second activation function for the layer
          */
-        public Builder secondActivationFunction(String secondActivationFunction){
+        public Builder secondActivationFunction(String secondActivationFunction) {
             this.secondActivationFunction = secondActivationFunction;
             return this;
         }
