@@ -45,6 +45,8 @@ it is correct.
 These tests should at a minimum include the following:
 
 1. Tests to ensure that the JSON configuration (to/from JSON) works correctly
+   This is necessary for networks with your custom layer to function with both
+   model serialization (saving) and Spark training.
 2. Gradient checks to ensure that the implementation is correct
 
-These tests are implemented in the CustomLayerTests
+These tests are implemented in the CustomLayerExample class.

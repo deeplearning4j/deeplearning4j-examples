@@ -41,7 +41,7 @@ public class CustomLayerImpl extends BaseLayer<CustomLayer> { //Generic paramete
     public INDArray activate(boolean training) {
         /*
         The activate method is used for doing forward pass. Note that it relies on the pre-output method;
-        essentially we are just applying the activation function(s).
+        essentially we are just applying the activation function (or, functions in this example).
         In this particular (contrived) example, we have TWO activation functions - one for the first half of the outputs
         and another for the second half.
          */
@@ -64,8 +64,31 @@ public class CustomLayerImpl extends BaseLayer<CustomLayer> { //Generic paramete
 
     @Override
     public Pair<Gradient, INDArray> backpropGradient(INDArray epsilon) {
+        /*
+        The baockprop gradient method here is very similar to the BaseLayer backprop gradient implementation
+        The only major difference is the two activation functions we have added in this example.
+
+        Note that epsilon is dL/da - i.e., the derivative of the loss function with respect to the activations.
+        It has the exact same shape as the activation arrays (i.e., the output of preOut and activate methods)
+        This is NOT the 'delta' commonly used in the neural network literature; the delta is obtained from the
+        epsilon ("epsilon" is dl4j's notation) by doing an element-wise product with the activation function derivative.
+
+        Note the following:
+        1. Is it very important that you use the gradientViews arrays for the results.
+           Note the gradientViews.get(...) and the in-place operations here.
+           This is because DL4J uses a single large array for the gradients for efficiency. Subsets of this array (views)
+           are distributed to each of the layers for efficient backprop and memory management.
+        2. The method returns two things, as a Pair:
+           (a) a Gradient object (essentially a Map<String,INDArray> of the gradients for each parameter (again, these
+               are views of the full network gradient array)
+           (b) an INDArray. This INDArray is the 'epsilon' to pass to the layer below. i.e., it is the gradient with
+               respect to the input to this layer
+
+        */
+
         INDArray activationDerivative = preOutput(true);
         int columns = activationDerivative.columns();
+
         INDArray firstHalf = activationDerivative.get(NDArrayIndex.all(), NDArrayIndex.interval(0, columns / 2));
         INDArray secondHalf = activationDerivative.get(NDArrayIndex.all(), NDArrayIndex.interval(columns / 2, columns));
 
@@ -75,7 +98,7 @@ public class CustomLayerImpl extends BaseLayer<CustomLayer> { //Generic paramete
         Nd4j.getExecutioner().exec(Nd4j.getOpFactory().createTransform(activation1, firstHalf).derivative());
         Nd4j.getExecutioner().exec(Nd4j.getOpFactory().createTransform(activation2, secondHalf).derivative());
 
-        //The remaining code here: just a copy/paste from BaseLayer
+        //The remaining code for this method: just copy & pasted from BaseLayer.backpropGradient
         INDArray delta = epsilon.muli(activationDerivative);
         if (maskArray != null) {
             delta.muliColumnVector(maskArray);

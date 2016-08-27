@@ -115,6 +115,7 @@ public class CustomLayerExample {
         ModelSerializer.writeModel(net, new File("CustomLayerModel.zip"), true);
         MultiLayerNetwork restored = ModelSerializer.restoreMultiLayerNetwork(new File("CustomLayerModel.zip"));
 
+        System.out.println();
         System.out.println("Original and restored networks: configs are equal: " + net.getLayerWiseConfigurations().equals(restored.getLayerWiseConfigurations()));
         System.out.println("Original and restored networks: parameters are equal: " + net.params().equals(restored.params()));
     }
