@@ -16,13 +16,16 @@ import org.deeplearning4j.nn.weights.WeightInit;
 import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
 
 import org.deeplearning4j.parallelism.ParallelWrapper;
+import org.nd4j.jita.allocator.impl.AtomicAllocator;
+import org.nd4j.jita.concurrency.EventsProvider;
 import org.nd4j.linalg.api.ndarray.INDArray;
 //import org.nd4j.linalg.cpu.nativecpu.ops.NativeOpExecutioner;
 import org.nd4j.linalg.api.ops.executioner.GridExecutioner;
+import org.nd4j.linalg.jcublas.ops.executioner.CudaGridExecutioner;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.nd4j.linalg.factory.Nd4j;
-import org.nd4j.linalg.jcublas.ops.executioner.CudaGridExecutioner;
+
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,6 +46,8 @@ public class LenetMnistExample {
             .allowMultiGPU(false)
             //.(true)
             .setMaximumGridSize(512)
+            .setMaximumBlockSize(256)
+            .setMinimumBlockSize(256)
             .setVerbose(false)
             .enableDebug(false);
 
@@ -128,6 +133,8 @@ public class LenetMnistExample {
 
         log.info("Training complete in: {} ms", (timeY - timeX));
         log.info("Model score: {}", model.score());
+        log.info("New events: {}", AtomicAllocator.getInstance().getFlowController().getEventsProvider().getEventsNumber());
+        log.info("Cached events: {}", AtomicAllocator.getInstance().getFlowController().getEventsProvider().getCachedNumber());
 
         if (Nd4j.getExecutioner() instanceof CudaGridExecutioner) {
             long meta = ((CudaGridExecutioner) Nd4j.getExecutioner()).getMetaCounter();
@@ -137,7 +144,7 @@ public class LenetMnistExample {
         }
 
         OpDashboard.getInstance().printOutDashboard();
-/*
+
         log.info("Evaluate model....");
         Evaluation eval = new Evaluation(outputNum);
         while(mnistTest.hasNext()){
@@ -147,7 +154,7 @@ public class LenetMnistExample {
         }
         log.info(eval.stats());
         mnistTest.reset();
-        */
+
         log.info("****************Example finished********************");
     }
 }
