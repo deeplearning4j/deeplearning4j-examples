@@ -43,11 +43,11 @@ public class LenetMnistExample {
     public static void main(String[] args) throws Exception {
 
         CudaEnvironment.getInstance().getConfiguration()
-            .allowMultiGPU(false)
+            .allowMultiGPU(true)
             //.(true)
             .setMaximumGridSize(512)
-            .setMaximumBlockSize(256)
-            .setMinimumBlockSize(256)
+            .setMaximumBlockSize(512)
+            .setMinimumBlockSize(384)
             .setVerbose(false)
             .enableDebug(false);
 
@@ -107,14 +107,15 @@ public class LenetMnistExample {
         MultiLayerConfiguration conf = builder.build();
         MultiLayerNetwork model = new MultiLayerNetwork(conf);
         model.init();
-
-        /*
+/*
         ParallelWrapper wrapper = new ParallelWrapper.Builder(model)
             .averagingFrequency(1)
             .prefetchBuffer(12)
-            .workers(4)
+            .workers(2)
+            .reportScoreAfterAveraging(false)
+            .useLegacyAveraging(false)
             .build();
-        */
+*/
 
         log.info("Train model....");
         model.setListeners(new ScoreIterationListener(100));
@@ -122,10 +123,11 @@ public class LenetMnistExample {
         //((NativeOpExecutioner) Nd4j.getExecutioner()).getLoop().setOmpNumThreads(8);
 
         long timeX = System.currentTimeMillis();
-        //nEpochs = 2;
+//        nEpochs = 2;
         for( int i=0; i<nEpochs; i++ ) {
             long time1 = System.currentTimeMillis();
             model.fit(mnistTrain);
+            //wrapper.fit(mnistTrain);
             long time2 = System.currentTimeMillis();
             log.info("*** Completed epoch {}, Time elapsed: {} ***", i, (time2 - time1));
         }
