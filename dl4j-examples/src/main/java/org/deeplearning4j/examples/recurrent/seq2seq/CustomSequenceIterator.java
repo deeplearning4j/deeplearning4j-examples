@@ -213,5 +213,10 @@ public class CustomSequenceIterator implements MultiDataSetIterator {
     public boolean resetSupported() {
         return false;
     }
+
+    @Override
+    public boolean asyncSupported() {
+        return false;
+    }
 }
 

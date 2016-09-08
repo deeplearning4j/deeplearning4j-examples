@@ -194,6 +194,11 @@ public class CharacterIterator implements DataSetIterator {
         return false;
     }
 
+    @Override
+    public boolean asyncSupported() {
+        return true;
+    }
+
     public void reset() {
         exampleStartOffsets.clear();
 		int nMinibatchesPerEpoch = totalExamples();
