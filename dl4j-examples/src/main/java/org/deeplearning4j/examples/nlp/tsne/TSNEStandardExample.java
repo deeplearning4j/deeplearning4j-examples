@@ -46,7 +46,6 @@ public class TSNEStandardExample {
                 .normalize(false)
                 .learningRate(500)
                 .useAdaGrad(false)
-                .usePca(false)
                 .build();
 
         log.info("Store TSNE Coordinates for Plotting....");

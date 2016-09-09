@@ -1,7 +1,6 @@
 package org.deeplearning4j.examples.dataExamples;
 
 
-import org.apache.commons.collections.map.HashedMap;
 import org.apache.commons.io.IOUtils;
 import org.datavec.api.records.reader.RecordReader;
 import org.datavec.api.records.reader.impl.csv.CSVRecordReader;
@@ -193,7 +192,7 @@ public class BasicCSVClassifier {
         INDArray features = testData.getFeatureMatrix();
         for (int i = 0; i < features.rows() ; i++) {
             INDArray slice = features.slice(i);
-            Map<String,Object> animal = new HashedMap();
+            Map<String,Object> animal = new HashMap<>();
 
             //set the attributes
             animal.put("yearsLived", slice.getInt(0));

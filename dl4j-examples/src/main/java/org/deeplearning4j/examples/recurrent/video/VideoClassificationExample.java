@@ -1,7 +1,7 @@
 package org.deeplearning4j.examples.recurrent.video;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.uima.util.FileUtils;
 import org.datavec.api.conf.Configuration;
 import org.datavec.api.records.reader.SequenceRecordReader;
 import org.datavec.api.records.reader.impl.csv.CSVSequenceRecordReader;
@@ -28,6 +28,8 @@ import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 
 import java.io.File;
+import java.io.FileWriter;
+import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -155,7 +157,11 @@ public class VideoClassificationExample {
             while(trainData.hasNext())
                 net.fit(trainData.next());
             Nd4j.saveBinary(net.params(),new File("videomodel.bin"));
-            FileUtils.saveString2File(conf.toJson(),new File("videoconf.json"));
+            //FileUtils.saveString2File(conf.toJson(),new File("videoconf.json"));
+            PrintWriter writer = new PrintWriter(new FileWriter(new File("videoconf.json")));
+            writer.println(conf.toJson());
+            writer.flush();
+            writer.close();
             System.out.println("Epoch " + i + " complete");
 
             //Evaluate classification performance:
