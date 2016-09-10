@@ -41,3 +41,6 @@ Word2vec-index/
 *.conf
 *.json
 
+
+src/main/resources/uci
+src/main/resources/uci/*
