@@ -108,6 +108,15 @@
             <artifactId>arbiter-deeplearning4j</artifactId>
             <version>${arbiter.version}</version>
         </dependency>
+
+
+        <dependency>
+            <groupId>org.nd4j</groupId>
+            <artifactId>nd4j-jackson</artifactId>
+            <version>0.5.0</version>
+        </dependency>
+
+
     </dependencies>
 
     <build>
