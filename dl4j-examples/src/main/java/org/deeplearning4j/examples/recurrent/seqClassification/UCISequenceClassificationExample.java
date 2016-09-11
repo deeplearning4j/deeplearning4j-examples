@@ -1,13 +1,18 @@
 package org.deeplearning4j.examples.recurrent.seqClassification;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.collections.map.HashedMap;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.datavec.api.berkeley.Pair;
 import org.datavec.api.records.reader.SequenceRecordReader;
 import org.datavec.api.records.reader.impl.csv.CSVSequenceRecordReader;
 import org.datavec.api.split.NumberedFileInputSplit;
+import org.datavec.api.util.ClassPathResource;
 import org.deeplearning4j.datasets.datavec.SequenceRecordReaderDataSetIterator;
 import org.deeplearning4j.eval.Evaluation;
+import org.deeplearning4j.examples.util.CSVUtils;
+import org.deeplearning4j.examples.util.NDArrayUtils;
 import org.deeplearning4j.nn.api.OptimizationAlgorithm;
 import org.deeplearning4j.nn.conf.GradientNormalization;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
@@ -18,6 +23,8 @@ import org.deeplearning4j.nn.conf.layers.RnnOutputLayer;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
 import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
+import org.nd4j.linalg.api.ndarray.INDArray;
+import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.nd4j.linalg.dataset.api.preprocessor.DataNormalization;
 import org.nd4j.linalg.dataset.api.preprocessor.NormalizerStandardize;
@@ -26,11 +33,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 /**
  * Sequence Classification Example Using a LSTM Recurrent Neural Network
@@ -73,17 +78,35 @@ import java.util.Random;
 public class UCISequenceClassificationExample {
     private static final Logger log = LoggerFactory.getLogger(UCISequenceClassificationExample.class);
 
-    //'baseDir': Base directory for the data. Change this if you want to save the data somewhere else
-    private static File baseDir = new File("src/main/resources/uci/");
-    private static File baseTrainDir = new File(baseDir, "train");
-    private static File featuresDirTrain = new File(baseTrainDir, "features");
-    private static File labelsDirTrain = new File(baseTrainDir, "labels");
-    private static File baseTestDir = new File(baseDir, "test");
-    private static File featuresDirTest = new File(baseTestDir, "features");
-    private static File labelsDirTest = new File(baseTestDir, "labels");
+    protected static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+
+    protected static Map<Integer,String> classifiers = CSVUtils.readEnumCSV("/recurrent/seqClassification/UCISequence/uci/classifiers.csv");
+    protected static File baseDir;
+    protected static File baseTrainDir;
+    protected static File featuresDirTrain;
+    protected static File labelsDirTrain;
+    protected static File baseTestDir;
+    protected static File featuresDirTest;
+    protected static File labelsDirTest;
 
     public static void main(String[] args) throws Exception {
-        downloadUCIData();
+
+        //'baseDir': Base directory for the data. Change this if you want to save the data somewhere else
+        baseDir = new ClassPathResource("/recurrent/seqClassification/UCISequence/uci/").getFile();
+        baseTrainDir = new File(baseDir, "train");
+        featuresDirTrain = new File(baseTrainDir, "features");
+        labelsDirTrain = new File(baseTrainDir, "labels");
+        baseTestDir = new File(baseDir, "test");
+        featuresDirTest = new File(baseTestDir, "features");
+        labelsDirTest = new File(baseTestDir, "labels");
+
+        trainNetworkAndMapTestClassifications(args);
+
+        log.info("----- Example Complete -----");
+    }
+
+    public static Map<Integer,Map<String,Object>> trainNetworkAndMapTestClassifications(String[] args)
+            throws IOException, InterruptedException {
 
         // ----- Load the training data -----
         //Note that we have 450 training files for features: train/features/0.csv through train/features/449.csv
@@ -95,7 +118,7 @@ public class UCISequenceClassificationExample {
         int miniBatchSize = 10;
         int numLabelClasses = 6;
         DataSetIterator trainData = new SequenceRecordReaderDataSetIterator(trainFeatures, trainLabels, miniBatchSize, numLabelClasses,
-            false, SequenceRecordReaderDataSetIterator.AlignmentMode.ALIGN_END);
+                false, SequenceRecordReaderDataSetIterator.AlignmentMode.ALIGN_END);
 
         //Normalize the training data
         DataNormalization normalizer = new NormalizerStandardize();
@@ -105,7 +128,6 @@ public class UCISequenceClassificationExample {
         //Use previously collected statistics to normalize on-the-fly. Each DataSet returned by 'trainData' iterator will be normalized
         trainData.setPreProcessor(normalizer);
 
-
         // ----- Load the test data -----
         //Same process as for the training data.
         SequenceRecordReader testFeatures = new CSVSequenceRecordReader();
@@ -114,10 +136,19 @@ public class UCISequenceClassificationExample {
         testLabels.initialize(new NumberedFileInputSplit(labelsDirTest.getAbsolutePath() + "/%d.csv", 0, 149));
 
         DataSetIterator testData = new SequenceRecordReaderDataSetIterator(testFeatures, testLabels, miniBatchSize, numLabelClasses,
-            false, SequenceRecordReaderDataSetIterator.AlignmentMode.ALIGN_END);
+                false, SequenceRecordReaderDataSetIterator.AlignmentMode.ALIGN_END);
 
+        //make a copy of the test data
+        DataSet ds = testData.next().copy();
+
+        //build a model we can use to correlate classifications
+        Map<Integer,Map<String,Object>> sequences = makeFeatureModelForTesting(ds);
+
+        //reset it because we dont know if using next altered it prior to normalization
+        testData.reset();
+
+        // normailze
         testData.setPreProcessor(normalizer);   //Note that we are using the exact same normalization process as the training data
-
 
         // ----- Configure the network -----
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
@@ -154,60 +185,94 @@ public class UCISequenceClassificationExample {
             trainData.reset();
         }
 
-        log.info("----- Example Complete -----");
+        INDArray output = net.output(ds.getFeatureMatrix());
+
+        // the output is a list of rows, indexed to the original test
+        // model with the scoring for the row by each classifier. What we need
+        // to do is find the best score and then map it to the class.
+        List scoringOutput = NDArrayUtils.makeRowsFromNDArray(output,6);
+
+        //for each row model expect the index to be the same
+        for (int i = 0; i <scoringOutput.size() ; i++) {
+            // get the orginating model row
+            Map<String,Object> sequenceToClassify = sequences.get(i);
+            List<List<Double>> scoringForEachClassifierOnRow = (List<List<Double>>)scoringOutput.get(i);
+            sequenceToClassify.put("classification",
+                    getWinningClassificationForRow(scoringForEachClassifierOnRow,classifiers));
+
+            log.info(String.format("row=%d class=%s",sequenceToClassify.get("rowNumber"), sequenceToClassify.get("classification")));
+
+        }
+
+        return sequences;
+
+    }
+
+    /**
+     * find the highest score for each classifiaction row from the output of the network
+     * and map the highest to the classification
+     *
+     * @param scoringForEachClassifierOnRow
+     * @param classifiers
+     * @return
+     */
+    public static String getWinningClassificationForRow(
+            List<List<Double>> scoringForEachClassifierOnRow, Map<Integer,String> classifiers){
+
+        TreeMap<Double,Integer> scoringByClassifier = new TreeMap<>(Collections.reverseOrder());
+        for (int i = 0; i <scoringForEachClassifierOnRow.size() ; i++) {
+            scoringByClassifier.put(
+                    getSumForDataRow(scoringForEachClassifierOnRow.get(i)),
+                    i);
+        }
+
+        //already sorted so get highest score
+        return classifiers.get(scoringByClassifier.firstEntry().getValue());
     }
 
 
-    //This method downloads the data, and converts the "one time series per line" format into a suitable
-    //CSV sequence format that DataVec (CsvSequenceRecordReader) and DL4J can read.
-    private static void downloadUCIData() throws Exception {
-        if (baseDir.exists()) return;    //Data already exists, don't download it again
-
-        String url = "https://archive.ics.uci.edu/ml/machine-learning-databases/synthetic_control-mld/synthetic_control.data";
-        String data = IOUtils.toString(new URL(url));
-
-        String[] lines = data.split("\n");
-
-        //Create directories
-        baseDir.mkdir();
-        baseTrainDir.mkdir();
-        featuresDirTrain.mkdir();
-        labelsDirTrain.mkdir();
-        baseTestDir.mkdir();
-        featuresDirTest.mkdir();
-        labelsDirTest.mkdir();
-
-        int lineCount = 0;
-        List<Pair<String, Integer>> contentAndLabels = new ArrayList<>();
-        for (String line : lines) {
-            String transposed = line.replaceAll(" +", "\n");
-
-            //Labels: first 100 examples (lines) are label 0, second 100 examples are label 1, and so on
-            contentAndLabels.add(new Pair<>(transposed, lineCount++ / 100));
+    /**
+     * sum the row, if we were using java8:
+     * Double sum = scoringForEachClassifierOnRow.get(i).stream().mapToDouble(Double::doubleValue).sum();
+     *
+     * @param row
+     * @return
+     */
+    private static Double getSumForDataRow(List<Double> row){
+        Double sum = 0.0;
+        for (Double d: row ) {
+            sum+=d;
         }
+        return sum;
+    }
 
-        //Randomize and do a train/test split:
-        Collections.shuffle(contentAndLabels, new Random(12345));
+    /**
+     * take the testing dataset and create a model that can later be used to map the
+     * resultant classification to.
+     *
+     * @param ds
+     * @return
+     */
+    private static Map<Integer,Map<String,Object>> makeFeatureModelForTesting(DataSet ds) {
 
-        int nTrain = 450;   //75% train, 25% test
-        int trainCount = 0;
-        int testCount = 0;
-        for (Pair<String, Integer> p : contentAndLabels) {
-            //Write output in a format we can read, in the appropriate locations
-            File outPathFeatures;
-            File outPathLabels;
-            if (trainCount < nTrain) {
-                outPathFeatures = new File(featuresDirTrain, trainCount + ".csv");
-                outPathLabels = new File(labelsDirTrain, trainCount + ".csv");
-                trainCount++;
-            } else {
-                outPathFeatures = new File(featuresDirTest, testCount + ".csv");
-                outPathLabels = new File(labelsDirTest, testCount + ".csv");
-                testCount++;
+        Map<Integer,Map<String,Object>> items = new HashMap<>();
+
+        INDArray features = ds.getFeatureMatrix();
+        try {
+            List<List<Double>> rows = NDArrayUtils.makeRowsFromNDArray(features,6);
+            for (int i = 0; i < rows.size(); i++) {
+                List<Double> row = rows.get(i);
+                Map<String,Object> itemModel = new HashedMap();
+                itemModel.put("rowNumber",i);
+                itemModel.put("rowData",row);
+                items.put(i,itemModel);
             }
-
-            FileUtils.writeStringToFile(outPathFeatures, p.getFirst());
-            FileUtils.writeStringToFile(outPathLabels, p.getSecond().toString());
+        } catch (IOException e) {
+            e.printStackTrace();
         }
+
+        return items;
     }
+
+
 }
