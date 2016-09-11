@@ -16,7 +16,7 @@ import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
 import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
 import org.deeplearning4j.parallelism.ParallelWrapper;
-import org.nd4j.jita.conf.Configuration;
+//import org.nd4j.jita.conf.Configuration;
 import org.nd4j.linalg.api.buffer.DataBuffer;
 import org.nd4j.linalg.api.buffer.util.DataTypeUtil;
 import org.nd4j.linalg.api.ndarray.INDArray;
@@ -26,7 +26,7 @@ import org.nd4j.linalg.lossfunctions.LossFunctions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.nd4j.jita.conf.CudaEnvironment;
+//import org.nd4j.jita.conf.CudaEnvironment;
 
 
 /**
@@ -41,7 +41,7 @@ public class MultiGpuLenetMnistExample {
     public static void main(String[] args) throws Exception {
         // PLEASE NOTE: For CUDA FP16 precision support is available
         DataTypeUtil.setDTypeForContext(DataBuffer.Type.HALF);
-
+/*
         CudaEnvironment.getInstance().getConfiguration()
             // key option enabled
             .allowMultiGPU(true)
@@ -51,7 +51,7 @@ public class MultiGpuLenetMnistExample {
 
             // cross-device access is used for faster model averaging over pcie
             .allowCrossDeviceAccess(true);
-
+*/
         int nChannels = 1;
         int outputNum = 10;
 

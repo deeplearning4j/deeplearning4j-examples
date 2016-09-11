@@ -13,15 +13,17 @@ import org.deeplearning4j.nn.conf.layers.SubsamplingLayer;
 import org.deeplearning4j.nn.conf.layers.setup.ConvolutionLayerSetup;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
+import org.deeplearning4j.optimize.listeners.PerformanceListener;
 import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
 
 import org.deeplearning4j.parallelism.ParallelWrapper;
-import org.nd4j.jita.allocator.impl.AtomicAllocator;
-import org.nd4j.jita.concurrency.EventsProvider;
-import org.nd4j.linalg.api.ndarray.INDArray;
+//import org.nd4j.jita.allocator.impl.AtomicAllocator;
+//import org.nd4j.jita.concurrency.EventsProvider;
+//import org.nd4j.linalg.api.ndarray.INDArray;
 //import org.nd4j.linalg.cpu.nativecpu.ops.NativeOpExecutioner;
-import org.nd4j.linalg.api.ops.executioner.GridExecutioner;
-import org.nd4j.linalg.jcublas.ops.executioner.CudaGridExecutioner;
+//import org.nd4j.linalg.api.ops.executioner.GridExecutioner;
+//import org.nd4j.linalg.jcublas.ops.executioner.CudaGridExecutioner;
+import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.nd4j.linalg.factory.Nd4j;
@@ -30,8 +32,8 @@ import org.nd4j.linalg.lossfunctions.LossFunctions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.nd4j.jita.conf.CudaEnvironment;
-import org.nd4j.jita.perf.OpDashboard;
+//import org.nd4j.jita.conf.CudaEnvironment;
+//import org.nd4j.jita.perf.OpDashboard;
 import org.deeplearning4j.nn.conf.LearningRatePolicy;
 
 /**
@@ -41,7 +43,7 @@ public class LenetMnistExample {
     private static final Logger log = LoggerFactory.getLogger(LenetMnistExample.class);
 
     public static void main(String[] args) throws Exception {
-
+/*
         CudaEnvironment.getInstance().getConfiguration()
             .allowMultiGPU(true)
             //.(true)
@@ -50,6 +52,7 @@ public class LenetMnistExample {
             .setMinimumBlockSize(384)
             .setVerbose(false)
             .enableDebug(false);
+        */
 
         int nChannels = 1;
         int outputNum = 10;
@@ -118,7 +121,7 @@ public class LenetMnistExample {
 */
 
         log.info("Train model....");
-        model.setListeners(new ScoreIterationListener(100));
+        model.setListeners(new PerformanceListener(10));
 
         //((NativeOpExecutioner) Nd4j.getExecutioner()).getLoop().setOmpNumThreads(8);
 
@@ -135,6 +138,7 @@ public class LenetMnistExample {
 
         log.info("Training complete in: {} ms", (timeY - timeX));
         log.info("Model score: {}", model.score());
+  /*
         log.info("New events: {}", AtomicAllocator.getInstance().getFlowController().getEventsProvider().getEventsNumber());
         log.info("Cached events: {}", AtomicAllocator.getInstance().getFlowController().getEventsProvider().getCachedNumber());
 
@@ -146,7 +150,7 @@ public class LenetMnistExample {
         }
 
         OpDashboard.getInstance().printOutDashboard();
-
+*/
         log.info("Evaluate model....");
         Evaluation eval = new Evaluation(outputNum);
         while(mnistTest.hasNext()){
