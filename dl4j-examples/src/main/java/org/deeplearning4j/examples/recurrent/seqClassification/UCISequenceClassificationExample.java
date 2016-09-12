@@ -92,7 +92,9 @@ public class UCISequenceClassificationExample {
     public static void main(String[] args) throws Exception {
 
         //'baseDir': Base directory for the data. Change this if you want to save the data somewhere else
-        baseDir = new ClassPathResource("/recurrent/seqClassification/UCISequence/uci/").getFile();
+        //MUST BE RUN FROM PROJECT (not module) DIR
+        baseDir = new File("dl4j-examples/src/main/resources/recurrent/seqClassification/UCISequence/uci/");
+
         baseTrainDir = new File(baseDir, "train");
         featuresDirTrain = new File(baseTrainDir, "features");
         labelsDirTrain = new File(baseTrainDir, "labels");
@@ -192,6 +194,7 @@ public class UCISequenceClassificationExample {
         // to do is find the best score and then map it to the class.
         List scoringOutput = NDArrayUtils.makeRowsFromNDArray(output,6);
 
+        log.info("CLASSIFIED TEST DATA RESULT ====================");
         //for each row model expect the index to be the same
         for (int i = 0; i <scoringOutput.size() ; i++) {
             // get the orginating model row
