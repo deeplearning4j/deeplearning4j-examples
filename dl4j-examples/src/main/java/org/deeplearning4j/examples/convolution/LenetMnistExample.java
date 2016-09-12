@@ -112,7 +112,7 @@ public class LenetMnistExample {
         model.init();
 
         ParallelWrapper wrapper = new ParallelWrapper.Builder(model)
-            .averagingFrequency(1)
+            .averagingFrequency(5)
             .prefetchBuffer(12)
             .workers(2)
             .reportScoreAfterAveraging(false)
