@@ -28,6 +28,7 @@ import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.nd4j.linalg.dataset.api.preprocessor.DataNormalization;
 import org.nd4j.linalg.dataset.api.preprocessor.NormalizerStandardize;
+import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -157,10 +158,10 @@ public class UCISequenceClassificationExample {
                 .seed(123)    //Random number generator seed for improved repeatability. Optional.
                 .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT).iterations(1)
                 .weightInit(WeightInit.XAVIER)
-                .updater(Updater.NESTEROVS).momentum(0.9)
-                .learningRate(0.005)
+                .updater(Updater.NESTEROVS).momentum(0.85)
+                .learningRate(0.02)
                 .gradientNormalization(GradientNormalization.ClipElementWiseAbsoluteValue)  //Not always required, but helps with this data set
-                .gradientNormalizationThreshold(0.5)
+                .gradientNormalizationThreshold(0.45)
                 .list()
                 .layer(0, new GravesLSTM.Builder().activation("tanh").nIn(1).nOut(10).build())
                 .layer(1, new RnnOutputLayer.Builder(LossFunctions.LossFunction.MCXENT)
@@ -187,23 +188,18 @@ public class UCISequenceClassificationExample {
             trainData.reset();
         }
 
-        INDArray output = net.output(ds.getFeatureMatrix());
 
-        // the output is a list of rows, indexed to the original test
-        // model with the scoring for the row by each classifier. What we need
-        // to do is find the best score and then map it to the class.
-        List scoringOutput = NDArrayUtils.makeRowsFromNDArray(output,6);
+        INDArray classificationsByRow = Nd4j.argMax(Nd4j.argMax(
+                net.output(testData.next().getFeatureMatrix()), 2),1);
 
-        log.info("CLASSIFIED TEST DATA RESULT ====================");
-        //for each row model expect the index to be the same
-        for (int i = 0; i <scoringOutput.size() ; i++) {
-            // get the orginating model row
+        for (int i = 0; i < classificationsByRow.rows() ; i++) {
             Map<String,Object> sequenceToClassify = sequences.get(i);
-            List<List<Double>> scoringForEachClassifierOnRow = (List<List<Double>>)scoringOutput.get(i);
-            sequenceToClassify.put("classification",
-                    getWinningClassificationForRow(scoringForEachClassifierOnRow,classifiers));
-
-            log.info(String.format("row=%d class=%s",sequenceToClassify.get("rowNumber"), sequenceToClassify.get("classification")));
+            sequenceToClassify.put("classificationId", classificationsByRow.getInt(i));
+            sequenceToClassify.put("classificationName", classifiers.get(classificationsByRow.getInt(i)));
+            log.info(String.format("row=%d classId=%d className=%s",
+                    sequenceToClassify.get("rowNumber"),
+                    sequenceToClassify.get("classificationId"),
+                    sequenceToClassify.get("classificationName")));
 
         }
 
@@ -216,21 +212,22 @@ public class UCISequenceClassificationExample {
      * and map the highest to the classification
      *
      * @param scoringForEachClassifierOnRow
-     * @param classifiers
+     *
      * @return
      */
-    public static String getWinningClassificationForRow(
-            List<List<Double>> scoringForEachClassifierOnRow, Map<Integer,String> classifiers){
+    public static Integer getWinningClassificationForRow (
+            List<List<Double>> scoringForEachClassifierOnRow) {
 
         TreeMap<Double,Integer> scoringByClassifier = new TreeMap<>(Collections.reverseOrder());
         for (int i = 0; i <scoringForEachClassifierOnRow.size() ; i++) {
+
             scoringByClassifier.put(
                     getSumForDataRow(scoringForEachClassifierOnRow.get(i)),
                     i);
         }
 
         //already sorted so get highest score
-        return classifiers.get(scoringByClassifier.firstEntry().getValue());
+        return scoringByClassifier.firstEntry().getValue();
     }
 
 

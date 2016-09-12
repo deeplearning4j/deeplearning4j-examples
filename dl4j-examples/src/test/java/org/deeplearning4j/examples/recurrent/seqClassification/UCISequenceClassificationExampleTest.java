@@ -4,6 +4,8 @@ import org.datavec.api.util.ClassPathResource;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.nd4j.linalg.api.ndarray.INDArray;
+import org.nd4j.linalg.factory.Nd4j;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -29,6 +31,21 @@ public class UCISequenceClassificationExampleTest {
     }
 
     @Test
+    public void testSimpleN4j(){
+        INDArray arr1 = Nd4j.create(new float[]{1,2,4,3}, new int[]{2,2});
+        INDArray arr1Max = Nd4j.argMax(arr1, 1);
+        Assert.assertTrue(1.0==arr1Max.getFloat(0));
+        Assert.assertTrue(0.0==arr1Max.getFloat(1));
+
+        INDArray arr2 = Nd4j.create(new float[]{1,2,4,3,4,6,7,8}, new int[]{2,2,2});
+        INDArray arr2Max = Nd4j.argMax(arr2, 2);
+        Assert.assertTrue(1.0==arr2Max.getRow(0).getFloat(0));
+        Assert.assertTrue(0.0==arr2Max.getRow(0).getFloat(1));
+        Assert.assertTrue(1.0==arr2Max.getRow(1).getFloat(0));
+        Assert.assertTrue(1.0==arr2Max.getRow(1).getFloat(1));
+    }
+
+    @Test
     public void testSequenceClassification(){
         String[] args = {};
         try {
@@ -36,7 +53,7 @@ public class UCISequenceClassificationExampleTest {
             Map<Integer,Map<String,Object>>  classifiedTestData =
                     UCISequenceClassificationExample.trainNetworkAndMapTestClassifications(args);
 
-            Assert.assertEquals("Cyclic",classifiedTestData.get(0).get("classification").toString());
+            Assert.assertEquals("Cyclic",classifiedTestData.get(0).get("classificationName").toString());
 
         } catch (IOException e) {
             e.printStackTrace();
