@@ -110,7 +110,7 @@ public class LenetMnistExample {
         MultiLayerConfiguration conf = builder.build();
         MultiLayerNetwork model = new MultiLayerNetwork(conf);
         model.init();
-/*
+
         ParallelWrapper wrapper = new ParallelWrapper.Builder(model)
             .averagingFrequency(1)
             .prefetchBuffer(12)
@@ -118,10 +118,10 @@ public class LenetMnistExample {
             .reportScoreAfterAveraging(false)
             .useLegacyAveraging(false)
             .build();
-*/
+
 
         log.info("Train model....");
-        model.setListeners(new PerformanceListener(10));
+        //model.setListeners(new PerformanceListener(10));
 
         //((NativeOpExecutioner) Nd4j.getExecutioner()).getLoop().setOmpNumThreads(8);
 
@@ -129,8 +129,8 @@ public class LenetMnistExample {
 //        nEpochs = 2;
         for( int i=0; i<nEpochs; i++ ) {
             long time1 = System.currentTimeMillis();
-            model.fit(mnistTrain);
-            //wrapper.fit(mnistTrain);
+            //model.fit(mnistTrain);
+            wrapper.fit(mnistTrain);
             long time2 = System.currentTimeMillis();
             log.info("*** Completed epoch {}, Time elapsed: {} ***", i, (time2 - time1));
         }
