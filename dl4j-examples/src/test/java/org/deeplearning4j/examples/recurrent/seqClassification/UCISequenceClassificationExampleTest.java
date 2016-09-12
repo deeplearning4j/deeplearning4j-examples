@@ -31,21 +31,6 @@ public class UCISequenceClassificationExampleTest {
     }
 
     @Test
-    public void testSimpleN4j(){
-        INDArray arr1 = Nd4j.create(new float[]{1,2,4,3}, new int[]{2,2});
-        INDArray arr1Max = Nd4j.argMax(arr1, 1);
-        Assert.assertTrue(1.0==arr1Max.getFloat(0));
-        Assert.assertTrue(0.0==arr1Max.getFloat(1));
-
-        INDArray arr2 = Nd4j.create(new float[]{1,2,4,3,4,6,7,8}, new int[]{2,2,2});
-        INDArray arr2Max = Nd4j.argMax(arr2, 2);
-        Assert.assertTrue(1.0==arr2Max.getRow(0).getFloat(0));
-        Assert.assertTrue(0.0==arr2Max.getRow(0).getFloat(1));
-        Assert.assertTrue(1.0==arr2Max.getRow(1).getFloat(0));
-        Assert.assertTrue(1.0==arr2Max.getRow(1).getFloat(1));
-    }
-
-    @Test
     public void testSequenceClassification(){
         String[] args = {};
         try {
@@ -54,6 +39,16 @@ public class UCISequenceClassificationExampleTest {
                     UCISequenceClassificationExample.trainNetworkAndMapTestClassifications(args);
 
             Assert.assertEquals("Cyclic",classifiedTestData.get(0).get("classificationName").toString());
+            Assert.assertEquals("Upward shift",classifiedTestData.get(1).get("classificationName").toString());
+            Assert.assertEquals("Downward shift",classifiedTestData.get(2).get("classificationName").toString());
+            Assert.assertEquals("Downward shift",classifiedTestData.get(3).get("classificationName").toString());
+            Assert.assertEquals("Upward shift",classifiedTestData.get(4).get("classificationName").toString());
+            Assert.assertEquals("Upward shift",classifiedTestData.get(5).get("classificationName").toString());
+            Assert.assertEquals("Increasing trend",classifiedTestData.get(6).get("classificationName").toString());
+            Assert.assertEquals("Cyclic",classifiedTestData.get(7).get("classificationName").toString());
+            Assert.assertEquals("Increasing trend",classifiedTestData.get(8).get("classificationName").toString());
+            Assert.assertEquals("Normal",classifiedTestData.get(9).get("classificationName").toString());
+
 
         } catch (IOException e) {
             e.printStackTrace();
