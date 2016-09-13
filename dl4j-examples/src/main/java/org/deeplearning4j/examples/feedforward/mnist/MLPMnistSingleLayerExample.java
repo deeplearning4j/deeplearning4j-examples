@@ -1,6 +1,7 @@
 package org.deeplearning4j.examples.feedforward.mnist;
 
 
+import org.deeplearning4j.optimize.listeners.PerformanceListener;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.deeplearning4j.datasets.iterator.impl.MnistDataSetIterator;
 import org.deeplearning4j.eval.Evaluation;
@@ -65,12 +66,18 @@ public class MLPMnistSingleLayerExample {
 
         MultiLayerNetwork model = new MultiLayerNetwork(conf);
         model.init();
-        model.setListeners(new ScoreIterationListener(1));
+        model.setListeners(new PerformanceListener(100));
 
         log.info("Train model....");
+        long timeX = System.currentTimeMillis();
         for( int i=0; i<numEpochs; i++ ){
+            long time1 = System.currentTimeMillis();
             model.fit(mnistTrain);
+            long time2 = System.currentTimeMillis();
+            log.info("Epoch {} finished; time spend: {} ms;", i, (time2 - time1));
         }
+        long timeY = System.currentTimeMillis();
+        log.info("Training finished; time spent: {} ms", (timeY - timeX));
 
 
         log.info("Evaluate model....");
