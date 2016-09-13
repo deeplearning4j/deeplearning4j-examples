@@ -68,7 +68,7 @@ public class MLPMnistSingleLayerExample {
         MultiLayerNetwork model = new MultiLayerNetwork(conf);
         model.init();
        // model.setListeners(new PerformanceListener(100));
-
+/*
         ParallelWrapper wrapper = new ParallelWrapper.Builder(model)
             .averagingFrequency(4)
             .prefetchBuffer(24)
@@ -76,13 +76,13 @@ public class MLPMnistSingleLayerExample {
             .reportScoreAfterAveraging(false)
             .useLegacyAveraging(false)
             .build();
-
+*/
         log.info("Train model....");
         long timeX = System.currentTimeMillis();
         for( int i=0; i<numEpochs; i++ ){
             long time1 = System.currentTimeMillis();
-            //model.fit(mnistTrain);
-            wrapper.fit(mnistTrain);
+            model.fit(mnistTrain);
+            //wrapper.fit(mnistTrain);
             long time2 = System.currentTimeMillis();
             log.info("Epoch {} finished; time spend: {} ms;", i, (time2 - time1));
         }
