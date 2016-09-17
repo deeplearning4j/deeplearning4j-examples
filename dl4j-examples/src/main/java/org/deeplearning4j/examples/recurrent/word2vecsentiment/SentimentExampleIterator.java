@@ -169,6 +169,11 @@ public class SentimentExampleIterator implements DataSetIterator {
     }
 
     @Override
+    public boolean asyncSupported() {
+        return true;
+    }
+
+    @Override
     public int batch() {
         return batchSize;
     }

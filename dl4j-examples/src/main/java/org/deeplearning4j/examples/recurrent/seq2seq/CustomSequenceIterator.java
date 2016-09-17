@@ -190,6 +190,11 @@ public class CustomSequenceIterator implements MultiDataSetIterator {
     }
 
     @Override
+    public boolean asyncSupported() {
+        return true;
+    }
+
+    @Override
     public boolean hasNext() {
         //This generates numbers on the fly
         return currentBatch < totalBatches;
