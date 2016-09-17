@@ -39,7 +39,7 @@ import java.util.*;
  */
 @Slf4j
 public class TinyExample {
-    private static final String DATA_ROOT_DIR = System.getProperty("os.name").toLowerCase().contains("windows") ? "C:\\Users\\raver\\TinyImageNet\\" : "~/TinyImageNet/";
+    private static final String DATA_ROOT_DIR = System.getProperty("os.name").toLowerCase().contains("windows") ? "C:\\Users\\raver\\TinyImageNet\\" : "../../TinyImageNet/";
     private static final String LABEL_ID_FILE = DATA_ROOT_DIR + "wnids.txt";
     private static final String LABEL_NAME_FILE = DATA_ROOT_DIR + "words.txt";
     private static final String TRAIN_DIR = DATA_ROOT_DIR + "train/";
