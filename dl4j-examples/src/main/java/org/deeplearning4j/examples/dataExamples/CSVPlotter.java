@@ -1,13 +1,5 @@
 package org.deeplearning4j.examples.dataExamples;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.WindowConstants;
-
 import org.datavec.api.records.reader.RecordReader;
 import org.datavec.api.records.reader.impl.csv.CSVRecordReader;
 import org.datavec.api.split.FileSplit;
@@ -26,7 +18,6 @@ import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.PlotOrientation;
-import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.nd4j.linalg.api.ndarray.INDArray;
@@ -36,6 +27,10 @@ import org.nd4j.linalg.dataset.api.preprocessor.NormalizerMinMaxScaler;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 
+import javax.swing.*;
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
 
 /**
  * Read a csv file. Fit and plot the data using Deeplearning4J.
@@ -49,7 +44,7 @@ public class CSVPlotter {
         String filename = new ClassPathResource("/DataExamples/CSVPlotData.csv").getFile().getPath();
     	DataSet ds = readCSVDataset(filename);
 
-    	ArrayList<DataSet> DataSetList = new ArrayList<DataSet>();
+    	ArrayList<DataSet> DataSetList = new ArrayList<>();
     	DataSetList.add(ds);
 
     	plotDataset(DataSetList); //Plot the data, make sure we have the right data.
@@ -73,7 +68,7 @@ public class CSVPlotter {
 	 * @param ds The dataset to fit.
 	 * @return The network fitted to the data
 	 */
-	public static MultiLayerNetwork fitStraightline(DataSet ds){
+	private static MultiLayerNetwork fitStraightline(DataSet ds){
 		int seed = 12345;
 		int iterations = 1;
 		int nEpochs = 200;
@@ -137,7 +132,7 @@ public class CSVPlotter {
      *
      *  This can be used as is for regression.
      */
-	public static DataSet readCSVDataset(String filename) throws IOException, InterruptedException{
+	private static DataSet readCSVDataset(String filename) throws IOException, InterruptedException{
 		int batchSize = 1000;
 		RecordReader rr = new CSVRecordReader();
 		rr.initialize(new FileSplit(new File(filename)));
@@ -149,7 +144,7 @@ public class CSVPlotter {
 	/**
 	 * Generate an xy plot of the datasets provided.
 	 */
-	static void plotDataset(ArrayList<DataSet> DataSetList ){
+	private static void plotDataset(ArrayList<DataSet> DataSetList){
 
 		XYSeriesCollection c = new XYSeriesCollection();
 
@@ -168,16 +163,14 @@ public class CSVPlotter {
 			c.addSeries(series);
 		}
 
-		XYDataset dataset = c;
-
-		String title = "title";
+        String title = "title";
 		String xAxisLabel = "xAxisLabel";
 		String yAxisLabel = "yAxisLabel";
 		PlotOrientation orientation = PlotOrientation.VERTICAL;
 		boolean legend = false;
 		boolean tooltips = false;
 		boolean urls = false;
-		JFreeChart chart = ChartFactory.createScatterPlot(title , xAxisLabel, yAxisLabel, dataset , orientation , legend , tooltips , urls);
+		JFreeChart chart = ChartFactory.createScatterPlot(title , xAxisLabel, yAxisLabel, c, orientation , legend , tooltips , urls);
     	JPanel panel = new ChartPanel(chart);
 
     	 JFrame f = new JFrame();

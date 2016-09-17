@@ -11,7 +11,6 @@ import org.nd4j.linalg.dataset.api.preprocessor.NormalizerMinMaxScaler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 /**
  * This basic example demonstrates how to use the preprocessors available
  * This example uses the minmax scaler and will work with the 3.10 release and later
@@ -23,6 +22,7 @@ public class PreprocessNormalizerExample {
     private static Logger log = LoggerFactory.getLogger(PreprocessNormalizerExample.class);
 
     public static void main(String[] args) throws  Exception {
+
 
         //========= This section is to create a dataset and a dataset iterator from the iris dataset stored in csv =============
         //                               Refer to the csv example for details
@@ -106,8 +106,8 @@ public class PreprocessNormalizerExample {
         log.info("MinMax scaler also takes a min-max range to scale to.");
         log.info("Instantiating a new preprocessor and setting it's min-max scale to {-1,1}");
         NormalizerMinMaxScaler preProcessorRange = new NormalizerMinMaxScaler();
-        preProcessor.setMinRange(-1);
-        preProcessor.setMaxRange(1);
+        preProcessorRange.setMinRange(-1);
+        preProcessorRange.setMaxRange(1);
         log.info("Fitting to dataset");
         preProcessorRange.fit(datasetY);
         log.info("First ten before transforming");
@@ -115,5 +115,6 @@ public class PreprocessNormalizerExample {
         log.info("First ten after transforming");
         preProcessorRange.transform(datasetY);
         log.info("\n{}",datasetY.getRange(0,9));
+
     }
 }

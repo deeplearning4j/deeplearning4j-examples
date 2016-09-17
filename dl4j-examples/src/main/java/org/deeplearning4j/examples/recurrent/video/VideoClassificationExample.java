@@ -10,7 +10,6 @@ import org.datavec.api.split.NumberedFileInputSplit;
 import org.datavec.codec.reader.CodecRecordReader;
 import org.deeplearning4j.datasets.datavec.SequenceRecordReaderDataSetIterator;
 import org.deeplearning4j.datasets.iterator.AsyncDataSetIterator;
-import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.deeplearning4j.eval.Evaluation;
 import org.deeplearning4j.nn.api.OptimizationAlgorithm;
 import org.deeplearning4j.nn.conf.*;
@@ -24,6 +23,7 @@ import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.dataset.api.DataSetPreProcessor;
+import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 
@@ -155,7 +155,7 @@ public class VideoClassificationExample {
             while(trainData.hasNext())
                 net.fit(trainData.next());
             Nd4j.saveBinary(net.params(),new File("videomodel.bin"));
-            //FileUtils.saveString2File(conf.toJson(),new File("videoconf.json"));
+            FileUtils.writeStringToFile(new File("videoconf.json"), conf.toJson());
             System.out.println("Epoch " + i + " complete");
 
             //Evaluate classification performance:

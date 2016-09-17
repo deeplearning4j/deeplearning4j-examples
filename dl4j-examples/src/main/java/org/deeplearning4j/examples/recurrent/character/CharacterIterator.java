@@ -87,15 +87,10 @@ public class CharacterIterator implements DataSetIterator {
 		System.out.println("Loaded and converted file: " + fileCharacters.length + " valid characters of "
 		+ maxSize + " total characters (" + nRemoved + " removed)");
 
-        //This defines the order in which parts of the file are fetched
-        int nMinibatchesPerEpoch = (fileCharacters.length-1) / exampleLength - 2;   //-2: for end index, and for partial example
-        for( int i=0; i<nMinibatchesPerEpoch; i++ ){
-            exampleStartOffsets.add(i * exampleLength);
-        }
-        Collections.shuffle(exampleStartOffsets,rng);
-	}
+        initializeOffsets();
+    }
 
-	/** A minimal character set, with a-z, A-Z, 0-9 and common punctuation etc */
+    /** A minimal character set, with a-z, A-Z, 0-9 and common punctuation etc */
 	public static char[] getMinimalCharacterSet(){
 		List<Character> validChars = new LinkedList<>();
 		for(char c='a'; c<='z'; c++) validChars.add(c);
@@ -183,46 +178,30 @@ public class CharacterIterator implements DataSetIterator {
 		return validCharacters.length;
 	}
 
-    /**
-     * Is resetting supported by this DataSetIterator? Many DataSetIterators do support resetting,
-     * but some don't
-     *
-     * @return true if reset method is supported; false otherwise
-     */
+	public void reset() {
+        exampleStartOffsets.clear();
+		initializeOffsets();
+	}
 
-    public boolean resetSupported() {
-        return false;
+    private void initializeOffsets() {
+        //This defines the order in which parts of the file are fetched
+        int nMinibatchesPerEpoch = (fileCharacters.length - 1) / exampleLength - 2;   //-2: for end index, and for partial example
+        for (int i = 0; i < nMinibatchesPerEpoch; i++) {
+            exampleStartOffsets.add(i * exampleLength);
+        }
+        Collections.shuffle(exampleStartOffsets, rng);
     }
 
-    /**
-     * Does this DataSetIterator support asynchronous prefetching of multiple DataSet objects?
-     * Most DataSetIterators do, but in some cases it may not make sense to wrap this iterator in an
-     * iterator that does asynchronous prefetching. For example, it would not make sense to use asynchronous
-     * prefetching for the following types of iterators:
-     * (a) Iterators that store their full contents in memory already
-     * (b) Iterators that re-use features/labels arrays (as future next() calls will overwrite past contents)
-     * (c) Iterators that already implement some level of asynchronous prefetching
-     * (d) Iterators that may return different data depending on when the next() method is called
-     *
-     * @return true if asynchronous prefetching from this iterator is OK; false if asynchronous prefetching should not
-     * be used with this iterator
-     */
+	public boolean resetSupported() {
+		return true;
+	}
+
     @Override
     public boolean asyncSupported() {
         return true;
     }
 
-    public void reset() {
-        exampleStartOffsets.clear();
-		int nMinibatchesPerEpoch = totalExamples();
-        for( int i=0; i<nMinibatchesPerEpoch; i++ ){
-            exampleStartOffsets.add(i * miniBatchSize);
-        }
-        Collections.shuffle(exampleStartOffsets,rng);
-	}
-
-
-	public int batch() {
+    public int batch() {
 		return miniBatchSize;
 	}
 

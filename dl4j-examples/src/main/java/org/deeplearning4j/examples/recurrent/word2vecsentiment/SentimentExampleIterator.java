@@ -2,8 +2,8 @@ package org.deeplearning4j.examples.recurrent.word2vecsentiment;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
-import org.deeplearning4j.text.tokenizerfactory.DefaultTokenizerFactory;
-import org.deeplearning4j.text.tokenizerfactory.TokenizerFactory;
+import org.deeplearning4j.text.tokenization.tokenizerfactory.DefaultTokenizerFactory;
+import org.deeplearning4j.text.tokenization.tokenizerfactory.TokenizerFactory;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.deeplearning4j.models.embeddings.wordvectors.WordVectors;
 import org.deeplearning4j.text.tokenization.tokenizer.preprocessor.CommonPreprocessor;
@@ -168,19 +168,6 @@ public class SentimentExampleIterator implements DataSetIterator {
         return true;
     }
 
-    /**
-     * Does this DataSetIterator support asynchronous prefetching of multiple DataSet objects?
-     * Most DataSetIterators do, but in some cases it may not make sense to wrap this iterator in an
-     * iterator that does asynchronous prefetching. For example, it would not make sense to use asynchronous
-     * prefetching for the following types of iterators:
-     * (a) Iterators that store their full contents in memory already
-     * (b) Iterators that re-use features/labels arrays (as future next() calls will overwrite past contents)
-     * (c) Iterators that already implement some level of asynchronous prefetching
-     * (d) Iterators that may return different data depending on when the next() method is called
-     *
-     * @return true if asynchronous prefetching from this iterator is OK; false if asynchronous prefetching should not
-     * be used with this iterator
-     */
     @Override
     public boolean asyncSupported() {
         return true;
