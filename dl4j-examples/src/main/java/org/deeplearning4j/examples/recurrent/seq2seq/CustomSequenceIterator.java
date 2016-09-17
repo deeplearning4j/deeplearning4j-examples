@@ -218,23 +218,5 @@ public class CustomSequenceIterator implements MultiDataSetIterator {
     public boolean resetSupported() {
         return false;
     }
-
-    /**
-     * Does this MultiDataSetIterator support asynchronous prefetching of multiple MultiDataSet objects?
-     * Most MultiDataSetIterators do, but in some cases it may not make sense to wrap this iterator in an
-     * iterator that does asynchronous prefetching. For example, it would not make sense to use asynchronous
-     * prefetching for the following types of iterators:
-     * (a) Iterators that store their full contents in memory already
-     * (b) Iterators that re-use features/labels arrays (as future next() calls will overwrite past contents)
-     * (c) Iterators that already implement some level of asynchronous prefetching
-     * (d) Iterators that may return different data depending on when the next() method is called
-     *
-     * @return true if asynchronous prefetching from this iterator is OK; false if asynchronous prefetching should not
-     * be used with this iterator
-     */
-    @Override
-    public boolean asyncSupported() {
-        return true;
-    }
 }
 
