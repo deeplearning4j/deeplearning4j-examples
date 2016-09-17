@@ -39,7 +39,7 @@ import java.util.*;
  */
 @Slf4j
 public class TinyExample {
-    private static final String DATA_ROOT_DIR = "C:/Data/TinyImageNet/Original/";
+    private static final String DATA_ROOT_DIR = System.getProperty("os.name").toLowerCase().contains("windows") ? "C:\\Users\\raver\\TinyImageNet\\" : "~/TinyImageNet/";
     private static final String LABEL_ID_FILE = DATA_ROOT_DIR + "wnids.txt";
     private static final String LABEL_NAME_FILE = DATA_ROOT_DIR + "words.txt";
     private static final String TRAIN_DIR = DATA_ROOT_DIR + "train/";
@@ -47,7 +47,7 @@ public class TinyExample {
     private static final String VALIDATION_ANNOTATION_FILE = DATA_ROOT_DIR + "val/val_annotations.txt";
     private static final String[] allowedExtensions = new String[]{"JPEG"};
 
-    private static final String OUTPUT_DIR = "C:/Temp/TinyImageNet/";
+  //  private static final String OUTPUT_DIR = "~/TinyImageNet/";
 
 
 
@@ -150,7 +150,7 @@ public class TinyExample {
     }
 
     private static void postEpoch(MultiLayerNetwork net, DataSetIterator testData, List<String> labels, int epoch) throws IOException {
-        String outputDir = OUTPUT_DIR + "epoch_" + epoch + "/";
+        String outputDir =  "epoch_" + epoch + "/";
         File f = new File(outputDir);
         if(f.exists()){
             f.delete();
