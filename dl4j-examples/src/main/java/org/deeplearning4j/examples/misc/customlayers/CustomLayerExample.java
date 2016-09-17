@@ -168,6 +168,7 @@ public class CustomLayerExample {
         boolean return_on_first_failure = false;                                                //If true: terminate test on first failure
         double gradient_check_epsilon = 1e-8;                                                   //Epsilon value used for gradient checks
         double max_relative_error = 1e-5;                                                       //Maximum relative error allowable for each parameter
+        double min_absolute_error = 1e-10;                                                      //Minimum absolute error, to avoid failures on 0 vs 1e-30, for example.
 
         //Create some random input data to use in the gradient check
         int minibatchSize = 5;
@@ -184,8 +185,8 @@ public class CustomLayerExample {
             System.out.println("# params, layer " + i + ":\t" + net.getLayer(i).numParams());
         }
 
-        GradientCheckUtil.checkGradients(net, gradient_check_epsilon, max_relative_error, print, return_on_first_failure,
-            features, labels, true);
+        GradientCheckUtil.checkGradients(net, gradient_check_epsilon, max_relative_error, min_absolute_error, print,
+            return_on_first_failure, features, labels);
     }
 
 }
