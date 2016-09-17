@@ -95,7 +95,7 @@ cd $dir
 # to echo the command, but not run it.
 runit() {
   echo; echo "====== $1"; echo
-  $NOOP numactl -m 1 java -XX:+UseNUMA -cp ./dl4j-examples/target/dl4j-examples-*-bin.jar "$1"
+  $NOOP numactl -m 1 java -Xmx12G -XX:+UseNUMA -cp ./dl4j-examples/target/dl4j-examples-*-bin.jar "$1"
 }
 
 let which_one=0
