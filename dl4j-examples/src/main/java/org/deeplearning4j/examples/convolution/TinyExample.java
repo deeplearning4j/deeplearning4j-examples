@@ -122,7 +122,7 @@ public class TinyExample {
 
 
 //        net.setListeners(new PerformanceListener(1,true), new HistogramIterationListener(1));
-        net.setListeners(new PerformanceListener(10,true));
+        net.setListeners(new PerformanceListener(1,true));
 
         for( int i=0; i<nEpochs; i++ ){
             long start = System.currentTimeMillis();
