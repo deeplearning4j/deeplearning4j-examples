@@ -115,7 +115,7 @@ then
   elif [ $which_one = 'q' ]  # accept 'q' as "quit".
   then
     exit 0
-  elif [ $which_one -lt 0 -o $which_one -ge ${#arr[@]} ]
+  elif [ $which_one -le 0 -o $which_one -gt ${#arr[@]} ]
   then
     echo "ERROR: Must enter a number between 1 and ${#arr[@]}."
     exit 1

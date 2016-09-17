@@ -87,15 +87,10 @@ public class CharacterIterator implements DataSetIterator {
 		System.out.println("Loaded and converted file: " + fileCharacters.length + " valid characters of "
 		+ maxSize + " total characters (" + nRemoved + " removed)");
 
-        //This defines the order in which parts of the file are fetched
-        int nMinibatchesPerEpoch = (fileCharacters.length-1) / exampleLength - 2;   //-2: for end index, and for partial example
-        for( int i=0; i<nMinibatchesPerEpoch; i++ ){
-            exampleStartOffsets.add(i * exampleLength);
-        }
-        Collections.shuffle(exampleStartOffsets,rng);
-	}
+        initializeOffsets();
+    }
 
-	/** A minimal character set, with a-z, A-Z, 0-9 and common punctuation etc */
+    /** A minimal character set, with a-z, A-Z, 0-9 and common punctuation etc */
 	public static char[] getMinimalCharacterSet(){
 		List<Character> validChars = new LinkedList<>();
 		for(char c='a'; c<='z'; c++) validChars.add(c);
@@ -185,12 +180,17 @@ public class CharacterIterator implements DataSetIterator {
 
 	public void reset() {
         exampleStartOffsets.clear();
-		int nMinibatchesPerEpoch = totalExamples();
-        for( int i=0; i<nMinibatchesPerEpoch; i++ ){
-            exampleStartOffsets.add(i * miniBatchSize);
-        }
-        Collections.shuffle(exampleStartOffsets,rng);
+		initializeOffsets();
 	}
+
+    private void initializeOffsets() {
+        //This defines the order in which parts of the file are fetched
+        int nMinibatchesPerEpoch = (fileCharacters.length - 1) / exampleLength - 2;   //-2: for end index, and for partial example
+        for (int i = 0; i < nMinibatchesPerEpoch; i++) {
+            exampleStartOffsets.add(i * exampleLength);
+        }
+        Collections.shuffle(exampleStartOffsets, rng);
+    }
 
 	public boolean resetSupported() {
 		return true;
