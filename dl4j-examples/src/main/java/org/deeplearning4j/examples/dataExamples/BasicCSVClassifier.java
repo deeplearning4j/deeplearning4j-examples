@@ -24,7 +24,6 @@ import org.nd4j.linalg.lossfunctions.LossFunctions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
@@ -192,7 +191,7 @@ public class BasicCSVClassifier {
         INDArray features = testData.getFeatureMatrix();
         for (int i = 0; i < features.rows() ; i++) {
             INDArray slice = features.slice(i);
-            Map<String,Object> animal = new HashMap<>();
+            Map<String,Object> animal = new HashMap();
 
             //set the attributes
             animal.put("yearsLived", slice.getInt(0));

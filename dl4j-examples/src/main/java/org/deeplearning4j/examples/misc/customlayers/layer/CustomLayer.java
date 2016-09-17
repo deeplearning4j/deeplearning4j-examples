@@ -1,0 +1,107 @@
+package org.deeplearning4j.examples.misc.customlayers.layer;
+
+import org.deeplearning4j.nn.api.Layer;
+import org.deeplearning4j.nn.api.ParamInitializer;
+import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
+import org.deeplearning4j.nn.conf.layers.FeedForwardLayer;
+import org.deeplearning4j.nn.params.DefaultParamInitializer;
+import org.deeplearning4j.optimize.api.IterationListener;
+import org.nd4j.linalg.api.ndarray.INDArray;
+
+import java.util.Collection;
+import java.util.Map;
+
+/**
+ * Layer configuration class for the custom layer example
+ *
+ * @author Alex Black
+ */
+public class CustomLayer extends FeedForwardLayer {
+
+    private String secondActivationFunction;
+
+    public CustomLayer() {
+        //We need a no-arg constructor so we can deserialize the configuration from JSON or YAML format
+        // Without this, you will likely get an exception like the following:
+        //com.fasterxml.jackson.databind.JsonMappingException: No suitable constructor found for type [simple type, class org.deeplearning4j.examples.misc.customlayers.layer.CustomLayer]: can not instantiate from JSON object (missing default constructor or creator, or perhaps need to add/enable type information?)
+    }
+
+    private CustomLayer(Builder builder) {
+        super(builder);
+        this.secondActivationFunction = builder.secondActivationFunction;
+    }
+
+    public String getSecondActivationFunction() {
+        //We also need setter/getter methods for our layer configuration fields (if any) for JSON serialization
+        return secondActivationFunction;
+    }
+
+    public void setSecondActivationFunction(String secondActivationFunction) {
+        //We also need setter/getter methods for our layer configuration fields (if any) for JSON serialization
+        this.secondActivationFunction = secondActivationFunction;
+    }
+
+    @Override
+    public Layer instantiate(NeuralNetConfiguration conf, Collection<IterationListener> iterationListeners,
+                             int layerIndex, INDArray layerParamsView, boolean initializeParams) {
+        //The instantiate method is how we go from the configuration class (i.e., this class) to the implementation class
+        // (i.e., a CustomLayerImpl instance)
+        //For the most part, it's the same for each type of layer
+
+        CustomLayerImpl myCustomLayer = new CustomLayerImpl(conf);
+        myCustomLayer.setListeners(iterationListeners);             //Set the iteration listeners, if any
+        myCustomLayer.setIndex(layerIndex);                         //Integer index of the layer
+
+        //Parameter view array: In Deeplearning4j, the network parameters for the entire network (all layers) are
+        // allocated in one big array. The relevant section of this parameter vector is extracted out for each layer,
+        // (i.e., it's a "view" array in that it's a subset of a larger array)
+        // This is a row vector, with length equal to the number of parameters in the layer
+        myCustomLayer.setParamsViewArray(layerParamsView);
+
+        //Initialize the layer parameters. For example,
+        // Note that the entries in paramTable (2 entries here: a weight array of shape [nIn,nOut] and biases of shape [1,nOut]
+        // are in turn a view of the 'layerParamsView' array.
+        Map<String, INDArray> paramTable = initializer().init(conf, layerParamsView, initializeParams);
+        myCustomLayer.setParamTable(paramTable);
+        myCustomLayer.setConf(conf);
+        return myCustomLayer;
+    }
+
+    @Override
+    public ParamInitializer initializer() {
+        //This method returns the parameter initializer for this type of layer
+        //In this case, we can use the DefaultParamInitializer, which is the same one used for DenseLayer
+        //For more complex layers, you may need to implement a custom parameter initializer
+        //See the various parameter initializers here:
+        //https://github.com/deeplearning4j/deeplearning4j/tree/master/deeplearning4j-core/src/main/java/org/deeplearning4j/nn/params
+
+        return DefaultParamInitializer.getInstance();
+    }
+
+
+    //Here's an implementation of a builder pattern, to allow us to easily configure the layer
+    //Note that we are inheriting all of the FeedForwardLayer.Builder options: things like n
+    public static class Builder extends FeedForwardLayer.Builder<Builder> {
+
+        private String secondActivationFunction;
+
+        //This is an example of a custom property in the configuration
+
+        /**
+         * A custom property used in this custom layer example. See the CustomLayerExampleReadme.md for details
+         *
+         * @param secondActivationFunction Second activation function for the layer
+         */
+        public Builder secondActivationFunction(String secondActivationFunction) {
+            this.secondActivationFunction = secondActivationFunction;
+            return this;
+        }
+
+        @Override
+        @SuppressWarnings("unchecked")  //To stop warnings about unchecked cast. Not required.
+        public CustomLayer build() {
+            return new CustomLayer(this);
+        }
+    }
+
+}
