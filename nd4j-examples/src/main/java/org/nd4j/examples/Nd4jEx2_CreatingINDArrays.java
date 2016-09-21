@@ -16,9 +16,7 @@ public class Nd4jEx2_CreatingINDArrays {
 
     public static void main(String[] args){
 
-        /*
-        Here, we'll see how to create INDArrays with different initializations
-         */
+        //Here, we'll see how to create INDArrays with different scalar value initializations
         int nRows = 3;
         int nColumns = 5;
         INDArray allZeros = Nd4j.zeros(nRows, nColumns);
@@ -55,7 +53,7 @@ public class Nd4jEx2_CreatingINDArrays {
 
 
         //It is also possible to create random INDArrays:
-        //Be aware however that by default, random values are printed with truncated precision:
+        //Be aware however that by default, random values are printed with truncated precision using INDArray.toString()
         int[] shape = new int[]{nRows, nColumns};
         INDArray uniformRandom = Nd4j.rand(shape);
         System.out.println("\n\n\nUniform random array:");
