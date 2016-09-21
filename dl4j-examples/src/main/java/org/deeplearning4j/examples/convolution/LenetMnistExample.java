@@ -121,7 +121,7 @@ public class LenetMnistExample {
 */
 
         log.info("Train model....");
-        model.setListeners(new PerformanceListener(10));
+        model.setListeners(new PerformanceListener(100));
 
         //((NativeOpExecutioner) Nd4j.getExecutioner()).getLoop().setOmpNumThreads(8);
 
