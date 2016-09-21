@@ -55,10 +55,12 @@ public class Nd4jEx2_CreatingINDArrays {
 
 
         //It is also possible to create random INDArrays:
+        //Be aware however that by default, random values are printed with truncated precision:
         int[] shape = new int[]{nRows, nColumns};
         INDArray uniformRandom = Nd4j.rand(shape);
         System.out.println("\n\n\nUniform random array:");
         System.out.println(uniformRandom);
+        System.out.println("Full precision of random value at position (0,0): " + uniformRandom.getDouble(0,0));
 
         INDArray gaussianMeanZeroUnitVariance = Nd4j.randn(shape);
         System.out.println("\nN(0,1) random array:");
