@@ -23,6 +23,7 @@
         <datavec.version>0.6.0</datavec.version>
         <arbiter.version>0.6.0</arbiter.version>
         <guava.version>19.0</guava.version>
+        <logback.version>1.1.7</logback.version>
         <jfreechart.version>1.0.13</jfreechart.version>
         <maven-shade-plugin.version>2.4.3</maven-shade-plugin.version>
         <exec-maven-plugin.version>1.4.0</exec-maven-plugin.version>
@@ -33,6 +34,7 @@
         <module>dl4j-spark-examples</module>
         <module>datavec-examples</module>
         <module>dl4j-cuda-specific-examples</module>
+        <module>nd4j-examples</module>
     </modules>
 
 </project>
