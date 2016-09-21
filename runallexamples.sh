@@ -31,7 +31,9 @@ declare -a arr=(
 "org.deeplearning4j.examples.arbiter.BasicHyperparameterOptimizationExample"
 "org.deeplearning4j.examples.dataExamples.PreprocessNormalizerExample"
 "org.deeplearning4j.examples.dataExamples.ImagePipelineExample"
-"org.deeplearning4j.examples.dataExamples.CSVExample")
+"org.deeplearning4j.examples.dataExamples.CSVExample"
+"org.deeplearning4j.examples.dataExamples.BasicCSVClassifier"
+)
 
 ## now loop through the above array
 for i in "${arr[@]}"

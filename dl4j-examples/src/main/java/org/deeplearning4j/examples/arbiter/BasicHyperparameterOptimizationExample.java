@@ -1,5 +1,5 @@
 package org.deeplearning4j.examples.arbiter;
-
+/*
 import org.deeplearning4j.arbiter.DL4JConfiguration;
 import org.deeplearning4j.arbiter.MultiLayerSpace;
 import org.deeplearning4j.arbiter.data.DataSetIteratorProvider;
@@ -36,7 +36,7 @@ import org.nd4j.linalg.lossfunctions.LossFunctions;
 import java.io.File;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-
+*/
 /**
  * This is a basic hyperparameter optimization example using Arbiter to conduct random search on two network hyperparameters.
  * The two hyperparameters are learning rate and layer size, and the search is conducted for a simple multi-layer perceptron
@@ -50,7 +50,7 @@ import java.util.concurrent.TimeUnit;
 public class BasicHyperparameterOptimizationExample {
 
     public static void main(String[] args) throws Exception {
-
+/*
 
         //First: Set up the hyperparameter configuration space. This is like a MultiLayerConfiguration, but can have either
         // fixed values or values to optimize, for each hyperparameter
@@ -160,6 +160,7 @@ public class BasicHyperparameterOptimizationExample {
         //So do a Thread.sleep(1 minute) to keep JVM alive, so that network configurations can be viewed
         Thread.sleep(60000);
         System.exit(0);
+        */
     }
 
 }

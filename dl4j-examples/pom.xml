@@ -43,12 +43,12 @@
         <dependencies>
             <dependency>
                 <groupId>org.nd4j</groupId>
-                <artifactId>nd4j-native-platform</artifactId>
+                <artifactId>nd4j-native</artifactId>
                 <version>${nd4j.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.nd4j</groupId>
-                <artifactId>nd4j-cuda-7.5-platform</artifactId>
+                <artifactId>nd4j-cuda-8.0</artifactId>
                 <version>${nd4j.version}</version>
             </dependency>
         </dependencies>
@@ -103,11 +103,11 @@
         </dependency>
 
         <!-- Arbiter: used for hyperparameter optimization examples -->
-        <dependency>
+        <!-- <dependency>
             <groupId>org.deeplearning4j</groupId>
             <artifactId>arbiter-deeplearning4j</artifactId>
             <version>${arbiter.version}</version>
-        </dependency>
+        </dependency> -->
     </dependencies>
 
     <build>

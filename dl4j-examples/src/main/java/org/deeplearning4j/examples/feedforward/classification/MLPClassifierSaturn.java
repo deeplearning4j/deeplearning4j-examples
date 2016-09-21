@@ -18,6 +18,7 @@ import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.factory.Nd4j;
+import org.nd4j.linalg.io.ClassPathResource;
 import org.nd4j.linalg.lossfunctions.LossFunctions.LossFunction;
 
 import java.io.File;
@@ -47,14 +48,17 @@ public class MLPClassifierSaturn {
         int numOutputs = 2;
         int numHiddenNodes = 20;
 
+        final String filenameTrain  = new ClassPathResource("/classification/saturn_data_train.csv").getFile().getPath();
+        final String filenameTest  = new ClassPathResource("/classification/saturn_data_eval.csv").getFile().getPath();
+
         //Load the training data:
         RecordReader rr = new CSVRecordReader();
-        rr.initialize(new FileSplit(new File("dl4j-examples/src/main/resources/classification/saturn_data_train.csv")));
+        rr.initialize(new FileSplit(new File(filenameTrain)));
         DataSetIterator trainIter = new RecordReaderDataSetIterator(rr,batchSize,0,2);
 
         //Load the test/evaluation data:
         RecordReader rrTest = new CSVRecordReader();
-        rrTest.initialize(new FileSplit(new File("dl4j-examples/src/main/resources/classification/saturn_data_eval.csv")));
+        rrTest.initialize(new FileSplit(new File(filenameTest)));
         DataSetIterator testIter = new RecordReaderDataSetIterator(rrTest,batchSize,0,2);
 
         //log.info("Build model....");
@@ -127,7 +131,7 @@ public class MLPClassifierSaturn {
         INDArray predictionsAtXYPoints = model.output(allXYPoints);
 
         //Get all of the training data in a single array, and plot it:
-        rr.initialize(new FileSplit(new File("dl4j-examples/src/main/resources/classification/saturn_data_train.csv")));
+        rr.initialize(new FileSplit(new File(filenameTrain)));
         rr.reset();
         int nTrainPoints = 500;
         trainIter = new RecordReaderDataSetIterator(rr,nTrainPoints,0,2);
@@ -136,7 +140,7 @@ public class MLPClassifierSaturn {
 
 
         //Get test data, run the test data through the network to generate predictions, and plot those predictions:
-        rrTest.initialize(new FileSplit(new File("dl4j-examples/src/main/resources/classification/saturn_data_eval.csv")));
+        rrTest.initialize(new FileSplit(new File(filenameTest)));
         rrTest.reset();
         int nTestPoints = 100;
         testIter = new RecordReaderDataSetIterator(rrTest,nTestPoints,0,2);
