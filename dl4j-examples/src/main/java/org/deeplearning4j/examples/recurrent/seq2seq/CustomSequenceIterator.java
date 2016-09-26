@@ -219,9 +219,5 @@ public class CustomSequenceIterator implements MultiDataSetIterator {
         return false;
     }
 
-    @Override
-    public boolean asyncSupported() {
-        return false;
-    }
 }
 

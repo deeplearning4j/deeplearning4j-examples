@@ -27,6 +27,7 @@ import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.nd4j.linalg.dataset.api.preprocessor.ImagePreProcessingScaler;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
+//import org.nd4j.nativeblas.NativeOpsHolder;
 
 import java.io.File;
 import java.io.IOException;
@@ -60,6 +61,9 @@ public class TinyExample {
         int nOut = 200;
 
         int nEpochs = 10;
+
+        //NativeOpsHolder.getInstance().getDeviceNativeOps().setTADThreshold(1);
+        //NativeOpsHolder.getInstance().getDeviceNativeOps().setElementThreshold(16);
 
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
             .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)

@@ -1,5 +1,6 @@
 package org.deeplearning4j.examples.convolution;
 
+import org.deeplearning4j.datasets.iterator.MultipleEpochsIterator;
 import org.deeplearning4j.datasets.iterator.impl.MnistDataSetIterator;
 import org.deeplearning4j.eval.Evaluation;
 import org.deeplearning4j.nn.api.OptimizationAlgorithm;
@@ -29,6 +30,7 @@ import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.nd4j.linalg.factory.Nd4j;
 
 import org.nd4j.linalg.lossfunctions.LossFunctions;
+//import org.nd4j.nativeblas.NativeOpsHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,7 +54,7 @@ public class LenetMnistExample {
             .setMinimumBlockSize(384)
             .setVerbose(false)
             .enableDebug(false);
-        */
+*/
 
         int nChannels = 1;
         int outputNum = 10;
@@ -120,12 +122,18 @@ public class LenetMnistExample {
             .build();
 */
 
+//        NativeOpsHolder.getInstance().getDeviceNativeOps().setTADThreshold(1);
+//        NativeOpsHolder.getInstance().getDeviceNativeOps().setElementThreshold(32);
+
         log.info("Train model....");
-        model.setListeners(new PerformanceListener(10));
+        //model.setListeners(new PerformanceListener(100, true));
+
+        MultipleEpochsIterator mei = new MultipleEpochsIterator(mnistTrain, 24, 9000);
 
         //((NativeOpExecutioner) Nd4j.getExecutioner()).getLoop().setOmpNumThreads(8);
 
         long timeX = System.currentTimeMillis();
+        /*
 //        nEpochs = 2;
         for( int i=0; i<nEpochs; i++ ) {
             long time1 = System.currentTimeMillis();
@@ -134,6 +142,8 @@ public class LenetMnistExample {
             long time2 = System.currentTimeMillis();
             log.info("*** Completed epoch {}, Time elapsed: {} ***", i, (time2 - time1));
         }
+        */
+        model.fit(mei);
         long timeY = System.currentTimeMillis();
 
         log.info("Training complete in: {} ms", (timeY - timeX));
