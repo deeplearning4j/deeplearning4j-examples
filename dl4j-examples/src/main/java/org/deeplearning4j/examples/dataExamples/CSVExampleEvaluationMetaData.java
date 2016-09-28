@@ -151,5 +151,11 @@ public class CSVExampleEvaluationMetaData {
                 + "\tLabels: " + labels
                 + "\tPredictions: " + networkPrediction);
         }
+
+
+        //Some other useful evaluation methods:
+        List<Prediction> list1 = eval.getPredictions(1,2);                  //Predictions: actual class 1, predicted class 2
+        List<Prediction> list2 = eval.getPredictionByPredictedClass(2);     //All predictions for predicted class 2
+        List<Prediction> list3 = eval.getPredictionsByActualClass(2);       //All predictions for actual class 2
     }
 }
