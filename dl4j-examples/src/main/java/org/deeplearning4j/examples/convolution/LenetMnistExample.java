@@ -34,7 +34,6 @@ import org.nd4j.linalg.lossfunctions.LossFunctions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-//import org.nd4j.jita.conf.CudaEnvironment;
 //import org.nd4j.jita.perf.OpDashboard;
 import org.deeplearning4j.nn.conf.LearningRatePolicy;
 
@@ -45,17 +44,17 @@ public class LenetMnistExample {
     private static final Logger log = LoggerFactory.getLogger(LenetMnistExample.class);
 
     public static void main(String[] args) throws Exception {
+
 /*
         CudaEnvironment.getInstance().getConfiguration()
             .allowMultiGPU(true)
             //.(true)
-            .setMaximumGridSize(512)
-            .setMaximumBlockSize(512)
-            .setMinimumBlockSize(384)
+//            .setMaximumGridSize(8192)
+//            .setMaximumBlockSize(512)
+//            .setMinimumBlockSize(64)
             .setVerbose(false)
             .enableDebug(false);
 */
-
         int nChannels = 1;
         int outputNum = 10;
         int batchSize = 64;
@@ -126,24 +125,28 @@ public class LenetMnistExample {
 //        NativeOpsHolder.getInstance().getDeviceNativeOps().setElementThreshold(32);
 
         log.info("Train model....");
-        //model.setListeners(new PerformanceListener(100, true));
+        model.setListeners(new PerformanceListener(100, true));
 
-        MultipleEpochsIterator mei = new MultipleEpochsIterator(mnistTrain, 24, 9000);
+        //MultipleEpochsIterator mei = new MultipleEpochsIterator(mnistTrain, 24, 9000);
 
         //((NativeOpExecutioner) Nd4j.getExecutioner()).getLoop().setOmpNumThreads(8);
 
         long timeX = System.currentTimeMillis();
-        /*
+
+
+
 //        nEpochs = 2;
-        for( int i=0; i<nEpochs; i++ ) {
+        for( int itera=0; itera<nEpochs; itera++ ) {
             long time1 = System.currentTimeMillis();
+
             model.fit(mnistTrain);
+
             //wrapper.fit(mnistTrain);
             long time2 = System.currentTimeMillis();
-            log.info("*** Completed epoch {}, Time elapsed: {} ***", i, (time2 - time1));
+            log.info("*** Completed epoch {}, Time elapsed: {} ***", itera, (time2 - time1));
         }
-        */
-        model.fit(mei);
+
+//        model.fit(mei);
         long timeY = System.currentTimeMillis();
 
         log.info("Training complete in: {} ms", (timeY - timeX));
