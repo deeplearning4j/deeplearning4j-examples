@@ -24,6 +24,8 @@ import org.deeplearning4j.parallelism.ParallelWrapper;
 //import org.nd4j.linalg.cpu.nativecpu.ops.NativeOpExecutioner;
 //import org.nd4j.linalg.api.ops.executioner.GridExecutioner;
 //import org.nd4j.linalg.jcublas.ops.executioner.CudaGridExecutioner;
+import org.nd4j.linalg.api.buffer.DataBuffer;
+import org.nd4j.linalg.api.buffer.util.DataTypeUtil;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
@@ -44,7 +46,7 @@ public class LenetMnistExample {
     private static final Logger log = LoggerFactory.getLogger(LenetMnistExample.class);
 
     public static void main(String[] args) throws Exception {
-
+        DataTypeUtil.setDTypeForContext(DataBuffer.Type.HALF);
 /*
         CudaEnvironment.getInstance().getConfiguration()
             .allowMultiGPU(true)
