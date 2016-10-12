@@ -54,14 +54,14 @@ public class DeepAutoEncoderExample {
                 .layer(6, new RBM.Builder().nIn(100).nOut(250).lossFunction(LossFunctions.LossFunction.RMSE_XENT).build())
                 .layer(7, new RBM.Builder().nIn(250).nOut(500).lossFunction(LossFunctions.LossFunction.RMSE_XENT).build())
                 .layer(8, new RBM.Builder().nIn(500).nOut(1000).lossFunction(LossFunctions.LossFunction.RMSE_XENT).build())
-                .layer(9, new OutputLayer.Builder(LossFunctions.LossFunction.RMSE_XENT).nIn(1000).nOut(numRows*numColumns).build())
+                .layer(9, new OutputLayer.Builder(LossFunctions.LossFunction.MSE).activation("sigmoid").nIn(1000).nOut(numRows*numColumns).build())
                 .pretrain(true).backprop(true)
                 .build();
 
         MultiLayerNetwork model = new MultiLayerNetwork(conf);
         model.init();
 
-        model.setListeners(Collections.singletonList((IterationListener) new ScoreIterationListener(listenerFreq)));
+        model.setListeners(new ScoreIterationListener(listenerFreq));
 
         log.info("Train model....");
         while(iter.hasNext()) {
