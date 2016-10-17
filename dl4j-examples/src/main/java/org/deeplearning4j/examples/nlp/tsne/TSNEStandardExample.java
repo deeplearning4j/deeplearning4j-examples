@@ -26,20 +26,25 @@ public class TSNEStandardExample {
     private static Logger log = LoggerFactory.getLogger(TSNEStandardExample.class);
 
     public static void main(String[] args) throws Exception  {
+        //STEP 1: Initialization
         int iterations = 100;
+        //create an n-dimensional array of doubles
         Nd4j.dtype = DataBuffer.Type.DOUBLE;
         Nd4j.factory().setDType(DataBuffer.Type.DOUBLE);
-        List<String> cacheList = new ArrayList<>();
+        List<String> cacheList = new ArrayList<>(); //cacheList is a dynamic array of strings used to hold all words
 
+        //STEP 2: Turn text input into a list of words
         log.info("Load & Vectorize data....");
-        File wordFile = new ClassPathResource("words.txt").getFile();
+        File wordFile = new ClassPathResource("words.txt").getFile();   //Open the file
+        //Get the data of all unique word vectors
         Pair<InMemoryLookupTable,VocabCache> vectors = WordVectorSerializer.loadTxt(wordFile);
         VocabCache cache = vectors.getSecond();
-        INDArray weights = vectors.getFirst().getSyn0();
+        INDArray weights = vectors.getFirst().getSyn0();    //seperate weights of unique words into their own list
 
-        for(int i = 0; i < cache.numWords(); i++)
+        for(int i = 0; i < cache.numWords(); i++)   //seperate strings of words into their own list
             cacheList.add(cache.wordAtIndex(i));
 
+        //STEP 3: build a dual-tree tsne to use later
         log.info("Build model....");
         BarnesHutTsne tsne = new BarnesHutTsne.Builder()
                 .setMaxIter(iterations).theta(0.5)
@@ -49,12 +54,18 @@ public class TSNEStandardExample {
 //                .usePca(false)
                 .build();
 
+        //STEP 4: establish the tsne values and save them to a file
         log.info("Store TSNE Coordinates for Plotting....");
         String outputFile = "target/archive-tmp/tsne-standard-coords.csv";
         (new File(outputFile)).getParentFile().mkdirs();
         tsne.plot(weights,2,cacheList,outputFile);
+        //This tsne will use the weights of the vectors as its matrix, have two dimensions, use the words strings as
+        //labels, and be written to the outputFile created on the previous line
+
+        //!!! Possible error: plot was recently deprecated. Might need to re-do the last line
     }
 
 
 
 }
+
