@@ -41,12 +41,15 @@ import java.util.*;
  * GravesLSTM + Spark character modelling example
  * Example: Train a LSTM RNN to generates text, one character at a time.
  * Training here is done on Spark
- * <p>
+ *
  * See dl4j-examples/src/main/java/org/deeplearning4j/examples/recurrent/character/GravesLSTMCharModellingExample.java
  * for the single-machine version of this example
- * <p>
+ *
  * To run the example locally: Run the example as-is. The example is set up to use Spark local by default.
- * <p>
+ * NOTE: Spark local should only be used for development/testing. For data parallel training on a single machine
+ * (for example, multi-GPU systems) instead use ParallelWrapper (which is faster than using Spark for training on a single machine).
+ * See for example MultiGpuLenetMnistExample in dl4j-cuda-specific-examples
+ *
  * To run the example using Spark submit (for example on a cluster): pass "-useSparkLocal false" as the application argument,
  * OR first modify the example by setting the field "useSparkLocal = false"
  *
