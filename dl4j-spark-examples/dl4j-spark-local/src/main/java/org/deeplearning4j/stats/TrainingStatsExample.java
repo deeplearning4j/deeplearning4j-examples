@@ -110,6 +110,9 @@ public class TrainingStatsExample {
         //Fit for 1 epoch:
         sparkNetwork.fit(trainingData);
 
+        //Delete the temp training files, now that we are done with them (if fitting for multiple epochs: would be re-used)
+        tm.deleteTempFiles(sc);
+
         //Get the statistics:
         SparkTrainingStats stats = sparkNetwork.getSparkTrainingStats();
         Set<String> statsKeySet = stats.getKeySet();    //Keys for the types of statistics

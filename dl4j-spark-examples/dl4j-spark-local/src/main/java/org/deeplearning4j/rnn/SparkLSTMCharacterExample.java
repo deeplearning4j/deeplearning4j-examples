@@ -131,6 +131,9 @@ public class SparkLSTMCharacterExample {
             }
         }
 
+        //Delete the temp training files, now that we are done with them
+        tm.deleteTempFiles(sc);
+
         System.out.println("\n\nExample complete");
     }
 
