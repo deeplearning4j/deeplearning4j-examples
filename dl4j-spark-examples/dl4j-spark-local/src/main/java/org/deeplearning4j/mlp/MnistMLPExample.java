@@ -48,10 +48,10 @@ public class MnistMLPExample {
     private boolean useSparkLocal = true;
 
     @Parameter(names = "-batchSizePerWorker", description = "Number of examples to fit each worker with")
-    private int batchSizePerWorker = 32;
+    private int batchSizePerWorker = 16;
 
     @Parameter(names = "-numEpochs", description = "Number of epochs for training")
-    private int numEpochs = 10;
+    private int numEpochs = 15;
 
     public static void main(String[] args) throws Exception {
         new MnistMLPExample().entryPoint(args);
@@ -73,7 +73,7 @@ public class MnistMLPExample {
         if (useSparkLocal) {
             sparkConf.setMaster("local[*]");
         }
-        sparkConf.setAppName("DL4J MLP");
+        sparkConf.setAppName("DL4J Spark MLP Example");
         JavaSparkContext sc = new JavaSparkContext(sparkConf);
 
         //Load the data into memory then parallelize

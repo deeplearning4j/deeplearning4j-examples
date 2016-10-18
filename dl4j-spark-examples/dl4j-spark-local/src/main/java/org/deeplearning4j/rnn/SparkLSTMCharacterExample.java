@@ -1,5 +1,8 @@
 package org.deeplearning4j.rnn;
 
+import com.beust.jcommander.JCommander;
+import com.beust.jcommander.Parameter;
+import com.beust.jcommander.ParameterException;
 import org.apache.commons.io.FileUtils;
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaRDD;
@@ -24,6 +27,8 @@ import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.lossfunctions.LossFunctions.LossFunction;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -32,33 +37,64 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.util.*;
 
-/**GravesLSTM + Spark character modelling example
+/**
+ * GravesLSTM + Spark character modelling example
  * Example: Train a LSTM RNN to generates text, one character at a time.
- * Training here is done on Spark (local)
- *
+ * Training here is done on Spark
+ * <p>
  * See dl4j-examples/src/main/java/org/deeplearning4j/examples/recurrent/character/GravesLSTMCharModellingExample.java
- * for the single-machine version of this
+ * for the single-machine version of this example
+ * <p>
+ * To run the example locally: Run the example as-is. The example is set up to use Spark local by default.
+ * <p>
+ * To run the example using Spark submit (for example on a cluster): pass "-useSparkLocal false" as the application argument,
+ * OR first modify the example by setting the field "useSparkLocal = false"
  *
  * @author Alex Black
  */
 public class SparkLSTMCharacterExample {
+    private static final Logger log = LoggerFactory.getLogger(SparkLSTMCharacterExample.class);
 
-    public static Map<Integer, Character> INT_TO_CHAR = getIntToChar();
-    public static Map<Character, Integer> CHAR_TO_INT = getCharToInt();
-    public static final int N_CHARS = INT_TO_CHAR.size();
-    public static int nIn = CHAR_TO_INT.size();
-    public static int nOut = CHAR_TO_INT.size();
+    private static Map<Integer, Character> INT_TO_CHAR = getIntToChar();
+    private static Map<Character, Integer> CHAR_TO_INT = getCharToInt();
+    private static final int N_CHARS = INT_TO_CHAR.size();
+    private static int nOut = CHAR_TO_INT.size();
+    private static int exampleLength = 1000;                    //Length of each training example sequence to use
 
-    public static int exampleLength = 1000;					//Length of each training example sequence to use
+    @Parameter(names = "-useSparkLocal", description = "Use spark local (helper for testing/running without spark submit)", arity = 1)
+    private boolean useSparkLocal = true;
+
+    @Parameter(names = "-batchSizePerWorker", description = "Number of examples to fit each worker with")
+    private int batchSizePerWorker = 8;   //How many examples should be used per worker (executor) when fitting?
+
+    @Parameter(names = "-numEpochs", description = "Number of epochs for training")
+    private int numEpochs = 1;
 
     public static void main(String[] args) throws Exception {
+        new SparkLSTMCharacterExample().entryPoint(args);
+    }
+
+    protected void entryPoint(String[] args) throws Exception {
+        //Handle command line arguments
+        JCommander jcmdr = new JCommander(this);
+        try {
+            jcmdr.parse(args);
+        } catch (ParameterException e) {
+            //User provides invalid input -> print the usage info
+            jcmdr.usage();
+            try {
+                Thread.sleep(500);
+            } catch (Exception e2) {
+            }
+            throw e;
+        }
+
         Random rng = new Random(12345);
-        int lstmLayerSize = 200;					//Number of units in each GravesLSTM layer
+        int lstmLayerSize = 200;                    //Number of units in each GravesLSTM layer
         int tbpttLength = 50;                       //Length for truncated backpropagation through time. i.e., do parameter updates ever 50 characters
-        int numEpochs = 1;							//Total number of training epochs
-        int nSamplesToGenerate = 4;					//Number of samples to generate after each training epoch
-        int nCharactersToSample = 300;				//Length of each sample to generate
-        String generationInitialization = null;		//Optional character initialization; a random character is used if null
+        int nSamplesToGenerate = 4;                    //Number of samples to generate after each training epoch
+        int nCharactersToSample = 300;                //Length of each sample to generate
+        String generationInitialization = null;        //Optional character initialization; a random character is used if null
         // Above is Used to 'prime' the LSTM with a character sequence to continue/complete.
         // Initialization characters must all be in CharacterIterator.getMinimalCharacterSet() by default
 
@@ -85,8 +121,7 @@ public class SparkLSTMCharacterExample {
 
 
         //-------------------------------------------------------------
-        //Second: Set up the Spark-specific configuration
-        int examplesPerWorker = 8;      //How many examples should be used per worker (executor) when fitting?
+        //Set up the Spark-specific configuration
         /* How frequently should we average parameters (in number of minibatches)?
         Averaging too frequently can be slow (synchronization + serialization costs) whereas too infrequently can result
         learning difficulties (i.e., network may not converge) */
@@ -94,8 +129,10 @@ public class SparkLSTMCharacterExample {
 
         //Set up Spark configuration and context
         SparkConf sparkConf = new SparkConf();
-        sparkConf.setMaster("local[*]");
-        sparkConf.setAppName("LSTM_Char");
+        if (useSparkLocal) {
+            sparkConf.setMaster("local[*]");
+        }
+        sparkConf.setAppName("LSTM Character Example");
         JavaSparkContext sc = new JavaSparkContext(sparkConf);
 
         JavaRDD<DataSet> trainingData = getTrainingData(sc);
@@ -103,43 +140,45 @@ public class SparkLSTMCharacterExample {
 
         //Set up the TrainingMaster. The TrainingMaster controls how learning is actually executed on Spark
         //Here, we are using standard parameter averaging
+        //For details on these configuration options, see: https://deeplearning4j.org/spark#configuring
         int examplesPerDataSetObject = 1;
         ParameterAveragingTrainingMaster tm = new ParameterAveragingTrainingMaster.Builder(examplesPerDataSetObject)
-                .workerPrefetchNumBatches(2)    //Asynchronously prefetch up to 2 batches
-                .saveUpdater(true)
-                .averagingFrequency(averagingFrequency)
-                .batchSizePerWorker(examplesPerWorker)
-                .build();
+            .workerPrefetchNumBatches(2)    //Asynchronously prefetch up to 2 batches
+            .averagingFrequency(averagingFrequency)
+            .batchSizePerWorker(batchSizePerWorker)
+            .build();
         SparkDl4jMultiLayer sparkNetwork = new SparkDl4jMultiLayer(sc, conf, tm);
         sparkNetwork.setListeners(Collections.<IterationListener>singletonList(new ScoreIterationListener(1)));
 
         //Do training, and then generate and print samples from network
         for (int i = 0; i < numEpochs; i++) {
-
+            //Perform one epoch of training. At the end of each epoch, we are returned a copy of the trained network
             MultiLayerNetwork net = sparkNetwork.fit(trainingData);
 
-
-            System.out.println("--------------------");
-            System.out.println("Sampling characters from network given initialization \"" +
-                    (generationInitialization == null ? "" : generationInitialization) + "\"");
+            //Sample some characters from the network (done locally)
+            log.info("Sampling characters from network given initialization \"" +
+                (generationInitialization == null ? "" : generationInitialization) + "\"");
             String[] samples = sampleCharactersFromNetwork(generationInitialization, net, rng, INT_TO_CHAR,
-                    nCharactersToSample, nSamplesToGenerate);
+                nCharactersToSample, nSamplesToGenerate);
             for (int j = 0; j < samples.length; j++) {
-                System.out.println("----- Sample " + j + " -----");
-                System.out.println(samples[j]);
-                System.out.println();
+                log.info("----- Sample " + j + " -----");
+                log.info(samples[j]);
             }
         }
 
         //Delete the temp training files, now that we are done with them
         tm.deleteTempFiles(sc);
 
-        System.out.println("\n\nExample complete");
+        log.info("\n\nExample complete");
     }
 
 
+    /**
+     * Get the training data - a JavaRDD<DataSet>
+     * Note that this approach for getting training data is a special case for this example (modelling characters), and
+     * should  not be taken as best practice for loading data (like CSV etc) in general.
+     */
     public static JavaRDD<DataSet> getTrainingData(JavaSparkContext sc) throws IOException {
-
         //Get data. For the sake of this example, we are doing the following operations:
         // File -> String -> List<String> (split into length "sequenceLength" characters) -> JavaRDD<String> -> JavaRDD<DataSet>
         List<String> list = getShakespeareAsList(exampleLength);
@@ -149,15 +188,16 @@ public class SparkLSTMCharacterExample {
     }
 
 
-    public static class StringToDataSetFn implements Function<String, DataSet> {
+    private static class StringToDataSetFn implements Function<String, DataSet> {
         private final Broadcast<Map<Character, Integer>> ctiBroadcast;
 
-        public StringToDataSetFn(Broadcast<Map<Character, Integer>> characterIntegerMap) {
+        private StringToDataSetFn(Broadcast<Map<Character, Integer>> characterIntegerMap) {
             this.ctiBroadcast = characterIntegerMap;
         }
 
         @Override
         public DataSet call(String s) throws Exception {
+            //Here: take a String, and map the characters to a one-hot representation
             Map<Character, Integer> cti = ctiBroadcast.getValue();
             int length = s.length();
             INDArray features = Nd4j.zeros(1, N_CHARS, length - 1);
@@ -168,7 +208,7 @@ public class SparkLSTMCharacterExample {
             for (int i = 0; i < chars.length - 2; i++) {
                 f[1] = cti.get(chars[i]);
                 f[2] = i;
-                l[1] = cti.get(chars[i + 1]);
+                l[1] = cti.get(chars[i + 1]);   //Predict the next character given past and current characters
                 l[2] = i;
 
                 features.putScalar(f, 1.0);
@@ -178,6 +218,7 @@ public class SparkLSTMCharacterExample {
         }
     }
 
+    //This function downloads (if necessary), loads and splits the raw text data into "sequenceLength" strings
     private static List<String> getShakespeareAsList(int sequenceLength) throws IOException {
         //The Complete Works of William Shakespeare
         //5.3MB file in UTF-8 Encoding, ~5.4 million characters
