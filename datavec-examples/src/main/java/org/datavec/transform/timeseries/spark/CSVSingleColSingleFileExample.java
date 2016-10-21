@@ -1,14 +1,5 @@
 package org.datavec.transform.timeseries.spark;
 
-
-//import io.skymind.examples.cdh.spark.rnns.ecg.data.ECGDataToSequenceDataSet;
-//import io.skymind.examples.cdh.spark.rnns.ecg.preprocessor.SparkDataNormalization;
-//import io.skymind.examples.cdh.spark.rnns.ecg.preprocessor.SparkNormalizerStandardize;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
