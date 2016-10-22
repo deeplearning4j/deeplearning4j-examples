@@ -2,7 +2,6 @@ package org.deeplearning4j.examples.dataExamples;
 
 import org.datavec.api.records.Record;
 import org.datavec.api.records.metadata.RecordMetaData;
-import org.datavec.api.records.reader.RecordReader;
 import org.datavec.api.records.reader.RecordReaderMeta;
 import org.datavec.api.records.reader.impl.csv.CSVRecordReader;
 import org.datavec.api.split.FileSplit;
@@ -21,12 +20,9 @@ import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.dataset.SplitTestAndTrain;
-import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.nd4j.linalg.dataset.api.preprocessor.DataNormalization;
 import org.nd4j.linalg.dataset.api.preprocessor.NormalizerStandardize;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,8 +35,6 @@ import java.util.List;
  * @author Alex Black
  */
 public class CSVExampleEvaluationMetaData {
-
-    private static Logger log = LoggerFactory.getLogger(CSVExample.class);
 
     public static void main(String[] args) throws  Exception {
         //First: get the dataset using the record reader. This is as per CSV example - see that example for details
@@ -65,10 +59,10 @@ public class CSVExampleEvaluationMetaData {
 
         //Let's show specifically which examples are in the training and test sets, using the collected metadata
         System.out.println("  +++++ Training Set Examples MetaData +++++");
+        String format = "%-20s\t%s";
         for(RecordMetaData recordMetaData : trainMetaData){
-            System.out.println(recordMetaData.getLocation()
-                + "\t" + recordMetaData.getURI()
-                + "\t" + recordMetaData.getReaderClass());
+            System.out.println(String.format(format, recordMetaData.getLocation(), recordMetaData.getURI()));
+            //Also available: recordMetaData.getReaderClass()
         }
         System.out.println("\n\n  +++++ Test Set Examples MetaData +++++");
         for(RecordMetaData recordMetaData : testMetaData){
@@ -89,7 +83,7 @@ public class CSVExampleEvaluationMetaData {
         int iterations = 50;
         long seed = 6;
 
-        log.info("Build model....");
+        System.out.println("Build model....");
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
             .seed(seed)
             .iterations(iterations)
@@ -115,7 +109,7 @@ public class CSVExampleEvaluationMetaData {
         Evaluation eval = new Evaluation(3);
         INDArray output = model.output(testData.getFeatureMatrix());
         eval.eval(testData.getLabels(), output, testMetaData);          //Note we are passing in the test set metadata here
-        log.info(eval.stats());
+        System.out.println(eval.stats());
 
         //Get a list of prediction errors, from the Evaluation object
         //Prediction errors like this are only available after calling iterator.setCollectMetaData(true)
@@ -123,12 +117,12 @@ public class CSVExampleEvaluationMetaData {
         System.out.println("\n\n+++++ Prediction Errors +++++");
         for(Prediction p : predictionErrors){
             System.out.println("Predicted class: " + p.getPredictedClass() + ", Actual class: " + p.getActualClass()
-                + "\t" + p.getRecordMetaData().getLocation());
+                + "\t" + p.getRecordMetaData(RecordMetaData.class).getLocation());
         }
 
         //We can also load a subset of the data, to a DataSet object:
         List<RecordMetaData> predictionErrorMetaData = new ArrayList<>();
-        for( Prediction p : predictionErrors ) predictionErrorMetaData.add(p.getRecordMetaData());
+        for( Prediction p : predictionErrors ) predictionErrorMetaData.add(p.getRecordMetaData(RecordMetaData.class));
         DataSet predictionErrorExamples = iterator.loadFromMetaData(predictionErrorMetaData);
         normalizer.transform(predictionErrorExamples);  //Apply normalization to this subset
 
@@ -138,7 +132,7 @@ public class CSVExampleEvaluationMetaData {
         //Print out the prediction errors, along with the raw data, normalized data, labels and network predictions:
         for(int i=0; i<predictionErrors.size(); i++ ){
             Prediction p = predictionErrors.get(i);
-            RecordMetaData meta = p.getRecordMetaData();
+            RecordMetaData meta = p.getRecordMetaData(RecordMetaData.class);
             INDArray features = predictionErrorExamples.getFeatures().getRow(i);
             INDArray labels = predictionErrorExamples.getLabels().getRow(i);
             List<Writable> rawData = predictionErrorRawData.get(i).getRecord();
