@@ -25,7 +25,7 @@ public class Word2VecRawTextExample {
     private static Logger log = LoggerFactory.getLogger(Word2VecRawTextExample.class);
 
     public static void main(String[] args) throws Exception {
-        
+
         // Gets Path to Text file
         String filePath = new ClassPathResource("raw_sentences.txt").getFile().getAbsolutePath();
 
@@ -34,6 +34,12 @@ public class Word2VecRawTextExample {
         SentenceIterator iter = new BasicLineIterator(filePath);
         // Split on white spaces in the line to get words
         TokenizerFactory t = new DefaultTokenizerFactory();
+
+        /*
+            CommonPreprocessor will apply the following regex to each token: [\d\.:,"'\(\)\[\]|/?!;]+
+            So, effectively all numbers, punctuation symbols and some special symbols are stripped off.
+            Additionally it forces lower case for all tokens.
+         */
         t.setTokenPreProcessor(new CommonPreprocessor());
 
         log.info("Building model....");
@@ -59,7 +65,7 @@ public class Word2VecRawTextExample {
         log.info("Closest Words:");
         Collection<String> lst = vec.wordsNearest("day", 10);
         System.out.println("10 Words closest to 'day': " + lst);
-        
+
         UiServer server = UiServer.getInstance();
         System.out.println("Started on port " + server.getPort());
     }
