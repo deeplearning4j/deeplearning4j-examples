@@ -196,7 +196,12 @@ public class CharacterIterator implements DataSetIterator {
 		return true;
 	}
 
-	public int batch() {
+    @Override
+    public boolean asyncSupported() {
+        return true;
+    }
+
+    public int batch() {
 		return miniBatchSize;
 	}
 
