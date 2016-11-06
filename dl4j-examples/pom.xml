@@ -104,11 +104,12 @@
 
 
         <!-- Arbiter: used for hyperparameter optimization examples -->
-        <dependency>
+        <!--<dependency>
             <groupId>org.deeplearning4j</groupId>
             <artifactId>arbiter-deeplearning4j</artifactId>
             <version>${arbiter.version}</version>
         </dependency>
+        -->
     </dependencies>
 
     <build>
