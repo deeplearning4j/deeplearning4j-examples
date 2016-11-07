@@ -68,7 +68,7 @@ public class MLPMnistSingleLayerExample {
                 .layer(0, new DenseLayer.Builder() //create the first, input layer with xavier initialization
                         .nIn(numRows * numColumns)
                         .nOut(1000)
-                        .activation("relu")
+                        .activation("sigmoid")
                         .weightInit(WeightInit.XAVIER)
                         .build())
                 .layer(1, new OutputLayer.Builder(LossFunction.NEGATIVELOGLIKELIHOOD) //create hidden layer
