@@ -15,7 +15,9 @@ import org.deeplearning4j.nn.weights.WeightInit;
 import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
+import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.lossfunctions.LossFunctions.LossFunction;
+import org.nd4j.nativeblas.NativeOpsHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,6 +44,12 @@ public class MLPMnistSingleLayerExample {
     private static Logger log = LoggerFactory.getLogger(MLPMnistSingleLayerExample.class);
 
     public static void main(String[] args) throws Exception {
+
+        Nd4j.create(1);
+
+        NativeOpsHolder.getInstance().getDeviceNativeOps().setOmpNumThreads(1);
+        NativeOpsHolder.getInstance().getDeviceNativeOps().setOmpMinThreads(1);
+
         //number of rows and columns in the input pictures
         final int numRows = 28;
         final int numColumns = 28;
