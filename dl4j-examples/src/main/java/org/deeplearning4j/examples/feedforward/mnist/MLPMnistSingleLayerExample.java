@@ -47,6 +47,7 @@ public class MLPMnistSingleLayerExample {
 
         Nd4j.create(1);
 
+        System.out.println("Setting OMP threads to 1");
         NativeOpsHolder.getInstance().getDeviceNativeOps().setOmpNumThreads(1);
         NativeOpsHolder.getInstance().getDeviceNativeOps().setOmpMinThreads(1);
 
