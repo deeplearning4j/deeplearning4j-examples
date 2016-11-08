@@ -44,13 +44,6 @@ public class MLPMnistSingleLayerExample {
     private static Logger log = LoggerFactory.getLogger(MLPMnistSingleLayerExample.class);
 
     public static void main(String[] args) throws Exception {
-
-        Nd4j.create(1);
-
-        System.out.println("Setting OMP threads to 1");
-        NativeOpsHolder.getInstance().getDeviceNativeOps().setOmpNumThreads(1);
-        NativeOpsHolder.getInstance().getDeviceNativeOps().setOmpMinThreads(1);
-
         //number of rows and columns in the input pictures
         final int numRows = 28;
         final int numColumns = 28;
