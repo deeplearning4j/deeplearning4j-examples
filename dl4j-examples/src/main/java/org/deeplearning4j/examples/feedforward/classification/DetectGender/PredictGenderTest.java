@@ -172,7 +172,7 @@ public class PredictGenderTest implements Runnable {
     {
         try
         {
-            this.filePath = System.getProperty("user.dir") + "\\src\\main\\resources\\PredictGender\\";
+            this.filePath = System.getProperty("user.dir") + "\\src\\main\\resources\\PredictGender\\Data\\";
             this.possibleCharacters = " abcdefghijklmnopqrstuvwxyz";
             this.model = ModelSerializer.restoreMultiLayerNetwork(this.filePath + "PredictGender.net");
         }
