@@ -153,13 +153,7 @@ public class CustomLossL1L2 implements ILossFunction {
         double maxRelError = 5.0; // in %
         CustomLossL1L2 lossfn = new CustomLossL1L2();
         String[] activationFns = new String[]{"identity", "softmax", "relu", "tanh", "sigmoid"};
-        //String[] activationFns = new String[]{"identity"};
         int[] labelSizes = new int[]{1, 2, 3, 4};
-        //identity labels
-        //relu is non-negative
-        //softmax adds up to 1
-        //sigmoid is between 0 and 1
-        //tanh is between -1 and 1
         for (int i = 0; i < activationFns.length; i++) {
             System.out.println("Running checks for "+activationFns[i]);
             String activation = activationFns[i];
