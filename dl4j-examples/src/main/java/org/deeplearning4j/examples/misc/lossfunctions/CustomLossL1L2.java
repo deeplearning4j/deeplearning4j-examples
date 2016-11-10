@@ -46,7 +46,7 @@ public class CustomLossL1L2 implements ILossFunction {
         // This is the output of the neural network, the y_hat in the notation above
         //To obtain y_hat: pre-output is transformed by the activation function to give the output of the neural network
         INDArray output = Nd4j.getExecutioner().execAndReturn(Nd4j.getOpFactory().createTransform(activationFn, preOutput.dup()));
-        //The score is calculated as the sum of (y-y_hat)^2 + (y - y_hat)
+        //The score is calculated as the sum of (y-y_hat)^2 + |y - y_hat|
         INDArray yMinusyHat = Transforms.abs(labels.sub(output));
         scoreArr = yMinusyHat.mul(yMinusyHat);
         scoreArr.addi(yMinusyHat);
@@ -141,7 +141,8 @@ public class CustomLossL1L2 implements ILossFunction {
 
     //THE FOLLOWING IS TO ILLUSTRATE A SIMPLE GRADIENT CHECK.
     //It checks the implementation against the finite difference approximation
-    //References for more thorough gradient checks in dl4j:
+    //You will have to write your own gradient checks. 
+    //Use the code below and the following for reference.
     //  deeplearning4j/deeplearning4j-core/src/test/java/org/deeplearning4j/gradientcheck/LossFunctionGradientCheck.java
     public static void main(String[] args) throws IOException {
         doGradientCheck();
