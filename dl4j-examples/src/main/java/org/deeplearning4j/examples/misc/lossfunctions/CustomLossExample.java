@@ -19,7 +19,10 @@ import java.util.List;
 import java.util.Random;
 
 /**
- * Created by susaneraly on 11/7/16.
+ * Created by susaneraly on 11/9/16.
+ * This is an example that illustrates how to instantiate and use a custom loss function.
+ * The example is identical to the one in org.deeplearning4j.examples.feedforward.regression.RegressionSum
+ * except for the custom loss function
  */
 public class CustomLossExample {
     public static final int seed = 12345;
@@ -52,7 +55,8 @@ public class CustomLossExample {
             .layer(0, new DenseLayer.Builder().nIn(numInput).nOut(nHidden)
                 .activation("tanh")
                 .build())
-                //instantiate custom loss function here as follows
+                //INSTANTIATE CUSTOM LOSS FUNCTION here as follows
+                //Refer to CustomLossL1L2 class for more details on implementation
             .layer(1, new OutputLayer.Builder(new CustomLossL1L2())
                 .activation("identity")
                 .nIn(nHidden).nOut(numOutputs).build())
