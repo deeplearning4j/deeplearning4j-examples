@@ -7,6 +7,7 @@ import org.deeplearning4j.models.embeddings.loader.WordVectorSerializer;
 import org.deeplearning4j.models.word2vec.wordstore.VocabCache;
 import org.deeplearning4j.plot.BarnesHutTsne;
 import org.nd4j.linalg.api.buffer.DataBuffer;
+import org.nd4j.linalg.api.buffer.util.DataTypeUtil;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
 import org.slf4j.Logger;
@@ -29,8 +30,7 @@ public class TSNEStandardExample {
         //STEP 1: Initialization
         int iterations = 100;
         //create an n-dimensional array of doubles
-        Nd4j.dtype = DataBuffer.Type.DOUBLE;
-        Nd4j.factory().setDType(DataBuffer.Type.DOUBLE);
+        DataTypeUtil.setDTypeForContext(DataBuffer.Type.DOUBLE);
         List<String> cacheList = new ArrayList<>(); //cacheList is a dynamic array of strings used to hold all words
 
         //STEP 2: Turn text input into a list of words
