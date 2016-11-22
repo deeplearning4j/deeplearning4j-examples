@@ -40,12 +40,13 @@ import java.io.File;
 /**
  * This example was inspired by Jason Brownlee's regression examples for Keras, found here:
  * http://machinelearningmastery.com/time-series-prediction-lstm-recurrent-neural-networks-python-keras/
+ *
+ * It demonstrates single time step regression using LSTM
  */
 
 public class SingleTimestepRegressionExample {
     private static final Logger LOGGER = LoggerFactory.getLogger(SingleTimestepRegressionExample.class);
 
-    //'baseDir': Base directory for the data. Change this if you want to save the data somewhere else
     private static File baseDir = new File("dl4j-examples/src/main/resources/rnnRegression");
 
     public static void main(String[] args) throws Exception {
@@ -67,7 +68,7 @@ public class SingleTimestepRegressionExample {
         DataSet trainData = trainIter.next();
         DataSet testData = testIter.next();
 
-        //Normalize the training data
+        //Normalize data, including labels (fitLabel=true)
         NormalizerMinMaxScaler normalizer = new NormalizerMinMaxScaler(0, 1);
         normalizer.fitLabel(true);
         normalizer.fit(trainData);              //Collect training data statistics
@@ -111,23 +112,18 @@ public class SingleTimestepRegressionExample {
 
             evaluation.evalTimeSeries(lables, predicted);
 
-            LOGGER.info(evaluation.stats());
+            //Just do sout here since the logger will shift the shift the columns of the stats
+            System.out.println(evaluation.stats());
         }
 
-        //Predict output
-        INDArray predictedTrain = net.rnnTimeStep(trainData.getFeatureMatrix());
+        //Init rrnTimeStemp with train data and predict test data
+        net.rnnTimeStep(trainData.getFeatureMatrix());
         INDArray predicted = net.rnnTimeStep(testData.getFeatureMatrix());
 
         //Revert data back to original values for plotting
         normalizer.revert(trainData);
         normalizer.revert(testData);
-//        normalizer.revertLabels(predicted);
-
-        DataSet trainDs = new DataSet(predictedTrain, Nd4j.zeros(predictedTrain.shape()));
-        DataSet testDs = new DataSet(predicted, Nd4j.zeros(predicted.shape()));
-        normalizer.revert(trainDs);
-        normalizer.revert(testDs);
-
+        normalizer.revertLabels(predicted);
 
         //Create plot with out data
         XYSeriesCollection c = new XYSeriesCollection();
