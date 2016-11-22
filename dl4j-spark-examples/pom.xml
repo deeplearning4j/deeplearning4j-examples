@@ -15,9 +15,7 @@
 
 
     <modules>
-        <module>dl4j-spark-local</module>
-        <module>dl4j-spark-cdh</module>
-        <module>dl4j-spark-hdp</module>
+        <module>dl4j-spark</module>
     </modules>
 
 
