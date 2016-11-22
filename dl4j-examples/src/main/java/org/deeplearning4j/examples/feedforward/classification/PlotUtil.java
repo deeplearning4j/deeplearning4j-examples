@@ -17,7 +17,7 @@ import org.jfree.data.xy.*;
 import org.jfree.ui.RectangleEdge;
 import org.jfree.ui.RectangleInsets;
 import org.nd4j.linalg.api.ndarray.INDArray;
-import org.nd4j.linalg.api.ops.impl.indexaccum.IAMax;
+import org.nd4j.linalg.api.ops.impl.indexaccum.IMax;
 import org.nd4j.linalg.factory.Nd4j;
 
 import javax.swing.*;
@@ -106,7 +106,7 @@ public class PlotUtil {
 
         XYSeries[] series = new XYSeries[nClasses];
         for( int i=0; i<series.length; i++) series[i] = new XYSeries("Class " + String.valueOf(i));
-        INDArray argMax = Nd4j.getExecutioner().exec(new IAMax(labels), 1);
+        INDArray argMax = Nd4j.getExecutioner().exec(new IMax(labels), 1);
         for( int i=0; i<nRows; i++ ){
             int classIdx = (int)argMax.getDouble(i);
             series[classIdx].add(features.getDouble(i, 0), features.getDouble(i, 1));
@@ -130,8 +130,8 @@ public class PlotUtil {
             String label = "actual=" + trueClass + ", pred=" + predClass;
             series[i] = new XYSeries(label);
         }
-        INDArray actualIdx = Nd4j.getExecutioner().exec(new IAMax(labels), 1);
-        INDArray predictedIdx = Nd4j.getExecutioner().exec(new IAMax(predicted), 1);
+        INDArray actualIdx = Nd4j.getExecutioner().exec(new IMax(labels), 1);
+        INDArray predictedIdx = Nd4j.getExecutioner().exec(new IMax(predicted), 1);
         for( int i=0; i<nRows; i++ ){
             int classIdx = (int)actualIdx.getDouble(i);
             int predIdx = (int)predictedIdx.getDouble(i);
