@@ -2,7 +2,7 @@ package org.deeplearning4j.examples.dataExamples;
 
 import org.datavec.api.records.Record;
 import org.datavec.api.records.metadata.RecordMetaData;
-import org.datavec.api.records.reader.RecordReaderMeta;
+import org.datavec.api.records.reader.RecordReader;
 import org.datavec.api.records.reader.impl.csv.CSVRecordReader;
 import org.datavec.api.split.FileSplit;
 import org.datavec.api.util.ClassPathResource;
@@ -29,8 +29,8 @@ import java.util.List;
 
 /**
  * This example is a version of the basic CSV example, but adds the following:
- * (a) MetaData tracking
- * (b) Additional evaluation
+ * (a) Meta data tracking - i.e., where data for each example comes from
+ * (b) Additional evaluation information - getting metadata for prediction errors
  *
  * @author Alex Black
  */
@@ -38,7 +38,7 @@ public class CSVExampleEvaluationMetaData {
 
     public static void main(String[] args) throws  Exception {
         //First: get the dataset using the record reader. This is as per CSV example - see that example for details
-        RecordReaderMeta recordReader = new CSVRecordReader(0, ",");
+        RecordReader recordReader = new CSVRecordReader(0, ",");
         recordReader.initialize(new FileSplit(new ClassPathResource("iris.txt").getFile()));
         int labelIndex = 4;
         int numClasses = 3;
