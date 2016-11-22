@@ -7,10 +7,14 @@
     <parent>
         <groupId>org.deeplearning4j</groupId>
         <artifactId>deeplearning4j-examples-parent</artifactId>
-        <version>0.5-SNAPSHOT</version>
+        <version>0.7-SNAPSHOT</version>
     </parent>
 
     <name>Reinforcement Learning4j Examples</name>
+
+    <properties>
+        <rl4j.version>0.7.0</rl4j.version>
+    </properties>
 
     <repositories>
         <repository>
@@ -63,17 +67,12 @@
         <dependency>
             <groupId>org.deeplearning4j</groupId>
             <artifactId>rl4j-core</artifactId>
-            <version>0.6.1-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>org.deeplearning4j</groupId>
-            <artifactId>rl4j-doom</artifactId>
-            <version>0.6.1-SNAPSHOT</version>
+            <version>${rl4j.version}</version>
         </dependency>
         <dependency>
             <groupId>org.deeplearning4j</groupId>
             <artifactId>rl4j-gym</artifactId>
-            <version>0.6.1-SNAPSHOT</version>
+            <version>${rl4j.version}</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
