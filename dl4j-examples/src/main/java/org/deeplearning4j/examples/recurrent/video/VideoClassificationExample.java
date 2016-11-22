@@ -193,7 +193,7 @@ public class VideoClassificationExample {
             DataSet dsTest = testData.next();
             INDArray predicted = net.output(dsTest.getFeatureMatrix(), false);
             INDArray actual = dsTest.getLabels();
-            evaluation.evalTimeSeries(predicted, actual);
+            evaluation.evalTimeSeries(actual, predicted);
         }
 
         System.out.println(evaluation.stats());
