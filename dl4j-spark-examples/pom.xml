@@ -7,7 +7,7 @@
     <parent>
         <groupId>org.deeplearning4j</groupId>
         <artifactId>deeplearning4j-examples-parent</artifactId>
-        <version>0.5-SNAPSHOT</version>
+        <version>0.7-SNAPSHOT</version>
     </parent>
 
     <artifactId>dl4j-spark-examples</artifactId>
@@ -15,9 +15,7 @@
 
 
     <modules>
-        <module>dl4j-spark-local</module>
-        <module>dl4j-spark-cdh</module>
-        <module>dl4j-spark-hdp</module>
+        <module>dl4j-spark</module>
     </modules>
 
 

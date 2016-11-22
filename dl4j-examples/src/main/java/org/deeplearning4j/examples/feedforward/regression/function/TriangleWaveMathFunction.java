@@ -3,6 +3,10 @@ package org.deeplearning4j.examples.feedforward.regression.function;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
 
+/**
+ * Calculate function value of Triangle Wave, which is an absolute value of Sawtooth Wave.
+ *
+ */
 public class TriangleWaveMathFunction implements MathFunction {
 
     @Override

@@ -8,7 +8,7 @@ import org.deeplearning4j.text.sentenceiterator.SentenceIterator;
 import org.deeplearning4j.text.tokenization.tokenizer.preprocessor.CommonPreprocessor;
 import org.deeplearning4j.text.tokenization.tokenizerfactory.DefaultTokenizerFactory;
 import org.deeplearning4j.text.tokenization.tokenizerfactory.TokenizerFactory;
-import org.deeplearning4j.ui.UiServer;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,6 +16,9 @@ import java.util.Collection;
 
 /**
  * Created by agibsonccc on 10/9/14.
+ *
+ * Neural net that processes text into wordvectors. See below url for an in-depth explanation.
+ * https://deeplearning4j.org/word2vec.html
  */
 public class Word2VecRawTextExample {
 
@@ -23,6 +26,7 @@ public class Word2VecRawTextExample {
 
     public static void main(String[] args) throws Exception {
 
+        // Gets Path to Text file
         String filePath = new ClassPathResource("raw_sentences.txt").getFile().getAbsolutePath();
 
         log.info("Load & Vectorize Sentences....");
@@ -30,6 +34,12 @@ public class Word2VecRawTextExample {
         SentenceIterator iter = new BasicLineIterator(filePath);
         // Split on white spaces in the line to get words
         TokenizerFactory t = new DefaultTokenizerFactory();
+
+        /*
+            CommonPreprocessor will apply the following regex to each token: [\d\.:,"'\(\)\[\]|/?!;]+
+            So, effectively all numbers, punctuation symbols and some special symbols are stripped off.
+            Additionally it forces lower case for all tokens.
+         */
         t.setTokenPreProcessor(new CommonPreprocessor());
 
         log.info("Building model....");
@@ -48,13 +58,16 @@ public class Word2VecRawTextExample {
 
         log.info("Writing word vectors to text file....");
 
-        // Write word vectors
+        // Write word vectors to file
         WordVectorSerializer.writeWordVectors(vec, "pathToWriteto.txt");
 
+        // Prints out the closest 10 words to "day". An example on what to do with these Word Vectors.
         log.info("Closest Words:");
         Collection<String> lst = vec.wordsNearest("day", 10);
-        System.out.println(lst);
-        UiServer server = UiServer.getInstance();
-        System.out.println("Started on port " + server.getPort());
+        System.out.println("10 Words closest to 'day': " + lst);
+
+        // TODO resolve missing UiServer
+//        UiServer server = UiServer.getInstance();
+//        System.out.println("Started on port " + server.getPort());
     }
 }
