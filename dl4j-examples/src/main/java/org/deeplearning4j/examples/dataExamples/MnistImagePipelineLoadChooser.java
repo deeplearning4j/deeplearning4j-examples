@@ -20,31 +20,22 @@ import java.util.List;
  *
  *  http://www.youtube.com/watch?v=DRHIpeJpJDI
  *
- * Instructions
- * You must download the data for this example to work
- * The datafile is a 15M download that uncompresses to a 273MB directory
+ * This differs slightly from the Video Example,
+ * The Video example had the data already downloaded
+ * This example includes code that downloads the data
+ *
+ *  Data is downloaded from
+ *
+ *
+ *  wget http://github.com/myleott/mnist_png/raw/master/mnist_png.tar.gz
+ *  followed by tar xzvf mnist_png.tar.gz
  * The Data Directory mnist_png will have two child directories training and testing
  * The training and testing directories will have directories 0-9 with
  * 28 * 28 PNG images of handwritten images
  *
  *
  *
- *  You Must Download the data first
  *
- *  Either..
- *  wget http://github.com/myleott/mnist_png/raw/master/mnist_png.tar.gz
- *  followed by tar xzvf mnist_png.tar.gz
- *
- *  OR
- *  git clone https://github.com/myleott/mnist_png.git
- *  cd mnist_png
- *  tar xvf mnist_png.tar.gz
- *
- *  Once you have downloaded the data verify that the
- *  following lines reflect the location of the mnist_png directory
- *
- *  File trainData = new File("/tmp/mnist_png/training");
- *  File testData = new File("/tmp/mnist_png/testing");
  *
  *  This examples builds on the MnistImagePipelineExample
  *  by giving the user a file chooser to test an image of their choice
@@ -57,6 +48,13 @@ import java.util.List;
 public class MnistImagePipelineLoadChooser {
     private static Logger log = LoggerFactory.getLogger(MnistImagePipelineLoadChooser.class);
 
+
+    /*
+    Create a popup window to allow you to chose an image file to test against the
+    trained Neural Network
+    Chosen images will be automatically
+    scaled to 28*28 grayscale
+     */
     public static String fileChose(){
         JFileChooser fc = new JFileChooser();
         int ret = fc.showOpenDialog(null);
@@ -78,7 +76,9 @@ public class MnistImagePipelineLoadChooser {
 
         // recordReader.getLabels()
         // In this version Labels are always in order
+        // So this is no longer needed
         //List<Integer> labelList = Arrays.asList(2,3,7,1,6,4,0,5,8,9);
+        List<Integer> labelList = Arrays.asList(0,1,2,3,4,5,6,7,8,9);
 
         // pop up file chooser
         String filechose = fileChose().toString();
@@ -87,6 +87,19 @@ public class MnistImagePipelineLoadChooser {
 
         // Where to save model
         File locationToSave = new File("trained_mnist_model.zip");
+        // Check for presence of saved model
+        if(locationToSave.exists()){
+            System.out.println("\n######Saved Model Found######\n");
+        }else{
+            System.out.println("\n\n#######File not found!#######");
+            System.out.println("This example depends on running ");
+            System.out.println("MnistImagePipelineExampleSave");
+            System.out.println("Run that Example First");
+            System.out.println("#############################\n\n");
+
+
+            System.exit(0);
+        }
 
         MultiLayerNetwork model = ModelSerializer.restoreMultiLayerNetwork(locationToSave);
 
@@ -118,7 +131,7 @@ public class MnistImagePipelineLoadChooser {
         //log.info("## List of Labels in Order## ");
         // In new versions labels are always in order
         log.info(output.toString());
-        //log.info(labelList.toString());
+        log.info(labelList.toString());
 
     }
 

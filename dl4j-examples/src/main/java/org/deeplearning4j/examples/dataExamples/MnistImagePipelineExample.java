@@ -2,6 +2,16 @@ package org.deeplearning4j.examples.dataExamples;
 
 
 
+import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
+import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
+import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.http.HttpEntity;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.datavec.api.io.labels.ParentPathLabelGenerator;
 import org.datavec.api.records.listener.impl.LogRecordListener;
 import org.datavec.api.split.FileSplit;
@@ -15,18 +25,23 @@ import org.nd4j.linalg.dataset.api.preprocessor.ImagePreProcessingScaler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
+import java.io.*;
+import java.net.URL;
 import java.util.Random;
 
 /**
- * Created by tomhanlon on 11/7/16.
+ * Created by tom hanlon on 11/7/16.
  * This code example is featured in this youtube video
  * https://www.youtube.com/watch?v=GLC8CIoHDnI
  *
+ * This differs slightly from the Video Example,
+ * The Video example had the data already downloaded
+ * This example includes code that downloads the data
+ *
  * Instructions
- * You must download the data for this example to work
- * The datafile is a 15M download that uncompresses to a 273MB directory
- * The Data Directory mnist_png will have two child directories training and testing
+ * Downloads a directory containing a testing and a training folder
+ * each folder has 10 directories 0-9
+ * in each directory are 28 * 28 grayscale pngs of handwritten digits
  * The training and testing directories will have directories 0-9 with
  * 28 * 28 PNG images of handwritten images
  *
@@ -48,31 +63,26 @@ import java.util.Random;
  *  has a matrix with the shown values
  *  Has a label value corresponding to 3
  *
- *  You Must Download the data first
- *
- *  Either..
- *  wget http://github.com/myleott/mnist_png/raw/master/mnist_png.tar.gz
- *  followed by tar xzvf mnist_png.tar.gz
- *
- *  OR
- *  git clone https://github.com/myleott/mnist_png.git
- *  cd mnist_png
- *  tar xvf mnist_png.tar.gz
- *
- *  Once you have downloaded the data verify that the
- *  following lines reflect the location of the mnist_png directory
- *
- *  File trainData = new File("/tmp/mnist_png/training");
- *  File testData = new File("/tmp/mnist_png/testing");
  */
 
 public class MnistImagePipelineExample {
+
+    /** Data URL for downloading */
+    public static final String DATA_URL = "http://github.com/myleott/mnist_png/raw/master/mnist_png.tar.gz";
+
+    /** Location to save and extract the training/testing data */
+    public static final String DATA_PATH = FilenameUtils.concat(System.getProperty("java.io.tmpdir"), "dl4j_Mnist/");
+
+
+
     private static Logger log = LoggerFactory.getLogger(MnistImagePipelineExample.class);
 
     public static void main(String[] args) throws Exception {
-        // image information
-        // 28 * 28 grayscale
-        // grayscale implies single channel
+        /*
+        image information
+        28 * 28 grayscale
+        grayscale implies single channel
+        */
         int height = 28;
         int width = 28;
         int channels = 1;
@@ -81,20 +91,35 @@ public class MnistImagePipelineExample {
         int batchSize = 1;
         int outputNum = 10;
 
+
+
+        /*
+        This class downloadData() downloads the data
+        stores the data in java's tmpdir
+        15MB download compressed
+        It will take 158MB of space when uncompressed
+        The data can be downloaded manually here
+        http://github.com/myleott/mnist_png/raw/master/mnist_png.tar.gz
+         */
+
+
+        downloadData();
+
         // Define the File Paths
-        File trainData = new File("/tmp/mnist_png/training");
-        File testData = new File("/tmp/mnist_png/testing");
+        File trainData = new File(DATA_PATH + "/mnist_png/training");
+        File testData = new File(DATA_PATH + "/mnist_png/testing");
 
         // Define the FileSplit(PATH, ALLOWED FORMATS,random)
 
-        FileSplit train = new FileSplit(trainData, NativeImageLoader.ALLOWED_FORMATS,randNumGen);
-        FileSplit test = new FileSplit(testData,NativeImageLoader.ALLOWED_FORMATS,randNumGen);
+
+        FileSplit train = new FileSplit(trainData, NativeImageLoader.ALLOWED_FORMATS, randNumGen);
+        FileSplit test = new FileSplit(testData, NativeImageLoader.ALLOWED_FORMATS, randNumGen);
 
         // Extract the parent path as the image label
 
         ParentPathLabelGenerator labelMaker = new ParentPathLabelGenerator();
 
-        ImageRecordReader recordReader = new ImageRecordReader(height,width,channels,labelMaker);
+        ImageRecordReader recordReader = new ImageRecordReader(height, width, channels, labelMaker);
 
         // Initialize the record reader
         // add a listener, to extract the name
@@ -102,7 +127,9 @@ public class MnistImagePipelineExample {
         recordReader.initialize(train);
 
         // The LogRecordListener will log the path of each image read
-        // used here for informaiton purposes,
+        // used here for information purposes,
+        // If the whole dataset was ingested this would place 60,000
+        // lines in our logs
         // It will show up in the output with this format
         // o.d.a.r.l.i.LogRecordListener - Reading /tmp/mnist_png/training/4/36384.png
 
@@ -110,18 +137,18 @@ public class MnistImagePipelineExample {
 
         // DataSet Iterator
 
-        DataSetIterator dataIter = new RecordReaderDataSetIterator(recordReader,batchSize,1,outputNum);
+        DataSetIterator dataIter = new RecordReaderDataSetIterator(recordReader, batchSize, 1, outputNum);
 
         // Scale pixel values to 0-1
 
-        DataNormalization scaler = new ImagePreProcessingScaler(0,1);
+        DataNormalization scaler = new ImagePreProcessingScaler(0, 1);
         scaler.fit(dataIter);
         dataIter.setPreProcessor(scaler);
 
         // In production you would loop through all the data
         // in this example the loop is just through 3
         // images for demonstration purposes
-        for (int i = 1; i< 3; i++){
+        for (int i = 1; i < 3; i++) {
             DataSet ds = dataIter.next();
             System.out.println(ds);
             System.out.println(dataIter.getLabels());
@@ -129,4 +156,112 @@ public class MnistImagePipelineExample {
         }
 
     }
-}
+
+    /*
+    Everything below here has nothing to do with your RecordReader,
+    or DataVec, or your Neural Network
+    The classes downloadData, getMnistPNG(),
+    and extractTarGz are for downloading and extracting the data
+     */
+
+    private static void downloadData() throws Exception {
+        //Create directory if required
+        File directory = new File(DATA_PATH);
+        if(!directory.exists()) directory.mkdir();
+
+        //Download file:
+        String archizePath = DATA_PATH + "/mnist_png.tar.gz";
+        File archiveFile = new File(archizePath);
+        String extractedPath = DATA_PATH + "mnist_png";
+        File extractedFile = new File(extractedPath);
+
+        if( !archiveFile.exists() ){
+            System.out.println("Starting data download (15MB)...");
+            getMnistPNG();
+            //Extract tar.gz file to output directory
+            extractTarGz(archizePath, DATA_PATH);
+        } else {
+            //Assume if archive (.tar.gz) exists, then data has already been extracted
+            System.out.println("Data (.tar.gz file) already exists at " + archiveFile.getAbsolutePath());
+            if( !extractedFile.exists()){
+                //Extract tar.gz file to output directory
+                extractTarGz(archizePath, DATA_PATH);
+            } else {
+                System.out.println("Data (extracted) already exists at " + extractedFile.getAbsolutePath());
+            }
+        }
+
+
+    }
+
+    private static final int BUFFER_SIZE = 4096;
+    private static void extractTarGz(String filePath, String outputPath) throws IOException {
+        int fileCount = 0;
+        int dirCount = 0;
+        System.out.print("Extracting files");
+        try(TarArchiveInputStream tais = new TarArchiveInputStream(
+            new GzipCompressorInputStream( new BufferedInputStream( new FileInputStream(filePath))))){
+            TarArchiveEntry entry;
+
+            /** Read the tar entries using the getNextEntry method **/
+            while ((entry = (TarArchiveEntry) tais.getNextEntry()) != null) {
+                //System.out.println("Extracting file: " + entry.getName());
+
+                //Create directories as required
+                if (entry.isDirectory()) {
+                    new File(outputPath + entry.getName()).mkdirs();
+                    dirCount++;
+                }else {
+                    int count;
+                    byte data[] = new byte[BUFFER_SIZE];
+
+                    FileOutputStream fos = new FileOutputStream(outputPath + entry.getName());
+                    BufferedOutputStream dest = new BufferedOutputStream(fos,BUFFER_SIZE);
+                    while ((count = tais.read(data, 0, BUFFER_SIZE)) != -1) {
+                        dest.write(data, 0, count);
+                    }
+                    dest.close();
+                    fileCount++;
+                }
+                if(fileCount % 1000 == 0) System.out.print(".");
+            }
+        }
+
+        System.out.println("\n" + fileCount + " files and " + dirCount + " directories extracted to: " + outputPath);
+    }
+
+    public static void getMnistPNG() throws IOException {
+        String tmpDirStr = System.getProperty("java.io.tmpdir");
+        String archizePath = DATA_PATH + "/mnist_png.tar.gz";
+
+        if (tmpDirStr == null) {
+            throw new IOException("System property 'java.io.tmpdir' does specify a tmp dir");
+        }
+        String url = "http://github.com/myleott/mnist_png/raw/master/mnist_png.tar.gz";
+        File f = new File(archizePath);
+        File dir = new File(tmpDirStr);
+        if (!f.exists()) {
+            HttpClientBuilder builder = HttpClientBuilder.create();
+            CloseableHttpClient client = builder.build();
+            try (CloseableHttpResponse response = client.execute(new HttpGet(url))) {
+                HttpEntity entity = response.getEntity();
+                if (entity != null) {
+                    try (FileOutputStream outstream = new FileOutputStream(f)) {
+                        entity.writeTo(outstream);
+                        outstream.flush();
+                        outstream.close();
+                    }
+                }
+
+            }
+            System.out.println("Data downloaded to " + f.getAbsolutePath());
+        } else {
+            System.out.println("Using existing directory at " + f.getAbsolutePath());
+        }
+
+    }
+
+
+    }
+
+
