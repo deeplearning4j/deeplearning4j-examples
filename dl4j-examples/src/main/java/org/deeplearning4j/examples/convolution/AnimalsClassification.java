@@ -48,7 +48,7 @@ import static org.bytedeco.javacpp.opencv_imgproc.COLOR_BGR2YCrCb;
  *  - U.S. Fish and Wildlife Service (animal sample dataset): http://digitalmedia.fws.gov/cdm/
  *  - Tiny ImageNet Classification with CNN: http://cs231n.stanford.edu/reports/leonyao_final.pdf
  *
- * CHALLENGE: Current setup is slightly better than random. Can you improve the scores? Some approaches:
+ * CHALLENGE: Current setup gets low score results. Can you improve the scores? Some approaches:
  *  - Add additional images to the dataset
  *  - Apply more transforms to dataset
  *  - Increase epochs
