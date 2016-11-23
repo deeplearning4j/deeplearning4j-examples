@@ -8,7 +8,7 @@ import org.deeplearning4j.text.sentenceiterator.SentenceIterator;
 import org.deeplearning4j.text.tokenization.tokenizer.preprocessor.CommonPreprocessor;
 import org.deeplearning4j.text.tokenization.tokenizerfactory.DefaultTokenizerFactory;
 import org.deeplearning4j.text.tokenization.tokenizerfactory.TokenizerFactory;
-import org.deeplearning4j.ui.UiServer;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -66,7 +66,8 @@ public class Word2VecRawTextExample {
         Collection<String> lst = vec.wordsNearest("day", 10);
         System.out.println("10 Words closest to 'day': " + lst);
 
-        UiServer server = UiServer.getInstance();
-        System.out.println("Started on port " + server.getPort());
+        // TODO resolve missing UiServer
+//        UiServer server = UiServer.getInstance();
+//        System.out.println("Started on port " + server.getPort());
     }
 }
