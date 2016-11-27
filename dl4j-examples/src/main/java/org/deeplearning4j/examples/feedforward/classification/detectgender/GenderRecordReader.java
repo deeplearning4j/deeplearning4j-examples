@@ -1,13 +1,11 @@
-package org.deeplearning4j.examples.feedforward.classification.DetectGender;
+package org.deeplearning4j.examples.feedforward.classification.detectgender;
 
 /**
  * Created by KIT Solutions (www.kitsol.com) on 11/7/2016.
  */
 
-import java.io.DataInputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.InterruptedIOException;
 import java.net.URI;
 import java.nio.charset.Charset;
 import java.nio.file.Paths;
@@ -16,18 +14,14 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javafx.util.Pair;
-import jdk.internal.util.xml.impl.Input;
-import org.apache.lucene.queryparser.flexible.core.util.StringUtils;
-import org.apache.lucene.util.ArrayUtil;
+
 import org.datavec.api.conf.Configuration;
 import org.datavec.api.writable.DoubleWritable;
-import org.datavec.api.writable.Text;
 import org.datavec.api.records.reader.impl.LineRecordReader;
 import org.datavec.api.split.FileSplit;
 import org.datavec.api.split.InputSplit;
 import org.datavec.api.split.InputStreamInputSplit;
 import org.datavec.api.writable.Writable;
-import org.nd4j.linalg.factory.Nd4j;
 
 
 /**
@@ -217,7 +211,7 @@ public class GenderRecordReader extends LineRecordReader
      * @return
      */
     @Override
-    public Collection<Writable> next()
+    public List<Writable> next()
     {
         if (iter.hasNext())
         {
