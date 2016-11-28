@@ -112,12 +112,11 @@
             <version>${jcommon.version}</version>
         </dependency>
 
-
-        <!-- Arbiter: used for hyperparameter optimization examples -->
+        <!-- Used for downloading data in some of the examples -->
         <dependency>
-            <groupId>org.deeplearning4j</groupId>
-            <artifactId>arbiter-deeplearning4j</artifactId>
-            <version>${arbiter.version}</version>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+            <version>4.3.5</version>
         </dependency>
     </dependencies>
 
