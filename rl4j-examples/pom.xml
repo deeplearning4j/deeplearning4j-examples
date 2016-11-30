@@ -13,7 +13,7 @@
     <name>Reinforcement Learning4j Examples</name>
 
     <properties>
-        <rl4j.version>0.7.0</rl4j.version>
+        <rl4j.version>0.7.1-SNAPSHOT</rl4j.version>
     </properties>
 
     <repositories>
@@ -79,6 +79,11 @@
             <artifactId>junit</artifactId>
             <version>3.8.1</version>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>${logback.version}</version>
         </dependency>
     </dependencies>
 
