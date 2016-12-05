@@ -144,15 +144,21 @@ public class MNISTAnomalyExample {
         worstVisualizer.visualize();
     }
 
-    private static class MNISTVisualizer {
+    public static class MNISTVisualizer {
         private double imageScale;
         private List<INDArray> digits;  //Digits (as row vectors), one per INDArray
         private String title;
+        private int gridWidth;
 
-        private MNISTVisualizer(double imageScale, List<INDArray> digits, String title ){
+        public MNISTVisualizer(double imageScale, List<INDArray> digits, String title ) {
+            this(imageScale, digits, title, 5);
+        }
+
+        public MNISTVisualizer(double imageScale, List<INDArray> digits, String title, int gridWidth ) {
             this.imageScale = imageScale;
             this.digits = digits;
             this.title = title;
+            this.gridWidth = gridWidth;
         }
 
         public void visualize(){
@@ -161,7 +167,7 @@ public class MNISTAnomalyExample {
             frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
             JPanel panel = new JPanel();
-            panel.setLayout(new GridLayout(0,5));
+            panel.setLayout(new GridLayout(0,gridWidth));
 
             List<JLabel> list = getComponents();
             for(JLabel image : list){

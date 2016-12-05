@@ -61,6 +61,11 @@ public class CustomLayerImpl extends BaseLayer<CustomLayer> { //Generic paramete
         return output;
     }
 
+    @Override
+    public boolean isPretrainLayer() {
+        return false;
+    }
+
 
     @Override
     public Pair<Gradient, INDArray> backpropGradient(INDArray epsilon) {
