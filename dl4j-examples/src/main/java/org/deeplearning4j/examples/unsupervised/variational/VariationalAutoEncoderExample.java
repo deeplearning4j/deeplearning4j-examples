@@ -2,6 +2,7 @@ package org.deeplearning4j.examples.unsupervised.variational;
 
 import org.deeplearning4j.datasets.iterator.impl.MnistDataSetIterator;
 import org.deeplearning4j.examples.feedforward.anomalydetection.MNISTAnomalyExample;
+import org.deeplearning4j.nn.api.OptimizationAlgorithm;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
 import org.deeplearning4j.nn.conf.Updater;
@@ -9,6 +10,7 @@ import org.deeplearning4j.nn.conf.layers.variational.BernoulliReconstructionDist
 import org.deeplearning4j.nn.conf.layers.variational.GaussianReconstructionDistribution;
 import org.deeplearning4j.nn.conf.layers.variational.VariationalAutoencoder;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
+import org.deeplearning4j.nn.weights.WeightInit;
 import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
 import org.deeplearning4j.ui.stats.StatsListener;
 import org.deeplearning4j.ui.storage.InMemoryStatsStorage;
@@ -38,16 +40,17 @@ public class VariationalAutoEncoderExample {
         boolean binarizeMnistImages = true;
         int rngSeed = 12345;
 
-        int nEpochs = 5;
+        int nEpochs = 50;
 
         DataSetIterator trainIter = new MnistDataSetIterator(minibatchSize, totalExamples, binarizeMnistImages, true, true, rngSeed);
 //        DataSetIterator trainIter = new MnistDataSetIterator(minibatchSize, true, rngSeed);
 
-
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
-            .learningRate(1e-5)
+            .iterations(1).optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
+            .learningRate(5e-5)
             .updater(Updater.NESTEROVS).momentum(0.9)
-//            .regularization(true).l2(1e-3)
+            .weightInit(WeightInit.XAVIER)
+            .regularization(true).l2(1e-4)
             .list()
             .layer(0, new VariationalAutoencoder.Builder()
                 .activation("leakyrelu")
@@ -81,9 +84,9 @@ public class VariationalAutoEncoderExample {
 //            System.out.println(Arrays.toString(f));
 //        }
 
-        int min = -6;
-        int max = 6;
-        int nSteps = 20;
+        int min = -15;
+        int max = 15;
+        int nSteps = 15;
 
         INDArray data = Nd4j.create(nSteps*nSteps, 2);
         INDArray linspaceRow = Nd4j.linspace(min, max, nSteps);
@@ -102,6 +105,9 @@ public class VariationalAutoEncoderExample {
 
         MNISTAnomalyExample.MNISTVisualizer v = new MNISTAnomalyExample.MNISTVisualizer(2.0,list,"Test",nSteps);
         v.visualize();
+
+
+        //TODO: also plot examples vs. latent space, with colour coding
     }
 
 }
