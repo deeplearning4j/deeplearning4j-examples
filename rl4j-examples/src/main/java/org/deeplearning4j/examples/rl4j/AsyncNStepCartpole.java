@@ -18,28 +18,28 @@ public class AsyncNStepCartpole {
 
 
     public static AsyncNStepQLearningDiscrete.AsyncNStepQLConfiguration CARTPOLE_NSTEP =
-            new AsyncNStepQLearningDiscrete.AsyncNStepQLConfiguration(
-                    123,     //Random seed
-                    200,     //Max step By epoch
-                    300000,  //Max step
-                    16,      //Number of threads
-                    5,       //t_max
-                    100,     //target update (hard)
-                    10,      //num step noop warmup
-                    0.01,    //reward scaling
-                    0.99,    //gamma
-                    100.0,   //td-error clipping
-                    0.1f,    //min epsilon
-                    9000     //num step for eps greedy anneal
-            );
+        new AsyncNStepQLearningDiscrete.AsyncNStepQLConfiguration(
+            123,     //Random seed
+            200,     //Max step By epoch
+            300000,  //Max step
+            16,      //Number of threads
+            5,       //t_max
+            100,     //target update (hard)
+            10,      //num step noop warmup
+            0.01,    //reward scaling
+            0.99,    //gamma
+            100.0,   //td-error clipping
+            0.1f,    //min epsilon
+            9000     //num step for eps greedy anneal
+        );
 
     public static DQNFactoryStdDense.Configuration CARTPOLE_NET_NSTEP =
-            new DQNFactoryStdDense.Configuration(
-                    3,         //number of layers
-                    16,        //number of hidden nodes
-                    0.0005,    //learning rate
-                    0.001      //l2 regularization
-            );
+        new DQNFactoryStdDense.Configuration(
+            3,         //number of layers
+            16,        //number of hidden nodes
+            0.0005,    //learning rate
+            0.001      //l2 regularization
+        );
 
 
     public static void main( String[] args )
@@ -56,7 +56,7 @@ public class AsyncNStepCartpole {
         //define the mdp from gym (name, render)
         GymEnv mdp = null;
         try {
-        mdp = new GymEnv("CartPole-v0", false, false);
+            mdp = new GymEnv("CartPole-v0", false, false);
         } catch (RuntimeException e){
             System.out.print("To run this example, download and start the gym-http-api repo found at https://github.com/openai/gym-http-api.");
         }

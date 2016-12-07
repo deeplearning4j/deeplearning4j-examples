@@ -58,7 +58,7 @@ public class A3CCartpole {
         }
 
         //define the training
-        A3CDiscreteDense<Box> dql = new A3CDiscreteDense<Box>(mdp, CARTPOLE_NET_A3C, CARTPOLE_A3C, manager);
+        A3CDiscreteDense<Box> dql = new A3CDiscreteDense<>(mdp, CARTPOLE_NET_A3C, CARTPOLE_A3C, manager);
 
         //start the training
         dql.train();
