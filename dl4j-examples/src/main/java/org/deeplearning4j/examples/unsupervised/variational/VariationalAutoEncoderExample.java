@@ -1,20 +1,16 @@
 package org.deeplearning4j.examples.unsupervised.variational;
 
 import org.deeplearning4j.datasets.iterator.impl.MnistDataSetIterator;
-import org.deeplearning4j.examples.feedforward.anomalydetection.MNISTAnomalyExample;
 import org.deeplearning4j.examples.unsupervised.variational.plot.PlotUtil;
 import org.deeplearning4j.nn.api.OptimizationAlgorithm;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
 import org.deeplearning4j.nn.conf.Updater;
 import org.deeplearning4j.nn.conf.layers.variational.BernoulliReconstructionDistribution;
-import org.deeplearning4j.nn.conf.layers.variational.GaussianReconstructionDistribution;
 import org.deeplearning4j.nn.conf.layers.variational.VariationalAutoencoder;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
 import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
-import org.deeplearning4j.ui.stats.StatsListener;
-import org.deeplearning4j.ui.storage.InMemoryStatsStorage;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.api.DataSet;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
@@ -23,121 +19,120 @@ import org.nd4j.linalg.indexing.NDArrayIndex;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
  * A simple example of training a variational autoencoder on MNIST.
- * This example intentionally has a small hidden state Z (2 values) so this can be visualized in a 2-grid.
+ * This example intentionally has a small hidden state Z (2 values) for visualization on a 2-grid.
  *
- * This example plots 2 things:
+ * After training, this example plots 2 things:
  * 1. The MNIST digit reconstructions vs. the latent space
  * 2. The latent space values for the MNIST test set, as training progresses (every N minibatches)
+ *
+ * Note that for both plots, there is a slider at the top - change this to see how the reconstructions and latent
+ * space changes over time.
  *
  * @author Alex Black
  */
 public class VariationalAutoEncoderExample {
 
     public static void main(String[] args) throws IOException {
-
         int minibatchSize = 128;
-        int totalExamples = 60000;
-        boolean binarizeMnistImages = false;
         int rngSeed = 12345;
+        int nEpochs = 20;                   //Total number of training epochs
 
-        //Total number of training epochs
-        int nEpochs = 5;
+        //Plotting configuration
+        int plotEveryNMinibatches = 100;    //Frequency with which to collect data for later plotting
+        double plotMin = -5;                //Minimum values for plotting (x and y dimensions)
+        double plotMax = 5;                 //Maximum values for plotting (x and y dimensions)
+        int plotNumSteps = 16;              //Number of steps for reconstructions, between plotMin and plotMax
 
-        //Frequency with which to collect data for later plotting
-        int plottingLatentSpaceEveryNMinibatches = 100;
+        //MNIST data for training
+        DataSetIterator trainIter = new MnistDataSetIterator(minibatchSize, true, rngSeed);
 
-        DataSetIterator trainIter = new MnistDataSetIterator(minibatchSize, totalExamples, binarizeMnistImages, true, true, rngSeed);
-
+        //Neural net configuration
+        Nd4j.getRandom().setSeed(rngSeed);
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
+            .seed(rngSeed)
             .iterations(1).optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
-            .learningRate(5e-5)
-            .updater(Updater.NESTEROVS).momentum(0.9)
+            .learningRate(1e-2)
+            .updater(Updater.RMSPROP).rmsDecay(0.95)
             .weightInit(WeightInit.XAVIER)
             .regularization(true).l2(1e-4)
             .list()
             .layer(0, new VariationalAutoencoder.Builder()
                 .activation("leakyrelu")
-                .encoderLayerSizes(256, 256)
-                .decoderLayerSizes(256, 256)
-                .pzxActivationFunction("tanh")
-                .reconstructionDistribution(new BernoulliReconstructionDistribution("sigmoid"))
-//                .reconstructionDistribution(new GaussianReconstructionDistribution("tanh"))
-                .nIn(28*28)
-                .nOut(2)
+                .encoderLayerSizes(256, 256)        //2 encoder layers, each of size 256
+                .decoderLayerSizes(256, 256)        //2 decoder layers, each of size 256
+                .pzxActivationFunction("identity")  //p(z|data) activation function
+                .reconstructionDistribution(new BernoulliReconstructionDistribution("sigmoid"))     //Bernoulli distribution for p(data|z) (binary or 0 to 1 data only)
+                .nIn(28 * 28)                       //Input size: 28x28
+                .nOut(2)                            //Size of the latent variable space: p(z|x). 2 dimensions here for plotting, use more in general
                 .build())
             .pretrain(true).backprop(false).build();
 
         MultiLayerNetwork net = new MultiLayerNetwork(conf);
         net.init();
-//        net.setListeners(new ScoreIterationListener(100), new StatsListener(new InMemoryStatsStorage(), 10));
         net.setListeners(new ScoreIterationListener(100));
 
-        org.deeplearning4j.nn.layers.variational.VariationalAutoencoder vae = (org.deeplearning4j.nn.layers.variational.VariationalAutoencoder) net.getLayer(0);
+        //Get the variational autoencoder layer
+        org.deeplearning4j.nn.layers.variational.VariationalAutoencoder vae
+            = (org.deeplearning4j.nn.layers.variational.VariationalAutoencoder) net.getLayer(0);
 
 
         //Test data for plotting
         DataSet testdata = new MnistDataSetIterator(10000, false, rngSeed).next();
         INDArray testFeatures = testdata.getFeatures();
         INDArray testLabels = testdata.getLabels();
+        INDArray latentSpaceGrid = getLatentSpaceGrid(plotMin, plotMax, plotNumSteps);              //X/Y grid values, between plotMin and plotMax
 
-        INDArray latentSpaceGrid = getLatentSpaceGrid();
-
-
-        List<INDArray> latentSpaceVsEpoch = new ArrayList<>(nEpochs+1);
-        INDArray latentSpaceValues = vae.activate(testFeatures, false);     //Collect the latent space values before the
+        //Lists to store data for later plotting
+        List<INDArray> latentSpaceVsEpoch = new ArrayList<>(nEpochs + 1);
+        INDArray latentSpaceValues = vae.activate(testFeatures, false);                     //Collect and record the latent space values before training starts
         latentSpaceVsEpoch.add(latentSpaceValues);
+        List<INDArray> digitsGrid = new ArrayList<>();
 
+        //Perform training
         int iterationCount = 0;
-        INDArray lastOut = null;
-        for( int i=0; i<nEpochs; i++ ){
-            while(trainIter.hasNext()){
+        for (int i = 0; i < nEpochs; i++) {
+            while (trainIter.hasNext()) {
                 DataSet ds = trainIter.next();
                 net.fit(ds);
 
-                //Every N minibatches: collect the test set latent space values for later plotting
-                if(iterationCount++ % plottingLatentSpaceEveryNMinibatches == 0){
+                //Every N=100 minibatches:
+                // (a) collect the test set latent space values for later plotting
+                // (b) collect the reconstructions at each point in the grid
+                if (iterationCount++ % plotEveryNMinibatches == 0) {
                     latentSpaceValues = vae.activate(testFeatures, false);
                     latentSpaceVsEpoch.add(latentSpaceValues);
+
+                    INDArray out = vae.generateAtMeanGivenZ(latentSpaceGrid);
+                    digitsGrid.add(out);
                 }
-                //Every N minibatches: Also collect the reconstructions
-                INDArray out = vae.generateAtMeanGivenZ(latentSpaceGrid);
-                lastOut = out;
             }
 
             trainIter.reset();
-
         }
 
-        PlotUtil.plotData(latentSpaceVsEpoch,testLabels);
+        //Plot MNIST test set - latent space vs. iteration (every 100 minibatches by default)
+        PlotUtil.plotData(latentSpaceVsEpoch, testLabels, plotMin, plotMax, plotEveryNMinibatches);
 
-
-        List<INDArray> list = new ArrayList<>();
-        for( int i=0; i<lastOut.size(0); i++ ){
-            list.add(lastOut.getRow(i));
-        }
-
-        PlotUtil.MNISTLatentSpaceVisualizer v = new PlotUtil.MNISTLatentSpaceVisualizer(2.0,list,"Test");
+        //Plot reconstructions - latent space vs. grid
+        double imageScale = 2.0;        //Increase/decrease this to zoom in on the digits
+        PlotUtil.MNISTLatentSpaceVisualizer v = new PlotUtil.MNISTLatentSpaceVisualizer(imageScale, digitsGrid, plotEveryNMinibatches);
         v.visualize();
     }
 
-    private static INDArray getLatentSpaceGrid(){
-        int min = -1;
-        int max = 1;
-        int nSteps = 15;
 
-        INDArray data = Nd4j.create(nSteps*nSteps, 2);
-        INDArray linspaceRow = Nd4j.linspace(min, max, nSteps);
-        for( int i=0; i<nSteps; i++ ){
-            data.get(NDArrayIndex.interval(i*nSteps, (i+1)*nSteps), NDArrayIndex.point(0)).assign(linspaceRow.getDouble(i));
-            data.get(NDArrayIndex.interval(i*nSteps, (i+1)*nSteps), NDArrayIndex.point(1)).assign(linspaceRow);
+    //This simply returns a 2d grid: (x,y) for x=plotMin to plotMax, and y=plotMin to plotMax
+    private static INDArray getLatentSpaceGrid(double plotMin, double plotMax, int plotSteps) {
+        INDArray data = Nd4j.create(plotSteps * plotSteps, 2);
+        INDArray linspaceRow = Nd4j.linspace(plotMin, plotMax, plotSteps);
+        for (int i = 0; i < plotSteps; i++) {
+            data.get(NDArrayIndex.interval(i * plotSteps, (i + 1) * plotSteps), NDArrayIndex.point(0)).assign(linspaceRow);
+            int yStart = plotSteps - i - 1;
+            data.get(NDArrayIndex.interval(yStart * plotSteps, (yStart + 1) * plotSteps), NDArrayIndex.point(1)).assign(linspaceRow.getDouble(i));
         }
-
         return data;
     }
-
 }

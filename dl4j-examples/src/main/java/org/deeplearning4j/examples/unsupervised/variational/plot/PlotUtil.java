@@ -21,54 +21,49 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 
-/**Simple plotting methods for the MLPClassifier examples
+/**
+ * Plotting methods for the VariationalAutoEncoder example
  * @author Alex Black
  */
 public class PlotUtil {
 
+    public static void plotData(List<INDArray> xyVsIter, INDArray labels, double axisMin, double axisMax, int plotFrequency){
 
-
-    /**Plot the training data. Assume 2d input, classification output
-//     * @param features Training data features
-     * @param labels Training data labels (one-hot representation)
-     */
-    public static void plotData(List<INDArray> xyVsEpoch, INDArray labels){
-
-        JPanel panel = new ChartPanel(createChart(xyVsEpoch.get(0), labels));
-        JPanel p2 = new JPanel();
-
-
-        JSlider slider = new JSlider(0,xyVsEpoch.size()-1,0);
-        slider.setMajorTickSpacing(1);
-        slider.setPaintLabels(true);
+        JPanel panel = new ChartPanel(createChart(xyVsIter.get(0), labels, axisMin, axisMax));
+        JSlider slider = new JSlider(0,xyVsIter.size()-1,0);
         slider.setSnapToTicks(true);
-        p2.add(slider);
 
         final JFrame f = new JFrame();
         slider.addChangeListener(new ChangeListener() {
+
+            private JPanel lastPanel = panel;
             @Override
             public void stateChanged(ChangeEvent e) {
                 JSlider slider = (JSlider)e.getSource();
-
                 int  value = slider.getValue();
-
-                JPanel panel = new ChartPanel(createChart(xyVsEpoch.get(value), labels));
+                JPanel panel = new ChartPanel(createChart(xyVsIter.get(value), labels, axisMin, axisMax));
+                if(lastPanel != null){
+                    f.remove(lastPanel);
+                }
+                lastPanel = panel;
                 f.add(panel, BorderLayout.CENTER);
+                f.setTitle(getTitle(value, plotFrequency));
                 f.revalidate();
             }
         });
 
-
-
         f.setLayout(new BorderLayout());
-        f.add(p2, BorderLayout.NORTH);
+        f.add(slider, BorderLayout.NORTH);
         f.add(panel, BorderLayout.CENTER);
         f.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         f.pack();
-        f.setTitle("Latent Space");
+        f.setTitle(getTitle(0, plotFrequency));
 
         f.setVisible(true);
+    }
 
+    private static String getTitle(int recordNumber, int plotFrequency){
+        return "MNIST Test Set - Latent Space Encoding at Training Iteration " + recordNumber * plotFrequency;
     }
 
     //Test data
@@ -92,14 +87,15 @@ public class PlotUtil {
         return c;
     }
 
-    private static JFreeChart createChart(INDArray features, INDArray labels) {
+    private static JFreeChart createChart(INDArray features, INDArray labels, double axisMin, double axisMax) {
 
         XYDataset dataset = createDataSet(features, labels);
 
-        JFreeChart chart = ChartFactory.createScatterPlot("Scatter Plot Demo 1",
+        JFreeChart chart = ChartFactory.createScatterPlot("Variational Autoencoder Latent Space - MNIST Test Set",
             "X", "Y", dataset, PlotOrientation.VERTICAL, true, true, false);
 
         XYPlot plot = (XYPlot) chart.getPlot();
+        plot.getRenderer().setBaseOutlineStroke(new BasicStroke(0));
         plot.setNoDataMessage("NO DATA");
 
         plot.setDomainPannable(false);
@@ -123,7 +119,7 @@ public class PlotUtil {
         renderer.setUseOutlinePaint(true);
         NumberAxis domainAxis = (NumberAxis) plot.getDomainAxis();
         domainAxis.setAutoRangeIncludesZero(false);
-        domainAxis.setRange(-1, 1);
+        domainAxis.setRange(axisMin, axisMax);
 
         domainAxis.setTickMarkInsideLength(2.0f);
         domainAxis.setTickMarkOutsideLength(2.0f);
@@ -136,7 +132,7 @@ public class PlotUtil {
         rangeAxis.setTickMarkOutsideLength(2.0f);
         rangeAxis.setMinorTickCount(2);
         rangeAxis.setMinorTickMarksVisible(true);
-        rangeAxis.setRange(-1,1);
+        rangeAxis.setRange(axisMin, axisMax);
         return chart;
     }
 
@@ -144,39 +140,66 @@ public class PlotUtil {
     public static class MNISTLatentSpaceVisualizer {
         private double imageScale;
         private List<INDArray> digits;  //Digits (as row vectors), one per INDArray
-        private String title;
+        private int plotFrequency;
         private int gridWidth;
 
-        public MNISTLatentSpaceVisualizer(double imageScale, List<INDArray> digits, String title) {
+        public MNISTLatentSpaceVisualizer(double imageScale, List<INDArray> digits, int plotFrequency) {
             this.imageScale = imageScale;
             this.digits = digits;
-            this.title = title;
+            this.plotFrequency = plotFrequency;
             this.gridWidth = (int)Math.sqrt(digits.get(0).size(0)); //Assume square, nxn rows
+        }
+
+        private String getTitle(int recordNumber){
+            return "Reconstructions Over Latent Space at Training Iteration " + recordNumber * plotFrequency;
         }
 
         public void visualize(){
             JFrame frame = new JFrame();
-            frame.setTitle(title);
+            frame.setTitle(getTitle(0));
             frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            frame.setLayout(new BorderLayout());
 
             JPanel panel = new JPanel();
             panel.setLayout(new GridLayout(0,gridWidth));
 
-            List<JLabel> list = getComponents();
+            JSlider slider = new JSlider(0,digits.size()-1, 0);
+            slider.addChangeListener(new ChangeListener() {
+                @Override
+                public void stateChanged(ChangeEvent e) {
+                    JSlider slider = (JSlider)e.getSource();
+                    int  value = slider.getValue();
+                    panel.removeAll();
+                    List<JLabel> list = getComponents(value);
+                    for(JLabel image : list){
+                        panel.add(image);
+                    }
+                    frame.setTitle(getTitle(value));
+                    frame.revalidate();
+                }
+            });
+            frame.add(slider, BorderLayout.NORTH);
+
+
+            List<JLabel> list = getComponents(0);
             for(JLabel image : list){
                 panel.add(image);
             }
 
-            frame.add(panel);
+            frame.add(panel, BorderLayout.CENTER);
             frame.setVisible(true);
             frame.pack();
         }
 
-        private List<JLabel> getComponents(){
+        private List<JLabel> getComponents(int idx){
             List<JLabel> images = new ArrayList<>();
-            for( INDArray arr : digits ){
+            List<INDArray> temp =  new ArrayList<>();
+            for( int i=0; i<digits.get(idx).size(0); i++ ){
+                temp.add(digits.get(idx).getRow(i));
+            }
+            for( INDArray arr : temp ){
                 BufferedImage bi = new BufferedImage(28,28,BufferedImage.TYPE_BYTE_GRAY);
-                for( int i=0; i<768; i++ ){
+                for( int i=0; i<784; i++ ){
                     bi.getRaster().setSample(i % 28, i / 28, 0, (int)(255*arr.getDouble(i)));
                 }
                 ImageIcon orig = new ImageIcon(bi);

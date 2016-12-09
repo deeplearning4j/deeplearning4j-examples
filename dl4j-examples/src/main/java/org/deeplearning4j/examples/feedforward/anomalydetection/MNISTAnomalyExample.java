@@ -183,7 +183,7 @@ public class MNISTAnomalyExample {
             List<JLabel> images = new ArrayList<>();
             for( INDArray arr : digits ){
                 BufferedImage bi = new BufferedImage(28,28,BufferedImage.TYPE_BYTE_GRAY);
-                for( int i=0; i<768; i++ ){
+                for( int i=0; i<784; i++ ){
                     bi.getRaster().setSample(i % 28, i / 28, 0, (int)(255*arr.getDouble(i)));
                 }
                 ImageIcon orig = new ImageIcon(bi);
@@ -194,64 +194,4 @@ public class MNISTAnomalyExample {
             return images;
         }
     }
-
-//    public static class MNISTVisualizer {
-//        private double imageScale;
-//        private List<INDArray> recostructionsVsIter;
-//        private String title;
-//        private int gridWidth;
-//
-//        public MNISTVisualizer(double imageScale, List<INDArray> recostructionsVsIter, String title ) {
-//            this(imageScale, recostructionsVsIter, title, 5);
-//        }
-//
-//        public MNISTVisualizer(double imageScale, List<INDArray> recostructionsVsIter, String title, int gridWidth ) {
-//            this.imageScale = imageScale;
-//            this.recostructionsVsIter = recostructionsVsIter;
-//            this.title = title;
-//            this.gridWidth = gridWidth;
-//        }
-//
-//        public void visualize(){
-//            JFrame frame = new JFrame();
-//            frame.setTitle(title);
-//            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-//
-//            JPanel p2 = new JPanel();
-//
-//
-//            JSlider slider = new JSlider(0,xyVsEpoch.size()-1,0);
-//            slider.setMajorTickSpacing(1);
-//            slider.setPaintLabels(true);
-//            slider.setSnapToTicks(true);
-//            p2.add(slider);
-//
-//            JPanel panel = new JPanel();
-//            panel.setLayout(new GridLayout(0,gridWidth));
-//
-//            List<JLabel> list = getComponents();
-//            for(JLabel image : list){
-//                panel.add(image);
-//            }
-//
-//            frame.add(panel);
-//            frame.setVisible(true);
-//            frame.pack();
-//        }
-//
-//        private List<JLabel> getComponents(){
-//            List<JLabel> images = new ArrayList<>();
-//            for( INDArray arr : digits ){
-//                BufferedImage bi = new BufferedImage(28,28,BufferedImage.TYPE_BYTE_GRAY);
-//                for( int i=0; i<768; i++ ){
-//                    bi.getRaster().setSample(i % 28, i / 28, 0, (int)(255*arr.getDouble(i)));
-//                }
-//                ImageIcon orig = new ImageIcon(bi);
-//                Image imageScaled = orig.getImage().getScaledInstance((int)(imageScale*28),(int)(imageScale*28),Image.SCALE_REPLICATE);
-//                ImageIcon scaled = new ImageIcon(imageScaled);
-//                images.add(new JLabel(scaled));
-//            }
-//            return images;
-//        }
-//    }
 }
