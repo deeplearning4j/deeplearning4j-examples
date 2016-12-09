@@ -2,6 +2,7 @@ package org.deeplearning4j.examples.unsupervised.variational;
 
 import org.deeplearning4j.datasets.iterator.impl.MnistDataSetIterator;
 import org.deeplearning4j.examples.feedforward.anomalydetection.MNISTAnomalyExample;
+import org.deeplearning4j.examples.unsupervised.variational.plot.PlotUtil;
 import org.deeplearning4j.nn.api.OptimizationAlgorithm;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
@@ -15,6 +16,7 @@ import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
 import org.deeplearning4j.ui.stats.StatsListener;
 import org.deeplearning4j.ui.storage.InMemoryStatsStorage;
 import org.nd4j.linalg.api.ndarray.INDArray;
+import org.nd4j.linalg.dataset.api.DataSet;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.indexing.NDArrayIndex;
@@ -25,9 +27,12 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * A simple example on MNIST.
- *
+ * A simple example of training a variational autoencoder on MNIST.
  * This example intentionally has a small hidden state Z (2 values) so this can be visualized in a 2-grid.
+ *
+ * This example plots 2 things:
+ * 1. The MNIST digit reconstructions vs. the latent space
+ * 2. The latent space values for the MNIST test set, as training progresses (every N minibatches)
  *
  * @author Alex Black
  */
@@ -37,13 +42,16 @@ public class VariationalAutoEncoderExample {
 
         int minibatchSize = 128;
         int totalExamples = 60000;
-        boolean binarizeMnistImages = true;
+        boolean binarizeMnistImages = false;
         int rngSeed = 12345;
 
-        int nEpochs = 50;
+        //Total number of training epochs
+        int nEpochs = 5;
+
+        //Frequency with which to collect data for later plotting
+        int plottingLatentSpaceEveryNMinibatches = 100;
 
         DataSetIterator trainIter = new MnistDataSetIterator(minibatchSize, totalExamples, binarizeMnistImages, true, true, rngSeed);
-//        DataSetIterator trainIter = new MnistDataSetIterator(minibatchSize, true, rngSeed);
 
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
             .iterations(1).optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
@@ -56,7 +64,7 @@ public class VariationalAutoEncoderExample {
                 .activation("leakyrelu")
                 .encoderLayerSizes(256, 256)
                 .decoderLayerSizes(256, 256)
-                .pzxActivationFunction("identity")
+                .pzxActivationFunction("tanh")
                 .reconstructionDistribution(new BernoulliReconstructionDistribution("sigmoid"))
 //                .reconstructionDistribution(new GaussianReconstructionDistribution("tanh"))
                 .nIn(28*28)
@@ -69,23 +77,57 @@ public class VariationalAutoEncoderExample {
 //        net.setListeners(new ScoreIterationListener(100), new StatsListener(new InMemoryStatsStorage(), 10));
         net.setListeners(new ScoreIterationListener(100));
 
+        org.deeplearning4j.nn.layers.variational.VariationalAutoencoder vae = (org.deeplearning4j.nn.layers.variational.VariationalAutoencoder) net.getLayer(0);
 
-//        System.out.println(Arrays.toString(net.params().data().asFloat()));
-//        List<float[]> temp = new ArrayList<>();
-//        temp.add(net.params().data().asFloat());
+
+        //Test data for plotting
+        DataSet testdata = new MnistDataSetIterator(10000, false, rngSeed).next();
+        INDArray testFeatures = testdata.getFeatures();
+        INDArray testLabels = testdata.getLabels();
+
+        INDArray latentSpaceGrid = getLatentSpaceGrid();
+
+
+        List<INDArray> latentSpaceVsEpoch = new ArrayList<>(nEpochs+1);
+        INDArray latentSpaceValues = vae.activate(testFeatures, false);     //Collect the latent space values before the
+        latentSpaceVsEpoch.add(latentSpaceValues);
+
+        int iterationCount = 0;
+        INDArray lastOut = null;
         for( int i=0; i<nEpochs; i++ ){
-            net.fit(trainIter);
+            while(trainIter.hasNext()){
+                DataSet ds = trainIter.next();
+                net.fit(ds);
+
+                //Every N minibatches: collect the test set latent space values for later plotting
+                if(iterationCount++ % plottingLatentSpaceEveryNMinibatches == 0){
+                    latentSpaceValues = vae.activate(testFeatures, false);
+                    latentSpaceVsEpoch.add(latentSpaceValues);
+                }
+                //Every N minibatches: Also collect the reconstructions
+                INDArray out = vae.generateAtMeanGivenZ(latentSpaceGrid);
+                lastOut = out;
+            }
+
             trainIter.reset();
-//            System.out.println(Arrays.toString(net.params().data().asFloat()));
-//            temp.add(net.params().data().asFloat());
+
         }
 
-//        for(float[] f : temp){
-//            System.out.println(Arrays.toString(f));
-//        }
+        PlotUtil.plotData(latentSpaceVsEpoch,testLabels);
 
-        int min = -15;
-        int max = 15;
+
+        List<INDArray> list = new ArrayList<>();
+        for( int i=0; i<lastOut.size(0); i++ ){
+            list.add(lastOut.getRow(i));
+        }
+
+        PlotUtil.MNISTLatentSpaceVisualizer v = new PlotUtil.MNISTLatentSpaceVisualizer(2.0,list,"Test");
+        v.visualize();
+    }
+
+    private static INDArray getLatentSpaceGrid(){
+        int min = -1;
+        int max = 1;
         int nSteps = 15;
 
         INDArray data = Nd4j.create(nSteps*nSteps, 2);
@@ -95,19 +137,7 @@ public class VariationalAutoEncoderExample {
             data.get(NDArrayIndex.interval(i*nSteps, (i+1)*nSteps), NDArrayIndex.point(1)).assign(linspaceRow);
         }
 
-        org.deeplearning4j.nn.layers.variational.VariationalAutoencoder vae = (org.deeplearning4j.nn.layers.variational.VariationalAutoencoder) net.getLayer(0);
-        INDArray out = vae.generateAtMeanGivenZ(data);
-
-        List<INDArray> list = new ArrayList<>();
-        for( int i=0; i<out.size(0); i++ ){
-            list.add(out.getRow(i));
-        }
-
-        MNISTAnomalyExample.MNISTVisualizer v = new MNISTAnomalyExample.MNISTVisualizer(2.0,list,"Test",nSteps);
-        v.visualize();
-
-
-        //TODO: also plot examples vs. latent space, with colour coding
+        return data;
     }
 
 }
