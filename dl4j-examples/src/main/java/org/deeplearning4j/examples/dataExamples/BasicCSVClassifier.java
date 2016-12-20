@@ -8,6 +8,8 @@ import org.datavec.api.split.FileSplit;
 import org.datavec.api.util.ClassPathResource;
 import org.deeplearning4j.datasets.datavec.RecordReaderDataSetIterator;
 import org.deeplearning4j.eval.Evaluation;
+import org.deeplearning4j.examples.util.CSVUtils;
+import org.deeplearning4j.examples.util.NDArrayUtils;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
 import org.deeplearning4j.nn.conf.layers.DenseLayer;
@@ -44,9 +46,9 @@ public class BasicCSVClassifier {
 
     private static Logger log = LoggerFactory.getLogger(BasicCSVClassifier.class);
 
-    private static Map<Integer,String> eats = readEnumCSV("/DataExamples/animals/eats.csv");
-    private static Map<Integer,String> sounds = readEnumCSV("/DataExamples/animals/sounds.csv");
-    private static Map<Integer,String> classifiers = readEnumCSV("/DataExamples/animals/classifiers.csv");
+    private static Map<Integer,String> eats = CSVUtils.readEnumCSV("/DataExamples/animals/eats.csv");
+    private static Map<Integer,String> sounds = CSVUtils.readEnumCSV("/DataExamples/animals/sounds.csv");
+    private static Map<Integer,String> classifiers = CSVUtils.readEnumCSV("/DataExamples/animals/classifiers.csv");
 
     public static void main(String[] args){
 
@@ -57,13 +59,13 @@ public class BasicCSVClassifier {
             int numClasses = 3;     //3 classes (types of iris flowers) in the iris data set. Classes have integer values 0, 1 or 2
 
             int batchSizeTraining = 30;    //Iris data set: 150 examples total. We are loading all of them into one DataSet (not recommended for large data sets)
-            DataSet trainingData = readCSVDataset(
+            DataSet trainingData = CSVUtils.readCSVDataset(
                     "/DataExamples/animals/animals_train.csv",
                     batchSizeTraining, labelIndex, numClasses);
 
             // this is the data we want to classify
             int batchSizeTest = 44;
-            DataSet testData = readCSVDataset("/DataExamples/animals/animals.csv",
+            DataSet testData = CSVUtils.readCSVDataset("/DataExamples/animals/animals.csv",
                     batchSizeTest, labelIndex, numClasses);
 
 
@@ -137,7 +139,7 @@ public class BasicCSVClassifier {
 
             // set the classification from the fitted results
             animals.get(i).put("classifier",
-                    classifiers.get(maxIndex(getFloatArrayFromSlice(output.slice(i)))));
+                    classifiers.get(maxIndex(NDArrayUtils.getFloatArrayFromSlice(output.slice(i)))));
 
         }
 
@@ -152,13 +154,13 @@ public class BasicCSVClassifier {
      * @param rowSlice
      * @return
      */
-    public static float[] getFloatArrayFromSlice(INDArray rowSlice){
-        float[] result = new float[rowSlice.columns()];
-        for (int i = 0; i < rowSlice.columns(); i++) {
-            result[i] = rowSlice.getFloat(i);
-        }
-        return result;
-    }
+//    public static float[] getFloatArrayFromSlice(INDArray rowSlice){
+//        float[] result = new float[rowSlice.columns()];
+//        for (int i = 0; i < rowSlice.columns(); i++) {
+//            result[i] = rowSlice.getFloat(i);
+//        }
+//        return result;
+//    }
 
     /**
      * find the maximum item index. This is used when the data is fitted and we
@@ -206,21 +208,21 @@ public class BasicCSVClassifier {
     }
 
 
-    public static Map<Integer,String> readEnumCSV(String csvFileClasspath) {
-        try{
-            List<String> lines = IOUtils.readLines(new ClassPathResource(csvFileClasspath).getInputStream());
-            Map<Integer,String> enums = new HashMap<>();
-            for(String line:lines){
-                String[] parts = line.split(",");
-                enums.put(Integer.parseInt(parts[0]),parts[1]);
-            }
-            return enums;
-        } catch (Exception e){
-            e.printStackTrace();
-            return null;
-        }
-
-    }
+//    public static Map<Integer,String> readEnumCSV(String csvFileClasspath) {
+//        try{
+//            List<String> lines = IOUtils.readLines(new ClassPathResource(csvFileClasspath).getInputStream());
+//            Map<Integer,String> enums = new HashMap<>();
+//            for(String line:lines){
+//                String[] parts = line.split(",");
+//                enums.put(Integer.parseInt(parts[0]),parts[1]);
+//            }
+//            return enums;
+//        } catch (Exception e){
+//            e.printStackTrace();
+//            return null;
+//        }
+//
+//    }
 
     /**
      * used for testing and training
@@ -233,15 +235,15 @@ public class BasicCSVClassifier {
      * @throws IOException
      * @throws InterruptedException
      */
-    private static DataSet readCSVDataset(
-            String csvFileClasspath, int batchSize, int labelIndex, int numClasses)
-            throws IOException, InterruptedException{
-
-        RecordReader rr = new CSVRecordReader();
-        rr.initialize(new FileSplit(new ClassPathResource(csvFileClasspath).getFile()));
-        DataSetIterator iterator = new RecordReaderDataSetIterator(rr,batchSize,labelIndex,numClasses);
-        return iterator.next();
-    }
+//    private static DataSet readCSVDataset(
+//            String csvFileClasspath, int batchSize, int labelIndex, int numClasses)
+//            throws IOException, InterruptedException{
+//
+//        RecordReader rr = new CSVRecordReader();
+//        rr.initialize(new FileSplit(new ClassPathResource(csvFileClasspath).getFile()));
+//        DataSetIterator iterator = new RecordReaderDataSetIterator(rr,batchSize,labelIndex,numClasses);
+//        return iterator.next();
+//    }
 
 
 

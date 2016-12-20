@@ -42,3 +42,6 @@ Word2vec-index/
 *.json
 *end.model
 
+
+src/main/resources/uci
+src/main/resources/uci/*
