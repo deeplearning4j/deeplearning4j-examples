@@ -89,7 +89,7 @@ public class Cartpole
         //showcase serialization by using the trained agent on a new similar mdp (but render it this time)
 
         //define the mdp from gym (name, render)
-        GymEnv mdp2 = new GymEnv("CartPole-v0", true, false);
+        GymEnv mdp2 = new GymEnv("CartPole-v0", true, true);
 
         //load the previous agent
         DQNPolicy<Box> pol2 = DQNPolicy.load("/tmp/pol1");
