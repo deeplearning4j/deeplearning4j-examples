@@ -13,7 +13,7 @@ import org.nd4j.linalg.factory.Nd4j;
  * IMPORTANT: Do not forget gradient checks. Refer to these in the deeplearning4j repo,
  * deeplearning4j-core/src/test/java/org/deeplearning4j/gradientcheck/LossFunctionGradientCheck.java
  *
- * The form of the activation function implemented here is from https://arxiv.org/pdf/1508.01292.pdf
+ * The form of the activation function implemented here is from https://arxiv.org/abs/1508.01292
  * "Compact Convolutional Neural Network Cascade for Face Detection" by Kalinovskii I.A. and Spitsyn V.G.
  *
  *      h(x) = 1.7159 tanh(2x/3)
