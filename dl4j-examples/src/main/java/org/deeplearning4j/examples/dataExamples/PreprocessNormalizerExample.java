@@ -103,6 +103,8 @@ public class PreprocessNormalizerExample {
         log.info("If you are using batches and an iterator, set the preprocessor on your iterator to transform data automatically when next is called");
         log.info("Use the .transform function only if you are working with a small dataset and no iterator");
 
+        /*
+        //---------> Currently not supported
         log.info("MinMax scaler also takes a min-max range to scale to.");
         log.info("Instantiating a new preprocessor and setting it's min-max scale to {-1,1}");
         NormalizerMinMaxScaler preProcessorRange = new NormalizerMinMaxScaler();
@@ -115,6 +117,6 @@ public class PreprocessNormalizerExample {
         log.info("First ten after transforming");
         preProcessorRange.transform(datasetY);
         log.info("\n{}",datasetY.getRange(0,9));
-
+        */
     }
 }

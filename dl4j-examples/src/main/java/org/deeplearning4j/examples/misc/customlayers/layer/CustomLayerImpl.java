@@ -6,6 +6,7 @@ import org.deeplearning4j.nn.gradient.DefaultGradient;
 import org.deeplearning4j.nn.gradient.Gradient;
 import org.deeplearning4j.nn.layers.BaseLayer;
 import org.deeplearning4j.nn.params.DefaultParamInitializer;
+import org.nd4j.linalg.activations.IActivation;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.indexing.NDArrayIndex;
@@ -52,7 +53,11 @@ public class CustomLayerImpl extends BaseLayer<CustomLayer> { //Generic paramete
         INDArray firstHalf = output.get(NDArrayIndex.all(), NDArrayIndex.interval(0, columns / 2));
         INDArray secondHalf = output.get(NDArrayIndex.all(), NDArrayIndex.interval(columns / 2, columns));
 
-        String activation1 = conf.getLayer().getActivationFunction();
+        //The conf.getLayer().getActivationFunction() is deprecated. It was used when activation functions were declared with strings in the config.
+        //Now activation functions are either enums (for pre baked activations) which tie into an implementation of the IActivation class
+        //Use .getActivationFn() to return the activation class instance. Call .toString() on the instance for the string to send to the C++ backend
+        IActivation activationfn1 = conf.getLayer().getActivationFn();
+        String activation1 = activationfn1.toString();
         String activation2 = ((CustomLayer) conf.getLayer()).getSecondActivationFunction();
 
         Nd4j.getExecutioner().exec(Nd4j.getOpFactory().createTransform(activation1, firstHalf));
@@ -92,7 +97,11 @@ public class CustomLayerImpl extends BaseLayer<CustomLayer> { //Generic paramete
         INDArray firstHalf = activationDerivative.get(NDArrayIndex.all(), NDArrayIndex.interval(0, columns / 2));
         INDArray secondHalf = activationDerivative.get(NDArrayIndex.all(), NDArrayIndex.interval(columns / 2, columns));
 
-        String activation1 = conf.getLayer().getActivationFunction();
+        //The conf.getLayer().getActivationFunction() is deprecated. It was used when activation functions were declared with strings in the config.
+        //Now activation functions are either enums (for pre baked activations) which tie into an implementation of the IActivation class
+        //Use .getActivationFn() to return the activation class instance. Call .toString() on the instance for the string to send to the C++ backend
+        IActivation activationfn1 = conf.getLayer().getActivationFn();
+        String activation1 = activationfn1.toString();
         String activation2 = ((CustomLayer) conf.getLayer()).getSecondActivationFunction();
 
         Nd4j.getExecutioner().exec(Nd4j.getOpFactory().createTransform(activation1, firstHalf).derivative());
@@ -117,6 +126,11 @@ public class CustomLayerImpl extends BaseLayer<CustomLayer> { //Generic paramete
         INDArray epsilonNext = params.get(DefaultParamInitializer.WEIGHT_KEY).mmul(delta.transpose()).transpose();
 
         return new Pair<>(ret, epsilonNext);
+    }
+
+    @Override
+    public boolean isPretrainLayer() {
+        return false;
     }
 
 }

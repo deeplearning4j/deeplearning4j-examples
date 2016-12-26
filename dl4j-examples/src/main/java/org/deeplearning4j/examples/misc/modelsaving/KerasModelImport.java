@@ -15,53 +15,59 @@ import org.deeplearning4j.nn.graph.ComputationGraph;
 import org.deeplearning4j.nn.modelimport.keras.Model;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.api.ops.impl.broadcast.BroadcastSubOp;
+import org.nd4j.linalg.cpu.nativecpu.NDArray;
 import org.nd4j.linalg.dataset.api.DataSet;
 import org.nd4j.linalg.dataset.api.DataSetPreProcessor;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.nd4j.linalg.factory.Nd4j;
 import org.datavec.api.split.InputSplit;
+import org.nd4j.linalg.indexing.NDArrayIndex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
+import java.util.Arrays;
 import java.util.Random;
 
 
 public class KerasModelImport {
 
-    private static Logger logger= LoggerFactory.getLogger(KerasModelImport.class);
+    protected static Logger logger= LoggerFactory.getLogger(KerasModelImport.class);
 
-    private static final String TRAIN_DIR = "/Users/susaneraly/SKYMIND/kerasImport/blogPost/data/train";
+    public static final String TRAIN_DIR = "/Users/susaneraly/SKYMIND/kerasImport/blogPost/data/train";
+    public static final String MODEL_DIR = "/Users/susaneraly/SKYMIND/kerasImport/VGG16/saved";
 
-    //Images are of format given by allowedExtension -
     protected static final String [] allowedExtensions = BaseImageLoader.ALLOWED_FORMATS;
-
     protected static final long seed = 12345;
-
     public static final Random rng = new Random(seed);
-
     protected static int height = 224;
     protected static int width = 224;
     protected static int channels = 3;
-
     public static int numExamples = 1000;
-    public static int batchSize = 10;
+    public static int batchSize = 1;
     public static int numLabels = 2;
+
     public static final INDArray VGG_MEAN_OFFSET = Nd4j.create(new double[] {103.939,116.779,123.68});
 
 
     public static void main(String[] args) throws Exception{
 
-        String baseDir="/Users/susaneraly/SKYMIND/kerasImport/VGG16/fromthewild";
-        logger.info("load VGG...");
-        ComputationGraph vggNet= Model.importFunctionalApiModel(baseDir + "/vgg16.json", baseDir + "/vgg16.h5");
-        System.out.println("\n\n");
-        logger.info(" loaded vgg model success!");
+        logger.info("Loading VGG...");
+        //ComputationGraph vggNet= Model.importModel(MODEL_DIR + "/vgg16.json", MODEL_DIR + "/vgg16.h5");
+        ComputationGraph vggNet = Model.importFunctionalApiModel(MODEL_DIR + "/vggmodel.h5");
 
+        logger.info("Loading images and building the iterator...");
         DataSetIterator imageIterator = getImageIterator();
 
-        Evaluation eval = vggNet.evaluate(imageIterator);
-        logger.info(eval.stats(true));
+        while (imageIterator.hasNext()) {
+            DataSet next = imageIterator.next(1000);
+            INDArray labels = next.getLabels();
+            System.out.println(Arrays.toString(labels.shape()));
+            INDArray features = next.getFeatures();
+            System.out.println(Arrays.toString(features.shape()));
+            //INDArray predictions = vggNet.output(false,features[0]);
+            //logger.info(eval.stats(true));
+        }
 
     }
 
