@@ -11,6 +11,7 @@ import org.deeplearning4j.nn.conf.layers.variational.VariationalAutoencoder;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
 import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
+import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.api.DataSet;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
@@ -61,7 +62,7 @@ public class VariationalAutoEncoderExample {
             .regularization(true).l2(1e-4)
             .list()
             .layer(0, new VariationalAutoencoder.Builder()
-                .activation("leakyrelu")
+                .activation(Activation.LEAKYRELU)
                 .encoderLayerSizes(256, 256)        //2 encoder layers, each of size 256
                 .decoderLayerSizes(256, 256)        //2 decoder layers, each of size 256
                 .pzxActivationFunction("identity")  //p(z|data) activation function

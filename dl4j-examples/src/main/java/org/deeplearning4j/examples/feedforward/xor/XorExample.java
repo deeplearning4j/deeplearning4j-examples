@@ -134,7 +134,7 @@ public class XorExample {
         outputLayerBuilder.nIn(4);
         // two neurons in this layer
         outputLayerBuilder.nOut(2);
-        outputLayerBuilder.activation("softmax");
+        outputLayerBuilder.activation(Activation.SOFTMAX);
         outputLayerBuilder.weightInit(WeightInit.DISTRIBUTION);
         outputLayerBuilder.dist(new UniformDistribution(0, 1));
         listBuilder.layer(1, outputLayerBuilder.build());

@@ -95,7 +95,7 @@ public class CustomLayer extends FeedForwardLayer {
          * @param secondActivationFunction Second activation function for the layer
          */
         public Builder secondActivationFunction(String secondActivationFunction) {
-            return secondActivationFunction(Activation.fromString(secondActivationFunction).getActivationFunction());
+            return secondActivationFunction(Activation.fromString(secondActivationFunction));
         }
 
         /**
@@ -103,8 +103,8 @@ public class CustomLayer extends FeedForwardLayer {
          *
          * @param secondActivationFunction Second activation function for the layer
          */
-        public Builder secondActivationFunction(IActivation secondActivationFunction){
-            this.secondActivationFunction = secondActivationFunction;
+        public Builder secondActivationFunction(Activation secondActivationFunction){
+            this.secondActivationFunction = secondActivationFunction.getActivationFunction();
             return this;
         }
 

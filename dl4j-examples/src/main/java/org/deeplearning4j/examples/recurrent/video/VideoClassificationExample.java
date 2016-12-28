@@ -241,7 +241,7 @@ public class VideoClassificationExample {
     private static class VideoPreProcessor implements DataSetPreProcessor {
         @Override
         public void preProcess(org.nd4j.linalg.dataset.api.DataSet toPreProcess) {
-            toPreProcess.getFeatureMatrix().divi(255);  //[0,255] -> [0,1] for input pixel values
+            toPreProcess.getFeatures().divi(255);  //[0,255] -> [0,1] for input pixel values
         }
     }
 }

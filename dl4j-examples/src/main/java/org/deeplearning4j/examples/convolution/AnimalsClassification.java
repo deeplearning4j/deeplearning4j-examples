@@ -18,12 +18,14 @@ import org.deeplearning4j.nn.conf.*;
 import org.deeplearning4j.nn.conf.distribution.Distribution;
 import org.deeplearning4j.nn.conf.distribution.GaussianDistribution;
 import org.deeplearning4j.nn.conf.distribution.NormalDistribution;
+import org.deeplearning4j.nn.conf.inputs.InputType;
 import org.deeplearning4j.nn.conf.inputs.InvalidInputTypeException;
 import org.deeplearning4j.nn.conf.layers.*;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
 import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
 import org.deeplearning4j.util.NetSaverLoaderUtils;
+import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.nd4j.linalg.dataset.api.preprocessor.DataNormalization;
@@ -221,7 +223,7 @@ public class AnimalsClassification {
             .seed(seed)
             .iterations(iterations)
             .regularization(false).l2(0.005) // tried 0.0001, 0.0005
-            .activation("relu")
+            .activation(Activation.RELU)
             .learningRate(0.0001) // tried 0.00001, 0.00005, 0.000001
             .weightInit(WeightInit.XAVIER)
             .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
@@ -234,10 +236,11 @@ public class AnimalsClassification {
             .layer(4, new DenseLayer.Builder().nOut(500).build())
             .layer(5, new OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD)
                 .nOut(numLabels)
-                .activation("softmax")
+                .activation(Activation.SOFTMAX)
                 .build())
             .backprop(true).pretrain(false)
-            .cnnInputSize(height, width, channels).build();
+            .setInputType(InputType.convolutional(height, width, channels))
+            .build();
 
         return new MultiLayerNetwork(conf);
 
@@ -257,7 +260,7 @@ public class AnimalsClassification {
             .seed(seed)
             .weightInit(WeightInit.DISTRIBUTION)
             .dist(new NormalDistribution(0.0, 0.01))
-            .activation("relu")
+            .activation(Activation.RELU)
             .updater(Updater.NESTEROVS)
             .iterations(iterations)
             .gradientNormalization(GradientNormalization.RenormalizeL2PerLayer) // normalize to prevent vanishing or exploding gradients
@@ -287,11 +290,12 @@ public class AnimalsClassification {
             .layer(12, new OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD)
                 .name("output")
                 .nOut(numLabels)
-                .activation("softmax")
+                .activation(Activation.SOFTMAX)
                 .build())
             .backprop(true)
             .pretrain(false)
-            .cnnInputSize(height,width,channels).build();
+            .setInputType(InputType.convolutional(height, width, channels))
+            .build();
 
         return new MultiLayerNetwork(conf);
 
