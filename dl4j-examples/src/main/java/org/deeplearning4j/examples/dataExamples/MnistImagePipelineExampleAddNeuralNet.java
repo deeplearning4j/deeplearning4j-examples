@@ -26,6 +26,7 @@ import org.deeplearning4j.nn.conf.layers.OutputLayer;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
 import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
+import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
@@ -151,13 +152,13 @@ public class MnistImagePipelineExampleAddNeuralNet {
             .layer(0, new DenseLayer.Builder()
                 .nIn(height * width)
                 .nOut(100)
-                .activation("relu")
+                .activation(Activation.RELU)
                 .weightInit(WeightInit.XAVIER)
                 .build())
             .layer(1, new OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD)
                 .nIn(100)
                 .nOut(outputNum)
-                .activation("softmax")
+                .activation(Activation.SOFTMAX)
                 .weightInit(WeightInit.XAVIER)
                 .build())
             .pretrain(false).backprop(true)

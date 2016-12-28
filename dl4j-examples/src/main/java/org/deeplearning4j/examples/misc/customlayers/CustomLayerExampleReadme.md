@@ -27,7 +27,7 @@ The implementation layer ((2) above) class has parameters, and handles network f
 pass, backpropagation, etc. It is created from the org.deeplearning4j.nn.conf.layers.Layer.instantiate(...)
 method. In other words: the instantiate method is how we go from the configuration
 to the implementation; MultiLayerNetwork or ComputationGraph will call this method
-when initializing the
+when initializing the network.
 
 An example of these are CustomLayer (the configuration class) and CustomLayerImpl (the
 implementation class). Both of these classes have extensive comments regarding

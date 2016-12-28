@@ -63,6 +63,13 @@
     </dependencyManagement>
 
     <dependencies>
+        <!-- Dependency for parallel wrapper (for multi-GPU parameter averaging -->
+        <dependency>
+            <groupId>org.deeplearning4j</groupId>
+            <artifactId>deeplearning4j-parallel-wrapper</artifactId>
+            <version>${dl4j.version}</version>
+        </dependency>
+
         <dependency>
             <groupId>org.deeplearning4j</groupId>
             <artifactId>deeplearning4j-nlp</artifactId>

@@ -20,6 +20,7 @@ import org.deeplearning4j.nn.conf.layers.RnnOutputLayer;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
 import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
+import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
@@ -76,8 +77,8 @@ public class Word2VecSentimentRNN {
                 .learningRate(0.0018)
                 .list()
                 .layer(0, new GravesLSTM.Builder().nIn(vectorSize).nOut(200)
-                        .activation("softsign").build())
-                .layer(1, new RnnOutputLayer.Builder().activation("softmax")
+                        .activation(Activation.SOFTSIGN).build())
+                .layer(1, new RnnOutputLayer.Builder().activation(Activation.SOFTMAX)
                         .lossFunction(LossFunctions.LossFunction.MCXENT).nIn(200).nOut(2).build())
                 .pretrain(false).backprop(true).build();
 

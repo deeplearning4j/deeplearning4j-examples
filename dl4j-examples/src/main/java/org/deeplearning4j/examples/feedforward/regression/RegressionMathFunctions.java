@@ -2,6 +2,7 @@ package org.deeplearning4j.examples.feedforward.regression;
 
 import org.deeplearning4j.examples.feedforward.regression.function.MathFunction;
 import org.deeplearning4j.examples.feedforward.regression.function.SinXDivXMathFunction;
+import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.deeplearning4j.datasets.iterator.impl.ListDataSetIterator;
 import org.deeplearning4j.nn.api.OptimizationAlgorithm;
@@ -99,13 +100,11 @@ public class RegressionMathFunctions {
                 .updater(Updater.NESTEROVS).momentum(0.9)
                 .list()
                 .layer(0, new DenseLayer.Builder().nIn(numInputs).nOut(numHiddenNodes)
-                        .activation("tanh")
-                        .build())
+                        .activation(Activation.TANH).build())
                 .layer(1, new DenseLayer.Builder().nIn(numHiddenNodes).nOut(numHiddenNodes)
-                        .activation("tanh")
-                        .build())
+                        .activation(Activation.TANH).build())
                 .layer(2, new OutputLayer.Builder(LossFunctions.LossFunction.MSE)
-                        .activation("identity")
+                        .activation(Activation.IDENTITY)
                         .nIn(numHiddenNodes).nOut(numOutputs).build())
                 .pretrain(false).backprop(true).build();
     }

@@ -15,6 +15,7 @@ import org.deeplearning4j.nn.conf.layers.OutputLayer;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
 import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
+import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
@@ -87,18 +88,15 @@ public class BasicCSVClassifier {
             MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
                     .seed(seed)
                     .iterations(iterations)
-                    .activation("tanh")
+                    .activation(Activation.TANH)
                     .weightInit(WeightInit.XAVIER)
                     .learningRate(0.1)
                     .regularization(true).l2(1e-4)
                     .list()
-                    .layer(0, new DenseLayer.Builder().nIn(numInputs).nOut(3)
-                            .build())
-                    .layer(1, new DenseLayer.Builder().nIn(3).nOut(3)
-                            .build())
+                    .layer(0, new DenseLayer.Builder().nIn(numInputs).nOut(3).build())
+                    .layer(1, new DenseLayer.Builder().nIn(3).nOut(3).build())
                     .layer(2, new OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD)
-                            .activation("softmax")
-                            .nIn(3).nOut(outputNum).build())
+                            .activation(Activation.SOFTMAX).nIn(3).nOut(outputNum).build())
                     .backprop(true).pretrain(false)
                     .build();
 

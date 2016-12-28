@@ -30,7 +30,7 @@ import java.util.HashSet;
 import java.util.List;
 
 /**
- * Basic DataVec example for preprocessing operations on some simple CSV data. If you just want to load CSV data 
+ * Basic DataVec example for preprocessing operations on some simple CSV data. If you just want to load CSV data
  * and pass it on for learning take a look at {@see org.deeplearning4j.examples.dataExample.CSVExample}.
  *
  * The premise here is that some data regarding transactions is available in CSV format, and we want to do some some
@@ -149,8 +149,7 @@ public class BasicDataVecExample {
         JavaRDD<List<Writable>> parsedInputData = stringData.map(new StringToWritablesFunction(rr));
 
         //Now, let's execute the transforms we defined earlier:
-        SparkTransformExecutor exec = new SparkTransformExecutor();
-        JavaRDD<List<Writable>> processedData = exec.execute(parsedInputData, tp);
+        JavaRDD<List<Writable>> processedData = SparkTransformExecutor.execute(parsedInputData, tp);
 
         //For the sake of this example, let's collect the data locally and print it:
         JavaRDD<String> processedAsString = processedData.map(new WritablesToStringFunction(","));
