@@ -1,5 +1,6 @@
 package org.deeplearning4j.examples.feedforward.regression;
 
+import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.deeplearning4j.datasets.iterator.impl.ListDataSetIterator;
 import org.deeplearning4j.nn.api.OptimizationAlgorithm;
@@ -61,10 +62,10 @@ public class RegressionSum {
                 .updater(Updater.NESTEROVS).momentum(0.9)
                 .list()
                 .layer(0, new DenseLayer.Builder().nIn(numInput).nOut(nHidden)
-                        .activation("tanh")
+                        .activation(Activation.TANH)
                         .build())
                 .layer(1, new OutputLayer.Builder(LossFunctions.LossFunction.MSE)
-                        .activation("identity")
+                        .activation(Activation.IDENTITY)
                         .nIn(nHidden).nOut(numOutputs).build())
                 .pretrain(false).backprop(true).build()
         );

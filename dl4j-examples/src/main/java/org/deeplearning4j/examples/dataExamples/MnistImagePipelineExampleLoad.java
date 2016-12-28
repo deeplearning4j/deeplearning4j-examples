@@ -167,7 +167,7 @@ public class MnistImagePipelineExampleLoad {
 
         while(testIter.hasNext()){
             DataSet next = testIter.next();
-            INDArray output = model.output(next.getFeatureMatrix());
+            INDArray output = model.output(next.getFeatures());
             eval.eval(next.getLabels(),output);
 
         }

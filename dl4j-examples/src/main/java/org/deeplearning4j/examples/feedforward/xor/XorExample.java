@@ -13,6 +13,7 @@ import org.deeplearning4j.nn.conf.layers.OutputLayer.Builder;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
 import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
+import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.factory.Nd4j;
@@ -115,7 +116,7 @@ public class XorExample {
         hiddenLayerBuilder.nOut(4);
         // put the output through the sigmoid function, to cap the output
         // valuebetween 0 and 1
-        hiddenLayerBuilder.activation("sigmoid");
+        hiddenLayerBuilder.activation(Activation.SIGMOID);
         // random initialize weights with values between 0 and 1
         hiddenLayerBuilder.weightInit(WeightInit.DISTRIBUTION);
         hiddenLayerBuilder.dist(new UniformDistribution(0, 1));
@@ -133,7 +134,7 @@ public class XorExample {
         outputLayerBuilder.nIn(4);
         // two neurons in this layer
         outputLayerBuilder.nOut(2);
-        outputLayerBuilder.activation("softmax");
+        outputLayerBuilder.activation(Activation.SOFTMAX);
         outputLayerBuilder.weightInit(WeightInit.DISTRIBUTION);
         outputLayerBuilder.dist(new UniformDistribution(0, 1));
         listBuilder.layer(1, outputLayerBuilder.build());

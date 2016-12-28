@@ -1,6 +1,8 @@
 package org.deeplearning4j.examples.misc.earlystopping;
 
 import org.apache.commons.io.FilenameUtils;
+import org.deeplearning4j.nn.conf.inputs.InputType;
+import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.deeplearning4j.datasets.iterator.impl.MnistDataSetIterator;
 import org.deeplearning4j.earlystopping.EarlyStoppingConfiguration;
@@ -19,7 +21,6 @@ import org.deeplearning4j.nn.conf.layers.ConvolutionLayer;
 import org.deeplearning4j.nn.conf.layers.DenseLayer;
 import org.deeplearning4j.nn.conf.layers.OutputLayer;
 import org.deeplearning4j.nn.conf.layers.SubsamplingLayer;
-import org.deeplearning4j.nn.conf.layers.setup.ConvolutionLayerSetup;
 import org.deeplearning4j.nn.weights.WeightInit;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 
@@ -48,34 +49,33 @@ public class EarlyStoppingMNIST {
         int batchSize = 25;
         int iterations = 1;
         int seed = 123;
-        MultiLayerConfiguration.Builder builder = new NeuralNetConfiguration.Builder()
-                .seed(seed)
-                .iterations(iterations)
-                .regularization(true).l2(0.0005)
-                .learningRate(0.02)
-                .weightInit(WeightInit.XAVIER)
-                .activation("relu")
-                .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
-                .updater(Updater.NESTEROVS).momentum(0.9)
-                .list()
-                .layer(0, new ConvolutionLayer.Builder(5, 5)
-                        .nIn(nChannels)
-                        .stride(1, 1)
-                        .nOut(20).dropOut(0.5)
-                        .build())
-                .layer(1, new SubsamplingLayer.Builder(SubsamplingLayer.PoolingType.MAX)
-                        .kernelSize(2, 2)
-                        .stride(2, 2)
-                        .build())
-                .layer(2, new DenseLayer.Builder()
-                        .nOut(500).build())
-                .layer(3, new OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD)
-                        .nOut(outputNum)
-                        .activation("softmax")
-                        .build())
-                .backprop(true).pretrain(false);
-        new ConvolutionLayerSetup(builder,28,28,1);
-        MultiLayerConfiguration configuration = builder.build();
+        MultiLayerConfiguration configuration = new NeuralNetConfiguration.Builder()
+            .seed(seed)
+            .iterations(iterations)
+            .regularization(true).l2(0.0005)
+            .learningRate(0.02)
+            .weightInit(WeightInit.XAVIER)
+            .activation(Activation.RELU)
+            .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
+            .updater(Updater.NESTEROVS).momentum(0.9)
+            .list()
+            .layer(0, new ConvolutionLayer.Builder(5, 5)
+                .nIn(nChannels)
+                .stride(1, 1)
+                .nOut(20).dropOut(0.5)
+                .build())
+            .layer(1, new SubsamplingLayer.Builder(SubsamplingLayer.PoolingType.MAX)
+                .kernelSize(2, 2)
+                .stride(2, 2)
+                .build())
+            .layer(2, new DenseLayer.Builder()
+                .nOut(500).build())
+            .layer(3, new OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD)
+                .nOut(outputNum)
+                .activation(Activation.SOFTMAX)
+                .build())
+            .setInputType(InputType.convolutionalFlat(28, 28, 1)) //See note in LenetMnistExample
+            .backprop(true).pretrain(false).build();
 
         //Get data:
         DataSetIterator mnistTrain1024 = new MnistDataSetIterator(batchSize,1024,false,true,true,12345);
