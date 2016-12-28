@@ -9,6 +9,7 @@ import org.deeplearning4j.nn.conf.layers.OutputLayer;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
 import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
+import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
@@ -58,12 +59,12 @@ public class CustomActivationExample {
                 .activation(new CustomActivation())
                 .build())
             .layer(1, new OutputLayer.Builder(LossFunctions.LossFunction.MSE)
-                .activation("identity")
+                .activation(Activation.IDENTITY)
                 .nIn(nHidden).nOut(numOutputs).build())
             .pretrain(false).backprop(true).build()
         );
         net.init();
-        net.setListeners(new ScoreIterationListener(1));
+        net.setListeners(new ScoreIterationListener(100));
 
 
         //Train the network on the full data set, and evaluate in periodically
