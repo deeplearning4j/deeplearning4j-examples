@@ -10,6 +10,7 @@ import org.deeplearning4j.nn.conf.layers.RnnOutputLayer;
 import org.deeplearning4j.nn.graph.ComputationGraph;
 import org.deeplearning4j.nn.weights.WeightInit;
 import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
+import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.factory.Nd4j;
@@ -64,14 +65,14 @@ public class CompGraphLSTMExample {
             .addInputs("input") //Give the input a name. For a ComputationGraph with multiple inputs, this also defines the input array orders
             //First layer: name "first", with inputs from the input called "input"
             .addLayer("first", new GravesLSTM.Builder().nIn(iter.inputColumns()).nOut(lstmLayerSize)
-                .updater(Updater.RMSPROP).activation("tanh").build(),"input")
+                .updater(Updater.RMSPROP).activation(Activation.TANH).build(),"input")
             //Second layer, name "second", with inputs from the layer called "first"
             .addLayer("second", new GravesLSTM.Builder().nIn(lstmLayerSize).nOut(lstmLayerSize)
                 .updater(Updater.RMSPROP)
-                .activation("tanh").build(),"first")
+                .activation(Activation.TANH).build(),"first")
             //Output layer, name "outputlayer" with inputs from the two layers called "first" and "second"
             .addLayer("outputLayer", new RnnOutputLayer.Builder(LossFunctions.LossFunction.MCXENT)
-                .activation("softmax").updater(Updater.RMSPROP)
+                .activation(Activation.SOFTMAX).updater(Updater.RMSPROP)
                 .nIn(2*lstmLayerSize).nOut(nOut).build(),"first","second")
             .setOutputs("outputLayer")  //List the output. For a ComputationGraph with multiple outputs, this also defines the input array orders
             .backpropType(BackpropType.TruncatedBPTT).tBPTTForwardLength(tbpttLength).tBPTTBackwardLength(tbpttLength)

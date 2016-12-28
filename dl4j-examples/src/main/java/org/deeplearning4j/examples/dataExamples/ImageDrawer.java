@@ -15,6 +15,7 @@ import org.deeplearning4j.nn.conf.layers.DenseLayer;
 import org.deeplearning4j.nn.conf.layers.OutputLayer;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
+import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.factory.Nd4j;
@@ -130,19 +131,19 @@ public class ImageDrawer extends Application {
             .updater(Updater.NESTEROVS).momentum(0.9)
             .list()
             .layer(0, new DenseLayer.Builder().nIn(numInputs).nOut(numHiddenNodes)
-                .activation("identity")
+                .activation(Activation.IDENTITY)
                 .build())
             .layer(1, new DenseLayer.Builder().nIn(numHiddenNodes).nOut(numHiddenNodes)
-                .activation("relu")
+                .activation(Activation.RELU)
                 .build())
             .layer(2, new DenseLayer.Builder().nIn(numHiddenNodes).nOut(numHiddenNodes)
-                .activation("relu")
+                .activation(Activation.RELU)
                 .build())
             .layer(3, new DenseLayer.Builder().nIn(numHiddenNodes).nOut(numHiddenNodes)
-                .activation("relu")
+                .activation(Activation.RELU)
                 .build())
             .layer(4, new OutputLayer.Builder(LossFunctions.LossFunction.L2)
-                .activation("identity")
+                .activation(Activation.IDENTITY)
                 .nIn(numHiddenNodes).nOut(numOutputs).build())
             .pretrain(false).backprop(true).build();
 

@@ -20,6 +20,7 @@ import org.deeplearning4j.nn.conf.preprocessor.RnnToCnnPreProcessor;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
 import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
+import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.dataset.api.DataSetPreProcessor;
@@ -82,7 +83,7 @@ public class VideoClassificationExample {
                         .nIn(3) //3 channels: RGB
                         .nOut(30)
                         .stride(4, 4)
-                        .activation("relu")
+                        .activation(Activation.RELU)
                         .weightInit(WeightInit.RELU)
                         .updater(updater)
                         .build())   //Output: (130-10+0)/4+1 = 31 -> 31*31*30
@@ -93,12 +94,12 @@ public class VideoClassificationExample {
                         .nIn(30)
                         .nOut(10)
                         .stride(2, 2)
-                        .activation("relu")
+                        .activation(Activation.RELU)
                         .weightInit(WeightInit.RELU)
                         .updater(updater)
                         .build())   //Output: (15-3+0)/2+1 = 7 -> 7*7*10 = 490
                 .layer(3, new DenseLayer.Builder()
-                        .activation("relu")
+                        .activation(Activation.RELU)
                         .nIn(490)
                         .nOut(50)
                         .weightInit(WeightInit.RELU)
@@ -108,7 +109,7 @@ public class VideoClassificationExample {
                         .learningRate(0.01)
                         .build())
                 .layer(4, new GravesLSTM.Builder()
-                        .activation("softsign")
+                        .activation(Activation.SOFTSIGN)
                         .nIn(50)
                         .nOut(50)
                         .weightInit(WeightInit.XAVIER)
@@ -118,7 +119,7 @@ public class VideoClassificationExample {
                         .learningRate(0.008)
                         .build())
                 .layer(5, new RnnOutputLayer.Builder(LossFunctions.LossFunction.MCXENT)
-                        .activation("softmax")
+                        .activation(Activation.SOFTMAX)
                         .nIn(50)
                         .nOut(4)    //4 possible shapes: circle, square, arc, line
                         .updater(updater)

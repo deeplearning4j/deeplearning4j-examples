@@ -2,6 +2,7 @@ package org.deeplearning4j.examples.feedforward.anomalydetection;
 
 import org.apache.commons.lang3.tuple.ImmutableTriple;
 import org.apache.commons.lang3.tuple.Triple;
+import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.deeplearning4j.datasets.iterator.impl.MnistDataSetIterator;
 import org.deeplearning4j.nn.api.OptimizationAlgorithm;
@@ -46,7 +47,7 @@ public class MNISTAnomalyExample {
                 .iterations(1)
                 .weightInit(WeightInit.XAVIER)
                 .updater(Updater.ADAGRAD)
-                .activation("relu")
+                .activation(Activation.RELU)
                 .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
                 .learningRate(0.05)
                 .regularization(true).l2(0.0001)

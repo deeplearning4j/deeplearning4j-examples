@@ -8,6 +8,7 @@ import org.deeplearning4j.nn.conf.layers.DenseLayer;
 import org.deeplearning4j.nn.gradient.Gradient;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
+import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
 
@@ -35,7 +36,7 @@ public class MultiLayerNetworkExternalErrors {
         Nd4j.getRandom().setSeed(12345);
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
             .seed(12345)
-            .activation("tanh")
+            .activation(Activation.TANH)
             .weightInit(WeightInit.XAVIER)
             .updater(Updater.NESTEROVS)
             .learningRate(0.1)
