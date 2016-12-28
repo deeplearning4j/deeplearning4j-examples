@@ -136,8 +136,7 @@ public class LogDataExample {
             .filter(new ConditionFilter(new LongColumnCondition("sum(replyBytes)", ConditionOp.LessThan, 1000000)))
             .build();
 
-        SparkTransformExecutor executor = new SparkTransformExecutor();
-        JavaRDD<List<Writable>> processed = executor.execute(parsed, tp);
+        JavaRDD<List<Writable>> processed = SparkTransformExecutor.execute(parsed, tp);
         processed.cache();
 
 

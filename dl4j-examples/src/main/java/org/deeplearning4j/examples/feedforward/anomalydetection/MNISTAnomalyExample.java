@@ -2,6 +2,7 @@ package org.deeplearning4j.examples.feedforward.anomalydetection;
 
 import org.apache.commons.lang3.tuple.ImmutableTriple;
 import org.apache.commons.lang3.tuple.Triple;
+import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.deeplearning4j.datasets.iterator.impl.MnistDataSetIterator;
 import org.deeplearning4j.nn.api.OptimizationAlgorithm;
@@ -46,7 +47,7 @@ public class MNISTAnomalyExample {
                 .iterations(1)
                 .weightInit(WeightInit.XAVIER)
                 .updater(Updater.ADAGRAD)
-                .activation("relu")
+                .activation(Activation.RELU)
                 .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
                 .learningRate(0.05)
                 .regularization(true).l2(0.0001)
@@ -144,15 +145,21 @@ public class MNISTAnomalyExample {
         worstVisualizer.visualize();
     }
 
-    private static class MNISTVisualizer {
+    public static class MNISTVisualizer {
         private double imageScale;
         private List<INDArray> digits;  //Digits (as row vectors), one per INDArray
         private String title;
+        private int gridWidth;
 
-        private MNISTVisualizer(double imageScale, List<INDArray> digits, String title ){
+        public MNISTVisualizer(double imageScale, List<INDArray> digits, String title ) {
+            this(imageScale, digits, title, 5);
+        }
+
+        public MNISTVisualizer(double imageScale, List<INDArray> digits, String title, int gridWidth ) {
             this.imageScale = imageScale;
             this.digits = digits;
             this.title = title;
+            this.gridWidth = gridWidth;
         }
 
         public void visualize(){
@@ -161,7 +168,7 @@ public class MNISTAnomalyExample {
             frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
             JPanel panel = new JPanel();
-            panel.setLayout(new GridLayout(0,5));
+            panel.setLayout(new GridLayout(0,gridWidth));
 
             List<JLabel> list = getComponents();
             for(JLabel image : list){
@@ -177,7 +184,7 @@ public class MNISTAnomalyExample {
             List<JLabel> images = new ArrayList<>();
             for( INDArray arr : digits ){
                 BufferedImage bi = new BufferedImage(28,28,BufferedImage.TYPE_BYTE_GRAY);
-                for( int i=0; i<768; i++ ){
+                for( int i=0; i<784; i++ ){
                     bi.getRaster().setSample(i % 28, i / 28, 0, (int)(255*arr.getDouble(i)));
                 }
                 ImageIcon orig = new ImageIcon(bi);

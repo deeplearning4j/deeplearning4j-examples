@@ -3,6 +3,9 @@ package org.deeplearning4j.examples.misc.lossfunctions;
 import lombok.EqualsAndHashCode;
 import org.apache.commons.math3.ode.MainStateJacobianProvider;
 import org.apache.commons.math3.util.Pair;
+import org.nd4j.linalg.activations.Activation;
+import org.nd4j.linalg.activations.IActivation;
+import org.nd4j.linalg.activations.impl.ActivationIdentity;
 import org.nd4j.linalg.api.iter.NdIndexIterator;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
@@ -41,11 +44,11 @@ public class CustomLossL1L2 implements ILossFunction {
         the activation function on the final layer of the neural network - activationFn
         the mask - (if there is a) mask associated with the label
      */
-    private INDArray scoreArray(INDArray labels, INDArray preOutput, String activationFn, INDArray mask) {
+    private INDArray scoreArray(INDArray labels, INDArray preOutput, IActivation activationFn, INDArray mask) {
         INDArray scoreArr;
         // This is the output of the neural network, the y_hat in the notation above
         //To obtain y_hat: pre-output is transformed by the activation function to give the output of the neural network
-        INDArray output = Nd4j.getExecutioner().execAndReturn(Nd4j.getOpFactory().createTransform(activationFn, preOutput.dup()));
+        INDArray output = activationFn.getActivation(preOutput.dup(), true);
         //The score is calculated as the sum of (y-y_hat)^2 + |y - y_hat|
         INDArray yMinusyHat = Transforms.abs(labels.sub(output));
         scoreArr = yMinusyHat.mul(yMinusyHat);
@@ -62,7 +65,7 @@ public class CustomLossL1L2 implements ILossFunction {
     The loss for a single datapoint is summed over all output features.
      */
     @Override
-    public double computeScore(INDArray labels, INDArray preOutput, String activationFn, INDArray mask, boolean average) {
+    public double computeScore(INDArray labels, INDArray preOutput, IActivation activationFn, INDArray mask, boolean average) {
         INDArray scoreArr = scoreArray(labels, preOutput, activationFn, mask);
 
         double score = scoreArr.sumNumber().doubleValue();
@@ -81,7 +84,7 @@ public class CustomLossL1L2 implements ILossFunction {
     Returns an array that is #of samples x size of the output feature
      */
     @Override
-    public INDArray computeScoreArray(INDArray labels, INDArray preOutput, String activationFn, INDArray mask) {
+    public INDArray computeScoreArray(INDArray labels, INDArray preOutput, IActivation activationFn, INDArray mask) {
         INDArray scoreArr = scoreArray(labels, preOutput, activationFn, mask);
         return scoreArr.sum(1);
     }
@@ -94,11 +97,10 @@ public class CustomLossL1L2 implements ILossFunction {
         dL/dyhat = -2*(y-yhat) - sign(y-yhat), sign of y - yhat = +1 if y-yhat>= 0 else -1
         dyhat/dpreout = d(Activation(preout))/dpreout = Activation'(preout)
         dL/dpreout = dL/dyhat * dyhat/dpreout
-        Activation function of softmax requires special handling, see below
     */
     @Override
-    public INDArray computeGradient(INDArray labels, INDArray preOutput, String activationFn, INDArray mask) {
-        INDArray output = Nd4j.getExecutioner().execAndReturn(Nd4j.getOpFactory().createTransform(activationFn, preOutput.dup()));
+    public INDArray computeGradient(INDArray labels, INDArray preOutput, IActivation activationFn, INDArray mask) {
+        INDArray output = activationFn.getActivation(preOutput.dup(), true);
         /*
         //NOTE: There are many ways to do this same set of operations in nd4j
         //The following is the most readable for the sake of this example, not necessarily the fastest
@@ -106,28 +108,20 @@ public class CustomLossL1L2 implements ILossFunction {
         */
         INDArray yMinusyHat = labels.sub(output);
         INDArray dldyhat = yMinusyHat.mul(-2).sub(Transforms.sign(yMinusyHat)); //d(L)/d(yhat) -> this is the line that will change with your loss function
-        //INDArray dldyhat = yMinusyHat.mul(-2);
 
         //Everything below remains the same
-        INDArray gradients;
-        if ("softmax".equals(activationFn)) {
-            gradients = LossUtil.dLdZsoftmaxi(dldyhat, output); //special handling for softmax
-        } else {
-            //dyhat/dpreout, derivative of yhat wrt preoutput
-            INDArray dyhatdpreOutput = Nd4j.getExecutioner().execAndReturn(Nd4j.getOpFactory().createTransform(activationFn, preOutput.dup()).derivative());
-            gradients = dldyhat.muli(dyhatdpreOutput); //chain rule
-        }
+        INDArray dLdPreOut = activationFn.backprop(preOutput.dup(), dldyhat).getFirst();
         //multiply with masks, always
         if (mask != null) {
-            gradients.muliColumnVector(mask);
+            dLdPreOut.muliColumnVector(mask);
         }
 
-        return gradients;
+        return dLdPreOut;
     }
 
     //remains the same for a custom loss function
     @Override
-    public Pair<Double, INDArray> computeGradientAndScore(INDArray labels, INDArray preOutput, String activationFn, INDArray mask, boolean average) {
+    public Pair<Double, INDArray> computeGradientAndScore(INDArray labels, INDArray preOutput, IActivation activationFn, INDArray mask, boolean average) {
         return new Pair<>(
                 computeScore(labels, preOutput, activationFn, mask, average),
                 computeGradient(labels, preOutput, activationFn, mask));
@@ -139,112 +133,5 @@ public class CustomLossL1L2 implements ILossFunction {
         return "CustomLossL1L2()";
     }
 
-    //THE FOLLOWING IS TO ILLUSTRATE A SIMPLE GRADIENT CHECK.
-    //It checks the implementation against the finite difference approximation
-    //You will have to write your own gradient checks. 
-    //Use the code below and the following for reference.
-    //  deeplearning4j/deeplearning4j-core/src/test/java/org/deeplearning4j/gradientcheck/LossFunctionGradientCheck.java
-    public static void main(String[] args) throws IOException {
-        doGradientCheck();
-    }
-
-    public static void doGradientCheck() {
-        double epsilon = 1e-3;
-        int totalNFailures = 0;
-        double maxRelError = 5.0; // in %
-        CustomLossL1L2 lossfn = new CustomLossL1L2();
-        String[] activationFns = new String[]{"identity", "softmax", "relu", "tanh", "sigmoid"};
-        int[] labelSizes = new int[]{1, 2, 3, 4};
-        for (int i = 0; i < activationFns.length; i++) {
-            System.out.println("Running checks for "+activationFns[i]);
-            String activation = activationFns[i];
-            List<INDArray> labelList = makeLabels(activation,labelSizes);
-            List<INDArray> preOutputList = makeLabels("identity",labelSizes);
-            for (int j=0; j<labelSizes.length; j++) {
-                System.out.println("\tRunning check for length " + labelSizes[j]);
-                INDArray label = labelList.get(j);
-                INDArray preOut = preOutputList.get(j);
-                INDArray grad = lossfn.computeGradient(label,preOut,activation,null);
-                NdIndexIterator iterPreOut = new NdIndexIterator(preOut.shape());
-                while (iterPreOut.hasNext()) {
-                    int[] next = iterPreOut.next();
-                    //checking gradient with total score wrt to each output feature in label
-                    double before = preOut.getDouble(next);
-                    preOut.putScalar(next, before + epsilon);
-                    double scorePlus = lossfn.computeScore(label, preOut, activation, null, true);
-                    preOut.putScalar(next, before - epsilon);
-                    double scoreMinus = lossfn.computeScore(label, preOut, activation, null, true);
-                    preOut.putScalar(next, before);
-
-                    double scoreDelta = scorePlus - scoreMinus;
-                    double numericalGradient = scoreDelta / (2 * epsilon);
-                    double analyticGradient = grad.getDouble(next);
-                    double relError = Math.abs(analyticGradient - numericalGradient) * 100 / (Math.abs(numericalGradient));
-                    if( analyticGradient == 0.0 && numericalGradient == 0.0 ) relError = 0.0;
-                    if (relError > maxRelError || Double.isNaN(relError)) {
-                        System.out.println("\t\tParam " + Arrays.toString(next) + " FAILED: grad= " + analyticGradient + ", numericalGrad= " + numericalGradient
-                                + ", relErrorPerc= " + relError + ", scorePlus=" + scorePlus + ", scoreMinus= " + scoreMinus);
-                        totalNFailures++;
-                    } else {
-                        System.out.println("\t\tParam " + Arrays.toString(next) + " passed: grad= " + analyticGradient + ", numericalGrad= " + numericalGradient
-                                + ", relError= " + relError + ", scorePlus=" + scorePlus + ", scoreMinus= " + scoreMinus);
-                    }
-                }
-            }
-        }
-        if(totalNFailures > 0) System.out.println("DONE:\n\tGradient check failed for loss function; total num failures = " + totalNFailures);
-        else System.out.println("DONE:\n\tSimple gradient check passed - This is NOT exhaustive by any means");
-    }
-
-    /* This function is a utility function for the gradient check above
-        It generate labels randomly in the right range depending on the activation function
-        Uses a gaussian
-        identity: range is anything
-        relu: range is non-negative
-        softmax: range is non-negative and adds up to 1
-        sigmoid: range is between 0 and 1
-        tanh: range is between -1 and 1
-
-     */
-    public static List<INDArray> makeLabels(String activation,int[]labelSize) {
-        //edge cases are label size of one for everything except softmax which is two
-        //+ve and -ve values, zero and non zero values, less than zero/greater than zero
-        List<INDArray> returnVals = new ArrayList<>(labelSize.length);
-        for (int i=0; i< labelSize.length; i++) {
-            int aLabelSize = labelSize[i];
-            Random r = new Random();
-            double[] someVals = new double[aLabelSize];
-            double someValsSum = 0;
-            for (int j=0; j<aLabelSize; j++) {
-                double someVal = r.nextGaussian();
-                double transformVal = 0;
-                switch (activation) {
-                    case "identity":
-                        transformVal = someVal;
-                    case "softmax":
-                        transformVal = someVal;
-                        break;
-                    case "sigmoid":
-                        transformVal = Math.sin(someVal);
-                        break;
-                    case "tanh":
-                        transformVal = Math.tan(someVal);
-                        break;
-                    case "reul":
-                        transformVal = someVal * someVal + 4;
-                        break;
-                }
-                    someVals[j] = transformVal;
-                    someValsSum += someVals[j];
-            }
-            if (activation == "sigmoid") {
-                for (int j=0; j<aLabelSize; j++) {
-                    someVals[j] /= someValsSum;
-                }
-            }
-            returnVals.add(Nd4j.create(someVals));
-        }
-        return returnVals;
-    }
 }
 

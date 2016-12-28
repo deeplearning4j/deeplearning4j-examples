@@ -10,6 +10,7 @@ import org.deeplearning4j.nn.conf.layers.RnnOutputLayer;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
 import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
+import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.factory.Nd4j;
@@ -67,7 +68,7 @@ public class BasicRNNExample {
 			hiddenLayerBuilder.nOut(HIDDEN_LAYER_WIDTH);
 			// adopted activation function from GravesLSTMCharModellingExample
 			// seems to work well with RNNs
-			hiddenLayerBuilder.activation("tanh");
+			hiddenLayerBuilder.activation(Activation.TANH);
 			listBuilder.layer(i, hiddenLayerBuilder.build());
 		}
 
@@ -75,7 +76,7 @@ public class BasicRNNExample {
 		RnnOutputLayer.Builder outputLayerBuilder = new RnnOutputLayer.Builder(LossFunction.MCXENT);
 		// softmax normalizes the output neurons, the sum of all outputs is 1
 		// this is required for our sampleFromDistribution-function
-		outputLayerBuilder.activation("softmax");
+		outputLayerBuilder.activation(Activation.SOFTMAX);
 		outputLayerBuilder.nIn(HIDDEN_LAYER_WIDTH);
 		outputLayerBuilder.nOut(LEARNSTRING_CHARS.size());
 		listBuilder.layer(HIDDEN_LAYER_CONT, outputLayerBuilder.build());

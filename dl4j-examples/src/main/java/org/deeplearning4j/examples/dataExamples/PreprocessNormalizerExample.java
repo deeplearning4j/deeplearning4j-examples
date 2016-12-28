@@ -105,9 +105,7 @@ public class PreprocessNormalizerExample {
 
         log.info("MinMax scaler also takes a min-max range to scale to.");
         log.info("Instantiating a new preprocessor and setting it's min-max scale to {-1,1}");
-        NormalizerMinMaxScaler preProcessorRange = new NormalizerMinMaxScaler();
-        preProcessorRange.setMinRange(-1);
-        preProcessorRange.setMaxRange(1);
+        NormalizerMinMaxScaler preProcessorRange = new NormalizerMinMaxScaler(-1,1);
         log.info("Fitting to dataset");
         preProcessorRange.fit(datasetY);
         log.info("First ten before transforming");

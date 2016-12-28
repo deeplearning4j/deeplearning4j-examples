@@ -24,6 +24,7 @@ import org.jfree.chart.plot.XYPlot;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.jfree.ui.RefineryUtilities;
+import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
@@ -85,10 +86,10 @@ public class SingleTimestepRegressionExample {
             .updater(Updater.NESTEROVS).momentum(0.9)
             .learningRate(0.0015)
             .list()
-            .layer(0, new GravesLSTM.Builder().activation("tanh").nIn(1).nOut(10)
+            .layer(0, new GravesLSTM.Builder().activation(Activation.TANH).nIn(1).nOut(10)
                 .build())
             .layer(1, new RnnOutputLayer.Builder(LossFunctions.LossFunction.MSE)
-                .activation("identity").nIn(10).nOut(1).build())
+                .activation(Activation.IDENTITY).nIn(10).nOut(1).build())
             .build();
 
         MultiLayerNetwork net = new MultiLayerNetwork(conf);
