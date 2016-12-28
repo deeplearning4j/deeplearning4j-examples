@@ -17,6 +17,8 @@ import org.nd4j.linalg.dataset.api.DataSet;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.indexing.NDArrayIndex;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -36,6 +38,7 @@ import java.util.List;
  * @author Alex Black
  */
 public class VariationalAutoEncoderExample {
+    private static final Logger log = LoggerFactory.getLogger(VariationalAutoEncoderExample.class);
 
     public static void main(String[] args) throws IOException {
         int minibatchSize = 128;
@@ -74,7 +77,6 @@ public class VariationalAutoEncoderExample {
 
         MultiLayerNetwork net = new MultiLayerNetwork(conf);
         net.init();
-        net.setListeners(new ScoreIterationListener(100));
 
         //Get the variational autoencoder layer
         org.deeplearning4j.nn.layers.variational.VariationalAutoencoder vae
@@ -96,6 +98,7 @@ public class VariationalAutoEncoderExample {
         //Perform training
         int iterationCount = 0;
         for (int i = 0; i < nEpochs; i++) {
+            log.info("Starting epoch {} of {}",(i+1),nEpochs);
             while (trainIter.hasNext()) {
                 DataSet ds = trainIter.next();
                 net.fit(ds);
