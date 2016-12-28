@@ -29,7 +29,7 @@ import java.util.Collection;
  */
 public class Word2VecUptrainingExample {
 
-    private static Logger log = LoggerFactory.getLogger(Word2VecRawTextExample.class);
+    private static Logger log = LoggerFactory.getLogger(Word2VecUptrainingExample.class);
 
     public static void main(String[] args) throws Exception {
         /*

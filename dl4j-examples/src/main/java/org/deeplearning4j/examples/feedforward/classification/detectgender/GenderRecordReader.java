@@ -13,8 +13,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import javafx.util.Pair;
-
 import org.datavec.api.conf.Configuration;
 import org.datavec.api.writable.DoubleWritable;
 import org.datavec.api.records.reader.impl.LineRecordReader;
@@ -22,6 +20,7 @@ import org.datavec.api.split.FileSplit;
 import org.datavec.api.split.InputSplit;
 import org.datavec.api.split.InputStreamInputSplit;
 import org.datavec.api.writable.Writable;
+import org.deeplearning4j.berkeley.Pair;
 
 
 /**
@@ -149,26 +148,26 @@ public class GenderRecordReader extends LineRecordReader
                 this.possibleCharacters = unique;
 
                 Pair<String, List<String>> tempPair = tempNames.get(0);
-                int minSize = tempPair.getValue().size();
+                int minSize = tempPair.getSecond().size();
                 for(int i=1;i<tempNames.size();i++)
                 {
-                    if (minSize > tempNames.get(i).getValue().size())
-                        minSize = tempNames.get(i).getValue().size();
+                    if (minSize > tempNames.get(i).getSecond().size())
+                        minSize = tempNames.get(i).getSecond().size();
                 }
 
                 List<Pair<String, List<String>>> oneMoreTempNames = new ArrayList<Pair<String, List<String>>>();
                 for(int i=0;i<tempNames.size();i++)
                 {
-                    int diff = Math.abs(minSize - tempNames.get(i).getValue().size());
+                    int diff = Math.abs(minSize - tempNames.get(i).getSecond().size());
                     List<String> tempList = new ArrayList<String>();
 
-                    if (tempNames.get(i).getValue().size() > minSize) {
-                        tempList = tempNames.get(i).getValue();
+                    if (tempNames.get(i).getSecond().size() > minSize) {
+                        tempList = tempNames.get(i).getSecond();
                         tempList = tempList.subList(0, tempList.size() - diff);
                     }
                     else
-                        tempList = tempNames.get(i).getValue();
-                    Pair<String, List<String>> tempNewPair = new Pair<String, List<String>>(tempNames.get(i).getKey(),tempList);
+                        tempList = tempNames.get(i).getSecond();
+                    Pair<String, List<String>> tempNewPair = new Pair<String, List<String>>(tempNames.get(i).getFirst(),tempList);
                     oneMoreTempNames.add(tempNewPair);
                 }
                 tempNames.clear();
@@ -177,16 +176,16 @@ public class GenderRecordReader extends LineRecordReader
 
                 for(int i=0;i<oneMoreTempNames.size();i++)
                 {
-                    int gender = oneMoreTempNames.get(i).getKey().equals("M") ? 1 : 0;
-                    List<String> secondList = oneMoreTempNames.get(i).getValue().stream().map(element -> getBinaryString(element.split(",")[0],gender)).collect(Collectors.toList());
-                    Pair<String,List<String>> secondTempPair = new Pair<String, List<String>>(oneMoreTempNames.get(i).getKey(),secondList);
+                    int gender = oneMoreTempNames.get(i).getFirst().equals("M") ? 1 : 0;
+                    List<String> secondList = oneMoreTempNames.get(i).getSecond().stream().map(element -> getBinaryString(element.split(",")[0],gender)).collect(Collectors.toList());
+                    Pair<String,List<String>> secondTempPair = new Pair<String, List<String>>(oneMoreTempNames.get(i).getFirst(),secondList);
                     secondMoreTempNames.add(secondTempPair);
                 }
                 oneMoreTempNames.clear();
 
                 for(int i=0;i<secondMoreTempNames.size();i++)
                 {
-                    names.addAll(secondMoreTempNames.get(i).getValue());
+                    names.addAll(secondMoreTempNames.get(i).getSecond());
                 }
                 secondMoreTempNames.clear();
                 this.totalRecords = names.size();
