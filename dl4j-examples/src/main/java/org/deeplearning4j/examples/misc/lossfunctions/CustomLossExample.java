@@ -76,7 +76,7 @@ public class CustomLossExample {
             .pretrain(false).backprop(true).build()
         );
         net.init();
-        net.setListeners(new ScoreIterationListener(1));
+        net.setListeners(new ScoreIterationListener(100));
 
 
         //Train the network on the full data set, and evaluate in periodically

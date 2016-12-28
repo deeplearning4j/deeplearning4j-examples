@@ -110,7 +110,7 @@ public class CustomLossL1L2 implements ILossFunction {
         INDArray dldyhat = yMinusyHat.mul(-2).sub(Transforms.sign(yMinusyHat)); //d(L)/d(yhat) -> this is the line that will change with your loss function
 
         //Everything below remains the same
-        INDArray dLdPreOut = activationFn.backprop(preOutput, dldyhat).getFirst();
+        INDArray dLdPreOut = activationFn.backprop(preOutput.dup(), dldyhat).getFirst();
         //multiply with masks, always
         if (mask != null) {
             dLdPreOut.muliColumnVector(mask);
