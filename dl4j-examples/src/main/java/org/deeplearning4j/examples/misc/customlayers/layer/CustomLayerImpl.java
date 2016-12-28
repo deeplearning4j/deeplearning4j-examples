@@ -6,6 +6,7 @@ import org.deeplearning4j.nn.gradient.DefaultGradient;
 import org.deeplearning4j.nn.gradient.Gradient;
 import org.deeplearning4j.nn.layers.BaseLayer;
 import org.deeplearning4j.nn.params.DefaultParamInitializer;
+import org.nd4j.linalg.activations.IActivation;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.indexing.NDArrayIndex;
@@ -52,11 +53,12 @@ public class CustomLayerImpl extends BaseLayer<CustomLayer> { //Generic paramete
         INDArray firstHalf = output.get(NDArrayIndex.all(), NDArrayIndex.interval(0, columns / 2));
         INDArray secondHalf = output.get(NDArrayIndex.all(), NDArrayIndex.interval(columns / 2, columns));
 
-        String activation1 = conf.getLayer().getActivationFunction();
-        String activation2 = ((CustomLayer) conf.getLayer()).getSecondActivationFunction();
+        IActivation activation1 = conf.getLayer().getActivationFn();
+        IActivation activation2 = ((CustomLayer) conf.getLayer()).getSecondActivationFunction();
 
-        Nd4j.getExecutioner().exec(Nd4j.getOpFactory().createTransform(activation1, firstHalf));
-        Nd4j.getExecutioner().exec(Nd4j.getOpFactory().createTransform(activation2, secondHalf));
+        //IActivation function instances modify the activation functions in-place
+        activation1.getActivation(firstHalf, training);
+        activation2.getActivation(secondHalf, training);
 
         return output;
     }
@@ -97,29 +99,33 @@ public class CustomLayerImpl extends BaseLayer<CustomLayer> { //Generic paramete
         INDArray firstHalf = activationDerivative.get(NDArrayIndex.all(), NDArrayIndex.interval(0, columns / 2));
         INDArray secondHalf = activationDerivative.get(NDArrayIndex.all(), NDArrayIndex.interval(columns / 2, columns));
 
-        String activation1 = conf.getLayer().getActivationFunction();
-        String activation2 = ((CustomLayer) conf.getLayer()).getSecondActivationFunction();
+        INDArray epsilonFirstHalf = epsilon.get(NDArrayIndex.all(), NDArrayIndex.interval(0, columns / 2));
+        INDArray epsilonSecondHalf = epsilon.get(NDArrayIndex.all(), NDArrayIndex.interval(columns / 2, columns));
 
-        Nd4j.getExecutioner().exec(Nd4j.getOpFactory().createTransform(activation1, firstHalf).derivative());
-        Nd4j.getExecutioner().exec(Nd4j.getOpFactory().createTransform(activation2, secondHalf).derivative());
+        IActivation activation1 = conf.getLayer().getActivationFn();
+        IActivation activation2 = ((CustomLayer) conf.getLayer()).getSecondActivationFunction();
+
+        //IActivation backprop method modifies the 'firstHalf' and 'secondHalf' arrays in-place, to contain dL/dz
+        activation1.backprop(firstHalf, epsilonFirstHalf);
+        activation2.backprop(secondHalf, epsilonSecondHalf);
 
         //The remaining code for this method: just copy & pasted from BaseLayer.backpropGradient
-        INDArray delta = epsilon.muli(activationDerivative);
+//        INDArray delta = epsilon.muli(activationDerivative);
         if (maskArray != null) {
-            delta.muliColumnVector(maskArray);
+            activationDerivative.muliColumnVector(maskArray);
         }
 
         Gradient ret = new DefaultGradient();
 
         INDArray weightGrad = gradientViews.get(DefaultParamInitializer.WEIGHT_KEY);    //f order
-        Nd4j.gemm(input, delta, weightGrad, true, false, 1.0, 0.0);
+        Nd4j.gemm(input, activationDerivative, weightGrad, true, false, 1.0, 0.0);
         INDArray biasGrad = gradientViews.get(DefaultParamInitializer.BIAS_KEY);
-        biasGrad.assign(delta.sum(0));  //TODO: do this without the assign
+        biasGrad.assign(activationDerivative.sum(0));  //TODO: do this without the assign
 
         ret.gradientForVariable().put(DefaultParamInitializer.WEIGHT_KEY, weightGrad);
         ret.gradientForVariable().put(DefaultParamInitializer.BIAS_KEY, biasGrad);
 
-        INDArray epsilonNext = params.get(DefaultParamInitializer.WEIGHT_KEY).mmul(delta.transpose()).transpose();
+        INDArray epsilonNext = params.get(DefaultParamInitializer.WEIGHT_KEY).mmul(activationDerivative.transpose()).transpose();
 
         return new Pair<>(ret, epsilonNext);
     }
