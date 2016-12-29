@@ -61,7 +61,9 @@ public class TSNEStandardExample {
         tsne.plot(weights,2,cacheList,outputFile);
         //This tsne will use the weights of the vectors as its matrix, have two dimensions, use the words strings as
         //labels, and be written to the outputFile created on the previous line
-
+        // Plot Data with gnuplot
+        // set datafile separator ","
+        // plot 'tsne-standard-coords.csv' using 1:2:3 with labels font "Times,8"
         //!!! Possible error: plot was recently deprecated. Might need to re-do the last line
     }
 
