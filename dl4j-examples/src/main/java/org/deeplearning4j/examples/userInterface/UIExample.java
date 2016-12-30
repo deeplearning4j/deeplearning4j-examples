@@ -30,7 +30,8 @@ public class UIExample {
         //Configure where the network information (gradients, activations, score vs. time etc) is to be stored
         //Then add the StatsListener to collect this information from the network, as it trains
         StatsStorage statsStorage = new InMemoryStatsStorage();             //Alternative: new FileStatsStorage(File) - see UIStorageExample
-        net.setListeners(new StatsListener(statsStorage));
+        int listenerFrequency = 1;
+        net.setListeners(new StatsListener(statsStorage, listenerFrequency));
 
         //Attach the StatsStorage instance to the UI: this allows the contents of the StatsStorage to be visualized
         uiServer.attach(statsStorage);
