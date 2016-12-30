@@ -25,6 +25,8 @@ import org.nd4j.linalg.lossfunctions.LossFunctions;
  * JavaFX application to show a neural network learning to draw an image.
  * Demonstrates how to feed an NN with externally originated data.
  *
+ * This example uses JavaFX, which requires the Oracle JDK. Comment out this example if you use a different JDK.
+ *
  * TODO: sample does not shut down correctly. Process must be stopped from the IDE.
  *
  * @author Robert Altena
