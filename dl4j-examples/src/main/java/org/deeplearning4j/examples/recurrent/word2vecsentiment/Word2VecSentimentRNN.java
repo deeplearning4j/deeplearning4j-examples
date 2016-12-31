@@ -36,7 +36,10 @@ import java.net.URL;
  * 1. Automatic on first run of example: Download data (movie reviews) + extract
  * 2. Load existing Word2Vec model (for example: Google News word vectors. You will have to download this MANUALLY)
  * 3. Load each each review. Convert words to vectors + reviews to sequences of vectors
- * 4. Train network for multiple epochs. At each epoch: evaluate performance on the test set.
+ * 4. Train network
+ *
+ * With the current configuration, gives approx. 83% accuracy after 1 epoch. Better performance may be possible with
+ * additional tuning.
  *
  * NOTE / INSTRUCTIONS:
  * You will have to download the Google News word vector model manually. ~1.5GB
@@ -66,8 +69,8 @@ public class Word2VecSentimentRNN {
 
         int batchSize = 64;     //Number of examples in each minibatch
         int vectorSize = 300;   //Size of the word vectors. 300 in the Google News model
-        int nEpochs = 3;        //Number of epochs (full passes of training data) to train on
-        int truncateReviewsToLength = 300;  //Truncate reviews with length (# words) greater than this
+        int nEpochs = 1;        //Number of epochs (full passes of training data) to train on
+        int truncateReviewsToLength = 256;  //Truncate reviews with length (# words) greater than this
 
         //Set up network configuration
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
@@ -75,7 +78,7 @@ public class Word2VecSentimentRNN {
             .regularization(true).l2(1e-5)
             .weightInit(WeightInit.XAVIER)
             .gradientNormalization(GradientNormalization.ClipElementWiseAbsoluteValue).gradientNormalizationThreshold(1.0)
-            .learningRate(1e-2)
+            .learningRate(2e-2)
             .list()
             .layer(0, new GravesLSTM.Builder().nIn(vectorSize).nOut(256)
                 .activation(Activation.TANH).build())
@@ -88,28 +91,27 @@ public class Word2VecSentimentRNN {
         net.setListeners(new ScoreIterationListener(1));
 
         //DataSetIterators for training and testing respectively
-        //Using AsyncDataSetIterator to do data loading in a separate thread; this may improve performance vs. waiting for data to load
         WordVectors wordVectors = WordVectorSerializer.loadStaticModel(new File(WORD_VECTORS_PATH));
-        SentimentExampleIterator train = new SentimentExampleIterator(DATA_PATH,wordVectors,batchSize,truncateReviewsToLength,true);
-        SentimentExampleIterator test = new SentimentExampleIterator(DATA_PATH,wordVectors,100,truncateReviewsToLength,false);
+        SentimentExampleIterator train = new SentimentExampleIterator(DATA_PATH, wordVectors, batchSize, truncateReviewsToLength, true);
+        SentimentExampleIterator test = new SentimentExampleIterator(DATA_PATH, wordVectors, batchSize, truncateReviewsToLength, false);
 
         System.out.println("Starting training");
-        for( int i=0; i<nEpochs; i++ ){
+        for (int i = 0; i < nEpochs; i++) {
             net.fit(train);
             train.reset();
             System.out.println("Epoch " + i + " complete. Starting evaluation:");
 
             //Run evaluation. This is on 25k reviews, so can take some time
             Evaluation evaluation = new Evaluation();
-            while(test.hasNext()){
+            while (test.hasNext()) {
                 DataSet t = test.next();
                 INDArray features = t.getFeatureMatrix();
                 INDArray lables = t.getLabels();
                 INDArray inMask = t.getFeaturesMaskArray();
                 INDArray outMask = t.getLabelsMaskArray();
-                INDArray predicted = net.output(features,false,inMask,outMask);
+                INDArray predicted = net.output(features, false, inMask, outMask);
 
-                evaluation.evalTimeSeries(lables,predicted,outMask);
+                evaluation.evalTimeSeries(lables, predicted, outMask);
             }
             test.reset();
 
@@ -118,11 +120,12 @@ public class Word2VecSentimentRNN {
 
         //After training: load a single example and generate predictions
         File firstPositiveReviewFile = new File(FilenameUtils.concat(DATA_PATH, "aclImdb/test/pos/0_10.txt"));
-        String firstPositiveReview = FileUtils.readFileToString(firstPositiveReviewFile);;
+        String firstPositiveReview = FileUtils.readFileToString(firstPositiveReviewFile);
+
         INDArray features = test.loadFeaturesFromString(firstPositiveReview, truncateReviewsToLength);
         INDArray networkOutput = net.output(features);
-        int length = networkOutput.size(2);
-        INDArray probabilitiesAtLastWord = networkOutput.get(NDArrayIndex.point(0), NDArrayIndex.all(), NDArrayIndex.point(length-1));
+        int timeSeriesLength = networkOutput.size(2);
+        INDArray probabilitiesAtLastWord = networkOutput.get(NDArrayIndex.point(0), NDArrayIndex.all(), NDArrayIndex.point(timeSeriesLength - 1));
 
         System.out.println("\n\n-------------------------------");
         System.out.println("First positive review: \n" + firstPositiveReview);
