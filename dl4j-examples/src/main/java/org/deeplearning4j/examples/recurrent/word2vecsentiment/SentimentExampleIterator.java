@@ -50,7 +50,8 @@ public class SentimentExampleIterator implements DataSetIterator {
      */
     public SentimentExampleIterator(String dataDirectory, WordVectors wordVectors, int batchSize, int truncateLength, boolean train) throws IOException {
         this.batchSize = batchSize;
-        this.vectorSize = wordVectors.lookupTable().layerSize();
+        this.vectorSize = wordVectors.getWordVector(wordVectors.vocab().wordAtIndex(0)).length;
+
 
         File p = new File(FilenameUtils.concat(dataDirectory, "aclImdb/" + (train ? "train" : "test") + "/pos/") + "/");
         File n = new File(FilenameUtils.concat(dataDirectory, "aclImdb/" + (train ? "train" : "test") + "/neg/") + "/");
@@ -228,5 +229,44 @@ public class SentimentExampleIterator implements DataSetIterator {
     /** Convenience method to get label for review */
     public boolean isPositiveReview(int index){
         return index%2 == 0;
+    }
+
+    /**
+     * Used post training to load a review from a file to a features INDArray that can be passed to the network output method
+     *
+     * @param file      File to load the review from
+     * @param maxLength Maximum length (if review is longer than this: truncate to maxLength). Use Integer.MAX_VALUE to not nruncate
+     * @return          Features array
+     * @throws IOException If file cannot be read
+     */
+    public INDArray loadFeaturesFromFile(File file, int maxLength) throws IOException {
+        String review = FileUtils.readFileToString(file);
+        return loadFeaturesFromString(review, maxLength);
+    }
+
+    /**
+     * Used post training to convert a String to a features INDArray that can be passed to the network output method
+     *
+     * @param reviewContents Contents of the review to vectorize
+     * @param maxLength Maximum length (if review is longer than this: truncate to maxLength). Use Integer.MAX_VALUE to not nruncate
+     * @return Features array for the given input String
+     */
+    public INDArray loadFeaturesFromString(String reviewContents, int maxLength){
+        List<String> tokens = tokenizerFactory.create(reviewContents).getTokens();
+        List<String> tokensFiltered = new ArrayList<>();
+        for(String t : tokens ){
+            if(wordVectors.hasWord(t)) tokensFiltered.add(t);
+        }
+        int outputLength = Math.max(maxLength,tokensFiltered.size());
+
+        INDArray features = Nd4j.create(1, vectorSize, outputLength);
+
+        for( int j=0; j<tokens.size() && j<maxLength; j++ ){
+            String token = tokens.get(j);
+            INDArray vector = wordVectors.getWordVectorMatrix(token);
+            features.put(new INDArrayIndex[]{NDArrayIndex.point(0), NDArrayIndex.all(), NDArrayIndex.point(j)}, vector);
+        }
+
+        return features;
     }
 }
