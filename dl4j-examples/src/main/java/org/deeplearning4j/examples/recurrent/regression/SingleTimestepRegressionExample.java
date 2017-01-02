@@ -130,7 +130,7 @@ public class SingleTimestepRegressionExample {
         XYSeriesCollection c = new XYSeriesCollection();
         createSeries(c, trainData.getFeatures(), 0, "Train data");
         createSeries(c, testData.getFeatures(), 99, "Actual test data");
-        createSeries(c, predicted, 99, "Predicted test data");
+        createSeries(c, predicted, 100, "Predicted test data");
 
         plotDataset(c);
 
