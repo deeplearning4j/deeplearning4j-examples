@@ -22,6 +22,7 @@ import org.nd4j.linalg.api.buffer.util.DataTypeUtil;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
+import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,6 +40,9 @@ public class MultiGpuLenetMnistExample {
     public static void main(String[] args) throws Exception {
         // PLEASE NOTE: For CUDA FP16 precision support is available
         DataTypeUtil.setDTypeForContext(DataBuffer.Type.HALF);
+
+        // temp workaround for backend initialization
+        Nd4j.create(1);
 
         CudaEnvironment.getInstance().getConfiguration()
             // key option enabled
