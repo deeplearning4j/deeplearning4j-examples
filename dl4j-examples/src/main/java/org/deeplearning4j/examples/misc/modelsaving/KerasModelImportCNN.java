@@ -44,6 +44,7 @@ public class KerasModelImportCNN {
         DataTypeUtil.setDTypeForContext(DataBuffer.Type.DOUBLE);
         int batchSize = 1;
         MultiLayerNetwork model = KerasModelImport.importKerasSequentialModelAndWeights(MODEL_DIR+MODEL+".json",MODEL_DIR+MODEL+".h5");
+        System.out.println("Params has nans?--->"+ model.params().sumNumber().floatValue());
         loadFromNumPy loader = new loadFromNumPy(batchSize);
 
         int incorrect = 0;
