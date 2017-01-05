@@ -3,11 +3,15 @@ package org.deeplearning4j.nlp;
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
 import org.deeplearning4j.spark.models.word2vec.SparkWord2Vec;
 import org.deeplearning4j.text.tokenization.tokenizerfactory.DefaultTokenizerFactory;
+import org.nd4j.parameterserver.distributed.conf.Configuration;
+
+import java.io.File;
 
 /**
  * This example shows how to build Word2Vec model with distributed p2p ParameterServer.
@@ -16,6 +20,7 @@ import org.deeplearning4j.text.tokenization.tokenizerfactory.DefaultTokenizerFac
  *
  * @author raver119@gmail.com
  */
+@Slf4j
 public class DistributedWord2VecExample {
 
     @Parameter(names = {"-l","--layer"}, description = "Word2Vec layer size")
@@ -25,7 +30,7 @@ public class DistributedWord2VecExample {
     protected int numShards = 2;
 
     @Parameter(names = {"-t","--text"}, description = "HDFS path to training corpus")
-    protected String corpusTextFile;
+    protected String corpusTextFile = "dl4j-examples/src/main/resources/raw_sentences.txt";
 
     @Parameter(names = {"-x"}, description = "Launch locally (NOT RECOMMENDED!)", arity = 1)
     protected boolean useSparkLocal = true;
@@ -42,6 +47,12 @@ public class DistributedWord2VecExample {
             throw e;
         }
 
+        // TODO: don't forget to delete this block
+        log.info("Working Directory: {}", System.getProperty("user.dir"));
+        File file = new File(corpusTextFile);
+        if (!file.exists())
+            throw new RuntimeException("File not exists");
+
 
 
         SparkConf sparkConf = new SparkConf();
@@ -53,9 +64,19 @@ public class DistributedWord2VecExample {
 
         JavaRDD<String> corpus = sc.textFile(corpusTextFile);
 
-        SparkWord2Vec word2Vec = new SparkWord2Vec.Builder()
+        long lines = corpus.count();
+        log.info("Total number of text lines: {}", lines);
+
+        Configuration paramServerConfig = Configuration.builder()
+            .networkMask("192.168.0.0/16")
+            .ttl(4)
+            .build();
+
+        SparkWord2Vec word2Vec = new SparkWord2Vec.Builder(paramServerConfig)
             .setTokenizerFactory(new DefaultTokenizerFactory())
             .build();
+
+
 
         word2Vec.fitSentences(corpus);
     }

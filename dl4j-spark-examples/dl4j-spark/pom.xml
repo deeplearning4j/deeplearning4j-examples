@@ -12,9 +12,9 @@
     <artifactId>dl4j-spark</artifactId>
 
     <properties>
-        <scala.binary.version>2.11</scala.binary.version>
+        <scala.binary.version>2.10</scala.binary.version>
         <spark.version>1.6.0</spark.version>
-        <scala.version>2.11.7</scala.version>
+        <scala.version>2.10.6</scala.version>
         <jcommander.version>1.27</jcommander.version>
         <spark.scope>compile</spark.scope>
     </properties>
@@ -29,7 +29,7 @@
 
         <dependency>
             <groupId>org.deeplearning4j</groupId>
-            <artifactId>dl4j-spark-nlp-java8_2.11</artifactId>
+            <artifactId>dl4j-spark-nlp-java8_${scala.binary.version}</artifactId>
             <version>${nd4j.version}</version>
         </dependency>
 
