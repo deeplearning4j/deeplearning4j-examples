@@ -12,10 +12,6 @@
 
     <name>Reinforcement Learning4j Examples</name>
 
-    <properties>
-        <rl4j.version>0.7.0</rl4j.version>
-    </properties>
-
     <repositories>
         <repository>
             <id>snapshots-repo</id>
