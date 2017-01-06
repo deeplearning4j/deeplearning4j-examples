@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
+import org.deeplearning4j.spark.models.sequencevectors.learning.elements.SparkSkipGram;
 import org.deeplearning4j.spark.models.word2vec.SparkWord2Vec;
 import org.deeplearning4j.text.tokenization.tokenizerfactory.DefaultTokenizerFactory;
 import org.nd4j.parameterserver.distributed.conf.Configuration;
@@ -69,11 +70,11 @@ public class DistributedWord2VecExample {
 
         Configuration paramServerConfig = Configuration.builder()
             .networkMask("192.168.0.0/16")
-            .ttl(4)
             .build();
 
         SparkWord2Vec word2Vec = new SparkWord2Vec.Builder(paramServerConfig)
             .setTokenizerFactory(new DefaultTokenizerFactory())
+            .setLearningAlgorithm(new SparkSkipGram())
             .build();
 
 
