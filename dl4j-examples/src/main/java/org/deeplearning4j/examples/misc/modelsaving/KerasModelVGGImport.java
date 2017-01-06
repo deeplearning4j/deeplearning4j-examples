@@ -5,7 +5,7 @@ package org.deeplearning4j.examples.misc.modelsaving;
  */
 
 import org.deeplearning4j.nn.graph.ComputationGraph;
-import org.deeplearning4j.nn.modelimport.keras.Model;
+import org.deeplearning4j.nn.modelimport.keras.KerasModelImport;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.api.DataSet;
 import org.nd4j.linalg.factory.Nd4j;
@@ -15,12 +15,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
-import java.util.Arrays;
 
 
-public class KerasModelImport {
+public class KerasModelVGGImport {
 
-    protected static Logger logger= LoggerFactory.getLogger(KerasModelImport.class);
+    protected static Logger logger= LoggerFactory.getLogger(KerasModelVGGImport.class);
 
     //public static final String TRAIN_DIR = "/Users/susaneraly/SKYMIND/kerasImport/blogPost/data/train";
     public static final String MODEL_DIR = "/Users/susaneraly/SKYMIND/kerasImport/VGG16/saved";
@@ -41,7 +40,7 @@ public class KerasModelImport {
         loadFromNumPy loader = new loadFromNumPy(batchSize);
 
         logger.info("Loading VGG...");
-        ComputationGraph vggNet= Model.importFunctionalApiModel(MODEL_DIR + "/vgg16.json", MODEL_DIR + "/vgg16.h5");
+        ComputationGraph vggNet= KerasModelImport.importKerasModelAndWeights(MODEL_DIR + "/vgg16.json", MODEL_DIR + "/vgg16.h5");
 
         int incorrect = 0;
         int batchCount = 0;
@@ -60,11 +59,12 @@ public class KerasModelImport {
             System.out.println("Keras argmax:\n"+ kerasClass);
             System.out.println("DL4J argmax:\n" + dl4jClass);
 
+            System.out.println("The max difference difference in predictions is:");
             System.out.println(output.sub(labels).max(1));
 
             batchCount++;
             System.out.println("==============");
-            if (batchCount == 10) break;
+            //if (batchCount == 1) break;
         }
         System.out.println(incorrect+" predictions different from keras");
 

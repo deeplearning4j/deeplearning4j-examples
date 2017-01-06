@@ -23,16 +23,16 @@ public class KerasModelImportCNN {
     //public static final String NUMPY_DIR = "/Users/susaneraly/SKYMIND/kerasImport/examples/testImages";
 
     public static final String MODEL_DIR = "/Users/susaneraly/SKYMIND/kerasImport/tests/";
-    public static final String MODEL = "toy_cnn";
-    public static final String NUMPY_DIR = "/Users/susaneraly/SKYMIND/kerasImport/tests/testImages";
+    public static final String MODEL = "toy_cnn3Ch";
+    public static final String NUMPY_DIR = "/Users/susaneraly/SKYMIND/kerasImport/tests/testImages3Ch";
 
     public static final String FILE_PREFIX = "/val";
-    public static final int MIN_INDEX = 0;
+    public static final int MIN_INDEX = 1;
     public static final int MAX_INDEX = 9;
     public static final String INPUT_FILE_SUFFIX = ".txt";
     public static final String OUTPUT_FILE_SUFFIX = "Out.txt";
 
-    public static final int IMG_CH = 1;
+    public static final int IMG_CH = 3;
     public static final int IMG_H = 6;
     public static final int IMG_W = 6;
     public static final int N_CLASSES = 2;
@@ -64,6 +64,10 @@ public class KerasModelImportCNN {
 
             System.out.println("Keras argmax:\n"+ kerasClass);
             System.out.println("DL4J argmax:\n" + dl4jClass);
+
+            System.out.println("=================");
+            System.out.println(output.sub(labels).maxNumber().doubleValue());
+            System.out.println("=================");
 
             batchCount++;
             System.out.println("==============");
