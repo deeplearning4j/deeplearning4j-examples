@@ -276,7 +276,7 @@ public class MultiTimestepRegressionExample {
             Files.write(labelsPath,rawStrings.get(i+j).concat(System.lineSeparator()).getBytes(),StandardOpenOption.APPEND, StandardOpenOption.CREATE);
         }
 
-        for (int i = testSize; i < testSize+trainSize; i++) {
+        for (int i = trainSize; i < testSize+trainSize; i++) {
             Path featuresPath = Paths.get(featuresDirTest + "/test_" + i + ".csv");
             Path labelsPath = Paths.get(labelsDirTest + "/test_" + i + ".csv");
             int j;
