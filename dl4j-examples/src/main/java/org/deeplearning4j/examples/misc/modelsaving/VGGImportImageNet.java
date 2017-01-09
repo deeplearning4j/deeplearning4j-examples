@@ -82,10 +82,6 @@ public class VGGImportImageNet {
 
         public ImageLoader loader;
         public int cursor = 0;
-        //public File dir = new File(IMAGE_DIR);
-        //public Collection imageFiles = FileUtils.listFiles(dir, new WildcardFileFilter("*.jpg"), null);
-        //File [] imageFilesArr = (File[]) imageFiles.toArray(new File [imageFiles.size()]);
-
         public int totalNum = MAX_INDEX+1;
         public int batchSize = 1;
 
