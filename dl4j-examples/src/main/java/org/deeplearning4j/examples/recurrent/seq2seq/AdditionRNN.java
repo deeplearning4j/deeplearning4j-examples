@@ -129,11 +129,11 @@ public class AdditionRNN {
             encode_decode_eval(predictions,testData.getFeatures()[0],testData.getLabels()[0]);
             iEpoch++;
             /*
-            Uncomment the following block of code to see how the output of the decoder is fed back into the input during test time
+            (Comment/Uncomment) the following block of code to (see/or not see) how the output of the decoder is fed back into the input during test time
             */
-            System.out.println("Printing stepping through the decoder for a single case:");
-            testData = iterator.generateTest(1);
-            predictor.output(testData);
+            System.out.println("Printing stepping through the decoder for a minibatch of size three:");
+            testData = iterator.generateTest(3);
+            predictor.output(testData,true);
             System.out.println("\n* = * = * = * = * = * = * = * = * = ** EPOCH " + iEpoch + " COMPLETE ** = * = * = * = * = * = * = * = * = * = * = * = * = * =");
         }
 
@@ -158,7 +158,6 @@ public class AdditionRNN {
             }
         }
         double randomAcc = Math.pow(10,-1*(NUM_DIGITS+1)) * 100;
-        System.out.println("*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*==*=*=*=*=*");
         System.out.println("WRONG: "+wrong);
         System.out.println("CORRECT: "+correct);
         System.out.println("Note randomly guessing digits in succession gives lower than a accuracy of:"+randomAcc+"%");
