@@ -9,6 +9,12 @@ import org.nd4j.linalg.indexing.NDArrayIndex;
 /**
  * Created by susaneraly on 1/11/17.
  */
+/*
+    Note this is a helper class with methods to step through the decoder, one time step at a time.
+    This process is common to all seq2seq models and will eventually be wrapped in a class in dl4j (along with an easier API).
+    Track issue:
+        https://github.com/deeplearning4j/deeplearning4j/issues/2635
+ */
 public class Seq2SeqPredicter {
 
     private ComputationGraph net;
@@ -22,7 +28,6 @@ public class Seq2SeqPredicter {
         Given an input to the computation graph (which is expected to a be a seq2seq model)
         Predict the output given the encoder input (which is fixed) + the first time step from the decoder input
         All other time steps in the decoder input will be ignored
-        //FIX ME, comments
      */
 
     public INDArray output(MultiDataSet testSet) {

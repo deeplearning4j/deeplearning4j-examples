@@ -11,8 +11,16 @@ import java.util.*;
 
 /**
  * Created by susaneraly on 3/27/16.
- * This is class to generate pairs of random numbers given a maximum number of digits
- * This class can also be used as a reference for dataset iterators and writing one's own custom dataset iterator
+ * This is class to generate a multidataset from the AdditionRNN problem
+ * Features of the multidataset
+ *      - encoder input, eg. "12+13" and
+ *      - decoder input, eg. "Go25 " for training and "Go   " for test
+ * Labels of the multidataset
+ *      - decoder output, "25 End"
+ * These strings are encoded as one hot vector sequences.
+ *
+ * Sequences generated during test are never before seen by the net
+ * The random number generator seed is used for repeatability so that each reset of the iterator gives the same data in the same order.
  */
 
 public class CustomSequenceIterator implements MultiDataSetIterator {
