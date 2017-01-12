@@ -6,8 +6,7 @@ import org.nd4j.linalg.dataset.api.MultiDataSetPreProcessor;
 import org.nd4j.linalg.dataset.api.iterator.MultiDataSetIterator;
 import org.nd4j.linalg.factory.Nd4j;
 
-import java.util.ArrayList;
-import java.util.Random;
+import java.util.*;
 
 
 /**
@@ -19,23 +18,20 @@ import java.util.Random;
 public class CustomSequenceIterator implements MultiDataSetIterator {
 
     private Random randnumG;
-    private int currentBatch;
-    private int [] num1Arr;
-    private int [] num2Arr;
-    private int [] sumArr;
-    private boolean toTestSet;
     private final int seed;
     private final int batchSize;
     private final int totalBatches;
-    private final int numdigits;
-    private final int encoderSeqLength;
-    private final int decoderSeqLength;
-    private final int outputSeqLength;
-    private final int timestep;
 
-    private static final int SEQ_VECTOR_DIM = 12;
+    private static final int numDigits = AdditionRNN.NUM_DIGITS;
+    public static final int SEQ_VECTOR_DIM = AdditionRNN.FEATURE_VEC_SIZE;
+    public static final Map<String, Integer> oneHotMap = new HashMap<String, Integer>();
+    public static final String[] oneHotOrder = new String[SEQ_VECTOR_DIM];
 
-    public CustomSequenceIterator (int seed, int batchSize, int totalBatches, int numdigits, int timestep) {
+    private Set<String> seenSequences = new HashSet<String>();
+    private boolean toTestSet = false;
+    private int currentBatch = 0;
+
+    public CustomSequenceIterator(int seed, int batchSize, int totalBatches) {
 
         this.seed = seed;
         this.randnumG = new Random(seed);
@@ -43,137 +39,61 @@ public class CustomSequenceIterator implements MultiDataSetIterator {
         this.batchSize = batchSize;
         this.totalBatches = totalBatches;
 
-        this.numdigits = numdigits;
-        this.timestep = timestep;
-
-        this.encoderSeqLength = numdigits * 2 + 1;
-        this.decoderSeqLength = numdigits + 1 + 1; // (numdigits + 1)max the sum can be
-        this.outputSeqLength = numdigits + 1 + 1; // (numdigits + 1)max the sum can be and "."
-
-        this.currentBatch = 0;
+        oneHotEncoding();
     }
+
     public MultiDataSet generateTest(int testSize) {
         toTestSet = true;
         MultiDataSet testData = next(testSize);
+        toTestSet = false;
         return testData;
     }
-    public ArrayList<int[]> testFeatures (){
-        ArrayList<int[]> testNums = new ArrayList<int[]>();
-        testNums.add(num1Arr);
-        testNums.add(num2Arr);
-        return testNums;
-    }
-    public int[] testLabels (){
-        return sumArr;
-    }
+
     @Override
     public MultiDataSet next(int sampleSize) {
-        /* PLEASE NOTE:
-            I don't check for repeats from pair to pair with the generator
-            Enhancement, to be fixed later
-         */
-        //Initialize everything with zeros - will eventually fill with one hot vectors
-        INDArray encoderSeq = Nd4j.zeros(sampleSize, SEQ_VECTOR_DIM, encoderSeqLength );
-        INDArray decoderSeq = Nd4j.zeros(sampleSize, SEQ_VECTOR_DIM, decoderSeqLength );
-        INDArray outputSeq = Nd4j.zeros(sampleSize, SEQ_VECTOR_DIM, outputSeqLength );
 
-        //Since these are fixed length sequences of timestep
-        //Masks are not required
-        INDArray encoderMask = Nd4j.ones(sampleSize, encoderSeqLength);
-        INDArray decoderMask = Nd4j.ones(sampleSize, decoderSeqLength);
-        INDArray outputMask = Nd4j.ones(sampleSize, outputSeqLength);
+        INDArray encoderSeq, decoderSeq, outputSeq;
+        int currentCount = 0;
+        int num1, num2;
+        List<INDArray> encoderSeqList = new ArrayList<>();
+        List<INDArray> decoderSeqList = new ArrayList<>();
+        List<INDArray> outputSeqList = new ArrayList<>();
+        while (currentCount < sampleSize) {
+            while (true) {
+                num1 = randnumG.nextInt((int) Math.pow(10, numDigits));
+                num2 = randnumG.nextInt((int) Math.pow(10, numDigits));
+                String forSum = String.valueOf(num1) + "+" + String.valueOf(num2);
+                if (seenSequences.add(forSum)) {
+                    break;
+                }
+            }
+            String[] encoderInput = prepToString(num1, num2);
+            encoderSeqList.add(mapToOneHot(encoderInput));
 
-        if (toTestSet) {
-            num1Arr = new int [sampleSize];
-            num2Arr = new int [sampleSize];
-            sumArr = new int [sampleSize];
-        }
-
-        /* ========================================================================== */
-        for (int iSample = 0; iSample < sampleSize; iSample++) {
-            //Generate two random numbers with numdigits
-            int num1 = randnumG.nextInt((int)Math.pow(10,numdigits));
-            int num2 = randnumG.nextInt((int)Math.pow(10,numdigits));
-            int sum = num1 + num2;
+            String[] decoderInput = prepToString(num1 + num2, true);
             if (toTestSet) {
-                num1Arr[iSample] = num1;
-                num2Arr[iSample] = num2;
-                sumArr[iSample] = sum;
+                //wipe out everything after "go"; not necessary since we do not use these at test time but here for clarity
+                int i = 1;
+                while (i < decoderInput.length) {
+                    decoderInput[i] = " ";
+                    i++;
+                }
             }
-            /*
-            Encoder sequence:
-            Eg. with numdigits=4, num1=123, num2=90
-                123 + 90 is encoded as "   09+321"
-                Converted to a string to a fixed size given by 2*numdigits + 1 (for operator)
-                then reversed and then masked
-                Reversing input gives significant gain
-                Each character is transformed to a 12 dimensional one hot vector
-                    (index 0-9 for corresponding digits, 10 for "+", 11 for " ")
-            */
-            int spaceFill = (encoderSeqLength) - (num1 + "+" + num2).length();
-            int iPos = 0;
-            //Fill in spaces, as necessary
-            while (spaceFill > 0) {
-                //spaces encoded at index 12
-                encoderSeq.putScalar(new int[] {iSample,11,iPos},1);
-                iPos++;
-                spaceFill--;
-            }
+            decoderSeqList.add(mapToOneHot(decoderInput));
 
-            //Fill in the digits in num2 backwards
-            String num2Str = String.valueOf(num2);
-            for(int i = num2Str.length()-1; i >= 0; i--){
-                int onehot = Character.getNumericValue(num2Str.charAt(i));
-                encoderSeq.putScalar(new int[] {iSample,onehot,iPos},1);
-                iPos++;
-            }
-            //Fill in operator in this case "+", encoded at index 11
-            encoderSeq.putScalar(new int [] {iSample,10,iPos},1);
-            iPos++;
-            //Fill in the digits in num1 backwards
-            String num1Str = String.valueOf(num1);
-            for(int i = num1Str.length()-1; i >= 0; i--){
-                int onehot = Character.getNumericValue(num1Str.charAt(i));
-                encoderSeq.putScalar(new int[] {iSample,onehot,iPos},1);
-                iPos++;
-            }
-            //Mask input for rest of the time series
-            //while (iPos < timestep) {
-            //    encoderMask.putScalar(new []{iSample,iPos},1);
-            //    iPos++;
-            // }
-            /*
-            Decoder and Output sequences:
-            */
-            //Fill in the digits from the sum
-            iPos = 0;
-            char [] sumCharArr = String.valueOf(num1+num2).toCharArray();
-            for(char c : sumCharArr) {
-                int digit = Character.getNumericValue(c);
-                outputSeq.putScalar(new int [] {iSample,digit,iPos},1);
-                //decoder input filled with spaces
-                decoderSeq.putScalar(new int [] {iSample,11,iPos},1);
-                iPos++;
-            }
-            //Fill in spaces, as necessary
-            //Leaves last index for "."
-            while (iPos < numdigits + 1) {
-                //spaces encoded at index 12
-                outputSeq.putScalar(new int [] {iSample,11,iPos}, 1);
-                //decoder input filled with spaces
-                decoderSeq.putScalar(new int [] {iSample,11,iPos},1);
-                iPos++;
-            }
-            //Predict final " "
-            outputSeq.putScalar(new int [] {iSample,10,iPos}, 1);
-            decoderSeq.putScalar(new int [] {iSample,11,iPos}, 1);
+            String[] decoderOutput = prepToString(num1 + num2, false);
+            outputSeqList.add(mapToOneHot(decoderOutput));
+            currentCount++;
         }
-        //Predict "."
-        /* ========================================================================== */
+
+        encoderSeq = Nd4j.vstack(encoderSeqList);
+        decoderSeq = Nd4j.vstack(decoderSeqList);
+        outputSeq = Nd4j.vstack(outputSeqList);
+
         INDArray[] inputs = new INDArray[]{encoderSeq, decoderSeq};
-        INDArray[] inputMasks = new INDArray[]{encoderMask, decoderMask};
+        INDArray[] inputMasks = new INDArray[]{Nd4j.ones(sampleSize, numDigits * 2 + 1), Nd4j.ones(sampleSize, numDigits + 1 + 1)};
         INDArray[] labels = new INDArray[]{outputSeq};
-        INDArray[] labelMasks = new INDArray[]{outputMask};
+        INDArray[] labelMasks = new INDArray[]{Nd4j.ones(sampleSize, numDigits + 1 + 1)};
         currentBatch++;
         return new org.nd4j.linalg.dataset.MultiDataSet(inputs, labels, inputMasks, labelMasks);
     }
@@ -185,18 +105,18 @@ public class CustomSequenceIterator implements MultiDataSetIterator {
         randnumG = new Random(seed);
     }
 
+    @Override
     public boolean resetSupported() {
         return true;
     }
 
     @Override
     public boolean asyncSupported() {
-        return true;
+        return false;
     }
 
     @Override
     public boolean hasNext() {
-        //This generates numbers on the fly
         return currentBatch < totalBatches;
     }
 
@@ -209,7 +129,156 @@ public class CustomSequenceIterator implements MultiDataSetIterator {
     public void remove() {
         throw new UnsupportedOperationException("Not supported");
     }
+
     public void setPreProcessor(MultiDataSetPreProcessor multiDataSetPreProcessor) {
+
+    }
+
+    /*
+        Helper method for encoder input
+        Given two numbers, num1 and num, returns a string array which represents the input to the encoder RNN
+        Note that the string is padded to the correct length and reversed
+        Eg. num1 = 7, num 2 = 13 will return {"3","1","+","7"," "}
+     */
+    public String[] prepToString(int num1, int num2) {
+
+        String[] encoded = new String[numDigits * 2 + 1];
+        String num1S = String.valueOf(num1);
+        String num2S = String.valueOf(num2);
+        //padding
+        while (num1S.length() < numDigits) {
+            num1S = " " + num1S;
+        }
+        while (num2S.length() < numDigits) {
+            num2S = " " + num2S;
+        }
+
+        String sumString = num1S + "+" + num2S;
+
+        for (int i = 0; i < encoded.length; i++) {
+            encoded[(encoded.length - 1) - i] = Character.toString(sumString.charAt(i));
+        }
+
+        return encoded;
+
+    }
+
+    /*
+        Helper method for decoder input when goFirst
+                      for decoder output when !goFirst
+        Given a number, return a string array which represents the decoder input (or output) given goFirst (or !goFirst)
+
+        eg. For numDigits = 2 and sum = 31
+                if goFirst will return  {"go","3","1", " "}
+                if !goFirst will return {"3","1"," ","eos"}
+
+     */
+    public String[] prepToString(int sum, boolean goFirst) {
+        int start, end;
+        String[] decoded = new String[numDigits + 1 + 1];
+        if (goFirst) {
+            decoded[0] = "go";
+            start = 1;
+            end = decoded.length - 1;
+        } else {
+            start = 0;
+            end = decoded.length - 2;
+            decoded[decoded.length - 1] = "eos";
+        }
+
+        String sumString = String.valueOf(sum);
+        int maxIndex = start;
+        //add in digits
+        for (int i = 0; i < sumString.length(); i++) {
+            decoded[start + i] = Character.toString(sumString.charAt(i));
+            maxIndex += i;
+        }
+
+        maxIndex++;
+        //needed padding
+        while (maxIndex <= end) {
+            decoded[maxIndex] = " ";
+            maxIndex++;
+        }
+        return decoded;
+
+    }
+
+    /*
+        Takes in an array of strings and return a one hot encoded array of size 1 x 14 x timesteps
+        Each element in the array indicates a time step
+        Length of one hot vector = 14
+     */
+    private static INDArray mapToOneHot(String[] toEncode) {
+
+        INDArray ret = Nd4j.zeros(1, SEQ_VECTOR_DIM, toEncode.length);
+        for (int i = 0; i < toEncode.length; i++) {
+            ret.putScalar(0, oneHotMap.get(toEncode[i]), i, 1);
+        }
+
+        return ret;
+    }
+
+    public  static String mapToString (INDArray encodeSeq, INDArray decodeSeq) {
+        return mapToString(encodeSeq,decodeSeq," --> ");
+    }
+    public static String mapToString(INDArray encodeSeq, INDArray decodeSeq, String sep) {
+        String ret = "";
+        String [] encodeSeqS = oneHotDecode(encodeSeq);
+        String [] decodeSeqS = oneHotDecode(decodeSeq);
+        for (int i=0; i<encodeSeq.length();i++) {
+            ret += "\t" + encodeSeqS[i] + sep +decodeSeqS[i] + "\n";
+        }
+        return ret;
+    }
+
+    /*
+        Helper method that takes in a one hot encoded INDArray and returns an interpreted array of strings
+        toInterpret size batchSize x one_hot_vector_size(14) x time_steps
+     */
+    public static String[] oneHotDecode(INDArray toInterpret) {
+
+        String[] decodedString = new String[toInterpret.size(0)];
+        INDArray oneHotIndices = Nd4j.argMax(toInterpret, 1); //drops a dimension, so now a two dim array of shape batchSize x time_steps
+        for (int i = 0; i < oneHotIndices.size(0); i++) {
+            int[] currentSlice = oneHotIndices.slice(i).data().asInt(); //each slice is a batch
+            decodedString[i] = mapFromOneHot(currentSlice);
+        }
+        return decodedString;
+    }
+
+    private static String mapFromOneHot(int[] toMap) {
+        String ret = "";
+        for (int i = 0; i < toMap.length; i++) {
+            ret += oneHotOrder[toMap[i]];
+        }
+        //encoder sequence, needs to be reversed
+        if (toMap.length > numDigits + 1 + 1) {
+            return new StringBuilder(ret).reverse().toString();
+        }
+        return ret;
+    }
+
+    /*
+    One hot encoding map
+    */
+    private static void oneHotEncoding() {
+
+        for (int i = 0; i < 10; i++) {
+            oneHotOrder[i] = String.valueOf(i);
+            oneHotMap.put(String.valueOf(i), i);
+        }
+        oneHotOrder[10] = " ";
+        oneHotMap.put(" ", 10);
+
+        oneHotOrder[11] = "+";
+        oneHotMap.put("+", 11);
+
+        oneHotOrder[12] = "go";
+        oneHotMap.put("go", 12);
+
+        oneHotOrder[13] = "eos";
+        oneHotMap.put("eos", 13);
 
     }
 }
