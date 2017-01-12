@@ -18,13 +18,9 @@ public class KerasModelImportCNN {
 
     private static final Logger log = LoggerFactory.getLogger(KerasModelImportCNN.class);
 
-    //public static final String MODEL_DIR = "/Users/susaneraly/SKYMIND/kerasImport/examples/";
-    //public static final String MODEL = "mnist_model";
-    //public static final String NUMPY_DIR = "/Users/susaneraly/SKYMIND/kerasImport/examples/testImages";
-
-    public static final String MODEL_DIR = "/Users/susaneraly/SKYMIND/kerasImport/tests/";
+    public static final String MODEL_DIR = "/Users/susaneraly/SKYMIND/kerasImport/tests/toyCnn/";
     public static final String MODEL = "toy_cnn3Ch";
-    public static final String NUMPY_DIR = "/Users/susaneraly/SKYMIND/kerasImport/tests/testImages3Ch";
+    public static final String NUMPY_DIR = "/Users/susaneraly/SKYMIND/kerasImport/tests/toyCnn/testImages3Ch";
 
     public static final String FILE_PREFIX = "/val";
     public static final int MIN_INDEX = 1;
@@ -36,9 +32,6 @@ public class KerasModelImportCNN {
     public static final int IMG_H = 6;
     public static final int IMG_W = 6;
     public static final int N_CLASSES = 2;
-    //public static final int IMG_H = 28;
-    //public static final int IMG_W = 28;
-    //public static final int N_CLASSES = 10;
 
     public static void main(String[] args) throws Exception {
         DataTypeUtil.setDTypeForContext(DataBuffer.Type.DOUBLE);
@@ -50,7 +43,6 @@ public class KerasModelImportCNN {
         int incorrect = 0;
         int batchCount = 0;
         while (loader.hasNext()) {
-            //if (batchCount == 0) break;
             DataSet imageSet = loader.next();
             INDArray features = imageSet.getFeatures();
             INDArray labels = imageSet.getLabels();
