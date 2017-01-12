@@ -27,19 +27,9 @@ public class AdditionRNN {
 
     /*
         This example is modeled off the sequence to sequence RNNs described in http://arxiv.org/abs/1410.4615
-        Specifically, a sequence to sequence NN is build for the addition operation. Addition is viewed as a translation
-        task. For eg. "12+23 " = " 35" with "12+23 " as the input sequence to be translated to the output sequence " 35"
+        Specifically, a sequence to sequence NN is build for the addition operation. Addition is viewed as a translation task.
+        For eg. "12+23 " = " 35" with "12+23 " as the input sequence to be translated to the output sequence " 35"
         For a general idea of seq2seq models refer to the image on Pg. 3 in the paper https://arxiv.org/pdf/1406.1078v3
-
-        The key idea is that the input sequence is "encoded" into a vector of fixed length as determined by the number of hidden units
-        in the encoder RNN. The decoder RNN layer will then "decode" and predict the output sequence one time step at a time, given the
-        fixed length vector from the last time step of the encoder and the output from the prev
-
-        outputs each element of the the decoder RNN takes in the value of the last time step of the encoder and the previous time
-        During training, we give the RNN the correct value at each time step of the decoder, which is the sum of the two numbers prepended with "go".
-        During test, the input to the decoder is simply "go" for the very first step. Every further time step is then given the output from the previous time step as input.
-        Note that
-
 
         This example is build using a computation graph with RNN layers.
         Refer here for more details on computation graphs in dl4j
@@ -47,22 +37,28 @@ public class AdditionRNN {
         And here for RNNs
             https://deeplearning4j.org/usingrnns
 
-        There are two RNN layers to the computation graph. The inputs to them are as follows,
+        There are two RNN layers to this computation graph. The inputs to them are as follows,
         During training:
-            - encoder RNN layer: the addition input string, '12+13'
-            - decoder RNN layer: the output of the very last step of the encoder is fed in as input to every time step of the decoder along with
-                                  the shifted 'correct' output of the addition (by appending with a "go"/"X"), 'X25 '
+            - encoder RNN layer:
+                   Takes in the addition input string, eg. '12+13'
+            - decoder RNN layer:
+                   Takes in an input that combines the following two elements
+                      1. The output of the very last time step of the encoder
+                      2. The shifted 'correct' output of the addition (by appending with a "Go"), 'Go25 '
 
-        And is then trained to fit to the output of the decoder RNN layer
-            - '25 '
+            which is then trained to fit to the output of the decoder RNN layer, eg '25 '
 
         During test the inputs are as follows:
-            - encoder RNN layer: the addition input string '12+13'
-            - decoder RNN layer: the 'go' encoded as 'X' as the very first time step of the decoder
-            For every subsequent time step t, the decoder RNN will use the output from time step,t-1 and the output of the last step of the encoder to give an output
+            - encoder RNN layer:
+                    Takes in the addition input string '12+13'
+            - decoder RNN layer:
+                   For a time step t takes in an input that combines the following two elements
+                      1. The output of the very last time step of the encoder
+                      2. The output of the decoder at time step, t-1; For t = 0 input to the decoder is merely "go"
 
-        One hot vectors are used for encoding/decoding (length of one hot vector is 13 for 10 digits and "+"," ",beginning of string "X"
-        20 epochs give >85% accuracy for 2 digits
+        One hot vectors are used for encoding/decoding (length of one hot vector is 14 for 10 digits and "+"," ",beginning of string and end of string
+        10 epochs give ~85% accuracy for 2 digits
+        20 epochs give >95% accuracy for 2 digits
 
         To try out addition for numbers with different number of digits simply change "NUM_DIGITS"
      */
@@ -72,38 +68,45 @@ public class AdditionRNN {
     public static final int seed = 1234;
 
     //Tweak these to tune the dataset size = batchSize * totalBatches
-    public static int batchSize = 5;
-    public static int totalBatches = 5;
-    public static int nEpochs = 50;
+    public static int batchSize = 10;
+    public static int totalBatches = 500;
+    public static int nEpochs = 10;
     public static int nIterations = 1;
 
+    //Tweak the number of hidden nodes
     public static final int numHiddenNodes = 128;
-    //this is the size of the one hot vector
+
+    //This is the size of the one hot vector
     public static final int FEATURE_VEC_SIZE = 14;
 
     public static void main(String[] args) throws Exception {
 
+        //DataType is set to double for higher precision
         DataTypeUtil.setDTypeForContext(DataBuffer.Type.DOUBLE);
-        //Training data iterator
+
         //This is a custom iterator that returns MultiDataSets on each call of next - More details in comments in the class
         CustomSequenceIterator iterator = new CustomSequenceIterator(seed, batchSize, totalBatches);
 
         ComputationGraphConfiguration configuration = new NeuralNetConfiguration.Builder()
-                //.regularization(true).l2(0.000005)
                 .weightInit(WeightInit.XAVIER)
-                .learningRate(0.5)
-                .updater(Updater.RMSPROP)
+                .learningRate(0.25)
+                .updater(Updater.SGD)
                 .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT).iterations(nIterations)
                 .seed(seed)
                 .graphBuilder()
-                //these are the two inputs to the computation graph
+                //These are the two inputs to the computation graph
                 .addInputs("additionIn", "sumOut")
-                //the inputs to the encoder will have size = minibatch x featuresize x timesteps
                 .setInputTypes(InputType.recurrent(FEATURE_VEC_SIZE), InputType.recurrent(FEATURE_VEC_SIZE))
+                //The inputs to the encoder will have size = minibatch x featuresize x timesteps
+                //Note that the network only knows of the feature vector size. It does not know how many time steps unless it sees an instance of the data
                 .addLayer("encoder", new GravesLSTM.Builder().nIn(FEATURE_VEC_SIZE).nOut(numHiddenNodes).activation(Activation.SOFTSIGN).build(),"additionIn")
+                //Create a vertex indicating the very last time step of the encoder layer needs to be directed to other places in the comp graph
                 .addVertex("lastTimeStep", new LastTimeStepVertex("additionIn"), "encoder")
+                //Create a vertex that allows the duplication of 2d input to a 3d input
+                //In this case the last time step of the encoder layer (viz. 2d) is duplicated to the length of the timeseries "sumOut" which is an input to the comp graph
+                //Refer to the javadoc for more detail
                 .addVertex("duplicateTimeStep", new DuplicateToTimeSeriesVertex("sumOut"), "lastTimeStep")
-                //the inputs to the decoder will have size = size of output of last timestep of encoder, numHiddenNodes + size of the other input to the comp graph, sumOut
+                //The inputs to the decoder will have size = size of output of last timestep of encoder (numHiddenNodes) + size of the other input to the comp graph,sumOut (feature vector size)
                 .addLayer("decoder", new GravesLSTM.Builder().nIn(FEATURE_VEC_SIZE+numHiddenNodes).nOut(numHiddenNodes).activation(Activation.SOFTSIGN).build(), "sumOut","duplicateTimeStep")
                 .addLayer("output", new RnnOutputLayer.Builder().nIn(numHiddenNodes).nOut(FEATURE_VEC_SIZE).activation(Activation.SOFTMAX).lossFunction(LossFunctions.LossFunction.MCXENT).build(), "decoder")
                 .setOutputs("output")
@@ -116,17 +119,23 @@ public class AdditionRNN {
 
         //Train model:
         int iEpoch = 0;
-        int testSize = 2;
+        int testSize = 20;
         Seq2SeqPredicter predictor = new Seq2SeqPredicter(net);
         while (iEpoch < nEpochs) {
             net.fit(iterator);
             System.out.printf("* = * = * = * = * = * = * = * = * = ** EPOCH %d ** = * = * = * = * = * = * = * = * = * = * = * = * = * =\n",iEpoch);
             MultiDataSet testData = iterator.generateTest(testSize);
-            predictor.output(testData);
-            iterator.reset();
+            INDArray predictions = predictor.output(testData);
+            encode_decode_eval(predictions,testData.getFeatures()[0],testData.getLabels()[0]);
             iEpoch++;
+            /*
+            Uncomment the following block of code to see how the output of the decoder is fed back into the input during test time
+            */
+            System.out.println("Printing stepping through the decoder for a single case:");
+            testData = iterator.generateTest(1);
+            predictor.output(testData);
+            System.out.println("\n* = * = * = * = * = * = * = * = * = ** EPOCH " + iEpoch + " COMPLETE ** = * = * = * = * = * = * = * = * = * = * = * = * = * =");
         }
-        System.out.println("\n* = * = * = * = * = * = * = * = * = ** EPOCH " + iEpoch + " COMPLETE ** = * = * = * = * = * = * = * = * = * = * = * = * = * =");
 
     }
 
@@ -135,10 +144,19 @@ public class AdditionRNN {
         int nTests = predictions.size(0);
         int wrong = 0;
         int correct = 0;
-        /*
+        String [] questionS = CustomSequenceIterator.oneHotDecode(questions);
+        String [] answersS = CustomSequenceIterator.oneHotDecode(answers);
+        String [] predictionS = CustomSequenceIterator.oneHotDecode(predictions);
         for (int iTest=0; iTest < nTests; iTest++) {
+            if (!answersS[iTest].equals(predictionS[iTest])) {
+                System.out.println(questionS[iTest] + " gives "+ predictionS[iTest] + " != " + answersS[iTest]);
+                wrong++;
+            }
+            else {
+                System.out.println(questionS[iTest] + " gives "+ predictionS[iTest] + " == " + answersS[iTest]);
+                correct++;
+            }
         }
-        */
         double randomAcc = Math.pow(10,-1*(NUM_DIGITS+1)) * 100;
         System.out.println("*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*==*=*=*=*=*");
         System.out.println("WRONG: "+wrong);

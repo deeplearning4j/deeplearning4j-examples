@@ -45,7 +45,7 @@ public class CustomSequenceIterator implements MultiDataSetIterator {
     public MultiDataSet generateTest(int testSize) {
         toTestSet = true;
         MultiDataSet testData = next(testSize);
-        toTestSet = false;
+        reset();
         return testData;
     }
 
@@ -102,6 +102,7 @@ public class CustomSequenceIterator implements MultiDataSetIterator {
     public void reset() {
         currentBatch = 0;
         toTestSet = false;
+        seenSequences =  new HashSet<String>();
         randnumG = new Random(seed);
     }
 
@@ -177,13 +178,13 @@ public class CustomSequenceIterator implements MultiDataSetIterator {
         int start, end;
         String[] decoded = new String[numDigits + 1 + 1];
         if (goFirst) {
-            decoded[0] = "go";
+            decoded[0] = "Go";
             start = 1;
             end = decoded.length - 1;
         } else {
             start = 0;
             end = decoded.length - 2;
-            decoded[decoded.length - 1] = "eos";
+            decoded[decoded.length - 1] = "End";
         }
 
         String sumString = String.valueOf(sum);
@@ -226,7 +227,7 @@ public class CustomSequenceIterator implements MultiDataSetIterator {
         String ret = "";
         String [] encodeSeqS = oneHotDecode(encodeSeq);
         String [] decodeSeqS = oneHotDecode(decodeSeq);
-        for (int i=0; i<encodeSeq.length();i++) {
+        for (int i=0; i<encodeSeqS.length;i++) {
             ret += "\t" + encodeSeqS[i] + sep +decodeSeqS[i] + "\n";
         }
         return ret;
@@ -241,7 +242,7 @@ public class CustomSequenceIterator implements MultiDataSetIterator {
         String[] decodedString = new String[toInterpret.size(0)];
         INDArray oneHotIndices = Nd4j.argMax(toInterpret, 1); //drops a dimension, so now a two dim array of shape batchSize x time_steps
         for (int i = 0; i < oneHotIndices.size(0); i++) {
-            int[] currentSlice = oneHotIndices.slice(i).data().asInt(); //each slice is a batch
+            int[] currentSlice = oneHotIndices.slice(i).dup().data().asInt(); //each slice is a batch
             decodedString[i] = mapFromOneHot(currentSlice);
         }
         return decodedString;
@@ -274,11 +275,11 @@ public class CustomSequenceIterator implements MultiDataSetIterator {
         oneHotOrder[11] = "+";
         oneHotMap.put("+", 11);
 
-        oneHotOrder[12] = "go";
-        oneHotMap.put("go", 12);
+        oneHotOrder[12] = "Go";
+        oneHotMap.put("Go", 12);
 
-        oneHotOrder[13] = "eos";
-        oneHotMap.put("eos", 13);
+        oneHotOrder[13] = "End";
+        oneHotMap.put("End", 13);
 
     }
 }

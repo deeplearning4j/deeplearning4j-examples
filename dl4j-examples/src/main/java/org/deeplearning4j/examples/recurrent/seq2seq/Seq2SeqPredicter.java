@@ -38,21 +38,33 @@ public class Seq2SeqPredicter {
 
         INDArray correctOutput = testSet.getLabels()[0];
         INDArray ret = Nd4j.zeros(correctOutput.shape());
-        copyTimeSteps(0,testSet.getFeatures()[1],decoderInputTemplate);
+        decoderInputTemplate = testSet.getFeatures()[1].dup();
 
         int currentStepThrough = 0;
-        int stepThroughs = correctOutput.size(2);
+        int stepThroughs = correctOutput.size(2)-1;
 
         while (currentStepThrough < stepThroughs) {
-            ret = stepOnce(testSet, currentStepThrough);
             if (print) {
                 System.out.println("In time step "+currentStepThrough);
                 System.out.println("\tEncoder input and Decoder input:");
-                CustomSequenceIterator.mapToString(testSet.getFeatures()[0],ret, " +  ");
-                System.out.println("\tEncoder input and Decoder output:");
-                CustomSequenceIterator.mapToString(testSet.getFeatures()[0],ret);
+                System.out.println(CustomSequenceIterator.mapToString(testSet.getFeatures()[0],decoderInputTemplate, " +  "));
+
+            }
+            ret = stepOnce(testSet, currentStepThrough);
+            if (print) {
+                System.out.println("\tDecoder output:");
+                System.out.println("\t"+String.join("\n\t",CustomSequenceIterator.oneHotDecode(ret)));
             }
             currentStepThrough++;
+        }
+
+        ret = net.output(false,testSet.getFeatures()[0],decoderInputTemplate)[0];
+        if (print) {
+            System.out.println("Final time step "+currentStepThrough);
+            System.out.println("\tEncoder input and Decoder input:");
+            System.out.println(CustomSequenceIterator.mapToString(testSet.getFeatures()[0],decoderInputTemplate, " +  "));
+            System.out.println("\tDecoder output:");
+            System.out.println("\t"+String.join("\n\t",CustomSequenceIterator.oneHotDecode(ret)));
         }
 
         return ret;
@@ -66,23 +78,20 @@ public class Seq2SeqPredicter {
     private INDArray stepOnce(MultiDataSet testSet, int n) {
 
         INDArray currentOutput = net.output(false, testSet.getFeatures()[0], decoderInputTemplate)[0];
-        copyTimeSteps(n+1,currentOutput,decoderInputTemplate);
+        copyTimeSteps(n,currentOutput,decoderInputTemplate);
         return currentOutput;
 
     }
 
     /*
         Copies timesteps
-        time = 0 to time = t in "fromArr" to time = 1 to time = t+1 in "toArr"
+        time = 0 to time = t in "fromArr"
+        to time = 1 to time = t+1 in "toArr"
      */
     private void copyTimeSteps(int t, INDArray fromArr, INDArray toArr) {
-        if (toArr == null) {
-            toArr = fromArr.dup();
-            return;
-        }
         INDArray fromView = fromArr.get(NDArrayIndex.all(),NDArrayIndex.all(),NDArrayIndex.interval(0,t,true));
         INDArray toView = toArr.get(NDArrayIndex.all(),NDArrayIndex.all(),NDArrayIndex.interval(1,t+1,true));
-        toView.assign(fromView);
+        toView.assign(fromView.dup());
     }
 
 }
