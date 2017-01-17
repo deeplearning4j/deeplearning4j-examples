@@ -66,6 +66,7 @@ public class DistributedWord2VecExample {
             sparkConf.setMaster("local[*]");
         }
         sparkConf.setAppName("DL4j Spark Word2Vec + ParameterServer example");
+        sparkConf.set("spark.kryo.registrationRequired","true");
         JavaSparkContext sc = new JavaSparkContext(sparkConf);
 
         JavaRDD<String> corpus = sc.textFile(corpusTextFile);
