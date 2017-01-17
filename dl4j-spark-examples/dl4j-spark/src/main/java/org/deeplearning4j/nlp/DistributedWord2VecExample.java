@@ -73,7 +73,7 @@ public class DistributedWord2VecExample {
         log.info("Total number of text lines: {}", lines);
 
         VoidConfiguration paramServerConfig = VoidConfiguration.builder()
-            .networkMask("172.16.0.0/16")
+            .networkMask("172.16.0.0/12")
             .ttl(4)
             .build();
 
