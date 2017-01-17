@@ -15,6 +15,7 @@ import org.deeplearning4j.text.tokenization.tokenizerfactory.DefaultTokenizerFac
 import org.nd4j.parameterserver.distributed.conf.VoidConfiguration;
 
 import java.io.File;
+import java.util.Arrays;
 
 /**
  * This example shows how to build Word2Vec model with distributed p2p ParameterServer.
@@ -74,6 +75,7 @@ public class DistributedWord2VecExample {
 
         VoidConfiguration paramServerConfig = VoidConfiguration.builder()
             .networkMask("172.16.0.0/12")
+            .shardAddresses(Arrays.asList("172.31.8.139:48381"))
             .ttl(4)
             .build();
 
