@@ -1,5 +1,6 @@
 package org.deeplearning4j.examples.TicTacToe;
 
+import org.datavec.api.util.ClassPathResource;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
 
@@ -10,138 +11,136 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Developed by KIT Solutions Pvt,Ltd( www.kitsol.com) on 04-Aug-16.
- * Please update file path based on your dir.
- * Remove the duplicate move and update the probability.
+ * Developed by KIT Solutions Pvt. Ltd. (www.kitsol.com) on 04-Aug-16.
+ * Removes the duplicate move and update the probability.
  */
-public class RemoveDuplicateState
-{
+public class RemoveDuplicateState {
 
-    public static void main(String[] args) throws  Exception
-    {
+    public List<INDArray> finalInputArray = new ArrayList<INDArray>();
+    public List<INDArray> finalProbabilityArray = new ArrayList<INDArray>();
+
+    public static void main(String[] args) throws Exception {
+
         /*
-        * Read all state from file and remove the Duplicate State.
-        * */
-        String filepath = System.getProperty("user.dir") + "\\src\\main\\resources\\TicTacToe\\" ;
+        Read all states from file and remove the Duplicate State.
+        */
+        String filePath = new ClassPathResource("TicTacToe").getFile().toString() + "\\";
+        String inputFileDataSet = filePath + "AllMoveWithReward.txt";
 
-        String inputfileDataset = filepath+"AllMoveWithReward.txt";
-        RemoveDuplicateState pdata = new RemoveDuplicateState();
+        RemoveDuplicateState processDataObject = new RemoveDuplicateState();
 
-        try(BufferedReader br = new BufferedReader(new FileReader(inputfileDataset)))
-        {
+        try (BufferedReader br = new BufferedReader(new FileReader(inputFileDataSet))) {
+
             String line = "";
-            while ((line = br.readLine()) != null)
-            {
+            while ((line = br.readLine()) != null) {
+
                 INDArray input = Nd4j.zeros(1, 9);
                 INDArray label = Nd4j.zeros(1, 1);
 
-                String[] nextline = line.split(" ");
+                String[] nextLines = line.split(" ");
 
-                String templine1="";
-                String templine2="";
+                String tempLine1 = "";
+                String tempLine2 = "";
 
-                templine1 = nextline[0];
-                templine2 = nextline[1];
+                tempLine1 = nextLines[0];
+                tempLine2 = nextLines[1];
 
-                String testline[] =  templine1.split(":");
+                String testLines[] = tempLine1.split(":");
 
-                for (int i = 0; i < 9; i++)
-                {
-                    int number =Integer.parseInt(testline[i]) ;
+                for (int i = 0; i < 9; i++) {
+                    int number = Integer.parseInt(testLines[i]);
                     input.putScalar(new int[]{0, i}, number);
                 }
-                double dnumber = Double.parseDouble(templine2);
-                label.putScalar(new int[]{0,0}, dnumber);
-                pdata.processData(input,label);
+
+                double doubleNumber = Double.parseDouble(tempLine2);
+                label.putScalar(new int[]{0, 0}, doubleNumber);
+
+                processDataObject.processData(input, label);
             }
-            String savefilepath = filepath+"DuplicateRemoved.txt";
-            pdata.saveProcessdata(savefilepath);
-        }
-        catch(Exception e)
-        {
+
+            String saveFilePath = filePath + "DuplicateRemoved.txt";
+            processDataObject.saveProcessData(saveFilePath);
+        } catch (Exception e) {
             System.out.println(e.toString());
         }
     }
-    /*
-    * Using this method,Remove the duplicate state and update the maximum reward(probability).
-    * */
-    public void processData(INDArray i_inputlabelArray,INDArray i_outputlabel)
-    {
-        int indexPosition=  finalInputArray.indexOf(i_inputlabelArray) ;
-        if(indexPosition!=-1)
-        {
+
+    /**
+     * Using this method,Remove the duplicate state and update the maximum reward(probability).
+     */
+    public void processData(INDArray inputLabelArray, INDArray outputLabel) {
+
+        int indexPosition = finalInputArray.indexOf(inputLabelArray);
+
+        if (indexPosition != -1) {
             INDArray outputArray = finalProbabilityArray.get(indexPosition);
-            INDArray newUpdatedArray = this.getNewArray(outputArray,i_outputlabel);
-            finalProbabilityArray.set(indexPosition,newUpdatedArray);
-        }
-        else
-        {
-            finalInputArray.add(i_inputlabelArray);
-            finalProbabilityArray.add(i_outputlabel);
+            INDArray newUpdatedArray = this.getNewArray(outputArray, outputLabel);
+            finalProbabilityArray.set(indexPosition, newUpdatedArray);
+        } else {
+            finalInputArray.add(inputLabelArray);
+            finalProbabilityArray.add(outputLabel);
         }
     }
-    /*
-   *  Using this method,store the all unique state of game with its reward.
-   * */
-    public void saveProcessdata(String i_savefilepath)
-    {
-        try(FileWriter writer = new FileWriter(i_savefilepath) )
-        {
 
-            for(int index=0 ;index <finalInputArray.size();index++)
-            {
-                INDArray arrfromInputlist = finalInputArray.get(index);
-                INDArray arrfromlabellist = finalProbabilityArray.get(index);
+    /**
+     * Using this method,store the all unique state of game with its reward.
+     */
+    public void saveProcessData(String saveFilePath) {
 
-                String tempstring1="";
-                int sizeofInput = arrfromInputlist.length();
+        try (FileWriter writer = new FileWriter(saveFilePath)) {
 
-                for(int i =0 ; i <sizeofInput;i++)
-                {
-                    int number =  (int)arrfromInputlist.getDouble(i);
-                    tempstring1 =  tempstring1 + String.valueOf(number).trim();
-                    if(i!=sizeofInput-1)
-                        tempstring1 +=":";
+
+            for (int index = 0; index < finalInputArray.size(); index++) {
+
+                INDArray arrayFromInputList = finalInputArray.get(index);
+                INDArray arrayFromLabelList = finalProbabilityArray.get(index);
+
+                String tempString1 = "";
+                int sizeOfInput = arrayFromInputList.length();
+
+                for (int i = 0; i < sizeOfInput; i++) {
+
+                    int number = (int) arrayFromInputList.getDouble(i);
+
+                    tempString1 = tempString1 + String.valueOf(number).trim();
+                    if (i != (sizeOfInput - 1)) {
+                        tempString1 += ":";
+                    }
                 }
-                String tempstring2 = String.valueOf( arrfromlabellist.getDouble(0));
-                String output= tempstring1 +" " +tempstring2 ;
+                String tempString2 = String.valueOf(arrayFromLabelList.getDouble(0));
+                String output = tempString1 + " " + tempString2;
 
                 writer.append(output);
                 writer.append('\r');
                 writer.append('\n');
                 writer.flush();
             }
-        }
-        catch (Exception i) {
+        } catch (Exception i) {
             System.out.println(i.toString());
         }
     }
-    /*
-    * Compare the two INDArray  and return INDArray with maximum value.
-    * */
-    public INDArray getNewArray(INDArray a1, INDArray b1)
-    {
-        INDArray newreturnArray = Nd4j.zeros(1,1);
-        for(int i=0; i<a1.length();i++)
-        {
-            double a =a1.getDouble(i) ;
-            double b =b1.getDouble(i) ;
-            double max=0;
 
-            if(a>b)
-            {
-                max=a;
+    /**
+     * Compare two INDArray(s)  and return INDArray with maximum value.
+     */
+    public INDArray getNewArray(INDArray array1, INDArray array2) {
+        INDArray newReturnArray = Nd4j.zeros(1, 1);
+
+        for (int i = 0; i < array1.length(); i++) {
+
+            double a = array1.getDouble(i);
+            double b = array2.getDouble(i);
+
+            double max = 0;
+
+            if (a > b) {
+                max = a;
+            } else {
+                max = b;
             }
-            else
-            {
-                max=b;
-            }
-            newreturnArray.putScalar(new int[]{0,i},max);
+            newReturnArray.putScalar(new int[]{0, i}, max);
         }
-        return newreturnArray;
+        return newReturnArray;
     }
-
-    public List<INDArray>finalInputArray  = new ArrayList<INDArray>() ;
-    public List<INDArray>finalProbabilityArray = new ArrayList<INDArray>() ;
 
 }

@@ -1,87 +1,75 @@
 package org.deeplearning4j.examples.TicTacToe;
 
+import org.datavec.api.util.ClassPathResource;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
 
+import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.List;
-import java.io.FileWriter;
 
 /**
- * Developed by KIT Solutions Pvt,Ltd( www.kitsol.com) on 05-Aug-2016.
- * Please update file path based on your dir.
- * This program is use for generating the possible games.
+ * Developed by KIT Solutions Pvt. Ltd.( www.kitsol.com) on 05-Aug-2016.
+ * This program is used for generating possible number of moves for tic-tac-toe game.
  * Here,Odd Number sequence consider as first player's move and Even number sequence consider  as second player's move
  */
-public class GenerateAllPossibleGame
-{
-    public static void main(String[] args) throws  Exception
-    {
-         String filepath = System.getProperty("user.dir") + "\\src\\main\\resources\\TicTacToe\\";
+public class GenerateAllPossibleGame {
+    public static void main(String[] args) throws Exception {
+        String filePath = new ClassPathResource("TicTacToe").getFile().toString() + "\\";
 
-         /*
-         * If TicTacToe board is Empty.i.e First player with first move has 9 possible move.
-         */
+        /*
+        TicTacToe board is Empty, i.e First player with first move has 9 possible move.
+        */
         List<INDArray> firstMovesSequence = new ArrayList<INDArray>();
-        for(int i=0;i<9;i++)
-        {
-            INDArray temp2 = Nd4j.zeros(1,9);
-            temp2.putScalar(new int[] {0,i}, 1);
+        for (int i = 0; i < 9; i++) {
+            INDArray temp2 = Nd4j.zeros(1, 9);
+            temp2.putScalar(new int[]{0, i}, 1);
             firstMovesSequence.add(temp2);
         }
+
         /*
-        * For Second player with second move, 8 possible position remain.so there will be next (9)*8 =72 possible state of game.
+        For Second player with second move, 8 possible positions remain, so there will be next (9) * 8 = 72 possible states of game.
         */
         List<INDArray> secondMovesSequence = new ArrayList<INDArray>();
-        for(int i=0;i<9;i++)
-        {
-            INDArray fmArraySeq = firstMovesSequence.get(i);
-            for(int j=0;j<9;j++)
-            {
-                INDArray temp1 = Nd4j.zeros(1,9);
-                temp1.putScalar(new int[] {0,i},fmArraySeq.getInt(i));
-                if(fmArraySeq.getInt(j) != 1)
-                {
-                    temp1.putScalar(new int[] {0,j},2);
+        for (int i = 0; i < 9; i++) {
+            INDArray firstMoveArraySeq = firstMovesSequence.get(i);
+            for (int j = 0; j < 9; j++) {
+                INDArray temp1 = Nd4j.zeros(1, 9);
+                temp1.putScalar(new int[]{0, i}, firstMoveArraySeq.getInt(i));
+                if (firstMoveArraySeq.getInt(j) != 1) {
+                    temp1.putScalar(new int[]{0, j}, 2);
                     secondMovesSequence.add(temp1);
                 }
             }
         }
+
         /*
-        * For First player with third move, 7 possible position remain.so there will be next (72)*7 =504 possible state of game.
+        For First player with third move, 7 possible positions remain, so there will be next (72) * 7 = 504 possible states of game.
         */
-
         List<INDArray> thirdMovesSequence = new ArrayList<INDArray>();
-        for(int i=0;i<72;i++)
-        {
-            INDArray smArraySeq = secondMovesSequence.get(i);
-            for(int j=0;j<9;j++)
-            {
-                INDArray temp1 = Nd4j.zeros(1,9);
-                Nd4j.copy(smArraySeq, temp1);
-
-                if(smArraySeq.getInt(j) == 0)
-                {
-                    temp1.putScalar(new int[] {0,j},3);
+        for (int i = 0; i < 72; i++) {
+            INDArray secondMoveArraySeq = secondMovesSequence.get(i);
+            for (int j = 0; j < 9; j++) {
+                INDArray temp1 = Nd4j.zeros(1, 9);
+                Nd4j.copy(secondMoveArraySeq, temp1);
+                if (secondMoveArraySeq.getInt(j) == 0) {
+                    temp1.putScalar(new int[]{0, j}, 3);
                     thirdMovesSequence.add(temp1);
                 }
             }
         }
 
         /*
-        * For Second player with fourth move, 6 possible position remain.so there will be next (504)*6 =3024 possible state of game.
+        For Second player with fourth move, 6 possible positions remain, so there will be next (504) * 6 = 3024 possible states of game.
         */
         List<INDArray> fourthMovesSequence = new ArrayList<INDArray>();
-        for(int i=0;i<504;i++)
-        {
-            INDArray tmArraySequence = thirdMovesSequence.get(i);
-            for(int j=0;j<9;j++)
-            {
-                INDArray temp1 = Nd4j.zeros(1,9);
-                Nd4j.copy(tmArraySequence, temp1);
-                if(tmArraySequence.getInt(j) == 0)
-                {
-                    temp1.putScalar(new int[] {0,j}, 4);
+        for (int i = 0; i < 504; i++) {
+            INDArray thirdMoveArraySequence = thirdMovesSequence.get(i);
+            for (int j = 0; j < 9; j++) {
+                INDArray temp1 = Nd4j.zeros(1, 9);
+                Nd4j.copy(thirdMoveArraySequence, temp1);
+                if (thirdMoveArraySequence.getInt(j) == 0) {
+                    temp1.putScalar(new int[]{0, j}, 4);
                     fourthMovesSequence.add(temp1);
                 }
             }
@@ -89,30 +77,27 @@ public class GenerateAllPossibleGame
         List<INDArray> fifthMovesSequence = new ArrayList<INDArray>();
         List<INDArray> fifthMovesWins = new ArrayList<INDArray>();
 
-
         /*
-        * For First player with fifth move, 5 possible position remain.so there will be next (3024)*5 =15120 possible state of game.
+        For First player with fifth move, 5 possible positions remain, so there will be next (3024) * 5 = 15120 possible states of game.
         */
-        for(int i=0;i<3024;i++)
-        {
-            INDArray fmArraySequence = fourthMovesSequence.get(i);
-            for(int j=0;j<9;j++)
-            {
-                INDArray temp1 = Nd4j.zeros(1,9);
-                Nd4j.copy(fmArraySequence,temp1);
-                if(fmArraySequence.getInt(j) == 0)
-                {
-                    temp1.putScalar(new int[] {0,j}, 5);
-                    if (checkWins(temp1, true))
+        for (int i = 0; i < 3024; i++) {
+            INDArray fourthMoveArraySequence = fourthMovesSequence.get(i);
+            for (int j = 0; j < 9; j++) {
+                INDArray temp1 = Nd4j.zeros(1, 9);
+                Nd4j.copy(fourthMoveArraySequence, temp1);
+                if (fourthMoveArraySequence.getInt(j) == 0) {
+                    temp1.putScalar(new int[]{0, j}, 5);
+                    if (CheckWins(temp1, true)) {
                         fifthMovesWins.add(temp1);
-                    else
+                    } else {
                         fifthMovesSequence.add(temp1);
+                    }
                 }
             }
         }
 
-        System.out.println("Total win in 5th move : " + fifthMovesWins.size());
-        WriteFile(filepath+"FifthWiningData.txt",fifthMovesWins);
+        System.out.println("Total Win In 5th Move : " + fifthMovesWins.size());
+        WriteFile(filePath + "FifthWiningData.txt", fifthMovesWins);
 
         // Clear lists for 1 to 4th moves
         firstMovesSequence.clear();
@@ -121,35 +106,36 @@ public class GenerateAllPossibleGame
         fourthMovesSequence.clear();
         fifthMovesWins.clear();
 
-
-
         /*
-        * For Second player with sixth move, in fifth move first player  plays the move and  will win 1440 state. so remain state is 15120-1440=13680.Possible state of game is = 13680*4= 54720.
+        When second player is at the sixth move, possible states of the games are 13680. Below is the description
+		In fifth move of fisrt player, possible winning moves are 1440.
+		Now, possible positions from previous state are 15120. We need to subtract 1440 from this number will give us 13680 (15120 - 1440)
+		We need to multiply this number (13680) with empty cells , i.e 4 (in the sixth move), which will give us total 54720 possible moves
         */
-
         List<INDArray> sixMovesSequence = new ArrayList<INDArray>();
         List<INDArray> sixthMovesWins = new ArrayList<INDArray>();
-        for(int i=0;i<fifthMovesSequence.size();i++)
-        {
-            INDArray smArraySequence = fifthMovesSequence.get(i);
 
-            for(int j=0;j<9;j++)
-            {
-                INDArray temp1 = Nd4j.zeros(1,9);
-                Nd4j.copy(smArraySequence,temp1);
-                if(smArraySequence.getInt(j) == 0)
-                {
-                    temp1.putScalar(new int[] {0,j}, 6);
-                    if (checkWins(temp1, false))
+        for (int i = 0; i < fifthMovesSequence.size(); i++) {
+
+            INDArray sixthMoveArraySequence = fifthMovesSequence.get(i);
+
+            for (int j = 0; j < 9; j++) {
+                INDArray temp1 = Nd4j.zeros(1, 9);
+                Nd4j.copy(sixthMoveArraySequence, temp1);
+                if (sixthMoveArraySequence.getInt(j) == 0) {
+                    temp1.putScalar(new int[]{0, j}, 6);
+
+                    if (CheckWins(temp1, false)) {
                         sixthMovesWins.add(temp1);
-                    else
+                    } else {
                         sixMovesSequence.add(temp1);
+                    }
                 }
             }
         }
 
-        System.out.println("Total win in 6th move : " + sixthMovesWins.size());
-        WriteFile(filepath+"SixthWinningdata.txt",sixthMovesWins);
+        System.out.println("Total Win In 6th Move : " + sixthMovesWins.size());
+        WriteFile(filePath + "SixthWiningData.txt", sixthMovesWins);
 
         // we can clear fifth move data here
         fifthMovesSequence.clear();
@@ -158,108 +144,119 @@ public class GenerateAllPossibleGame
         List<INDArray> seventhMoveWins = new ArrayList<INDArray>();
 
         /*
-        * For First player with seventh move, in sixth move second player  plays the move and  will win 5328 state. so remain state is 54720-5328=49392.Possible state of game is = 49392*3=148176.
+        When first player is at the seventh move, possible states of the games are 49392. Below is the description
+		In sixth move of second player, possible winning moves are 5328.
+		Now, possible positions from previous state are 54720. We need to subtract 5328 from this number will give us 49392 (54720 - 5328)
+		We need to multiply this number (13680) with empty cells , i.e 3 (in the seventh move), which will give us total 148176 possible moves
         */
+        for (int i = 0; i < sixMovesSequence.size(); i++) {
 
-        for(int i=0;i<sixMovesSequence.size();i++)
-        {
-            INDArray sevArraySequence = sixMovesSequence.get(i);
+            INDArray seventhArraySequence = sixMovesSequence.get(i);
 
-            for(int j=0;j<9;j++)
-            {
-                INDArray temp1 = Nd4j.zeros(1,9);
-                Nd4j.copy(sevArraySequence,temp1);
-                if(sevArraySequence.getInt(j) == 0)
-                {
-                    temp1.putScalar(new int[] {0,j}, 7);
-                    if (checkWins(temp1, true))
+            for (int j = 0; j < 9; j++) {
+
+                INDArray temp1 = Nd4j.zeros(1, 9);
+                Nd4j.copy(seventhArraySequence, temp1);
+                if (seventhArraySequence.getInt(j) == 0) {
+
+                    temp1.putScalar(new int[]{0, j}, 7);
+
+                    if (CheckWins(temp1, true)) {
                         seventhMoveWins.add(temp1);
-                    else
+                    } else {
                         seventhMovesSequence.add(temp1);
+                    }
                 }
             }
         }
-        System.out.println("Total win in 7th move : " + seventhMoveWins.size());
-        WriteFile(filepath+"SevenWinningdata.txt",seventhMoveWins);
+
+        System.out.println("Total Win In 7th Move : " + seventhMoveWins.size());
+        WriteFile(filePath + "SeventhWiningData.txt", seventhMoveWins);
 
         sixMovesSequence.clear();
-        /*
-        * For second player with eighth move, in seventh move First player  plays the move and  will win 47952 state. so remain state is 148176-47952=100224.Possible state of game is = 100224*2=200448.
-        */
-        List<INDArray> eigthMovesSequence = new ArrayList<INDArray>();
-        List<INDArray> eigthMoveWins = new ArrayList<INDArray>();
-        for(int i=0;i<seventhMovesSequence.size();i++)
-        {
-            INDArray eigArraySequence = seventhMovesSequence.get(i);
 
-            for(int j=0;j<9;j++)
-            {
-                INDArray temp1 = Nd4j.zeros(1,9);
-                Nd4j.copy(eigArraySequence,temp1);
-                if(eigArraySequence.getInt(j) == 0)
-                {
-                    temp1.putScalar(new int[] {0,j}, 8);
-                    if (checkWins(temp1, false))
-                        eigthMoveWins.add(temp1);
-                    else
-                        eigthMovesSequence.add(temp1);
+        /*
+		When second player is at the eighth move, possible states of the games are 100224. Below is the description
+		In seventh move of fisrt player, possible winning moves are 47952.
+		Now, possible positions from previous state are 148176. We need to subtract 47952 from this number will give us 100224 (148176 - 47952)
+		We need to multiply this number (100224) with empty cells , i.e 2 (in the eighth move), which will give us total 200448 possible moves
+        */
+        List<INDArray> eighthMovesSequence = new ArrayList<INDArray>();
+        List<INDArray> eighthMoveWins = new ArrayList<INDArray>();
+
+        for (int i = 0; i < seventhMovesSequence.size(); i++) {
+            INDArray eighthArraySequence = seventhMovesSequence.get(i);
+
+            for (int j = 0; j < 9; j++) {
+
+                INDArray temp1 = Nd4j.zeros(1, 9);
+                Nd4j.copy(eighthArraySequence, temp1);
+
+                if (eighthArraySequence.getInt(j) == 0) {
+                    temp1.putScalar(new int[]{0, j}, 8);
+                    if (CheckWins(temp1, false)) {
+                        eighthMoveWins.add(temp1);
+                    } else {
+                        eighthMovesSequence.add(temp1);
+                    }
                 }
             }
         }
 
-
-        System.out.println("Total win in 8th move : " + eigthMoveWins.size());
-        WriteFile(filepath+"eightWinningdata.txt",eigthMoveWins);
+        System.out.println("Total Win In 8th Move : " + eighthMoveWins.size());
+        WriteFile(filePath + "EighthWiningData.txt", eighthMoveWins);
         seventhMovesSequence.clear();
 
-          /*
-        * For First player with ninth move, in eighth  move second player  plays the move and  will win 72576 state. so remain state is 200448-72576=127872.Possible state of game is = 127872*1=127872.
+
+        /*
+		When first player is at the nineth move, possible states of the games are 127872. Below is the description
+		In eigth move of second player, possible winning moves are 72576.
+		Now, possible positions from previous state are 200448. We need to subtract 72576 from this number will give us 127872 (200448-72576)
+		We need to multiply this number (127872) with empty cells , i.e 1 (in the nineth move), which will give us total 127872 possible moves
         */
+        List<INDArray> nineMovesSequence = new ArrayList<INDArray>();
+        List<INDArray> nineMoveWins = new ArrayList<INDArray>();
 
-        List<INDArray> NineMovesSequence = new ArrayList<INDArray>();
-        List<INDArray> NineMoveWins = new ArrayList<INDArray>();
-        for(int i=0;i<eigthMovesSequence.size();i++)
-        {
-            INDArray nineArraySequence = eigthMovesSequence.get(i);
+        for (int i = 0; i < eighthMovesSequence.size(); i++) {
 
-            for(int j=0;j<9;j++)
-            {
-                INDArray temp1 = Nd4j.zeros(1,9);
-                Nd4j.copy(nineArraySequence,temp1);
-                if(nineArraySequence.getInt(j) == 0)
-                {
-                    temp1.putScalar(new int[] {0,j}, 9);
-                    if (checkWins(temp1, true))
-                        NineMoveWins.add(temp1);
-                    else
-                        NineMovesSequence.add(temp1);
+            INDArray nineArraySequence = eighthMovesSequence.get(i);
+
+            for (int j = 0; j < 9; j++) {
+
+                INDArray temp1 = Nd4j.zeros(1, 9);
+                Nd4j.copy(nineArraySequence, temp1);
+                if (nineArraySequence.getInt(j) == 0) {
+                    temp1.putScalar(new int[]{0, j}, 9);
+                    if (CheckWins(temp1, true)) {
+                        nineMoveWins.add(temp1);
+                    } else {
+                        nineMovesSequence.add(temp1);
+                    }
                 }
             }
         }
 
-         /*
-        * For First Player will  win the  game  state 81792  and Draw Game state are :127872-81792 =46080.
+        /*
+        For Ninenth move for first Player, out of 127872 moves, he can win only on 81792 states, if not, game will be drawn for remaining states, i.e. 127872-81792 =46080.
         */
+        eighthMovesSequence.clear();
+        eighthMoveWins.clear();
 
-        eigthMovesSequence.clear();
-        eigthMoveWins.clear();
+        System.out.println("Total win in 9th move : " + nineMoveWins.size());
+        WriteFile(filePath + "NineWiningData.txt", nineMoveWins);
 
-        System.out.println("Total win in 9th move : " + NineMoveWins.size());
-        WriteFile(filepath+"NineWinningdata.txt",NineMoveWins);
+        nineMoveWins.clear();
 
-        NineMoveWins.clear();
+        System.out.println("Draw Games : " + nineMovesSequence.size());
+        WriteFile(filePath + "DrawGames.txt", nineMovesSequence);
 
-        System.out.println("Draw Games : " + NineMovesSequence.size());
-        WriteFile(filepath+"DrawGames.txt",NineMovesSequence);
-
-        NineMovesSequence.clear();
+        nineMovesSequence.clear();
     }
 
-    /*
-    * Identify the game state win/Draw.
-    * */
-    public static boolean checkWins(INDArray sequence, boolean isOdd)
-    {
+    /**
+     * Identify the game state win/Draw.
+     */
+    public static boolean CheckWins(INDArray sequence, boolean isOdd) {
         double vpos1 = sequence.getDouble(0);
         double vpos2 = sequence.getDouble(1);
         double vpos3 = sequence.getDouble(2);
@@ -279,43 +276,42 @@ public class GenerateAllPossibleGame
         boolean pos7 = isOdd ? (sequence.getDouble(6) % 2.0 != 0) : (sequence.getDouble(6) % 2.0 == 0);
         boolean pos8 = isOdd ? (sequence.getDouble(7) % 2.0 != 0) : (sequence.getDouble(7) % 2.0 == 0);
         boolean pos9 = isOdd ? (sequence.getDouble(8) % 2.0 != 0) : (sequence.getDouble(8) % 2.0 == 0);
-        if(((pos1 && pos2 && pos3) && (vpos1 != 0 && vpos2 != 0 && vpos3 != 0 )) ||
-            ((pos4 && pos5 && pos6) && (vpos4 != 0 && vpos5 != 0 && vpos6 != 0 )) ||
-            ((pos7 && pos8 && pos9) && (vpos7 != 0 && vpos8 != 0 && vpos9 != 0 )) ||
-            ((pos1 && pos4 && pos7) && (vpos1 != 0 && vpos4 != 0 && vpos7 != 0 )) ||
-            ((pos2 && pos5 && pos8) && (vpos2 != 0 && vpos5 != 0 && vpos8 != 0 )) ||
-            ((pos3 && pos6 && pos9) && (vpos3 != 0 && vpos6 != 0 && vpos9 != 0 )) ||
-            ((pos1 && pos5 && pos9) && (vpos1 != 0 && vpos5 != 0 && vpos9 != 0 )) ||
-            ((pos3 && pos5 && pos7) && (vpos3 != 0 && vpos5 != 0 && vpos7 != 0 )))
-        {
+
+        if (((pos1 && pos2 && pos3) && (vpos1 != 0 && vpos2 != 0 && vpos3 != 0)) ||
+            ((pos4 && pos5 && pos6) && (vpos4 != 0 && vpos5 != 0 && vpos6 != 0)) ||
+            ((pos7 && pos8 && pos9) && (vpos7 != 0 && vpos8 != 0 && vpos9 != 0)) ||
+            ((pos1 && pos4 && pos7) && (vpos1 != 0 && vpos4 != 0 && vpos7 != 0)) ||
+            ((pos2 && pos5 && pos8) && (vpos2 != 0 && vpos5 != 0 && vpos8 != 0)) ||
+            ((pos3 && pos6 && pos9) && (vpos3 != 0 && vpos6 != 0 && vpos9 != 0)) ||
+            ((pos1 && pos5 && pos9) && (vpos1 != 0 && vpos5 != 0 && vpos9 != 0)) ||
+            ((pos3 && pos5 && pos7) && (vpos3 != 0 && vpos5 != 0 && vpos7 != 0))) {
+
             return true;
-        }
-        else
+        } else {
             return false;
+        }
     }
 
-    public static void WriteFile(String fileName, List<INDArray> input)
-    {
+    /**
+     * Write file to save all games in file system
+     */
+    public static void WriteFile(String fileName, List<INDArray> input) {
         //Save all game in file systeam
-        try(FileWriter  writer = new FileWriter(fileName))
-        {
-            for(int index=0 ;index <input.size();index++)
-            {
-                INDArray arrfromInputlist = input.get(index);
-                String tempstring1=  arrfromInputlist.toString() ;
+        try (FileWriter writer = new FileWriter(fileName)) {
+            for (int index = 0; index < input.size(); index++) {
+                INDArray arrayFromInputlist = input.get(index);
+                String tempString = arrayFromInputlist.toString();
 
-                tempstring1=tempstring1.replace('[',' ');
-                tempstring1=tempstring1.replace(']',' ');
+                tempString = tempString.replace('[', ' ');
+                tempString = tempString.replace(']', ' ');
 
-                String output= tempstring1;
+                String output = tempString;
                 writer.append(output);
                 writer.append('\r');
                 writer.append('\n');
                 writer.flush();
             }
-        }
-        catch (Exception Io)
-        {
+        } catch (Exception Io) {
             System.out.println(Io.toString());
         }
     }

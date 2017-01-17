@@ -1,5 +1,6 @@
 package org.deeplearning4j.examples.TicTacToe;
 
+import org.datavec.api.util.ClassPathResource;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
 
@@ -11,151 +12,140 @@ import java.util.List;
 import java.util.Random;
 
 /**
- * Developed by KIT Solutions Pvt,Ltd( www.kitsol.com) on 24-Aug-16.
- * Please update file path based on your dir.
+ * Developed by KIT Solutions Pvt. Ltd. (www.kitsol.com) on 24-Aug-16.
  * This program is used for training.(Update the move reward based on the win or loose
  * Here both player are AI and update probability.
  */
+public class TicTacToeGameTrainer implements Runnable {
+    public OpponentPlayer opponentPlayerObject;
+    public String filePath = "";
+    public int[] board;
+    java.util.List<INDArray> stateList = new ArrayList<INDArray>();
+    java.util.List<Double> stateProbabilityList = new ArrayList<Double>();
+    java.util.List<INDArray> xPlayerMoveList = new ArrayList<INDArray>();
+    java.util.List<Integer> xPlayerMoveProbabilityList = new ArrayList<Integer>();
+    boolean isGameUpdate;
+    boolean isAIFirstPlayer;
+    int xPlayer = 0;
+    int oPlayer = 0;
+    int draw = 0;
+    int noOfGamePlay = 0;
+    boolean isFileLoad = false;
+    boolean isGamePlayRandom = false; //
 
-public class TicTacToeGameTrainer implements Runnable
-{
-    java.util.List<INDArray> statelist = new ArrayList<INDArray>();
-    java.util.List<Double>   state_probabilitylist = new ArrayList<Double>();
 
-    java.util.List<INDArray> xplayerMoveList = new ArrayList<INDArray>();
-    java.util.List<Integer>  xplayerMoveProbabilityList = new ArrayList<Integer>();
-
-    public OPlayer o1 ;
-    boolean isGameupdate ;
-    boolean isCompterFirstPlayer;
-
-    int xplayer=0;
-    int oplayer=0;
-    int draw=0;
-    int NoofGamePlay=0;
-    boolean isFileLoad=false;
-
-    boolean isGamePlayRandom =false; //
-
-    public  String filepath ="";
-
-    public int[] board ;
-    //public int[] Positionboard ;
-
-    TicTacToeGameTrainer()
-    {
-        filepath = System.getProperty("user.dir") + "\\src\\main\\resources\\TicTacToe\\" ;
-        board = new int[9];
-        isGameupdate=false;
-        isCompterFirstPlayer=true;
-        xplayer=0;
-        oplayer=0;
-        draw=0;
-        isFileLoad=false;
-        o1 = new OPlayer(this);
-    }
-    public static void main(String[] args)
-    {
-        TicTacToeGameTrainer t1 = new TicTacToeGameTrainer();
-        Thread aiLoad = new Thread(t1);
-        aiLoad.start();
-        int TotalPlayCounter = 1000;
-        t1.initializeGameBoard();
-        List<INDArray> listOfNextPossibalMove = t1.getOtherBoard();
-        try
-        {
-            for (int p = 0; p < listOfNextPossibalMove.size(); p++)
-            {
-                int kplay = 0;
-                System.out.println("Position Change For X player");
-                INDArray nextPosition = listOfNextPossibalMove.get(p);
-
-                    while (true)
-                    {
-                        if (t1.isFileLoad == true)
-                        {
-                            t1.PlayFirstStep(nextPosition);
-                            // t1.PlayAI();
-                            kplay++;
-                        }
-                        if (kplay > TotalPlayCounter) {
-                            break;
-                        }
-                        Thread.sleep(10);
-                    }
-                t1.saveToFile();
-            }
+    TicTacToeGameTrainer() {
+        try {
+            filePath = new ClassPathResource("TicTacToe").getFile().toString() + "\\";
+        } catch (Exception e) {
+            System.out.println("FilePathException" + e.toString());
         }
-        catch (Exception e)
-        {
+
+        board = new int[9];
+        isGameUpdate = false;
+        isAIFirstPlayer = true;
+        xPlayer = 0;
+        oPlayer = 0;
+        draw = 0;
+        isFileLoad = false;
+        opponentPlayerObject = new OpponentPlayer(this);
+    }
+
+    public static void main(String[] args) {
+
+        int totalPlayCounter = 1000;
+
+        TicTacToeGameTrainer ticTacToeGameTrainerObject = new TicTacToeGameTrainer();
+
+        Thread aiLoad = new Thread(ticTacToeGameTrainerObject);
+        aiLoad.start();
+        ticTacToeGameTrainerObject.initializeGameBoard();
+        List<INDArray> listOfNextPossibleMove = ticTacToeGameTrainerObject.getOtherBoard();
+        try {
+            for (int p = 0; p < listOfNextPossibleMove.size(); p++) {
+
+                int kPlay = 0;
+                System.out.println("Position Change For X player");
+                INDArray nextPosition = listOfNextPossibleMove.get(p);
+
+                while (true) {
+
+                    if (ticTacToeGameTrainerObject.isFileLoad == true) {
+
+                        ticTacToeGameTrainerObject.playFirstStep(nextPosition);
+                        // t1.PlayAI();
+                        kPlay++;
+                    }
+                    if (kPlay > totalPlayCounter) {
+                        break;
+                    }
+                    Thread.sleep(10);
+                }
+                ticTacToeGameTrainerObject.saveToFile();
+            }
+        } catch (Exception e) {
             System.out.println(e.toString());
         }
-        t1.isGameupdate=true;
+        ticTacToeGameTrainerObject.isGameUpdate = true;
     }
-
 
 
     /*
     * Second Player may be AI or Random Play .
     */
 
-    public void secondPlayerPlay()
-    {
-        boolean isplayUpdate=false;
+    public void secondPlayerPlay() {
+
+        boolean isPlayUpdate = false;
 
         //Enable For Random Play
 
-        if(isGamePlayRandom==true)
-        {
-            while(isplayUpdate==false)
-            {
-                try
-                {
+        if (isGamePlayRandom == true) {
+
+            while (isPlayUpdate == false) {
+
+                try {
                     Random rand = new Random();
                     int randomNum = 0 + rand.nextInt((9 - 0) + 1);
-                    isplayUpdate=updateRandomPlay(randomNum,2);
+                    isPlayUpdate = updateRandomPlay(randomNum, 2);
                     Thread.sleep(1);
-                }
-                catch (Exception e)
-                {
+                } catch (Exception e) {
                     System.out.println(e.toString());
                 }
             }
-        }
-        else
-        {
-            INDArray nextmove  = o1.getNextBestMove(board);
-            if(nextmove!=null)
-            {
-                updateStateOnBoard(nextmove,2);
-            }
-            else
-            {
+        } else {
+
+            INDArray nextMove = opponentPlayerObject.getNextBestMove(board);
+
+            if (nextMove != null) {
+                updateStateOnBoard(nextMove, 2);
+            } else {
                 System.out.println("Null Found At O Position");
             }
         }
-        boolean isgameOver = gameFinish(2);
-        if(isgameOver==false)
-        {
-            PlayAI();
+
+        boolean isGameOver = gameFinish(2);
+        if (isGameOver == false) {
+            playAI();
         }
     }
 
     /*First Player as some move statically using following method.
     * */
 
-    public void PlayFirstStep(INDArray positionArray)
-    {
-        int indexInMoveList = statelist.indexOf(positionArray);
-        if(positionArray!= null)
-        {
-            updateStateOnBoard(positionArray,1);
-            xplayerMoveList.add(positionArray);
-            xplayerMoveProbabilityList.add(indexInMoveList);
+    public void playFirstStep(INDArray positionArray) {
+
+        int indexInMoveList = stateList.indexOf(positionArray);
+
+        if (positionArray != null) {
+            updateStateOnBoard(positionArray, 1);
+            xPlayerMoveList.add(positionArray);
+            xPlayerMoveProbabilityList.add(indexInMoveList);
         }
-        boolean isgameOver = gameFinish(1);
-        if(isgameOver==false)
-        {
+
+        boolean isGameOver = gameFinish(1);
+
+        if (isGameOver == false) {
             secondPlayerPlay();
         }
     }
@@ -164,34 +154,34 @@ public class TicTacToeGameTrainer implements Runnable
     /* Machine(AI) play itself best move using this method.
     *
     */
-    public void PlayAI()
-    {
-        List<INDArray> listOfNextPossibalMove = getOtherBoard();
-        double maxNumber=0;
-        int indexInArray=0;
-        INDArray nextMove= null;
+    public void playAI() {
 
-        for(int index=0; index < listOfNextPossibalMove.size();index++)
-        {
-            INDArray positionArray = listOfNextPossibalMove.get(index);
-            int indexInMoveList = statelist.indexOf(positionArray);
-            double Probability  = state_probabilitylist.get(indexInMoveList);
-            if(maxNumber <= Probability)
-            {
-                maxNumber = Probability;
-                indexInArray=indexInMoveList;
+        List<INDArray> listOfNextPossibleMove = getOtherBoard();
+        double maxNumber = 0;
+        int indexInArray = 0;
+        INDArray nextMove = null;
+
+        for (int index = 0; index < listOfNextPossibleMove.size(); index++) {
+
+            INDArray positionArray = listOfNextPossibleMove.get(index);
+            int indexInMoveList = stateList.indexOf(positionArray);
+            double probability = stateProbabilityList.get(indexInMoveList);
+
+            if (maxNumber <= probability) {
+                maxNumber = probability;
+                indexInArray = indexInMoveList;
                 nextMove = positionArray;
             }
         }
-        if(nextMove!= null)
-        {
-            updateStateOnBoard(nextMove,1);
-            xplayerMoveList.add(nextMove);
-            xplayerMoveProbabilityList.add(indexInArray);
+
+        if (nextMove != null) {
+            updateStateOnBoard(nextMove, 1);
+            xPlayerMoveList.add(nextMove);
+            xPlayerMoveProbabilityList.add(indexInArray);
         }
-        boolean isgameOver = gameFinish(1);
-        if(isgameOver==false)
-        {
+
+        boolean isGameOver = gameFinish(1);
+        if (isGameOver == false) {
             secondPlayerPlay();
         }
     }
@@ -200,144 +190,135 @@ public class TicTacToeGameTrainer implements Runnable
     * This function gives the probability of State from stored StateList and Probability List.
     *
     */
-    public Move getNextBestMove(INDArray i_positionArray)
-    {
-        Move m = new Move();
-        int indexInArray = statelist.indexOf(i_positionArray);
-        double Probability  = state_probabilitylist.get(indexInArray);
-        m.m_index = indexInArray ;
-        m.m_probability = Probability;
-        return m ;
-    }
+    public Move getNextBestMove(INDArray positionArray) {
 
+        Move m = new Move();
+        int indexInArray = stateList.indexOf(positionArray);
+        double probability = stateProbabilityList.get(indexInArray);
+        m.index = indexInArray;
+        m.probability = probability;
+        return m;
+    }
 
     /*
     * Update the reward against particular State.
     *
     */
-    public void updateStateList(int i_indexPosition,Double i_probabilityValue)
-    {
-        double valueO = this.state_probabilitylist.set(i_indexPosition,i_probabilityValue);
+    public void updateStateList(int indexPosition, Double probabilityValue) {
+        double valueForOpponentPlayerUpdate = this.stateProbabilityList.set(indexPosition, probabilityValue);
     }
-
 
     /*
     *  Update the State on TicTacToe board.
-    * */
-    public void updateStateOnBoard(INDArray nextMove,int i_player)
-    {
-        for (int i=0 ;i<9;i++)
-        {
-            if ( board[i] != (int) nextMove.getDouble(i) )
-            {
-                board[i]=i_player;
+    */
+    public void updateStateOnBoard(INDArray nextMove, int player) {
+
+        for (int i = 0; i < 9; i++) {
+
+            if (board[i] != ((int) nextMove.getDouble(i))) {
+                board[i] = player;
                 break;
             }
         }
     }
+
     /*
     * This method is used for random move update when second player play as random State.
     * */
-    public boolean updateRandomPlay(int i_position,int i_player)
-    {
-        boolean isboardUpdate = false ;
-        if(board[i_position]==0)
-        {
-            board[i_position]=i_player;
-            isboardUpdate=true;
+    public boolean updateRandomPlay(int position, int player) {
+
+        boolean isBoardUpdate = false;
+
+        if (board[position] == 0) {
+            board[position] = player;
+            isBoardUpdate = true;
         }
-        return isboardUpdate;
+        return isBoardUpdate;
     }
 
     /* Initialize the  game board*/
-    public void initializeGameBoard()
-    {
-        board = new int[]{0,0,0,0,0,0,0,0,0} ;
-        NoofGamePlay++;
+    public void initializeGameBoard() {
+
+        board = new int[]{0, 0, 0, 0, 0, 0, 0, 0, 0};
+        noOfGamePlay++;
     }
 
     /*
     * Using this method,Check whether game finish or not for any player and also reward to that particular state base on the game decision.
     *
     */
-    public boolean gameFinish(int player)
-    {
+    public boolean gameFinish(int player) {
         printBoard();
         boolean isGameFinish = false;
-        if (board[0]==player && board[1]==player && board[2]==player ||
-            board[3]==player && board[4]==player && board[5]==player ||
-            board[6]==player && board[7]==player && board[8]==player ||
-            board[0]==player && board[3]==player && board[6]==player ||
-            board[1]==player && board[4]==player && board[7]==player ||
-            board[2]==player && board[5]==player && board[8]==player ||
-            board[0]==player && board[4]==player && board[8]==player ||
-            board[2]==player && board[4]==player && board[6]==player )
-        {
-            if(player==1)
-            {
+
+        if (board[0] == player && board[1] == player && board[2] == player ||
+            board[3] == player && board[4] == player && board[5] == player ||
+            board[6] == player && board[7] == player && board[8] == player ||
+            board[0] == player && board[3] == player && board[6] == player ||
+            board[1] == player && board[4] == player && board[7] == player ||
+            board[2] == player && board[5] == player && board[8] == player ||
+            board[0] == player && board[4] == player && board[8] == player ||
+            board[2] == player && board[4] == player && board[6] == player) {
+
+            if (player == 1) {
                 //Update the Smart Move Table
                 updateProbability(1);        // if FirstPlayer win the game,then update the reward for firstPlayer(i.e indicate as 1).
-                if(isGamePlayRandom==false)
-                {
-                    o1.updateProbability(1); // if secondPlayer loose the game,then update the reward for secondPlayer(i.e indicate as 2).
+
+                if (isGamePlayRandom == false) {
+                    opponentPlayerObject.updateProbability(1); // if secondPlayer loose the game,then update the reward for secondPlayer(i.e indicate as 2).
                 }
-                xplayer++;
-            }
-            else
-            {
+                xPlayer++;
+            } else {
+
                 updateProbability(0);        // if FirstPlayer loose the game,then update the reward for firstPlayer(i.e indicate as 1).
-                if(isGamePlayRandom==false)
-                {
-                    o1.updateProbability(0); // if secondPlayer win the game,then update the reward for secondPlayer(i.e indicate as 2).
+                if (isGamePlayRandom == false) {
+                    opponentPlayerObject.updateProbability(0); // if secondPlayer win the game,then update the reward for secondPlayer(i.e indicate as 2).
                 }
-                oplayer++;
+                oPlayer++;
             }
-            isGameFinish=true;
-        }
-        else
-        {
-            isGameFinish=true;
-            for(int index=0;index<9;index++)
-            {
-                if(board[index]==0)
-                {
-                    isGameFinish=false;
+            isGameFinish = true;
+        } else {
+
+            isGameFinish = true;
+
+            for (int index = 0; index < 9; index++) {
+
+                if (board[index] == 0) {
+                    isGameFinish = false;
                     break;
                 }
             }
-            if(isGameFinish==true)
-            {
+            if (isGameFinish == true) {
+
                 updateProbability(2);  // if FirstPlayer draw game,then update the reward for firstPlayer(i.e indicate as 1).
-                if(isGamePlayRandom==false)
-                {
-                    o1.updateProbability(2); // if secondPlayer draw game,then update the reward for secondPlayer(i.e indicate as 2).
+
+                if (isGamePlayRandom == false) {
+                    opponentPlayerObject.updateProbability(2); // if secondPlayer draw game,then update the reward for secondPlayer(i.e indicate as 2).
                 }
                 draw++;
             }
         }
-        if(isGameFinish==true)
-        {
-            System.out.println("    Total Game :" + String.valueOf(NoofGamePlay));
-            System.out.println("       X Player:" + String.valueOf(xplayer));
-            System.out.println("       O Player:" + String.valueOf(oplayer));
+
+        if (isGameFinish == true) {
+            System.out.println("    Total Game :" + String.valueOf(noOfGamePlay));
+            System.out.println("       X Player:" + String.valueOf(xPlayer));
+            System.out.println("       O Player:" + String.valueOf(oPlayer));
             System.out.println("       XXDrawOO:" + String.valueOf(draw));
             initializeGameBoard();
         }
-        return  isGameFinish;
+        return isGameFinish;
     }
 
     /*
     * Print the TicTacToe game board
     * */
-    public void printBoard()
-    {
-        System.out.println("----------------");
-        int k=0;
-        for(int i=0;i<3;i++)
-        {
-            for(int j=0;j<3;j++)
-            {
-                System.out.print("  "+board[k]);
+    public void printBoard() {
+
+        System.out.println("-------------------------------------------------------");
+        int k = 0;
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                System.out.print("  " + board[k]);
                 k++;
             }
             System.out.println("");
@@ -345,203 +326,205 @@ public class TicTacToeGameTrainer implements Runnable
     }
 
     /**
-     *   This method gives next possible State of the game based on the current board.
-     *   For the First player,When current board is blank then it will give 9 possible state of game as follow
-     *
-     *   State
-     *   1,0,0,
-     *   0,0,0,
-     *   0,0,0
-     *
-     *   State
-     *   0,1,0,
-     *   0,0,0,
-     *   0,0,0
-     *
-     *   State
-     *   0,0,1,
-     *   0,0,0,
-     *   0,0,0
-     *
-     *   State
-     *   0,0,0,
-     *   1,0,0,
-     *   0,0,0
-     *
-     *   State
-     *   0,0,0,
-     *   0,1,0,
-     *   0,0,0
-     *
-     *   State
-     *   0,0,0,
-     *   0,0,1,
-     *   0,0,0
-     *
-     *   State
-     *   0,0,0,
-     *   0,0,0,
-     *   1,0,0
-     *
-     *   State
-     *   0,0,0,
-     *   0,0,0,
-     *   0,1,0
-     *
-     *   State
-     *   0,0,0,
-     *   0,0,0,
-     *   0,0,1
-     * */
-    public List<INDArray> getOtherBoard()
-    {
-        INDArray inputArray = Nd4j.zeros(1,9);
+     * This method gives next possible State of the game based on the current board.
+     * For the First player,When current board is blank then it will give 9 possible state of game as follow
+     * <p>
+     * State
+     * 1,0,0,
+     * 0,0,0,
+     * 0,0,0
+     * <p>
+     * State
+     * 0,1,0,
+     * 0,0,0,
+     * 0,0,0
+     * <p>
+     * State
+     * 0,0,1,
+     * 0,0,0,
+     * 0,0,0
+     * <p>
+     * State
+     * 0,0,0,
+     * 1,0,0,
+     * 0,0,0
+     * <p>
+     * State
+     * 0,0,0,
+     * 0,1,0,
+     * 0,0,0
+     * <p>
+     * State
+     * 0,0,0,
+     * 0,0,1,
+     * 0,0,0
+     * <p>
+     * State
+     * 0,0,0,
+     * 0,0,0,
+     * 1,0,0
+     * <p>
+     * State
+     * 0,0,0,
+     * 0,0,0,
+     * 0,1,0
+     * <p>
+     * State
+     * 0,0,0,
+     * 0,0,0,
+     * 0,0,1
+     */
+    public List<INDArray> getOtherBoard() {
 
-        for(int k=0;k<9;k++)
-        {
-            inputArray.putScalar(new int[]{0,k},board[k]);
+        INDArray inputArray = Nd4j.zeros(1, 9);
+        List<INDArray> returnList = new ArrayList<INDArray>();
+
+
+        for (int k = 0; k < 9; k++) {
+            inputArray.putScalar(new int[]{0, k}, board[k]);
         }
-        List<INDArray> returnList =  new ArrayList<INDArray>();
-        for(int i=0 ;i <inputArray.length();i++)
-        {
-            INDArray newtempArray2=Nd4j.zeros(1,9);
-            Nd4j.copy(inputArray,newtempArray2);
-            double digit = inputArray.getDouble(i);
-            if(digit==0)
-            {
-                if(isCompterFirstPlayer==true)
-                    newtempArray2.putScalar(new int[] {0,i},1);
-                else
-                    newtempArray2.putScalar(new int[] {0,i},2);
 
-                returnList.add(newtempArray2);
+        for (int i = 0; i < inputArray.length(); i++) {
+
+            INDArray newTempArray2 = Nd4j.zeros(1, 9);
+            Nd4j.copy(inputArray, newTempArray2);
+            double digit = inputArray.getDouble(i);
+
+            if (digit == 0) {
+                if (isAIFirstPlayer == true) {
+                    newTempArray2.putScalar(new int[]{0, i}, 1);
+                } else {
+                    newTempArray2.putScalar(new int[]{0, i}, 2);
+                }
+                returnList.add(newTempArray2);
             }
         }
         return returnList;
     }
+
+
     /*
     * Update reward base on the player win,loose and Draw the game.
     *
     */
-    public void updateProbability(int i_win)
-    {
-        double probVal=0.0;
-        int k=0;
-        int PreviousIndex=0;
+    public void updateProbability(int win) {
 
-        for(int p=xplayerMoveList.size()-1; p >=0;p--)
-        {
-            PreviousIndex = xplayerMoveProbabilityList.get(p);
-            if(p==xplayerMoveList.size()-1)
-            {
-                if(i_win==0)
-                    probVal=0.0; //Loose
-                else if(i_win==1)
-                    probVal=1.0; //Win
-                else
-                    probVal=0.5; //Draw
+        int previousIndex = 0;
+        double probabilityValue = 0.0;
+
+        for (int p = (xPlayerMoveList.size() - 1); p >= 0; p--) {
+
+            previousIndex = xPlayerMoveProbabilityList.get(p);
+
+            if (p == (xPlayerMoveList.size() - 1)) {
+                if (win == 0) {
+                    probabilityValue = 0.0; //Loose
+                } else if (win == 1) {
+                    probabilityValue = 1.0; //Win
+                } else {
+                    probabilityValue = 0.5; //Draw
+                }
+            } else {
+                double probabilityFromPreviousStep = stateProbabilityList.get(previousIndex);
+                probabilityValue = probabilityFromPreviousStep + 0.1 * (probabilityValue - probabilityFromPreviousStep);
             }
-            else
-            {   double probabilityfromPreviousStep = state_probabilitylist.get(PreviousIndex);
-                probVal = probabilityfromPreviousStep  + 0.1*(probVal-probabilityfromPreviousStep);
-            }
-            state_probabilitylist.set(PreviousIndex,probVal);
+            stateProbabilityList.set(previousIndex, probabilityValue);
         }
-        xplayerMoveList.clear();
-        xplayerMoveProbabilityList.clear();
+        xPlayerMoveList.clear();
+        xPlayerMoveProbabilityList.clear();
     }
+
+
     /*
     * This method use for the load the move and it reward in memory
     * It populate the statelist and state_probabilitylist
     */
-    public void readStateAndRewardFromFile ()
-    {
-        String inputfiledataset =  filepath + "SmartAIMove.csv" ; //First Input the this file and then after use new genrated file "G:\TicTacToe Update\AllMove\SmartAIMove.csv"
-        try(  BufferedReader br = new BufferedReader(new FileReader(inputfiledataset)))
-        {
+    public void readStateAndRewardFromFile() {
+
+        String inputFileDataSet = filePath + "SmartAIMove.csv"; //First Input the this file and then after use new genrated file "G:\TicTacToe Update\AllMove\SmartAIMove.csv"
+
+        try (BufferedReader br = new BufferedReader(new FileReader(inputFileDataSet))) {
+
             String line = "";
-            while ((line = br.readLine()) != null)
-            {
+
+            while ((line = br.readLine()) != null) {
+
                 INDArray input = Nd4j.zeros(1, 9);
+                String[] nextLine = line.split(" ");
+                String tempLine1 = nextLine[0];
+                String tempLine2 = nextLine[1];
 
-                String[] nextline = line.split(" ");
-                String templine1="";
-                String templine2="";
+                String testLine[] = tempLine1.split(":");
 
-                templine1 = nextline[0];
-                templine2 = nextline[1];
+                for (int i = 0; i < 9; i++) {
 
-                String testline[] =  templine1.split(":");
-                for (int i = 0; i < 9; i++)
-                {
-                    int number =Integer.parseInt(testline[i]) ;
+                    int number = Integer.parseInt(testLine[i]);
                     input.putScalar(new int[]{0, i}, number);
                 }
-                double dnumber = Double.parseDouble(templine2);
-                statelist.add(input);
-                state_probabilitylist.add(dnumber);
+
+                double doubleNumber = Double.parseDouble(tempLine2);
+                stateList.add(input);
+                stateProbabilityList.add(doubleNumber);
             }
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             System.out.println(e.toString());
         }
     }
 
     /*
     * Save updated reward value against state in file system */
-    public void saveToFile()
-    {
-        try(FileWriter  writer = new FileWriter(filepath+"SmartAIMove.csv");)
-        {
-            for(int index=0 ;index <statelist.size();index++)
-            {
-                INDArray arrfromInputlist = statelist.get(index);
-                double probabiltyNumber = state_probabilitylist.get(index);
-                String tempstring1="";
-                int sizeofInput = arrfromInputlist.length();
-                for(int i =0 ; i <sizeofInput;i++)
-                {
-                    int number =  (int)arrfromInputlist.getDouble(i);
-                    tempstring1 =  tempstring1 + String.valueOf(number).trim();
-                    if(i!=sizeofInput-1)
-                        tempstring1 +=":";
+
+    public void saveToFile() {
+
+        try (FileWriter writer = new FileWriter(filePath + "SmartAIMove.csv");) {
+
+            for (int index = 0; index < stateList.size(); index++) {
+
+                String tempString1 = "";
+                INDArray arrayFromInputList = stateList.get(index);
+                double probabilityNumber = stateProbabilityList.get(index);
+                int sizeOfInput = arrayFromInputList.length();
+
+                for (int i = 0; i < sizeOfInput; i++) {
+
+                    int number = (int) arrayFromInputList.getDouble(i);
+                    tempString1 = tempString1 + String.valueOf(number).trim();
+
+                    if (i != (sizeOfInput - 1)) {
+                        tempString1 += ":";
+                    }
                 }
-                String tempstring2 = String.valueOf(probabiltyNumber);
-                String output= tempstring1 +" " +tempstring2 ;
+
+                String tempString2 = String.valueOf(probabilityNumber);
+                String output = tempString1 + " " + tempString2;
+
                 writer.append(output);
                 writer.append('\r');
                 writer.append('\n');
                 writer.flush();
             }
-        }
-        catch (Exception i)
-        {
+        } catch (Exception i) {
             System.out.println(i.toString());
         }
     }
+
     /*
     * Using this thread ,Load the State and its reward from file system.
     * */
     @Override
-    public void run()
-    {
+    public void run() {
         //Load the network
         readStateAndRewardFromFile();
-        isFileLoad=true;
-        while(true)
-        {
-            try
-            {
-                if(isGameupdate==true)
-                {
-                    isGameupdate=false;
+        isFileLoad = true;
+
+        while (true) {
+            try {
+                if (isGameUpdate == true) {
+                    isGameUpdate = false;
                     break;
                 }
                 Thread.sleep(10000);
-            }
-            catch (Exception e)
-            {
+            } catch (Exception e) {
                 System.out.println("Exception in File Updatation");
             }
         }
