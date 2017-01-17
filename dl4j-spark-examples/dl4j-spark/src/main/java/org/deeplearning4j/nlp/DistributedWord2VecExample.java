@@ -9,7 +9,7 @@ import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
 import org.deeplearning4j.spark.models.word2vec.SparkWord2Vec;
 import org.deeplearning4j.text.tokenization.tokenizerfactory.DefaultTokenizerFactory;
-import org.nd4j.parameterserver.distributed.conf.Configuration;
+import org.nd4j.parameterserver.distributed.conf.VoidConfiguration;
 
 import java.io.File;
 
@@ -67,8 +67,8 @@ public class DistributedWord2VecExample {
         long lines = corpus.count();
         log.info("Total number of text lines: {}", lines);
 
-        Configuration paramServerConfig = Configuration.builder()
-            .networkMask("192.168.0.0/16")
+        VoidConfiguration paramServerConfig = VoidConfiguration.builder()
+            .networkMask("172.16.0.0/16")
             .ttl(4)
             .build();
 

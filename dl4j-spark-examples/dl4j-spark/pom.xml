@@ -12,9 +12,9 @@
     <artifactId>dl4j-spark</artifactId>
 
     <properties>
-        <scala.binary.version>2.10</scala.binary.version>
-        <spark.version>1.6.0</spark.version>
-        <scala.version>2.10.6</scala.version>
+        <scala.binary.version>2.11</scala.binary.version>
+        <spark.version>1.6.3</spark.version>
+        <scala.version>2.11.6</scala.version>
         <jcommander.version>1.27</jcommander.version>
         <spark.scope>compile</spark.scope>
     </properties>
