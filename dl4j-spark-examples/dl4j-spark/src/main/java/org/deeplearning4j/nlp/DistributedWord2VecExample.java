@@ -7,6 +7,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
+import org.deeplearning4j.spark.models.sequencevectors.export.impl.HdfsModelExporter;
+import org.deeplearning4j.spark.models.sequencevectors.export.impl.VocabCacheExporter;
+import org.deeplearning4j.spark.models.sequencevectors.learning.elements.SparkSkipGram;
 import org.deeplearning4j.spark.models.word2vec.SparkWord2Vec;
 import org.deeplearning4j.text.tokenization.tokenizerfactory.DefaultTokenizerFactory;
 import org.nd4j.parameterserver.distributed.conf.VoidConfiguration;
@@ -74,9 +77,9 @@ public class DistributedWord2VecExample {
 
         SparkWord2Vec word2Vec = new SparkWord2Vec.Builder(paramServerConfig)
             .setTokenizerFactory(new DefaultTokenizerFactory())
+            .setLearningAlgorithm(new SparkSkipGram())
+            .setModelExporter(new HdfsModelExporter<>("mymodel.txt"))
             .build();
-
-
 
         word2Vec.fitSentences(corpus);
     }
