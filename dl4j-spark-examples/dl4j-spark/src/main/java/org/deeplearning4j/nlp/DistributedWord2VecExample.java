@@ -52,9 +52,11 @@ public class DistributedWord2VecExample {
 
         // TODO: don't forget to delete this block
         log.info("Working Directory: {}", System.getProperty("user.dir"));
-        File file = new File(corpusTextFile);
-        if (!file.exists())
-            throw new RuntimeException("File not exists");
+        if (!corpusTextFile.startsWith("hdfs")) {
+            File file = new File(corpusTextFile);
+            if (!file.exists())
+                throw new RuntimeException("File not exists: [" + file.getAbsolutePath() + "]");
+        }
 
 
 
