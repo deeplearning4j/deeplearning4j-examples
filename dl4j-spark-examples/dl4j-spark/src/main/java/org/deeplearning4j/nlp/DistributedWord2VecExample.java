@@ -84,7 +84,7 @@ public class DistributedWord2VecExample {
             .setTokenizerFactory(new DefaultTokenizerFactory())
             .setLearningAlgorithm(new SparkSkipGram())
             .setModelExporter(new HdfsModelExporter<>("mymodel.txt"))
-            .workers(12)
+            .workers(48)
             .build();
 
         word2Vec.fitSentences(corpus);
