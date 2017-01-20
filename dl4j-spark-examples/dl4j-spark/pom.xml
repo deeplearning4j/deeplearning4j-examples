@@ -36,6 +36,12 @@
 
         <dependency>
             <groupId>org.deeplearning4j</groupId>
+            <artifactId>deeplearning4j-nlp</artifactId>
+            <version>${nd4j.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.deeplearning4j</groupId>
             <artifactId>dl4j-spark-nlp-java8_${scala.binary.version}</artifactId>
             <version>${nd4j.version}</version>
         </dependency>

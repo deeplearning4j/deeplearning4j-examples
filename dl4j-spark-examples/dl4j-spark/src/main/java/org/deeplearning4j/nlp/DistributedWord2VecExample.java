@@ -7,12 +7,17 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
+import org.deeplearning4j.models.embeddings.loader.WordVectorSerializer;
+import org.deeplearning4j.models.word2vec.Word2Vec;
 import org.deeplearning4j.spark.models.sequencevectors.export.impl.HdfsModelExporter;
 import org.deeplearning4j.spark.models.sequencevectors.export.impl.VocabCacheExporter;
 import org.deeplearning4j.spark.models.sequencevectors.learning.elements.SparkSkipGram;
 import org.deeplearning4j.spark.models.word2vec.SparkWord2Vec;
-import org.deeplearning4j.text.tokenization.tokenizerfactory.DefaultTokenizerFactory;
+import org.deeplearning4j.text.tokenization.tokenizer.preprocessor.CommonPreprocessor;
+import org.deeplearning4j.text.tokenization.tokenizerfactory.TokenizerFactory;
+import org.nd4j.linalg.ops.transforms.Transforms;
 import org.nd4j.parameterserver.distributed.conf.VoidConfiguration;
+import org.deeplearning4j.text.tokenization.tokenizerfactory.DefaultTokenizerFactory;
 
 import java.io.File;
 import java.util.Arrays;
@@ -20,7 +25,7 @@ import java.util.Arrays;
 /**
  * This example shows how to build Word2Vec model with distributed p2p ParameterServer.
  *
- * PLEASE NOTE: This example is NOT meant to be run on localhost, consider spark-submit ONLY
+ * PLEASE NOTE: If you're using this example via spark-submit, you'll need to feed corpus via hdfs/s3/etc
  *
  * @author raver119@gmail.com
  */
@@ -75,19 +80,41 @@ public class DistributedWord2VecExample {
         log.info("Total number of text lines: {}", lines);
 
         VoidConfiguration paramServerConfig = VoidConfiguration.builder()
-            .networkMask("172.16.0.0/12")
-            .shardAddresses(Arrays.asList("172.31.8.139:48381"))
+            //.networkMask("172.16.0.0/12")
+            //.shardAddresses(Arrays.asList("172.31.8.139:48381"))
             .ttl(4)
             .build();
 
+        // tokenizer & preprocessor that'll be used during training
+        TokenizerFactory t = new DefaultTokenizerFactory();
+        t.setTokenPreProcessor(new CommonPreprocessor());
+
+
+        // Do NOT use this exporter impl if your corpus/model is huge, and can't fit into driver's memory
+        VocabCacheExporter exporter = new VocabCacheExporter();
+
+
+
         SparkWord2Vec word2Vec = new SparkWord2Vec.Builder(paramServerConfig)
-            .setTokenizerFactory(new DefaultTokenizerFactory())
+            .setTokenizerFactory(t)
             .setLearningAlgorithm(new SparkSkipGram())
-            .setModelExporter(new HdfsModelExporter<>("mymodel.txt"))
+            .setModelExporter(exporter)
+            .epochs(1)
             .workers(48)
             .build();
 
         word2Vec.fitSentences(corpus);
+
+        Word2Vec w2v = exporter.getWord2Vec();
+
+        /*
+            Just checking out what we have now. In ideal world it should be something like this:
+            nearest words to 'day': [week, night, game, year, former, season, director, office, university, time]
+         */
+        log.info("day/night: {}", Transforms.cosineSim(w2v.getWordVectorMatrix("day"), w2v.getWordVectorMatrix("night")));
+        log.info("one/two: {}", Transforms.cosineSim(w2v.getWordVectorMatrix("one"), w2v.getWordVectorMatrix("two")));
+        log.info("nearest words to 'one': {}", w2v.wordsNearest("one",10));
+        log.info("nearest words to 'day': {}", w2v.wordsNearest("day",10));
     }
 
     public static void main(String[] args) throws Exception {
