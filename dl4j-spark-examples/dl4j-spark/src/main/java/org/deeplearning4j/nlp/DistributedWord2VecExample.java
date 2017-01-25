@@ -11,6 +11,7 @@ import org.deeplearning4j.models.embeddings.loader.WordVectorSerializer;
 import org.deeplearning4j.models.word2vec.Word2Vec;
 import org.deeplearning4j.spark.models.sequencevectors.export.impl.HdfsModelExporter;
 import org.deeplearning4j.spark.models.sequencevectors.export.impl.VocabCacheExporter;
+import org.deeplearning4j.spark.models.sequencevectors.learning.elements.SparkCBOW;
 import org.deeplearning4j.spark.models.sequencevectors.learning.elements.SparkSkipGram;
 import org.deeplearning4j.spark.models.word2vec.SparkWord2Vec;
 import org.deeplearning4j.text.tokenization.tokenizer.preprocessor.CommonPreprocessor;
@@ -97,10 +98,10 @@ public class DistributedWord2VecExample {
 
         SparkWord2Vec word2Vec = new SparkWord2Vec.Builder(paramServerConfig)
             .setTokenizerFactory(t)
-            .setLearningAlgorithm(new SparkSkipGram())
+            .setLearningAlgorithm(new SparkCBOW())
             .setModelExporter(exporter)
             .epochs(1)
-            .workers(48)
+            .workers(1)
             .build();
 
         word2Vec.fitSentences(corpus);
