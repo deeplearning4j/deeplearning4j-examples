@@ -6,22 +6,20 @@
  * its Word2Vec vector representation.<br>
  * Labels/target: a single class (representing category, i.e. 0,1,2 etc. depending on content of categories.txt
  * file mentioned in TrainNews.java program.
- *
+ * <p>
  * Note :
  * - This program is a modification of original example named SentimentExampleIterator.java
  * - more details is given with each function's comments in the code
- *
+ * <p>
  * <b>KIT Solutions Pvt. Ltd. (www.kitsol.com)</b>
  */
 
 
 package org.deeplearning4j.examples.recurrent.ProcessNews;
 
-import javafx.util.Pair;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.deeplearning4j.models.embeddings.wordvectors.WordVectors;
-import org.deeplearning4j.text.tokenization.tokenizer.preprocessor.CommonPreprocessor;
-import org.deeplearning4j.text.tokenization.tokenizerfactory.DefaultTokenizerFactory;
 import org.deeplearning4j.text.tokenization.tokenizerfactory.TokenizerFactory;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
@@ -46,7 +44,7 @@ public class NewsIterator implements DataSetIterator {
     private final int truncateLength;
     private int maxLength;
     private final String dataDirectory;
-    private final List<Pair<String,List<String>>> categoryData = new ArrayList<Pair<String,List<String>>>();
+    private final List<Pair<String, List<String>>> categoryData = new ArrayList<Pair<String, List<String>>>();
     private int cursor = 0;
     private int totalNews = 0;
     private final TokenizerFactory tokenizerFactory;
@@ -55,122 +53,110 @@ public class NewsIterator implements DataSetIterator {
     private int currCategory = 0;
 
     /**
-     * @param dataDirectory the directory of the IMDB review data set
-     * @param wordVectors WordVectors object
-     * @param batchSize Size of each minibatch for training
-     * @param truncateLength If reviews exceed
-     * @param train If true: return the training data. If false: return the testing data.
-     *
-     * - initialize various class variables
-     * - calls populateData function to load news data in categoryData vector
-     * - also populates labels (i.e. category related inforamtion) in labels class variable
+     * @param dataDirectory  the directory of the news headlines data set
+     * @param wordVectors    WordVectors object
+     * @param batchSize      Size of each minibatch for training
+     * @param truncateLength If headline length exceed this size, it will be truncated to this size.
+     * @param train          If true: return the training data. If false: return the testing data.
+     *                       <p>
+     *                       - initialize various class variables
+     *                       - calls populateData function to load news data in categoryData vector
+     *                       - also populates labels (i.e. category related inforamtion) in labels class variable
      */
-    public NewsIterator(String dataDirectory, WordVectors wordVectors, int batchSize, int truncateLength, boolean train)
-    {
+    private NewsIterator(String dataDirectory, WordVectors wordVectors, int batchSize, int truncateLength, boolean train, TokenizerFactory tokenizerFactory) {
         this.dataDirectory = dataDirectory;
         this.batchSize = batchSize;
         this.vectorSize = wordVectors.getWordVector(wordVectors.vocab().wordAtIndex(0)).length;
         this.wordVectors = wordVectors;
         this.truncateLength = truncateLength;
-        tokenizerFactory = new DefaultTokenizerFactory();
-        tokenizerFactory.setTokenPreProcessor(new CommonPreprocessor());
+        this.tokenizerFactory = tokenizerFactory;
         this.populateData(train);
         this.labels = new ArrayList<String>();
-        for(int i=0;i<this.categoryData.size();i++)
-        {
+        for (int i = 0; i < this.categoryData.size(); i++) {
             this.labels.add(this.categoryData.get(i).getKey().split(",")[1]);
         }
+    }
+
+    public static Builder Builder() {
+        return new Builder();
     }
 
 
     @Override
     public DataSet next(int num) {
         if (cursor >= this.totalNews) throw new NoSuchElementException();
-        try{
+        try {
             return nextDataSet(num);
-        }catch(IOException e){
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-    private DataSet nextDataSet(int num) throws IOException
-    {
-        //First: load reviews to String. Alternate positive and negative reviews
+    private DataSet nextDataSet(int num) throws IOException {
+        // Loads news into news list from categoryData List along with category of each news
         List<String> news = new ArrayList<String>(num);
         int[] category = new int[num];
 
-        for( int i=0; i<num && cursor<totalExamples(); i++ )
-        {
-            if(currCategory < categoryData.size())
-            {
+        for (int i = 0; i < num && cursor < totalExamples(); i++) {
+            if (currCategory < categoryData.size()) {
                 news.add(this.categoryData.get(currCategory).getValue().get(newsPosition));
                 category[i] = Integer.parseInt(this.categoryData.get(currCategory).getKey().split(",")[0]);
                 currCategory++;
                 cursor++;
-            }
-            else
-            {
+            } else {
                 currCategory = 0;
                 newsPosition++;
                 i--;
             }
         }
 
-        //Second: tokenize reviews and filter out unknown words
+        //Second: tokenize news and filter out unknown words
         List<List<String>> allTokens = new ArrayList<>(news.size());
         maxLength = 0;
-        for(String s : news)
-        {
+        for (String s : news) {
             List<String> tokens = tokenizerFactory.create(s).getTokens();
             List<String> tokensFiltered = new ArrayList<>();
-            for(String t : tokens ){
-                if(wordVectors.hasWord(t)) tokensFiltered.add(t);
+            for (String t : tokens) {
+                if (wordVectors.hasWord(t)) tokensFiltered.add(t);
             }
             allTokens.add(tokensFiltered);
-            maxLength = Math.max(maxLength,tokensFiltered.size());
+            maxLength = Math.max(maxLength, tokensFiltered.size());
         }
 
-        //If longest review exceeds 'truncateLength': only take the first 'truncateLength' words
+        //If longest news exceeds 'truncateLength': only take the first 'truncateLength' words
         //System.out.println("maxLength : " + maxLength);
-        if(maxLength > truncateLength) maxLength = truncateLength;
+        if (maxLength > truncateLength) maxLength = truncateLength;
 
         //Create data for training
-        //Here: we have reviews.size() examples of varying lengths
+        //Here: we have news.size() examples of varying lengths
         INDArray features = Nd4j.create(news.size(), vectorSize, maxLength);
         INDArray labels = Nd4j.create(news.size(), this.categoryData.size(), maxLength);    //Three labels: Crime, Politics, Bollywood
-        //Because we are dealing with reviews of different lengths and only one output at the final time step: use padding arrays
+
+        //Because we are dealing with news of different lengths and only one output at the final time step: use padding arrays
         //Mask arrays contain 1 if data is present at that time step for that example, or 0 if data is just padding
         INDArray featuresMask = Nd4j.zeros(news.size(), maxLength);
         INDArray labelsMask = Nd4j.zeros(news.size(), maxLength);
 
         int[] temp = new int[2];
-        for( int i=0; i<news.size(); i++ )
-        {
-            //System.out.println("***************************** News SrNo : " + i + " *******************************");
+        for (int i = 0; i < news.size(); i++) {
             List<String> tokens = allTokens.get(i);
-            //System.out.println("current news : " + tokens);
             temp[0] = i;
-            //Get word vectors for each word in review, and put them in the training data
-            for( int j=0; j<tokens.size() && j<maxLength; j++ )
-            {
+            //Get word vectors for each word in news, and put them in the training data
+            for (int j = 0; j < tokens.size() && j < maxLength; j++) {
                 String token = tokens.get(j);
                 INDArray vector = wordVectors.getWordVectorMatrix(token);
                 features.put(new INDArrayIndex[]{NDArrayIndex.point(i), NDArrayIndex.all(), NDArrayIndex.point(j)}, vector);
 
                 temp[1] = j;
-                featuresMask.putScalar(temp, 1.0);  //Word is present (not padding) for this example + time step -> 1.0 in features mask
+                featuresMask.putScalar(temp, 1.0);
             }
             int idx = category[i];
-            //System.out.println("category : " + idx);
-            int lastIdx = Math.min(tokens.size(),maxLength);
-            //System.out.println("lastIdx : " + lastIdx);
-            labels.putScalar(new int[]{i,idx,lastIdx-1},1.0);   //Set label: [0,1] for negative, [1,0] for positive
-            //System.out.println("labels : " + labels);
-            labelsMask.putScalar(new int[]{i,lastIdx-1},1.0);   //Specify that an output exists at the final time step for this example
+            int lastIdx = Math.min(tokens.size(), maxLength);
+            labels.putScalar(new int[]{i, idx, lastIdx - 1}, 1.0);
+            labelsMask.putScalar(new int[]{i, lastIdx - 1}, 1.0);
         }
 
-        DataSet ds = new DataSet(features,labels,featuresMask,labelsMask);
-        //ds.shuffle();
+        DataSet ds = new DataSet(features, labels, featuresMask, labelsMask);
         return ds;
     }
 
@@ -179,7 +165,7 @@ public class NewsIterator implements DataSetIterator {
      *
      * @param file      File to load the review from
      * @param maxLength Maximum length (if review is longer than this: truncate to maxLength). Use Integer.MAX_VALUE to not nruncate
-     * @return          Features array
+     * @return Features array
      * @throws IOException If file cannot be read
      */
     public INDArray loadFeaturesFromFile(File file, int maxLength) throws IOException {
@@ -191,20 +177,20 @@ public class NewsIterator implements DataSetIterator {
      * Used post training to convert a String to a features INDArray that can be passed to the network output method
      *
      * @param reviewContents Contents of the review to vectorize
-     * @param maxLength Maximum length (if review is longer than this: truncate to maxLength). Use Integer.MAX_VALUE to not nruncate
+     * @param maxLength      Maximum length (if review is longer than this: truncate to maxLength). Use Integer.MAX_VALUE to not nruncate
      * @return Features array for the given input String
      */
-    public INDArray loadFeaturesFromString(String reviewContents, int maxLength){
+    public INDArray loadFeaturesFromString(String reviewContents, int maxLength) {
         List<String> tokens = tokenizerFactory.create(reviewContents).getTokens();
         List<String> tokensFiltered = new ArrayList<>();
-        for(String t : tokens ){
-            if(wordVectors.hasWord(t)) tokensFiltered.add(t);
+        for (String t : tokens) {
+            if (wordVectors.hasWord(t)) tokensFiltered.add(t);
         }
-        int outputLength = Math.max(maxLength,tokensFiltered.size());
+        int outputLength = Math.max(maxLength, tokensFiltered.size());
 
         INDArray features = Nd4j.create(1, vectorSize, outputLength);
 
-        for( int j=0; j<tokens.size() && j<maxLength; j++ ){
+        for (int j = 0; j < tokens.size() && j < maxLength; j++) {
             String token = tokens.get(j);
             INDArray vector = wordVectors.getWordVectorMatrix(token);
             features.put(new INDArrayIndex[]{NDArrayIndex.point(0), NDArrayIndex.all(), NDArrayIndex.point(j)}, vector);
@@ -213,35 +199,32 @@ public class NewsIterator implements DataSetIterator {
         return features;
     }
 
-    private void populateData(boolean train)
-    {
-        try
-        {
+    /*
+    This function loads news headlines from files stored in resources into categoryData List.
+     */
+    private void populateData(boolean train) {
+        try {
             File categories = new File(this.dataDirectory + "\\categories.txt");
 
             BufferedReader brCategories = new BufferedReader(new FileReader(categories));
 
             String temp = "";
-            while ((temp = brCategories.readLine()) != null)
-            {
+            while ((temp = brCategories.readLine()) != null) {
                 String curFileName = train == true ? this.dataDirectory + "\\train\\" + temp.split(",")[0] + ".txt" : this.dataDirectory + "\\test\\" + temp.split(",")[0] + ".txt";
                 File currFile = new File(curFileName);
                 BufferedReader currBR = new BufferedReader((new FileReader(currFile)));
                 String tempCurrLine = "";
                 List<String> tempList = new ArrayList<String>();
-                while((tempCurrLine = currBR.readLine()) != null )
-                {
+                while ((tempCurrLine = currBR.readLine()) != null) {
                     tempList.add(tempCurrLine);
                     this.totalNews++;
                 }
                 currBR.close();
-                Pair<String, List<String>> tempPair = new Pair<String,List<String>>(temp,tempList);
+                Pair<String, List<String>> tempPair = Pair.of(temp, tempList);
                 this.categoryData.add(tempPair);
             }
             brCategories.close();
-        }
-        catch(Exception e)
-        {
+        } catch (Exception e) {
             System.out.println("Exception in populateData : " + e.getMessage());
         }
     }
@@ -264,7 +247,9 @@ public class NewsIterator implements DataSetIterator {
 
     @Override
     public void reset() {
-        cursor = 0; newsPosition = 0; currCategory = 0;
+        cursor = 0;
+        newsPosition = 0;
+        currCategory = 0;
     }
 
     public boolean resetSupported() {
@@ -297,8 +282,7 @@ public class NewsIterator implements DataSetIterator {
     }
 
     @Override
-    public List<String> getLabels()
-    {
+    public List<String> getLabels() {
         return this.labels;
     }
 
@@ -316,18 +300,63 @@ public class NewsIterator implements DataSetIterator {
     public void remove() {
 
     }
+
     @Override
-    public  DataSetPreProcessor getPreProcessor() {
+    public DataSetPreProcessor getPreProcessor() {
         throw new UnsupportedOperationException("Not implemented");
     }
 
-    public int getMaxLength()
-    {
+    public int getMaxLength() {
         return this.maxLength;
     }
 
-    /** Convenience method to get label for review */
-    public boolean isPositiveReview(int index){
-        return index%2 == 0;
+    public static class Builder {
+        private String dataDirectory;
+        private WordVectors wordVectors;
+        private int batchSize;
+        private int truncateLength;
+        TokenizerFactory tokenizerFactory;
+        private boolean train;
+
+        Builder() {
+        }
+
+        public NewsIterator.Builder dataDirectory(String dataDirectory) {
+            this.dataDirectory = dataDirectory;
+            return this;
+        }
+
+        public NewsIterator.Builder wordVectors(WordVectors wordVectors) {
+            this.wordVectors = wordVectors;
+            return this;
+        }
+
+        public NewsIterator.Builder batchSize(int batchSize) {
+            this.batchSize = batchSize;
+            return this;
+        }
+
+        public NewsIterator.Builder truncateLength(int truncateLength) {
+            this.truncateLength = truncateLength;
+            return this;
+        }
+
+        public NewsIterator.Builder train(boolean train) {
+            this.train = train;
+            return this;
+        }
+
+        public NewsIterator.Builder tokenizerFactory(TokenizerFactory tokenizerFactory) {
+            this.tokenizerFactory = tokenizerFactory;
+            return this;
+        }
+
+        public NewsIterator build() {
+            return new NewsIterator(dataDirectory, wordVectors, batchSize, truncateLength, train, tokenizerFactory);
+        }
+
+        public String toString() {
+            return "org.deeplearning4j.examples.recurrent.ProcessNews.NewsIterator.Builder(dataDirectory=" + this.dataDirectory + ", wordVectors=" + this.wordVectors + ", batchSize=" + this.batchSize + ", truncateLength=" + this.truncateLength + ", train=" + this.train + ")";
+        }
     }
 }

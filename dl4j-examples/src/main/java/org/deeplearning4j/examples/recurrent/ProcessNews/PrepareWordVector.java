@@ -5,13 +5,14 @@
  * Note :
  * 1) This code is modification of original example named Word2VecRawTextExample.java
  * 2) Word vector generated in this program is used in Training RNN to categorise news headlines.
- *
+ * <p>
  * <b></b>KIT Solutions Pvt. Ltd. (www.kitsol.com)</b>
  */
 
 
 package org.deeplearning4j.examples.recurrent.ProcessNews;
 
+import org.datavec.api.util.ClassPathResource;
 import org.deeplearning4j.models.embeddings.loader.WordVectorSerializer;
 import org.deeplearning4j.models.word2vec.Word2Vec;
 import org.deeplearning4j.text.sentenceiterator.BasicLineIterator;
@@ -29,18 +30,17 @@ public class PrepareWordVector {
     public static void main(String[] args) throws Exception {
 
         // Gets Path to Text file
-        String filePath = System.getProperty("user.dir") + "\\dl4j-examples\\src\\main\\resources\\NewsData\\RawNewsToGenerateWordVector.txt";
+        String classPathResource = new ClassPathResource("NewsData").getFile().toString() + "\\";
+        String filePath = classPathResource + "\\RawNewsToGenerateWordVector.txt";
         log.info("Load & Vectorize Sentences....");
         // Strip white space before and after for each line
         SentenceIterator iter = new BasicLineIterator(filePath);
         // Split on white spaces in the line to get words
         TokenizerFactory t = new DefaultTokenizerFactory();
 
-        /*
-            CommonPreprocessor will apply the following regex to each token: [\d\.:,"'\(\)\[\]|/?!;]+
-            So, effectively all numbers, punctuation symbols and some special symbols are stripped off.
-            Additionally it forces lower case for all tokens.
-         */
+        //CommonPreprocessor will apply the following regex to each token: [\d\.:,"'\(\)\[\]|/?!;]+
+        //So, effectively all numbers, punctuation symbols and some special symbols are stripped off.
+        //Additionally it forces lower case for all tokens.
         t.setTokenPreProcessor(new CommonPreprocessor());
 
         log.info("Building model....");
@@ -60,6 +60,6 @@ public class PrepareWordVector {
         log.info("Writing word vectors to text file....");
 
         // Write word vectors to file
-        WordVectorSerializer.writeWordVectors(vec, System.getProperty("user.dir") + "\\dl4j-examples\\src\\main\\resources\\NewsData\\NewsWordVector.txt");
+        WordVectorSerializer.writeWordVectors(vec, classPathResource + "NewsWordVector.txt");
     }
 }
