@@ -27,6 +27,9 @@ import java.io.File;
 import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
+import java.util.logging.Level;
+
 
 public class TestNews extends javax.swing.JFrame {
     private static String WORD_VECTORS_PATH = "";
@@ -131,7 +134,7 @@ public class TestNews extends javax.swing.JFrame {
         double developmentTotal = 0;
 
         String DATA_PATH = userDirectory + "LabelledNews";
-        File categories = new File(DATA_PATH + "\\categories.txt");
+        File categories = new File(DATA_PATH + File.separator + "categories.txt");
 
         double max = 0;
         int pos = 0;
@@ -142,10 +145,9 @@ public class TestNews extends javax.swing.JFrame {
             }
         }
 
-        try {
-            BufferedReader brCategories = new BufferedReader(new FileReader(categories));
+        try (BufferedReader brCategories = new BufferedReader(new FileReader(categories))) {
             String temp = "";
-            List<String> labels = new ArrayList<String>();
+            List<String> labels = new ArrayList<>();
             while ((temp = brCategories.readLine()) != null) {
                 labels.add(temp);
             }
@@ -166,19 +168,19 @@ public class TestNews extends javax.swing.JFrame {
                 }
             }
         } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(TestNews.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            Logger.getLogger(TestNews.class.getName()).log(Level.SEVERE, null, ex);
         } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(TestNews.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            Logger.getLogger(TestNews.class.getName()).log(Level.SEVERE, null, ex);
         } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(TestNews.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            Logger.getLogger(TestNews.class.getName()).log(Level.SEVERE, null, ex);
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(TestNews.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            Logger.getLogger(TestNews.class.getName()).log(Level.SEVERE, null, ex);
         }
         TestNews test = new TestNews();
         test.setVisible(true);
 
         try {
-            userDirectory = new ClassPathResource("NewsData").getFile().toString() + "\\";
+            userDirectory = new ClassPathResource("NewsData").getFile().getAbsolutePath() + File.separator;
             WORD_VECTORS_PATH = userDirectory + "NewsWordVector.txt";
             tokenizerFactory = new DefaultTokenizerFactory();
             tokenizerFactory.setTokenPreProcessor(new CommonPreprocessor());
@@ -219,7 +221,10 @@ public class TestNews extends javax.swing.JFrame {
             for (int j = 0; j < tokens.size() && j < maxLength; j++) {
                 String token = tokens.get(j);
                 INDArray vector = wordVectors.getWordVectorMatrix(token);
-                features.put(new INDArrayIndex[]{NDArrayIndex.point(i), NDArrayIndex.all(), NDArrayIndex.point(j)}, vector);
+                features.put(new INDArrayIndex[]{NDArrayIndex.point(i),
+                        NDArrayIndex.all(),
+                        NDArrayIndex.point(j)},
+                    vector);
 
                 temp[1] = j;
                 featuresMask.putScalar(temp, 1.0);

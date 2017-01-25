@@ -23,6 +23,8 @@ import org.deeplearning4j.text.tokenization.tokenizerfactory.TokenizerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
+
 public class PrepareWordVector {
 
     private static Logger log = LoggerFactory.getLogger(PrepareWordVector.class);
@@ -30,8 +32,9 @@ public class PrepareWordVector {
     public static void main(String[] args) throws Exception {
 
         // Gets Path to Text file
-        String classPathResource = new ClassPathResource("NewsData").getFile().toString() + "\\";
-        String filePath = classPathResource + "\\RawNewsToGenerateWordVector.txt";
+        String classPathResource = new ClassPathResource("NewsData").getFile().getAbsolutePath() + File.separator;
+        String filePath = new File(classPathResource + File.separator + "RawNewsToGenerateWordVector.txt").getAbsolutePath();
+
         log.info("Load & Vectorize Sentences....");
         // Strip white space before and after for each line
         SentenceIterator iter = new BasicLineIterator(filePath);

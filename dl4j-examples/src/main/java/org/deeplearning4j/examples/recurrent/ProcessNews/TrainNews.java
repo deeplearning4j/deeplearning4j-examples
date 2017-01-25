@@ -11,10 +11,12 @@
  * 0,crime
  * 1,politics
  * 2,bollywood
+ * 3,Business&Development
  * - For each category id above, there is a file containig actual news headlines, e.g.
  * 0.txt - contains news for crime headlines
  * 1.txt - contains news for politics headlines
  * 2.txt - contains news for bollywood
+ * 3.txt - contains news for Business&Development
  * - You can add any new category by adding one line in categories.txt and respective news file in folder mentioned above.
  * - Below are training results with the news data given with this example.
  * ==========================Scores========================================
@@ -65,7 +67,7 @@ public class TrainNews {
     private static TokenizerFactory tokenizerFactory;
 
     public static void main(String[] args) throws Exception {
-        userDirectory = new ClassPathResource("NewsData").getFile().toString() + "\\";
+        userDirectory = new ClassPathResource("NewsData").getFile().getAbsolutePath() + File.separator;
         DATA_PATH = userDirectory + "LabelledNews";
         WORD_VECTORS_PATH = userDirectory + "NewsWordVector.txt";
 

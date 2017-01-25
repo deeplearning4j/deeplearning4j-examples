@@ -27,7 +27,6 @@ import org.nd4j.linalg.dataset.api.DataSetPreProcessor;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.indexing.INDArrayIndex;
-import org.nd4j.linalg.indexing.NDArrayIndex;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -37,6 +36,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 
+import static org.nd4j.linalg.indexing.NDArrayIndex.*;
+
 public class NewsIterator implements DataSetIterator {
     private final WordVectors wordVectors;
     private final int batchSize;
@@ -44,7 +45,7 @@ public class NewsIterator implements DataSetIterator {
     private final int truncateLength;
     private int maxLength;
     private final String dataDirectory;
-    private final List<Pair<String, List<String>>> categoryData = new ArrayList<Pair<String, List<String>>>();
+    private final List<Pair<String, List<String>>> categoryData = new ArrayList<>();
     private int cursor = 0;
     private int totalNews = 0;
     private final TokenizerFactory tokenizerFactory;
@@ -63,7 +64,12 @@ public class NewsIterator implements DataSetIterator {
      *                       - calls populateData function to load news data in categoryData vector
      *                       - also populates labels (i.e. category related inforamtion) in labels class variable
      */
-    private NewsIterator(String dataDirectory, WordVectors wordVectors, int batchSize, int truncateLength, boolean train, TokenizerFactory tokenizerFactory) {
+    private NewsIterator(String dataDirectory,
+                         WordVectors wordVectors,
+                         int batchSize,
+                         int truncateLength,
+                         boolean train,
+                         TokenizerFactory tokenizerFactory) {
         this.dataDirectory = dataDirectory;
         this.batchSize = batchSize;
         this.vectorSize = wordVectors.getWordVector(wordVectors.vocab().wordAtIndex(0)).length;
@@ -71,7 +77,7 @@ public class NewsIterator implements DataSetIterator {
         this.truncateLength = truncateLength;
         this.tokenizerFactory = tokenizerFactory;
         this.populateData(train);
-        this.labels = new ArrayList<String>();
+        this.labels = new ArrayList<>();
         for (int i = 0; i < this.categoryData.size(); i++) {
             this.labels.add(this.categoryData.get(i).getKey().split(",")[1]);
         }
@@ -94,7 +100,7 @@ public class NewsIterator implements DataSetIterator {
 
     private DataSet nextDataSet(int num) throws IOException {
         // Loads news into news list from categoryData List along with category of each news
-        List<String> news = new ArrayList<String>(num);
+        List<String> news = new ArrayList<>(num);
         int[] category = new int[num];
 
         for (int i = 0; i < num && cursor < totalExamples(); i++) {
@@ -145,7 +151,9 @@ public class NewsIterator implements DataSetIterator {
             for (int j = 0; j < tokens.size() && j < maxLength; j++) {
                 String token = tokens.get(j);
                 INDArray vector = wordVectors.getWordVectorMatrix(token);
-                features.put(new INDArrayIndex[]{NDArrayIndex.point(i), NDArrayIndex.all(), NDArrayIndex.point(j)}, vector);
+                features.put(new INDArrayIndex[]{point(i),
+                    all(),
+                    point(j)}, vector);
 
                 temp[1] = j;
                 featuresMask.putScalar(temp, 1.0);
@@ -169,8 +177,8 @@ public class NewsIterator implements DataSetIterator {
      * @throws IOException If file cannot be read
      */
     public INDArray loadFeaturesFromFile(File file, int maxLength) throws IOException {
-        String review = FileUtils.readFileToString(file);
-        return loadFeaturesFromString(review, maxLength);
+        String news = FileUtils.readFileToString(file);
+        return loadFeaturesFromString(news, maxLength);
     }
 
     /**
@@ -193,7 +201,9 @@ public class NewsIterator implements DataSetIterator {
         for (int j = 0; j < tokens.size() && j < maxLength; j++) {
             String token = tokens.get(j);
             INDArray vector = wordVectors.getWordVectorMatrix(token);
-            features.put(new INDArrayIndex[]{NDArrayIndex.point(0), NDArrayIndex.all(), NDArrayIndex.point(j)}, vector);
+            features.put(new INDArrayIndex[]{point(0),
+                all(),
+                point(j)}, vector);
         }
 
         return features;
@@ -203,18 +213,18 @@ public class NewsIterator implements DataSetIterator {
     This function loads news headlines from files stored in resources into categoryData List.
      */
     private void populateData(boolean train) {
-        try {
-            File categories = new File(this.dataDirectory + "\\categories.txt");
+        File categories = new File(this.dataDirectory + File.separator + "categories.txt");
 
-            BufferedReader brCategories = new BufferedReader(new FileReader(categories));
-
+        try (BufferedReader brCategories = new BufferedReader(new FileReader(categories))) {
             String temp = "";
             while ((temp = brCategories.readLine()) != null) {
-                String curFileName = train == true ? this.dataDirectory + "\\train\\" + temp.split(",")[0] + ".txt" : this.dataDirectory + "\\test\\" + temp.split(",")[0] + ".txt";
+                String curFileName = train == true ?
+                    this.dataDirectory + File.separator + "train" + File.separator + temp.split(",")[0] + ".txt" :
+                    this.dataDirectory + File.separator + "test" + File.separator + temp.split(",")[0] + ".txt";
                 File currFile = new File(curFileName);
                 BufferedReader currBR = new BufferedReader((new FileReader(currFile)));
                 String tempCurrLine = "";
-                List<String> tempList = new ArrayList<String>();
+                List<String> tempList = new ArrayList<>();
                 while ((tempCurrLine = currBR.readLine()) != null) {
                     tempList.add(tempCurrLine);
                     this.totalNews++;
@@ -225,7 +235,7 @@ public class NewsIterator implements DataSetIterator {
             }
             brCategories.close();
         } catch (Exception e) {
-            System.out.println("Exception in populateData : " + e.getMessage());
+            System.out.println("Exception in reading file :" + e.getMessage());
         }
     }
 
@@ -352,11 +362,19 @@ public class NewsIterator implements DataSetIterator {
         }
 
         public NewsIterator build() {
-            return new NewsIterator(dataDirectory, wordVectors, batchSize, truncateLength, train, tokenizerFactory);
+            return new NewsIterator(dataDirectory,
+                wordVectors,
+                batchSize,
+                truncateLength,
+                train,
+                tokenizerFactory);
         }
 
         public String toString() {
-            return "org.deeplearning4j.examples.recurrent.ProcessNews.NewsIterator.Builder(dataDirectory=" + this.dataDirectory + ", wordVectors=" + this.wordVectors + ", batchSize=" + this.batchSize + ", truncateLength=" + this.truncateLength + ", train=" + this.train + ")";
+            return "org.deeplearning4j.examples.recurrent.ProcessNews.NewsIterator.Builder(dataDirectory=" +
+                this.dataDirectory + ", wordVectors=" + this.wordVectors +
+                ", batchSize=" + this.batchSize + ", truncateLength="
+                + this.truncateLength + ", train=" + this.train + ")";
         }
     }
 }
