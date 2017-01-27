@@ -6,6 +6,7 @@ import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.deeplearning4j.eval.Evaluation;
+import org.deeplearning4j.examples.utilities.DataUtilities;
 import org.deeplearning4j.models.embeddings.loader.WordVectorSerializer;
 import org.deeplearning4j.models.embeddings.wordvectors.WordVectors;
 import org.deeplearning4j.nn.conf.GradientNormalization;
@@ -136,7 +137,7 @@ public class Word2VecSentimentRNN {
         System.out.println("----- Example complete -----");
     }
 
-    private static void downloadData() throws Exception {
+    public static void downloadData() throws Exception {
         //Create directory if required
         File directory = new File(DATA_PATH);
         if(!directory.exists()) directory.mkdir();
@@ -152,52 +153,18 @@ public class Word2VecSentimentRNN {
             FileUtils.copyURLToFile(new URL(DATA_URL), archiveFile);
             System.out.println("Data (.tar.gz file) downloaded to " + archiveFile.getAbsolutePath());
             //Extract tar.gz file to output directory
-            extractTarGz(archizePath, DATA_PATH);
+            DataUtilities.extractTarGz(archizePath, DATA_PATH);
         } else {
             //Assume if archive (.tar.gz) exists, then data has already been extracted
             System.out.println("Data (.tar.gz file) already exists at " + archiveFile.getAbsolutePath());
             if( !extractedFile.exists()){
             	//Extract tar.gz file to output directory
-            	extractTarGz(archizePath, DATA_PATH);
+            	DataUtilities.extractTarGz(archizePath, DATA_PATH);
             } else {
             	System.out.println("Data (extracted) already exists at " + extractedFile.getAbsolutePath());
             }
         }
     }
 
-    private static final int BUFFER_SIZE = 4096;
-    private static void extractTarGz(String filePath, String outputPath) throws IOException {
-        int fileCount = 0;
-        int dirCount = 0;
-        System.out.print("Extracting files");
-        try(TarArchiveInputStream tais = new TarArchiveInputStream(
-                new GzipCompressorInputStream( new BufferedInputStream( new FileInputStream(filePath))))){
-            TarArchiveEntry entry;
 
-            /** Read the tar entries using the getNextEntry method **/
-            while ((entry = (TarArchiveEntry) tais.getNextEntry()) != null) {
-                //System.out.println("Extracting file: " + entry.getName());
-
-                //Create directories as required
-                if (entry.isDirectory()) {
-                    new File(outputPath + entry.getName()).mkdirs();
-                    dirCount++;
-                }else {
-                    int count;
-                    byte data[] = new byte[BUFFER_SIZE];
-
-                    FileOutputStream fos = new FileOutputStream(outputPath + entry.getName());
-                    BufferedOutputStream dest = new BufferedOutputStream(fos,BUFFER_SIZE);
-                    while ((count = tais.read(data, 0, BUFFER_SIZE)) != -1) {
-                        dest.write(data, 0, count);
-                    }
-                    dest.close();
-                    fileCount++;
-                }
-                if(fileCount % 1000 == 0) System.out.print(".");
-            }
-        }
-
-        System.out.println("\n" + fileCount + " files and " + dirCount + " directories extracted to: " + outputPath);
-    }
 }
