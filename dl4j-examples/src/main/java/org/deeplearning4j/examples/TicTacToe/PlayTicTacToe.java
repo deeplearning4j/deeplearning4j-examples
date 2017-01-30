@@ -17,7 +17,7 @@ import java.io.File;
 public class PlayTicTacToe extends JFrame {
 
     private String playerInformation = "FirstPlayer:X";
-    private JFrame frame = new JFrame("tictactoe");
+    private JFrame frame = new JFrame("TicTacToe");
     private JButton[] gridMoveButton = new JButton[9];
     private JButton startButton = new JButton("Start");
     private JButton switchButton = new JButton("Switch Player");
@@ -36,7 +36,7 @@ public class PlayTicTacToe extends JFrame {
     public PlayTicTacToe() throws HeadlessException {
         String filePath = "";
         try {
-            filePath = new ClassPathResource("tictactoe").getFile().getAbsolutePath() + File.separator + "AllMoveWithReward.txt";
+            filePath = new ClassPathResource("TicTacToe").getFile().getAbsolutePath() + File.separator + "AllMoveWithReward.txt";
         } catch (Exception e) {
             System.out.println("FilePathException" + e.toString());
         }
@@ -170,7 +170,7 @@ public class PlayTicTacToe extends JFrame {
     }
 
     /**
-     * Reset the button for and also reset the tictactoeplayer object after game is finished.
+     * Reset the button for and also reset the TicTacToe player object after game is finished.
      */
     private void reset() {
         for (int i = 0; i < 9; i++) {
