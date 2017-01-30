@@ -15,7 +15,7 @@
  */
 
 
-package org.deeplearning4j.examples.recurrent.ProcessNews;
+package org.deeplearning4j.examples.recurrent.processnews;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.tuple.Pair;

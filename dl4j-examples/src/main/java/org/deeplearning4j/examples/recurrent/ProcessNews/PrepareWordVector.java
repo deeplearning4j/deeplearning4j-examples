@@ -10,7 +10,7 @@
  */
 
 
-package org.deeplearning4j.examples.recurrent.ProcessNews;
+package org.deeplearning4j.examples.recurrent.processnews;
 
 import org.datavec.api.util.ClassPathResource;
 import org.deeplearning4j.models.embeddings.loader.WordVectorSerializer;
