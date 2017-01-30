@@ -99,7 +99,7 @@ public class MNISTAnomalyExample {
         //Then add triple (score, digit, and INDArray data) to lists and sort by score
         //This allows us to get best N and worst N digits for each type
         Map<Integer,List<Triple<Double,Integer,INDArray>>> listsByDigit = new HashMap<>();
-        for( int i=0; i<10; i++ ) listsByDigit.put(i,new ArrayList<Triple<Double,Integer,INDArray>>());
+        for( int i=0; i<10; i++ ) listsByDigit.put(i, new ArrayList<>());
 
         int count = 0;
         for( int i=0; i<featuresTest.size(); i++ ){
