@@ -1,4 +1,4 @@
-package org.deeplearning4j.examples.TicTacToe;
+package org.deeplearning4j.examples.tictactoe;
 
 import org.datavec.api.util.ClassPathResource;
 import org.nd4j.linalg.api.ndarray.INDArray;
@@ -44,7 +44,7 @@ public class TicTacToeData {
      */
     public static void main(String[] args) throws Exception {
 
-        String filePath = new ClassPathResource("TicTacToe").getFile().getAbsolutePath() + File.separator + "AllMoveWithReward.txt";
+        String filePath = new ClassPathResource("tictactoe").getFile().getAbsolutePath() + File.separator + "AllMoveWithReward.txt";
 
         TicTacToeData data = new TicTacToeData();
 

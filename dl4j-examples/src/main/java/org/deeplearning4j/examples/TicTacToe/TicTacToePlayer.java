@@ -1,4 +1,4 @@
-package org.deeplearning4j.examples.TicTacToe;
+package org.deeplearning4j.examples.tictactoe;
 
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
@@ -14,7 +14,7 @@ import java.util.concurrent.locks.ReentrantLock;
 /**
  * <b>Developed by KIT Solutions Pvt. Ltd. (www.kitsol.com)</b> on 24-Aug-16.
  * This program does following tasks.
- * - loads TicTacToe data file
+ * - loads tictactoe data file
  * - provide next best move depending on the previous passed
  * - reset the board when a game is over.
  * - checks whether game is finished.

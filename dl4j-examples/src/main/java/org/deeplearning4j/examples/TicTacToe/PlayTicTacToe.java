@@ -1,4 +1,4 @@
-package org.deeplearning4j.examples.TicTacToe;
+package org.deeplearning4j.examples.tictactoe;
 
 import org.datavec.api.util.ClassPathResource;
 import org.nd4j.linalg.api.ndarray.INDArray;
@@ -17,7 +17,7 @@ import java.io.File;
 public class PlayTicTacToe extends JFrame {
 
     private String playerInformation = "FirstPlayer:X";
-    private JFrame frame = new JFrame("TicTacToe");
+    private JFrame frame = new JFrame("tictactoe");
     private JButton[] gridMoveButton = new JButton[9];
     private JButton startButton = new JButton("Start");
     private JButton switchButton = new JButton("Switch Player");
@@ -36,7 +36,7 @@ public class PlayTicTacToe extends JFrame {
     public PlayTicTacToe() throws HeadlessException {
         String filePath = "";
         try {
-            filePath = new ClassPathResource("TicTacToe").getFile().getAbsolutePath() + File.separator + "AllMoveWithReward.txt";
+            filePath = new ClassPathResource("tictactoe").getFile().getAbsolutePath() + File.separator + "AllMoveWithReward.txt";
         } catch (Exception e) {
             System.out.println("FilePathException" + e.toString());
         }
@@ -58,7 +58,7 @@ public class PlayTicTacToe extends JFrame {
     }
 
     /**
-     * Create the GUI for TicTacToe game with 9 move button,two utility button.
+     * Create the GUI for tictactoe game with 9 move button,two utility button.
      */
     private void renderGUI() {
 
