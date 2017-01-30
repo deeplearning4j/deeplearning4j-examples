@@ -44,7 +44,7 @@ public class TicTacToeData {
      */
     public static void main(String[] args) throws Exception {
 
-        String filePath = new ClassPathResource("tictactoe").getFile().getAbsolutePath() + File.separator + "AllMoveWithReward.txt";
+        String filePath = new ClassPathResource("TicTacToe").getFile().getAbsolutePath() + File.separator + "AllMoveWithReward.txt";
 
         TicTacToeData data = new TicTacToeData();
 
