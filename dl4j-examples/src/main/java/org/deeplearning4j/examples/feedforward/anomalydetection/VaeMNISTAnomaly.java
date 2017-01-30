@@ -1,6 +1,5 @@
 package org.deeplearning4j.examples.feedforward.anomalydetection;
 
-import org.deeplearning4j.api.storage.StatsStorage;
 import org.deeplearning4j.berkeley.Pair;
 import org.deeplearning4j.datasets.iterator.impl.MnistDataSetIterator;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
@@ -11,9 +10,6 @@ import org.deeplearning4j.nn.conf.layers.variational.VariationalAutoencoder;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
 import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
-import org.deeplearning4j.ui.api.UIServer;
-import org.deeplearning4j.ui.stats.StatsListener;
-import org.deeplearning4j.ui.storage.InMemoryStatsStorage;
 import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.api.DataSet;
@@ -41,7 +37,7 @@ import java.util.*;
  * After unsupervised training, examples are scored using the VAE layer (reconstruction probability). Here, we are using the
  * labels to get the examples with the highest and lowest reconstruction probabilities for each digit for plotting. In a general
  * unsupervised anomaly detection situation, these labels would not be available, and hence highest/lowest probabilities
- * errors for the entire data set would be used instead.
+ * for the entire data set would be used instead.
  *
  * @author Alex Black
  */
@@ -81,10 +77,6 @@ public class VaeMNISTAnomaly {
         net.init();
 
         net.setListeners(new ScoreIterationListener(100));
-        StatsStorage statsStorage = new InMemoryStatsStorage();             //Alternative: new FileStatsStorage(File) - see UIStorageExample
-        int listenerFrequency = 10;
-        net.setListeners(new StatsListener(statsStorage, listenerFrequency));
-        UIServer.getInstance().attach(statsStorage);
 
         //Fit the data (unsupervised training)
         for( int i=0; i<nEpochs; i++ ){
@@ -93,8 +85,8 @@ public class VaeMNISTAnomaly {
         }
 
 
-        //Perform anomaly detection on the test set, by calculating the reconstruction error for each example
-        //Then add pair (reconstruction error, INDArray data) to lists and sort by score
+        //Perform anomaly detection on the test set, by calculating the reconstruction probability for each example
+        //Then add pair (reconstruction probability, INDArray data) to lists and sort by score
         //This allows us to get best N and worst N digits for each digit type
 
         DataSetIterator testIter = new MnistDataSetIterator(minibatchSize, false, rngSeed);
