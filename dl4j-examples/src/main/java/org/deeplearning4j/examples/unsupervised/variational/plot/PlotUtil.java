@@ -27,6 +27,75 @@ import java.util.List;
  */
 public class PlotUtil {
 
+    public static void scatterPlot(List<List<double[]>> data, double axisMin, double axisMax, String title ){
+
+        int nClasses = data.size();
+
+        XYSeries[] series = new XYSeries[nClasses];
+        for( int i=0; i<nClasses; i++){
+            series[i] = new XYSeries(String.valueOf(i));
+        }
+        for( int i=0; i<nClasses; i++ ){
+            for(double[] d : data.get(i)){
+                series[i].add(d[0], d[1]);
+            }
+        }
+
+        XYSeriesCollection dataset = new XYSeriesCollection();
+        for( XYSeries s : series) dataset.addSeries(s);
+
+        JFreeChart chart = ChartFactory.createScatterPlot(title,
+            "X", "Y", dataset, PlotOrientation.VERTICAL, true, true, false);
+
+        XYPlot plot = (XYPlot) chart.getPlot();
+        plot.getRenderer().setBaseOutlineStroke(new BasicStroke(0));
+        plot.setNoDataMessage("NO DATA");
+
+        plot.setDomainPannable(false);
+        plot.setRangePannable(false);
+        plot.setDomainZeroBaselineVisible(true);
+        plot.setRangeZeroBaselineVisible(true);
+
+        plot.setDomainGridlineStroke(new BasicStroke(0.0f));
+        plot.setDomainMinorGridlineStroke(new BasicStroke(0.0f));
+        plot.setDomainGridlinePaint(Color.blue);
+        plot.setRangeGridlineStroke(new BasicStroke(0.0f));
+        plot.setRangeMinorGridlineStroke(new BasicStroke(0.0f));
+        plot.setRangeGridlinePaint(Color.blue);
+
+        plot.setDomainMinorGridlinesVisible(true);
+        plot.setRangeMinorGridlinesVisible(true);
+
+        XYLineAndShapeRenderer renderer
+            = (XYLineAndShapeRenderer) plot.getRenderer();
+        renderer.setSeriesOutlinePaint(0, Color.black);
+        renderer.setUseOutlinePaint(true);
+        NumberAxis domainAxis = (NumberAxis) plot.getDomainAxis();
+        domainAxis.setAutoRangeIncludesZero(false);
+        domainAxis.setRange(axisMin, axisMax);
+
+        domainAxis.setTickMarkInsideLength(2.0f);
+        domainAxis.setTickMarkOutsideLength(2.0f);
+
+        domainAxis.setMinorTickCount(2);
+        domainAxis.setMinorTickMarksVisible(true);
+
+        NumberAxis rangeAxis = (NumberAxis) plot.getRangeAxis();
+        rangeAxis.setTickMarkInsideLength(2.0f);
+        rangeAxis.setTickMarkOutsideLength(2.0f);
+        rangeAxis.setMinorTickCount(2);
+        rangeAxis.setMinorTickMarksVisible(true);
+        rangeAxis.setRange(axisMin, axisMax);
+
+
+        JPanel panel = new ChartPanel(chart);
+        final JFrame f = new JFrame();
+        f.add(panel);
+        f.pack();
+        f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        f.setVisible(true);
+    }
+
     public static void plotData(List<INDArray> xyVsIter, INDArray labels, double axisMin, double axisMax, int plotFrequency){
 
         JPanel panel = new ChartPanel(createChart(xyVsIter.get(0), labels, axisMin, axisMax));
