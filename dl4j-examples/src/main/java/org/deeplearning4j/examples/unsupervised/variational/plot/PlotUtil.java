@@ -1,5 +1,6 @@
 package org.deeplearning4j.examples.unsupervised.variational.plot;
 
+import org.deeplearning4j.berkeley.Pair;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -27,72 +28,55 @@ import java.util.List;
  */
 public class PlotUtil {
 
-    public static void scatterPlot(List<List<double[]>> data, double axisMin, double axisMax, String title ){
+    //Scatterplot util used for CenterLossMnistExample
+    public static void scatterPlot(List<Pair<INDArray,INDArray>> data, List<Integer> epochCounts, String title ){
+        double xMin = Double.MAX_VALUE;
+        double xMax = -Double.MAX_VALUE;
+        double yMin = Double.MAX_VALUE;
+        double yMax = -Double.MAX_VALUE;
 
-        int nClasses = data.size();
-
-        XYSeries[] series = new XYSeries[nClasses];
-        for( int i=0; i<nClasses; i++){
-            series[i] = new XYSeries(String.valueOf(i));
+        for(Pair<INDArray,INDArray> p : data){
+            INDArray maxes = p.getFirst().max(0);
+            INDArray mins = p.getFirst().min(0);
+            xMin = Math.min(xMin, mins.getDouble(0));
+            xMax = Math.max(xMax, maxes.getDouble(0));
+            yMin = Math.min(yMin, mins.getDouble(1));
+            yMax = Math.max(yMax, maxes.getDouble(1));
         }
-        for( int i=0; i<nClasses; i++ ){
-            for(double[] d : data.get(i)){
-                series[i].add(d[0], d[1]);
-            }
-        }
 
-        XYSeriesCollection dataset = new XYSeriesCollection();
-        for( XYSeries s : series) dataset.addSeries(s);
+        double plotMin = Math.min(xMin, yMin);
+        double plotMax = Math.max(xMax, yMax);
 
-        JFreeChart chart = ChartFactory.createScatterPlot(title,
-            "X", "Y", dataset, PlotOrientation.VERTICAL, true, true, false);
+        JPanel panel = new ChartPanel(createChart(data.get(0).getFirst(), data.get(0).getSecond(), plotMin, plotMax, title + " (epoch " + epochCounts.get(0) + ")"));
+        JSlider slider = new JSlider(0,epochCounts.size()-1,0);
+        slider.setSnapToTicks(true);
 
-        XYPlot plot = (XYPlot) chart.getPlot();
-        plot.getRenderer().setBaseOutlineStroke(new BasicStroke(0));
-        plot.setNoDataMessage("NO DATA");
-
-        plot.setDomainPannable(false);
-        plot.setRangePannable(false);
-        plot.setDomainZeroBaselineVisible(true);
-        plot.setRangeZeroBaselineVisible(true);
-
-        plot.setDomainGridlineStroke(new BasicStroke(0.0f));
-        plot.setDomainMinorGridlineStroke(new BasicStroke(0.0f));
-        plot.setDomainGridlinePaint(Color.blue);
-        plot.setRangeGridlineStroke(new BasicStroke(0.0f));
-        plot.setRangeMinorGridlineStroke(new BasicStroke(0.0f));
-        plot.setRangeGridlinePaint(Color.blue);
-
-        plot.setDomainMinorGridlinesVisible(true);
-        plot.setRangeMinorGridlinesVisible(true);
-
-        XYLineAndShapeRenderer renderer
-            = (XYLineAndShapeRenderer) plot.getRenderer();
-        renderer.setSeriesOutlinePaint(0, Color.black);
-        renderer.setUseOutlinePaint(true);
-        NumberAxis domainAxis = (NumberAxis) plot.getDomainAxis();
-        domainAxis.setAutoRangeIncludesZero(false);
-        domainAxis.setRange(axisMin, axisMax);
-
-        domainAxis.setTickMarkInsideLength(2.0f);
-        domainAxis.setTickMarkOutsideLength(2.0f);
-
-        domainAxis.setMinorTickCount(2);
-        domainAxis.setMinorTickMarksVisible(true);
-
-        NumberAxis rangeAxis = (NumberAxis) plot.getRangeAxis();
-        rangeAxis.setTickMarkInsideLength(2.0f);
-        rangeAxis.setTickMarkOutsideLength(2.0f);
-        rangeAxis.setMinorTickCount(2);
-        rangeAxis.setMinorTickMarksVisible(true);
-        rangeAxis.setRange(axisMin, axisMax);
-
-
-        JPanel panel = new ChartPanel(chart);
         final JFrame f = new JFrame();
-        f.add(panel);
+        slider.addChangeListener(new ChangeListener() {
+
+            private JPanel lastPanel = panel;
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                JSlider slider = (JSlider)e.getSource();
+                int  value = slider.getValue();
+                JPanel panel = new ChartPanel(createChart(data.get(value).getFirst(), data.get(value).getSecond(), plotMin, plotMax, title + " (epoch " + epochCounts.get(value) + ")"));
+                if(lastPanel != null){
+                    f.remove(lastPanel);
+                }
+                lastPanel = panel;
+                f.add(panel, BorderLayout.CENTER);
+                f.setTitle(title);
+                f.revalidate();
+            }
+        });
+
+        f.setLayout(new BorderLayout());
+        f.add(slider, BorderLayout.NORTH);
+        f.add(panel, BorderLayout.CENTER);
+        f.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         f.pack();
-        f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        f.setTitle(title);
+
         f.setVisible(true);
     }
 
@@ -157,10 +141,14 @@ public class PlotUtil {
     }
 
     private static JFreeChart createChart(INDArray features, INDArray labels, double axisMin, double axisMax) {
+        return createChart(features, labels, axisMin, axisMax, "Variational Autoencoder Latent Space - MNIST Test Set");
+    }
+
+    private static JFreeChart createChart(INDArray features, INDArray labels, double axisMin, double axisMax, String title ) {
 
         XYDataset dataset = createDataSet(features, labels);
 
-        JFreeChart chart = ChartFactory.createScatterPlot("Variational Autoencoder Latent Space - MNIST Test Set",
+        JFreeChart chart = ChartFactory.createScatterPlot(title,
             "X", "Y", dataset, PlotOrientation.VERTICAL, true, true, false);
 
         XYPlot plot = (XYPlot) chart.getPlot();
