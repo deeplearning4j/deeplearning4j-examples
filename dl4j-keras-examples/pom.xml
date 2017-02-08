@@ -2,16 +2,34 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>org.deeplearning4j</groupId>
     <artifactId>dl4j-keras-examples</artifactId>
+    <modelVersion>4.0.0</modelVersion>
+    <version>0.7.3-SNAPSHOT</version>
+    <packaging>jar</packaging>
 
-    <parent>
-        <groupId>org.deeplearning4j</groupId>
-        <artifactId>deeplearning4j-examples-parent</artifactId>
-        <version>0.7-SNAPSHOT</version>
-    </parent>
-
-    <name>DeepLearning4j Keras Examples</name>
+    <name>DeepLearning4j Keras Example</name>
+    <description>Running Keras example on Docker</description>
+    <properties>
+        <!-- Change the nd4j.backend property to nd4j-cuda-7.5-platform or nd4j-cuda-8.0-platform to use CUDA GPUs -->
+        <nd4j.backend>nd4j-native</nd4j.backend>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <shadedClassifier>bin</shadedClassifier>
+        <java.version>1.8</java.version>
+        <javacpp-presets.version>1.3</javacpp-presets.version>
+        <nd4j.version>0.7.3-SNAPSHOT</nd4j.version>
+        <dl4j.version>0.7.3-SNAPSHOT</dl4j.version>
+        <datavec.version>0.7.2</datavec.version>
+        <py4j.version>0.10.4</py4j.version>
+        <guava.version>19.0</guava.version>
+        <logback.version>1.1.7</logback.version>
+        <jfreechart.version>1.0.13</jfreechart.version>
+        <jcommon.version>1.0.23</jcommon.version>
+        <maven-shade-plugin.version>2.4.3</maven-shade-plugin.version>
+        <exec-maven-plugin.version>1.4.0</exec-maven-plugin.version>
+        <maven.minimum.version>3.3.1</maven.minimum.version>
+    </properties>
 
     <repositories>
         <repository>
@@ -64,6 +82,7 @@
         <dependency>
             <groupId>org.nd4j</groupId>
             <artifactId>${nd4j.backend}</artifactId>
+            <version>${nd4j.version}</version>
         </dependency>
 
         <!-- Core DL4J functionality -->
@@ -71,13 +90,24 @@
             <groupId>org.deeplearning4j</groupId>
             <artifactId>deeplearning4j-core</artifactId>
             <version>${dl4j.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.deeplearning4j</groupId> <!-- Exclude Project-D from Project-B -->
+                    <artifactId>deeplearning4j-ui-components</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
-        <!-- deeplearning4j-keras is used to start the DL4J server that backs keras -->
         <dependency>
-            <groupId>org.deeplearning4j</groupId>
-            <artifactId>deeplearning4j-keras</artifactId>
-            <version>${dl4j.version}</version>
+            <groupId>net.sf.py4j</groupId>
+            <artifactId>py4j</artifactId>
+            <version>${py4j.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.bytedeco.javacpp-presets</groupId>
+            <artifactId>hdf5-platform</artifactId>
+            <version>1.10.0-patch1-${javacpp-presets.version}</version>
         </dependency>
     </dependencies>
 
@@ -133,6 +163,8 @@
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                                 </transformer>
                             </transformers>
+                            <finalName>${project.artifactId}</finalName>
+                            <outputDirectory>./target</outputDirectory>
                         </configuration>
                     </execution>
                 </executions>

@@ -2,8 +2,8 @@
 #
 # Based on the https://deeplearning4j.org/buildinglocally guide
 
-FROM maven:alpine
-MAINTAINER pkoperek@gmail.com
+FROM anapsix/alpine-java:8_jdk
+MAINTAINER Justin Long @crockpotveggies
 
 RUN echo http://dl-cdn.alpinelinux.org/alpine/edge/community >> /etc/apk/repositories
 RUN echo http://dl-cdn.alpinelinux.org/alpine/edge/testing >> /etc/apk/repositories
@@ -22,13 +22,46 @@ RUN ln -s /usr/include/locale.h /usr/include/xlocale.h
 RUN pip install keras
 RUN pip install h5py py4j xxhash
 
+
+# Install maven
+ENV MAVEN_VERSION="3.2.5" \
+    M2_HOME=/usr/lib/mvn
+
+RUN apk add --update wget && \
+  cd /tmp && \
+  wget "http://ftp.unicamp.br/pub/apache/maven/maven-3/$MAVEN_VERSION/binaries/apache-maven-$MAVEN_VERSION-bin.tar.gz" && \
+  tar -zxvf "apache-maven-$MAVEN_VERSION-bin.tar.gz" && \
+  mv "apache-maven-$MAVEN_VERSION" "$M2_HOME" && \
+  ln -s "$M2_HOME/bin/mvn" /usr/bin/mvn && \
+  apk del wget && \
+  rm /tmp/* /var/cache/apk/*
+
+#
+# build DL4J stack
+#
+
+# libnd4j
+RUN git clone --depth 1 https://github.com/deeplearning4j/libnd4j.git
+RUN cd libnd4j && ./buildnativeoperations.sh && cd ..
+
+ENV LIBND4J_HOME /libnd4j
+
+# nd4j
+RUN git clone --depth 1 https://github.com/deeplearning4j/nd4j.git
+RUN cd nd4j && mvn clean install -DskipTests -Dmaven.javadoc.skip=true -pl '!:nd4j-cuda-8.0,!:nd4j-cuda-8.0-platform,!:nd4j-tests' && cd ..
+
+# datavec
+RUN git clone --depth 1 https://github.com/deeplearning4j/datavec.git
+RUN cd datavec && mvn clean install -DskipTests -Dmaven.javadoc.skip=true && cd ..
+
+# test resources
+RUN git clone --depth 1 https://github.com/deeplearning4j/dl4j-test-resources.git
+RUN cd dl4j-test-resources && mvn clean install && cd ..
+
 # deeplearning4j
 # RUN git clone --depth 1 https://github.com/deeplearning4j/deeplearning4j.git
-RUN git clone --depth 1 -b keras-dl4j-api https://github.com/crockpotveggies/deeplearning4j.git; echo "20170202-2"
-
-# main server
-RUN git clone --depth 1 https://github.com/crockpotveggies/dl4j-examples.git
-RUN cd dl4j-examples/deeplearning4j-keras-examples && mvn --settings /usr/share/maven/ref/settings-docker.xml clean install -DskipTests -Dmaven.javadoc.skip=true -p 'deeplearning4j-keras-examples'  && cd ../../
+RUN git clone --depth 1 -b keras-dl4j-api https://github.com/crockpotveggies/deeplearning4j.git; echo "20170207-6"
+RUN cd deeplearning4j && mvn clean install -DskipTests -Dmaven.javadoc.skip=true -pl '!:deeplearning4j-cuda-8.0,!:deeplearning4j-ui-parent,!:deeplearning4j-ui_2.10,!:deeplearning4j-ui-remote-iterationlisteners,!:deeplearning4j-nlp-uima' && cd ..
 
 #
 # keras-dl4j stuff
@@ -38,7 +71,11 @@ RUN cd dl4j-examples/deeplearning4j-keras-examples && mvn --settings /usr/share/
 RUN mkdir /keras-dl4j /root/.keras
 COPY ./keras.json /root/.keras
 ADD . /keras-dl4j
-RUN cp deeplearning4j/python/. /keras-dl4j
+RUN cp -r /deeplearning4j/python/kerasdl4j /keras-dl4j/kerasdl4j
+RUN cp -r /deeplearning4j/deeplearning4j-keras/src /keras-dl4j/
+# compile server
+RUN cd keras-dl4j && mvn package && cd ..
+# install python code
 RUN cd keras-dl4j && python setup.py sdist && pip install dist/kerasdl4j*tar.gz && cd ..
 
 EXPOSE 8888
