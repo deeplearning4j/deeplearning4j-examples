@@ -49,6 +49,7 @@ Y_test = np_utils.to_categorical(y_test, nb_classes)
 
 model = Sequential()
 
+# installs the DL4J backend to your model instance
 dl4j.install_dl4j_backend(model)
 
 model.add(Convolution2D(nb_filters, kernel_size[0], kernel_size[1],
@@ -78,7 +79,8 @@ model.fit(
     batch_size=batch_size,
     nb_epoch=nb_epoch,
     verbose=1,
-    validation_data=(X_test, Y_test))
+    validation_data=(X_test, Y_test),
+    nb_classes=nb_classes)
 
 score = model.evaluate(X_test, Y_test, verbose=0)
 

@@ -17,6 +17,8 @@ Note the `dl4j.install_dl4j_backend()`. You'll need to pass your model reference
 
 ## Pre-built Docker
 
+*Coming soon*
+
 ```sh
     $ docker pull {subject}-docker-{repo}.bintray.io/[{namespace}/]{docker_repo}[:{version}]
     $ docker run -it {subject}-docker-{repo}.bintray.io/[{namespace}/]{docker_repo}[:{version}]
