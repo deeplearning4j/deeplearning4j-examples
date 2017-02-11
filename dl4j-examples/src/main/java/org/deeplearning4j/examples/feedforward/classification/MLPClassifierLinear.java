@@ -46,15 +46,18 @@ public class MLPClassifierLinear {
         int numOutputs = 2;
         int numHiddenNodes = 20;
 
+        final String filenameTrain  = new ClassPathResource("/classification/linear_data_train.csv").getFile().getPath();
+        final String filenameTest  = new ClassPathResource("/classification/linear_data_eval.csv").getFile().getPath();
+
         //Load the training data:
         RecordReader rr = new CSVRecordReader();
 //        rr.initialize(new FileSplit(new File("src/main/resources/classification/linear_data_train.csv")));
-        rr.initialize(new FileSplit(new File("dl4j-examples/src/main/resources/classification/linear_data_train.csv")));
+        rr.initialize(new FileSplit(new File(filenameTrain)));
         DataSetIterator trainIter = new RecordReaderDataSetIterator(rr,batchSize,0,2);
 
         //Load the test/evaluation data:
         RecordReader rrTest = new CSVRecordReader();
-        rrTest.initialize(new FileSplit(new File("dl4j-examples/src/main/resources/classification/linear_data_eval.csv")));
+        rrTest.initialize(new FileSplit(new File(filenameTest)));
         DataSetIterator testIter = new RecordReaderDataSetIterator(rrTest,batchSize,0,2);
 
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
