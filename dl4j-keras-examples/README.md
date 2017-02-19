@@ -29,8 +29,8 @@ Note the `dl4j.install_dl4j_backend()`. You'll need to pass your model reference
 Once you've pulled your image, you will need to grab the Jupyter token from the console. Note that you will
  need the console for Deeplearning4j output when `model.fit()` and other Keras operations are running.
 
-For convenience, the Kitematic interface can quickly link you to the correct web port running Jupyter and include buttons
- to access both an interactive shell within the container and console output.
+For convenience, the Kitematic interface allows you to view console output, open Jupyter in your web browser on the
+ correct web port, and access an interactive shell.
 
 ![Docker resource management](https://raw.githubusercontent.com/crockpotveggies/dl4j-examples/keras-examples/dl4j-keras-examples/src/main/resources/kitematic-provisioning.jpg)
 
