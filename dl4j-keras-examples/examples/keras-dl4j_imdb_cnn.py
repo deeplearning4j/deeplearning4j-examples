@@ -16,6 +16,8 @@ from keras.layers import Convolution1D, GlobalMaxPooling1D
 from keras.datasets import imdb
 from kerasdl4j import backend as dl4j
 
+raise ValueError("1D convolutions are by Deeplearning4j, but is under active development. Please let us know on Gitter if you have feedback about this feature.")
+
 # set parameters:
 max_features = 5000
 maxlen = 400

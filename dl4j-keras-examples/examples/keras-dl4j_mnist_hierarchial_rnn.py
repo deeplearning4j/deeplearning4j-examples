@@ -15,6 +15,8 @@ from keras.layers import LSTM
 from keras.utils import np_utils
 from kerasdl4j import backend as dl4j
 
+raise ValueError("TimeDistributed is unsupported by Deeplearning4j, but is under active development. Please let us know on Gitter if you have feedback about this feature.")
+
 # Training parameters.
 batch_size = 32
 nb_classes = 10
