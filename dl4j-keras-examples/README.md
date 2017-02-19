@@ -6,9 +6,11 @@ and save your model. Both Functional and Sequential models are supported.
 
 ## Using
 
-Jupyter is the simplest way to play with this example. Build and run the included Dockerfile (you may also download
+![Docker resource management](https://raw.githubusercontent.com/crockpotveggies/dl4j-examples/keras-examples/dl4j-keras-examples/src/main/resources/jupyter-home.jpg)
+
+Jupyter is the simplest way to use this example. Build and run the included Dockerfile (you may also download
 a pre-built one from Deeplearning4j's BinTray repository, instructions below). Once the container is running, copy
-the token logged to the console and open the URL given (you may need to map your Docker port).
+the token printed to the console and open the URL given (you may need to map your Docker port).
 
 Inside Jupyter there will be several examples you can run. Copy the code into a Python Notebook and execute.
 
@@ -17,18 +19,35 @@ Note the `dl4j.install_dl4j_backend()`. You'll need to pass your model reference
 
 ## Pre-built Docker
 
-*Coming soon*
-
 ```sh
-    $ docker pull {subject}-docker-{repo}.bintray.io/[{namespace}/]{docker_repo}[:{version}]
-    $ docker run -it {subject}-docker-{repo}.bintray.io/[{namespace}/]{docker_repo}[:{version}]
+    $ docker pull skymindio-docker-dl4j-examples.bintray.io/keras-dl4j:latest
+    $ docker run -it skymindio-docker-dl4j-examples.bintray.io/keras-dl4j:latest
 ```
+
+## Running
+
+Once you've pulled your image, you will need to grab the Jupyter token from the console. Note that you will
+ need the console for Deeplearning4j output when `model.fit()` and other Keras operations are running.
+
+For convenience, the Kitematic interface can quickly link you to the correct web port running Jupyter and include buttons
+ to access both an interactive shell within the container and console output.
+
+![Docker resource management](https://raw.githubusercontent.com/crockpotveggies/dl4j-examples/keras-examples/dl4j-keras-examples/src/main/resources/kitematic-provisioning.jpg)
+
+## System Resources
+
+If you're using the Docker GUI installed on your machine, you may need to increase the memory and CPU available to
+your container. We suggest using at least 8GB of RAM and 2 CPUs.
+
+![Docker resource management](https://raw.githubusercontent.com/crockpotveggies/dl4j-examples/keras-examples/dl4j-keras-examples/src/main/resources/docker-provisioning.jpg)
+
+Otherwise, consult the [Docker documentation](https://docs.docker.com) for increasing available resources for your container.
 
 ## Local Dockerfile
 
 Build the image:
 ```sh
-    $ docker build . -t keras-dl4j
+    $ docker build  -t keras-dl4j .
 ```
 
 Bring it up:
