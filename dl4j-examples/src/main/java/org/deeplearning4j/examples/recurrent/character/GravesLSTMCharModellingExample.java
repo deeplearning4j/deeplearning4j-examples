@@ -207,13 +207,19 @@ public class GravesLSTMCharModellingExample {
 	 * @param distribution Probability distribution over classes. Must sum to 1.0
 	 */
 	public static int sampleFromDistribution( double[] distribution, Random rng ){
-		double d = rng.nextDouble();
-		double sum = 0.0;
-		for( int i=0; i<distribution.length; i++ ){
-			sum += distribution[i];
-			if( d <= sum ) return i;
-		}
-		//Should never happen if distribution is a valid probability distribution
+	    double d = 0.0;
+	    double sum = 0.0;
+	    for( int t=0; t<10; t++ ) {
+            d = rng.nextDouble();
+            sum = 0.0;
+            for( int i=0; i<distribution.length; i++ ){
+                sum += distribution[i];
+                if( d <= sum ) return i;
+            }
+            //If we haven't found the right index yet, maybe the sum is slightly
+            //lower than 1 due to rounding error, so try again.
+        }
+		//Should be extremely unlikely to happen if distribution is a valid probability distribution
 		throw new IllegalArgumentException("Distribution is invalid? d="+d+", sum="+sum);
 	}
 }
