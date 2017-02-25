@@ -102,6 +102,8 @@ public class DistributedWord2VecExample {
             .setModelExporter(exporter)
             .epochs(1)
             .workers(1)
+            .useHierarchicSoftmax(false)
+            .negativeSampling(10)
             .build();
 
         word2Vec.fitSentences(corpus);
