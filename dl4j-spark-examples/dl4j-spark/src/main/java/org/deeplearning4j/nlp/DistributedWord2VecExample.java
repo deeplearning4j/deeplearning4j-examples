@@ -83,6 +83,7 @@ public class DistributedWord2VecExample {
         VoidConfiguration paramServerConfig = VoidConfiguration.builder()
             //.networkMask("172.16.0.0/12")
             //.shardAddresses(Arrays.asList("172.31.8.139:48381"))
+            .numberOfShards(2)
             .ttl(4)
             .build();
 
@@ -100,6 +101,7 @@ public class DistributedWord2VecExample {
             .setTokenizerFactory(t)
             .setLearningAlgorithm(new SparkCBOW())
             .setModelExporter(exporter)
+            .layerSize(113)
             .epochs(1)
             .workers(1)
             .useHierarchicSoftmax(false)
@@ -114,6 +116,7 @@ public class DistributedWord2VecExample {
             Just checking out what we have now. In ideal world it should be something like this:
             nearest words to 'day': [week, night, game, year, former, season, director, office, university, time]
          */
+        log.info("VectorLength: {}", w2v.getWordVectorMatrix("day").length());
         log.info("day/night: {}", Transforms.cosineSim(w2v.getWordVectorMatrix("day"), w2v.getWordVectorMatrix("night")));
         log.info("one/two: {}", Transforms.cosineSim(w2v.getWordVectorMatrix("one"), w2v.getWordVectorMatrix("two")));
         log.info("nearest words to 'one': {}", w2v.wordsNearest("one",10));
