@@ -22,16 +22,6 @@ RUN ln -s /usr/include/locale.h /usr/include/xlocale.h
 RUN pip install keras
 RUN pip install h5py py4j xxhash
 
-# Patch w/ python 3
-RUN apk add --upgrade --no-cache python3-dev && \
-    python3 -m ensurepip && \
-    rm -r /usr/lib/python*/ensurepip && \
-    pip3 install --upgrade pip setuptools && \
-    rm -r /root/.cache
-
-RUN pip3 install jupyter
-RUN ipython3 kernelspec install-self
-
 
 # Install maven
 ENV MAVEN_VERSION="3.2.5" \
@@ -45,6 +35,19 @@ RUN apk add --update wget && \
   ln -s "$M2_HOME/bin/mvn" /usr/bin/mvn && \
   apk del wget && \
   rm /tmp/* /var/cache/apk/*
+
+# Patch w/ python 3
+RUN apk add --upgrade --no-cache python3-dev && \
+    python3 -m ensurepip && \
+    rm -r /usr/lib/python*/ensurepip && \
+    pip3 install --upgrade pip setuptools && \
+    rm -r /root/.cache
+
+RUN pip3 install jupyter
+
+# install both python kernels
+RUN ipython3 kernelspec install-self
+RUN ipython2 kernelspec install-self
 
 #
 # build DL4J stack
