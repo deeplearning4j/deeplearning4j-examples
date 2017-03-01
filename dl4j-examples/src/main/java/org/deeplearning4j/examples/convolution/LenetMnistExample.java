@@ -13,6 +13,7 @@ import org.deeplearning4j.nn.conf.layers.OutputLayer;
 import org.deeplearning4j.nn.conf.layers.SubsamplingLayer;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
+import org.deeplearning4j.optimize.listeners.PerformanceListener;
 import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
 import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.api.ndarray.INDArray;
@@ -32,7 +33,7 @@ public class LenetMnistExample {
         int nChannels = 1; // Number of input channels
         int outputNum = 10; // The number of possible outcomes
         int batchSize = 64; // Test batch size
-        int nEpochs = 1; // Number of training epochs
+        int nEpochs = 10; // Number of training epochs
         int iterations = 1; // Number of training iterations
         int seed = 123; //
 
@@ -109,11 +110,13 @@ public class LenetMnistExample {
 
 
         log.info("Train model....");
-        model.setListeners(new ScoreIterationListener(1));
+        model.setListeners(new PerformanceListener(25, true));
         for( int i=0; i<nEpochs; i++ ) {
+            long time1 = System.currentTimeMillis();
             model.fit(mnistTrain);
-            log.info("*** Completed epoch {} ***", i);
-
+            long time2 = System.currentTimeMillis();
+            log.info("*** Completed epoch {}; Time: {} ms ***", i, time2 - time1);
+/*
             log.info("Evaluate model....");
             Evaluation eval = new Evaluation(outputNum);
             while(mnistTest.hasNext()){
@@ -124,6 +127,7 @@ public class LenetMnistExample {
             }
             log.info(eval.stats());
             mnistTest.reset();
+            */
         }
         log.info("****************Example finished********************");
     }

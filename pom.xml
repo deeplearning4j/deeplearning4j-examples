@@ -11,7 +11,7 @@
     <description>Examples of training different data sets</description>
     <properties>
         <!-- Change the nd4j.backend property to nd4j-cuda-7.5-platform or nd4j-cuda-8.0-platform to use CUDA GPUs -->
-        <nd4j.backend>nd4j-native</nd4j.backend>
+        <nd4j.backend>nd4j-cuda-8.0</nd4j.backend>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <shadedClassifier>bin</shadedClassifier>
         <java.version>1.8</java.version>
@@ -31,8 +31,9 @@
     <modules>
         <module>dl4j-examples</module>
         <module>dl4j-spark-examples</module>
-        <!-- <module>datavec-examples</module>
         <module>dl4j-cuda-specific-examples</module>
+        <!-- <module>datavec-examples</module>
+
         <module>nd4j-examples</module>
         <module>rl4j-examples</module>
         <module>arbiter-examples</module> -->

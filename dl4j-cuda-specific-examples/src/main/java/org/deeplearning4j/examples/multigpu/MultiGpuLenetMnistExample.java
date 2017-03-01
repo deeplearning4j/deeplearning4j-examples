@@ -12,7 +12,9 @@ import org.deeplearning4j.nn.conf.layers.DenseLayer;
 import org.deeplearning4j.nn.conf.layers.OutputLayer;
 import org.deeplearning4j.nn.conf.layers.SubsamplingLayer;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
+import org.deeplearning4j.nn.transferlearning.TransferLearning;
 import org.deeplearning4j.nn.weights.WeightInit;
+import org.deeplearning4j.optimize.listeners.PerformanceListener;
 import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
 import org.deeplearning4j.parallelism.ParallelWrapper;
 import org.nd4j.jita.conf.CudaEnvironment;
@@ -39,7 +41,7 @@ public class MultiGpuLenetMnistExample {
 
     public static void main(String[] args) throws Exception {
         // PLEASE NOTE: For CUDA FP16 precision support is available
-        DataTypeUtil.setDTypeForContext(DataBuffer.Type.HALF);
+        DataTypeUtil.setDTypeForContext(DataBuffer.Type.FLOAT);
 
         // temp workaround for backend initialization
         Nd4j.create(1);
@@ -49,7 +51,7 @@ public class MultiGpuLenetMnistExample {
             .allowMultiGPU(true)
 
             // we're allowing larger memory caches
-            .setMaximumDeviceCache(2L * 1024L * 1024L * 1024L)
+            .setMaximumDeviceCache(4L * 1024L * 1024L * 1024L)
 
             // cross-device access is used for faster model averaging over pcie
             .allowCrossDeviceAccess(true);
@@ -116,24 +118,28 @@ public class MultiGpuLenetMnistExample {
         // ParallelWrapper will take care of load balancing between GPUs.
         ParallelWrapper wrapper = new ParallelWrapper.Builder(model)
             // DataSets prefetching options. Set this value with respect to number of actual devices
-            .prefetchBuffer(24)
+            .prefetchBuffer(64)
 
             // set number of workers equal or higher then number of available devices. x1-x2 are good values to start with
-            .workers(4)
+            .workers(Nd4j.getAffinityManager().getNumberOfDevices())
 
             // rare averaging improves performance, but might reduce model accuracy
             .averagingFrequency(3)
 
+            .useMQ(true)
+
             // if set to TRUE, on every averaging model score will be reported
-            .reportScoreAfterAveraging(true)
+            .reportScoreAfterAveraging(false)
 
             // optinal parameter, set to false ONLY if your system has support P2P memory access across PCIe (hint: AWS do not support P2P)
-            .useLegacyAveraging(true)
+            .useLegacyAveraging(false)
 
             .build();
 
+
+
         log.info("Train model....");
-        model.setListeners(new ScoreIterationListener(100));
+        //model.setListeners(new PerformanceListener(100, true));
         long timeX = System.currentTimeMillis();
 
         // optionally you might want to use MultipleEpochsIterator instead of manually iterating/resetting over your iterator
