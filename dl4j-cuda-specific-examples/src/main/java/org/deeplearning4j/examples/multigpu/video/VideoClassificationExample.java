@@ -170,7 +170,7 @@ public class VideoClassificationExample {
             .prefetchBuffer(24)
 
             // set number of workers equal or higher then number of available devices. x1-x2 are good values to start with
-            .workers(4)
+            .workers(8)
 
             // rare averaging improves performance, but might reduce model accuracy
             .averagingFrequency(3)
