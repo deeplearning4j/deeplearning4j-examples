@@ -176,7 +176,7 @@ public class VideoClassificationExample {
             .averagingFrequency(3)
 
             // if set to TRUE, on every averaging model score will be reported
-            .reportScoreAfterAveraging(true)
+            .reportScoreAfterAveraging(true).useMQ(true)
 
             // optinal parameter, set to false ONLY if your system has support P2P memory access across PCIe (hint: AWS do not support P2P)
             .useLegacyAveraging(true)
