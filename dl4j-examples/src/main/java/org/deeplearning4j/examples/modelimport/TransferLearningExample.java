@@ -26,8 +26,9 @@ public class TransferLearningExample {
         //print model summary - will gave layer names, nIn, nOut etc
         log.info(vgg16.summary());
 
-        new TransferLearning()
+        ComputationGraph vgg16Transfer = new TransferLearning.GraphBuilder(vgg16).setFeatureExtractor("fc1").build;
 
+        log.info(vgg16Transfer.summary());
 
     }
 }

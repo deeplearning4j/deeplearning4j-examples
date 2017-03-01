@@ -18,7 +18,7 @@
         <nd4j.version>0.7.3-SNAPSHOT</nd4j.version>
         <dl4j.version>0.7.3-SNAPSHOT</dl4j.version>
         <datavec.version>0.7.3-SNAPSHOT</datavec.version>
-        <arbiter.version>0.7.2</arbiter.version>
+        <arbiter.version>0.7.3-SNAPSHOT</arbiter.version>
         <rl4j.version>0.7.2</rl4j.version>
         <guava.version>19.0</guava.version>
         <logback.version>1.1.7</logback.version>
@@ -31,12 +31,14 @@
 
     <modules>
         <module>dl4j-examples</module>
+		<!--
         <module>dl4j-spark-examples</module>
         <module>datavec-examples</module>
         <module>dl4j-cuda-specific-examples</module>
         <module>nd4j-examples</module>
         <module>rl4j-examples</module>
         <module>arbiter-examples</module>
+		-->
     </modules>
 
     <!-- Maven Enforcer: Ensures user has an up to date version of Maven before building -->
