@@ -65,6 +65,8 @@ public class VideoClassificationExample {
         String tempDir = System.getProperty("java.io.tmpdir");
         String dataDirectory = FilenameUtils.concat(tempDir, "DL4JVideoShapesExample/");   //Location to store generated data set
 
+        Nd4j.create(1);
+
         //Generate data: number of .mp4 videos for input, plus .txt files for the labels
         if (generateData) {
             System.out.println("Starting data generation...");
