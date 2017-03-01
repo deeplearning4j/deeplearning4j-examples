@@ -52,14 +52,14 @@ import java.util.Map;
  */
 public class VideoClassificationExample {
 
-    public static final int N_VIDEOS_TO_GENERATE = 500;
+    public static final int N_VIDEOS_TO_GENERATE = 100000;
     public static final int V_WIDTH = 130;
     public static final int V_HEIGHT = 130;
     public static final int V_NFRAMES = 150;
 
     public static void main(String[] args) throws Exception {
 
-        int miniBatchSize = 10;
+        int miniBatchSize = 10000;
         boolean generateData = true;
 
         String tempDir = System.getProperty("java.io.tmpdir");
@@ -213,7 +213,7 @@ public class VideoClassificationExample {
          */
         VideoGenerator.generateVideoData(path, "shapes", N_VIDEOS_TO_GENERATE,
                 V_NFRAMES, V_WIDTH, V_HEIGHT,
-                3,      //Number of shapes per video. Switches from one shape to another randomly over time
+                1000,      //Number of shapes per video. Switches from one shape to another randomly over time
                 false,   //Background noise. Significantly increases video file size
                 0,      //Number of distractors per frame ('distractors' are shapes show for one frame only)
                 12345L);    //Seed, for reproducability when generating data
@@ -228,7 +228,7 @@ public class VideoClassificationExample {
         labelMap.put(3, "line");
         Evaluation evaluation = new Evaluation(labelMap);
 
-        DataSetIterator testData = getDataSetIterator(outputDirectory, testStartIdx, nExamples, 10);
+        DataSetIterator testData = getDataSetIterator(outputDirectory, testStartIdx, nExamples, 1000);
         while(testData.hasNext()) {
             DataSet dsTest = testData.next();
             INDArray predicted = net.output(dsTest.getFeatureMatrix(), false);
