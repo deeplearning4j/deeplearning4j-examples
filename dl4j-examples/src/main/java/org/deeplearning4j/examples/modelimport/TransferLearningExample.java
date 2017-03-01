@@ -7,6 +7,7 @@ import org.deeplearning4j.nn.modelimport.keras.InvalidKerasConfigurationExceptio
 import org.deeplearning4j.nn.modelimport.keras.UnsupportedKerasConfigurationException;
 import org.deeplearning4j.nn.modelimport.keras.trainedmodels.TrainedModelHelper;
 import org.deeplearning4j.nn.modelimport.keras.trainedmodels.TrainedModels;
+import org.deeplearning4j.nn.transferlearning.TransferLearning;
 
 import java.io.IOException;
 
@@ -26,7 +27,7 @@ public class TransferLearningExample {
         //print model summary - will gave layer names, nIn, nOut etc
         log.info(vgg16.summary());
 
-        ComputationGraph vgg16Transfer = new TransferLearning.GraphBuilder(vgg16).setFeatureExtractor("fc1").build;
+        ComputationGraph vgg16Transfer = new TransferLearning.GraphBuilder(vgg16).setFeatureExtractor("fc1").build();
 
         log.info(vgg16Transfer.summary());
 
