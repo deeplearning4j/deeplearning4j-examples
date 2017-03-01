@@ -23,23 +23,55 @@ Note the `dl4j.install_dl4j_backend()`. You'll need to pass your model reference
 
 ```sh
     $ docker pull skymindio-docker-dl4j-examples.bintray.io/keras-dl4j:latest
-    $ docker run -it skymindio-docker-dl4j-examples.bintray.io/keras-dl4j:latest
 ```
 
-## Running
+## Step-by-step
 
-Once you've pulled your image, you will need to grab the Jupyter token from the console. Note that you will
- need the console for Deeplearning4j output when `model.fit()` and other Keras operations are running.
+* Install [Docker Toolbox](https://www.docker.com/products/docker-toolbox)
 
-For convenience, the Kitematic interface allows you to view console output, open Jupyter in your web browser on the
- correct web port, and access an interactive shell.
+During the install process, you will be offered the choice between the Docker Quickstart Terminal and Kitematic. Choose Kitematic, which will have you sign up for Docker Hub.
 
-![Docker resource management](https://raw.githubusercontent.com/crockpotveggies/dl4j-examples/keras-examples/dl4j-keras-examples/src/main/resources/kitematic-provisioning.jpg)
+* Git clone the dl4j-examples branch below with the following line:
+
+
+        git clone https://github.com/crockpotveggies/dl4j-examples --branch keras-examples --single-branch
+
+The main Kitematic dashboard will look like this.
+
+![kitematic dashboard](./img/kitematic-dashboard.png)
+
+Click on "My Images" on the upper right. One of your images then should be `keras-dl4j`.
+
+![kitematic my images](./img/kitematic-my-images.png)
+
+Click "Create".
+
+![kitematic provisioning](./img/kitematic-provisioning.jpg)
+
+Click on the icon on the upper right that will open a browser window for Jupyter using localhost. You'll get a screen that requires a Jupyter token, which you need to copy and paste from the bash console with Kitematic.
+
+![jupyter token](./img/jupyter-token.png)
+
+Once you paste your token in the field, you should see this.
+
+![jupyter home](./img/jupyter-home.jpg)
+
+Click on "New" on the upper right and select Python 2 under notebooks, which will open up a new notebook in a new tab.
+
+Click on the Reuters MLP example at the bottom of the file list. Copy the Keras code and paste it into the new Python 2 notebook. In that notebook, on the toolbar, select the "Run Cell" button with the arrow pointing right.
+
+![python notebook](./img/python-notebook.png)
+
+That's going to start printing out results and logs at the bottom of the notebook, which will look like this.
+
+![python notebook results](./img/python-notebook-results.png)
+
+While the results may say "loading Theano", we are actually hijacking Keras methods to make them run on the JVM with Py4J. 
 
 ## System Resources
 
 If you're using the Docker GUI installed on your machine, you may need to increase the memory and CPU available to
-your container. We suggest using at least 8GB of RAM and 2 CPUs.
+your container. Go to the menu bar of your laptop screen, click on the Docker whale icon, and select Preferences/Advanced. There, you can increase the amount of memory allocated to Docker. We suggest 8GB if you can spare them. If you do adjust the amount of memory allocated to Docker, you will need to restart it by clicking on the button on the lower right.
 
 ![Docker resource management](https://raw.githubusercontent.com/crockpotveggies/dl4j-examples/keras-examples/dl4j-keras-examples/src/main/resources/docker-provisioning.jpg)
 
