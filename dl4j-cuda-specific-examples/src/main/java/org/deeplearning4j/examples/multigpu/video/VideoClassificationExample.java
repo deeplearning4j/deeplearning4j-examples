@@ -60,7 +60,7 @@ public class VideoClassificationExample {
     public static void main(String[] args) throws Exception {
 
         int miniBatchSize = 10000;
-        boolean generateData = true;
+        boolean generateData = false;
 
         String tempDir = System.getProperty("java.io.tmpdir");
         String dataDirectory = FilenameUtils.concat(tempDir, "DL4JVideoShapesExample/");   //Location to store generated data set
