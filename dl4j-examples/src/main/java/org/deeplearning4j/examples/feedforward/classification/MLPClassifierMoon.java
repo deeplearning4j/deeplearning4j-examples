@@ -130,7 +130,7 @@ public class MLPClassifierMoon {
         INDArray predictionsAtXYPoints = model.output(allXYPoints);
 
         //Get all of the training data in a single array, and plot it:
-        rr.initialize(new FileSplit(new File("dl4j-examples/src/main/resources/classification/moon_data_train.csv")));
+        rr.initialize(new FileSplit(new ClassPathResource("/classification/moon_data_train.csv").getFile()));
         rr.reset();
         int nTrainPoints = 2000;
         trainIter = new RecordReaderDataSetIterator(rr,nTrainPoints,0,2);
@@ -139,7 +139,7 @@ public class MLPClassifierMoon {
 
 
         //Get test data, run the test data through the network to generate predictions, and plot those predictions:
-        rrTest.initialize(new FileSplit(new File("dl4j-examples/src/main/resources/classification/moon_data_eval.csv")));
+        rrTest.initialize(new FileSplit(new ClassPathResource("/classification/moon_data_eval.csv").getFile()));
         rrTest.reset();
         int nTestPoints = 1000;
         testIter = new RecordReaderDataSetIterator(rrTest,nTestPoints,0,2);

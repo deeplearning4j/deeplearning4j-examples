@@ -5,6 +5,7 @@ import org.apache.commons.io.FileUtils;
 import org.datavec.api.records.reader.SequenceRecordReader;
 import org.datavec.api.records.reader.impl.csv.CSVSequenceRecordReader;
 import org.datavec.api.split.NumberedFileInputSplit;
+import org.datavec.api.util.ClassPathResource;
 import org.deeplearning4j.datasets.datavec.SequenceRecordReaderDataSetIterator;
 import org.deeplearning4j.eval.RegressionEvaluation;
 import org.deeplearning4j.nn.api.OptimizationAlgorithm;
@@ -56,7 +57,15 @@ import java.util.List;
 public class MultiTimestepRegressionExample {
     private static final Logger LOGGER = LoggerFactory.getLogger(MultiTimestepRegressionExample.class);
 
-    private static File baseDir = new File("dl4j-examples/src/main/resources/rnnRegression");
+    private static File initBaseFile(String fileName) {
+        try {
+            return new ClassPathResource(fileName).getFile();
+        } catch (IOException e) {
+            throw new Error(e);
+        }
+    }
+
+    private static File baseDir = initBaseFile("/rnnRegression");
     private static File baseTrainDir = new File(baseDir, "multiTimestepTrain");
     private static File featuresDirTrain = new File(baseTrainDir, "features");
     private static File labelsDirTrain = new File(baseTrainDir, "labels");
