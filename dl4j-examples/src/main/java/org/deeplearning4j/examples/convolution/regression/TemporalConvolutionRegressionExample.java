@@ -53,6 +53,11 @@ import java.util.List;
  * time series forecasting using an LSTM. The only difference is the use of a 1D convolution
  * and max pooling layers instead of an LSTM layer.
  *
+ * The intention in this example is to replicate the behavior of an RNN, i.e., to output
+ * a prediction at every timestep. If we intended only to make a single prediction, e.g.,
+ * the next time step, then we could use a more flexible architecture (e.g., different
+ * convolution modes, global pooling, etc.).
+ *
  * The original example was inspired by Jason Brownlee's regression examples for Keras found at
  *
  * http://machinelearningmastery.com/time-series-prediction-lstm-recurrent-neural-networks-python-keras/
@@ -135,7 +140,7 @@ public class TemporalConvolutionRegressionExample {
             .layer(0, new Convolution1DLayer.Builder()
                 .kernelSize(7)
                 .stride(1)
-                .convolutionMode(ConvolutionMode.Same)
+                .convolutionMode(ConvolutionMode.Same) // ensures output is same length as input
                 .activation(Activation.RELU)
                 .nIn(numOfVariables)
                 .nOut(10)
@@ -143,8 +148,14 @@ public class TemporalConvolutionRegressionExample {
             .layer(1, new Subsampling1DLayer.Builder(PoolingType.MAX)
                 .kernelSize(3)
                 .stride(1)
-                .convolutionMode(ConvolutionMode.Same)
+                .convolutionMode(ConvolutionMode.Same) // ensures output is same length as input
                 .build())
+            /* Same output layer as the RNN version of this example. if we only wanted
+             * to output one prediction for the entire window, e.g., the next timestep,
+             * then we could use, e.g., truncated ConvolutionMode, more convolution
+             * and pooling layers, and even a global pooling layer, along with a simple
+             * dense output layer.
+             */
             .layer(2, new RnnOutputLayer.Builder(LossFunctions.LossFunction.MSE)
                 .activation(Activation.IDENTITY).nIn(10).nOut(numOfVariables).build())
             .setInputType(new InputType.InputTypeRecurrent(numOfVariables))
