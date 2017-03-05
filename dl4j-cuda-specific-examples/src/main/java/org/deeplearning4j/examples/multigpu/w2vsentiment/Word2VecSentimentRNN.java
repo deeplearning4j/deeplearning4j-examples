@@ -1,10 +1,12 @@
 package org.deeplearning4j.examples.multigpu.w2vsentiment;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
+import org.deeplearning4j.datasets.iterator.MultipleEpochsIterator;
 import org.deeplearning4j.eval.Evaluation;
 import org.deeplearning4j.models.embeddings.loader.WordVectorSerializer;
 import org.deeplearning4j.models.embeddings.wordvectors.WordVectors;
@@ -16,9 +18,12 @@ import org.deeplearning4j.nn.conf.layers.GravesLSTM;
 import org.deeplearning4j.nn.conf.layers.RnnOutputLayer;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
+import org.deeplearning4j.optimize.listeners.PerformanceListener;
 import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
 import org.deeplearning4j.parallelism.ParallelWrapper;
+import org.nd4j.jita.conf.CudaEnvironment;
 import org.nd4j.linalg.activations.Activation;
+import org.nd4j.linalg.api.buffer.DataBuffer;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.dataset.ExistingMiniBatchDataSetIterator;
@@ -53,6 +58,7 @@ import java.net.URL;
  *
  * @author Alex Black
  */
+@Slf4j
 public class Word2VecSentimentRNN {
 
     public static final String TRAIN_PATH = FilenameUtils.concat(System.getProperty("java.io.tmpdir"), "dl4j_w2vSentiment_train/");
@@ -62,7 +68,19 @@ public class Word2VecSentimentRNN {
     public static void main(String[] args) throws Exception {
 
         int vectorSize = 300;   //Size of the word vectors. 300 in the Google News model
-        int nEpochs = 10;        //Number of epochs (full passes of training data) to train on
+        int nEpochs = 1;        //Number of epochs (full passes of training data) to train on
+
+//        Nd4j.setDataType(DataBuffer.Type.DOUBLE);
+
+        CudaEnvironment.getInstance().getConfiguration()
+            // key option enabled
+            .allowMultiGPU(true)
+
+            // we're allowing larger memory caches
+            .setMaximumDeviceCache(2L * 1024L * 1024L * 1024L)
+
+            // cross-device access is used for faster model averaging over pcie
+            .allowCrossDeviceAccess(true);
 
         //Set up network configuration
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
@@ -80,7 +98,7 @@ public class Word2VecSentimentRNN {
 
         MultiLayerNetwork net = new MultiLayerNetwork(conf);
         net.init();
-        net.setListeners(new ScoreIterationListener(1));
+        net.setListeners(new PerformanceListener(10, true));
 
         //DataSetIterators for training and testing respectively
         DataSetIterator train = new ExistingMiniBatchDataSetIterator(new File(TRAIN_PATH));
@@ -88,36 +106,35 @@ public class Word2VecSentimentRNN {
 
         ParallelWrapper pw = new ParallelWrapper.Builder<>(net)
             .prefetchBuffer(16 * Nd4j.getAffinityManager().getNumberOfDevices())
-            .reportScoreAfterAveraging(false)
+            .reportScoreAfterAveraging(true)
             .averagingFrequency(10)
             .useLegacyAveraging(false)
             .useMQ(true)
             .workers(Nd4j.getAffinityManager().getNumberOfDevices())
             .build();
 
-        System.out.println("Starting training");
+        log.info("Starting training...");
         for (int i = 0; i < nEpochs; i++) {
             pw.fit(train);
-
             train.reset();
-            System.out.println("Epoch " + i + " complete. Starting evaluation:");
-
-            //Run evaluation. This is on 25k reviews, so can take some time
-            Evaluation evaluation = new Evaluation();
-            while (test.hasNext()) {
-                DataSet t = test.next();
-                INDArray features = t.getFeatureMatrix();
-                INDArray lables = t.getLabels();
-                INDArray inMask = t.getFeaturesMaskArray();
-                INDArray outMask = t.getLabelsMaskArray();
-                INDArray predicted = net.output(features, false, inMask, outMask);
-
-                evaluation.evalTimeSeries(lables, predicted, outMask);
-            }
-            test.reset();
-
-            System.out.println(evaluation.stats());
         }
+
+        log.info("Starting evaluation...");
+
+        //Run evaluation. This is on 25k reviews, so can take some time
+        Evaluation evaluation = new Evaluation();
+        while (test.hasNext()) {
+            DataSet t = test.next();
+            INDArray features = t.getFeatureMatrix();
+            INDArray lables = t.getLabels();
+            INDArray inMask = t.getFeaturesMaskArray();
+            INDArray outMask = t.getLabelsMaskArray();
+            INDArray predicted = net.output(features, false, inMask, outMask);
+
+            evaluation.evalTimeSeries(lables, predicted, outMask);
+        }
+
+        System.out.println(evaluation.stats());
     }
 
 }

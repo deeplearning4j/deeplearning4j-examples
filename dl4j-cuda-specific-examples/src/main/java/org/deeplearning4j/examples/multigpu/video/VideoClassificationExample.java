@@ -21,7 +21,6 @@ import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
 import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
 import org.deeplearning4j.parallelism.ParallelWrapper;
-import org.nd4j.jita.conf.CudaEnvironment;
 import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
@@ -65,26 +64,12 @@ public class VideoClassificationExample {
         String tempDir = System.getProperty("java.io.tmpdir");
         String dataDirectory = FilenameUtils.concat(tempDir, "DL4JVideoShapesExample/");   //Location to store generated data set
 
-        Nd4j.create(1);
-
         //Generate data: number of .mp4 videos for input, plus .txt files for the labels
         if (generateData) {
             System.out.println("Starting data generation...");
             generateData(dataDirectory);
             System.out.println("Data generation complete");
         }
-
-        CudaEnvironment.getInstance().getConfiguration()
-            // key option enabled
-            .allowMultiGPU(true)
-
-            // we're allowing larger memory caches
-            .setMaximumDeviceCache(2L * 1024L * 1024L * 1024L)
-
-            // cross-device access is used for faster model averaging over pcie
-            .allowCrossDeviceAccess(true);
-
-
 
         //Set up network architecture:
         Updater updater = Updater.ADAGRAD;

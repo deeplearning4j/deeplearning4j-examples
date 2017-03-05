@@ -15,7 +15,7 @@ import org.deeplearning4j.nn.weights.WeightInit;
 import org.deeplearning4j.optimize.api.IterationListener;
 import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
 import org.deeplearning4j.parallelism.ParallelWrapper;
-import org.nd4j.jita.conf.CudaEnvironment;
+//import org.nd4j.jita.conf.CudaEnvironment;
 import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.api.buffer.DataBuffer;
 import org.nd4j.linalg.api.buffer.util.DataTypeUtil;
@@ -59,6 +59,20 @@ public class GravesLSTMCharModellingExample {
 		String generationInitialization = null;		//Optional character initialization; a random character is used if null
 		// Above is Used to 'prime' the LSTM with a character sequence to continue/complete.
 		// Initialization characters must all be in CharacterIterator.getMinimalCharacterSet() by default
+
+        // temp workaround for backend initialization
+/*
+        CudaEnvironment.getInstance().getConfiguration()
+            // key option enabled
+            .allowMultiGPU(true)
+
+            // we're allowing larger memory caches
+            .setMaximumDeviceCache(2L * 1024L * 1024L * 1024L)
+
+            // cross-device access is used for faster model averaging over pcie
+            .allowCrossDeviceAccess(true);
+*/
+
 		Random rng = new Random(12345);
 
 		//Get a DataSetIterator that handles vectorization of text into something we can use to train
@@ -112,22 +126,6 @@ public class GravesLSTMCharModellingExample {
                 }
             }
         });
-
-        // PLEASE NOTE: For CUDA FP16 precision support is available
-        DataTypeUtil.setDTypeForContext(DataBuffer.Type.HALF);
-
-        // temp workaround for backend initialization
-        Nd4j.create(1);
-
-        CudaEnvironment.getInstance().getConfiguration()
-            // key option enabled
-            .allowMultiGPU(true)
-
-            // we're allowing larger memory caches
-            .setMaximumDeviceCache(2L * 1024L * 1024L * 1024L)
-
-            // cross-device access is used for faster model averaging over pcie
-            .allowCrossDeviceAccess(true);
 
 
         //Print the  number of parameters in the network (and for each layer)

@@ -43,7 +43,6 @@ public class MultiGpuLenetMnistExample {
         DataTypeUtil.setDTypeForContext(DataBuffer.Type.HALF);
 
         // temp workaround for backend initialization
-        Nd4j.create(1);
 
         CudaEnvironment.getInstance().getConfiguration()
             // key option enabled

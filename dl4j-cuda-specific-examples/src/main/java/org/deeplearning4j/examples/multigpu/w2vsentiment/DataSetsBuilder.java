@@ -32,7 +32,8 @@ public class DataSetsBuilder {
     /** Location to save and extract the training/testing data */
     public static final String DATA_PATH = FilenameUtils.concat(System.getProperty("java.io.tmpdir"), "dl4j_w2vSentiment/");
     /** Location (local file system) for the Google News vectors. Set this manually. */
-    public static final String WORD_VECTORS_PATH = "/PATH/TO/YOUR/VECTORS/GoogleNews-vectors-negative300.bin.gz";
+    //public static final String WORD_VECTORS_PATH = "/PATH/TO/YOUR/VECTORS/GoogleNews-vectors-negative300.bin.gz";
+    public static final String WORD_VECTORS_PATH = "/home/raver119/develop/GoogleNews-vectors-negative300.bin.gz";
 
     public static final String TRAIN_PATH = FilenameUtils.concat(System.getProperty("java.io.tmpdir"), "dl4j_w2vSentiment_train/");
     public static final String TEST_PATH = FilenameUtils.concat(System.getProperty("java.io.tmpdir"), "dl4j_w2vSentiment_test/");
@@ -57,6 +58,8 @@ public class DataSetsBuilder {
             System.exit(1);
         }
 
+
+
         if(WORD_VECTORS_PATH.startsWith("/PATH/TO/YOUR/VECTORS/")){
             throw new RuntimeException("Please set the WORD_VECTORS_PATH before running this example");
         }
@@ -68,7 +71,7 @@ public class DataSetsBuilder {
         SentimentExampleIterator test = new SentimentExampleIterator(DATA_PATH, wordVectors, batchSize, truncateReviewsToLength, false);
 
         log.info("Saving test data...");
-        saveDatasets(test, TEST_PATH);
+//        saveDatasets(test, TEST_PATH);
 
         log.info("Saving train data...");
         saveDatasets(train, TRAIN_PATH);
@@ -141,6 +144,7 @@ public class DataSetsBuilder {
 
     protected void saveDatasets(DataSetIterator iterator, String dir) {
         AtomicInteger counter = new AtomicInteger(0);
+        new File(dir).mkdirs();
         while (iterator.hasNext()) {
             String path = FilenameUtils.concat(dir, "dataset-" + (counter.getAndIncrement()) + ".bin");
             iterator.next().save(new File(path));
