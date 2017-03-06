@@ -16,8 +16,8 @@ public class BaseDataSetIterator {
 	protected volatile FileSystem fs;
 	protected volatile String hdfsUrl;
 
-	static final String HDFS_URL = "hdfs://nn-galepartners.s3s.altiscale.com:8020";
-	static final String DATA_DIR = "/user/odia/mackenzie/lstm_recos/";
+	static final String HDFS_URL = "hdfs://...";
+	static final String DATA_DIR = "/user/your_home/workplace";
 	private static final String CORE_SITE = "/etc/hadoop-2.7.1/core-site.xml";
 	private static final String HDFS_SITE = "/etc/hadoop-2.7.1/hdfs-site.xml";
 
@@ -25,7 +25,7 @@ public class BaseDataSetIterator {
 		this.hdfsUrl = hdfsUrl;
 		initialize();
 	}
-	
+
 	final void initialize() {
 
 		Configuration configuration = new Configuration();

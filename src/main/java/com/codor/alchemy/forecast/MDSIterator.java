@@ -12,7 +12,7 @@ import org.nd4j.linalg.dataset.api.iterator.MultiDataSetIterator;
 
 import com.codor.alchemy.conf.Constants;
 
-public class AdvisorMDSIterator extends BaseDataSetIterator implements MultiDataSetIterator {
+public class MDSIterator extends BaseDataSetIterator implements MultiDataSetIterator {
 
 	private int vectorSize = 0;
 	private int labelSize = 0;
@@ -24,20 +24,20 @@ public class AdvisorMDSIterator extends BaseDataSetIterator implements MultiData
 
 	private static final long serialVersionUID = -2132071188514707198L;
 
-	public AdvisorMDSIterator(int batchSize, double holdout) {
+	public MDSIterator(int batchSize, double holdout) {
 		this(DATA_DIR, batchSize, holdout);
 	}
 
-	public AdvisorMDSIterator(String dataDirectory, int batchSize, double holdout) {
+	public MDSIterator(String dataDirectory, int batchSize, double holdout) {
 		this(dataDirectory, batchSize, 86, 1);
 	}
 
-	public AdvisorMDSIterator(String dataDirectory, int batchSize, int vectorSize, int labelSize) {
+	public MDSIterator(String dataDirectory, int batchSize, int vectorSize, int labelSize) {
 		this(dataDirectory, batchSize, vectorSize, labelSize, 
 			Constants.END_SEQ() - Constants.START_SEQ() + 1, 0);
 	}
 
-	public AdvisorMDSIterator(String dataDirectory, int batchSize, int vectorSize, int labelSize,
+	public MDSIterator(String dataDirectory, int batchSize, int vectorSize, int labelSize,
 			int numSteps, int flag) {
 		super(HDFS_URL + dataDirectory + (flag == 0 ? "/train" : flag == 1 ? "/test" : "/predict"));
 		this.batchSize = batchSize;

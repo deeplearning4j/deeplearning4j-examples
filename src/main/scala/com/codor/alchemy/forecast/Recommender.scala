@@ -82,8 +82,8 @@ class Recommender(batchSize: Int = 50, featureSize: Int, nEpochs: Int, hiddenLay
   sparkNet.setCollectTrainingStats(false) // for debugging and optimization purposes
 
   def trainUsingEarlyStopping(modelDir: String) = {
-    val trainIter = new AdvisorMDSIterator(dataDirectory, batchSize, featureSize, labelSize, 1, 0)
-    val testIter = new AdvisorMDSIterator(dataDirectory, batchSize, featureSize, labelSize, 1, 1)
+    val trainIter = new MDSIterator(dataDirectory, batchSize, featureSize, labelSize, 1, 0)
+    val testIter = new MDSIterator(dataDirectory, batchSize, featureSize, labelSize, 1, 1)
 
     val saver = new LocalFileGraphSaver(FilenameUtils.concat(modelDir, "Recommender/"))
 
@@ -113,8 +113,7 @@ class Recommender(batchSize: Int = 50, featureSize: Int, nEpochs: Int, hiddenLay
 
   def train() = {
   
-    val iterator: AdvisorMDSIterator =
-      new AdvisorMDSIterator(dataDirectory, batchSize, featureSize, labelSize, 1, 2) // TODO
+    val iterator: MDSIterator = new MDSIterator(dataDirectory, batchSize, featureSize, labelSize, 1, 2) // TODO
 
     val buf = scala.collection.mutable.ListBuffer.empty[MultiDataSet]
 
@@ -141,8 +140,8 @@ class Recommender(batchSize: Int = 50, featureSize: Int, nEpochs: Int, hiddenLay
 
   def predict(graph: ComputationGraph, items: List[String]): RDD[List[(String, Double)]] = {
 
-    val iterator: AdvisorMDSIterator =
-      new AdvisorMDSIterator(dataDirectory, batchSize, featureSize, labelSize, 1, 1) // TODO
+    val iterator: MDSIterator =
+      new MDSIterator(dataDirectory, batchSize, featureSize, labelSize, 1, 1) // TODO
     val buf = scala.collection.mutable.ListBuffer.empty[MultiDataSet]
     
     while (iterator.hasNext) {
@@ -150,12 +149,10 @@ class Recommender(batchSize: Int = 50, featureSize: Int, nEpochs: Int, hiddenLay
     }
     val rdd = sc.parallelize(buf)
    
-    val predictions = rdd.map { x =>
+    rdd.map { x =>
       val score = graph.output(x.getFeatures(0).dup()).apply(0).data().asDouble()
       items.zip(score)
-    }
-
-    predictions.cache()
+    }.cache()
   }
 
   def predict(network: MultiLayerNetwork, items: List[String]): RDD[List[(String, Double)]] = {
@@ -176,7 +173,7 @@ class Recommender(batchSize: Int = 50, featureSize: Int, nEpochs: Int, hiddenLay
 
     val trainedNetworkWrapper = new SparkDl4jMultiLayer(sc, network, tm)
 
-    val predictions = rdd.map { x =>
+    rdd.map { x =>
       val labels = x.getLabels.data().asDouble()
 
       val vector = MLLibUtil.toVector(x.getFeatureMatrix.dup())
@@ -184,7 +181,6 @@ class Recommender(batchSize: Int = 50, featureSize: Int, nEpochs: Int, hiddenLay
 
       items.zip(score)
     }
-    predictions
   }
 
 }

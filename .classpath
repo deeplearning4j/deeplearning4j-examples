@@ -16,5 +16,6 @@
 	<classpathentry kind="lib" path="/Users/ousmanedia/.ivy2/cache/com.google.guava/guava/jars/guava-11.0.jar"/>
 	<classpathentry kind="lib" path="/Users/ousmanedia/.ivy2/cache/commons-collections/commons-collections/jars/commons-collections-3.2.1.jar"/>
 	<classpathentry kind="lib" path="/Users/ousmanedia/.ivy2/cache/org.datavec/datavec-api/jars/datavec-api-0.6.0.jar"/>
+	<classpathentry exported="true" kind="lib" path="/Users/ousmanedia/.ivy2/cache/org.deeplearning4j/deeplearning4j-nlp/jars/deeplearning4j-nlp-0.6.0.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
