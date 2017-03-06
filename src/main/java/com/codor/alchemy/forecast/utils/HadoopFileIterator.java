@@ -4,6 +4,9 @@ import java.io.File;
 
 import org.deeplearning4j.text.documentiterator.FileDocumentIterator;
 
+/**
+ * @author: Ousmane A. Dia
+ */
 public class HadoopFileIterator extends FileDocumentIterator {
 
 	private static final long serialVersionUID = -3475360183611066187L;

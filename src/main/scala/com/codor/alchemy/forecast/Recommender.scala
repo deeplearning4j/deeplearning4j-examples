@@ -35,7 +35,9 @@ import org.nd4j.linalg.factory.Nd4j
 import com.codor.alchemy.forecast.utils.ReflectionsHelper
 import com.codor.alchemy.forecast.utils.Logs
 
-
+/**
+ * @author: Ousmane A. Dia
+ */
 class Recommender(batchSize: Int = 50, featureSize: Int, nEpochs: Int, hiddenLayers: Int,
     miniBatchSizePerWorker: Int = 10, averagingFrequency: Int = 5, numberOfAveragings: Int = 3,
     learningRate: Double = 0.1, l2Regularization: Double = 0.001, labelSize: Int,

@@ -44,6 +44,9 @@ import org.nd4j.linalg.factory.Nd4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * @author: Ousmane A. Dia
+ */
 public class BaseParameterAveragingTrainingMaster extends ParameterAveragingTrainingMaster implements Serializable {
 
    	private static final long serialVersionUID = 8577088657995704083L;

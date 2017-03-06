@@ -12,6 +12,9 @@ import org.nd4j.linalg.dataset.api.iterator.MultiDataSetIterator;
 
 import com.codor.alchemy.conf.Constants;
 
+/**
+ * @author: Ousmane A. Dia
+ */
 public class MDSIterator extends BaseDataSetIterator implements MultiDataSetIterator {
 
 	private int vectorSize = 0;

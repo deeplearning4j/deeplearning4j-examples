@@ -6,6 +6,9 @@ import java.util.Map;
 
 import org.apache.spark.AccumulatorParam;
 
+/**
+ * @author: Ousmane A. Dia
+ */
 public class MapAccumulator implements AccumulatorParam<Map<String, Long>>, Serializable {
 
 	private static final long serialVersionUID = 1L;

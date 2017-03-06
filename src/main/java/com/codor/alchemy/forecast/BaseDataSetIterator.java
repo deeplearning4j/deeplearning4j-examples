@@ -9,6 +9,9 @@ import org.apache.hadoop.fs.LocatedFileStatus;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.RemoteIterator;
 
+/**
+ * @author: Ousmane A. Dia
+ */
 public class BaseDataSetIterator {
 
 	protected volatile RemoteIterator<LocatedFileStatus> hdfsIterator;

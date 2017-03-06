@@ -7,6 +7,9 @@ import org.deeplearning4j.nn.graph.ComputationGraph;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * @author: Ousmane A. Dia
+ */
 public class LoggingEarlyStoppingListener implements EarlyStoppingListener<ComputationGraph> {
 
 	private static Logger log = LoggerFactory.getLogger(LoggingEarlyStoppingListener.class);

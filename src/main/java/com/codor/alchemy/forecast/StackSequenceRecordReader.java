@@ -27,6 +27,9 @@ import org.slf4j.LoggerFactory;
 
 import com.codor.alchemy.conf.Constants;
 
+/**
+ * @author: Ousmane A. Dia
+ */
 public class StackSequenceRecordReader extends FileRecordReader {
 
 	private Stack<List<Path>> sequenceStack = new Stack<>();

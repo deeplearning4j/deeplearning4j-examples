@@ -2,6 +2,10 @@ package com.codor.alchemy.forecast.utils
 
 import org.apache.log4j._
 
+/**
+ * @author: Ousmane A. Dia
+ */
+
 trait Logs extends Serializable {
 
   @transient var logger = Logger.getLogger("alchemy")
