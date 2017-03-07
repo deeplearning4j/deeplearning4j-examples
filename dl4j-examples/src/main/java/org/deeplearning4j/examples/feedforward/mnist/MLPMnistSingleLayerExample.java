@@ -89,6 +89,15 @@ public class MLPMnistSingleLayerExample {
         log.info("Train model....");
         for( int i=0; i<numEpochs; i++ ){
             model.fit(mnistTrain);
+            if (i==0) {
+                log.info(model.getLayerWiseConfigurations().toJson());
+                log.info("Change learning rate");
+                for (int j=0; j<model.getnLayers();j++) {
+                    model.getLayer(j).conf().getLayer().setLearningRate(0.5);
+                }
+                log.info(model.getLayerWiseConfigurations().toJson());
+                break;
+            }
         }
 
 
