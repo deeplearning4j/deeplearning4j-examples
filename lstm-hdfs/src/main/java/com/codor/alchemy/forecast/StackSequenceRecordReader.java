@@ -29,6 +29,8 @@ import com.codor.alchemy.conf.Constants;
 
 /**
  * @author: Ousmane A. Dia
+ * This class creates sequences from a given file records, reorder the records based on date (a column feature)
+ * handles the padding when a record for a specific date is missing in a file.
  */
 public class StackSequenceRecordReader extends FileRecordReader {
 
@@ -57,7 +59,7 @@ public class StackSequenceRecordReader extends FileRecordReader {
 		this.fs = fs;
 		for (int i = startSeq; i <= endSeq; i++) {
                         timeSteps.add(String.valueOf(i));
-                }	
+                }
 	}
 
 	public void newRecord(Stack<Path> pathStack) {
@@ -93,7 +95,7 @@ public class StackSequenceRecordReader extends FileRecordReader {
 			try {
 				in = fs.open(p);
 				URI uri = p.toUri();
-				
+
 				String pathParts[] = uri.toString().split("_");
 				String currStep = pathParts == null || pathParts.length < 3 ? "" : pathParts[2];
                                 int index = timeSteps.indexOf(currStep);
@@ -122,10 +124,10 @@ public class StackSequenceRecordReader extends FileRecordReader {
 						labelMasks.set(timeSteps.indexOf(maxIndex),
                                                         timeSteps.get(timeSteps.size() - 1) == maxIndex
                                                                 || paths.size() == 1 ? 1.0: 0.0);
-					} else { 
+					} else {
 						featureMasks.set(index, 1.0);
-						labelMasks.set(index, 
-							timeSteps.get(timeSteps.size() - 1) == currStep 
+						labelMasks.set(index,
+							timeSteps.get(timeSteps.size() - 1) == currStep
 								|| paths.size() == 1 ? 1.0: 0.0);
 					}
 				}
@@ -196,14 +198,14 @@ public class StackSequenceRecordReader extends FileRecordReader {
 
 		List<List<Double>> fMaskSplits = ListUtils.partition(fMask, fMask.size() / size);
 		List<List<Double>> lMaskSplits = ListUtils.partition(lMask, lMask.size() / size);
-		
+
 		double[] fMaskArray = new double[fMaskSplits.get(0).size()];
                 double[] lMaskArray = new double[lMaskSplits.get(0).size()];
 
 		INDArray[] array1 = new INDArray[fMaskSplits.size()];
 		INDArray[] array2 = new INDArray[lMaskSplits.size()];
 
-		//LOG.info("SIZES: " + fMaskSplits + " - " + size + " - " + fMask.size()) ;		
+		//LOG.info("SIZES: " + fMaskSplits + " - " + size + " - " + fMask.size()) ;
 
 		for (int j = 0; j < fMaskSplits.size(); j++) {
 
@@ -226,7 +228,7 @@ public class StackSequenceRecordReader extends FileRecordReader {
 
 		INDArray[] array1 = new INDArray[record.size() / (numFeatures + numLabels) ];
 		INDArray[] array2 = new INDArray[record.size() / (numFeatures + numLabels) ];
-	
+
 		vector1.putScalar(0, firstWritable.toDouble());
 
 		int count1 = 1, count2 = 0, count = 0, i = 0;
