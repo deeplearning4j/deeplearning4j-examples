@@ -26,6 +26,7 @@ import org.deeplearning4j.nn.weights.WeightInit
 import org.deeplearning4j.spark.api.Repartition
 import org.deeplearning4j.spark.impl.graph.SparkComputationGraph
 import org.deeplearning4j.spark.impl.multilayer.SparkDl4jMultiLayer
+import org.deeplearning4j.spark.impl.paramavg.ParameterAveragingTrainingMaster
 import org.deeplearning4j.spark.util.MLLibUtil
 import org.nd4j.linalg.dataset.api.MultiDataSet
 import org.nd4j.linalg.dataset.DataSet
@@ -45,7 +46,7 @@ class Recommender(batchSize: Int = 50, featureSize: Int, nEpochs: Int, hiddenLay
  
   ReflectionsHelper.registerUrlTypes()  
 
-  val tm = new BaseParameterAveragingTrainingMaster.Builder(5, 1)
+  val tm = new  ParameterAveragingTrainingMaster.Builder(5, 1) //BaseParameterAveragingTrainingMaster.Builder(5, 1)
     .averagingFrequency(averagingFrequency)
     .batchSizePerWorker(miniBatchSizePerWorker)
     .saveUpdater(true)
@@ -165,7 +166,7 @@ class Recommender(batchSize: Int = 50, featureSize: Int, nEpochs: Int, hiddenLay
       buf += iterator.next
     val rdd = sc.parallelize(buf)
 
-    val tm = new NewParameterAveragingTrainingMaster.Builder(5, 1)
+    val tm = new ParameterAveragingTrainingMaster.Builder(5, 1) //NewParameterAveragingTrainingMaster.Builder(5, 1)
       .averagingFrequency(averagingFrequency)
       .batchSizePerWorker(miniBatchSizePerWorker)
       .saveUpdater(true)
