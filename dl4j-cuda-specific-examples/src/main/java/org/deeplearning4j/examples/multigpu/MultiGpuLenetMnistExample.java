@@ -40,7 +40,7 @@ public class MultiGpuLenetMnistExample {
 
     public static void main(String[] args) throws Exception {
         // PLEASE NOTE: For CUDA FP16 precision support is available
-        DataTypeUtil.setDTypeForContext(DataBuffer.Type.HALF);
+        //DataTypeUtil.setDTypeForContext(DataBuffer.Type.HALF);
 
         // temp workaround for backend initialization
 
@@ -119,16 +119,18 @@ public class MultiGpuLenetMnistExample {
             .prefetchBuffer(24)
 
             // set number of workers equal or higher then number of available devices. x1-x2 are good values to start with
-            .workers(4)
+            .workers(2)
 
             // rare averaging improves performance, but might reduce model accuracy
-            .averagingFrequency(3)
+            .averagingFrequency(10)
+
+            .useMQ(true)
 
             // if set to TRUE, on every averaging model score will be reported
-            .reportScoreAfterAveraging(true)
+            .reportScoreAfterAveraging(false)
 
             // optinal parameter, set to false ONLY if your system has support P2P memory access across PCIe (hint: AWS do not support P2P)
-            .useLegacyAveraging(true)
+            .useLegacyAveraging(false)
 
             .build();
 
