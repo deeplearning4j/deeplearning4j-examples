@@ -14,29 +14,27 @@ object Configs extends Serializable with Logs {
 
   val END_SEQ = 201611 // keep a month out for testing
 
-  val MODEL_SER_DIR = "/mnt/ebs0/odia/mackenzie"
+  val MODEL_SER_DIR = "/mnt/ebs0/home/model_dir"
 
-  val MODEL_SER_FILE = "/mnt/ebs0/odia/mackenzie/Recommender/bestGraph.bin"
+  val MODEL_SER_FILE = "/mnt/ebs0/home/model_dir/Recommender/bestGraph.bin"
 
-  val FM_FACTORS = "/user/odia/mackenzie/product_recos/fm_interactions"
+  val FM_FACTORS = "/user/home/model_dir/product_recos/fm_interactions"
 
-  val TRANSACTIONS = "/user/odia/mackenzie/product_recos/transactions_201604_201609"
+  val TRANSACTIONS = "/user/home/model_dir/product_recos/transactions_201604_201609"
 
-  val EMBEDDINGS = "/user/odia/mackenzie/lstm_recos/embeddings"
+  val EMBEDDINGS = "/user/home/model_dir/lstm_recos/embeddings"
 
-  val TRAINING = "/user/odia/mackenzie/product_recos/mack_product_recos_lstm_data_201602_201612"
-  //"/user/odia/mackenzie/product_recos/training_data_fm_201604_201608_en_purged"
+  val TRAINING = "/user/home/model_dir/product_recos/training"
 
-  val TEST = "/user/odia/mackenzie/product_recos/training_data_fm_201609"
+  val TEST = "/user/home/model_dir/product_recos/training_data_fm_201609"
 
-  val RESULTS = "/user/odia/mackenzie/lstm_recos/rslts"
+  val RESULTS = "/user/home/model_dir/lstm_recos/rslts"
 
-  val DATA_DIR = "/user/odia/mackenzie/december_run/"
-  // "/user/odia/mackenzie/lstm_recos/"
+  val DATA_DIR = "/user/home/model_dir/lstm_recos/"
 
-  val USER_PREFERENCES = "/user/odia/mackenzie/product_recos/advisor_companies"
+  val USER_PREFERENCES = "/user/home/model_dir/product_recos/users_prefs"
 
-  val ITEM_INCLUSION = "/user/odia/mackenzie/product_recos/fund_inclusion"
+  val ITEM_INCLUSION = "/user/home/model_dir/product_recos/fund_inclusion"
 
-  val PURGED = "/user/odia/mackenzie/lstm_recos/final"
+  val PURGED = "/user/home/model_dir/lstm_recos/final"
 }
