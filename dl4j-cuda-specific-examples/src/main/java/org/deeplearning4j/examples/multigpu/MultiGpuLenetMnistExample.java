@@ -44,12 +44,15 @@ public class MultiGpuLenetMnistExample {
 
         // temp workaround for backend initialization
 
+        Nd4j.getMemoryManager().setAutoGcWindow(100);
+        Nd4j.getMemoryManager().setManualGcFrequency(0);
+
         CudaEnvironment.getInstance().getConfiguration()
             // key option enabled
             .allowMultiGPU(true)
 
             // we're allowing larger memory caches
-            .setMaximumDeviceCache(2L * 1024L * 1024L * 1024L)
+            .setMaximumDeviceCache(4L * 1024L * 1024L * 1024L)
 
             // cross-device access is used for faster model averaging over pcie
             .allowCrossDeviceAccess(true);
