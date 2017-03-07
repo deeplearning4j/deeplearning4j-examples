@@ -39,14 +39,14 @@ import com.codor.alchemy.forecast.utils.Logs
 /**
  * @author: Ousmane A. Dia
  */
-class Recommender(batchSize: Int = 50, featureSize: Int, nEpochs: Int, hiddenLayers: Int,
+class Recommender(batchSize: Int = 50, featureSize: Int, nEpochs: Int, hiddenUnits: Int,
     miniBatchSizePerWorker: Int = 10, averagingFrequency: Int = 5, numberOfAveragings: Int = 3,
-    learningRate: Double = 0.1, l2Regularization: Double = 0.001, labelSize: Int,
+    learningRate: Double = 0.1, l1Regularization: Double = 0.001, labelSize: Int,
     dataDirectory: String, sc: SparkContext) extends Serializable with Logs {
  
   ReflectionsHelper.registerUrlTypes()  
 
-  val tm = new  ParameterAveragingTrainingMaster.Builder(5, 1) //BaseParameterAveragingTrainingMaster.Builder(5, 1)
+  val tm = new  ParameterAveragingTrainingMaster.Builder(5, 1) 
     .averagingFrequency(averagingFrequency)
     .batchSizePerWorker(miniBatchSizePerWorker)
     .saveUpdater(true)
@@ -59,7 +59,7 @@ class Recommender(batchSize: Int = 50, featureSize: Int, nEpochs: Int, hiddenLay
   val conf = new NeuralNetConfiguration.Builder()
     .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
     .learningRate(learningRate)
-    .regularization(true).l1(l2Regularization) // try l1 regularization (L1 norm is commonly used to discreminate between zero and non zero)
+    .regularization(true).l1(l1Regularization)
     .weightInit(WeightInit.XAVIER)
     .gradientNormalization(GradientNormalization.ClipElementWiseAbsoluteValue)
     .gradientNormalizationThreshold(20.0)
@@ -70,14 +70,13 @@ class Recommender(batchSize: Int = 50, featureSize: Int, nEpochs: Int, hiddenLay
     .seed(12345)
     .graphBuilder()
     .addInputs("input")
-    .addLayer("firstLayer", new GravesLSTM.Builder().nIn(featureSize).nOut(hiddenLayers) // 200
+    .addLayer("firstLayer", new GravesLSTM.Builder().nIn(featureSize).nOut(hiddenUnits) 
       .activation("relu").build(), "input")  // softsign // relu
-    .addLayer("secondLayer", new GravesLSTM.Builder().nIn(hiddenLayers).nOut(hiddenLayers) // 200 hiddenLayers
+    .addLayer("secondLayer", new GravesLSTM.Builder().nIn(hiddenUnits).nOut(hiddenUnits)
       .activation("relu").build(), "firstLayer") // softsign // relu
     .addLayer("outputLayer", new RnnOutputLayer.Builder().activation("softmax") // relu
-    .lossFunction(LossFunctions.LossFunction.MCXENT).nIn(hiddenLayers).nOut(labelSize).build(), "secondLayer") // hiddenLayers
+    .lossFunction(LossFunctions.LossFunction.MCXENT).nIn(hiddenUnits).nOut(labelSize).build(), "secondLayer") 
     .setOutputs("outputLayer")
-    //.backpropType(BackpropType.TruncatedBPTT).tBPTTForwardLength(7).tBPTTBackwardLength(7)
     .pretrain(false).backprop(true)
     .build()
 
@@ -114,9 +113,10 @@ class Recommender(batchSize: Int = 50, featureSize: Int, nEpochs: Int, hiddenLay
 
   }
 
+/*
   def train() = {
   
-    val iterator: MDSIterator = new MDSIterator(dataDirectory, batchSize, featureSize, labelSize, 1, 2) // TODO
+    val iterator: MDSIterator = new MDSIterator(dataDirectory, batchSize, featureSize, labelSize, 1, 2) 
 
     val buf = scala.collection.mutable.ListBuffer.empty[MultiDataSet]
 
@@ -135,6 +135,7 @@ class Recommender(batchSize: Int = 50, featureSize: Int, nEpochs: Int, hiddenLay
 
     sparkNet.fitMultiDataSet(rdd)
   }
+*/
 
   def predict(graphPath: String, items: List[String]): RDD[List[(String, Double)]] = {
     val graph = ModelSerializer.restoreComputationGraph(graphPath)
@@ -144,7 +145,7 @@ class Recommender(batchSize: Int = 50, featureSize: Int, nEpochs: Int, hiddenLay
   def predict(graph: ComputationGraph, items: List[String]): RDD[List[(String, Double)]] = {
 
     val iterator: MDSIterator =
-      new MDSIterator(dataDirectory, batchSize, featureSize, labelSize, 1, 1) // TODO
+      new MDSIterator(dataDirectory, batchSize, featureSize, labelSize, 1, 1) 
     val buf = scala.collection.mutable.ListBuffer.empty[MultiDataSet]
     
     while (iterator.hasNext) {
@@ -158,6 +159,7 @@ class Recommender(batchSize: Int = 50, featureSize: Int, nEpochs: Int, hiddenLay
     }.cache()
   }
 
+/*
   def predict(network: MultiLayerNetwork, items: List[String]): RDD[List[(String, Double)]] = {
     import scala.collection.JavaConversions._
     val iterator = new AdvisorDataSetIterator(dataDirectory, batchSize, false, featureSize, labelSize)
@@ -185,5 +187,6 @@ class Recommender(batchSize: Int = 50, featureSize: Int, nEpochs: Int, hiddenLay
       items.zip(score)
     }
   }
-
+*/
 }
+
