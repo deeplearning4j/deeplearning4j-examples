@@ -30,7 +30,7 @@ public class TransferLearningExamplePreSave {
     protected static final String [] allowedExtensions = BaseImageLoader.ALLOWED_FORMATS;
     protected static final int numClasses = 5;
 
-    protected static final int batchSize = 15;
+    protected static final int batchSize = 25;
     protected static final long seed = 12345;
     public static final Random rng = new Random(seed);
 
@@ -51,7 +51,7 @@ public class TransferLearningExamplePreSave {
             Set up dataset with the train and test split
             Set up the training dataset iterator
          */
-        File parentDir = new File("/Users/susaneraly/flower_photos");
+        File parentDir = new File("/home/seraly/flower_photos");
         FileSplit filesInDir = new FileSplit(parentDir, allowedExtensions, rng);
         ParentPathLabelGenerator labelMaker = new ParentPathLabelGenerator();
         BalancedPathFilter pathFilter = new BalancedPathFilter(rng, allowedExtensions, labelMaker);

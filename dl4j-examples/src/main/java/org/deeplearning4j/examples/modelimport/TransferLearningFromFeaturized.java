@@ -5,7 +5,9 @@ import org.deeplearning4j.api.storage.StatsStorage;
 import org.deeplearning4j.datasets.iterator.AsyncDataSetIterator;
 import org.deeplearning4j.eval.Evaluation;
 import org.deeplearning4j.nn.api.OptimizationAlgorithm;
+import org.deeplearning4j.nn.conf.GradientNormalization;
 import org.deeplearning4j.nn.conf.Updater;
+import org.deeplearning4j.nn.conf.layers.DenseLayer;
 import org.deeplearning4j.nn.conf.layers.OutputLayer;
 import org.deeplearning4j.nn.graph.ComputationGraph;
 import org.deeplearning4j.nn.modelimport.keras.InvalidKerasConfigurationException;
@@ -16,15 +18,18 @@ import org.deeplearning4j.nn.transferlearning.FineTuneConfiguration;
 import org.deeplearning4j.nn.transferlearning.TransferLearning;
 import org.deeplearning4j.nn.transferlearning.TransferLearningHelper;
 import org.deeplearning4j.nn.weights.WeightInit;
+import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
 import org.deeplearning4j.ui.api.UIServer;
 import org.deeplearning4j.ui.stats.StatsListener;
 import org.deeplearning4j.ui.storage.InMemoryStatsStorage;
 import org.deeplearning4j.util.ModelSerializer;
 import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.api.ndarray.INDArray;
+import org.nd4j.linalg.api.ops.executioner.OpExecutioner;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.dataset.ExistingMiniBatchDataSetIterator;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
+import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 
 import java.io.File;
@@ -39,10 +44,10 @@ public class TransferLearningFromFeaturized {
     protected static final int numClasses = 5;
 
     protected static final long seed = 12345;
-    protected static final int nEpochs = 50;
 
-    public static void main(String [] args) throws UnsupportedKerasConfigurationException, IOException, InvalidKerasConfigurationException {
+    public static void main(String [] args) throws Exception {
 
+        //Nd4j.getExecutioner().setProfilingMode(OpExecutioner.ProfilingMode.NAN_PANIC);
         /*
             Step I: Construct the architecture we want from vgg16
 
@@ -62,27 +67,29 @@ public class TransferLearningFromFeaturized {
         ComputationGraph vgg16Transfer = new TransferLearning.GraphBuilder(vgg16)
             .fineTuneConfiguration(new FineTuneConfiguration.Builder()
                                         .activation(Activation.LEAKYRELU)
+                                        .weightInit(WeightInit.RELU)
                                         .learningRate(5e-5)
                                         .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
                                         .updater(Updater.NESTEROVS)
                                         //.regularization(true).l2(0.001)
+                                        //.gradientNormalization(GradientNormalization.ClipL2PerLayer)
                                         .dropOut(0.5)
                                         .seed(seed)
                                         .build())
-            .setFeatureExtractor("fc1") //this is where we featurized our dataset
+            .setFeatureExtractor("block5_pool") //this is where we featurized our dataset
             .nOutReplace("fc2",1024, WeightInit.XAVIER)
             .removeVertexAndConnections("predictions")
-            //.addLayer("fc3",new DenseLayer.Builder().nIn(1024).nOut(256).build(),"fc2")
+            .addLayer("fc3",new DenseLayer.Builder().activation(Activation.TANH).nIn(1024).nOut(256).build(),"fc2")
             .addLayer("newpredictions",new OutputLayer
                                         .Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD)
                                         .activation(Activation.SOFTMAX)
-                                        .nIn(1024)
+                                        .nIn(256)
                                         .nOut(numClasses)
-                                        .build(),"fc2")
+                                        .build(),"fc3")
             .setOutputs("newpredictions")
             .build();
         log.info(vgg16Transfer.summary());
-        //vgg16Transfer.setListeners(new ScoreIterationListener(10));
+
 
         /*
             Step II: Set up a dataset iterator from the pre saved dataset
@@ -93,15 +100,26 @@ public class TransferLearningFromFeaturized {
         DataSetIterator existingTestData = new ExistingMiniBatchDataSetIterator(new File("testFolder"),"flowers-test-%d.bin");
         DataSetIterator asyncTestIter = new AsyncDataSetIterator(existingTestData);
 
-        DataSet validationSet = existingTestData.next(100);
+        //Initialize the user interface backend
+        UIServer uiServer = UIServer.getInstance();
+        //Configure where the network information (gradients, activations, score vs. time etc) is to be stored
+        //Then add the StatsListener to collect this information from the network, as it trains
+        StatsStorage statsStorage = new InMemoryStatsStorage();             //Alternative: new FileStatsStorage(File) - see UIStorageExample
+        int listenerFrequency = 10;
+        vgg16Transfer.setListeners(new StatsListener(statsStorage, listenerFrequency));
+        //Attach the StatsStorage instance to the UI: this allows the contents of the StatsStorage to be visualized
+        uiServer.attach(statsStorage);
+
         /*
             Step III: Use the transfer learning helper to fit featurized
          */
         TransferLearningHelper transferLearningHelper = new TransferLearningHelper(vgg16Transfer);
+        log.info(transferLearningHelper.unfrozenGraph().summary());
+        log.info(transferLearningHelper.unfrozenGraph().getConfiguration().toJson());
         Evaluation eval = new Evaluation(numClasses);
         while(asyncTestIter.hasNext()){
             DataSet ds = asyncTestIter.next();
-            INDArray output = transferLearningHelper.unfrozenGraph().output(false, ds.getFeatures())[0];
+             INDArray output = transferLearningHelper.outputFromFeaturized(ds.getFeatures());
             eval.eval(ds.getLabels(), output);
 
         }
@@ -112,33 +130,40 @@ public class TransferLearningFromFeaturized {
             UI
          */
         //Initialize the user interface backend
+        /*
         UIServer uiServer = UIServer.getInstance();
         //Configure where the network information (gradients, activations, score vs. time etc) is to be stored
         //Then add the StatsListener to collect this information from the network, as it trains
         StatsStorage statsStorage = new InMemoryStatsStorage();             //Alternative: new FileStatsStorage(File) - see UIStorageExample
-        int listenerFrequency = 1;
+        int listenerFrequency = 10;
         vgg16Transfer.setListeners(new StatsListener(statsStorage, listenerFrequency));
         //Attach the StatsStorage instance to the UI: this allows the contents of the StatsStorage to be visualized
         uiServer.attach(statsStorage);
+        */
 
-        for( int i = 0; i < nEpochs; i++ ) {
-            transferLearningHelper.fitFeaturized(asyncTrainIter);
-            asyncTrainIter.reset();
-            log.info("*** Completed epoch {} ***", i);
-            log.info("Evaluate model....");
-            eval = new Evaluation(numClasses);
-            while(asyncTestIter.hasNext()){
-                DataSet ds = asyncTestIter.next();
-                INDArray output = transferLearningHelper.unfrozenGraph().output(false, ds.getFeatures())[0];
-                eval.eval(ds.getLabels(), output);
+        int iter = 0;
+        Nd4j.getExecutioner().setProfilingMode(OpExecutioner.ProfilingMode.NAN_PANIC);
+        while(asyncTrainIter.hasNext()) {
+            transferLearningHelper.fitFeaturized(asyncTrainIter.next());
+            if (iter % 10 == 0 && iter!= 0) {
+                log.info("Evaluate model at iter " + iter + " ....");
+                eval = new Evaluation(numClasses);
+                while (asyncTestIter.hasNext()) {
+                    DataSet ds = asyncTestIter.next();
+                    INDArray output = transferLearningHelper.unfrozenGraph().output(false, ds.getFeatures())[0];
+                    eval.eval(ds.getLabels(), output);
 
+                }
+                log.info(eval.stats());
+                asyncTestIter.reset();
             }
-            log.info(eval.stats());
-            asyncTestIter.reset();
+            iter++;
         }
         //Save the model
         File locationToSave = new File("MyComputationGraph.zip");       //Where to save the network. Note: the file is in .zip format - can be opened externally
         boolean saveUpdater = false;                                             //Updater: i.e., the state for Momentum, RMSProp, Adagrad etc. Save this if you want to train your network more in the future
         ModelSerializer.writeModel(vgg16Transfer, locationToSave, saveUpdater);
+
+        log.info("Model written");
     }
 }

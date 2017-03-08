@@ -16,6 +16,7 @@ import org.deeplearning4j.nn.graph.ComputationGraph;
 import org.deeplearning4j.nn.modelimport.keras.trainedmodels.TrainedModels;
 import org.deeplearning4j.nn.transferlearning.FineTuneConfiguration;
 import org.deeplearning4j.nn.transferlearning.TransferLearning;
+import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
 import org.deeplearning4j.ui.api.UIServer;
 import org.deeplearning4j.ui.stats.StatsListener;
 import org.deeplearning4j.ui.storage.InMemoryStatsStorage;
@@ -56,18 +57,18 @@ public class TransferLearningFineTune {
                 .learningRate(1e-6)
                 .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
                 .updater(Updater.NESTEROVS)
-                .regularization(true).l2(0.001)
+                //.regularization(true).l2(0.001)
                 .seed(seed)
                 .build())
             .setFeatureExtractor("block4_pool")
             .build();
         log.info(vgg16FineTune.summary());
 
-               /*
+        /*
             Set up dataset with the train and test split
             Set up the training dataset iterator
          */
-        File parentDir = new File("/Users/susaneraly/flower_photos");
+        File parentDir = new File("/home/seraly/flower_photos");
         FileSplit filesInDir = new FileSplit(parentDir, allowedExtensions, rng);
         ParentPathLabelGenerator labelMaker = new ParentPathLabelGenerator();
         BalancedPathFilter pathFilter = new BalancedPathFilter(rng, allowedExtensions, labelMaker);
@@ -84,37 +85,31 @@ public class TransferLearningFineTune {
         DataSetIterator trainIter = new RecordReaderDataSetIterator(recordReaderTrain, batchSize, 1, numClasses);
         trainIter.setPreProcessor(TrainedModels.VGG16.getPreProcessor());
 
-        Evaluation eval = new Evaluation(numClasses);
-        while(testIter.hasNext()) {
-            DataSet ds = testIter.next();
-            INDArray output = vgg16FineTune.output(false, ds.getFeatures())[0];
-            eval.eval(ds.getLabels(), output);
-        }
-        log.info(eval.stats());
-        testIter.reset();
-
+        Evaluation eval;
+        //vgg16FineTune.setListeners = (new ScoreIterationListener(1));
         UIServer uiServer = UIServer.getInstance();
         //Configure where the network information (gradients, activations, score vs. time etc) is to be stored
         //Then add the StatsListener to collect this information from the network, as it trains
         StatsStorage statsStorage = new InMemoryStatsStorage();             //Alternative: new FileStatsStorage(File) - see UIStorageExample
-        int listenerFrequency = 1;
-        vgg16Transfer.setListeners(new StatsListener(statsStorage, listenerFrequency));
+        int listenerFrequency = 10;
+        vgg16FineTune.setListeners(new StatsListener(statsStorage, listenerFrequency));
         //Attach the StatsStorage instance to the UI: this allows the contents of the StatsStorage to be visualized
         uiServer.attach(statsStorage);
 
-        for( int i = 0; i < nEpochs; i++ ) {
-            vgg16FineTune.fit(trainIter);
-            trainIter.reset();
-            log.info("*** Completed epoch {} ***", i);
-            log.info("Evaluate model....");
-            eval = new Evaluation(numClasses);
-            while(testIter.hasNext()){
-                DataSet ds = testIter.next();
-                INDArray output = vgg16FineTune.output(false, ds.getFeatures())[0];
-                eval.eval(ds.getLabels(), output);
+        int iter = 0;
+        while(trainIter.hasNext()) {
+            log.info("Evaluate model at iter "+iter +" ....");
+            if (iter % 10 == 0 && iter !=0) {
+                eval = new Evaluation(numClasses);
+                while (testIter.hasNext()) {
+                    DataSet ds = testIter.next();
+                    INDArray output = vgg16FineTune.output(false, ds.getFeatures())[0];
+                    eval.eval(ds.getLabels(), output);
+                }
+                log.info(eval.stats());
+                testIter.reset();
             }
-            log.info(eval.stats());
-            testIter.reset();
+            iter++;
         }
         //Save the model
         File locationToSaveFineTune = new File("MyComputationGraphFineTune.zip");       //Where to save the network. Note: the file is in .zip format - can be opened externally
