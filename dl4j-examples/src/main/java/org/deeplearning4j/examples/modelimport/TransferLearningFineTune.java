@@ -54,7 +54,7 @@ public class TransferLearningFineTune {
 
         ComputationGraph vgg16FineTune = new TransferLearning.GraphBuilder(vgg16Transfer)
             .fineTuneConfiguration(new FineTuneConfiguration.Builder()
-                .learningRate(1e-6)
+                .learningRate(1e-5)
                 .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
                 .updater(Updater.NESTEROVS)
                 //.regularization(true).l2(0.001)
@@ -91,7 +91,7 @@ public class TransferLearningFineTune {
         //Configure where the network information (gradients, activations, score vs. time etc) is to be stored
         //Then add the StatsListener to collect this information from the network, as it trains
         StatsStorage statsStorage = new InMemoryStatsStorage();             //Alternative: new FileStatsStorage(File) - see UIStorageExample
-        int listenerFrequency = 10;
+        int listenerFrequency = 1;
         vgg16FineTune.setListeners(new StatsListener(statsStorage, listenerFrequency));
         //Attach the StatsStorage instance to the UI: this allows the contents of the StatsStorage to be visualized
         uiServer.attach(statsStorage);

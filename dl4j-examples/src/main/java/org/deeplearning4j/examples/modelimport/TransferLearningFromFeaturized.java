@@ -106,9 +106,9 @@ public class TransferLearningFromFeaturized {
         //Then add the StatsListener to collect this information from the network, as it trains
         StatsStorage statsStorage = new InMemoryStatsStorage();             //Alternative: new FileStatsStorage(File) - see UIStorageExample
         int listenerFrequency = 10;
-        vgg16Transfer.setListeners(new StatsListener(statsStorage, listenerFrequency));
+        //vgg16Transfer.setListeners(new StatsListener(statsStorage, listenerFrequency));
         //Attach the StatsStorage instance to the UI: this allows the contents of the StatsStorage to be visualized
-        uiServer.attach(statsStorage);
+        //uiServer.attach(statsStorage);
 
         /*
             Step III: Use the transfer learning helper to fit featurized
@@ -116,6 +116,8 @@ public class TransferLearningFromFeaturized {
         TransferLearningHelper transferLearningHelper = new TransferLearningHelper(vgg16Transfer);
         log.info(transferLearningHelper.unfrozenGraph().summary());
         log.info(transferLearningHelper.unfrozenGraph().getConfiguration().toJson());
+        transferLearningHelper.unfrozenGraph().setListeners(new StatsListener(statsStorage,listenerFrequency));
+        uiServer.attach(statsStorage);
         Evaluation eval = new Evaluation(numClasses);
         while(asyncTestIter.hasNext()){
             DataSet ds = asyncTestIter.next();
