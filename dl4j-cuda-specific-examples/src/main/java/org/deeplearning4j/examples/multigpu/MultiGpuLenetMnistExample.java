@@ -14,6 +14,7 @@ import org.deeplearning4j.nn.conf.layers.OutputLayer;
 import org.deeplearning4j.nn.conf.layers.SubsamplingLayer;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
+import org.deeplearning4j.optimize.listeners.PerformanceListener;
 import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
 import org.deeplearning4j.parallelism.ParallelWrapper;
 import org.nd4j.jita.conf.CudaEnvironment;
@@ -44,8 +45,9 @@ public class MultiGpuLenetMnistExample {
 
         // temp workaround for backend initialization
 
-        Nd4j.getMemoryManager().setAutoGcWindow(100);
-        Nd4j.getMemoryManager().setManualGcFrequency(0);
+        Nd4j.getMemoryManager().togglePeriodicGc(true);
+        Nd4j.getMemoryManager().setAutoGcWindow(200);
+        Nd4j.getMemoryManager().setOccasionalGcFrequency(0);
 
         CudaEnvironment.getInstance().getConfiguration()
             // key option enabled
@@ -53,6 +55,8 @@ public class MultiGpuLenetMnistExample {
 
             // we're allowing larger memory caches
             .setMaximumDeviceCache(4L * 1024L * 1024L * 1024L)
+
+            .setMaximumHostCache(4L * 1024L * 1024L * 1024L)
 
             // cross-device access is used for faster model averaging over pcie
             .allowCrossDeviceAccess(true);
@@ -138,7 +142,7 @@ public class MultiGpuLenetMnistExample {
             .build();
 
         log.info("Train model....");
-        model.setListeners(new ScoreIterationListener(100));
+        model.setListeners(new PerformanceListener(100, true));
         long timeX = System.currentTimeMillis();
 
         // optionally you might want to use MultipleEpochsIterator instead of manually iterating/resetting over your iterator

@@ -56,13 +56,19 @@ public class Word2VecSentimentRNN {
     /** Location to save and extract the training/testing data */
     public static final String DATA_PATH = FilenameUtils.concat(System.getProperty("java.io.tmpdir"), "dl4j_w2vSentiment/");
     /** Location (local file system) for the Google News vectors. Set this manually. */
-    public static final String WORD_VECTORS_PATH = "/PATH/TO/YOUR/VECTORS/GoogleNews-vectors-negative300.bin.gz";
+    public static final String WORD_VECTORS_PATH = "/home/raver119/develop/GoogleNews-vectors-negative300.bin.gz";
 
 
     public static void main(String[] args) throws Exception {
         if(WORD_VECTORS_PATH.startsWith("/PATH/TO/YOUR/VECTORS/")){
             throw new RuntimeException("Please set the WORD_VECTORS_PATH before running this example");
         }
+
+        long time1 = System.currentTimeMillis();
+        WordVectors wordVectors = WordVectorSerializer.readWord2VecModel(new File(WORD_VECTORS_PATH));
+        long time2 = System.currentTimeMillis();
+
+        System.out.println("Total load time: " + (time2 - time1));
 
         //Download and extract data
         downloadData();
@@ -91,7 +97,6 @@ public class Word2VecSentimentRNN {
         net.setListeners(new ScoreIterationListener(1));
 
         //DataSetIterators for training and testing respectively
-        WordVectors wordVectors = WordVectorSerializer.loadStaticModel(new File(WORD_VECTORS_PATH));
         SentimentExampleIterator train = new SentimentExampleIterator(DATA_PATH, wordVectors, batchSize, truncateReviewsToLength, true);
         SentimentExampleIterator test = new SentimentExampleIterator(DATA_PATH, wordVectors, batchSize, truncateReviewsToLength, false);
 
