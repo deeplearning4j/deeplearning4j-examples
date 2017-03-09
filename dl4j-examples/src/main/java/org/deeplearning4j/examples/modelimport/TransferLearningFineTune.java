@@ -98,8 +98,9 @@ public class TransferLearningFineTune {
 
         int iter = 0;
         while(trainIter.hasNext()) {
-            log.info("Evaluate model at iter "+iter +" ....");
+            vgg16FineTune.fit(trainIter.next());
             if (iter % 10 == 0 && iter !=0) {
+                log.info("Evaluate model at iter "+iter +" ....");
                 eval = new Evaluation(numClasses);
                 while (testIter.hasNext()) {
                     DataSet ds = testIter.next();

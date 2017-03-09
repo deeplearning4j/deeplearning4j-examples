@@ -128,21 +128,6 @@ public class TransferLearningFromFeaturized {
         log.info(eval.stats());
         asyncTestIter.reset();
 
-        /*
-            UI
-         */
-        //Initialize the user interface backend
-        /*
-        UIServer uiServer = UIServer.getInstance();
-        //Configure where the network information (gradients, activations, score vs. time etc) is to be stored
-        //Then add the StatsListener to collect this information from the network, as it trains
-        StatsStorage statsStorage = new InMemoryStatsStorage();             //Alternative: new FileStatsStorage(File) - see UIStorageExample
-        int listenerFrequency = 10;
-        vgg16Transfer.setListeners(new StatsListener(statsStorage, listenerFrequency));
-        //Attach the StatsStorage instance to the UI: this allows the contents of the StatsStorage to be visualized
-        uiServer.attach(statsStorage);
-        */
-
         int iter = 0;
         Nd4j.getExecutioner().setProfilingMode(OpExecutioner.ProfilingMode.NAN_PANIC);
         while(asyncTrainIter.hasNext()) {
