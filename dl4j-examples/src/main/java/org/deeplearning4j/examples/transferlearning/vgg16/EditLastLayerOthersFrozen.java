@@ -1,8 +1,9 @@
-package org.deeplearning4j.examples.modelimport;
+package org.deeplearning4j.examples.transferlearning.vgg16;
 
 import lombok.extern.slf4j.Slf4j;
 import org.deeplearning4j.api.storage.StatsStorage;
 import org.deeplearning4j.eval.Evaluation;
+import org.deeplearning4j.examples.transferlearning.vgg16.dataHelpers.FlowerDataSetIterator;
 import org.deeplearning4j.nn.api.OptimizationAlgorithm;
 import org.deeplearning4j.nn.conf.Updater;
 import org.deeplearning4j.nn.conf.distribution.NormalDistribution;
@@ -25,18 +26,16 @@ import org.nd4j.linalg.lossfunctions.LossFunctions;
 import java.io.IOException;
 
 /**
- * Created by susaneraly on 3/9/17.
+ * @author susaneraly on 3/9/17.
  */
 @Slf4j
-public class TransferLearnEditLastLayer {
+public class EditLastLayerOthersFrozen {
 
     protected static final int numClasses = 5;
     protected static final long seed = 12345;
 
     private static final int trainPerc = 80;
     private static final int batchSize = 15;
-    //private static final String dataDir = "/home/seraly/flower_photos";
-    private static final String dataDir = "/Users/susaneraly/flower_photos";
 
     public static void main(String [] args) throws UnsupportedKerasConfigurationException, IOException, InvalidKerasConfigurationException {
 
@@ -60,14 +59,15 @@ public class TransferLearnEditLastLayer {
                                         .addLayer("predictions",new OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD)
                                                                                 .nIn(4096)
                                                                                 .nOut(numClasses)
-                                                                                .weightInit(WeightInit.DISTRIBUTION).dist(new NormalDistribution(0,0.002*(2.0/(4096+10))))
+                                                                                .weightInit(WeightInit.DISTRIBUTION)
+                                                                                .dist(new NormalDistribution(0,0.02*(2.0/(4096+10))))
                                                                                 .activation(Activation.SOFTMAX)
                                                                                 .build(),"fc2")
                                         .build();
 
         log.info(vgg16Transfer.summary());
 
-        FlowerDataSetIterator.setup(dataDir,batchSize,trainPerc);
+        FlowerDataSetIterator.setup(batchSize,trainPerc);
         DataSetIterator trainIter = FlowerDataSetIterator.trainIterator();
         DataSetIterator testIter = FlowerDataSetIterator.testIterator();
 

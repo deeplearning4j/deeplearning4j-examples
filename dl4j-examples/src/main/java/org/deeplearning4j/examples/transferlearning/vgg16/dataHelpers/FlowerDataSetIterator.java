@@ -1,4 +1,4 @@
-package org.deeplearning4j.examples.modelimport;
+package org.deeplearning4j.examples.transferlearning.vgg16.dataHelpers;
 
 import org.datavec.api.io.filters.BalancedPathFilter;
 import org.datavec.api.io.labels.ParentPathLabelGenerator;
@@ -15,13 +15,15 @@ import java.io.IOException;
 import java.util.Random;
 
 /**
- * Created by susaneraly on 3/9/17.
+ * @author susaneraly on 3/9/17.
  */
 public class FlowerDataSetIterator {
 
+    //private static final String dataDir = "/home/seraly/flower_photos";
+    private static final String dataDir = "/Users/susaneraly/flower_photos";
+
     private static final String [] allowedExtensions = BaseImageLoader.ALLOWED_FORMATS;
     private static final Random rng  = new Random(13);
-    private static String dataDir;
 
     private static final int height = 224;
     private static final int width = 224;
@@ -42,8 +44,7 @@ public class FlowerDataSetIterator {
 
     }
 
-    public static void setup(String dataDirArg, int batchSizeArg, int trainPerc) {
-        dataDir = dataDirArg;
+    public static void setup(int batchSizeArg, int trainPerc) {
         batchSize = batchSizeArg;
 
         File parentDir = new File(dataDir);
