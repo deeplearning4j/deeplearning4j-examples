@@ -15,11 +15,11 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <shadedClassifier>bin</shadedClassifier>
         <java.version>1.8</java.version>
-        <nd4j.version>0.7.2</nd4j.version>
-        <dl4j.version>0.7.2</dl4j.version>
-        <datavec.version>0.7.2</datavec.version>
-        <arbiter.version>0.7.2</arbiter.version>
-        <rl4j.version>0.7.2</rl4j.version>
+        <nd4j.version>0.7.3-SNAPSHOT</nd4j.version>
+        <dl4j.version>0.7.3-SNAPSHOT</dl4j.version>
+        <datavec.version>0.7.3-SNAPSHOT</datavec.version>
+        <arbiter.version>0.7.3-SNAPSHOT</arbiter.version>
+        <rl4j.version>0.7.3-SNAPSHOT</rl4j.version>
         <guava.version>19.0</guava.version>
         <logback.version>1.1.7</logback.version>
         <jfreechart.version>1.0.13</jfreechart.version>
