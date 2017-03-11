@@ -63,7 +63,7 @@ Here we hold all but the last three dense layers frozen and attach new dense lay
 ```
 ComputationGraph vgg16Transfer = new TransferLearning.GraphBuilder(vgg16)
             	.fineTuneConfiguration(fineTuneConf)
-            	.setFeatureExtractor(featureExtractionLayer)
+            	.setFeatureExtractor("block5_pool")
             	.nOutReplace("fc2",1024, WeightInit.XAVIER)
             	.removeVertexAndConnections("predictions") 
             	.addLayer(“fc3",new DenseLayer.Builder()
@@ -130,8 +130,8 @@ When changing nOut users can specify a weight initialization scheme or a distrib
 
 In other words, a model with frozen layers when serialized and read back in will not have any frozen layers. To continue training holding specific layers constant the user is expected to go through the transfer learning helper or the transfer learning API. There are two ways to “freeze” layers in a dl4j model.
 
- * On a copy: With the transfer learning API which will return a new model with the relevant frozen layers
- * In place: With the transfer learning helper API which will apply the frozen layers to the given model.
+    - On a copy: With the transfer learning API which will return a new model with the relevant frozen layers
+    - In place: With the transfer learning helper API which will apply the frozen layers to the given model.
 
 * FineTune configurations will selectively update parameters. 
 
