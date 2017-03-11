@@ -19,27 +19,16 @@ The forward pass to “featurize” the input data on large, pertained networks 
 
 When running multiple epochs users will save on computation time since the expensive forward pass on the frozen layers/vertices will only have to be conducted once.
 
-## Of note: 
-
-1. The TransferLearning builder returns a new instance of a dl4j model. Keep in mind this is a second model that leaves the original one untouched. For large pertained network take into consideration memory requirements and adjust your JVM heap space accordingly.
-
-2. The trained model helper imports models from Keras without enforcing a training configuration. Therefore the last layer (as seen when printing the summary) is a dense layer and not an output layer with a loss function. Therefore to modify nOut of an output layer we delete the layer vertex, keeping it’s connections and add back in a new output layer with the same name, a different nOut, the suitable loss function etc etc. 
-
-3. Changing nOuts at a layer/vertex will modify nIn of the layers/vertices it fans into. When changing nOut users can specify a weight initialization scheme or a distribution for the layer as well as a separate weight initialization scheme or distribution for the layers it fans out to.
-
-4. Frozen layer configurations are not saved when writing the model to disk. In other words, a model with frozen layers when serialized and read back in will not have any frozen layers. To continue training holding specific layers constant the user is expected to go through the transfer learning helper or the transfer learning API. There are two ways to “freeze” layers in a dl4j model.
-* On a copy: With the transfer learning API which will return a new model with the relevant frozen layers
-* In place: With the transfer learning helper API which will apply the frozen layers to the given model.
-
-5. FineTune configurations will selectively update parameters. For eg, if a learning rate is specified this learning rate will apply to all unfrozen/trainable layers in the model. However, newly added layers can override this learning rate by specifying their own learning rates in the layer builder.
-
+## Show me the code
 This example will use VGG16 to classify images belonging to five categories of flowers. The dataset is available for download here. 
 
 I. Importing VGG16
+
 TrainedModelHelper modelImportHelper = new TrainedModelHelper(TrainedModels.VGG16);
 ComputationGraph vgg16 = modelImportHelper.loadModel();
 
 II. Set up a fine-tune configuration
+
 FineTuneConfiguration fineTuneConf = new FineTuneConfiguration.Builder()
             .learningRate(5e-5)
             .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
@@ -48,10 +37,11 @@ FineTuneConfiguration fineTuneConf = new FineTuneConfiguration.Builder()
             .build();
 
 III. Build new models based on VGG16
-Modifying only the last layer, keeping other frozen
+
+A. Modifying only the last layer, keeping other frozen
 The final layer of VGG16 does a softmax regression on the 1000 classes in ImageNet. We modify the very last layer to give predictions for five classes keeping the other layers frozen.
 
-
+``
 ComputationGraph vgg16Transfer = new TransferLearning.GraphBuilder(vgg16)
  		.fineTuneConfiguration(fineTuneConf)
             	.setFeatureExtractor(“fc2”)
@@ -62,6 +52,7 @@ ComputationGraph vgg16Transfer = new TransferLearning.GraphBuilder(vgg16)
                     		.weightInit(WeightInit.Xavier)
                     		.activation(Activation.SOFTMAX).build(), ”fc2")
             	.build();
+``
 After a mere thirty iterations, which in this case is exposure to 450 images, the model attains an accuracy > 75% on the test dataset. This is rather remarkable considering the complexity of training an image classifier from scratch.
 
 B. Attach new layers to the bottleneck (block5_pool)
@@ -113,3 +104,18 @@ TransferLearningHelper transferLearningHelper =
 while (trainIter.hasNext()) {
        transferLearningHelper.fitFeaturized(trainIter.next());
 }
+
+
+## Of note: 
+
+1. The TransferLearning builder returns a new instance of a dl4j model. Keep in mind this is a second model that leaves the original one untouched. For large pertained network take into consideration memory requirements and adjust your JVM heap space accordingly.
+
+2. The trained model helper imports models from Keras without enforcing a training configuration. Therefore the last layer (as seen when printing the summary) is a dense layer and not an output layer with a loss function. Therefore to modify nOut of an output layer we delete the layer vertex, keeping it’s connections and add back in a new output layer with the same name, a different nOut, the suitable loss function etc etc. 
+
+3. Changing nOuts at a layer/vertex will modify nIn of the layers/vertices it fans into. When changing nOut users can specify a weight initialization scheme or a distribution for the layer as well as a separate weight initialization scheme or distribution for the layers it fans out to.
+
+4. Frozen layer configurations are not saved when writing the model to disk. In other words, a model with frozen layers when serialized and read back in will not have any frozen layers. To continue training holding specific layers constant the user is expected to go through the transfer learning helper or the transfer learning API. There are two ways to “freeze” layers in a dl4j model.
+* On a copy: With the transfer learning API which will return a new model with the relevant frozen layers
+* In place: With the transfer learning helper API which will apply the frozen layers to the given model.
+
+5. FineTune configurations will selectively update parameters. For eg, if a learning rate is specified this learning rate will apply to all unfrozen/trainable layers in the model. However, newly added layers can override this learning rate by specifying their own learning rates in the layer builder.
