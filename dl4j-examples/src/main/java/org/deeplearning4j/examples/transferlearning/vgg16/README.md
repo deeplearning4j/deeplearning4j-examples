@@ -1,4 +1,5 @@
 Demonstrates use of the dl4j transfer learning API which allows users to 
+
 	- construct a model based off an existing model
 	- "freeze" certain layers
 	- fine tune learning parameters
