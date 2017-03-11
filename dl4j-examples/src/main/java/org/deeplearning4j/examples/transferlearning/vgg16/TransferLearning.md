@@ -41,7 +41,7 @@ III. Build new models based on VGG16
 A. Modifying only the last layer, keeping other frozen
 The final layer of VGG16 does a softmax regression on the 1000 classes in ImageNet. We modify the very last layer to give predictions for five classes keeping the other layers frozen.
 
-``
+```
 ComputationGraph vgg16Transfer = new TransferLearning.GraphBuilder(vgg16)
  		.fineTuneConfiguration(fineTuneConf)
             	.setFeatureExtractor(“fc2”)
@@ -52,12 +52,13 @@ ComputationGraph vgg16Transfer = new TransferLearning.GraphBuilder(vgg16)
                     		.weightInit(WeightInit.Xavier)
                     		.activation(Activation.SOFTMAX).build(), ”fc2")
             	.build();
-``
+```
 After a mere thirty iterations, which in this case is exposure to 450 images, the model attains an accuracy > 75% on the test dataset. This is rather remarkable considering the complexity of training an image classifier from scratch.
 
 B. Attach new layers to the bottleneck (block5_pool)
 Here we hold all but the last three dense layers frozen and attach new dense layers onto it. Note that the primary intent here is to demonstrate the use of the API, secondary to what might give better results.
 
+```
 ComputationGraph vgg16Transfer = new TransferLearning.GraphBuilder(vgg16)
             .fineTuneConfiguration(fineTuneConf)
             .setFeatureExtractor(featureExtractionLayer)
@@ -72,16 +73,17 @@ ComputationGraph vgg16Transfer = new TransferLearning.GraphBuilder(vgg16)
                               .nIn(256).nOut(numClasses).build(),”fc3") 
            .setOutputs("newpredictions") 
            .build();
-
+```
 
 C. Fine tune blocks from a previously saved model 
 Say we have saved off our model from (B) and now want to allow “block_5” layers to train. 
 
+```
 ComputationGraph vgg16FineTune = new TransferLearning.GraphBuilder(vgg16Transfer)
             .fineTuneConfiguration(fineTuneConf)
             .setFeatureExtractor(“block4_pool”)
             .build();
-
+```
 
 IV. Saving “featurized” datasets and training with them.
 
@@ -89,6 +91,7 @@ We use the transfer learning helper API. Note this freezes the layers of the mod
 
 Here is how you obtain the featured version of the dataset at the specified layer “fc2”.
 
+```
 TransferLearningHelper transferLearningHelper = 
 	new TransferLearningHelper(vgg16, “fc2”);
 while(trainIter.hasNext()) {
@@ -96,15 +99,15 @@ while(trainIter.hasNext()) {
         saveToDisk(currentFeaturized,trainDataSaved,true);
 	trainDataSaved++;
 }
-
+```
 Here is how you can fit with a featured dataset. vgg16Transfer is a model setup in (A) of section III.
-       
+```
 TransferLearningHelper transferLearningHelper = 
 	new TransferLearningHelper(vgg16Transfer);
 while (trainIter.hasNext()) {
        transferLearningHelper.fitFeaturized(trainIter.next());
 }
-
+```
 
 ## Of note: 
 
