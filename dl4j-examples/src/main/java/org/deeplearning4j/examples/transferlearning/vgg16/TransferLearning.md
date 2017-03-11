@@ -20,7 +20,7 @@ The forward pass to “featurize” the input data on large, pertained networks 
 When running multiple epochs users will save on computation time since the expensive forward pass on the frozen layers/vertices will only have to be conducted once.
 
 ## Show me the code
-This example will use VGG16 to classify images belonging to five categories of flowers. The dataset is available for download here. 
+This example will use VGG16 to classify images belonging to five categories of flowers. The dataset will automatically download from http://download.tensorflow.org/example_images/flower_photos.tgz
 
 #### I.  Importing VGG16
 ```
