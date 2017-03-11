@@ -1,47 +1,41 @@
 DL4J’s transfer learning API
 
-Overview
+## Overview
 
 The DL4J transfer learning API enables users to:
 
-Modify the architecture of an existing model
-	To change nOut of an arbitrary layer/layer-vertex. This will also change the nIn of the layer/vertices it fans out to.
-	To delete arbitrary vertices in a computation graph/remove an arbitrary number of layers including and preceding the final layer in a MultiLayerNetwork.
-	To add on new vertices to a computation graph/new layers to a multilayer network	
-With computation graphs there is also an option to delete a vertex but keep it’s connectivity. In this case the expectation is to add back a vertex with the same name but modified functionality to hook up to existing connections.
-Fine tune learning configurations of an existing model
-To change any of the learning related configurations of an existing model. For eg, apply a different updater at a slower learning rate.
-Hold parameters of a specified layer constant during training. Sometimes referred to as “frozen” layers or vertices. 
-In computation graphs - Parameters on paths from any input to specified vertices will be held constant during training. 
-In MultiLayer Networks - Specified layer and below will be held constant during training.
+* Modify the architecture of an existing model
+* Fine tune learning configurations of an existing model.
+* Hold parameters of a specified layer constant during training. Sometimes referred to as “frozen” layers or vertices. 
+ 
+Holding certain layers frozen on a network and training is effectively the same as training on a transformed version of the input, the transformed version being the intermediate outputs at the boundary of the frozen layers. This is the process of “feature extraction” from the input data and will be referred to as “featurizing” in this document. 
 
-Holding certain layers frozen on a network and training is effectively the same as training on a transformed version of the input, the transformed version being the intermediate outputs at the boundary of the frozen layers. This is process of “feature extraction” from the input data and will be referred to as “featurizing” in this document. 
-
+## The transfer learning helper
 The forward pass to “featurize” the input data on large, pertained networks can be time consuming. DL4J also provides a TransferLearningHelper class with the following capabilities. 
 
-Featurize an input dataset to save for future use
-Fit with a featurized dataset 
-Output, given a featurized input.
+* Featurize an input dataset to save for future use
+* Fit with a featurized dataset 
+* Output, given a featurized input.
 
 When running multiple epochs users will save on computation time since the expensive forward pass on the frozen layers/vertices will only have to be conducted once.
 
-Of note: 
+## Of note: 
 
-The TransferLearning builder returns a new instance of a dl4j model. Keep in mind this is a second model that leaves the original one untouched. For large pertained network take into consideration memory requirements and adjust your JVM heap space accordingly.
+1. The TransferLearning builder returns a new instance of a dl4j model. Keep in mind this is a second model that leaves the original one untouched. For large pertained network take into consideration memory requirements and adjust your JVM heap space accordingly.
 
-The trained model helper imports models from Keras without enforcing a training configuration. Therefore the last layer (as seen when printing the summary) is a dense layer and not an output layer with a loss function. Therefore to modify nOut of an output layer we delete the layer vertex, keeping it’s connections and add back in a new output layer with the same name, a different nOut, the suitable loss function etc etc. 
+2. The trained model helper imports models from Keras without enforcing a training configuration. Therefore the last layer (as seen when printing the summary) is a dense layer and not an output layer with a loss function. Therefore to modify nOut of an output layer we delete the layer vertex, keeping it’s connections and add back in a new output layer with the same name, a different nOut, the suitable loss function etc etc. 
 
-Changing nOuts at a layer/vertex will modify nIn of the layers/vertices it fans into. When changing nOut users can specify a weight initialization scheme or a distribution for the layer as well as a separate weight initialization scheme or distribution for the layers it fans out to.
+3. Changing nOuts at a layer/vertex will modify nIn of the layers/vertices it fans into. When changing nOut users can specify a weight initialization scheme or a distribution for the layer as well as a separate weight initialization scheme or distribution for the layers it fans out to.
 
-Frozen layer configurations are not saved when writing the model to disk. In other words, a model with frozen layers when serialized and read back in will not have any frozen layers. To continue training holding specific layers constant the user is expected to go through the transfer learning helper or the transfer learning API. There are two ways to “freeze” layers in a dl4j model.
-On a copy: With the transfer learning API which will return a new model with the relevant frozen layers
-In place: With the transfer learning helper API which will apply the frozen layers to the given model.
+4. Frozen layer configurations are not saved when writing the model to disk. In other words, a model with frozen layers when serialized and read back in will not have any frozen layers. To continue training holding specific layers constant the user is expected to go through the transfer learning helper or the transfer learning API. There are two ways to “freeze” layers in a dl4j model.
+* On a copy: With the transfer learning API which will return a new model with the relevant frozen layers
+* In place: With the transfer learning helper API which will apply the frozen layers to the given model.
 
-FineTune configurations will selectively update parameters. For eg, if a learning rate is specified this learning rate will apply to all unfrozen/trainable layers in the model. However, newly added layers can override this learning rate by specifying their own learning rates in the layer builder.
+5. FineTune configurations will selectively update parameters. For eg, if a learning rate is specified this learning rate will apply to all unfrozen/trainable layers in the model. However, newly added layers can override this learning rate by specifying their own learning rates in the layer builder.
 
-This blog post will outline these features. The related code is available {here/FIXME}. We will use VGG16 to classify images belonging to five categories of flowers. The dataset is available for download here. 
+This example will use VGG16 to classify images belonging to five categories of flowers. The dataset is available for download here. 
 
-Importing VGG16
+I. Importing VGG16
 TrainedModelHelper modelImportHelper = new TrainedModelHelper(TrainedModels.VGG16);
 ComputationGraph vgg16 = modelImportHelper.loadModel();
 
