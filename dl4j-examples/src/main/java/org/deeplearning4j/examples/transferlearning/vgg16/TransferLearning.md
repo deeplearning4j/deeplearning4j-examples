@@ -6,7 +6,7 @@ The DL4J transfer learning API enables users to:
 
 * Modify the architecture of an existing model
 * Fine tune learning configurations of an existing model.
-* Hold parameters of a specified layer constant during training. Sometimes referred to as “frozen” layers or vertices. 
+* Hold parameters of a specified layer constant during training, also referred to as “frozen" 
  
 Holding certain layers frozen on a network and training is effectively the same as training on a transformed version of the input, the transformed version being the intermediate outputs at the boundary of the frozen layers. This is the process of “feature extraction” from the input data and will be referred to as “featurizing” in this document. 
 
@@ -77,7 +77,7 @@ ComputationGraph vgg16Transfer = new TransferLearning.GraphBuilder(vgg16)
            	.build();
 ```
 
-##### C. Fine tune blocks from a previously saved model 
+##### C. Fine tune layers from a previously saved model 
 
 Say we have saved off our model from (B) and now want to allow “block_5” layers to train. 
 
@@ -133,6 +133,6 @@ In other words, a model with frozen layers when serialized and read back in will
     - On a copy: With the transfer learning API which will return a new model with the relevant frozen layers
     - In place: With the transfer learning helper API which will apply the frozen layers to the given model.
 
-* FineTune configurations will selectively update parameters. 
+* FineTune configurations will selectively update learning parameters. 
 
 For eg, if a learning rate is specified this learning rate will apply to all unfrozen/trainable layers in the model. However, newly added layers can override this learning rate by specifying their own learning rates in the layer builder.
