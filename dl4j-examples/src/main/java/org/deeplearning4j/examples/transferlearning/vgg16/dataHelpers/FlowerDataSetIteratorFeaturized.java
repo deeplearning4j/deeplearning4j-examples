@@ -7,6 +7,7 @@ import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import java.io.File;
 
 /**
+ * Iterator for featurized data.
  * @author susaneraly on 3/10/17.
  */
 public class FlowerDataSetIteratorFeaturized {

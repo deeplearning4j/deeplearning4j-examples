@@ -1,9 +1,12 @@
 package org.deeplearning4j.examples.transferlearning.vgg16.dataHelpers;
 
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.FileUtils;
 import org.datavec.api.io.filters.BalancedPathFilter;
 import org.datavec.api.io.labels.ParentPathLabelGenerator;
 import org.datavec.api.split.FileSplit;
 import org.datavec.api.split.InputSplit;
+import org.datavec.api.util.ArchiveUtils;
 import org.datavec.image.loader.BaseImageLoader;
 import org.datavec.image.recordreader.ImageRecordReader;
 import org.deeplearning4j.datasets.datavec.RecordReaderDataSetIterator;
@@ -12,15 +15,21 @@ import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.util.Random;
 
 /**
+ * Automatically downloads the dataset from
+ * http://download.tensorflow.org/example_images/flower_photos.tgz
+ * and untar's it to the users home directory
  * @author susaneraly on 3/9/17.
  */
+@Slf4j
 public class FlowerDataSetIterator {
 
-    //private static final String dataDir = "/home/seraly/flower_photos";
-    private static final String dataDir = "/Users/susaneraly/flower_photos";
+    private static final String DATA_DIR = new File(System.getProperty("user.home")) + "/dl4jDataDir";
+    private static final String DATA_URL = "http://download.tensorflow.org/example_images/flower_photos.tgz";
+    private static final String FLOWER_DIR = DATA_DIR + "/flower_photos";
 
     private static final String [] allowedExtensions = BaseImageLoader.ALLOWED_FORMATS;
     private static final Random rng  = new Random(13);
@@ -44,10 +53,15 @@ public class FlowerDataSetIterator {
 
     }
 
-    public static void setup(int batchSizeArg, int trainPerc) {
+    public static void setup(int batchSizeArg, int trainPerc) throws IOException {
+        try {
+            downloadAndUntar();
+        } catch (IOException e) {
+            e.printStackTrace();
+            log.error("IOException : ", e);
+        }
         batchSize = batchSizeArg;
-
-        File parentDir = new File(dataDir);
+        File parentDir = new File(FLOWER_DIR);
         FileSplit filesInDir = new FileSplit(parentDir, allowedExtensions, rng);
         BalancedPathFilter pathFilter = new BalancedPathFilter(rng, allowedExtensions, labelMaker);
         if (trainPerc >= 100) {
@@ -64,5 +78,20 @@ public class FlowerDataSetIterator {
         DataSetIterator iter = new RecordReaderDataSetIterator(recordReader, batchSize, 1, numClasses);
         iter.setPreProcessor(TrainedModels.VGG16.getPreProcessor());
         return iter;
+    }
+
+    public static void downloadAndUntar() throws IOException {
+         File rootFile = new File(DATA_DIR);
+         if (!rootFile.exists()) {
+             rootFile.mkdir();
+         }
+         File tarFile = new File(DATA_DIR, "flower_photos.tgz");
+         if (!tarFile.isFile()) {
+             log.info("Downloading the flower dataset from "+DATA_URL+ "...");
+             FileUtils.copyURLToFile(
+                     new URL(DATA_URL),
+                     tarFile);
+         }
+         ArchiveUtils.unzipFileTo(tarFile.getAbsolutePath(), rootFile.getAbsolutePath());
     }
 }

@@ -14,6 +14,9 @@ import java.io.File;
 import java.io.IOException;
 
 /**
+ * The TransferLearningHelper class allows users to "featurize" a dataset at specific intermediate vertices/layers of a model
+ * This example demonstrates how to presave these
+ * Refer to the "FitFromFeaturized" example for how to fit a model with these featurized datasets
  * @author susaneraly on 2/28/17.
  */
 @Slf4j
@@ -21,13 +24,18 @@ public class FeaturizedPreSave {
 
     private static final int trainPerc = 80;
     protected static final int batchSize = 15;
-    public static final String featurizeExtractionLayer = "fc2";
+    public static final String featurizeExtractionLayer = "block5_pool";
 
     public static void main(String [] args) throws UnsupportedKerasConfigurationException, IOException, InvalidKerasConfigurationException {
 
+        //import vgg16 and print summary
         TrainedModelHelper modelImportHelper = new TrainedModelHelper(TrainedModels.VGG16);
+        log.info("\n\nLoading vgg16...\n\n");
         ComputationGraph vgg16 = modelImportHelper.loadModel();
         log.info(vgg16.summary());
+
+        //use the TransferLearningHelper to freeze the specified vertices and below
+        //NOTE: This is done in place! Pass in a cloned version of the model if you would prefer to not do this in place
         TransferLearningHelper transferLearningHelper = new TransferLearningHelper(vgg16, featurizeExtractionLayer);
         log.info(vgg16.summary());
 

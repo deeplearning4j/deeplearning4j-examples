@@ -1,9 +1,8 @@
 package org.deeplearning4j.examples.transferlearning.vgg16;
 
 import lombok.extern.slf4j.Slf4j;
-import org.deeplearning4j.api.storage.StatsStorage;
-import org.deeplearning4j.datasets.iterator.AsyncDataSetIterator;
 import org.deeplearning4j.eval.Evaluation;
+import org.deeplearning4j.examples.transferlearning.vgg16.dataHelpers.FlowerDataSetIterator;
 import org.deeplearning4j.nn.api.OptimizationAlgorithm;
 import org.deeplearning4j.nn.conf.Updater;
 import org.deeplearning4j.nn.conf.layers.DenseLayer;
@@ -13,25 +12,30 @@ import org.deeplearning4j.nn.modelimport.keras.trainedmodels.TrainedModelHelper;
 import org.deeplearning4j.nn.modelimport.keras.trainedmodels.TrainedModels;
 import org.deeplearning4j.nn.transferlearning.FineTuneConfiguration;
 import org.deeplearning4j.nn.transferlearning.TransferLearning;
-import org.deeplearning4j.nn.transferlearning.TransferLearningHelper;
 import org.deeplearning4j.nn.weights.WeightInit;
-import org.deeplearning4j.ui.api.UIServer;
-import org.deeplearning4j.ui.stats.StatsListener;
-import org.deeplearning4j.ui.storage.InMemoryStatsStorage;
 import org.deeplearning4j.util.ModelSerializer;
 import org.nd4j.linalg.activations.Activation;
-import org.nd4j.linalg.api.ndarray.INDArray;
-import org.nd4j.linalg.api.ops.executioner.OpExecutioner;
-import org.nd4j.linalg.dataset.DataSet;
-import org.nd4j.linalg.dataset.ExistingMiniBatchDataSetIterator;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
-import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 
 import java.io.File;
 
 /**
- * Created by susaneraly on 3/1/17.
+ * @author susaneraly on 3/1/17.
+ *
+ * IMPORTANT:
+ * 1. The forward pass on VGG16 is time consuming. Refer to "FeaturizedPreSave" and "FitFromFeaturized" for how to use presaved datasets
+ * 2. RAM at the very least 16G, set JVM mx heap space accordingly
+ *
+ * We use the transfer learning API to construct a new model based of vgg16.
+ * We keep block5_pool and below frozen
+ *      and modify/add dense layers to form
+ *          block5_pool -> flatten -> fc1 -> fc2 -> fc3 -> newpredictions (5 classes)
+ *       from
+ *          block5_pool -> flatten -> fc1 -> fc2 -> predictions (1000 classes)
+ *
+ * Note that we could presave the output out block5_pool like we do in FeaturizedPreSave + FitFromFeaturized
+ * Refer to those two classes for more detail
  */
 @Slf4j
 public class EditAtBottleneckOthersFrozen {
@@ -39,113 +43,91 @@ public class EditAtBottleneckOthersFrozen {
     protected static final int numClasses = 5;
 
     protected static final long seed = 12345;
+    private static final int trainPerc = 80;
+    private static final int batchSize = 15;
+    private static final String featureExtractionLayer = "block5_pool";
 
     public static void main(String [] args) throws Exception {
 
-        //Nd4j.getExecutioner().setProfilingMode(OpExecutioner.ProfilingMode.NAN_PANIC);
-        /*
-            Step I: Construct the architecture we want from vgg16
-
-            We set "fc1" and below to frozen (this is what we did when we presaved the dataset and this has to line up)
-            We then change nOut for "fc2" to be 1024. This reinitializes this layer with the weight init given
-            We then remove the existing output layer and connections
-            Add in a new dense layer "fc3" followed by another new dense layer "newpredictions"
-            Set outputs and loss functions correctly
-            The settings from the fine tune configuration will be applied to all layers that are not frozen
-                unless they are individualy overriden (like the activation softmax in the output layer that
-                                                overrides the leaky relu activation from the fine tune)
-         */
+        //Import vgg
+        //Note that the model imported does not have an output layer (check printed summary)
+        //  nor any training related configs (model from keras was imported with only weights and json)
         TrainedModelHelper modelImportHelper = new TrainedModelHelper(TrainedModels.VGG16);
+        log.info("\n\nLoading vgg16...\n\n");
         ComputationGraph vgg16 = modelImportHelper.loadModel();
         log.info(vgg16.summary());
 
+        //Decide on a fine tune configuration to use.
+        //In cases where there already exists a setting the fine tune setting will
+        //  override the setting for all layers that are not "frozen".
+        FineTuneConfiguration fineTuneConf = new FineTuneConfiguration.Builder()
+            .activation(Activation.LEAKYRELU)
+            .weightInit(WeightInit.RELU)
+            .learningRate(5e-5)
+            .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
+            .updater(Updater.NESTEROVS)
+            .dropOut(0.5)
+            .seed(seed)
+            .build();
+
+        //Construct a new model with the intended architecture and print summary
+        //  Note: This architecture is constructed with the primary intent of demonstrating use of the transfer learning API,
+        //        secondary to what might give better results
         ComputationGraph vgg16Transfer = new TransferLearning.GraphBuilder(vgg16)
-            .fineTuneConfiguration(new FineTuneConfiguration.Builder()
-                                        .activation(Activation.LEAKYRELU)
-                                        .weightInit(WeightInit.RELU)
-                                        .learningRate(5e-5)
-                                        .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
-                                        .updater(Updater.NESTEROVS)
-                                        //.regularization(true).l2(0.001)
-                                        //.gradientNormalization(GradientNormalization.ClipL2PerLayer)
-                                        .dropOut(0.5)
-                                        .seed(seed)
-                                        .build())
-            .setFeatureExtractor("block5_pool") //this is where we featurized our dataset
-            .nOutReplace("fc2",1024, WeightInit.XAVIER)
-            .removeVertexAndConnections("predictions")
-            .addLayer("fc3",new DenseLayer.Builder().activation(Activation.TANH).nIn(1024).nOut(256).build(),"fc2")
+            .fineTuneConfiguration(fineTuneConf)
+            .setFeatureExtractor(featureExtractionLayer) //"block5_pool" and below are frozen
+            .nOutReplace("fc2",1024, WeightInit.XAVIER) //modify nOut of the "fc2" vertex
+            .removeVertexAndConnections("predictions") //remove the final vertex and it's connections
+            .addLayer("fc3",new DenseLayer.Builder().activation(Activation.TANH).nIn(1024).nOut(256).build(),"fc2") //add in a new dense layer
             .addLayer("newpredictions",new OutputLayer
                                         .Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD)
                                         .activation(Activation.SOFTMAX)
                                         .nIn(256)
                                         .nOut(numClasses)
-                                        .build(),"fc3")
-            .setOutputs("newpredictions")
+                                        .build(),"fc3") //add in a final output dense layer,
+                                                        // note that learning related configurations applied on a new layer here will be honored
+                                                        // In other words - these will override the finetune confs.
+                                                        // For eg. activation function will be softmax not RELU
+            .setOutputs("newpredictions") //since we removed the output vertex and it's connections we need to specify outputs for the graph
             .build();
         log.info(vgg16Transfer.summary());
 
+        //Dataset iterators
+        FlowerDataSetIterator.setup(batchSize,trainPerc);
+        DataSetIterator trainIter = FlowerDataSetIterator.trainIterator();
+        DataSetIterator testIter = FlowerDataSetIterator.testIterator();
 
-        /*
-            Step II: Set up a dataset iterator from the pre saved dataset
-         */
-        DataSetIterator existingTrainingData = new ExistingMiniBatchDataSetIterator(new File("trainFolder"),"flowers-train-%d.bin");
-        DataSetIterator asyncTrainIter = new AsyncDataSetIterator(existingTrainingData);
-
-        DataSetIterator existingTestData = new ExistingMiniBatchDataSetIterator(new File("testFolder"),"flowers-test-%d.bin");
-        DataSetIterator asyncTestIter = new AsyncDataSetIterator(existingTestData);
-
-        //Initialize the user interface backend
-        UIServer uiServer = UIServer.getInstance();
-        //Configure where the network information (gradients, activations, score vs. time etc) is to be stored
-        //Then add the StatsListener to collect this information from the network, as it trains
-        StatsStorage statsStorage = new InMemoryStatsStorage();             //Alternative: new FileStatsStorage(File) - see UIStorageExample
-        int listenerFrequency = 10;
-        //vgg16Transfer.setListeners(new StatsListener(statsStorage, listenerFrequency));
-        //Attach the StatsStorage instance to the UI: this allows the contents of the StatsStorage to be visualized
-        //uiServer.attach(statsStorage);
-
-        /*
-            Step III: Use the transfer learning helper to fit featurized
-         */
-        TransferLearningHelper transferLearningHelper = new TransferLearningHelper(vgg16Transfer);
-        log.info(transferLearningHelper.unfrozenGraph().summary());
-        log.info(transferLearningHelper.unfrozenGraph().getConfiguration().toJson());
-        transferLearningHelper.unfrozenGraph().setListeners(new StatsListener(statsStorage,listenerFrequency));
-        uiServer.attach(statsStorage);
-        Evaluation eval = new Evaluation(numClasses);
-        while(asyncTestIter.hasNext()){
-            DataSet ds = asyncTestIter.next();
-             INDArray output = transferLearningHelper.outputFromFeaturized(ds.getFeatures());
-            eval.eval(ds.getLabels(), output);
-
-        }
-        log.info(eval.stats());
-        asyncTestIter.reset();
+        Evaluation eval;
+        eval = vgg16Transfer.evaluate(testIter);
+        log.info("Eval stats BEFORE fit.....");
+        log.info(eval.stats() + "\n");
+        testIter.reset();
 
         int iter = 0;
-        Nd4j.getExecutioner().setProfilingMode(OpExecutioner.ProfilingMode.NAN_PANIC);
-        while(asyncTrainIter.hasNext()) {
-            transferLearningHelper.fitFeaturized(asyncTrainIter.next());
-            if (iter % 10 == 0 && iter!= 0) {
-                log.info("Evaluate model at iter " + iter + " ....");
-                eval = new Evaluation(numClasses);
-                while (asyncTestIter.hasNext()) {
-                    DataSet ds = asyncTestIter.next();
-                    INDArray output = transferLearningHelper.unfrozenGraph().output(false, ds.getFeatures())[0];
-                    eval.eval(ds.getLabels(), output);
-
-                }
+        while(trainIter.hasNext()) {
+            vgg16Transfer.fit(trainIter.next());
+            if (iter % 10 == 0) {
+                log.info("Evaluate model at iter "+iter +" ....");
+                eval = vgg16Transfer.evaluate(testIter);
                 log.info(eval.stats());
-                asyncTestIter.reset();
+                testIter.reset();
             }
             iter++;
         }
+        log.info("Model build complete");
+
         //Save the model
-        File locationToSave = new File("MyComputationGraph.zip");       //Where to save the network. Note: the file is in .zip format - can be opened externally
-        boolean saveUpdater = false;                                             //Updater: i.e., the state for Momentum, RMSProp, Adagrad etc. Save this if you want to train your network more in the future
+        //Note that the saved model will not know which layers were frozen during training.
+        //Frozen models always have to specified before training.
+        // Models with frozen layers can be constructed in the following two ways:
+        //      1. .setFeatureExtractor in the transfer learning API which will always a return a new model (as seen in this example)
+        //      2. in place with the TransferLearningHelper constructor which will take a model, and a specific vertexname
+        //              and freeze it and the vertices on the path from an input to it (as seen in the FeaturizePreSave class)
+        //The saved model can be "fine-tuned" further as in the class "FitFromFeaturized"
+        File locationToSave = new File("MyComputationGraph.zip");
+        boolean saveUpdater = false;
         ModelSerializer.writeModel(vgg16Transfer, locationToSave, saveUpdater);
 
-        log.info("Model written");
+        log.info("Model saved");
     }
 }
