@@ -4,6 +4,7 @@ package org.deeplearning4j.examples.recurrent.regression;
 import org.datavec.api.records.reader.SequenceRecordReader;
 import org.datavec.api.records.reader.impl.csv.CSVSequenceRecordReader;
 import org.datavec.api.split.NumberedFileInputSplit;
+import org.datavec.api.util.ClassPathResource;
 import org.deeplearning4j.datasets.datavec.SequenceRecordReaderDataSetIterator;
 import org.deeplearning4j.eval.RegressionEvaluation;
 import org.deeplearning4j.nn.api.OptimizationAlgorithm;
@@ -48,10 +49,9 @@ import java.io.File;
 public class SingleTimestepRegressionExample {
     private static final Logger LOGGER = LoggerFactory.getLogger(SingleTimestepRegressionExample.class);
 
-    private static File baseDir = new File("dl4j-examples/src/main/resources/rnnRegression");
-
     public static void main(String[] args) throws Exception {
 
+        File baseDir = new ClassPathResource("/rnnRegression").getFile();
         int miniBatchSize = 32;
 
         // ----- Load the training data -----
