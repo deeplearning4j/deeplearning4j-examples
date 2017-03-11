@@ -14,8 +14,8 @@ Holding certain layers frozen on a network and training is effectively the same 
 The forward pass to “featurize” the input data on large, pertained networks can be time consuming. DL4J also provides a TransferLearningHelper class with the following capabilities. 
 
 * Featurize an input dataset to save for future use
-* Fit with a featurized dataset 
-* Output, given a featurized input.
+* Fit the model with frozen layers with a featurized dataset 
+* Output from the model with frozen layers given a featurized input.
 
 When running multiple epochs users will save on computation time since the expensive forward pass on the frozen layers/vertices will only have to be conducted once.
 
