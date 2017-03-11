@@ -23,19 +23,19 @@ When running multiple epochs users will save on computation time since the expen
 This example will use VGG16 to classify images belonging to five categories of flowers. The dataset is available for download here. 
 
 I. Importing VGG16
-
+```
 TrainedModelHelper modelImportHelper = new TrainedModelHelper(TrainedModels.VGG16);
 ComputationGraph vgg16 = modelImportHelper.loadModel();
-
+```
 II. Set up a fine-tune configuration
-
+```
 FineTuneConfiguration fineTuneConf = new FineTuneConfiguration.Builder()
             .learningRate(5e-5)
             .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
             .updater(Updater.NESTEROVS)
             .seed(seed)
             .build();
-
+```
 III. Build new models based on VGG16
 
 A. Modifying only the last layer, keeping other frozen
@@ -60,19 +60,19 @@ Here we hold all but the last three dense layers frozen and attach new dense lay
 
 ```
 ComputationGraph vgg16Transfer = new TransferLearning.GraphBuilder(vgg16)
-            .fineTuneConfiguration(fineTuneConf)
-            .setFeatureExtractor(featureExtractionLayer)
-            .nOutReplace("fc2",1024, WeightInit.XAVIER)
-            .removeVertexAndConnections("predictions") 
-            .addLayer(“fc3",new DenseLayer.Builder()
+            	.fineTuneConfiguration(fineTuneConf)
+            	.setFeatureExtractor(featureExtractionLayer)
+            	.nOutReplace("fc2",1024, WeightInit.XAVIER)
+            	.removeVertexAndConnections("predictions") 
+            	.addLayer(“fc3",new DenseLayer.Builder()
 				 .activation(Activation.RELU)
 				 .nIn(1024).nOut(256).build(),"fc2") 
-            .addLayer(“newpredictions”,new OutputLayer
+            	.addLayer(“newpredictions”,new OutputLayer
 				.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD)
-                              .activation(Activation.SOFTMAX)
-                              .nIn(256).nOut(numClasses).build(),”fc3") 
-           .setOutputs("newpredictions") 
-           .build();
+                              	.activation(Activation.SOFTMAX)
+                              	.nIn(256).nOut(numClasses).build(),”fc3") 
+           	.setOutputs("newpredictions") 
+           	.build();
 ```
 
 C. Fine tune blocks from a previously saved model 
@@ -80,9 +80,9 @@ Say we have saved off our model from (B) and now want to allow “block_5” lay
 
 ```
 ComputationGraph vgg16FineTune = new TransferLearning.GraphBuilder(vgg16Transfer)
-            .fineTuneConfiguration(fineTuneConf)
-            .setFeatureExtractor(“block4_pool”)
-            .build();
+            	.fineTuneConfiguration(fineTuneConf)
+            	.setFeatureExtractor(“block4_pool”)
+            	.build();
 ```
 
 IV. Saving “featurized” datasets and training with them.
@@ -93,9 +93,9 @@ Here is how you obtain the featured version of the dataset at the specified laye
 
 ```
 TransferLearningHelper transferLearningHelper = 
-	new TransferLearningHelper(vgg16, “fc2”);
+		new TransferLearningHelper(vgg16, “fc2”);
 while(trainIter.hasNext()) {
-        DataSet currentFeaturized = transferLearningHelper.featurize(trainIter.next());
+       	DataSet currentFeaturized = transferLearningHelper.featurize(trainIter.next());
         saveToDisk(currentFeaturized,trainDataSaved,true);
 	trainDataSaved++;
 }
@@ -103,7 +103,7 @@ while(trainIter.hasNext()) {
 Here is how you can fit with a featured dataset. vgg16Transfer is a model setup in (A) of section III.
 ```
 TransferLearningHelper transferLearningHelper = 
-	new TransferLearningHelper(vgg16Transfer);
+		new TransferLearningHelper(vgg16Transfer);
 while (trainIter.hasNext()) {
        transferLearningHelper.fitFeaturized(trainIter.next());
 }
