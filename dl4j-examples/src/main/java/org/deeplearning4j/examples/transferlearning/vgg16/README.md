@@ -4,7 +4,7 @@ Demonstrates use of the dl4j transfer learning API which allows users to
 	- fine tune learning parameters
 
 Explore preferably in the following order.
- 1. Read <BLAH_BLAH_website>
+ 1. Read BLAH_BLAH_website
  2. Run "EditLastLayerOthersFrozen" to modify just the last layer in vgg16 and use it to fit the dataset. Expect this to run a "while"
  3. Build the same architecture in (2) but with featurized datasets
  	a. Run "FeaturizedPreSave" which will featurize ~3000 images by passing them through vgg16. Expect this to run "a while"
