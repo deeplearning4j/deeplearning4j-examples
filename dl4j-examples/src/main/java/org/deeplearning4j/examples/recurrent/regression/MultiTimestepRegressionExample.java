@@ -138,7 +138,7 @@ public class MultiTimestepRegressionExample {
         net.setListeners(new ScoreIterationListener(20));
 
         // ----- Train the network, evaluating the test set performance at each epoch -----
-        int nEpochs = 50;
+        int nEpochs = 100;
 
         for (int i = 0; i < nEpochs; i++) {
             net.fit(trainDataIter);
@@ -146,7 +146,7 @@ public class MultiTimestepRegressionExample {
             LOGGER.info("Epoch " + i + " complete. Time series evaluation:");
 
             //Run regression evaluation on our single column input
-            RegressionEvaluation evaluation = new RegressionEvaluation(1);
+            RegressionEvaluation evaluation = new RegressionEvaluation(numOfVariables);
 
             //Run evaluation. This is on 25k reviews, so can take some time
             while (testDataIter.hasNext()) {
