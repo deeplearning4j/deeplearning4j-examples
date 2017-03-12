@@ -48,15 +48,16 @@ import java.util.List;
 
 
 /**
- * This example demonstrates multi-timestep regression using a 1D temporal convolutional
- * network. It is modified from MultiTimestepRegressionExample.java, which demonstrates
- * time series forecasting using an LSTM. The only difference is the use of a 1D convolution
- * and max pooling layers instead of an LSTM layer.
+ * This example demonstrates one-step-ahead time series forecasting using a 1D temporal
+ * convolutional network with 1D max pooling. It is cannibalized from MultiTimestepRegressionExample.java,
+ * which demonstrates time series forecasting using an LSTM.
  *
- * The intention in this example is to replicate the behavior of an RNN, i.e., to output
- * a prediction at every timestep. If we intended only to make a single prediction, e.g.,
- * the next time step, then we could use a more flexible architecture (e.g., different
- * convolution modes, global pooling, etc.).
+ * Compare this with TemporalConvolutionRegressionExampleGlobalPooling.java, which uses
+ * the same 1D convolutional layer but with ConvolutionMode.Truncate and a subsequent
+ * global mean pooling layer to collapse the time axis. That model outputs only one
+ * prediction and thus requires only a single target (the next timestep) during training,
+ * as well as a normal OutputLayer. Here we output one prediction per timestep,
+ * the same as the LSTM example, and hence require an RnnOutputLayer.
  *
  * The original example was inspired by Jason Brownlee's regression examples for Keras found at
  *
@@ -138,7 +139,7 @@ public class TemporalConvolutionRegressionExample {
              * need to use ConvolutionMode.Same.
              */
             .layer(0, new Convolution1DLayer.Builder()
-                .kernelSize(7)
+                .kernelSize(5)
                 .stride(1)
                 .convolutionMode(ConvolutionMode.Same) // ensures output is same length as input
                 .activation(Activation.RELU)
@@ -146,7 +147,7 @@ public class TemporalConvolutionRegressionExample {
                 .nOut(10)
                 .build())
             .layer(1, new Subsampling1DLayer.Builder(PoolingType.MAX)
-                .kernelSize(3)
+                .kernelSize(2)
                 .stride(1)
                 .convolutionMode(ConvolutionMode.Same) // ensures output is same length as input
                 .build())
@@ -157,7 +158,9 @@ public class TemporalConvolutionRegressionExample {
              * dense output layer.
              */
             .layer(2, new RnnOutputLayer.Builder(LossFunctions.LossFunction.MSE)
-                .activation(Activation.IDENTITY).nIn(10).nOut(numOfVariables).build())
+                .activation(Activation.IDENTITY)
+                .nOut(numOfVariables)
+                .build())
             .setInputType(new InputType.InputTypeRecurrent(numOfVariables))
             .build();
 
@@ -167,7 +170,7 @@ public class TemporalConvolutionRegressionExample {
         net.setListeners(new ScoreIterationListener(20));
 
         // ----- Train the network, evaluating the test set performance at each epoch -----
-        int nEpochs = 50;
+        int nEpochs = 100;
 
         for (int i = 0; i < nEpochs; i++) {
             net.fit(trainDataIter);
