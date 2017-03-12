@@ -112,12 +112,19 @@
             <version>${jcommon.version}</version>
         </dependency>
 
+        <dependency>
+          <groupId>com.oracle</groupId>
+          <artifactId>javafx</artifactId>
+          <version>${javafx.version}</version>
+        </dependency>
+
         <!-- Used for downloading data in some of the examples -->
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
             <version>4.3.5</version>
         </dependency>
+
     </dependencies>
 
     <build>
