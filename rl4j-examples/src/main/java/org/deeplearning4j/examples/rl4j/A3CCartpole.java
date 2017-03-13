@@ -30,14 +30,8 @@ public class A3CCartpole {
             );
 
 
-
-    private static final ActorCriticFactorySeparateStdDense.Configuration CARTPOLE_NET_A3C = new ActorCriticFactorySeparateStdDense.Configuration(
-            3,                      //number of layers
-            16,                     //number of hidden nodes
-            0.001,                 //learning rate
-            0.000                   //l2 regularization
-    );
-
+    private static final ActorCriticFactorySeparateStdDense.Configuration CARTPOLE_NET_A3C =  ActorCriticFactorySeparateStdDense.Configuration
+    .builder().learningRate(1e-2).l2(0).numHiddenNodes(16).numLayer(3).build();
 
     public static void main( String[] args )
     {

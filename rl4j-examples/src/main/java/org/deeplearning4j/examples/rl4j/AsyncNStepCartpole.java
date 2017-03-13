@@ -33,13 +33,10 @@ public class AsyncNStepCartpole {
                     9000     //num step for eps greedy anneal
             );
 
+
     public static DQNFactoryStdDense.Configuration CARTPOLE_NET_NSTEP =
-            new DQNFactoryStdDense.Configuration(
-                    3,         //number of layers
-                    16,        //number of hidden nodes
-                    0.0005,    //learning rate
-                    0.001      //l2 regularization
-            );
+        DQNFactoryStdDense.Configuration.builder()
+        .l2(0.001).learningRate(0.0005).numHiddenNodes(16).numLayer(3).build();
 
 
     public static void main( String[] args )
@@ -52,7 +49,6 @@ public class AsyncNStepCartpole {
 
         //record the training data in rl4j-data in a new folder
         DataManager manager = new DataManager(true);
-
         //define the mdp from gym (name, render)
         GymEnv mdp = null;
         try {
