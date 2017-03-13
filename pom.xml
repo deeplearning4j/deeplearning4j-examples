@@ -39,14 +39,6 @@
         <maven.minimum.version>3.3.1</maven.minimum.version>
     </properties>
 
-    <repositories>
-        <repository>
-            <id>nexus-staging</id>
-            <name>Nexus Staging</name>
-            <url>https://oss.sonatype.org/content/repositories/orgnd4j-1140/</url>
-        </repository>
-    </repositories>
-
     <modules>
         <module>dl4j-examples</module>
         <module>dl4j-spark-examples</module>
