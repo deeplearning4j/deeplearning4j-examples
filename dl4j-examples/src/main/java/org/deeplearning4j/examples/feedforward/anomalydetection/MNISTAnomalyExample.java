@@ -1,7 +1,7 @@
 package org.deeplearning4j.examples.feedforward.anomalydetection;
 
-import org.apache.commons.lang3.tuple.ImmutableTriple;
-import org.apache.commons.lang3.tuple.Triple;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.deeplearning4j.datasets.iterator.impl.MnistDataSetIterator;
@@ -94,43 +94,44 @@ public class MNISTAnomalyExample {
             System.out.println("Epoch " + epoch + " complete");
         }
 
-        //Evaluate the model on test data
-        //Score each digit/example in test set separately
-        //Then add triple (score, digit, and INDArray data) to lists and sort by score
-        //This allows us to get best N and worst N digits for each type
-        Map<Integer,List<Triple<Double,Integer,INDArray>>> listsByDigit = new HashMap<>();
-        for( int i=0; i<10; i++ ) listsByDigit.put(i, new ArrayList<>());
+        //Evaluate the model on the test data
+        //Score each example in the test set separately
+        //Compose a map that relates each digit to a list of (score, example) pairs
+        //Then find N best and N worst scores per digit
+        Map<Integer,List<Pair<Double,INDArray>>> listsByDigit = new HashMap<>();
+        for( int i=0; i<10; i++ ) listsByDigit.put(i,new ArrayList<>());
 
-        int count = 0;
         for( int i=0; i<featuresTest.size(); i++ ){
             INDArray testData = featuresTest.get(i);
             INDArray labels = labelsTest.get(i);
             int nRows = testData.rows();
             for( int j=0; j<nRows; j++){
                 INDArray example = testData.getRow(j);
-                int label = (int)labels.getDouble(j);
+                int digit = (int)labels.getDouble(j);
                 double score = net.score(new DataSet(example,example));
-                listsByDigit.get(label).add(new ImmutableTriple<>(score, count++, example));
+                // Add (score, example) pair to the appropriate list
+                List digitAllPairs = listsByDigit.get(digit);
+                digitAllPairs.add(new ImmutablePair<>(score, example));
             }
         }
 
-        //Sort data by score, separately for each digit
-        Comparator<Triple<Double, Integer, INDArray>> c = new Comparator<Triple<Double, Integer, INDArray>>() {
+        //Sort each list in the map by score
+        Comparator<Pair<Double, INDArray>> c = new Comparator<Pair<Double, INDArray>>() {
             @Override
-            public int compare(Triple<Double, Integer, INDArray> o1, Triple<Double, Integer, INDArray> o2) {
+            public int compare(Pair<Double, INDArray> o1, Pair<Double, INDArray> o2) {
                 return Double.compare(o1.getLeft(),o2.getLeft());
             }
         };
 
-        for(List<Triple<Double, Integer, INDArray>> list : listsByDigit.values()){
-            Collections.sort(list, c);
+        for(List<Pair<Double, INDArray>> digitAllPairs : listsByDigit.values()){
+            Collections.sort(digitAllPairs, c);
         }
 
-        //Select the 5 best and 5 worst numbers (by reconstruction error) for each digit
+        //After sorting, select N best and N worst scores (by reconstruction error) for each digit, where N=5
         List<INDArray> best = new ArrayList<>(50);
         List<INDArray> worst = new ArrayList<>(50);
         for( int i=0; i<10; i++ ){
-            List<Triple<Double,Integer,INDArray>> list = listsByDigit.get(i);
+            List<Pair<Double,INDArray>> list = listsByDigit.get(i);
             for( int j=0; j<5; j++ ){
                 best.add(list.get(j).getRight());
                 worst.add(list.get(list.size()-j-1).getRight());

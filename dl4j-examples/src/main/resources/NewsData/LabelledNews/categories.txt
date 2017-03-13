@@ -1,0 +1,4 @@
+0,crime
+1,politics
+2,bollywood
+3,Business&Development

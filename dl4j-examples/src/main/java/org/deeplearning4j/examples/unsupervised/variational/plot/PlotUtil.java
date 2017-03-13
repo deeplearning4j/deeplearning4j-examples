@@ -1,5 +1,6 @@
 package org.deeplearning4j.examples.unsupervised.variational.plot;
 
+import org.deeplearning4j.berkeley.Pair;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -26,6 +27,58 @@ import java.util.List;
  * @author Alex Black
  */
 public class PlotUtil {
+
+    //Scatterplot util used for CenterLossMnistExample
+    public static void scatterPlot(List<Pair<INDArray,INDArray>> data, List<Integer> epochCounts, String title ){
+        double xMin = Double.MAX_VALUE;
+        double xMax = -Double.MAX_VALUE;
+        double yMin = Double.MAX_VALUE;
+        double yMax = -Double.MAX_VALUE;
+
+        for(Pair<INDArray,INDArray> p : data){
+            INDArray maxes = p.getFirst().max(0);
+            INDArray mins = p.getFirst().min(0);
+            xMin = Math.min(xMin, mins.getDouble(0));
+            xMax = Math.max(xMax, maxes.getDouble(0));
+            yMin = Math.min(yMin, mins.getDouble(1));
+            yMax = Math.max(yMax, maxes.getDouble(1));
+        }
+
+        double plotMin = Math.min(xMin, yMin);
+        double plotMax = Math.max(xMax, yMax);
+
+        JPanel panel = new ChartPanel(createChart(data.get(0).getFirst(), data.get(0).getSecond(), plotMin, plotMax, title + " (epoch " + epochCounts.get(0) + ")"));
+        JSlider slider = new JSlider(0,epochCounts.size()-1,0);
+        slider.setSnapToTicks(true);
+
+        final JFrame f = new JFrame();
+        slider.addChangeListener(new ChangeListener() {
+
+            private JPanel lastPanel = panel;
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                JSlider slider = (JSlider)e.getSource();
+                int  value = slider.getValue();
+                JPanel panel = new ChartPanel(createChart(data.get(value).getFirst(), data.get(value).getSecond(), plotMin, plotMax, title + " (epoch " + epochCounts.get(value) + ")"));
+                if(lastPanel != null){
+                    f.remove(lastPanel);
+                }
+                lastPanel = panel;
+                f.add(panel, BorderLayout.CENTER);
+                f.setTitle(title);
+                f.revalidate();
+            }
+        });
+
+        f.setLayout(new BorderLayout());
+        f.add(slider, BorderLayout.NORTH);
+        f.add(panel, BorderLayout.CENTER);
+        f.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        f.pack();
+        f.setTitle(title);
+
+        f.setVisible(true);
+    }
 
     public static void plotData(List<INDArray> xyVsIter, INDArray labels, double axisMin, double axisMax, int plotFrequency){
 
@@ -88,10 +141,14 @@ public class PlotUtil {
     }
 
     private static JFreeChart createChart(INDArray features, INDArray labels, double axisMin, double axisMax) {
+        return createChart(features, labels, axisMin, axisMax, "Variational Autoencoder Latent Space - MNIST Test Set");
+    }
+
+    private static JFreeChart createChart(INDArray features, INDArray labels, double axisMin, double axisMax, String title ) {
 
         XYDataset dataset = createDataSet(features, labels);
 
-        JFreeChart chart = ChartFactory.createScatterPlot("Variational Autoencoder Latent Space - MNIST Test Set",
+        JFreeChart chart = ChartFactory.createScatterPlot(title,
             "X", "Y", dataset, PlotOrientation.VERTICAL, true, true, false);
 
         XYPlot plot = (XYPlot) chart.getPlot();
