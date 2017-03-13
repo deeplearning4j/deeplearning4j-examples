@@ -93,7 +93,7 @@ public class Word2VecUptrainingExample {
         tokenizerFactory.setTokenPreProcessor(new CommonPreprocessor());
 
         word2Vec.setTokenizerFactory(tokenizerFactory);
-        word2Vec.setSentenceIter(iterator);
+        word2Vec.setSentenceIterator(iterator);
 
 
         log.info("Word2vec uptraining...");

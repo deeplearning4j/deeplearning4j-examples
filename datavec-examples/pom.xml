@@ -8,12 +8,8 @@
     <parent>
         <groupId>org.deeplearning4j</groupId>
         <artifactId>deeplearning4j-examples-parent</artifactId>
-        <version>0.7-SNAPSHOT</version>
+        <version>0.8-SNAPSHOT</version>
     </parent>
-
-    <properties>
-        <scala.binary.version>2.10</scala.binary.version>
-    </properties>
 
 
     <dependencies>
@@ -26,7 +22,7 @@
         <dependency>
             <groupId>org.datavec</groupId>
             <artifactId>datavec-spark_${scala.binary.version}</artifactId>
-            <version>${datavec.version}</version>
+            <version>${datavec.spark.version}</version>
         </dependency>
     </dependencies>
 
