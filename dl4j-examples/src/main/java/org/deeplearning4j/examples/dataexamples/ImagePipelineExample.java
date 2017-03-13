@@ -1,4 +1,4 @@
-package org.deeplearning4j.examples.dataExamples;
+package org.deeplearning4j.examples.dataexamples;
 
 import org.datavec.api.io.filters.BalancedPathFilter;
 import org.datavec.api.io.labels.ParentPathLabelGenerator;

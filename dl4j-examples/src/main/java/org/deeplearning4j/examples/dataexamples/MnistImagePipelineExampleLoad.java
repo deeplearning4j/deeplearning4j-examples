@@ -1,4 +1,4 @@
-package org.deeplearning4j.examples.dataExamples;
+package org.deeplearning4j.examples.dataexamples;
 
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;

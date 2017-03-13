@@ -1,4 +1,4 @@
-package org.deeplearning4j.examples.recurrent.seqClassification;
+package org.deeplearning4j.examples.recurrent.seqclassification;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
