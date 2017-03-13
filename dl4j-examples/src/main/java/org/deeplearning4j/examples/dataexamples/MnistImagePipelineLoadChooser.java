@@ -1,4 +1,4 @@
-package org.deeplearning4j.examples.dataExamples;
+package org.deeplearning4j.examples.dataexamples;
 
 import org.datavec.image.loader.NativeImageLoader;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
