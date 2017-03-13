@@ -46,17 +46,17 @@
         <dependencies>
             <dependency>
                 <groupId>org.nd4j</groupId>
-                <artifactId>nd4j-native</artifactId>
+                <artifactId>nd4j-native-platform</artifactId>
                 <version>${nd4j.version}</version>
             </dependency>
              <dependency>
                 <groupId>org.nd4j</groupId>
-                <artifactId>nd4j-cuda-7.5</artifactId>
+                <artifactId>nd4j-cuda-7.5-platform</artifactId>
                 <version>${nd4j.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.nd4j</groupId>
-                <artifactId>nd4j-cuda-8.0</artifactId>
+                <artifactId>nd4j-cuda-8.0-platform</artifactId>
                 <version>${nd4j.version}</version>
             </dependency>
       </dependencies>
@@ -86,7 +86,6 @@
         <dependency>
             <groupId>org.nd4j</groupId>
             <artifactId>${nd4j.backend}</artifactId>
-            <version>${nd4j.version}</version>
         </dependency>
         <!-- datavec-data-codec: used only in video example for loading video data -->
         <dependency>
