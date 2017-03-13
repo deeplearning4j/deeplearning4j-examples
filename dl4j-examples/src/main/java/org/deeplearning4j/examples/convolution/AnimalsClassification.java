@@ -24,7 +24,7 @@ import org.deeplearning4j.nn.conf.layers.*;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
 import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
-import org.deeplearning4j.util.NetSaverLoaderUtils;
+import org.deeplearning4j.util.ModelSerializer;
 import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
@@ -188,8 +188,7 @@ public class AnimalsClassification {
         if (save) {
             log.info("Save model....");
             String basePath = FilenameUtils.concat(System.getProperty("user.dir"), "src/main/resources/");
-            NetSaverLoaderUtils.saveNetworkAndParameters(network, basePath);
-            NetSaverLoaderUtils.saveUpdators(network, basePath);
+            ModelSerializer.writeModel(network, basePath + "model.bin", true);
         }
         log.info("****************Example finished********************");
     }

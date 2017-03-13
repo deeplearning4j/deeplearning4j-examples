@@ -132,7 +132,7 @@ public class BasicRNNExample {
 			// the output shows what the net thinks what should come next
 			INDArray output = net.rnnTimeStep(testInit);
 
-			// now the net sould guess LEARNSTRING.length mor characters
+			// now the net should guess LEARNSTRING.length mor characters
 			for (int j = 0; j < LEARNSTRING.length; j++) {
 
 				// first process the last output of the network to a concrete
