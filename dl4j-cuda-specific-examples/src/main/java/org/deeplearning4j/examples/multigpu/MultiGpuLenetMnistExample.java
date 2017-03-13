@@ -1,5 +1,6 @@
 package org.deeplearning4j.examples.multigpu;
 
+import lombok.extern.slf4j.Slf4j;
 import org.deeplearning4j.datasets.iterator.impl.MnistDataSetIterator;
 import org.deeplearning4j.eval.Evaluation;
 import org.deeplearning4j.nn.api.OptimizationAlgorithm;
@@ -34,15 +35,14 @@ import org.slf4j.LoggerFactory;
  * @author  @agibsonccc
  * @author raver119@gmail.com
  */
+@Slf4j
 public class MultiGpuLenetMnistExample {
-    private static final Logger log = LoggerFactory.getLogger(MultiGpuLenetMnistExample.class);
 
     public static void main(String[] args) throws Exception {
         // PLEASE NOTE: For CUDA FP16 precision support is available
         DataTypeUtil.setDTypeForContext(DataBuffer.Type.HALF);
 
         // temp workaround for backend initialization
-        Nd4j.create(1);
 
         CudaEnvironment.getInstance().getConfiguration()
             // key option enabled
