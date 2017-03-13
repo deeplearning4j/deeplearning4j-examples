@@ -5,18 +5,14 @@
     <parent>
         <artifactId>dl4j-spark-examples</artifactId>
         <groupId>org.deeplearning4j</groupId>
-        <version>0.7-SNAPSHOT</version>
+        <version>0.8-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>dl4j-spark</artifactId>
 
     <properties>
-        <scala.binary.version>2.11</scala.binary.version>
-        <spark.version>1.6.0</spark.version>
-        <scala.version>2.11.7</scala.version>
         <jcommander.version>1.27</jcommander.version>
-        <spark.scope>compile</spark.scope>
     </properties>
 
     <dependencies>
@@ -30,26 +26,7 @@
         <dependency>
             <groupId>org.deeplearning4j</groupId>
             <artifactId>dl4j-spark_${scala.binary.version}</artifactId>
-            <version>${dl4j.version}</version>
-            <exclusions>
-                <exclusion>
-                    <artifactId>spark-core_2.10</artifactId>
-                    <groupId>org.apache.spark</groupId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.spark</groupId>
-            <artifactId>spark-core_${scala.binary.version}</artifactId>
-            <version>${spark.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>javax.servlet</groupId>
-                    <artifactId>servlet-api</artifactId>
-                </exclusion>
-            </exclusions>
-            <scope>${spark.scope}</scope>
+            <version>${dl4j.spark.version}</version>
         </dependency>
 
 

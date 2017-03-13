@@ -8,12 +8,12 @@
     <parent>
         <groupId>org.deeplearning4j</groupId>
         <artifactId>deeplearning4j-examples-parent</artifactId>
-        <version>0.7-SNAPSHOT</version>
+        <version>0.8-SNAPSHOT</version>
     </parent>
 
     <name>DeepLearning4j CUDA special examples</name>
     <properties>
-        <nd4j.backend>nd4j-cuda-8.0</nd4j.backend>
+        <nd4j.backend>nd4j-cuda-8.0-platform</nd4j.backend>
     </properties>
 
     <repositories>
@@ -71,15 +71,10 @@
         <!-- Dependency for parallel wrapper (for multi-GPU parameter averaging -->
         <dependency>
             <groupId>org.deeplearning4j</groupId>
-            <artifactId>deeplearning4j-parallel-wrapper</artifactId>
+            <artifactId>deeplearning4j-parallel-wrapper_${scala.binary.version}</artifactId>
             <version>${dl4j.version}</version>
         </dependency>
 
-        <dependency>
-            <groupId>org.deeplearning4j</groupId>
-            <artifactId>deeplearning4j-nlp</artifactId>
-            <version>${dl4j.version}</version>
-        </dependency>
         <dependency>
             <groupId>org.deeplearning4j</groupId>
             <artifactId>deeplearning4j-core</artifactId>
@@ -87,13 +82,8 @@
         </dependency>
         <dependency>
             <groupId>org.deeplearning4j</groupId>
-            <artifactId>deeplearning4j-ui_2.10</artifactId>
+            <artifactId>deeplearning4j-ui_${scala.binary.version}</artifactId>
             <version>${dl4j.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-            <version>${guava.version}</version>
         </dependency>
         <dependency>
             <groupId>org.nd4j</groupId>

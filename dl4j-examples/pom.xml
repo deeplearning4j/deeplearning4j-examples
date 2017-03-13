@@ -8,7 +8,7 @@
     <parent>
         <groupId>org.deeplearning4j</groupId>
         <artifactId>deeplearning4j-examples-parent</artifactId>
-        <version>0.7-SNAPSHOT</version>
+        <version>0.8-SNAPSHOT</version>
     </parent>
 
     <name>DeepLearning4j Examples</name>
@@ -87,7 +87,7 @@
         <!-- deeplearning4j-ui is used for HistogramIterationListener + visualization: see http://deeplearning4j.org/visualization -->
         <dependency>
             <groupId>org.deeplearning4j</groupId>
-            <artifactId>deeplearning4j-ui_2.10</artifactId>
+            <artifactId>deeplearning4j-ui_${scala.binary.version}</artifactId>
             <version>${dl4j.version}</version>
         </dependency>
 
