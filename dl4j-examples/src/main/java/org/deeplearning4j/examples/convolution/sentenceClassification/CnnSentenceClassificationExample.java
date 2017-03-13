@@ -2,7 +2,6 @@ package org.deeplearning4j.examples.convolution.sentenceClassification;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
-import org.deeplearning4j.api.storage.StatsStorage;
 import org.deeplearning4j.eval.Evaluation;
 import org.deeplearning4j.examples.recurrent.word2vecsentiment.Word2VecSentimentRNN;
 import org.deeplearning4j.iterator.CnnSentenceDataSetIterator;
@@ -22,10 +21,6 @@ import org.deeplearning4j.nn.conf.layers.OutputLayer;
 import org.deeplearning4j.nn.conf.layers.PoolingType;
 import org.deeplearning4j.nn.graph.ComputationGraph;
 import org.deeplearning4j.nn.weights.WeightInit;
-import org.deeplearning4j.optimize.listeners.PerformanceListener;
-import org.deeplearning4j.ui.api.UIServer;
-import org.deeplearning4j.ui.stats.StatsListener;
-import org.deeplearning4j.ui.storage.sqlite.J7FileStatsStorage;
 import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
@@ -48,8 +43,7 @@ public class CnnSentenceClassificationExample {
     /** Location to save and extract the training/testing data */
     public static final String DATA_PATH = FilenameUtils.concat(System.getProperty("java.io.tmpdir"), "dl4j_w2vSentiment/");
     /** Location (local file system) for the Google News vectors. Set this manually. */
-//    public static final String WORD_VECTORS_PATH = "/PATH/TO/YOUR/VECTORS/GoogleNews-vectors-negative300.bin.gz";
-    public static final String WORD_VECTORS_PATH = "E:/Data/GoogleNews-vectors-negative300.bin.gz";
+    public static final String WORD_VECTORS_PATH = "/PATH/TO/YOUR/VECTORS/GoogleNews-vectors-negative300.bin.gz";
 
     public static void main(String[] args) throws Exception {
         if(WORD_VECTORS_PATH.startsWith("/PATH/TO/YOUR/VECTORS/")){
@@ -112,15 +106,8 @@ public class CnnSentenceClassificationExample {
             .setOutputs("out")
             .build();
 
-
         ComputationGraph net = new ComputationGraph(config);
         net.init();
-
-        //-------------------
-        StatsStorage statsStorage = new J7FileStatsStorage(new File("CnnSentenceExample.dl4j"));
-        net.setListeners(new StatsListener(statsStorage), /*new ScoreIterationListener(1),*/ new PerformanceListener(1, true));
-        UIServer.getInstance().attach(statsStorage);
-        //-------------------
 
         System.out.println("Number of parameters by layer:");
         for(Layer l : net.getLayers() ){
