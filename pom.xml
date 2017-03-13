@@ -14,7 +14,7 @@
         <nd4j.backend>nd4j-native-platform</nd4j.backend>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <shadedClassifier>bin</shadedClassifier>
-        <java.version>1.8</java.version>
+        <java.version>1.8</java.version
 
         <!-- DL4J, ND4J, DataVec etc versions: these must all be the same (to avoid version conflicts) -->
         <nd4j.version>0.8.0</nd4j.version>
@@ -29,6 +29,7 @@
 
         <!-- Scala binary version: DL4J's Spark and UI functionality are released with both Scala 2.10 and 2.11 support -->
         <scala.binary.version>2.11</scala.binary.version>
+
 
         <guava.version>19.0</guava.version>
         <logback.version>1.1.7</logback.version>
