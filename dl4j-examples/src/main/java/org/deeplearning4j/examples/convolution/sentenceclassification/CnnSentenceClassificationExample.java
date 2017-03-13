@@ -1,4 +1,4 @@
-package org.deeplearning4j.examples.convolution.sentenceClassification;
+package org.deeplearning4j.examples.convolution.sentenceclassification;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
