@@ -24,7 +24,7 @@ public class FeaturizedPreSave {
 
     private static final int trainPerc = 80;
     protected static final int batchSize = 15;
-    public static final String featurizeExtractionLayer = "block5_pool";
+    public static final String featurizeExtractionLayer = "fc2";
 
     public static void main(String [] args) throws UnsupportedKerasConfigurationException, IOException, InvalidKerasConfigurationException {
 
