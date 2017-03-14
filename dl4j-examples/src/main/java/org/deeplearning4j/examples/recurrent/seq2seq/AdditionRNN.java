@@ -90,7 +90,7 @@ public class AdditionRNN {
         ComputationGraphConfiguration configuration = new NeuralNetConfiguration.Builder()
                 .weightInit(WeightInit.XAVIER)
                 .learningRate(0.25)
-                .updater(Updater.SGD)
+                .updater(Updater.ADAM)
                 .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT).iterations(nIterations)
                 .seed(seed)
                 .graphBuilder()
@@ -119,7 +119,7 @@ public class AdditionRNN {
 
         //Train model:
         int iEpoch = 0;
-        int testSize = 20;
+        int testSize = 100;
         Seq2SeqPredicter predictor = new Seq2SeqPredicter(net);
         while (iEpoch < nEpochs) {
             net.fit(iterator);
