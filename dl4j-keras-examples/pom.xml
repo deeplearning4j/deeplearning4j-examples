@@ -6,7 +6,7 @@
     <groupId>org.deeplearning4j</groupId>
     <artifactId>dl4j-keras-examples</artifactId>
     <modelVersion>4.0.0</modelVersion>
-    <version>0.7.3-SNAPSHOT</version>
+    <version>0.8.1-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>DeepLearning4j Keras Example</name>

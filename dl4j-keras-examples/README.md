@@ -2,7 +2,7 @@
 
 **Currently in ALPHA**
 
-This directory contains code for running Keras with a Deeplearning4j backend. The example requires
+This directory contains code for running Keras v1.0.1 with a Deeplearning4j backend. The example requires
 Docker to run. Keras is used as a Python API for Deeplearning4j, and you can import, train, evaluate, predict,
 and save your model. Both Functional and Sequential models are supported.
 

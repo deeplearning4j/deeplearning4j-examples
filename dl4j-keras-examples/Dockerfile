@@ -7,7 +7,7 @@ MAINTAINER Justin Long @crockpotveggies
 
 RUN echo http://dl-cdn.alpinelinux.org/alpine/edge/community >> /etc/apk/repositories
 RUN echo http://dl-cdn.alpinelinux.org/alpine/edge/testing >> /etc/apk/repositories
-RUN apk add --update git cmake gcc make g++ py-pip python-dev openblas openblas-dev hdf5 hdf5-dev
+RUN apk add --update git cmake gcc make g++ py-pip python-dev openblas openblas-dev hdf5 hdf5-dev curl
 
 # Upgrade pip
 RUN pip install --upgrade pip
@@ -19,7 +19,7 @@ RUN pip install jupyter
 RUN ln -s /usr/include/locale.h /usr/include/xlocale.h
 
 # Install keras and other deps
-RUN pip install keras
+RUN pip install -Iv keras==1.0.1
 RUN pip install h5py py4j xxhash
 
 
@@ -73,7 +73,7 @@ RUN cd dl4j-test-resources && mvn clean install && cd ..
 
 # deeplearning4j
 # RUN git clone --depth 1 https://github.com/deeplearning4j/deeplearning4j.git
-RUN git clone --depth 1 -b keras-dl4j-api https://github.com/crockpotveggies/deeplearning4j.git; echo "20170224-1"
+RUN git clone --depth 1 -b keras-dl4j-api https://github.com/crockpotveggies/deeplearning4j.git; echo "20170310-1"
 RUN cd deeplearning4j && mvn clean install -DskipTests -Dmaven.javadoc.skip=true -pl '!:deeplearning4j-cuda-8.0,!:deeplearning4j-ui-parent,!:deeplearning4j-ui_2.11,!:dl4j-spark_2.11,!:dl4j-spark-nlp_2.11,!:dl4j-spark-parameterserver_2.11,!:deeplearning4j-scaleout-parallelwrapper-parameter-server,!:dl4j-streaming_2.11,!:dl4j-spark-nlp-java8_2.11,!:deeplearning4j-ui-remote-iterationlisteners,!:deeplearning4j-nlp-uima' && cd ..
 
 #

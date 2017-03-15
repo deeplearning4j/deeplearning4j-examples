@@ -1,5 +1,10 @@
 #!/bin/bash
 
+# give user the option for no-track
+if [ -z "$NOTRACK" ]; then
+    curl -XPOST https://www.google-analytics.com/collect -d 'v=1&t=event&tid=UA-48811288-1&cid=keras-prototype&ec=keras-prototype&ea=boot'
+fi
+
 echo "Starting DL4J server and Jupyter..."
 phymem=$(free -g|awk '/^Mem:/{print $2}')
 echo "There is $phymem available for java"
