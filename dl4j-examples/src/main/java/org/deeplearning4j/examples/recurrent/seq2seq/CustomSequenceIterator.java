@@ -200,10 +200,9 @@ public class CustomSequenceIterator implements MultiDataSetIterator {
         //add in digits
         for (int i = 0; i < sumString.length(); i++) {
             decoded[start + i] = Character.toString(sumString.charAt(i));
-            maxIndex += i;
+            maxIndex ++;
         }
 
-        maxIndex++;
         //needed padding
         while (maxIndex <= end) {
             decoded[maxIndex] = " ";
