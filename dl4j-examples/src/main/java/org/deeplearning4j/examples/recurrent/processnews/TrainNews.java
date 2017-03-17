@@ -1,4 +1,4 @@
-/**-
+/**
  * This program trains a RNN to predict category of a news headlines. It uses word vector generated from PrepareWordVector.java.
  * - Labeled News are stored in \dl4j-examples\src\main\resources\NewsData\LabelledNews folder in train and test folders.
  * - categories.txt file in \dl4j-examples\src\main\resources\NewsData\LabelledNews folder contains category code and description.
