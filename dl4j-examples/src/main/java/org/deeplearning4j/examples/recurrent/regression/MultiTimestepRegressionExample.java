@@ -145,8 +145,7 @@ public class MultiTimestepRegressionExample {
             trainDataIter.reset();
             LOGGER.info("Epoch " + i + " complete. Time series evaluation:");
 
-            //Run regression evaluation on our single column input
-            RegressionEvaluation evaluation = new RegressionEvaluation(1);
+            RegressionEvaluation evaluation = new RegressionEvaluation(2);
 
             //Run evaluation. This is on 25k reviews, so can take some time
             while (testDataIter.hasNext()) {
