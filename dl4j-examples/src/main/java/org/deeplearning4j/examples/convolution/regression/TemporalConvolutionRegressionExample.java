@@ -1,19 +1,19 @@
-package org.deeplearning4j.examples.recurrent.regression;
+package org.deeplearning4j.examples.convolution.regression;
 
 
 import org.apache.commons.io.FileUtils;
 import org.datavec.api.records.reader.SequenceRecordReader;
 import org.datavec.api.records.reader.impl.csv.CSVSequenceRecordReader;
 import org.datavec.api.split.NumberedFileInputSplit;
-import org.datavec.api.util.ClassPathResource;
 import org.deeplearning4j.datasets.datavec.SequenceRecordReaderDataSetIterator;
 import org.deeplearning4j.eval.RegressionEvaluation;
 import org.deeplearning4j.nn.api.OptimizationAlgorithm;
+import org.deeplearning4j.nn.conf.ConvolutionMode;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
 import org.deeplearning4j.nn.conf.Updater;
-import org.deeplearning4j.nn.conf.layers.GravesLSTM;
-import org.deeplearning4j.nn.conf.layers.RnnOutputLayer;
+import org.deeplearning4j.nn.conf.inputs.InputType;
+import org.deeplearning4j.nn.conf.layers.*;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
 import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
@@ -48,24 +48,25 @@ import java.util.List;
 
 
 /**
- * This example was inspired by Jason Brownlee's regression examples for Keras, found here:
+ * This example demonstrates one-step-ahead time series forecasting using a 1D temporal
+ * convolutional network with 1D max pooling. It is cannibalized from MultiTimestepRegressionExample.java,
+ * which demonstrates time series forecasting using an LSTM.
+ *
+ * Compare this with TemporalConvolutionRegressionExampleGlobalPooling.java, which uses
+ * the same 1D convolutional layer but with ConvolutionMode.Truncate and a subsequent
+ * global mean pooling layer to collapse the time axis. That model outputs only one
+ * prediction and thus requires only a single target (the next timestep) during training,
+ * as well as a normal OutputLayer. Here we output one prediction per timestep,
+ * the same as the LSTM example, and hence require an RnnOutputLayer.
+ *
+ * The original example was inspired by Jason Brownlee's regression examples for Keras found at
+ *
  * http://machinelearningmastery.com/time-series-prediction-lstm-recurrent-neural-networks-python-keras/
- * <p>
- * It demonstrates multi time step regression using LSTM
  */
+public class TemporalConvolutionRegressionExample {
+    private static final Logger LOGGER = LoggerFactory.getLogger(TemporalConvolutionRegressionExample.class);
 
-public class MultiTimestepRegressionExample {
-    private static final Logger LOGGER = LoggerFactory.getLogger(MultiTimestepRegressionExample.class);
-
-    private static File initBaseFile(String fileName) {
-        try {
-            return new ClassPathResource(fileName).getFile();
-        } catch (IOException e) {
-            throw new Error(e);
-        }
-    }
-
-    private static File baseDir = initBaseFile("/rnnRegression");
+    private static File baseDir = new File("dl4j-examples/src/main/resources/rnnRegression");
     private static File baseTrainDir = new File(baseDir, "multiTimestepTrain");
     private static File featuresDirTrain = new File(baseTrainDir, "features");
     private static File labelsDirTrain = new File(baseTrainDir, "labels");
@@ -126,10 +127,41 @@ public class MultiTimestepRegressionExample {
             .updater(Updater.NESTEROVS).momentum(0.9)
             .learningRate(0.15)
             .list()
-            .layer(0, new GravesLSTM.Builder().activation(Activation.TANH).nIn(numOfVariables).nOut(10)
+            /*
+             * This approach treats a multivariate time series with L timesteps and
+             * P variables as an L x 1 x P image (L rows high, 1 column wide, P
+             * channels deep). The kernel should be H<L pixels high and W=1 pixels
+             * wide.
+             *
+             * The stride width is 1. The stride height can be whatever we want.
+             *
+             * To directly parallel an RNN (which has one output for every input), we
+             * need to use ConvolutionMode.Same.
+             */
+            .layer(0, new Convolution1DLayer.Builder()
+                .kernelSize(5)
+                .stride(1)
+                .convolutionMode(ConvolutionMode.Same) // ensures output is same length as input
+                .activation(Activation.RELU)
+                .nIn(numOfVariables)
+                .nOut(10)
                 .build())
-            .layer(1, new RnnOutputLayer.Builder(LossFunctions.LossFunction.MSE)
-                .activation(Activation.IDENTITY).nIn(10).nOut(numOfVariables).build())
+            .layer(1, new Subsampling1DLayer.Builder(PoolingType.MAX)
+                .kernelSize(2)
+                .stride(1)
+                .convolutionMode(ConvolutionMode.Same) // ensures output is same length as input
+                .build())
+            /* Same output layer as the RNN version of this example. if we only wanted
+             * to output one prediction for the entire window, e.g., the next timestep,
+             * then we could use, e.g., truncated ConvolutionMode, more convolution
+             * and pooling layers, and even a global pooling layer, along with a simple
+             * dense output layer.
+             */
+            .layer(2, new RnnOutputLayer.Builder(LossFunctions.LossFunction.MSE)
+                .activation(Activation.IDENTITY)
+                .nOut(numOfVariables)
+                .build())
+            .setInputType(new InputType.InputTypeRecurrent(numOfVariables))
             .build();
 
         MultiLayerNetwork net = new MultiLayerNetwork(conf);
@@ -145,10 +177,9 @@ public class MultiTimestepRegressionExample {
             trainDataIter.reset();
             LOGGER.info("Epoch " + i + " complete. Time series evaluation:");
 
-            //Run regression evaluation on our single column input
+            //Run regression evaluation on our two column output
             RegressionEvaluation evaluation = new RegressionEvaluation(numOfVariables);
 
-            //Run evaluation. This is on 25k reviews, so can take some time
             while (testDataIter.hasNext()) {
                 DataSet t = testDataIter.next();
                 INDArray features = t.getFeatureMatrix();

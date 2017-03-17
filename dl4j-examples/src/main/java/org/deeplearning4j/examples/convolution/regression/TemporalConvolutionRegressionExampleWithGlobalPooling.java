@@ -1,19 +1,19 @@
-package org.deeplearning4j.examples.recurrent.regression;
+package org.deeplearning4j.examples.convolution.regression;
 
 
 import org.apache.commons.io.FileUtils;
 import org.datavec.api.records.reader.SequenceRecordReader;
 import org.datavec.api.records.reader.impl.csv.CSVSequenceRecordReader;
 import org.datavec.api.split.NumberedFileInputSplit;
-import org.datavec.api.util.ClassPathResource;
 import org.deeplearning4j.datasets.datavec.SequenceRecordReaderDataSetIterator;
 import org.deeplearning4j.eval.RegressionEvaluation;
 import org.deeplearning4j.nn.api.OptimizationAlgorithm;
+import org.deeplearning4j.nn.conf.ConvolutionMode;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
 import org.deeplearning4j.nn.conf.Updater;
-import org.deeplearning4j.nn.conf.layers.GravesLSTM;
-import org.deeplearning4j.nn.conf.layers.RnnOutputLayer;
+import org.deeplearning4j.nn.conf.inputs.InputType;
+import org.deeplearning4j.nn.conf.layers.*;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
 import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
@@ -32,6 +32,7 @@ import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.nd4j.linalg.dataset.api.preprocessor.NormalizerMinMaxScaler;
 import org.nd4j.linalg.factory.Nd4j;
+import org.nd4j.linalg.indexing.NDArrayIndex;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,24 +49,26 @@ import java.util.List;
 
 
 /**
- * This example was inspired by Jason Brownlee's regression examples for Keras, found here:
+ * This example demonstrates one-step-ahead time series forecasting using a 1D temporal
+ * convolutional network with global pooling. It is cannibalized from MultiTimestepRegressionExample.java,
+ * which demonstrates time series forecasting using an LSTM.
+ *
+ * Compare this with TemporalConvolutionRegressionExample.java, which uses the same 1D
+ * convolutional layer but with ConvolutionMode.Same and a subsequent 1D max pooling
+ * layer, also using the "Same" mode. That model outputs one prediction per timestep,
+ * the same as the LSTM example, and hence requires an RnnOutputLayer. Here we use
+ * a mean global pooling layer to collapse the time axis into a fixed-size feature
+ * vector. Thus, we have only a single target (the next timestep), and we use a
+ * normal OutputLayer.
+ *
+ * The original example was inspired by Jason Brownlee's regression examples for Keras found at
+ *
  * http://machinelearningmastery.com/time-series-prediction-lstm-recurrent-neural-networks-python-keras/
- * <p>
- * It demonstrates multi time step regression using LSTM
  */
+public class TemporalConvolutionRegressionExampleWithGlobalPooling {
+    private static final Logger LOGGER = LoggerFactory.getLogger(TemporalConvolutionRegressionExampleWithGlobalPooling.class);
 
-public class MultiTimestepRegressionExample {
-    private static final Logger LOGGER = LoggerFactory.getLogger(MultiTimestepRegressionExample.class);
-
-    private static File initBaseFile(String fileName) {
-        try {
-            return new ClassPathResource(fileName).getFile();
-        } catch (IOException e) {
-            throw new Error(e);
-        }
-    }
-
-    private static File baseDir = initBaseFile("/rnnRegression");
+    private static File baseDir = new File("dl4j-examples/src/main/resources/rnnRegression");
     private static File baseTrainDir = new File(baseDir, "multiTimestepTrain");
     private static File featuresDirTrain = new File(baseTrainDir, "features");
     private static File labelsDirTrain = new File(baseTrainDir, "labels");
@@ -126,10 +129,45 @@ public class MultiTimestepRegressionExample {
             .updater(Updater.NESTEROVS).momentum(0.9)
             .learningRate(0.15)
             .list()
-            .layer(0, new GravesLSTM.Builder().activation(Activation.TANH).nIn(numOfVariables).nOut(10)
+            /*
+             * This approach treats a multivariate time series with L timesteps and
+             * P variables as an L x 1 x P image (L rows high, 1 column wide, P
+             * channels deep). The kernel should be H<L pixels high and W=1 pixels
+             * wide.
+             *
+             * The stride width is 1. The stride height can be whatever we want.
+             *
+             * To directly parallel an RNN (which has one output for every input), we
+             * need to use ConvolutionMode.Same.
+             */
+            .layer(0, new Convolution1DLayer.Builder()
+                .kernelSize(5)
+                .stride(1)
+                .convolutionMode(ConvolutionMode.Truncate)
+                .activation(Activation.RELU)
+                .nIn(numOfVariables)
+                .nOut(10)
                 .build())
-            .layer(1, new RnnOutputLayer.Builder(LossFunctions.LossFunction.MSE)
-                .activation(Activation.IDENTITY).nIn(10).nOut(numOfVariables).build())
+            .layer(1, new GlobalPoolingLayer.Builder(PoolingType.AVG)
+                .poolingDimensions(2)       // i.e., time / sequence length
+                .collapseDimensions(true)
+                .build())
+            /* Global pooling along the temporal axis collapses the sequence
+             * into a fixed-size feature vector, so we can use a normal output
+             * layer here.
+             *
+             * NOTE: this seems to give a lower MSE for one-step prediction
+             * but if we use it forecast further into the future (so that
+             * we use previous predicted values as inputs), the resulting
+             * predictions don't look as good. The average global pooling
+             * seems to smooth things out a little. Perhaps a "get last time
+             * step" pooling layer might work a little better.
+             */
+            .layer(2, new OutputLayer.Builder(LossFunctions.LossFunction.MSE)
+                .nOut(2)
+                .activation(Activation.IDENTITY)
+                .build())
+            .setInputType(new InputType.InputTypeRecurrent(numOfVariables))
             .build();
 
         MultiLayerNetwork net = new MultiLayerNetwork(conf);
@@ -141,21 +179,28 @@ public class MultiTimestepRegressionExample {
         int nEpochs = 100;
 
         for (int i = 0; i < nEpochs; i++) {
-            net.fit(trainDataIter);
+            while (trainDataIter.hasNext()) {
+                DataSet t = trainDataIter.next();
+                INDArray features = t.getFeatureMatrix();
+                INDArray labels = t.getLabels();
+                // HACK: our targets are a sequence, but we only want the last target
+                labels = labels.get(NDArrayIndex.all(), NDArrayIndex.all(), NDArrayIndex.point(numberOfTimesteps-1));
+                net.fit(features, labels);
+            }
             trainDataIter.reset();
             LOGGER.info("Epoch " + i + " complete. Time series evaluation:");
 
-            //Run regression evaluation on our single column input
+            //Run regression evaluation on our two column output
             RegressionEvaluation evaluation = new RegressionEvaluation(numOfVariables);
 
-            //Run evaluation. This is on 25k reviews, so can take some time
             while (testDataIter.hasNext()) {
                 DataSet t = testDataIter.next();
                 INDArray features = t.getFeatureMatrix();
-                INDArray lables = t.getLabels();
+                INDArray labels = t.getLabels();
+                // HACK: our targets are a sequence, but we only want the last target
+                labels = labels.get(NDArrayIndex.all(), NDArrayIndex.all(), NDArrayIndex.point(numberOfTimesteps-1));
                 INDArray predicted = net.output(features, true);
-
-                evaluation.evalTimeSeries(lables, predicted);
+                evaluation.eval(labels, predicted);
             }
 
             System.out.println(evaluation.stats());
@@ -166,17 +211,22 @@ public class MultiTimestepRegressionExample {
         /**
          * All code below this point is only necessary for plotting
          */
-
-        //Init rrnTimeStemp with train data and predict test data
+        INDArray f = null;
         while (trainDataIter.hasNext()) {
             DataSet t = trainDataIter.next();
-            net.rnnTimeStep(t.getFeatureMatrix());
+            f = t.getFeatureMatrix();
         }
-
         trainDataIter.reset();
 
         DataSet t = testDataIter.next();
-        INDArray predicted = net.rnnTimeStep(t.getFeatureMatrix());
+        f = Nd4j.concat(2, f, t.getFeatureMatrix());
+        INDArray predicted = Nd4j.zeros(f.size(0), numOfVariables, numberOfTimesteps);
+        for (int i = numberOfTimesteps; i < f.size(2); i++) {
+            INDArray pred = net.rnnTimeStep(f.get(NDArrayIndex.all(), NDArrayIndex.all(), NDArrayIndex.interval(i-numberOfTimesteps, i)));
+            predicted.get(NDArrayIndex.all(), NDArrayIndex.all(), NDArrayIndex.point(i-numberOfTimesteps))
+                      .assign(pred.reshape(pred.size(0), numOfVariables, 1));
+        }
+
         normalizer.revertLabels(predicted);
 
         //Convert raw string data to IndArrays for plotting
