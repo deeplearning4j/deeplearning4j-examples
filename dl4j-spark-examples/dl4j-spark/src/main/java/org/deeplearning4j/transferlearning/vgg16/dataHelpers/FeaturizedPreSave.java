@@ -1,6 +1,7 @@
-package org.deeplearning4j.examples.transferlearning.vgg16.dataHelpers;
+package org.deeplearning4j.transferlearning.vgg16.dataHelpers;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.spark.SparkConf;
 import org.deeplearning4j.nn.graph.ComputationGraph;
 import org.deeplearning4j.nn.modelimport.keras.InvalidKerasConfigurationException;
 import org.deeplearning4j.nn.modelimport.keras.UnsupportedKerasConfigurationException;
@@ -27,6 +28,7 @@ public class FeaturizedPreSave {
     public static final String featurizeExtractionLayer = "fc2";
 
     public static void main(String [] args) throws UnsupportedKerasConfigurationException, IOException, InvalidKerasConfigurationException {
+        SparkConf sparkConf = new SparkConf();
 
         //import org.deeplearning4j.transferlearning.vgg16 and print summary
         TrainedModelHelper modelImportHelper = new TrainedModelHelper(TrainedModels.VGG16);

@@ -1,12 +1,12 @@
-package org.deeplearning4j.examples.transferlearning.vgg16;
+package org.deeplearning4j.transferlearning.vgg16;
 
 import lombok.extern.slf4j.Slf4j;
 import org.deeplearning4j.eval.Evaluation;
-import org.deeplearning4j.examples.transferlearning.vgg16.dataHelpers.FlowerDataSetIterator;
 import org.deeplearning4j.nn.conf.Updater;
 import org.deeplearning4j.nn.graph.ComputationGraph;
 import org.deeplearning4j.nn.transferlearning.FineTuneConfiguration;
 import org.deeplearning4j.nn.transferlearning.TransferLearning;
+import org.deeplearning4j.transferlearning.vgg16.dataHelpers.FlowerDataSetIterator;
 import org.deeplearning4j.util.ModelSerializer;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 

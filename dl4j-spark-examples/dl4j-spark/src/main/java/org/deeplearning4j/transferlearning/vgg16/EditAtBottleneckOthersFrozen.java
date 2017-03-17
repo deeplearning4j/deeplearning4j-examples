@@ -1,4 +1,4 @@
-package org.deeplearning4j.examples.transferlearning.vgg16;
+package org.deeplearning4j.transferlearning.vgg16;
 
 import lombok.extern.slf4j.Slf4j;
 import org.deeplearning4j.eval.Evaluation;
