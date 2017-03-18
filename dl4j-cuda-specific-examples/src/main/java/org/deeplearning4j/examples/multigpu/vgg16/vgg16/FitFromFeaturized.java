@@ -98,7 +98,7 @@ public class FitFromFeaturized {
 
         DataSetIterator trainIter = FlowerDataSetIteratorFeaturized.trainIterator();
         DataSetIterator testIter = FlowerDataSetIteratorFeaturized.testIterator();
-
+        System.out.println("Env information " + Nd4j.getExecutioner().getEnvironmentInformation());
         System.out.println("Running on "  + Nd4jEnvironment.getEnvironment().getNumGpus() + " gpus ");
         if(Nd4jEnvironment.getEnvironment().getNumGpus() < 1)
             throw new IllegalStateException("Unable to run gpus. No gpus found");
