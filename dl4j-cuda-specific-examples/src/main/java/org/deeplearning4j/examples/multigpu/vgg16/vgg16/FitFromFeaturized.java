@@ -18,6 +18,7 @@ import org.deeplearning4j.nn.transferlearning.FineTuneConfiguration;
 import org.deeplearning4j.nn.transferlearning.TransferLearning;
 import org.deeplearning4j.nn.transferlearning.TransferLearningHelper;
 import org.deeplearning4j.nn.weights.WeightInit;
+import org.deeplearning4j.parallelism.ParallelWrapper;
 import org.nd4j.jita.conf.CudaEnvironment;
 import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
@@ -84,17 +85,18 @@ public class FitFromFeaturized {
             .setFeatureExtractor(featureExtractionLayer) //the specified layer and below are "frozen"
             .removeVertexKeepConnections("predictions") //replace the functionality of the final vertex
             .addLayer("predictions",
-                       new OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD)
-                            .nIn(4096).nOut(numClasses)
-                            .weightInit(WeightInit.DISTRIBUTION)
-                            .dist(new NormalDistribution(0,0.2*(2.0/(4096+numClasses)))) //This weight init dist gave better results than Xavier
-                            .activation(Activation.SOFTMAX).build(),
-                       "fc2")
+                new OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD)
+                    .nIn(4096).nOut(numClasses)
+                    .weightInit(WeightInit.DISTRIBUTION)
+                    .dist(new NormalDistribution(0,0.2*(2.0/(4096+numClasses)))) //This weight init dist gave better results than Xavier
+                    .activation(Activation.SOFTMAX).build(),
+                "fc2")
             .build();
         log.info(vgg16Transfer.summary());
 
         DataSetIterator trainIter = FlowerDataSetIteratorFeaturized.trainIterator();
         DataSetIterator testIter = FlowerDataSetIteratorFeaturized.testIterator();
+
 
         //Instantiate the transfer learning helper to fit and output from the featurized dataset
         //The .unfrozenGraph() is the unfrozen subset of the computation graph passed in.
@@ -102,27 +104,29 @@ public class FitFromFeaturized {
         //With each iteration updated params from unfrozenGraph are copied over to the original model
         TransferLearningHelper transferLearningHelper = new TransferLearningHelper(vgg16Transfer);
         log.info(transferLearningHelper.unfrozenGraph().summary());
+        // ParallelWrapper will take care of load balancing between GPUs.
+        ParallelWrapper wrapper = new ParallelWrapper.Builder(transferLearningHelper.unfrozenGraph())
+            // DataSets prefetching options. Set this value with respect to number of actual devices
+            .prefetchBuffer(24)
+
+            // set number of workers equal or higher then number of available devices. x1-x2 are good values to start with
+            .workers(4)
+
+            // rare averaging improves performance, but might reduce model accuracy
+            .averagingFrequency(3)
+
+            // if set to TRUE, on every averaging model score will be reported
+            .reportScoreAfterAveraging(true)
+
+            // optinal parameter, set to false ONLY if your system has support P2P memory access across PCIe (hint: AWS do not support P2P)
+            .useLegacyAveraging(true)
+
+            .build();
 
         for (int epoch = 0; epoch < nEpochs; epoch++) {
-            if (epoch == 0) {
-                Evaluation eval = transferLearningHelper.unfrozenGraph().evaluate(testIter);
-                log.info("Eval stats BEFORE fit.....");
-                log.info(eval.stats()+"\n");
-                testIter.reset();
-            }
-            int iter = 0;
-            while (trainIter.hasNext()) {
-                transferLearningHelper.fitFeaturized(trainIter.next());
-                if (iter % 10 == 0) {
-                    log.info("Evaluate model at iter " + iter + " ....");
-                    Evaluation eval = transferLearningHelper.unfrozenGraph().evaluate(testIter);
-                    log.info(eval.stats());
-                    testIter.reset();
-                }
-                iter++;
-            }
+            wrapper.fit(trainIter);
             trainIter.reset();
-            log.info("Epoch #"+epoch+" complete");
+            log.info("Epoch #" + epoch +" complete");
         }
         log.info("Model build complete");
     }
