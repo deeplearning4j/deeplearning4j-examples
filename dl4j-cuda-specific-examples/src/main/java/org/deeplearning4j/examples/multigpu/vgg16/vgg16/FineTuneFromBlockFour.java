@@ -1,12 +1,13 @@
-package org.deeplearning4j.transferlearning.vgg16;
+package org.deeplearning4j.examples.multigpu.vgg16.vgg16;
 
 import lombok.extern.slf4j.Slf4j;
 import org.deeplearning4j.eval.Evaluation;
+import org.deeplearning4j.examples.multigpu.vgg16.vgg16.dataHelpers.FlowerDataSetIterator;
 import org.deeplearning4j.nn.conf.Updater;
 import org.deeplearning4j.nn.graph.ComputationGraph;
 import org.deeplearning4j.nn.transferlearning.FineTuneConfiguration;
 import org.deeplearning4j.nn.transferlearning.TransferLearning;
-import org.deeplearning4j.transferlearning.vgg16.dataHelpers.FlowerDataSetIterator;
+import org.deeplearning4j.parallelism.ParallelWrapper;
 import org.deeplearning4j.util.ModelSerializer;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 
@@ -58,35 +59,44 @@ public class FineTuneFromBlockFour {
         log.info(vgg16FineTune.summary());
 
         //Dataset iterators
-        FlowerDataSetIterator.setup(batchSize,trainPerc);
+        FlowerDataSetIterator.setup(batchSize, trainPerc);
         DataSetIterator trainIter = FlowerDataSetIterator.trainIterator();
         DataSetIterator testIter = FlowerDataSetIterator.testIterator();
+
+        // ParallelWrapper will take care of load balancing between GPUs.
+        ParallelWrapper wrapper = new ParallelWrapper.Builder(vgg16FineTune)
+            // DataSets prefetching options. Set this value with respect to number of actual devices
+            .prefetchBuffer(24)
+
+            // set number of workers equal or higher then number of available devices. x1-x2 are good values to start with
+            .workers(4)
+
+            // rare averaging improves performance, but might reduce model accuracy
+            .averagingFrequency(3)
+
+            // if set to TRUE, on every averaging model score will be reported
+            .reportScoreAfterAveraging(true)
+
+            // optinal parameter, set to false ONLY if your system has support P2P memory access across PCIe (hint: AWS do not support P2P)
+            .useLegacyAveraging(true).build();
+
 
         Evaluation eval;
         eval = vgg16FineTune.evaluate(testIter);
         log.info("Eval stats BEFORE fit.....");
         log.info(eval.stats() + "\n");
         testIter.reset();
+        for(int i = 0; i < 10; i++) {
+            wrapper.fit(trainIter);
+            log.info("Model build complete");
 
-        int iter = 0;
-        while(trainIter.hasNext()) {
-            vgg16FineTune.fit(trainIter.next());
-            if (iter % 10 == 0) {
-                log.info("Evaluate model at iter "+iter +" ....");
-                eval = vgg16FineTune.evaluate(testIter);
-                log.info(eval.stats());
-                testIter.reset();
-            }
-            iter++;
+            //Save the model
+            File locationToSaveFineTune = new File("MyComputationGraphFineTune.zip");
+            boolean saveUpdater = false;
+            ModelSerializer.writeModel(vgg16FineTune, locationToSaveFineTune, saveUpdater);
         }
-
-        log.info("Model build complete");
-
-        //Save the model
-        File locationToSaveFineTune = new File("MyComputationGraphFineTune.zip");
-        boolean saveUpdater = false;
-        ModelSerializer.writeModel(vgg16FineTune, locationToSaveFineTune, saveUpdater);
         log.info("Model saved");
+
 
     }
 }

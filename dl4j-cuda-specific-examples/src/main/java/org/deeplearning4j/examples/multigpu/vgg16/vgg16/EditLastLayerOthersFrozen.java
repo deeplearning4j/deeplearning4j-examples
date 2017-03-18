@@ -1,7 +1,8 @@
-package org.deeplearning4j.transferlearning.vgg16;
+package org.deeplearning4j.examples.multigpu.vgg16.vgg16;
 
 import lombok.extern.slf4j.Slf4j;
 import org.deeplearning4j.eval.Evaluation;
+import org.deeplearning4j.examples.transferlearning.vgg16.dataHelpers.FlowerDataSetIterator;
 import org.deeplearning4j.nn.api.OptimizationAlgorithm;
 import org.deeplearning4j.nn.conf.Updater;
 import org.deeplearning4j.nn.conf.distribution.NormalDistribution;
@@ -14,7 +15,6 @@ import org.deeplearning4j.nn.modelimport.keras.trainedmodels.TrainedModels;
 import org.deeplearning4j.nn.transferlearning.FineTuneConfiguration;
 import org.deeplearning4j.nn.transferlearning.TransferLearning;
 import org.deeplearning4j.nn.weights.WeightInit;
-import org.deeplearning4j.transferlearning.vgg16.dataHelpers.FlowerDataSetIterator;
 import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
@@ -74,13 +74,11 @@ public class EditLastLayerOthersFrozen {
                 new OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD)
                     .nIn(4096).nOut(numClasses)
                     .weightInit(WeightInit.DISTRIBUTION)
-                    .dist(new NormalDistribution(0,0.2 * ( 2.0 / (4096 + numClasses)))) //This weight init dist gave better results than Xavier
+                    .dist(new NormalDistribution(0,0.2*(2.0/(4096+numClasses)))) //This weight init dist gave better results than Xavier
                     .activation(Activation.SOFTMAX).build(),
                 "fc2")
             .build();
         log.info(vgg16Transfer.summary());
-
-
 
         //Dataset iterators
         FlowerDataSetIterator.setup(batchSize,trainPerc);

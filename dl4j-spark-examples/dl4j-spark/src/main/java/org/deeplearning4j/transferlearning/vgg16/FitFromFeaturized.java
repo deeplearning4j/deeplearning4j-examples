@@ -1,9 +1,16 @@
 package org.deeplearning4j.transferlearning.vgg16;
 
+import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
+import com.beust.jcommander.ParameterException;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
 import org.apache.spark.SparkConf;
+import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
+import org.apache.spark.api.java.function.Function;
+import org.apache.spark.input.PortableDataStream;
 import org.deeplearning4j.eval.Evaluation;
 import org.deeplearning4j.nn.api.OptimizationAlgorithm;
 import org.deeplearning4j.nn.conf.Updater;
@@ -20,14 +27,19 @@ import org.deeplearning4j.nn.transferlearning.TransferLearningHelper;
 import org.deeplearning4j.nn.weights.WeightInit;
 import org.deeplearning4j.spark.api.TrainingMaster;
 import org.deeplearning4j.spark.impl.graph.SparkComputationGraph;
+import org.deeplearning4j.spark.impl.multilayer.evaluation.IEvaluateFlatMapFunction;
+import org.deeplearning4j.spark.impl.multilayer.evaluation.IEvaluationReduceFunction;
 import org.deeplearning4j.spark.impl.paramavg.ParameterAveragingTrainingMaster;
 import org.deeplearning4j.transferlearning.vgg16.dataHelpers.FeaturizedPreSave;
 import org.deeplearning4j.transferlearning.vgg16.dataHelpers.FlowerDataSetIteratorFeaturized;
 import org.nd4j.linalg.activations.Activation;
+import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
+import scala.Tuple2;
 
 import java.io.IOException;
+import java.io.OutputStream;
 
 /**
  * @author susaneraly on 3/10/17.
@@ -57,7 +69,29 @@ public class FitFromFeaturized {
 
     @Parameter(names = "-numEpochs", description = "Number of epochs for training")
     private int numEpochs = 15;
-    public  void main(String [] args) throws IOException, InvalidKerasConfigurationException, UnsupportedKerasConfigurationException {
+    @Parameter(names = "-hdfsRoot", description = "The root directory for hdfs for training")
+    private String hdfsRoot = "/tmp";
+
+
+    public static void main(String...args) throws Exception {
+        new FitFromFeaturized().runMain(args);
+    }
+
+    public  void runMain(String [] args) throws IOException, InvalidKerasConfigurationException, UnsupportedKerasConfigurationException {
+        JCommander jcmdr = new JCommander(this);
+
+        try {
+            jcmdr.parse(args);
+        } catch (ParameterException e) {
+            //User provides invalid input -> print the usage info
+            jcmdr.usage();
+            try {
+                Thread.sleep(500);
+            } catch (Exception e2) {
+            }
+            System.exit(1);
+        }
+
 
         //Import vgg
         //Note that the model imported does not have an output layer (check printed summary)
@@ -82,12 +116,12 @@ public class FitFromFeaturized {
             .setFeatureExtractor(featureExtractionLayer) //the specified layer and below are "frozen"
             .removeVertexKeepConnections("predictions") //replace the functionality of the final vertex
             .addLayer("predictions",
-                       new OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD)
-                            .nIn(4096).nOut(numClasses)
-                            .weightInit(WeightInit.DISTRIBUTION)
-                            .dist(new NormalDistribution(0,0.2*(2.0/(4096 + numClasses)))) //This weight init dist gave better results than Xavier
-                            .activation(Activation.SOFTMAX).build(),
-                       "fc2")
+                new OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD)
+                    .nIn(4096).nOut(numClasses)
+                    .weightInit(WeightInit.DISTRIBUTION)
+                    .dist(new NormalDistribution(0,0.2 * (2.0/(4096 + numClasses)))) //This weight init dist gave better results than Xavier
+                    .activation(Activation.SOFTMAX).build(),
+                "fc2")
             .build();
 
         //Instantiate the transfer learning helper to fit and output from the featurized dataset
@@ -106,35 +140,59 @@ public class FitFromFeaturized {
 
         log.info(vgg16Transfer.summary());
         SparkConf sparkConf = new SparkConf();
+        if(useSparkLocal)
+            sparkConf.setMaster("local[*]");
+        sparkConf.setAppName("vgg16");
         JavaSparkContext sc = new JavaSparkContext(sparkConf);
+        FileSystem fs = FileSystem.get(sc.hadoopConfiguration());
 
         SparkComputationGraph sparkComputationGraph = new SparkComputationGraph(sc,transferLearningHelper.unfrozenGraph(),tm);
 
         DataSetIterator trainIter = FlowerDataSetIteratorFeaturized.trainIterator();
         DataSetIterator testIter = FlowerDataSetIteratorFeaturized.testIterator();
+        System.out.println("Writing train to hdfs");
+        int trainCountWrote = 0;
+        while(trainIter.hasNext()) {
+            OutputStream os = fs.create(new Path(hdfsRoot + "/" + "train","dataset" + trainCountWrote++));
+            trainIter.next().save(os);
+            os.close();
+        }
+
+        System.out.println("Writing test to hdfs");
+        String testDir = hdfsRoot + "/" + "test";
+        int testCountWrote = 0;
+        while(testIter.hasNext()) {
+            OutputStream os = fs.create(new Path(testDir,"dataset" + testCountWrote++));
+            testIter.next().save(os);
+            os.close();
+        }
 
 
         for (int epoch = 0; epoch < nEpochs; epoch++) {
-            if (epoch == 0) {
-                Evaluation eval = transferLearningHelper.unfrozenGraph().evaluate(testIter);
-                log.info("Eval stats BEFORE fit.....");
-                log.info(eval.stats()+"\n");
-                testIter.reset();
-            }
-            int iter = 0;
-            while (trainIter.hasNext()) {
-                transferLearningHelper.fitFeaturized(trainIter.next());
-                if (iter % 10 == 0) {
-                    log.info("Evaluate model at iter " + iter + " ....");
-                    Evaluation eval = transferLearningHelper.unfrozenGraph().evaluate(testIter);
-                    log.info(eval.stats());
-                    testIter.reset();
-                }
-                iter++;
-            }
-            trainIter.reset();
-            log.info("Epoch #"+epoch+" complete");
+            sparkComputationGraph.fit(hdfsRoot + "/train");
+            log.info("Epoch #" + epoch + " complete");
         }
+
+        JavaRDD<DataSet> data = sc.binaryFiles(testDir + "/*").map(new Function<Tuple2<String, PortableDataStream>, DataSet>() {
+            @Override
+            public DataSet call(Tuple2<String, PortableDataStream> v1) throws Exception {
+                DataSet d = new DataSet();
+                d.load(v1._2().open());
+                return d;
+            }
+        });
+
+
+        IEvaluateFlatMapFunction<Evaluation> evalFn = new IEvaluateFlatMapFunction<>(sc.broadcast(vgg16.getConfiguration().toJson()),
+            sc.broadcast(sparkComputationGraph.getNetwork().params()), batchSizePerWorker, new Evaluation(numClasses));
+        JavaRDD<Evaluation> evaluations = data.mapPartitions(evalFn);
+        evaluations.reduce(new IEvaluationReduceFunction<>());
+        Evaluation eval = sparkComputationGraph.getNetwork().evaluate(testIter);
+        log.info("Eval stats BEFORE fit.....");
+        log.info(eval.stats()+"\n");
+        testIter.reset();
+
+
         log.info("Model build complete");
     }
 }
