@@ -99,10 +99,7 @@ public class FitFromFeaturized {
         DataSetIterator trainIter = FlowerDataSetIteratorFeaturized.trainIterator();
         DataSetIterator testIter = FlowerDataSetIteratorFeaturized.testIterator();
         System.out.println("Env information " + Nd4j.getExecutioner().getEnvironmentInformation());
-        System.out.println("Running on "  + Nd4jEnvironment.getEnvironment().getNumGpus() + " gpus  and env information gpus " + Nd4j.getExecutioner().getEnvironmentInformation().get("cuda.availableDevices"));
-        if(Nd4jEnvironment.getEnvironment().getNumGpus() < 1)
-            throw new IllegalStateException("Unable to run gpus. No gpus found");
-        //Instantiate the transfer learning helper to fit and output from the featurized dataset
+         //Instantiate the transfer learning helper to fit and output from the featurized dataset
         //The .unfrozenGraph() is the unfrozen subset of the computation graph passed in.
         //If using with a UI or a listener attach them directly to the unfrozenGraph instance
         //With each iteration updated params from unfrozenGraph are copied over to the original model
@@ -114,7 +111,7 @@ public class FitFromFeaturized {
             .prefetchBuffer(24)
 
             // set number of workers equal or higher then number of available devices. x1-x2 are good values to start with
-            .workers(Nd4jEnvironment.getEnvironment().getNumGpus())
+            .workers(Integer.parseInt(Nd4j.getExecutioner().getEnvironmentInformation().get("cuda.availableDevices").toString()))
 
             // rare averaging improves performance, but might reduce model accuracy
             .averagingFrequency(3)
