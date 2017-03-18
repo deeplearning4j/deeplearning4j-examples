@@ -21,7 +21,9 @@ import org.deeplearning4j.nn.weights.WeightInit;
 import org.deeplearning4j.parallelism.ParallelWrapper;
 import org.nd4j.jita.conf.CudaEnvironment;
 import org.nd4j.linalg.activations.Activation;
+import org.nd4j.linalg.api.environment.Nd4jEnvironment;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
+import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 
 import java.io.IOException;
@@ -110,7 +112,7 @@ public class FitFromFeaturized {
             .prefetchBuffer(24)
 
             // set number of workers equal or higher then number of available devices. x1-x2 are good values to start with
-            .workers(4)
+            .workers(Nd4jEnvironment.getEnvironment().getNumGpus())
 
             // rare averaging improves performance, but might reduce model accuracy
             .averagingFrequency(3)
