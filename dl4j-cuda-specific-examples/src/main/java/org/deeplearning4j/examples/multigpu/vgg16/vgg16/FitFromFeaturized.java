@@ -99,7 +99,9 @@ public class FitFromFeaturized {
         DataSetIterator trainIter = FlowerDataSetIteratorFeaturized.trainIterator();
         DataSetIterator testIter = FlowerDataSetIteratorFeaturized.testIterator();
 
-
+        System.out.println("Running on "  + Nd4jEnvironment.getEnvironment().getNumGpus() + " gpus ");
+        if(Nd4jEnvironment.getEnvironment().getNumGpus() < 1)
+            throw new IllegalStateException("Unable to run gpus. No gpus found");
         //Instantiate the transfer learning helper to fit and output from the featurized dataset
         //The .unfrozenGraph() is the unfrozen subset of the computation graph passed in.
         //If using with a UI or a listener attach them directly to the unfrozenGraph instance
