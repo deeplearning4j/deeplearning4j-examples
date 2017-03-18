@@ -1,4 +1,4 @@
-package org.deeplearning4j.examples.multigpu.vgg16.vgg16.dataHelpers;
+package org.deeplearning4j.examples.multigpu.vgg16.dataHelpers;
 
 import lombok.extern.slf4j.Slf4j;
 import org.deeplearning4j.datasets.iterator.AsyncDataSetIterator;

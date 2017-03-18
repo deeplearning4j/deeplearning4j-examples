@@ -3,8 +3,8 @@ package org.deeplearning4j.examples.multigpu.vgg16.vgg16;
 import lombok.extern.slf4j.Slf4j;
 
 import org.deeplearning4j.eval.Evaluation;
-import org.deeplearning4j.examples.multigpu.vgg16.vgg16.dataHelpers.FeaturizedPreSave;
-import org.deeplearning4j.examples.multigpu.vgg16.vgg16.dataHelpers.FlowerDataSetIteratorFeaturized;
+import org.deeplearning4j.examples.multigpu.vgg16.dataHelpers.FeaturizedPreSave;
+import org.deeplearning4j.examples.multigpu.vgg16.dataHelpers.FlowerDataSetIteratorFeaturized;
 import org.deeplearning4j.nn.api.OptimizationAlgorithm;
 import org.deeplearning4j.nn.conf.Updater;
 import org.deeplearning4j.nn.conf.distribution.NormalDistribution;
@@ -20,8 +20,6 @@ import org.deeplearning4j.nn.transferlearning.TransferLearningHelper;
 import org.deeplearning4j.nn.weights.WeightInit;
 import org.nd4j.jita.conf.CudaEnvironment;
 import org.nd4j.linalg.activations.Activation;
-import org.nd4j.linalg.api.buffer.DataBuffer;
-import org.nd4j.linalg.api.buffer.util.DataTypeUtil;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 
@@ -49,7 +47,6 @@ public class FitFromFeaturized {
     protected static final int nEpochs = 3;
 
     public static void main(String [] args) throws IOException, InvalidKerasConfigurationException, UnsupportedKerasConfigurationException {
-        DataTypeUtil.setDTypeForContext(DataBuffer.Type.HALF);
 
         // temp workaround for backend initialization
 
