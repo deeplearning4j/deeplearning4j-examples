@@ -89,8 +89,7 @@ public class FitFromFeaturized {
             .addLayer("predictions",
                 new OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD)
                     .nIn(4096).nOut(numClasses)
-                    .weightInit(WeightInit.DISTRIBUTION)
-                    .dist(new NormalDistribution(0,0.2*(2.0/(4096+numClasses)))) //This weight init dist gave better results than Xavier
+                    .weightInit(WeightInit.XAVIER)
                     .activation(Activation.SOFTMAX).build(),
                 "fc2")
             .build();
