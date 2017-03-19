@@ -113,12 +113,12 @@ public class EncoderDecoderLSTM {
      * Neural Networks
      */
 
-    public final Map<String, Double> dict = new HashMap<>();
-    public final Map<Double, String> revDict = new HashMap<>();
+    private final Map<String, Double> dict = new HashMap<>();
+    private final Map<Double, String> revDict = new HashMap<>();
     private final String CHARS = "-\\/_&" + CorpusProcessor.SPECIALS;
     private List<List<Double>> corpus = new ArrayList<>();
     private Random rng = new Random();
-    public static final int HIDDEN_LAYER_WIDTH = 512; // this is purely empirical, affects performance and VRAM requirement
+    private static final int HIDDEN_LAYER_WIDTH = 512; // this is purely empirical, affects performance and VRAM requirement
     private static final int EMBEDDING_WIDTH = 128; // one-hot vectors will be embedded to more dense vectors with this width
     private static final String CORPUS_FILENAME = "movie_lines.txt"; // filename of data corpus to learn
     private static final String MODEL_FILENAME = "rnn_train.zip"; // filename of the model
@@ -143,7 +143,6 @@ public class EncoderDecoderLSTM {
     }
 
     private void run(String[] args) throws IOException {
-        Nd4j.ENFORCE_NUMERICAL_STABILITY = true;
         Nd4j.getMemoryManager().setAutoGcWindow(GC_WINDOW);
 
         createDictionary();
@@ -173,7 +172,7 @@ public class EncoderDecoderLSTM {
         train(networkFile, offset);
     }
 
-    public void createComputationGraph() {
+    private void createComputationGraph() {
         NeuralNetConfiguration.Builder builder = new NeuralNetConfiguration.Builder();
         builder.iterations(1).learningRate(LEARNING_RATE).rmsDecay(RMS_DECAY)
                 .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT).miniBatch(true).updater(Updater.RMSPROP)
