@@ -1,6 +1,5 @@
 package org.deeplearning4j.examples.transferlearning.vgg16;
 
-import lombok.extern.slf4j.Slf4j;
 import org.deeplearning4j.eval.Evaluation;
 import org.deeplearning4j.examples.transferlearning.vgg16.dataHelpers.FlowerDataSetIterator;
 import org.deeplearning4j.nn.api.OptimizationAlgorithm;
@@ -18,6 +17,7 @@ import org.deeplearning4j.nn.weights.WeightInit;
 import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
+import org.slf4j.Logger;
 
 import java.io.IOException;
 
@@ -35,8 +35,8 @@ import java.io.IOException;
  * frozen layer is presaved and the fit is carried out on this featurized dataset.
  * When running multiple epochs this can save on computation time.
  */
-@Slf4j
 public class EditLastLayerOthersFrozen {
+    private static final Logger log = org.slf4j.LoggerFactory.getLogger(EditLastLayerOthersFrozen.class);
 
     protected static final int numClasses = 5;
     protected static final long seed = 12345;

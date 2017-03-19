@@ -1,6 +1,5 @@
 package org.deeplearning4j.examples.transferlearning.vgg16;
 
-import lombok.extern.slf4j.Slf4j;
 import org.deeplearning4j.eval.Evaluation;
 import org.deeplearning4j.examples.transferlearning.vgg16.dataHelpers.FlowerDataSetIterator;
 import org.deeplearning4j.nn.conf.Updater;
@@ -9,6 +8,7 @@ import org.deeplearning4j.nn.transferlearning.FineTuneConfiguration;
 import org.deeplearning4j.nn.transferlearning.TransferLearning;
 import org.deeplearning4j.util.ModelSerializer;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
+import org.slf4j.Logger;
 
 import java.io.File;
 import java.io.IOException;
@@ -25,8 +25,9 @@ import java.io.IOException;
  * Finetuning like this is usually done with a low learning rate and a simple SGD optimizer
  * @author susaneraly on 3/6/17.
  */
-@Slf4j
 public class FineTuneFromBlockFour {
+    private static final Logger log = org.slf4j.LoggerFactory.getLogger(FineTuneFromBlockFour.class);
+
     protected static final int numClasses = 5;
     protected static final long seed = 12345;
 

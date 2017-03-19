@@ -3,7 +3,6 @@ package org.deeplearning4j.examples.multigpu.w2vsentiment;
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
@@ -11,8 +10,8 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.deeplearning4j.models.embeddings.loader.WordVectorSerializer;
 import org.deeplearning4j.models.embeddings.wordvectors.WordVectors;
-import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
+import org.slf4j.Logger;
 
 import java.io.*;
 import java.net.URL;
@@ -23,10 +22,10 @@ import java.util.concurrent.atomic.AtomicInteger;
  * Idea behind this approach is simple: if you're going to run over the same corpus over and over, it's more efficient
  * to do all preprocessing once, and save datasets as binary files, instead of doing the same stuff over and over on the fly
  *
- * @author Alex Black
  */
-@Slf4j
 public class DataSetsBuilder {
+    private static final Logger log = org.slf4j.LoggerFactory.getLogger(DataSetsBuilder.class);
+
     /** Data URL for downloading */
     public static final String DATA_URL = "http://ai.stanford.edu/~amaas/data/sentiment/aclImdb_v1.tar.gz";
     /** Location to save and extract the training/testing data */
