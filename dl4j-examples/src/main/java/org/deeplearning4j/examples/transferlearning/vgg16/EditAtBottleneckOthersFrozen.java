@@ -1,6 +1,5 @@
 package org.deeplearning4j.examples.transferlearning.vgg16;
 
-import lombok.extern.slf4j.Slf4j;
 import org.deeplearning4j.eval.Evaluation;
 import org.deeplearning4j.examples.transferlearning.vgg16.dataHelpers.FlowerDataSetIterator;
 import org.deeplearning4j.nn.api.OptimizationAlgorithm;
@@ -17,6 +16,7 @@ import org.deeplearning4j.util.ModelSerializer;
 import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
+import org.slf4j.Logger;
 
 import java.io.File;
 
@@ -37,8 +37,8 @@ import java.io.File;
  * Note that we could presave the output out block5_pool like we do in FeaturizedPreSave + FitFromFeaturized
  * Refer to those two classes for more detail
  */
-@Slf4j
 public class EditAtBottleneckOthersFrozen {
+    private static final Logger log = org.slf4j.LoggerFactory.getLogger(EditAtBottleneckOthersFrozen.class);
 
     protected static final int numClasses = 5;
 
