@@ -156,12 +156,12 @@ public class EncoderDecoderLSTM {
             String input;
             try (Scanner scanner = new Scanner(System.in)) {
                 input = scanner.nextLine();
-            }
-            if (input.toLowerCase().equals("d")) {
-                startDialog();
-            } else {
-                offset = Integer.valueOf(input);
-                test();
+                if (input.toLowerCase().equals("d")) {
+                    startDialog(scanner);
+                } else {
+                    offset = Integer.valueOf(input);
+                    test();
+                }
             }
         } else {
             System.out.println("Creating a new network...");
@@ -234,34 +234,32 @@ public class EncoderDecoderLSTM {
         }
     }
 
-    private void startDialog() throws IOException {
+    private void startDialog(Scanner scanner) throws IOException {
         System.out.println("Dialog started.");
-        try (Scanner scanner = new Scanner(System.in)) {
-            while (true) {
-                System.out.print("In> ");
-                // input line is appended to conform to the corpus format
-                String line = "1 +++$+++ u11 +++$+++ m0 +++$+++ WALTER +++$+++ " + scanner.nextLine() + "\n";
-                CorpusProcessor dialogProcessor = new CorpusProcessor(new ByteArrayInputStream(line.getBytes(StandardCharsets.UTF_8)),
-                        ROW_SIZE, false) {
-                    @Override
-                    protected void processLine(String lastLine) {
-                        List<String> words = new ArrayList<>();
-                        tokenizeLine(lastLine, words, true);
-                        List<Double> wordIdxs = new ArrayList<>();
-                        if (wordsToIndexes(words, wordIdxs)) {
-                            System.out.print("Got words: ");
-                            for (Double idx : wordIdxs) {
-                                System.out.print(revDict.get(idx) + " ");
-                            }
-                            System.out.println();
-                            System.out.print("Out> ");
-                            output(wordIdxs, true);
+        while (true) {
+            System.out.print("In> ");
+            // input line is appended to conform to the corpus format
+            String line = "1 +++$+++ u11 +++$+++ m0 +++$+++ WALTER +++$+++ " + scanner.nextLine() + "\n";
+            CorpusProcessor dialogProcessor = new CorpusProcessor(new ByteArrayInputStream(line.getBytes(StandardCharsets.UTF_8)), ROW_SIZE,
+                    false) {
+                @Override
+                protected void processLine(String lastLine) {
+                    List<String> words = new ArrayList<>();
+                    tokenizeLine(lastLine, words, true);
+                    List<Double> wordIdxs = new ArrayList<>();
+                    if (wordsToIndexes(words, wordIdxs)) {
+                        System.out.print("Got words: ");
+                        for (Double idx : wordIdxs) {
+                            System.out.print(revDict.get(idx) + " ");
                         }
+                        System.out.println();
+                        System.out.print("Out> ");
+                        output(wordIdxs, true);
                     }
-                };
-                dialogProcessor.setDict(dict);
-                dialogProcessor.start();
-            }
+                }
+            };
+            dialogProcessor.setDict(dict);
+            dialogProcessor.start();
         }
     }
 
