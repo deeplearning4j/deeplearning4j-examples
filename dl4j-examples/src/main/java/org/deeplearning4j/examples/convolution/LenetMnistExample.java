@@ -32,7 +32,7 @@ public class LenetMnistExample {
         int nChannels = 1; // Number of input channels
         int outputNum = 10; // The number of possible outcomes
         int batchSize = 64; // Test batch size
-        int nEpochs = 1; // Number of training epochs
+        int nEpochs = 10; // Number of training epochs
         int iterations = 1; // Number of training iterations
         int seed = 123; //
 
@@ -109,7 +109,7 @@ public class LenetMnistExample {
 
 
         log.info("Train model....");
-        model.setListeners(new ScoreIterationListener(1));
+        model.setListeners(new ScoreIterationListener(100));
         for( int i=0; i<nEpochs; i++ ) {
             model.fit(mnistTrain);
             log.info("*** Completed epoch {} ***", i);
