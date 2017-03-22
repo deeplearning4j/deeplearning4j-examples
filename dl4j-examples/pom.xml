@@ -118,6 +118,7 @@
             <artifactId>httpclient</artifactId>
             <version>4.3.5</version>
         </dependency>
+
     </dependencies>
 
     <build>
@@ -188,5 +189,18 @@
             </plugin>
         </plugins>
     </build>
+
+    <profiles>
+      <profile>
+        <id>OpenJFX</id>
+        <dependencies>
+          <dependency>
+            <groupId>com.oracle</groupId>
+            <artifactId>javafx</artifactId>
+            <version>${javafx.version}</version>
+          </dependency>
+        </dependencies>
+      </profile>
+    </profiles>
 
 </project>

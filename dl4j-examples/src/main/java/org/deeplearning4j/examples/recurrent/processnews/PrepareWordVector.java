@@ -1,4 +1,4 @@
-/**
+/**-
  * This program generates a word-vector from news items stored in resources folder.
  * News File is located at \dl4j-examples\src\main\resources\NewsData\RawNewsToGenerateWordVector.txt
  * Word vector file : \dl4j-examples\src\main\resources\NewsData\NewsWordVector.txt
