@@ -117,7 +117,6 @@ public class EncoderDecoderLSTM {
     private final Map<Double, String> revDict = new HashMap<>();
     private final String CHARS = "-\\/_&" + CorpusProcessor.SPECIALS;
     private List<List<Double>> corpus = new ArrayList<>();
-    private Random rng = new Random();
     private static final int HIDDEN_LAYER_WIDTH = 512; // this is purely empirical, affects performance and VRAM requirement
     private static final int EMBEDDING_WIDTH = 128; // one-hot vectors will be embedded to more dense vectors with this width
     private static final String CORPUS_FILENAME = "movie_lines.txt"; // filename of data corpus to learn
@@ -308,7 +307,7 @@ public class EncoderDecoderLSTM {
             INDArray merged = mergeVertex.doForward(false);
             INDArray activateDec = decoder.rnnTimeStep(merged);
             INDArray out = output.activate(activateDec, false);
-            double d = rng.nextDouble();
+            double d = rnd.nextDouble();
             double sum = 0.0;
             int idx = -1;
             for (int s = 0; s < out.size(1); s++) {
