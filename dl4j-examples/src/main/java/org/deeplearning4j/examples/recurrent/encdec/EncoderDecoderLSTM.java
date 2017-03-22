@@ -50,9 +50,8 @@ public class EncoderDecoderLSTM {
     /*
      * This is a seq2seq encoder-decoder LSTM model made according to the Google's paper: [1] The model tries to predict the next dialog
      * line using the provided one. It learns on the Cornell Movie Dialogs corpus. Unlike simple char RNNs this model is more sophisticated
-     * and theoretically, given enough time and data, can deduce facts from raw text. Your mileage may vary. This particular code is based
-     * on AdditionRNN but heavily changed to be used with a huge amount of possible tokens (10-20k), it also utilizes the decoder input
-     * unlike AdditionRNN.
+     * and theoretically, given enough time and data, can deduce facts from raw text. Your mileage may vary. This particular network
+     * architecture is based on AdditionRNN but changed to be used with a huge amount of possible tokens (10-40k) instead of just digits.
      * 
      * Use the get_data.sh script to download, extract and optimize the train data. It's been only tested on Linux, it could work on OS X or
      * even on Windows 10 in the Ubuntu shell.
@@ -68,9 +67,9 @@ public class EncoderDecoderLSTM {
      * 
      * The architecture is like this: Input => Embedding Layer => Encoder => Decoder => Output (softmax)
      * 
-     * The encoder layer produces a so called "thought vector" that contains a compressed representation of the input. Depending on that
-     * vector the model produces different sentences even if they start with the same token. There's one more input, connected directly to
-     * the decoder layer, it's used to provide the previous token of the output. For the very first output token we send a special <go>
+     * The encoder layer produces a so called "thought vector" that contains a neurally-compressed representation of the input. Depending on
+     * that vector the model produces different sentences even if they start with the same token. There's one more input, connected directly
+     * to the decoder layer, it's used to provide the previous token of the output. For the very first output token we send a special <go>
      * token there, on the next iteration we use the token that the model produced the last time. On the training stage everything is
      * simple, we apriori know the desired output so the decoder input would be the same token set prepended with the <go> token and without
      * the last <eos> token. Example:
@@ -82,14 +81,15 @@ public class EncoderDecoderLSTM {
      * Decoder: "<go>" "I'm" "fine" "," "thanks" "!"
      * 
      * Actually, the input is reversed as per [2], the most important words are usually in the beginning of the phrase and they would get
-     * more weight if supplied last (the model "forgets" tokens that were supplied "long ago"). The output and decoder input sequence
-     * lengths are always equal. The input and output could be of any length (less than ROW_SIZE) so for purpose of batching we mask the
-     * unused part of the row. The encoder and decoder networks work sequentially. First the encoder creates the thought vector, that is the
-     * last activations of the layer. Those activations are then duplicated for as many time steps as there are elements in the output so
-     * that every output element can have its own copy of the thought vector. Then the decoder starts working. It receives two inputs, the
-     * thought vector made by the encoder and the token that it _should have produced_ (but usually it outputs something else so we have our
-     * loss metric and can compute gradients for the backward pass) on the previous step (or <go> for the very first step). These two
-     * vectors are simply concatenated by the merge vertex. The decoder's output goes to the softmax layer and that's it.
+     * more weight if supplied last (the model "forgets" tokens that were supplied "long ago", i.e. they have lesser weight than the recent
+     * ones). The output and decoder input sequence lengths are always equal. The input and output could be of any length (less than
+     * ROW_SIZE) so for purpose of batching we mask the unused part of the row. The encoder and decoder layers work sequentially. First the
+     * encoder creates the thought vector, that is the last activations of the layer. Those activations are then duplicated for as many time
+     * steps as there are elements in the output so that every output element can have its own copy of the thought vector. Then the decoder
+     * starts working. It receives two inputs, the thought vector made by the encoder and the token that it _should have produced_ (but
+     * usually it outputs something else so we have our loss metric and can compute gradients for the backward pass) on the previous step
+     * (or <go> for the very first step). These two vectors are simply concatenated by the merge vertex. The decoder's output goes to the
+     * softmax layer and that's it.
      * 
      * The test phase is much more tricky. We don't know the decoder input because we don't know the output yet (unlike in the train phase),
      * it could be anything. So we can't use methods like outputSingle() and have to do some manual work. Actually, we can but it would
