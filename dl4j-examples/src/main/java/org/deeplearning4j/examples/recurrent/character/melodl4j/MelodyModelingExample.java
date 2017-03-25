@@ -121,9 +121,9 @@ public class MelodyModelingExample {
             iter.reset();	//Reset iterator for another epoch
             if (melodies.size()>0) {
                 String melody=melodies.get(melodies.size()-1);
-                // Play 15 seconds of the most recent melody
-                System.out.println("\nFirst 10 seconds of " + melody);
-                PlaySymbolic.playMelody(melody,15);
+                int seconds =15;
+                System.out.println("\nFirst " + seconds + " seconds of " + melody);
+                PlaySymbolic.playMelody(melody,seconds);
             }
         }
         // Write all melodies to the output file, in reverse order (so that the best melodies are at the start of the file).
@@ -233,3 +233,4 @@ public class MelodyModelingExample {
         throw new IllegalArgumentException("Distribution is invalid? d="+d+", sum="+sum);
     }
 }
+

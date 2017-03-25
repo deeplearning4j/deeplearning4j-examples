@@ -182,9 +182,9 @@ public class Midi2Symbolic {
 	public static final int NOTE_OFF = 0x80;
 	private static final double MILLION = 1000000.0;
     //-------------------------------------------------------------------
-    public static void main(String[] args)  {
+    public static void main(String[] args)  { // You can download midi files from http://truthsite.org/music/bach-midi.zip and http://www.musedata.org
         try {
-            showSequencesForAllMidiFiles("d:/Music/midi/POP", "/tmp/pop.txt",10, false);
+            showSequencesForAllMidiFiles("d:/Music/midi/classical/bach", "/tmp/bach.txt",10, false);
         } catch (Exception exc) {
             exc.printStackTrace();
             System.exit(1);
@@ -548,10 +548,10 @@ If not specified, the default tempo is 120 beats/minute, which is equivalent to 
 		writer.println();
 	}
 
-	private static void showSequencesForAllMidiFiles(String dir, String outPath,int k, boolean bottomOnly) throws IOException {
+	private static void showSequencesForAllMidiFiles(String dir, String outPath,int minLengthInNotes, boolean bottomOnly) throws IOException {
 		PrintWriter printWriter = new PrintWriter(outPath);
 		//showHeader(printWriter,k);
-		showSequencesForAllMidiFiles(new File(dir), printWriter,k, bottomOnly);
+		showSequencesForAllMidiFiles(new File(dir), printWriter,minLengthInNotes, bottomOnly);
 		printWriter.close();
 		System.out.println(countMidiFilesProcessed + " midi files");
 		System.out.println(countNoteSequencesProcessed + " note sequences");
@@ -560,3 +560,4 @@ If not specified, the default tempo is 120 beats/minute, which is equivalent to 
 		System.out.println("smallestShortestLongestDurationRatio = " + smallestShortestLongestDurationRatio + ", mean shortest/longest ratio = " + meanShortestLongestRatio);
 	}
 }
+
