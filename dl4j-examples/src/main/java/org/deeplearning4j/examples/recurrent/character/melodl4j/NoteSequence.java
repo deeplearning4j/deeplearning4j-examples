@@ -113,10 +113,13 @@ public class NoteSequence implements Comparable<NoteSequence> {
 		Track track=sequence.createTrack();
 		if (trace) {System.out.println("Playing track " + trackNumber + ", channel " + channel);}
 
-		for(NoteOrInstrumentChange note: notes) {
-			note.addMidiEvents(track);
-		}
-		sequencer.setSequence(sequence);
+        for(InstrumentChange change: instrumentChanges) {
+            change.addMidiEvents(track);
+        }
+        for(Note note: notes) {
+            note.addMidiEvents(track);
+        }
+        sequencer.setSequence(sequence);
 		sequencer.setTickPosition(track.get(0).getTick());
 		sequencer.open();
 		sequencer.start();
@@ -125,23 +128,7 @@ public class NoteSequence implements Comparable<NoteSequence> {
 		return startTick;
 	}
 	public long getEndTick() {
-		for(int i=notes.size()-1;i>=0;i--) {
-			NoteOrInstrumentChange n = notes.get(i);
-			if (n instanceof Note) {
-				return ((Note)n).getEndTick();
-			}
-		}
-		return -1;
-	}
-	public Note getFirstRealNote(int[] index) {
-		for(int i=0;i<notes.size();i++) {
-			NoteOrInstrumentChange n = notes.get(i);
-			if (n instanceof Note) {
-				index[0]=i;
-				return (Note) n;
-			}
-		}
-		return null;
+        return notes.get(notes.size()-1).getEndTick();
 	}
 	public int getNumberOfDistinctPitches() {
 		int counts[]=new int[128];
@@ -155,24 +142,9 @@ public class NoteSequence implements Comparable<NoteSequence> {
 		if (count<3) {System.out.print(count + " ");}
 		return count;
 	}
-	public Note getLastRealNote(int[] index) {
-		for(int i=notes.size()-1;i>=0;i--) {
-			NoteOrInstrumentChange n=notes.get(i);
-			if (n instanceof Note) {
-				index[0]=i;
-				return (Note) n;
-			}
-		}
-		return null;
-	}
+
 	public long getDuration() {
-		int index[]={0};
-		Note firstNote=getFirstRealNote(index);
-		Note lastNote=getLastRealNote(index);
-		if (firstNote==null) {
-			return 0;
-		}
-		return lastNote.getEndTick()-firstNote.getStartTick();
+        return getEndTick()-getStartTick();
 	}
 	public double getProportionSilence() {
 		long totalDuration = getDuration();
@@ -215,9 +187,8 @@ public class NoteSequence implements Comparable<NoteSequence> {
 	}
 	public long getLongestRest() {
 		long longest=0;
-		int indexOfFirstRealNote[] = {0};
-		Note lastNote = getFirstRealNote(indexOfFirstRealNote);
-		for(Note note:getNotes()) {
+		Note lastNote = notes.get(0);
+		for(Note note:notes) {
 			long rest = note.getStartTick() - lastNote.getEndTick();
 			if (rest>longest) {
 				longest=rest;
@@ -233,7 +204,7 @@ public class NoteSequence implements Comparable<NoteSequence> {
 		return channel;
 	}
 
-	public void verifyMonotonicIncreasng() {
+	public void verifyMonotonicIncreasing() {
 		NoteOrInstrumentChange previous = null;
 		for(NoteOrInstrumentChange noteOrInstrumentChange: notes) {
 			if (previous!=null) {
@@ -278,7 +249,7 @@ public class NoteSequence implements Comparable<NoteSequence> {
 	}
 
 	public int countOfNotesHavingPolyphony() {
-		verifyMonotonicIncreasng();
+		verifyMonotonicIncreasing();
 		Set<Note> notesOn = new HashSet<Note>();
 		int count=0;
 		for(Note note:getNotes()) {
@@ -381,7 +352,7 @@ public class NoteSequence implements Comparable<NoteSequence> {
 	public int getLength() {
 		return notes.size();
 	}
-	public NoteOrInstrumentChange get(int i) {
+	public Note get(int i) {
 		return notes.get(i);
 	}
 	public int getLengthOfLongestSequenceOfRepeatedNotes() {
@@ -418,3 +389,4 @@ public class NoteSequence implements Comparable<NoteSequence> {
 		return notes.size();
 	}
 }
+

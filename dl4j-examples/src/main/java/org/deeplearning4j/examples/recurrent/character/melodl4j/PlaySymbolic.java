@@ -114,7 +114,7 @@ public class PlaySymbolic {
 	    //0 is Acoustic Grand Piano
         playMelody(melody,48,0,secondsToPlay);
     }
-	// This method will try to play a melody even if the string is malformed.  The neural networks sometimes output invalid melody strings.
+	// This method will try to play a melody even if the string is malformed.  The neural networks sometimes output invalid substrings, especially at the beginning of learning.
 	private static void playMelody(String melody, int lastRawNote, int instrumentNumber, int secondsToPlay) throws MidiUnavailableException, InvalidMidiDataException {
 		// First char is noteDuration
 		// Next: are  restDuration, pitch, noteDuration
