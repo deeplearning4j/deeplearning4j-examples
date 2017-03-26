@@ -36,8 +36,8 @@ public class MelodyModelingExample {
     final static String inputSymbolicMelodiesFilename = "midi-melodies-bach.txt"; // Try also midi-melodies-pop.txt
     final static String tmpDir = System.getProperty("java.io.tmpdir");  // Change this directory to, say, /tmp/ if that's more convenient for you.
 
-    final static String symbolicMelodiesInputFilePath = tmpDir + "/" + inputSymbolicMelodiesFilename;  // Point to melodies created by Midi2Symbolic.java
-    final static String composedMelodiesOutputFilePath = tmpDir + "/composition.txt"; // You can listen to these melodies by running PlaySymbolic.java against this file.
+    final static String symbolicMelodiesInputFilePath = tmpDir + "/" + inputSymbolicMelodiesFilename;  // Point to melodies created by Midi2MelodyStrings.java
+    final static String composedMelodiesOutputFilePath = tmpDir + "/composition.txt"; // You can listen to these melodies by running PlayMelodyStrings.java against this file.
     //....
     public static void main( String[] args ) throws Exception {
         int lstmLayerSize = 200;					//Number of units in each GravesLSTM layer
@@ -123,7 +123,7 @@ public class MelodyModelingExample {
                 String melody=melodies.get(melodies.size()-1);
                 int seconds =15;
                 System.out.println("\nFirst " + seconds + " seconds of " + melody);
-                PlaySymbolic.playMelody(melody,seconds);
+                PlayMelodyStrings.playMelody(melody,seconds);
             }
         }
         // Write all melodies to the output file, in reverse order (so that the best melodies are at the start of the file).

@@ -95,12 +95,12 @@ public class NoteSequence implements Comparable<NoteSequence> {
 	}
 	public void addInstrumentChange(int instrumentNumber,long startTick) {
 		if (instrumentNumber==instrument)  {
-			if (trace){System.out.println("Duplicate instrument change to " + Midi2Symbolic.programs[instrumentNumber]);}
+			if (trace){System.out.println("Duplicate instrument change to " + Midi2MelodyStrings.programs[instrumentNumber]);}
 			return;
 		}
 		if (trace) {
 			System.out.println("Adding instrument change for " + instrumentNumber
-				+ " (" + Midi2Symbolic.programs[instrumentNumber] + ") for channel " + channel + " at tick " + startTick);
+				+ " (" + Midi2MelodyStrings.programs[instrumentNumber] + ") for channel " + channel + " at tick " + startTick);
 		}
 		instrumentChanges.add(new InstrumentChange(instrumentNumber,startTick,channel));
 		instrument=instrumentNumber;
