@@ -58,8 +58,8 @@ public class PlaySymbolic {
 			if (instrumentName==null) {
 				instrumentNumber= inFilepath.contains("pop") ? chooseRandomInstrumentPop() :chooseRandomInstrumentClassical();
 			}
-			int lastRawNote =  48+random.nextInt(6);
-            playMelody(line, lastRawNote,instrumentNumber, secondsToPlay);
+			int startNote =  45+random.nextInt(6); // for variety
+            playMelody(line, startNote,instrumentNumber, secondsToPlay);
 		}
 		reader.close();
 	}
@@ -114,68 +114,74 @@ public class PlaySymbolic {
 	    //0 is Acoustic Grand Piano
         playMelody(melody,48,0,secondsToPlay);
     }
+
+    private static NoteSequence  createNoteSequence(String melody, int instrumentNumber, int lastRawNote) {
+        // First char is noteDuration
+        // Next: are  restDuration, pitch, noteDuration
+        int channel=0;
+        if (instrumentNumber == Midi2Symbolic.getInstrument("Flute")) {
+            lastRawNote+=12;
+        }
+        if (instrumentNumber == Midi2Symbolic.getInstrument("Violin")) {
+            lastRawNote+=6;
+        }
+        int velocity=80;
+        int track=2;
+        final int resolution=480;
+        final int resolutionDelta = resolution/16;
+        int index = 0; //getIndexOfFirstPitchDuration(line);
+        NoteSequence ns = new NoteSequence(0, track, channel, resolution);
+        ns.addInstrumentChange(instrumentNumber, 0);
+        //ns.add(note);
+        index++;
+        int noteDurationInTicks=0;
+        long tick = 0; // end of note
+        while (index<melody.length()-2) {
+            char ch = melody.charAt(index);
+            if (ch=='R') {
+                index++;
+                ch = melody.charAt(index);
+                if (isDurationChar(ch)) {
+                    tick+= getDurationInTicks(ch,resolutionDelta);
+                    index++;
+                } else {
+                    System.out.print('R'); // Badly formed melody string
+                }
+            } else if (isPitchChar(ch)) {
+                index++;
+                int pitchDelta = getPitchDelta(ch);
+                lastRawNote += pitchDelta;
+                while (lastRawNote<30) {
+                    System.out.print('<');
+                    lastRawNote+=12; // This is a hack to prevent melodies from becoming inaudible
+                }
+                while (lastRawNote>=80) {
+                    System.out.print('>');
+                    lastRawNote-=12; // This is a hack to prevent melodies from becoming inaudible
+                }
+                ch = melody.charAt(index);
+                if (isDurationChar(ch)) {
+                    noteDurationInTicks=getDurationInTicks(ch,resolutionDelta);
+                    index++;
+                } else {
+                    System.out.print('D'); // Badly formed melody string
+                    noteDurationInTicks = 4*resolutionDelta;
+                }
+                Note note = new Note(tick, lastRawNote,velocity,channel);
+                note.setDuration(noteDurationInTicks);
+                ns.add(note);
+                tick += noteDurationInTicks;
+            } else {
+                System.out.print(ch);
+                index++;
+            }
+        }
+        return ns;
+    }
 	// This method will try to play a melody even if the string is malformed.  The neural networks sometimes output invalid substrings, especially at the beginning of learning.
-	private static void playMelody(String melody, int lastRawNote, int instrumentNumber, int secondsToPlay) throws MidiUnavailableException, InvalidMidiDataException {
-		// First char is noteDuration
-		// Next: are  restDuration, pitch, noteDuration
-		int channel=0;
-		if (instrumentNumber == Midi2Symbolic.getInstrument("Flute")) {
-			lastRawNote+=12;
-		}
-		if (instrumentNumber == Midi2Symbolic.getInstrument("Violin")) {
-			lastRawNote+=6;
-		}
-		int velocity=80;
-		int track=2;
-		final int resolution=480;
-		final int resolutionDelta = resolution/16;
-		int index = 0; //getIndexOfFirstPitchDuration(line);
-		NoteSequence ns = new NoteSequence(0, track, channel, resolution);
-		ns.addInstrumentChange(instrumentNumber, 0);
-		//ns.add(note);
-		index++;
-		int noteDurationInTicks=0;
-		long tick = 0; // end of note
-		while (index<melody.length()-2) {
-			char ch = melody.charAt(index);
-			if (ch=='R') {
-				index++;
-				ch = melody.charAt(index);
-				if (isDurationChar(ch)) {
-					tick+= getDurationInTicks(ch,resolutionDelta);
-					index++;
-				} else {
-					System.out.print('R'); // Badly formed melody string
-				}
-			} else if (isPitchChar(ch)) {
-				index++;
-				int pitchDelta = getPitchDelta(ch);
-				lastRawNote += pitchDelta;
-				while (lastRawNote<30) {
-					System.out.print('<');
-					lastRawNote+=12; // This is a hack to prevent melodies from becoming inaudible
-				}
-				while (lastRawNote>=80) {
-					System.out.print('>');
-					lastRawNote-=12; // This is a hack to prevent melodies from becoming inaudible
-				}
-				ch = melody.charAt(index);
-				if (isDurationChar(ch)) {
-					noteDurationInTicks=getDurationInTicks(ch,resolutionDelta);
-					index++;
-				} else {
-					System.out.print('D'); // Badly formed melody string
-					noteDurationInTicks = 4*resolutionDelta;
-				}
-				Note note = new Note(tick, lastRawNote,velocity,channel);
-				note.setDuration(noteDurationInTicks);
-				ns.add(note);
-				tick += noteDurationInTicks;
-			} else {
-				System.out.print(ch);
-				index++;
-			}
-		}
+	private static void playMelody(String melody, int startNote, int instrumentNumber, int secondsToPlay) throws MidiUnavailableException, InvalidMidiDataException {
+	    int lastRawNote = startNote;
+        NoteSequence ns = createNoteSequence(melody,instrumentNumber,lastRawNote);
 		int numberDistinct = ns.getNumberOfDistinctPitches();
 		if (numberDistinct<3) {
 			System.err.println("Warning: only " + numberDistinct + " distinct notes, skipping: " +melody);
