@@ -15,10 +15,10 @@ import java.io.IOException;
 
 /**
  * Important:
- * 1. Either run "EditAtBottleneckOthersFrozen" first or save a model named "MyComputationGraph.zip" based on vgg16 with block4_pool and below intact
+ * 1. Either run "EditAtBottleneckOthersFrozen" first or save a model named "MyComputationGraph.zip" based on org.deeplearning4j.transferlearning.vgg16 with block4_pool and below intact
  * 2. You will need a LOT of RAM, at the very least 16G. Set max JVM heap space accordingly
  *
- * Here we read in an already saved model based off on vgg16 from one of our earlier runs and "finetune"
+ * Here we read in an already saved model based off on org.deeplearning4j.transferlearning.vgg16 from one of our earlier runs and "finetune"
  * Since we already have reasonable results with our saved off model we can be assured that there will not be any
  * large disruptive gradients flowing back to wreck the carefully trained weights in the lower layers in vgg.
  *

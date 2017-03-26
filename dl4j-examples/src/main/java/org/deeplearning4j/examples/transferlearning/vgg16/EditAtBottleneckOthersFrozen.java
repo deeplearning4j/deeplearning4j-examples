@@ -27,7 +27,7 @@ import java.io.File;
  * 1. The forward pass on VGG16 is time consuming. Refer to "FeaturizedPreSave" and "FitFromFeaturized" for how to use presaved datasets
  * 2. RAM at the very least 16G, set JVM mx heap space accordingly
  *
- * We use the transfer learning API to construct a new model based of vgg16.
+ * We use the transfer learning API to construct a new model based of org.deeplearning4j.transferlearning.vgg16.
  * We keep block5_pool and below frozen
  *      and modify/add dense layers to form
  *          block5_pool -> flatten -> fc1 -> fc2 -> fc3 -> newpredictions (5 classes)
@@ -53,7 +53,7 @@ public class EditAtBottleneckOthersFrozen {
         //Note that the model imported does not have an output layer (check printed summary)
         //  nor any training related configs (model from keras was imported with only weights and json)
         TrainedModelHelper modelImportHelper = new TrainedModelHelper(TrainedModels.VGG16);
-        log.info("\n\nLoading vgg16...\n\n");
+        log.info("\n\nLoading org.deeplearning4j.transferlearning.vgg16...\n\n");
         ComputationGraph vgg16 = modelImportHelper.loadModel();
         log.info(vgg16.summary());
 

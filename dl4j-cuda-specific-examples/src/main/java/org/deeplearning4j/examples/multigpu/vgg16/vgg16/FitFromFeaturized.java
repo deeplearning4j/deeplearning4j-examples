@@ -1,8 +1,10 @@
-package org.deeplearning4j.examples.transferlearning.vgg16;
+package org.deeplearning4j.examples.multigpu.vgg16.vgg16;
+
+import lombok.extern.slf4j.Slf4j;
 
 import org.deeplearning4j.eval.Evaluation;
-import org.deeplearning4j.examples.transferlearning.vgg16.dataHelpers.FeaturizedPreSave;
-import org.deeplearning4j.examples.transferlearning.vgg16.dataHelpers.FlowerDataSetIteratorFeaturized;
+import org.deeplearning4j.examples.multigpu.vgg16.dataHelpers.FeaturizedPreSave;
+import org.deeplearning4j.examples.multigpu.vgg16.dataHelpers.FlowerDataSetIteratorFeaturized;
 import org.deeplearning4j.nn.api.OptimizationAlgorithm;
 import org.deeplearning4j.nn.conf.Updater;
 import org.deeplearning4j.nn.conf.distribution.NormalDistribution;
@@ -16,10 +18,13 @@ import org.deeplearning4j.nn.transferlearning.FineTuneConfiguration;
 import org.deeplearning4j.nn.transferlearning.TransferLearning;
 import org.deeplearning4j.nn.transferlearning.TransferLearningHelper;
 import org.deeplearning4j.nn.weights.WeightInit;
+import org.deeplearning4j.parallelism.ParallelWrapper;
+import org.nd4j.jita.conf.CudaEnvironment;
 import org.nd4j.linalg.activations.Activation;
+import org.nd4j.linalg.api.environment.Nd4jEnvironment;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
+import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
-import org.slf4j.Logger;
 
 import java.io.IOException;
 
@@ -36,8 +41,8 @@ import java.io.IOException;
  * Since the helper avoids the forward pass through the frozen layers we save on computation time when running multiple epochs.
  * In this manner, users can iterate quickly tweaking learning rates, weight initialization etc` to settle on a model that gives good results.
  */
+@Slf4j
 public class FitFromFeaturized {
-    private static final Logger log = org.slf4j.LoggerFactory.getLogger(FitFromFeaturized.class);
 
     public static final String featureExtractionLayer = FeaturizedPreSave.featurizeExtractionLayer;
     protected static final long seed = 12345;
@@ -45,6 +50,18 @@ public class FitFromFeaturized {
     protected static final int nEpochs = 3;
 
     public static void main(String [] args) throws IOException, InvalidKerasConfigurationException, UnsupportedKerasConfigurationException {
+
+        // temp workaround for backend initialization
+
+        CudaEnvironment.getInstance().getConfiguration()
+            // key option enabled
+            .allowMultiGPU(true)
+
+            // we're allowing larger memory caches
+            .setMaximumDeviceCache(2L * 1024L * 1024L * 1024L)
+
+            // cross-device access is used for faster model averaging over pcie
+            .allowCrossDeviceAccess(true);
 
         //Import vgg
         //Note that the model imported does not have an output layer (check printed summary)
@@ -70,45 +87,46 @@ public class FitFromFeaturized {
             .setFeatureExtractor(featureExtractionLayer) //the specified layer and below are "frozen"
             .removeVertexKeepConnections("predictions") //replace the functionality of the final vertex
             .addLayer("predictions",
-                       new OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD)
-                            .nIn(4096).nOut(numClasses)
-                            .weightInit(WeightInit.DISTRIBUTION)
-                            .dist(new NormalDistribution(0,0.2*(2.0/(4096+numClasses)))) //This weight init dist gave better results than Xavier
-                            .activation(Activation.SOFTMAX).build(),
-                       "fc2")
+                new OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD)
+                    .nIn(4096).nOut(numClasses)
+                    .weightInit(WeightInit.XAVIER)
+                    .activation(Activation.SOFTMAX).build(),
+                "fc2")
             .build();
         log.info(vgg16Transfer.summary());
 
         DataSetIterator trainIter = FlowerDataSetIteratorFeaturized.trainIterator();
         DataSetIterator testIter = FlowerDataSetIteratorFeaturized.testIterator();
-
-        //Instantiate the transfer learning helper to fit and output from the featurized dataset
+        System.out.println("Env information " + Nd4j.getExecutioner().getEnvironmentInformation());
+         //Instantiate the transfer learning helper to fit and output from the featurized dataset
         //The .unfrozenGraph() is the unfrozen subset of the computation graph passed in.
         //If using with a UI or a listener attach them directly to the unfrozenGraph instance
         //With each iteration updated params from unfrozenGraph are copied over to the original model
         TransferLearningHelper transferLearningHelper = new TransferLearningHelper(vgg16Transfer);
         log.info(transferLearningHelper.unfrozenGraph().summary());
+        // ParallelWrapper will take care of load balancing between GPUs.
+        ParallelWrapper wrapper = new ParallelWrapper.Builder(transferLearningHelper.unfrozenGraph())
+            // DataSets prefetching options. Set this value with respect to number of actual devices
+            .prefetchBuffer(24)
+
+            // set number of workers equal or higher then number of available devices. x1-x2 are good values to start with
+            .workers(Integer.parseInt(Nd4j.getExecutioner().getEnvironmentInformation().get("cuda.availableDevices").toString()))
+
+            // rare averaging improves performance, but might reduce model accuracy
+            .averagingFrequency(3)
+
+            // if set to TRUE, on every averaging model score will be reported
+            .reportScoreAfterAveraging(true)
+
+            // optinal parameter, set to false ONLY if your system has support P2P memory access across PCIe (hint: AWS do not support P2P)
+            .useLegacyAveraging(true)
+
+            .build();
 
         for (int epoch = 0; epoch < nEpochs; epoch++) {
-            if (epoch == 0) {
-                Evaluation eval = transferLearningHelper.unfrozenGraph().evaluate(testIter);
-                log.info("Eval stats BEFORE fit.....");
-                log.info(eval.stats()+"\n");
-                testIter.reset();
-            }
-            int iter = 0;
-            while (trainIter.hasNext()) {
-                transferLearningHelper.fitFeaturized(trainIter.next());
-                if (iter % 10 == 0) {
-                    log.info("Evaluate model at iter " + iter + " ....");
-                    Evaluation eval = transferLearningHelper.unfrozenGraph().evaluate(testIter);
-                    log.info(eval.stats());
-                    testIter.reset();
-                }
-                iter++;
-            }
+            wrapper.fit(trainIter);
             trainIter.reset();
-            log.info("Epoch #"+epoch+" complete");
+            log.info("Epoch #" + epoch +" complete");
         }
         log.info("Model build complete");
     }

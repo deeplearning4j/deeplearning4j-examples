@@ -24,10 +24,10 @@ import java.io.IOException;
 /**
  * @author susaneraly on 3/9/17.
  *
- * We use the transfer learning API to construct a new model based of vgg16
+ * We use the transfer learning API to construct a new model based of org.deeplearning4j.transferlearning.vgg16
  * We will hold all layers but the very last one frozen and change the number of outputs in the last layer to
  * match our classification task.
- * In other words we go from where fc2 and predictions are vertex names in vgg16
+ * In other words we go from where fc2 and predictions are vertex names in org.deeplearning4j.transferlearning.vgg16
  *  fc2 -> predictions (1000 classes)
  *  to
  *  fc2 -> predictions (5 classes)
@@ -51,7 +51,7 @@ public class EditLastLayerOthersFrozen {
         //Note that the model imported does not have an output layer (check printed summary)
         //  nor any training related configs (model from keras was imported with only weights and json)
         TrainedModelHelper modelImportHelper = new TrainedModelHelper(TrainedModels.VGG16);
-        log.info("\n\nLoading vgg16...\n\n");
+        log.info("\n\nLoading org.deeplearning4j.transferlearning.vgg16...\n\n");
         ComputationGraph vgg16 = modelImportHelper.loadModel();
         log.info(vgg16.summary());
 
