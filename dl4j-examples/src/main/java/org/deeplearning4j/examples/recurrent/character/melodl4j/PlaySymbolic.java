@@ -115,7 +115,8 @@ public class PlaySymbolic {
         playMelody(melody,48,0,secondsToPlay);
     }
 
-    private static NoteSequence  createNoteSequence(String melody, int instrumentNumber, int lastRawNote) {
+    public static NoteSequence  createNoteSequence(String melody, int instrumentNumber, int startNote) {
+	    int lastRawNote=startNote;
         // First char is noteDuration
         // Next: are  restDuration, pitch, noteDuration
         int channel=0;
@@ -180,8 +181,7 @@ public class PlaySymbolic {
     }
 	// This method will try to play a melody even if the string is malformed.  The neural networks sometimes output invalid substrings, especially at the beginning of learning.
 	private static void playMelody(String melody, int startNote, int instrumentNumber, int secondsToPlay) throws MidiUnavailableException, InvalidMidiDataException {
-	    int lastRawNote = startNote;
-        NoteSequence ns = createNoteSequence(melody,instrumentNumber,lastRawNote);
+        NoteSequence ns = createNoteSequence(melody,instrumentNumber,startNote);
 		int numberDistinct = ns.getNumberOfDistinctPitches();
 		if (numberDistinct<3) {
 			System.err.println("Warning: only " + numberDistinct + " distinct notes, skipping: " +melody);

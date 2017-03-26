@@ -105,13 +105,10 @@ public class NoteSequence implements Comparable<NoteSequence> {
 		instrumentChanges.add(new InstrumentChange(instrumentNumber,startTick,channel));
 		instrument=instrumentNumber;
 	}
-	public int getInstrument() {
-		return instrument;
-	}
-	public void play(Sequencer sequencer) throws MidiUnavailableException, InvalidMidiDataException {
-		Sequence sequence  = new Sequence(Sequence.PPQ,resolution);
-		Track track=sequence.createTrack();
-		if (trace) {System.out.println("Playing track " + trackNumber + ", channel " + channel);}
+    public Sequence toSequence() throws InvalidMidiDataException {
+        Sequence sequence  = new Sequence(Sequence.PPQ,resolution);
+        Track track=sequence.createTrack();
+        if (trace) {System.out.println("Playing track " + trackNumber + ", channel " + channel);}
 
         for(InstrumentChange change: instrumentChanges) {
             change.addMidiEvents(track);
@@ -119,11 +116,15 @@ public class NoteSequence implements Comparable<NoteSequence> {
         for(Note note: notes) {
             note.addMidiEvents(track);
         }
+        return sequence;
+    }
+    public void play(Sequencer sequencer) throws MidiUnavailableException, InvalidMidiDataException {
+        Sequence sequence = toSequence();
         sequencer.setSequence(sequence);
-		sequencer.setTickPosition(track.get(0).getTick());
-		sequencer.open();
-		sequencer.start();
-	}
+        sequencer.setTickPosition(0);
+        sequencer.open();
+        sequencer.start();
+    }
 	public long getStartTick() {
 		return startTick;
 	}
