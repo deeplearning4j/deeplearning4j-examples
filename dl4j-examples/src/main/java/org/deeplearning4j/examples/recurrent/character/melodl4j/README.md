@@ -7,6 +7,8 @@ During network training, it plays melodies at the end of each training epoch. "D
 
 There's a utility for listening to the generated melodies.
 
+http://truthsite.org/music/melodies-like-bach.mp3 is an example of eight pieces created by the neural network.
+
 The LSTM neural network is based on the GravesLSTMCharModellingExample class by Alex Black in deeplearning4j.
 
 The generated melodies are monophonic, meaning that only one note plays at a time: there are no chords or harmony.
