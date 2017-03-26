@@ -20,7 +20,7 @@ import javax.sound.midi.Track;
  *
  *  @author Donald A. Smith (ThinkerFeeler@gmail.com)
  */
-public class Midi2Symbolic {
+public class Midi2MelodyStrings {
 	private static boolean trace=false;
 	// The following strings are used to build the symbolic representation of a melody
     // The next two strings contain chars used to indicate pitch deltas.
@@ -459,7 +459,7 @@ If not specified, the default tempo is 120 beats/minute, which is equivalent to 
 			if (!file.getAbsolutePath().toLowerCase().endsWith("mid")) {
 				return;
 			}
-			Midi2Symbolic loader = new Midi2Symbolic();
+			Midi2MelodyStrings loader = new Midi2MelodyStrings();
 			try {
 				//writer.println("\nFor " + file);
 				loader.loadPiece(file);

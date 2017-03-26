@@ -15,7 +15,7 @@ import javax.sound.midi.Soundbank;
 import javax.sound.midi.Synthesizer;
 import org.apache.commons.io.FileUtils;
 
-public class PlaySymbolic {
+public class PlayMelodyStrings {
 	private static Random random = new Random();
     final static String tempDir = System.getProperty("java.io.tmpdir");
     static {
@@ -37,12 +37,12 @@ public class PlaySymbolic {
     }
     /* Plays midi file through the system's midi sequencer.
      *  @param inFilepath points to a local file containing symbolic melodies
-     *  @param instrumentName : See the list in Midi2Symbolic.java. If null, defaults to "Acoustic Grand Piano".
+     *  @param instrumentName : See the list in Midi2MelodyStrings.java. If null, defaults to "Acoustic Grand Piano".
      *  @param secondsToPlay -- seconds after which to stop the music playback.
      */
 	public static void playMelodies(String inFilepath, String instrumentName, int secondsToPlay) throws IOException, MidiUnavailableException, InvalidMidiDataException {
 		BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(inFilepath)));
-		int instrumentNumber = instrumentName==null? 0: Midi2Symbolic.getInstrument(instrumentName);
+		int instrumentNumber = instrumentName==null? 0: Midi2MelodyStrings.getInstrument(instrumentName);
 		int lineNumber=0;
 		while (true) {
 			String line=reader.readLine();
@@ -68,44 +68,44 @@ public class PlaySymbolic {
 	}
 	private static int chooseRandomInstrumentPop() {
 		switch (random.nextInt(3)) {
-			case 0:  return Midi2Symbolic.getInstrument("Acoustic Guitar (steel)");
-			case 1:  return Midi2Symbolic.getInstrument("Acoustic Guitar (nylon)");
+			case 0:  return Midi2MelodyStrings.getInstrument("Acoustic Guitar (steel)");
+			case 1:  return Midi2MelodyStrings.getInstrument("Acoustic Guitar (nylon)");
 			default: return 0;
 		}
 	}
 	private static int chooseRandomInstrumentClassical() {
 		switch (random.nextInt(10)) {
-			case 0:  return Midi2Symbolic.getInstrument("Violin");
-			case 1:  return Midi2Symbolic.getInstrument("Cello");
-			case 2:  return Midi2Symbolic.getInstrument("Church Organ");
-			case 3:  return Midi2Symbolic.getInstrument("Flute");
-			case 4:  return Midi2Symbolic.getInstrument("Choir Aahs");
-			case 5:  return Midi2Symbolic.getInstrument("String Ensemble 1");
-			case 6:  return Midi2Symbolic.getInstrument("Acoustic Guitar (nylon)");
-			case 7:  return Midi2Symbolic.getInstrument("Trumpet");
+			case 0:  return Midi2MelodyStrings.getInstrument("Violin");
+			case 1:  return Midi2MelodyStrings.getInstrument("Cello");
+			case 2:  return Midi2MelodyStrings.getInstrument("Church Organ");
+			case 3:  return Midi2MelodyStrings.getInstrument("Flute");
+			case 4:  return Midi2MelodyStrings.getInstrument("Choir Aahs");
+			case 5:  return Midi2MelodyStrings.getInstrument("String Ensemble 1");
+			case 6:  return Midi2MelodyStrings.getInstrument("Acoustic Guitar (nylon)");
+			case 7:  return Midi2MelodyStrings.getInstrument("Trumpet");
 			default: return 0;
 		}
 	}
 
 	// return -1 if it's not a duration
 	private static int getDurationInTicks(char ch, int resolutionDelta) {
-		int indexOf=Midi2Symbolic.durationChars.indexOf(ch);
+		int indexOf= Midi2MelodyStrings.durationChars.indexOf(ch);
 		return indexOf<0? -1: resolutionDelta*(1+indexOf);
 	}
 	// return -1 if it's not a pitch
 	private static int getPitchDelta(char ch) {
-		int index = Midi2Symbolic.noteGapCharsPositive.indexOf(ch);
+		int index = Midi2MelodyStrings.noteGapCharsPositive.indexOf(ch);
 		if (index>=0) {
 			return index;
 		}
-		index = Midi2Symbolic.noteGapCharsNegative.indexOf(ch);
+		index = Midi2MelodyStrings.noteGapCharsNegative.indexOf(ch);
 		if (index<0) {
 			return -1;
 		}
 		return -(index+1);
 	}
 	private static boolean isDurationChar(char ch) {
-		return ch!='R' &&  Midi2Symbolic.durationChars.indexOf(ch)>=0;
+		return ch!='R' &&  Midi2MelodyStrings.durationChars.indexOf(ch)>=0;
 	}
 	private static boolean isPitchChar(char ch) {
 		return ch!='R' && !isDurationChar(ch);
@@ -120,10 +120,10 @@ public class PlaySymbolic {
         // First char is noteDuration
         // Next: are  restDuration, pitch, noteDuration
         int channel=0;
-        if (instrumentNumber == Midi2Symbolic.getInstrument("Flute")) {
+        if (instrumentNumber == Midi2MelodyStrings.getInstrument("Flute")) {
             lastRawNote+=12;
         }
-        if (instrumentNumber == Midi2Symbolic.getInstrument("Violin")) {
+        if (instrumentNumber == Midi2MelodyStrings.getInstrument("Violin")) {
             lastRawNote+=6;
         }
         int velocity=80;

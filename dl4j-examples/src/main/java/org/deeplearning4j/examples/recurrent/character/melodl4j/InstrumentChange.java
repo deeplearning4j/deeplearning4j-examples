@@ -16,7 +16,7 @@ public class InstrumentChange extends NoteOrInstrumentChange {
 	}
 	@Override
 	public String toString() {
-		return "Change instrument to " + instrumentNumber + " (" + Midi2Symbolic.programs[instrumentNumber] + ") at " + startTick;
+		return "Change instrument to " + instrumentNumber + " (" + Midi2MelodyStrings.programs[instrumentNumber] + ") at " + startTick;
 	}
 	public int getInstrumentNumber() {
 		return instrumentNumber;
@@ -24,7 +24,7 @@ public class InstrumentChange extends NoteOrInstrumentChange {
 	@Override
 	public void addMidiEvents(Track track) throws InvalidMidiDataException {
 		MidiMessage midiMessage = new ShortMessage(ShortMessage.PROGRAM_CHANGE,channel,instrumentNumber,0);
-		System.out.println("Adding instrument change to track for channel " + channel + " and instrumentName = " + Midi2Symbolic.programs[instrumentNumber]);
+		System.out.println("Adding instrument change to track for channel " + channel + " and instrumentName = " + Midi2MelodyStrings.programs[instrumentNumber]);
 		track.add(new MidiEvent(midiMessage, startTick));
 	}
 }
