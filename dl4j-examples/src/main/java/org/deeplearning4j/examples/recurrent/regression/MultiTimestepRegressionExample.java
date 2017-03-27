@@ -145,7 +145,7 @@ public class MultiTimestepRegressionExample {
             trainDataIter.reset();
             LOGGER.info("Epoch " + i + " complete. Time series evaluation:");
 
-            RegressionEvaluation evaluation = new RegressionEvaluation(2);
+            RegressionEvaluation evaluation = new RegressionEvaluation(numOfVariables);
 
             //Run evaluation. This is on 25k reviews, so can take some time
             while (testDataIter.hasNext()) {
@@ -269,8 +269,7 @@ public class MultiTimestepRegressionExample {
 
     /**
      * This method shows how you based on a CSV file can preprocess your data the structure expected for a
-     * multi time step problem. This examples uses a single column CSV as input, but the example should be easy to modify
-     * for use with a multi column input as well.
+     * multi time step problem.
      *
      * @return
      * @throws IOException
