@@ -53,7 +53,7 @@ public class MultiGpuLenetMnistExample {
             .setMaximumDeviceCache(2L * 1024L * 1024L * 1024L)
 
             // cross-device access is used for faster model averaging over pcie
-            .allowCrossDeviceAccess(true);
+            .allowCrossDeviceAccess(false);
 
         int nChannels = 1;
         int outputNum = 10;
