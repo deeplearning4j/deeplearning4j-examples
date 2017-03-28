@@ -14,6 +14,7 @@ import org.deeplearning4j.nn.conf.layers.OutputLayer;
 import org.deeplearning4j.nn.conf.layers.SubsamplingLayer;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
+import org.deeplearning4j.optimize.listeners.PerformanceListener;
 import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
 import org.deeplearning4j.parallelism.ParallelWrapper;
 import org.nd4j.jita.conf.CudaEnvironment;
@@ -40,7 +41,7 @@ public class MultiGpuLenetMnistExample {
 
     public static void main(String[] args) throws Exception {
         // PLEASE NOTE: For CUDA FP16 precision support is available
-        DataTypeUtil.setDTypeForContext(DataBuffer.Type.HALF);
+     //   DataTypeUtil.setDTypeForContext(DataBuffer.Type.HALF);
 
         // temp workaround for backend initialization
 
@@ -58,7 +59,7 @@ public class MultiGpuLenetMnistExample {
         int outputNum = 10;
 
         // for GPU you usually want to have higher batchSize
-        int batchSize = 128;
+        int batchSize = 64;
         int nEpochs = 10;
         int iterations = 1;
         int seed = 123;
@@ -119,22 +120,24 @@ public class MultiGpuLenetMnistExample {
             .prefetchBuffer(24)
 
             // set number of workers equal or higher then number of available devices. x1-x2 are good values to start with
-            .workers(4)
+            .workers(2)
 
             // rare averaging improves performance, but might reduce model accuracy
-            .averagingFrequency(3)
+            .averagingFrequency(5)
 
             // if set to TRUE, on every averaging model score will be reported
-            .reportScoreAfterAveraging(true)
+            .reportScoreAfterAveraging(false)
 
             // optinal parameter, set to false ONLY if your system has support P2P memory access across PCIe (hint: AWS do not support P2P)
-            .useLegacyAveraging(true)
+            .useLegacyAveraging(false)
 
             .build();
 
         log.info("Train model....");
-        model.setListeners(new ScoreIterationListener(100));
+        model.setListeners(new PerformanceListener(50, true));
         long timeX = System.currentTimeMillis();
+
+        Nd4j.getMemoryManager().setAutoGcWindow(1000000);
 
         // optionally you might want to use MultipleEpochsIterator instead of manually iterating/resetting over your iterator
         //MultipleEpochsIterator mnistMultiEpochIterator = new MultipleEpochsIterator(nEpochs, mnistTrain);
