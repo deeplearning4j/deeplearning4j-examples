@@ -117,9 +117,9 @@ public class TrainingStatsExample {
         //Get the statistics:
         SparkTrainingStats stats = sparkNetwork.getSparkTrainingStats();
         Set<String> statsKeySet = stats.getKeySet();    //Keys for the types of statistics
-        System.out.println("--- Collected Statistics ---");
+        log.info("--- Collected Statistics ---");
         for(String s : statsKeySet){
-            System.out.println(s);
+            log.info(s);
         }
 
         //Demo purposes: get one statistic and print it
