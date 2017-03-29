@@ -1,6 +1,7 @@
 package org.deeplearning4j.examples.convolution;
 
 import org.deeplearning4j.datasets.iterator.impl.MnistDataSetIterator;
+import org.deeplearning4j.eval.Evaluation;
 import org.deeplearning4j.nn.api.OptimizationAlgorithm;
 import org.deeplearning4j.nn.conf.ComputationGraphConfiguration;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
@@ -16,6 +17,8 @@ import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
 import org.deeplearning4j.optimize.listeners.PerformanceListener;
 import org.nd4j.linalg.activations.Activation;
+import org.nd4j.linalg.api.ndarray.INDArray;
+import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
@@ -118,19 +121,17 @@ public class LenetMnistCGExample {
             model.fit(mnistTrain);
             long time2 = System.currentTimeMillis();
             log.info("*** Completed epoch {}; {} ms ***", i, time2 - time1);
-/*
-            log.info("Evaluate model....");
-            Evaluation eval = new Evaluation(outputNum);
-            while(mnistTest.hasNext()){
-                DataSet ds = mnistTest.next();
-                INDArray output = model.output(ds.getFeatureMatrix(), false);
-                eval.eval(ds.getLabels(), output);
-
-            }
-            log.info(eval.stats());
-            mnistTest.reset();
-            */
         }
+
+        log.info("Evaluate model....");
+        Evaluation eval = new Evaluation(outputNum);
+        while(mnistTest.hasNext()){
+            DataSet ds = mnistTest.next();
+            INDArray output = model.output(false,ds.getFeatureMatrix())[0];
+            eval.eval(ds.getLabels(), output);
+        }
+        log.info(eval.stats());
+        mnistTest.reset();
         log.info("****************Example finished********************");
     }
 }
