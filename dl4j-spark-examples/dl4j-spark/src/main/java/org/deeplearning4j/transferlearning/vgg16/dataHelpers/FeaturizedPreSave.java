@@ -1,5 +1,7 @@
-package org.deeplearning4j.examples.transferlearning.vgg16.dataHelpers;
+package org.deeplearning4j.transferlearning.vgg16.dataHelpers;
 
+import lombok.extern.slf4j.Slf4j;
+import org.apache.spark.SparkConf;
 import org.deeplearning4j.nn.graph.ComputationGraph;
 import org.deeplearning4j.nn.modelimport.keras.InvalidKerasConfigurationException;
 import org.deeplearning4j.nn.modelimport.keras.UnsupportedKerasConfigurationException;
@@ -8,7 +10,6 @@ import org.deeplearning4j.nn.modelimport.keras.trainedmodels.TrainedModels;
 import org.deeplearning4j.nn.transferlearning.TransferLearningHelper;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
-import org.slf4j.Logger;
 
 import java.io.File;
 import java.io.IOException;
@@ -19,14 +20,15 @@ import java.io.IOException;
  * Refer to the "FitFromFeaturized" example for how to fit a model with these featurized datasets
  * @author susaneraly on 2/28/17.
  */
+@Slf4j
 public class FeaturizedPreSave {
-    private static final Logger log = org.slf4j.LoggerFactory.getLogger(FeaturizedPreSave.class);
 
     private static final int trainPerc = 80;
     protected static final int batchSize = 15;
     public static final String featurizeExtractionLayer = "fc2";
 
     public static void main(String [] args) throws UnsupportedKerasConfigurationException, IOException, InvalidKerasConfigurationException {
+        SparkConf sparkConf = new SparkConf();
 
         //import org.deeplearning4j.transferlearning.vgg16 and print summary
         TrainedModelHelper modelImportHelper = new TrainedModelHelper(TrainedModels.VGG16);

@@ -1,6 +1,5 @@
 package org.deeplearning4j.examples.transferlearning.vgg16;
 
-import lombok.extern.slf4j.Slf4j;
 import org.deeplearning4j.eval.Evaluation;
 import org.deeplearning4j.examples.transferlearning.vgg16.dataHelpers.FlowerDataSetIterator;
 import org.deeplearning4j.nn.conf.Updater;
@@ -9,24 +8,26 @@ import org.deeplearning4j.nn.transferlearning.FineTuneConfiguration;
 import org.deeplearning4j.nn.transferlearning.TransferLearning;
 import org.deeplearning4j.util.ModelSerializer;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
+import org.slf4j.Logger;
 
 import java.io.File;
 import java.io.IOException;
 
 /**
  * Important:
- * 1. Either run "EditAtBottleneckOthersFrozen" first or save a model named "MyComputationGraph.zip" based on vgg16 with block4_pool and below intact
+ * 1. Either run "EditAtBottleneckOthersFrozen" first or save a model named "MyComputationGraph.zip" based on org.deeplearning4j.transferlearning.vgg16 with block4_pool and below intact
  * 2. You will need a LOT of RAM, at the very least 16G. Set max JVM heap space accordingly
  *
- * Here we read in an already saved model based off on vgg16 from one of our earlier runs and "finetune"
+ * Here we read in an already saved model based off on org.deeplearning4j.transferlearning.vgg16 from one of our earlier runs and "finetune"
  * Since we already have reasonable results with our saved off model we can be assured that there will not be any
  * large disruptive gradients flowing back to wreck the carefully trained weights in the lower layers in vgg.
  *
  * Finetuning like this is usually done with a low learning rate and a simple SGD optimizer
  * @author susaneraly on 3/6/17.
  */
-@Slf4j
 public class FineTuneFromBlockFour {
+    private static final Logger log = org.slf4j.LoggerFactory.getLogger(FineTuneFromBlockFour.class);
+
     protected static final int numClasses = 5;
     protected static final long seed = 12345;
 

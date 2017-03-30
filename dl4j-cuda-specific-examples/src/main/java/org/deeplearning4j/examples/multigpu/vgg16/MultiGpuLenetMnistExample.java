@@ -1,12 +1,12 @@
-package org.deeplearning4j.examples.multigpu;
+package org.deeplearning4j.examples.multigpu.vgg16;
 
+import lombok.extern.slf4j.Slf4j;
 import org.deeplearning4j.datasets.iterator.impl.MnistDataSetIterator;
 import org.deeplearning4j.eval.Evaluation;
 import org.deeplearning4j.nn.api.OptimizationAlgorithm;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
 import org.deeplearning4j.nn.conf.Updater;
-import org.deeplearning4j.nn.conf.WorkspaceMode;
 import org.deeplearning4j.nn.conf.inputs.InputType;
 import org.deeplearning4j.nn.conf.layers.ConvolutionLayer;
 import org.deeplearning4j.nn.conf.layers.DenseLayer;
@@ -14,7 +14,6 @@ import org.deeplearning4j.nn.conf.layers.OutputLayer;
 import org.deeplearning4j.nn.conf.layers.SubsamplingLayer;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
-import org.deeplearning4j.optimize.listeners.PerformanceListener;
 import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
 import org.deeplearning4j.parallelism.ParallelWrapper;
 import org.nd4j.jita.conf.CudaEnvironment;
@@ -25,8 +24,6 @@ import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 /**
@@ -35,31 +32,30 @@ import org.slf4j.LoggerFactory;
  * @author  @agibsonccc
  * @author raver119@gmail.com
  */
+@Slf4j
 public class MultiGpuLenetMnistExample {
-    private static final Logger log = LoggerFactory.getLogger(MultiGpuLenetMnistExample.class);
 
     public static void main(String[] args) throws Exception {
         // PLEASE NOTE: For CUDA FP16 precision support is available
-     //   DataTypeUtil.setDTypeForContext(DataBuffer.Type.HALF);
+        DataTypeUtil.setDTypeForContext(DataBuffer.Type.HALF);
 
         // temp workaround for backend initialization
 
         CudaEnvironment.getInstance().getConfiguration()
             // key option enabled
             .allowMultiGPU(true)
-            .enableDebug(true)
 
             // we're allowing larger memory caches
             .setMaximumDeviceCache(2L * 1024L * 1024L * 1024L)
 
             // cross-device access is used for faster model averaging over pcie
-            .allowCrossDeviceAccess(false);
+            .allowCrossDeviceAccess(true);
 
         int nChannels = 1;
         int outputNum = 10;
 
         // for GPU you usually want to have higher batchSize
-        int batchSize = 64;
+        int batchSize = 128;
         int nEpochs = 10;
         int iterations = 1;
         int seed = 123;
@@ -81,7 +77,6 @@ public class MultiGpuLenetMnistExample {
             .weightInit(WeightInit.XAVIER)
             .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
             .updater(Updater.NESTEROVS).momentum(0.9)
-            .workspaceMode(WorkspaceMode.SINGLE)
             .list()
             .layer(0, new ConvolutionLayer.Builder(5, 5)
                 //nIn and nOut specify depth. nIn here is the nChannels and nOut is the number of filters to be applied
@@ -121,26 +116,22 @@ public class MultiGpuLenetMnistExample {
             .prefetchBuffer(24)
 
             // set number of workers equal or higher then number of available devices. x1-x2 are good values to start with
-            .workers(2)
+            .workers(4)
 
             // rare averaging improves performance, but might reduce model accuracy
-            .averagingFrequency(5)
+            .averagingFrequency(3)
 
             // if set to TRUE, on every averaging model score will be reported
-            .reportScoreAfterAveraging(false)
+            .reportScoreAfterAveraging(true)
 
             // optinal parameter, set to false ONLY if your system has support P2P memory access across PCIe (hint: AWS do not support P2P)
-            .useLegacyAveraging(false)
-
-            .useMQ(false)
+            .useLegacyAveraging(true)
 
             .build();
 
         log.info("Train model....");
-        model.setListeners(new PerformanceListener(50, true));
+        model.setListeners(new ScoreIterationListener(100));
         long timeX = System.currentTimeMillis();
-
-        Nd4j.getMemoryManager().setAutoGcWindow(1000000);
 
         // optionally you might want to use MultipleEpochsIterator instead of manually iterating/resetting over your iterator
         //MultipleEpochsIterator mnistMultiEpochIterator = new MultipleEpochsIterator(nEpochs, mnistTrain);

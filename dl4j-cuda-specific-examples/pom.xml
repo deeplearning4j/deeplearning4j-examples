@@ -49,7 +49,7 @@
                 <artifactId>nd4j-native</artifactId>
                 <version>${nd4j.version}</version>
             </dependency>
-             <dependency>
+            <dependency>
                 <groupId>org.nd4j</groupId>
                 <artifactId>nd4j-cuda-7.5</artifactId>
                 <version>${nd4j.version}</version>

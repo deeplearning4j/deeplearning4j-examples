@@ -1,5 +1,6 @@
-package org.deeplearning4j.examples.transferlearning.vgg16.dataHelpers;
+package org.deeplearning4j.transferlearning.vgg16.dataHelpers;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.datavec.api.io.filters.BalancedPathFilter;
 import org.datavec.api.io.labels.ParentPathLabelGenerator;
@@ -11,7 +12,6 @@ import org.datavec.image.recordreader.ImageRecordReader;
 import org.deeplearning4j.datasets.datavec.RecordReaderDataSetIterator;
 import org.deeplearning4j.nn.modelimport.keras.trainedmodels.TrainedModels;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
-import org.slf4j.Logger;
 
 import java.io.File;
 import java.io.IOException;
@@ -24,8 +24,8 @@ import java.util.Random;
  * and untar's it to the users home directory
  * @author susaneraly on 3/9/17.
  */
+@Slf4j
 public class FlowerDataSetIterator {
-    private static final Logger log = org.slf4j.LoggerFactory.getLogger(FlowerDataSetIterator.class);
 
     private static final String DATA_DIR = new File(System.getProperty("user.home")) + "/dl4jDataDir";
     private static final String DATA_URL = "http://download.tensorflow.org/example_images/flower_photos.tgz";
