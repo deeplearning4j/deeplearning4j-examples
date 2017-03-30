@@ -23,29 +23,78 @@ import com.amazonaws.services.elasticmapreduce.util.StepFactory;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.PutObjectRequest;
+import com.beust.jcommander.JCommander;
+import com.beust.jcommander.Parameter;
+import com.beust.jcommander.ParameterException;
 
 public class EmrSparkExample {
 
-    private static final Logger log          = LoggerFactory.getLogger(EmrSparkExample.class);
+    private static final Logger log = LoggerFactory.getLogger(EmrSparkExample.class);
 
-    private String              accessKey    = "yourawsaccesskey";
-    private String              secretKey    = "yourawssecretkey";
-    private Regions             region       = Regions.EU_CENTRAL_1;
-    private boolean             debug        = false;
-    private boolean             execute      = true;
-    private boolean             upload       = true;
-    private String              bucketName   = "com.your.bucket";
-    private boolean             keepAlive    = true;
-    private String              instanceType = "m3.xlarge";
-    private File                uberJar      = new File("./target/dl4j-spark-0.8-SNAPSHOT-bin.jar");
-    private String              className    = "org.deeplearning4j.stats.TrainingStatsExample";
+    // access- and secretkey by creating an IAM user in aws console, user needs
+    // to granted AmazonElasticMapReduceFullAccess and AmazonEC2FullAccess
+    // policy
+
+    @Parameter(names = "-accessKey", description = "your aws accesskey")
+    private String accessKey = "your_aws_user_accesskey";
+
+    @Parameter(names = "-secretKey", description = "your aws secretKey")
+    private String secretKey = "your_aws_user_secretKey";
+
+    @Parameter(names = "-region", description = "your aws region")
+    private Regions region = Regions.EU_CENTRAL_1;
+
+    @Parameter(names = "-debug", description = "enable spark debug mode")
+    private boolean debug = false;
+
+    @Parameter(names = "-execute", description = "run spark step after cluster creation")
+    private boolean execute = true;
+
+    @Parameter(names = "-upload", description = "upload uber jar")
+    private boolean upload = true;
+
+    // default emr version runs spark2, so make sure to update spark version in
+    // parent pom (default is spark1)
+
+    @Parameter(names = "-emrVersion", description = "version of aws emr software stack")
+    private String emrVersion = "emr-5.4.0";
+
+    @Parameter(names = "-bucketName", description = "aws s3 bucket name for logs and uber jar")
+    private String bucketName = "com.your.bucket";
+
+    @Parameter(names = "-keepAlive", description = "keep cluster alive after execution of spark step")
+    private boolean keepAlive = true;
+
+    @Parameter(names = "-instanceType", description = "emr master and slave instance type")
+    private String instanceType = "m3.xlarge";
+
+    @Parameter(names = "-instanceCount", description = "instance count, 1 will be master and rest slaves")
+    private int instanceCount = 3;
+
+    @Parameter(names = "-uberJar", description = "uber jar with spark step to execute")
+    private String uberJar = "./target/dl4j-spark-0.8-SNAPSHOT-bin.jar";
+
+    @Parameter(names = "-className", description = "class name of spark step to execute")
+    private String className = "org.deeplearning4j.stats.TrainingStatsExample";
 
     public static void main(String[] args) {
         EmrSparkExample test = new EmrSparkExample();
-        test.start();
+        test.entryPoint(args);
     }
 
-    public void start() {
+    public void entryPoint(String[] args) {
+        JCommander jcmdr = new JCommander(this);
+        try {
+            jcmdr.parse(args);
+        } catch (ParameterException e) {
+            jcmdr.usage();
+            try {
+                Thread.sleep(500);
+            } catch (Exception e2) {
+            }
+            throw e;
+        }
+
         AmazonElasticMapReduceClientBuilder builder = AmazonElasticMapReduceClientBuilder.standard();
         builder.withRegion(region);
         builder.withCredentials(getCredentialsProvider());
@@ -66,7 +115,9 @@ public class EmrSparkExample {
                 s3Client.createBucket(bucketName);
             }
 
-            s3Client.putObject(new PutObjectRequest(bucketName, uberJar.getName(), uberJar));
+            File uberJarFile = new File(uberJar);
+
+            s3Client.putObject(new PutObjectRequest(bucketName, uberJarFile.getName(), uberJarFile));
         }
 
         if (debug) {
@@ -98,9 +149,13 @@ public class EmrSparkExample {
 
         Application sparkApp = new Application().withName("Spark");
 
+        // service and job flow role will be created automatically when
+        // launching cluster in aws console, better do that first or create
+        // manually
+
         RunJobFlowRequest request = new RunJobFlowRequest().withName("Spark Cluster").withSteps(steps).withServiceRole("EMR_DefaultRole").withJobFlowRole("EMR_EC2_DefaultRole")
-                .withApplications(sparkApp).withReleaseLabel("emr-5.4.0").withLogUri(getS3BucketLogsUrl()).withInstances(new JobFlowInstancesConfig().withEc2KeyName("spark").withInstanceCount(5)
-                        .withKeepJobFlowAliveWhenNoSteps(keepAlive).withMasterInstanceType(instanceType).withSlaveInstanceType(instanceType));
+                .withApplications(sparkApp).withReleaseLabel(emrVersion).withLogUri(getS3BucketLogsUrl()).withInstances(new JobFlowInstancesConfig().withEc2KeyName("spark")
+                        .withInstanceCount(instanceCount).withKeepJobFlowAliveWhenNoSteps(keepAlive).withMasterInstanceType(instanceType).withSlaveInstanceType(instanceType));
 
         RunJobFlowResult result = emr.runJobFlow(request);
 
@@ -110,7 +165,7 @@ public class EmrSparkExample {
     }
 
     public String getS3UberJarUrl() {
-        return getS3BucketUrl() + "/" + uberJar.getName();
+        return getS3BucketUrl() + "/" + new File(uberJar).getName();
     }
 
     public String getS3BucketUrl() {
