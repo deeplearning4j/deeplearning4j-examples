@@ -6,6 +6,7 @@ import org.deeplearning4j.nn.api.OptimizationAlgorithm;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
 import org.deeplearning4j.nn.conf.Updater;
+import org.deeplearning4j.nn.conf.WorkspaceMode;
 import org.deeplearning4j.nn.conf.layers.variational.BernoulliReconstructionDistribution;
 import org.deeplearning4j.nn.conf.layers.variational.VariationalAutoencoder;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
@@ -63,6 +64,7 @@ public class VariationalAutoEncoderExample {
             .updater(Updater.RMSPROP).rmsDecay(0.95)
             .weightInit(WeightInit.XAVIER)
             .regularization(true).l2(1e-4)
+            .workspaceMode(WorkspaceMode.SEPARATE)
             .list()
             .layer(0, new VariationalAutoencoder.Builder()
                 .activation(Activation.LEAKYRELU)
@@ -91,7 +93,7 @@ public class VariationalAutoEncoderExample {
 
         //Lists to store data for later plotting
         List<INDArray> latentSpaceVsEpoch = new ArrayList<>(nEpochs + 1);
-        INDArray latentSpaceValues = vae.activate(testFeatures, false);                     //Collect and record the latent space values before training starts
+        INDArray latentSpaceValues = vae.activate(testFeatures, false).detach();                     //Collect and record the latent space values before training starts
         latentSpaceVsEpoch.add(latentSpaceValues);
         List<INDArray> digitsGrid = new ArrayList<>();
 
@@ -107,7 +109,7 @@ public class VariationalAutoEncoderExample {
                 // (a) collect the test set latent space values for later plotting
                 // (b) collect the reconstructions at each point in the grid
                 if (iterationCount++ % plotEveryNMinibatches == 0) {
-                    latentSpaceValues = vae.activate(testFeatures, false);
+                    latentSpaceValues = vae.activate(testFeatures, false).detach();
                     latentSpaceVsEpoch.add(latentSpaceValues);
 
                     INDArray out = vae.generateAtMeanGivenZ(latentSpaceGrid);

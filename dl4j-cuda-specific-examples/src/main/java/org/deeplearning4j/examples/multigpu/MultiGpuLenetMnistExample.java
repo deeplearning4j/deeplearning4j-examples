@@ -7,6 +7,7 @@ import org.deeplearning4j.nn.api.OptimizationAlgorithm;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
 import org.deeplearning4j.nn.conf.Updater;
+import org.deeplearning4j.nn.conf.WorkspaceMode;
 import org.deeplearning4j.nn.conf.inputs.InputType;
 import org.deeplearning4j.nn.conf.layers.ConvolutionLayer;
 import org.deeplearning4j.nn.conf.layers.DenseLayer;
@@ -48,6 +49,7 @@ public class MultiGpuLenetMnistExample {
         CudaEnvironment.getInstance().getConfiguration()
             // key option enabled
             .allowMultiGPU(true)
+            .enableDebug(true)
 
             // we're allowing larger memory caches
             .setMaximumDeviceCache(2L * 1024L * 1024L * 1024L)
@@ -81,6 +83,7 @@ public class MultiGpuLenetMnistExample {
             .weightInit(WeightInit.XAVIER)
             .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
             .updater(Updater.NESTEROVS).momentum(0.9)
+            .workspaceMode(WorkspaceMode.SINGLE)
             .list()
             .layer(0, new ConvolutionLayer.Builder(5, 5)
                 //nIn and nOut specify depth. nIn here is the nChannels and nOut is the number of filters to be applied
@@ -130,6 +133,8 @@ public class MultiGpuLenetMnistExample {
 
             // optinal parameter, set to false ONLY if your system has support P2P memory access across PCIe (hint: AWS do not support P2P)
             .useLegacyAveraging(false)
+
+            .useMQ(false)
 
             .build();
 

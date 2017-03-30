@@ -4,6 +4,7 @@ import org.deeplearning4j.nn.api.OptimizationAlgorithm;
 import org.deeplearning4j.nn.conf.ComputationGraphConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
 import org.deeplearning4j.nn.conf.Updater;
+import org.deeplearning4j.nn.conf.WorkspaceMode;
 import org.deeplearning4j.nn.conf.graph.rnn.DuplicateToTimeSeriesVertex;
 import org.deeplearning4j.nn.conf.graph.rnn.LastTimeStepVertex;
 import org.deeplearning4j.nn.conf.inputs.InputType;
@@ -93,6 +94,7 @@ public class AdditionRNN {
                 .updater(Updater.ADAM)
                 .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT).iterations(nIterations)
                 .seed(seed)
+                .workspaceMode(WorkspaceMode.SINGLE)
                 .graphBuilder()
                 //These are the two inputs to the computation graph
                 .addInputs("additionIn", "sumOut")
@@ -123,18 +125,23 @@ public class AdditionRNN {
         Seq2SeqPredicter predictor = new Seq2SeqPredicter(net);
         while (iEpoch < nEpochs) {
             net.fit(iterator);
+
             System.out.printf("* = * = * = * = * = * = * = * = * = ** EPOCH %d ** = * = * = * = * = * = * = * = * = * = * = * = * = * =\n",iEpoch);
+
             MultiDataSet testData = iterator.generateTest(testSize);
             INDArray predictions = predictor.output(testData);
+
             encode_decode_eval(predictions,testData.getFeatures()[0],testData.getLabels()[0]);
             iEpoch++;
-            /*
-            (Comment/Uncomment) the following block of code to (see/or not see) how the output of the decoder is fed back into the input during test time
-            */
+
+            //(Comment/Uncomment) the following block of code to (see/or not see) how the output of the decoder is fed back into the input during test time
+
             System.out.println("Printing stepping through the decoder for a minibatch of size three:");
             testData = iterator.generateTest(3);
             predictor.output(testData,true);
             System.out.println("\n* = * = * = * = * = * = * = * = * = ** EPOCH " + iEpoch + " COMPLETE ** = * = * = * = * = * = * = * = * = * = * = * = * = * =");
+
+            iterator.reset();
         }
 
     }
