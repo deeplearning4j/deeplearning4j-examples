@@ -15,6 +15,9 @@ import javax.sound.midi.Soundbank;
 import javax.sound.midi.Synthesizer;
 import org.apache.commons.io.FileUtils;
 
+/*
+ * @authot Donald A. Smith
+ */
 public class PlayMelodyStrings {
 	private static Random random = new Random();
     final static String tempDir = System.getProperty("java.io.tmpdir");

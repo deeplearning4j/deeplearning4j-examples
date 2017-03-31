@@ -1,6 +1,7 @@
 package org.deeplearning4j.examples.recurrent.character.melodl4j;
 
 import org.deeplearning4j.examples.recurrent.character.CharacterIterator;
+import org.deeplearning4j.examples.userInterface.util.GradientsListener;
 import org.deeplearning4j.nn.api.Layer;
 import org.deeplearning4j.nn.api.OptimizationAlgorithm;
 import org.deeplearning4j.nn.conf.BackpropType;
@@ -34,7 +35,7 @@ import java.util.Random;
  */
 public class MelodyModelingExample {
     final static String inputSymbolicMelodiesFilename = "midi-melodies-bach.txt"; // Try also midi-melodies-pop.txt
-    final static String tmpDir = System.getProperty("java.io.tmpdir");  // Change this directory to, say, /tmp/ if that's more convenient for you.
+    final static String tmpDir = System.getProperty("java.io.tmpdir");
 
     final static String symbolicMelodiesInputFilePath = tmpDir + "/" + inputSymbolicMelodiesFilename;  // Point to melodies created by Midi2MelodyStrings.java
     final static String composedMelodiesOutputFilePath = tmpDir + "/composition.txt"; // You can listen to these melodies by running PlayMelodyStrings.java against this file.
@@ -42,11 +43,11 @@ public class MelodyModelingExample {
     public static void main( String[] args ) throws Exception {
         int lstmLayerSize = 200;					//Number of units in each GravesLSTM layer
         int miniBatchSize = 32;						//Size of mini batch to use when  training
-        int exampleLength = 500; //1000;		//Length of each training example sequence to use. This could certainly be increased
+        int exampleLength = 500; //1000; 		    //Length of each training example sequence to use.
         int tbpttLength = 50;                       //Length for truncated backpropagation through time. i.e., do parameter updates ever 50 characters
-        int numEpochs = 30;							//Total number of training epochs
+        int numEpochs = 10;							//Total number of training epochs
         int generateSamplesEveryNMinibatches = 20;  //How frequently to generate samples from the network? 1000 characters / 50 tbptt length: 20 parameter updates per minibatch
-        int nSamplesToGenerate = 10;					//Number of samples to generate after each training epoch
+        int nSamplesToGenerate = 10;				//Number of samples to generate after each training epoch
         int nCharactersToSample = 300;				//Length of each sample to generate
         String generationInitialization = null;		//Optional character initialization; a random character is used if null
         // Above is Used to 'prime' the LSTM with a character sequence to continue/complete.
@@ -54,6 +55,7 @@ public class MelodyModelingExample {
         Random rng = new Random(12345);
         long startTime = System.currentTimeMillis();
 
+        System.out.println("Using " + tmpDir + " as the temporary directory");
         //Get a DataSetIterator that handles vectorization of text into something we can use to train
         // our GravesLSTM network.
         CharacterIterator iter = getMidiIterator(miniBatchSize,exampleLength);
@@ -84,7 +86,8 @@ public class MelodyModelingExample {
 
         MultiLayerNetwork net = new MultiLayerNetwork(conf);
         net.init();
-        net.setListeners(new ScoreIterationListener(100));
+        GradientsListener listener2 = new GradientsListener(net,80);
+        net.setListeners(listener2,new ScoreIterationListener(100));
 
         //Print the  number of parameters in the network (and for each layer)
         Layer[] layers = net.getLayers();
@@ -134,6 +137,7 @@ public class MelodyModelingExample {
         printWriter.close();
         double seconds = 0.001*(System.currentTimeMillis()-startTime);
 
+
         System.out.println("\n\nExample complete in " + seconds + " seconds");
     }
 
@@ -144,7 +148,14 @@ public class MelodyModelingExample {
     public static CharacterIterator getMidiIterator(int miniBatchSize, int sequenceLength) throws Exception{
         File f = new File(symbolicMelodiesInputFilePath);
         if( !f.exists() ){
-            FileUtils.copyURLToFile(new URL("http://truthsite.org/music/" +inputSymbolicMelodiesFilename ), f);
+            URL url=null;
+            try {
+                url=new URL("http://truthsite.org/music/" + inputSymbolicMelodiesFilename);
+                FileUtils.copyURLToFile(url, f);
+            } catch (Exception exc) {
+                System.err.println("Error copying " + url + " to " + f);
+                throw(exc);
+            }
             if (!f.exists()) {
                 throw new RuntimeException(f.getAbsolutePath() + " does not exist");
             }
