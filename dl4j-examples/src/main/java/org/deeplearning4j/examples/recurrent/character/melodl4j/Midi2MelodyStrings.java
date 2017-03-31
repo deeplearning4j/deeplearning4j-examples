@@ -184,7 +184,7 @@ public class Midi2MelodyStrings {
     //-------------------------------------------------------------------
     public static void main(String[] args)  { // You can download midi files from http://truthsite.org/music/bach-midi.zip and http://www.musedata.org
         try {
-            showSequencesForAllMidiFiles("d:/Music/midi/classical/bach", "/tmp/bach.txt",10, false);
+            showSequencesForAllMidiFiles("d:/Music/midi/clean_midi/The Beatles", "/tmp/the-beatles.txt",10, false);
         } catch (Exception exc) {
             exc.printStackTrace();
             System.exit(1);
