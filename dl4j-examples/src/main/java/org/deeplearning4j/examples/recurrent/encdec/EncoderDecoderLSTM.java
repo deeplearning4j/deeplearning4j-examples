@@ -5,29 +5,15 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Random;
-import java.util.Scanner;
-import java.util.Set;
-import java.util.TreeMap;
-import java.util.TreeSet;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.deeplearning4j.nn.api.Layer;
 import org.deeplearning4j.nn.api.OptimizationAlgorithm;
-import org.deeplearning4j.nn.conf.BackpropType;
+import org.deeplearning4j.nn.conf.*;
 import org.deeplearning4j.nn.conf.ComputationGraphConfiguration.GraphBuilder;
-import org.deeplearning4j.nn.conf.GradientNormalization;
-import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
-import org.deeplearning4j.nn.conf.Updater;
 import org.deeplearning4j.nn.conf.graph.MergeVertex;
 import org.deeplearning4j.nn.conf.graph.rnn.DuplicateToTimeSeriesVertex;
 import org.deeplearning4j.nn.conf.graph.rnn.LastTimeStepVertex;
@@ -38,10 +24,12 @@ import org.deeplearning4j.nn.conf.layers.RnnOutputLayer;
 import org.deeplearning4j.nn.graph.ComputationGraph;
 import org.deeplearning4j.nn.graph.vertex.GraphVertex;
 import org.deeplearning4j.nn.weights.WeightInit;
+import org.deeplearning4j.optimize.listeners.PerformanceListener;
 import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
 import org.deeplearning4j.util.ModelSerializer;
 import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.api.ndarray.INDArray;
+import org.nd4j.linalg.api.ops.executioner.OpExecutioner;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 
@@ -52,34 +40,34 @@ public class EncoderDecoderLSTM {
      * line using the provided one. It learns on the Cornell Movie Dialogs corpus. Unlike simple char RNNs this model is more sophisticated
      * and theoretically, given enough time and data, can deduce facts from raw text. Your mileage may vary. This particular network
      * architecture is based on AdditionRNN but changed to be used with a huge amount of possible tokens (10-40k) instead of just digits.
-     * 
+     *
      * Use the get_data.sh script to download, extract and optimize the train data. It's been only tested on Linux, it could work on OS X or
      * even on Windows 10 in the Ubuntu shell.
-     * 
+     *
      * Special tokens used:
-     * 
+     *
      * <unk> - replaces any word or other token that's not in the dictionary (too rare to be included or completely unknown)
-     * 
+     *
      * <eos> - end of sentence, used only in the output to stop the processing; the model input and output length is limited by the ROW_SIZE
      * constant.
-     * 
+     *
      * <go> - used only in the decoder input as the first token before the model produced anything
-     * 
+     *
      * The architecture is like this: Input => Embedding Layer => Encoder => Decoder => Output (softmax)
-     * 
+     *
      * The encoder layer produces a so called "thought vector" that contains a neurally-compressed representation of the input. Depending on
      * that vector the model produces different sentences even if they start with the same token. There's one more input, connected directly
      * to the decoder layer, it's used to provide the previous token of the output. For the very first output token we send a special <go>
      * token there, on the next iteration we use the token that the model produced the last time. On the training stage everything is
      * simple, we apriori know the desired output so the decoder input would be the same token set prepended with the <go> token and without
      * the last <eos> token. Example:
-     * 
+     *
      * Input: "how" "do" "you" "do" "?"
-     * 
+     *
      * Output: "I'm" "fine" "," "thanks" "!" "<eos>"
-     * 
+     *
      * Decoder: "<go>" "I'm" "fine" "," "thanks" "!"
-     * 
+     *
      * Actually, the input is reversed as per [2], the most important words are usually in the beginning of the phrase and they would get
      * more weight if supplied last (the model "forgets" tokens that were supplied "long ago", i.e. they have lesser weight than the recent
      * ones). The output and decoder input sequence lengths are always equal. The input and output could be of any length (less than
@@ -90,11 +78,11 @@ public class EncoderDecoderLSTM {
      * usually it outputs something else so we have our loss metric and can compute gradients for the backward pass) on the previous step
      * (or <go> for the very first step). These two vectors are simply concatenated by the merge vertex. The decoder's output goes to the
      * softmax layer and that's it.
-     * 
+     *
      * The test phase is much more tricky. We don't know the decoder input because we don't know the output yet (unlike in the train phase),
      * it could be anything. So we can't use methods like outputSingle() and have to do some manual work. Actually, we can but it would
      * require full restarts of the entire process, it's super slow and ineffective.
-     * 
+     *
      * First, we do a single feed forward pass for the input with a single decoder element, <go>. We don't need the actual activations
      * except the "thought vector". It resides in the second merge vertex input (named "dup"). So we get it and store for the entire
      * response generation time. Then we put the decoder input (<go> for the first iteration) and the thought vector to the merge vertex
@@ -106,9 +94,9 @@ public class EncoderDecoderLSTM {
      * To continue the training process from a specific batch number, enter it when prompted; batch numbers are printed after each processed
      * macrobatch. If you've changed the minibatch size after the last launch, recalculate the number accordingly, i.e. if you doubled the
      * minibatch size, specify half of the value and so on.
-     * 
+     *
      * [1] https://arxiv.org/abs/1506.05869 A Neural Conversational Model
-     * 
+     *
      * [2] https://papers.nips.cc/paper/5346-sequence-to-sequence-learning-with-neural-networks.pdf Sequence to Sequence Learning with
      * Neural Networks
      */
@@ -144,11 +132,13 @@ public class EncoderDecoderLSTM {
     private void run(String[] args) throws IOException {
         Nd4j.getMemoryManager().setAutoGcWindow(GC_WINDOW);
 
+//        Nd4j.getExecutioner().setProfilingMode(OpExecutioner.ProfilingMode.NAN_PANIC);
+
         createDictionary();
 
         File networkFile = new File(toTempPath(MODEL_FILENAME));
         int offset = 0;
-        if (networkFile.exists()) {
+        if (1 < 0) {
             System.out.println("Loading the existing network...");
             net = ModelSerializer.restoreComputationGraph(networkFile);
             System.out.print("Enter d to start dialog or a number to continue training from that minibatch: ");
@@ -167,7 +157,8 @@ public class EncoderDecoderLSTM {
             createComputationGraph();
         }
         System.out.println("Number of parameters: " + net.numParams());
-        net.setListeners(new ScoreIterationListener(1));
+        System.out.println("Parameters dimensions: " + Arrays.toString(net.params().shapeInfoDataBuffer().asInt()));
+        net.setListeners(new PerformanceListener(1, true));
         train(networkFile, offset);
     }
 
@@ -175,10 +166,11 @@ public class EncoderDecoderLSTM {
         NeuralNetConfiguration.Builder builder = new NeuralNetConfiguration.Builder();
         builder.iterations(1).learningRate(LEARNING_RATE).rmsDecay(RMS_DECAY)
                 .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT).miniBatch(true).updater(Updater.RMSPROP)
+                .workspaceMode(WorkspaceMode.SEPARATE)
                 .weightInit(WeightInit.XAVIER).gradientNormalization(GradientNormalization.RenormalizeL2PerLayer);
 
-        GraphBuilder graphBuilder = builder.graphBuilder().pretrain(false).backprop(true).backpropType(BackpropType.Standard)
-                .tBPTTBackwardLength(TBPTT_SIZE).tBPTTForwardLength(TBPTT_SIZE);
+        GraphBuilder graphBuilder = builder.graphBuilder().pretrain(false).backprop(true);//.backpropType(BackpropType.Standard)
+                //.tBPTTBackwardLength(TBPTT_SIZE).tBPTTForwardLength(TBPTT_SIZE);
         graphBuilder.addInputs("inputLine", "decoderInput")
                 .setInputTypes(InputType.recurrent(dict.size()), InputType.recurrent(dict.size()))
                 .addLayer("embeddingEncoder", new EmbeddingLayer.Builder().nIn(dict.size()).nOut(EMBEDDING_WIDTH).build(), "inputLine")
@@ -198,6 +190,8 @@ public class EncoderDecoderLSTM {
 
         net = new ComputationGraph(graphBuilder.build());
         net.init();
+
+        //System.out.println(net.getConfiguration().toJson());
     }
 
     private void train(File networkFile, int offset) throws IOException {

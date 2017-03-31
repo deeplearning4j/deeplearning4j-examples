@@ -60,7 +60,7 @@ public class LenetMnistCGExample {
                 .weightInit(WeightInit.XAVIER)
                 .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
                 .updater(Updater.NESTEROVS).momentum(0.9)
-                .workspaceMode(WorkspaceMode.NONE)
+                .workspaceMode(WorkspaceMode.SEPARATE)
                 .graphBuilder()
                 .addInputs("input")
                 .addLayer("cnn1", new ConvolutionLayer.Builder(5, 5)
@@ -114,6 +114,7 @@ public class LenetMnistCGExample {
         Nd4j.getMemoryManager().setAutoGcWindow(1000000);
 
         log.info("Train model....");
+        nEpochs = 1;
         model.setListeners(new PerformanceListener(50, true));
         for( int i=0; i<nEpochs; i++ ) {
             long time1 = System.currentTimeMillis();
