@@ -2,13 +2,15 @@ package org.deeplearning4j.examples.userInterface.util;
 
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
-import javafx.event.EventHandler;
+import javafx.event.*;
+import javafx.event.Event;
 import javafx.geometry.Insets;
 import javafx.scene.DepthTest;
 import javafx.scene.Group;
 import javafx.scene.PerspectiveCamera;
 import javafx.scene.Scene;
 import javafx.scene.control.Slider;
+import javafx.scene.input.InputEvent;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.PickResult;
@@ -39,6 +41,7 @@ import java.util.*;
 import java.util.List;
 
 import static javafx.scene.input.KeyCode.Q;
+import static javafx.scene.input.KeyCode.R;
 import static org.nd4j.linalg.util.ArrayUtil.sum;
 
 
@@ -191,6 +194,16 @@ public class GradientsViewer extends Application {
         slider.setMax(10); // logarithmic scale
         slider.setMinWidth(WIDTH/2);
         root.getChildren().add(slider);
+
+        // We add this to prevent the slider from processing the key event
+        EventHandler filter = new EventHandler<InputEvent>() {
+            public void handle (InputEvent event){
+                System.out.println("Filtering out event " + event.getEventType());
+                handleKeyEvent(event);
+                event.consume();
+            }
+        };
+        root.addEventFilter(KeyEvent.KEY_PRESSED, filter);
     }
     private void handleMouse(Scene scene) {
         scene.setOnMousePressed((MouseEvent me) -> {
@@ -235,52 +248,63 @@ public class GradientsViewer extends Application {
             }
         });
     }
-    private void handleKeyEvents(Scene scene) {
-        scene.setOnKeyPressed(ke ->  {
-           // System.out.println(ke.getCharacter() + " " + ke.getCode());
-                switch (ke.getCode()) {
-                    case Q:
-                        System.exit(0);
-                        break;
-                    case R:
-                        shapesGroup.t.setX(0);
-                        shapesGroup.t.setY(0);
-                        shapesGroup.t.setZ(0);
-                        shapesGroup.rx.setAngle(0);
-                        shapesGroup.ry.setAngle(0);
-                        shapesGroup.rz.setAngle(0);
-                        break;
-                    case LEFT: // This is ignored because of the slider
-                        shapesGroup.t.setX(shapesGroup.t.getX()-10);
-                        break;
-                    case RIGHT: // This is ignored because of the slider
-                        shapesGroup.t.setX(shapesGroup.t.getX()+10);
-                        break;
-                    case UP:
-                        if (ke.isShiftDown()) {
-                            shapesGroup.setTranslateY(shapesGroup.getTranslateY() - 10);
-                        } else {
-                            shapesGroup.setTranslateZ(shapesGroup.getTranslateZ()-10);
-                        }
-                        break;
-                    case DOWN:
-                        if (ke.isShiftDown()) {
-                            shapesGroup.setTranslateY(shapesGroup.getTranslateY() + 10);
-                        } else {
-                            shapesGroup.setTranslateZ(shapesGroup.getTranslateZ()+10);
-                        }
-                        break;
-                    case PAGE_UP:
-                        break;
-                    case PAGE_DOWN:
-                    case C:
-                        if (ke.isShiftDown()) {
-                        } else {
-                        }
-                        break;
-                    default:
+    private void handleKeyEvent(Event event) {
+        KeyEvent ke = (KeyEvent) event;
+        // System.out.println(ke.getCharacter() + " " + ke.getCode());
+        switch (ke.getCode()) {
+            case Q:
+                System.exit(0);
+                break;
+            case R:
+                shapesGroup.t.setX(0);
+                shapesGroup.t.setY(0);
+                shapesGroup.t.setZ(0);
+                shapesGroup.rx.setAngle(0);
+                shapesGroup.ry.setAngle(0);
+                shapesGroup.rz.setAngle(0);
+                break;
+            case LEFT:
+                shapesGroup.t.setX(shapesGroup.t.getX()-10);
+                break;
+            case RIGHT:
+                shapesGroup.t.setX(shapesGroup.t.getX()+10);
+                break;
+            case UP:
+                if (ke.isShiftDown()) {
+                    shapesGroup.setTranslateY(shapesGroup.getTranslateY() - 10);
+                } else {
+                    shapesGroup.setTranslateZ(shapesGroup.getTranslateZ()-10);
                 }
-        });
+                break;
+            case DOWN:
+                if (ke.isShiftDown()) {
+                    shapesGroup.setTranslateY(shapesGroup.getTranslateY() + 10);
+                } else {
+                    shapesGroup.setTranslateZ(shapesGroup.getTranslateZ()+10);
+                }
+                break;
+            case PAGE_UP:
+                break;
+            case PAGE_DOWN:
+            case C:
+                if (ke.isShiftDown()) {
+                } else {
+                }
+                break;
+            default:
+        }
+    }
+
+    private void handleKeyEvents(Scene scene) {
+        // We do it this way to prevent the slider from consuming the LEFT and RIGHT arrow events.
+        EventHandler<? super KeyEvent> handler = new EventHandler() {
+            @Override
+            public void handle(Event event) {
+                handleKeyEvent(event);
+            }
+        };
+        scene.setOnKeyPressed(handler);
+
     }
     //-------------------
     private void initializeCapture() {
@@ -366,12 +390,12 @@ public class GradientsViewer extends Application {
             layerIndex++;
         }
         System.out.println();
-     }
+    }
     // We can't update the JavaFX UI components from this thread, so we just store the updates in the GradientShape's variables. Later,
     // the animation handler will apply the updates to the JavaFX shapes themselves.
     public void requestBackwardPassUpdate(Model model) {
         Gradient gradient = model.gradient();
-       // INDArray gradientArray = gradient.gradient();
+        // INDArray gradientArray = gradient.gradient();
         // gradientArrayShape = [1,541859]
         Map<String, INDArray> map= gradient.gradientForVariable();
 
@@ -449,3 +473,4 @@ public class GradientsViewer extends Application {
     }
     //--------------------------------------------
 }
+
