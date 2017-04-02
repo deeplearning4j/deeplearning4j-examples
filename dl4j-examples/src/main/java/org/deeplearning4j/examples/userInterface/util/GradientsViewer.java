@@ -198,7 +198,6 @@ public class GradientsViewer extends Application {
         // We add this to prevent the slider from processing the key event
         EventHandler filter = new EventHandler<InputEvent>() {
             public void handle (InputEvent event){
-                System.out.println("Filtering out event " + event.getEventType());
                 handleKeyEvent(event);
                 event.consume();
             }
