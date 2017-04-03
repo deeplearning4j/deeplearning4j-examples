@@ -39,6 +39,8 @@
         <maven.minimum.version>3.3.1</maven.minimum.version>
         <javafx.version>2.2.3</javafx.version>
         <javafx.runtime.lib.jar>${env.JAVAFX_HOME}/jfxrt.jar</javafx.runtime.lib.jar>
+        <aws.sdk.version>1.11.109</aws.sdk.version>
+        <jackson.version>2.6.6</jackson.version>
     </properties>
 
     <modules>

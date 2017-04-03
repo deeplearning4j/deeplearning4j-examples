@@ -14,12 +14,32 @@
     <properties>
         <jcommander.version>1.27</jcommander.version>
     </properties>
+    
+    <dependencyManagement>
+    	<dependencies>
+    		<dependency>
+    			<groupId>com.fasterxml.jackson.core</groupId>
+    			<artifactId>jackson-databind</artifactId>
+    			<version>${jackson.version}</version>
+    		</dependency>
+    		<dependency>
+    			<groupId>com.fasterxml.jackson.core</groupId>
+    			<artifactId>jackson-annotations</artifactId>
+    			<version>${jackson.version}</version>
+    		</dependency>
+    		<dependency>
+    			<groupId>com.fasterxml.jackson.module</groupId>
+    			<artifactId>jackson-module-scala_2.11</artifactId>
+    			<version>${jackson.version}</version>
+    		</dependency>
+    	</dependencies>
+    </dependencyManagement>
 
     <dependencies>
 
         <dependency>
             <groupId>org.nd4j</groupId>
-            <artifactId>nd4j-native-platform</artifactId>
+            <artifactId>${nd4j.backend}</artifactId>
             <version>${nd4j.version}</version>
         </dependency>
 
@@ -35,6 +55,20 @@
             <artifactId>jcommander</artifactId>
             <version>${jcommander.version}</version>
         </dependency>
+
+		<dependency>
+			<groupId>com.amazonaws</groupId>
+			<artifactId>aws-java-sdk-emr</artifactId>
+			<version>${aws.sdk.version}</version>
+			<scope>provided</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>com.amazonaws</groupId>
+			<artifactId>aws-java-sdk-s3</artifactId>
+			<version>${aws.sdk.version}</version>
+			<scope>provided</scope>
+		</dependency>
 
     </dependencies>
 
@@ -107,5 +141,4 @@
             </plugin>
         </plugins>
     </build>
-
 </project>
