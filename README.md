@@ -1,5 +1,6 @@
 Deeplearning4J Examples 
 =========================
+
 Repository of Deeplearning4J neural net examples:
 
 - MLP Neural Nets
@@ -8,6 +9,8 @@ Repository of Deeplearning4J neural net examples:
 - TSNE
 - Word2Vec & GloVe
 - Anomaly Detection
+
+DL4J-Examples is released under an Apache 2.0 license. By contributing code to this repository, you agree to make your contribution available under an Apache 2.0 license.
 
 ---
 
