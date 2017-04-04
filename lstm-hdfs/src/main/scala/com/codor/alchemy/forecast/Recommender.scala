@@ -110,32 +110,7 @@ class Recommender(batchSize: Int = 50, featureSize: Int, nEpochs: Int, hiddenUni
     info("Score at best epoch: " + result.getBestModelScore())
 
     result.getBestModel
-
   }
-
-/*
-  def train() = {
-  
-    val iterator: MDSIterator = new MDSIterator(dataDirectory, batchSize, featureSize, labelSize, 1, 2) 
-
-    val buf = scala.collection.mutable.ListBuffer.empty[MultiDataSet]
-
-    while (iterator.hasNext) {
-	val mds = iterator.next
-	if (mds != null)
-           buf += mds
-    }
-    val rdd = sc.parallelize(buf)
-
-    info("Examples: " + rdd.count())
-  
-    (0 until nEpochs - 1).foreach { i =>
-      sparkNet.fitMultiDataSet(rdd)	
-    }  
-
-    sparkNet.fitMultiDataSet(rdd)
-  }
-*/
 
   def predict(graphPath: String, items: List[String]): RDD[List[(String, Double)]] = {
     val graph = ModelSerializer.restoreComputationGraph(graphPath)
@@ -146,47 +121,13 @@ class Recommender(batchSize: Int = 50, featureSize: Int, nEpochs: Int, hiddenUni
 
     val iterator: MDSIterator =
       new MDSIterator(dataDirectory, batchSize, featureSize, labelSize, 1, 1) 
-    val buf = scala.collection.mutable.ListBuffer.empty[MultiDataSet]
-    
+    var list = List[List[String, Double]]()
     while (iterator.hasNext) {
-      buf += iterator.next
-    }
-    val rdd = sc.parallelize(buf)
-   
-    rdd.map { x =>
+      val next = iterator.next
       val score = graph.output(x.getFeatures(0).dup()).apply(0).data().asDouble()
-      items.zip(score)
-    }.cache()
-  }
-
-/*
-  def predict(network: MultiLayerNetwork, items: List[String]): RDD[List[(String, Double)]] = {
-    import scala.collection.JavaConversions._
-    val iterator = new AdvisorDataSetIterator(dataDirectory, batchSize, false, featureSize, labelSize)
-    val buf = scala.collection.mutable.ListBuffer.empty[DataSet]
-    while (iterator.hasNext)
-      buf += iterator.next
-    val rdd = sc.parallelize(buf)
-
-    val tm = new ParameterAveragingTrainingMaster.Builder(5, 1) //NewParameterAveragingTrainingMaster.Builder(5, 1)
-      .averagingFrequency(averagingFrequency)
-      .batchSizePerWorker(miniBatchSizePerWorker)
-      .saveUpdater(true)
-      .workerPrefetchNumBatches(0)
-      .repartionData(Repartition.Always)
-      .build()
-
-    val trainedNetworkWrapper = new SparkDl4jMultiLayer(sc, network, tm)
-
-    rdd.map { x =>
-      val labels = x.getLabels.data().asDouble()
-
-      val vector = MLLibUtil.toVector(x.getFeatureMatrix.dup())
-      val score = network.output(x.getFeatureMatrix.dup()).data().asDouble()
-
-      items.zip(score)
+      list = list :+ items.zip(score)
     }
+    sc.parallelize(list)
   }
-*/
 }
 

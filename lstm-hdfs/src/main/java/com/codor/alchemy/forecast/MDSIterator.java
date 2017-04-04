@@ -27,16 +27,8 @@ public class MDSIterator extends BaseDataSetIterator implements MultiDataSetIter
 
 	private static final long serialVersionUID = -2132071188514707198L;
 
-	public MDSIterator(int batchSize, double holdout) {
-		this(DATA_DIR, batchSize, holdout);
-	}
-
-	public MDSIterator(String dataDirectory, int batchSize, double holdout) {
-		this(dataDirectory, batchSize, 86, 1);
-	}
-
 	public MDSIterator(String dataDirectory, int batchSize, int vectorSize, int labelSize) {
-		this(dataDirectory, batchSize, vectorSize, labelSize, 
+		this(dataDirectory, batchSize, vectorSize, labelSize,
 			Constants.END_SEQ() - Constants.START_SEQ() + 1, 0);
 	}
 
@@ -46,14 +38,14 @@ public class MDSIterator extends BaseDataSetIterator implements MultiDataSetIter
 		this.batchSize = batchSize;
 		int pos = dataDirectory.lastIndexOf("/");
 		dataDirectory = (pos > -1 ? dataDirectory.substring(0, pos) : dataDirectory);
-		String folder = flag == 0 ? "/train" : flag == 1 ? "/test" : "/predict"; 
+		String folder = flag == 0 ? "/train" : flag == 1 ? "/test" : "/predict";
 		this.hdfsUrl = HDFS_URL + dataDirectory + folder;
 		this.vectorSize = vectorSize;
 		this.labelSize = labelSize;
 		int start = Constants.START_SEQ();
 		int end = Constants.END_SEQ();
-		start = flag == 2 ? start + 1 : start; // TODO
-		end = flag == 2 ? end : end - 1; // TODO
+		start = flag == 2 ? start + 1 : start;
+		end = flag == 2 ? end : end - 1;
 		ssRecordReader = new StackSequenceRecordReader(fs, start, end);
 		this.numSteps = numSteps;
 	}
@@ -83,10 +75,6 @@ public class MDSIterator extends BaseDataSetIterator implements MultiDataSetIter
 			if (!hdfsIterator.hasNext())
 				throw new NoSuchElementException();
 			MultiDataSet mds = nextMultiDataSet(num);
-			//double random = Math.random();
-			//if (random > holdout && hdfsIterator.hasNext()) {
-			//	mds = next(num);
-			//}
 			while(mds == null && hdfsIterator.hasNext()) {
 				mds = nextMultiDataSet(num);
 			}
@@ -156,10 +144,10 @@ public class MDSIterator extends BaseDataSetIterator implements MultiDataSetIter
 	public void setPreProcessor(MultiDataSetPreProcessor preprocessor) {
 
 	}
-	
+
 	@Override
     	public void remove() {
-        	throw new UnsupportedOperationException("Remove not yet supported");
+        	throw new UnsupportedOperationException("@{remove} not yet supported");
     	}
 }
 
