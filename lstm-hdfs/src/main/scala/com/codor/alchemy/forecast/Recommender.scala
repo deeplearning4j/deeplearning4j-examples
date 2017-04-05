@@ -124,7 +124,7 @@ class Recommender(batchSize: Int = 50, featureSize: Int, nEpochs: Int, hiddenUni
     var list = List[List[String, Double]]()
     while (iterator.hasNext) {
       val next = iterator.next
-      val score = graph.output(x.getFeatures(0).dup()).apply(0).data().asDouble()
+      val score = graph.output(next.getFeatures(0).dup()).apply(0).data().asDouble()
       list = list :+ items.zip(score)
     }
     sc.parallelize(list)
