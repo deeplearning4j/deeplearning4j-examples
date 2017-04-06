@@ -184,7 +184,7 @@ public class Midi2MelodyStrings {
     //-------------------------------------------------------------------
     public static void main(String[] args)  { // You can download midi files from http://truthsite.org/music/bach-midi.zip and http://www.musedata.org
         try {
-            showSequencesForAllMidiFiles("d:/Music/midi/clean_midi/The Beatles", "/tmp/the-beatles.txt",10, false);
+            showSequencesForAllMidiFiles("d:/music/MIDI/classical/haydn","d:/tmp/haydn-midi-melodies.txt",10, false);
         } catch (Exception exc) {
             exc.printStackTrace();
             System.exit(1);
@@ -510,6 +510,9 @@ If not specified, the default tempo is 120 beats/minute, which is equivalent to 
 		}
 	}
 
+    public static char getCharForPitchGap(int pitchGap) {
+        return pitchGap>=0 ? noteGapCharsPositive.charAt(pitchGap) : noteGapCharsNegative.charAt(-1-pitchGap);
+    }
 	private static char computeDurationChar(long duration, double durationDelta) {
 		int times = Math.min((int) Math.round(duration/durationDelta), durationChars.length()-1);
 		return durationChars.charAt(times);
@@ -538,7 +541,7 @@ If not specified, the default tempo is 120 beats/minute, which is equivalent to 
 				while (pitchGap<-12) {
 					pitchGap+=12;
 				}
-				writer.print(pitchGap>=0 ? noteGapCharsPositive.charAt(pitchGap) : noteGapCharsNegative.charAt(-1-pitchGap) );
+                writer.print(getCharForPitchGap(pitchGap));
 				long noteDuration = note.getDuration();
 				char noteDurationChar = computeDurationChar(noteDuration,durationDelta);
 				writer.print(noteDurationChar);

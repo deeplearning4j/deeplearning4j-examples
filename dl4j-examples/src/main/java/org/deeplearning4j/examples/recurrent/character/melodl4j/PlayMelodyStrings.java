@@ -35,7 +35,7 @@ public class PlayMelodyStrings {
         }
     }
     //-----------------------------------------------
-    public static void playMelodies(String inFilepath, int secondsToPlay) throws IOException, MidiUnavailableException, InvalidMidiDataException {
+    public static void playMelodies(String inFilepath, double secondsToPlay) throws IOException, MidiUnavailableException, InvalidMidiDataException {
         playMelodies(inFilepath,"Acoustic Grand Piano",secondsToPlay);
     }
     /* Plays midi file through the system's midi sequencer.
@@ -43,7 +43,7 @@ public class PlayMelodyStrings {
      *  @param instrumentName : See the list in Midi2MelodyStrings.java. If null, defaults to "Acoustic Grand Piano".
      *  @param secondsToPlay -- seconds after which to stop the music playback.
      */
-    public static void playMelodies(String inFilepath, String instrumentName, int secondsToPlay) throws IOException, MidiUnavailableException, InvalidMidiDataException {
+    public static void playMelodies(String inFilepath, String instrumentName, double secondsToPlay) throws IOException, MidiUnavailableException, InvalidMidiDataException {
         BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(inFilepath)));
         int instrumentNumber = instrumentName==null? 0: Midi2MelodyStrings.getInstrument(instrumentName);
         int lineNumber=0;
@@ -63,6 +63,7 @@ public class PlayMelodyStrings {
             }
             int startNote =  45+random.nextInt(6); // for variety
             playMelody(line, startNote,instrumentNumber, secondsToPlay);
+            sleep(2000); // so there's a noticeable gap between melodies
         }
         reader.close();
     }
@@ -113,9 +114,9 @@ public class PlayMelodyStrings {
     private static boolean isPitchChar(char ch) {
         return ch!='R' && !isDurationChar(ch);
     }
-    public static void playMelody(String melody, int secondsToPlay) throws Exception {
+    public static void playMelody(String melody, double secondsToPlay, int startPitch) throws Exception {
         //0 is Acoustic Grand Piano
-        playMelody(melody,48,0,secondsToPlay);
+        playMelody(melody,startPitch,0,secondsToPlay);
     }
 
     public static NoteSequence  createNoteSequence(String melody, int instrumentNumber, int startNote) {
@@ -191,14 +192,14 @@ public class PlayMelodyStrings {
         return ns;
     }
     // This method will try to play a melody even if the string is malformed.  The neural networks sometimes output invalid substrings, especially at the beginning of learning.
-    private static void playMelody(String melody, int startNote, int instrumentNumber, int secondsToPlay) throws MidiUnavailableException, InvalidMidiDataException {
+    private static void playMelody(String melody, int startNote, int instrumentNumber, double secondsToPlay) throws MidiUnavailableException, InvalidMidiDataException {
         NoteSequence ns = createNoteSequence(melody,instrumentNumber,startNote);
-        int numberDistinct = ns.getNumberOfDistinctPitches();
-        if (numberDistinct<3) {
-            System.err.println("Warning: only " + numberDistinct + " distinct notes, skipping: " +melody);
-            sleep(2000);
-            return;
-        }
+//        int numberDistinct = ns.getNumberOfDistinctPitches();
+//        if (numberDistinct<3) {
+//            System.err.println("Warning: only " + numberDistinct + " distinct notes, skipping: " +melody);
+//            sleep(2000);
+//            return;
+//        }
         Sequencer sequencer = MidiSystem.getSequencer();
         System.out.println(",  with " + ns.getLength() + " notes");
         ns.play(sequencer);
@@ -206,14 +207,13 @@ public class PlayMelodyStrings {
         //JOptionPane.showMessageDialog(null, "Click enter to abort.");
         long startTime=System.currentTimeMillis();
         while (sequencer.getTickPosition()< tickLength) {
-            sleep(100);
+            sleep(20);
             long now = System.currentTimeMillis();
             if (now-startTime>secondsToPlay*1000) {
                 sequencer.stop();
                 tickLength=0;
             }
         }
-        sleep(2000); // So that there's a noticeable gap between melodies
     }
     //---------------------------------
     private static void loadSoundBank() {// Download for higher quality MIDI

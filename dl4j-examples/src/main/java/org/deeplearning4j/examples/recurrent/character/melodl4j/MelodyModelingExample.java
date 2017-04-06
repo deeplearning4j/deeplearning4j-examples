@@ -13,6 +13,7 @@ import org.deeplearning4j.nn.conf.layers.RnnOutputLayer;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
 import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
+import org.deeplearning4j.util.ModelSerializer;
 import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
@@ -49,7 +50,7 @@ public class MelodyModelingExample {
         int generateSamplesEveryNMinibatches = 20;  //How frequently to generate samples from the network? 1000 characters / 50 tbptt length: 20 parameter updates per minibatch
         int nSamplesToGenerate = 10;				//Number of samples to generate after each training epoch
         int nCharactersToSample = 300;				//Length of each sample to generate
-        String generationInitialization = null;		//Optional character initialization; a random character is used if null
+        String generationInitialization = null; // "s2s2s2s";		//Optional character initialization; a random character is used if null
         // Above is Used to 'prime' the LSTM with a character sequence to continue/complete.
         // Initialization characters must all be in CharacterIterator.getMinimalCharacterSet() by default
         Random rng = new Random(12345);
@@ -86,8 +87,8 @@ public class MelodyModelingExample {
 
         MultiLayerNetwork net = new MultiLayerNetwork(conf);
         net.init();
-        GradientsListener listener2 = new GradientsListener(net,80);
-        net.setListeners(listener2,new ScoreIterationListener(100));
+      //  GradientsListener listener2 = new GradientsListener(net,80);
+        net.setListeners(/*listener2,*/ new ScoreIterationListener(100));
 
         //Print the  number of parameters in the network (and for each layer)
         Layer[] layers = net.getLayers();
@@ -126,9 +127,11 @@ public class MelodyModelingExample {
                 String melody=melodies.get(melodies.size()-1);
                 int seconds =15;
                 System.out.println("\nFirst " + seconds + " seconds of " + melody);
-                PlayMelodyStrings.playMelody(melody,seconds);
+                PlayMelodyStrings.playMelody(melody,seconds,48);
             }
         }
+      //  ModelSerializer.writeModel(net,"D:/tmp/MelodyModel-bach.zip",false);
+
         // Write all melodies to the output file, in reverse order (so that the best melodies are at the start of the file).
         PrintWriter printWriter = new PrintWriter(composedMelodiesOutputFilePath);
         for(int i=melodies.size()-1;i>=0;i--) {
@@ -137,8 +140,8 @@ public class MelodyModelingExample {
         printWriter.close();
         double seconds = 0.001*(System.currentTimeMillis()-startTime);
 
-
         System.out.println("\n\nExample complete in " + seconds + " seconds");
+        System.exit(0);
     }
 
     /** Sets up and return a simple DataSetIterator that does vectorization based on the melody sample.
