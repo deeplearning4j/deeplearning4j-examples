@@ -55,7 +55,26 @@ public class LenetMnistExample {
                     Uncomment the following for learning decay and bias
                  */
                 .learningRate(.01)//.biasLearningRate(0.02)
-                //.learningRateDecayPolicy(LearningRatePolicy.Inverse).lrPolicyDecayRate(0.001).lrPolicyPower(0.75)
+                /*
+                    Below is an example of using inverse policy rate decay for learning rate
+                */
+                //.learningRateDecayPolicy(LearningRatePolicy.Inverse)
+                //.lrPolicyDecayRate(0.001)
+                //.lrPolicyPower(0.75)
+                /*
+                    Alternatively, you can create a learning rate schedule like the one below:
+                    
+                        Map<Integer, Double> lrSchedule = new HashMap<>();
+                        lrSchedule.put(0, 1.0);
+                        lrSchedule.put(100, 0.1);
+                        lrSchedule.put(150000, 0.01);
+                        lrSchedule.put(300000, 0.005);
+                        lrSchedule.put(800000, 0.001);
+                        
+                    NOTE: adding an LR schedule will override the rate set in .learningRate()
+                */
+                //.learningRateDecayPolicy(LearningRatePolicy.Schedule)
+                //.learningRateSchedule(lrSchedule)
                 .weightInit(WeightInit.XAVIER)
                 .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
                 .updater(Updater.NESTEROVS).momentum(0.9)
