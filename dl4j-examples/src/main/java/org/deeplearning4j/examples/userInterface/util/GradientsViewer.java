@@ -198,13 +198,12 @@ public class GradientsViewer extends Application {
         // We add this to prevent the slider from processing the key event
         EventHandler filter = new EventHandler<InputEvent>() {
             public void handle (InputEvent event){
-                System.out.println("Filtering out event " + event.getEventType());
                 handleKeyEvent(event);
                 event.consume();
             }
         };
         root.addEventFilter(KeyEvent.KEY_PRESSED, filter);
-        }
+    }
     private void handleMouse(Scene scene) {
         scene.setOnMousePressed((MouseEvent me) -> {
             mousePosX = me.getSceneX();
@@ -383,20 +382,17 @@ public class GradientsViewer extends Application {
             }
             int sampleIndex=0;
             for (List<Integer> coordinates:chosen) {
-//   public GradientShape(String mapKey, int layerIndex,int sampleIndex, int coordinateInIndArray) {
                 new GradientShape(key, layerIndex, sampleIndex, coordinates,sampleLengthWeWillUse);
                 sampleIndex++;
             }
             layerIndex++;
         }
         System.out.println();
-     }
+    }
     // We can't update the JavaFX UI components from this thread, so we just store the updates in the GradientShape's variables. Later,
     // the animation handler will apply the updates to the JavaFX shapes themselves.
     public void requestBackwardPassUpdate(Model model) {
         Gradient gradient = model.gradient();
-       // INDArray gradientArray = gradient.gradient();
-        // gradientArrayShape = [1,541859]
         Map<String, INDArray> map= gradient.gradientForVariable();
 
         if (sampleCoordinatesNeedToBeChosen) {
