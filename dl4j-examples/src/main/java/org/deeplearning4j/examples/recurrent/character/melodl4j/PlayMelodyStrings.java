@@ -30,6 +30,7 @@ public class PlayMelodyStrings {
     //-----------------------------------
     public static void main(String[] args) {
         try {
+          //  playMelody("s2s2s1s",10,48); System.exit(0);
             String pathToMelodiesFile = args.length == 0 ? getPathToExampleMelodiesFile() : args[0];
             playMelodies(pathToMelodiesFile, "Acoustic Grand Piano", 20);
         } catch (Exception exc) {
@@ -177,7 +178,7 @@ public class PlayMelodyStrings {
         }
         int noteDurationInTicks = 0;
 
-        while (index < melody.length() - 2) {
+        while (index < melody.length() - 1) {
             char ch = melody.charAt(index);
             if (ch == 'R') {
                 index++;
