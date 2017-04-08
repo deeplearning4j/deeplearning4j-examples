@@ -10,11 +10,8 @@ Repository of Deeplearning4J neural net examples:
 - Word2Vec & GloVe
 - Anomaly Detection
 - User interface examples.
-<<<<<<< HEAD
-=======
 
 DL4J-Examples is released under an Apache 2.0 license. By contributing code to this repository, you agree to make your contribution available under an Apache 2.0 license.
->>>>>>> github/master
 
 ---
 

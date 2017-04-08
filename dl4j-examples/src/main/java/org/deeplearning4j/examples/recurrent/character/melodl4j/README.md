@@ -1,30 +1,30 @@
 # Learning to compose music from MIDI files using an LSTM neural network in deeplearning4j
-<span style="color:yellow">with real-time 3d visualization of gradients</span>
 
 #### by [Don Smith](mailto:ThinkerFeeler@gmail.com)
 
-MELODL4J is a java package in dl4j-examples for extracting melodies from MIDI, feeding them to a LSTM neural network, and composing music using deep learning.
+ MELODL4J is a java package in dl4j-examples for extracting melodies from MIDI, feeding them to a LSTM neural network, and composing music using deep learning.
 
-It also has UI components, written in JavaFX, for [visualizing gradients in real-time using 3D graphics](#visualize).
+It also has UI components, written in JavaFX, for visualizing gradients in real-time using 3D graphics.
 
 You train the network on a set of sample melodies. The neural network learns to generate new melodies similar to the input melodies.
 
 During network training, it plays melodies at the end of each training epoch. "Deep humming". At the end of training, it outputs all melodies to a file. There's a utility for listening to the generated melodies.
 
-[http://truthsite.org/music/melodies-like-pop.mp3](http://truthsite.org/music/melodies-like-pop.mp3) and [http://truthsite.org/music/melodies-like-bach.mp3](http://truthsite.org/music/melodies-like-bach.mp3) are examples of melodies created by the neural network (eight melodies each), based on training melodies extracted from midi files from [http://truthsite.org/music/pop-midi.zip](http://truthsite.org/music/pop-midi.zip) and [http://truthsite.org/music/bach-midi.zip](http://truthsite.org/music/bach-midi.zip).
+Listen: http://truthsite.org/music/melodies-like-pop.mp3, http://truthsite.org/music/melodies-like-bach.mp3, and http://truthsite.org/music/melodies-like-the-beatles.mp3 are examples of melodies created by the neural network (eight melodies each).
 
-The LSTM neural network is based on the <tt>GravesLSTMCharModellingExample</tt> class by Alex Black in [deeplearning4j](https://deeplearning4j.org/).
+The neural network was trained on melodies extracted from midi files at http://truthsite.org/music/pop-midi.zip, http://truthsite.org/music/bach-midi.zip, and the Beatles MIDI files at http://colinraffel.com/projects/lmd/.
+
+The LSTM neural network is based on the GravesLSTMCharModellingExample class by Alex Black in deeplearning4j.
 
 The generated melodies are monophonic, meaning that only one note plays at a time: there are no chords or harmony.
 
-No claim is made that this work is state of the art for computer music generation. But the generated melodies do sound pleasant and interesting. I pursued the project mostly to familiarize myself with [deeplearning4j](https://deeplearning4j.org/) and because it's cool. I hope the example is educational and fun for others, as well as a foundation for doing more complex musical composition.
+No claim is made that this work is state of the art for computer music generation. But the generated melodies do sound pleasant and interesting. I pursued the project mostly to familiarize myself with deeplearning4j and because it's cool. I hope the example is educational and fun for others, as well as a foundation for doing more complex musical composition.
 
-There were 6921 training melodies (about 5MB uncompressed) for pop music. There were 541,859 parameters in the LSTM network. Perhaps the network memorized some snippets.
+There were 6921 training melodies (about 5MB uncompressed) for the pop music training, for which were 541,859 parameters in the LSTM network. For the bach training, there were 363 input melodies. Perhaps the network memorized some snippets.
 
-See [http://www.asimovinstitute.org/analyzing-deep-learning-tools-music/](http://www.asimovinstitute.org/analyzing-deep-learning-tools-music/), and [https://github.com/tensorflow/magenta](https://github.com/tensorflow/magenta) for some previous work in music generation via deep learning. I found out recently that MELODL4J is similar to magenta: both extract monophonic melodies from MIDI -- and both have a class named <tt>NoteSequence</tt>! -- but MELODL4J was developed independently.
+To help judge the extent to which generated melodies mimic existing melodies in the input training set, I wrote a utility to find the longest approximate string match between two melody strings. Using that utility, I found a melody closest to the first melody of http://truthsite.org/music/melodies-like-bach.mp3. Both that first melody (snippet) and the Bach melody closest to it are in http://truthsite.org/music/closest-matches1.mp3. Judge for yourself whether the neural network is mimicing Bach. I think it's similar but not a copy.
 
-[https://github.com/deeplearning4j/dl4j-examples/pull/421](https://github.com/deeplearning4j/dl4j-examples/pull/421) is the Pull Request containing the code.
-
+See http://www.asimovinstitute.org/analyzing-deep-learning-tools-music/, and https://github.com/tensorflow/magenta for some previous work in music generation via deep learning. I found out recently that MELODL4J is similar to magenta: both extract monophonic melodies from MIDI -- and both have a class named NoteSequence! -- but MELODL4J was developed independently and uses different techniques.
 * * *
 
 ### Overview of methodology, simplifications, and tricks
@@ -56,31 +56,6 @@ See [http://www.asimovinstitute.org/analyzing-deep-learning-tools-music/](http:/
 
 * * *
 
-<a id="visualize" name="visualize">
-
-### Real-time 3d visualization of gradient changes in a sample of neurons in each layer of the neural network
-
-</a>
-
-<a id="visualize" name="visualize">Using JavaFX and a</a> [TrainingListener](https://github.com/deeplearning4j/deeplearning4j/blob/master/deeplearning4j-nn/src/main/java/org/deeplearning4j/optimize/api/TrainingListener.java) of deeplearning4j, I made classes to visualize the gradients of the neural network in real time as it learns. Here are some screen shots.
-
-![gradients in learning4j while learning to compose music](gradients1.jpg)
-
-![gradients in learning4j while learning to compose music](gradients2.jpg)
-
-![gradients in learning4j while learning to compose music](gradients3.jpg)
-
-The slider at the bottom lets you control (on a logarithmic scale) the mapping from gradients to colors.
-
-You can configure the number of neurons whose gradients are shown. Neurons are chosen randomly from each layer up to the number you specify in the configuration.
-
-Each <tt>Layer</tt> of the <tt>MultiLayerNetwork</tt> results in two "layers" (levels) of the visualization: one for the weights and one for the biases.
-
-Here's a 16 second video of gradients changing during learning:
-[Real-time-visualization-of-gradients-of-an-eight-layer-LSTM--by-Don-Smith.mp4](Real-time-visualization-of-gradients-of-an-eight-layer-LSTM--by-Don-Smith.mp4). (Right click and save if it doesn't display in your browser when you click on it.)
-
-I expect that visualizing the gradients will greatly help understand how networks learn or don't learn.
-
 ### Possible directions for improvement
 
 1.  Represent durations numerically, not symbolically. Currently, both pitches and durations are represented symbolically (as characters), not numerically. This makes sense for pitches probably, since the qualitative feel of a C followed by a G is quite different from the qualitative feel of a C followed by a G#. Likewise, following a C, a G is more similar to a E than to a G#; both E and G are notes in a C major chord. But for tempos, a 32d note is more similar to a 16th note than to a quarter note, etc.
@@ -92,8 +67,6 @@ I expect that visualizing the gradients will greatly help understand how network
 7.  Make an interactive app that lets you "prime" the neural network with a melody -- via a real or virtual (piano) keyboard -- similar to <tt>generationInitialization</tt> in <tt>GravesLSTMCharModellingExample</tt>.
 8.  Enhance the MIDI parser and make a DataVec reader.
 9.  Add "Attention" as in [Generating Long-Term Structure in Songs and Stories](https://magenta.tensorflow.org/2016/07/15/lookback-rnn-attention-rnn/).
-10.  In the 3d visualization, allow users to pause learning, click on nodes, and drill down about details, such as weights, biases, and activations.
-11.  Allow users to checkpoint network state, back up to a previous state, adjust parameters, and continue.
 
 * * *
 
