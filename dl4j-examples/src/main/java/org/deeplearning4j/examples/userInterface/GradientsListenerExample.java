@@ -10,6 +10,8 @@ import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
  * An example of how to view gradients in a running network using a
  * TrainingListener and JavaFX 3D.
  *
+ * You can navigate in 3d space by dragging the mouse or by the arrow keys.
+ *
  * Note: if you're using Java 7 or earlier, you need to set the
  * environment variable JAVAFX_HOME to the directory of the JavaFX SDK.
  *
