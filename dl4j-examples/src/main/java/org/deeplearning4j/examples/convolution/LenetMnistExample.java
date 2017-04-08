@@ -3,6 +3,7 @@ package org.deeplearning4j.examples.convolution;
 import org.deeplearning4j.datasets.iterator.impl.MnistDataSetIterator;
 import org.deeplearning4j.eval.Evaluation;
 import org.deeplearning4j.nn.api.OptimizationAlgorithm;
+import org.deeplearning4j.nn.conf.LearningRatePolicy;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
 import org.deeplearning4j.nn.conf.Updater;
@@ -49,7 +50,7 @@ public class LenetMnistExample {
             Construct the neural network
          */
         log.info("Build model....");
-        
+
         // learning rate schedule in the form of <Iteration #, Learning Rate>
         Map<Integer, Double> lrSchedule = new HashMap<>();
         lrSchedule.put(0, 0.01);
@@ -66,7 +67,7 @@ public class LenetMnistExample {
                 .learningRate(.01)//.biasLearningRate(0.02)
                 /*
                     Alternatively, you can use a learning rate schedule.
-                        
+
                     NOTE: this LR schedule defined here overrides the rate set in .learningRate(). Also,
                     if you're using the Transfer Learning API, this same override will carry over to
                     your new model configuration.
