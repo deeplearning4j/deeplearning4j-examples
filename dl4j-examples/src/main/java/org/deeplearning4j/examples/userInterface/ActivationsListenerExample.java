@@ -1,5 +1,6 @@
 package org.deeplearning4j.examples.userInterface;
 
+import org.deeplearning4j.examples.userInterface.util.ActivationsListener;
 import org.deeplearning4j.examples.userInterface.util.GradientsListener;
 import org.deeplearning4j.examples.userInterface.util.UIExampleUtils;
 import org.deeplearning4j.nn.api.Layer;
@@ -7,15 +8,14 @@ import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 
 /**
- * An example of how to view gradients in a running network using a
- * TrainingListener and JavaFX 3D.
+ * A simple example of how to attach Deeplearning4j's training UI to a network
  *
- * Note: if you're using Java 7 or earlier, you need to set the
- * environment variable JAVAFX_HOME to the directory of the JavaFX SDK.
+ * To change the UI port (usually not necessary) - set the org.deeplearning4j.ui.port system property
+ * i.e., run the example and pass the following to the JVM, to use port 9001: -Dorg.deeplearning4j.ui.port=9001
  *
- * @author Donald A. Smith, Alex Black
+ * @author Alex Black
  */
-public class GradientsListenerExample {
+public class ActivationsListenerExample {
 
     public static void main(String[] args){
 
@@ -28,7 +28,8 @@ public class GradientsListenerExample {
             System.out.println(layer);
         }
         System.out.println();
-        net.setListeners(new GradientsListener(net,100));
+        net.setListeners(new ActivationsListener(net,20));
+       // net.setListeners(new ScoreIterationListener(10));
         net.fit(trainData);
 
     }
