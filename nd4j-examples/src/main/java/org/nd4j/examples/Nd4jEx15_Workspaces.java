@@ -5,6 +5,7 @@ import org.nd4j.linalg.api.memory.MemoryWorkspace;
 import org.nd4j.linalg.api.memory.conf.WorkspaceConfiguration;
 import org.nd4j.linalg.api.memory.enums.AllocationPolicy;
 import org.nd4j.linalg.api.memory.enums.LearningPolicy;
+import org.nd4j.linalg.api.memory.enums.ResetPolicy;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
 
@@ -17,6 +18,8 @@ import org.nd4j.linalg.factory.Nd4j;
  * Basically it gives you a way to avoid garbage collection for off-heap memory if you work with cyclic workloads.
  *
  * PLEASE NOTE: Workspaces are OPTIONAL. If you prefer using original GC-based memory managemend - you can use it without any issues.
+ * PLEASE NOTE: When working with workspaces, YOU are responsible for tracking scopes etc. You are NOT supposed to access any INDArray that's attached to some workspace, outside of it. Results will be unpredictable, up to JVM crashes.
+ *
  * @author raver119@gmail.com
  */
 @Slf4j
@@ -37,6 +40,7 @@ public class Nd4jEx15_Workspaces {
 
         INDArray result = null;
 
+        // we use
         try(MemoryWorkspace ws = Nd4j.getWorkspaceManager().getAndActivateWorkspace(initialConfig, "SOME_ID")) {
             // now, every INDArray created within this try block will be allocated from this workspace pool
             INDArray array = Nd4j.rand(10, 10);
@@ -65,7 +69,7 @@ public class Nd4jEx15_Workspaces {
 
         WorkspaceConfiguration learningConfig = WorkspaceConfiguration.builder()
             .policyAllocation(AllocationPolicy.STRICT)
-            .policyLearning(LearningPolicy.FIRST_LOOP)
+            .policyLearning(LearningPolicy.FIRST_LOOP) // <-- this option makes workspace learning after first loop
             .build();
 
         for (int x = 0; x < 10; x++) {
@@ -118,6 +122,26 @@ public class Nd4jEx15_Workspaces {
 
             // at this point sumRes contains valid data, allocated in current workspace. We expect 300 printed here.
             log.info("Sum: {}", array1.addi(array2).sumNumber().floatValue());
+        }
+
+
+        /**
+         * It's also possible to build workspace that'll be acting as circular buffer.
+         */
+        WorkspaceConfiguration circularConfig = WorkspaceConfiguration.builder()
+            .initialSize(10 * 1024L * 1024L)
+            .policyAllocation(AllocationPolicy.STRICT)
+            .policyLearning(LearningPolicy.NONE)
+            .policyReset(ResetPolicy.ENDOFBUFFER_REACHED) // <--- this option makes workspace act as circular buffer, beware.
+            .build();
+
+        for (int x = 0; x < 10; x++) {
+            // since this workspace is ciruclar, we know that all pointers allocated before buffer ended - will be viable.
+            try (MemoryWorkspace ws1 = Nd4j.getWorkspaceManager().getAndActivateWorkspace(circularConfig, "CIRCULAR_ID")) {
+                INDArray array = Nd4j.create(100);
+                // so, you can use this array anywhere as long as YOU're sure buffer wasn't reset.
+                // in other words: it's suitable for producer/consumer pattern use if you're in charge of flow
+            }
         }
     }
 }
