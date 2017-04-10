@@ -1,5 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <groupId>org.deeplearning4j</groupId>
     <artifactId>deeplearning4j-examples-parent</artifactId>
@@ -37,8 +37,8 @@
         <module>nd4j-examples</module>
         <module>rl4j-examples</module>
         <module>arbiter-examples</module>
-	<module>lstm-hdfs</module>
-    </modules>
+    <module>lstm-hdfs</module>
+  </modules>
 
     <!-- Maven Enforcer: Ensures user has an up to date version of Maven before building -->
     <build>
