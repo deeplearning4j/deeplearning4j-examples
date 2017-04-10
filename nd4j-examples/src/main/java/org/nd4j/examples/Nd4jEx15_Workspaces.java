@@ -113,7 +113,7 @@ public class Nd4jEx15_Workspaces {
             INDArray array1 = Nd4j.create(10, 10).assign(1.0f);
             INDArray array2;
 
-            try(MemoryWorkspace ws = Nd4j.getMemoryManager().scopeOutOfWorkspaces()) {
+            try(MemoryWorkspace ws = Nd4j.getWorkspaceManager().scopeOutOfWorkspaces()) {
                 // anything allocated within this try block will be managed by GC
 
                 array2 = Nd4j.create(10, 10).assign(2.0f);
