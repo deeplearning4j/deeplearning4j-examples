@@ -112,6 +112,9 @@ public class LenetMnistExample {
         model.init();
 
         Nd4j.getMemoryManager().setAutoGcWindow(1000000);
+        //Nd4j.getMemoryManager().setAutoGcWindow(100);
+
+        nEpochs = 1;
 
         log.info("Train model....");
         model.setListeners(new PerformanceListener(50, true));
@@ -120,7 +123,7 @@ public class LenetMnistExample {
             model.fit(mnistTrain);
             long time2 = System.currentTimeMillis();
             log.info("*** Completed epoch {}; {} ms ***", i, time2 - time1);
-/*
+
             log.info("Evaluate model....");
             Evaluation eval = new Evaluation(outputNum);
             while(mnistTest.hasNext()){
@@ -131,7 +134,6 @@ public class LenetMnistExample {
             }
             log.info(eval.stats());
             mnistTest.reset();
-            */
         }
         log.info("****************Example finished********************");
     }
