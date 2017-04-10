@@ -80,7 +80,7 @@ class Recommender(batchSize: Int = 50, featureSize: Int, nEpochs: Int, hiddenUni
     .addLayer("secondLayer", new GravesLSTM.Builder().nIn(hiddenUnits).nOut(hiddenUnits)
       .activation("relu").build(), "firstLayer")
     .addLayer("outputLayer", new RnnOutputLayer.Builder().activation("softmax")
-    .lossFunction(LossFunctions.LossFunction.MCXENT).nIn(hiddenLayers).nOut(labelSize).build(), "secondLayer")
+    .lossFunction(LossFunctions.LossFunction.MCXENT).nIn(hiddenUnits).nOut(labelSize).build(), "secondLayer")
     .setOutputs("outputLayer")
     .pretrain(false).backprop(true)
     .build()
