@@ -42,9 +42,9 @@ import org.slf4j.LoggerFactory
 /**
  * @author: Ousmane A. Dia
  */
-class Recommender(batchSize: Int = 50, featureSize: Int, nEpochs: Int, hiddenLayers: Int,
+class Recommender(batchSize: Int = 50, featureSize: Int, nEpochs: Int, hiddenUnits: Int,
     miniBatchSizePerWorker: Int = 10, averagingFrequency: Int = 5, numberOfAveragings: Int = 3,
-    learningRate: Double = 0.1, l2Regularization: Double = 0.001, labelSize: Int,
+    learningRate: Double = 0.1, regularization: Double = 0.001, labelSize: Int,
     dataDirectory: String, sc: SparkContext) extends Serializable {
 
   val logger = Logger(LoggerFactory.getLogger(this.getClass))
@@ -64,7 +64,7 @@ class Recommender(batchSize: Int = 50, featureSize: Int, nEpochs: Int, hiddenLay
   val conf = new NeuralNetConfiguration.Builder()
     .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
     .learningRate(learningRate)
-    .regularization(true).l1(l2Regularization)
+    .regularization(true).l1(regularization)
     .weightInit(WeightInit.XAVIER)
     .gradientNormalization(GradientNormalization.ClipElementWiseAbsoluteValue)
     .gradientNormalizationThreshold(20.0)
@@ -75,9 +75,9 @@ class Recommender(batchSize: Int = 50, featureSize: Int, nEpochs: Int, hiddenLay
     .seed(12345)
     .graphBuilder()
     .addInputs("input")
-    .addLayer("firstLayer", new GravesLSTM.Builder().nIn(featureSize).nOut(hiddenLayers)
+    .addLayer("firstLayer", new GravesLSTM.Builder().nIn(featureSize).nOut(hiddenUnits)
       .activation("relu").build(), "input")
-    .addLayer("secondLayer", new GravesLSTM.Builder().nIn(hiddenLayers).nOut(hiddenLayers)
+    .addLayer("secondLayer", new GravesLSTM.Builder().nIn(hiddenUnits).nOut(hiddenUnits)
       .activation("relu").build(), "firstLayer")
     .addLayer("outputLayer", new RnnOutputLayer.Builder().activation("softmax")
     .lossFunction(LossFunctions.LossFunction.MCXENT).nIn(hiddenLayers).nOut(labelSize).build(), "secondLayer")
