@@ -18,6 +18,13 @@ import javax.sound.midi.Track;
 /*
  *  Parses MIDI files and outputs music in symbolic format, for input to MelodyModelingExample.
  *
+ *  If a MIDI track has polyphony, this class will extract two melodies: one for the upper
+ *  part of the harmony, and another for the lower part of the harmony.
+ *
+ *  If passed a directory it extracts melodies from all files appearing in the directory.
+ *
+ *  It skips tracks that have too much silence or too little variety of pitches.
+ *
  *  @author Donald A. Smith (ThinkerFeeler@gmail.com)
  */
 public class Midi2MelodyStrings {

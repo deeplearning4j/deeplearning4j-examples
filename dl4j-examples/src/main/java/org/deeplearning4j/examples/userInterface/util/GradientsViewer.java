@@ -50,8 +50,10 @@ import static org.nd4j.linalg.util.ArrayUtil.sum;
  * Blue = negative gradient. Red = positive gradient. Green = gradient near zero.
  * The slider adjusts the sensitivity of the color mapping for gradients, on a logarithmic scale.
  *
- * You can navigate in 3d space with the mouse and with Up and Down arrow keys.
- * The Left and Right arrow keys control the slider.
+ * You can navigate in 3d space by dragging the mouse or by the arrow keys.
+ *
+ * Note: there are two layers in the visualization for each layer in the network:
+ * one layer for the bias and another layer for the weights.
  *
  * @author Donald A. Smith
  *
@@ -449,7 +451,7 @@ public class GradientsViewer extends Application {
         stage.initModality(Modality.NONE);
         stage.setOnCloseRequest(r -> System.exit(0));
         stage.setTitle("Gradients visualization for a sample of neurons.  Use the " +
-            "mouse to navigate in 3D.  Blue is -; Red is +.  The slider adjusts the mapping of gradients to colors.");
+            "mouse or arrow keys to navigate in 3D. The slider adjusts the mapping of gradients to colors.  Blue is -; Red is +.");
         stage.setMinWidth(850);
         stage.setMinHeight(600);
         buildCamera();
