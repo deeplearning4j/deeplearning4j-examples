@@ -1,4 +1,4 @@
-package com.codor.alchemy.forecast;
+package org.deeplearning4j.examples;
 
 import java.io.IOException;
 import java.util.NoSuchElementException;
@@ -10,9 +10,19 @@ import org.nd4j.linalg.dataset.api.MultiDataSet;
 import org.nd4j.linalg.dataset.api.MultiDataSetPreProcessor;
 import org.nd4j.linalg.dataset.api.iterator.MultiDataSetIterator;
 
-import com.codor.alchemy.conf.Constants;
+import org.deeplearning4j.examples.conf.Constants;
 
 /**
+ * This class returns a MultiDataSet each time its {@link next} method is
+ * called. The data in HDFS is structured as follows: A main directory which
+ * contains three sub-folders: /train, /test, and /predict. Depending on the
+ * value set for the variable flag, this class will iterate over one of the
+ * sub-folders and create MultiDataSets. In the sub-folders, each HDFS file
+ * consists of rows representing time-steps (as in an LSTM) starting with a time
+ * index. Each file is therefore an input sequence (as in an LSTM). You must
+ * specify the time index for this to re-order the sequence or pad it in case
+ * some time-steps are missing.
+ * 
  * @author: Ousmane A. Dia
  */
 public class MDSIterator extends BaseDataSetIterator implements MultiDataSetIterator {
@@ -28,12 +38,10 @@ public class MDSIterator extends BaseDataSetIterator implements MultiDataSetIter
 	private static final long serialVersionUID = -2132071188514707198L;
 
 	public MDSIterator(String dataDirectory, int batchSize, int vectorSize, int labelSize) {
-		this(dataDirectory, batchSize, vectorSize, labelSize,
-			Constants.END_SEQ() - Constants.START_SEQ() + 1, 0);
+		this(dataDirectory, batchSize, vectorSize, labelSize, Constants.END_SEQ - Constants.START_SEQ + 1, 0);
 	}
 
-	public MDSIterator(String dataDirectory, int batchSize, int vectorSize, int labelSize,
-			int numSteps, int flag) {
+	public MDSIterator(String dataDirectory, int batchSize, int vectorSize, int labelSize, int numSteps, int flag) {
 		super(HDFS_URL + dataDirectory + (flag == 0 ? "/train" : flag == 1 ? "/test" : "/predict"));
 		this.batchSize = batchSize;
 		int pos = dataDirectory.lastIndexOf("/");
@@ -42,8 +50,8 @@ public class MDSIterator extends BaseDataSetIterator implements MultiDataSetIter
 		this.hdfsUrl = HDFS_URL + dataDirectory + folder;
 		this.vectorSize = vectorSize;
 		this.labelSize = labelSize;
-		int start = Constants.START_SEQ();
-		int end = Constants.END_SEQ();
+		int start = Constants.START_SEQ;
+		int end = Constants.END_SEQ;
 		start = flag == 2 ? start + 1 : start;
 		end = flag == 2 ? end : end - 1;
 		ssRecordReader = new StackSequenceRecordReader(fs, start, end);
@@ -75,7 +83,7 @@ public class MDSIterator extends BaseDataSetIterator implements MultiDataSetIter
 			if (!hdfsIterator.hasNext())
 				throw new NoSuchElementException();
 			MultiDataSet mds = nextMultiDataSet(num);
-			while(mds == null && hdfsIterator.hasNext()) {
+			while (mds == null && hdfsIterator.hasNext()) {
 				mds = nextMultiDataSet(num);
 			}
 			return mds;
@@ -87,12 +95,12 @@ public class MDSIterator extends BaseDataSetIterator implements MultiDataSetIter
 	private void pushAndClear(Path path, String index) {
 		String p = stack.isEmpty() ? "" : stack.peek().toUri().toString();
 		if (p.contains(index.split("_")[0])) {
-                	stack.push(path);
-                } else {
-                	ssRecordReader.newRecord(stack);
-                	stack.push(path);
-                }
-                ssRecordReader.newRecord(stack);
+			stack.push(path);
+		} else {
+			ssRecordReader.newRecord(stack);
+			stack.push(path);
+		}
+		ssRecordReader.newRecord(stack);
 	}
 
 	private MultiDataSet nextMultiDataSet(int num) throws IOException {
@@ -100,7 +108,8 @@ public class MDSIterator extends BaseDataSetIterator implements MultiDataSetIter
 
 		for (int i = 0; i < num && hdfsIterator.hasNext(); i++) {
 			for (int j = 0; j < numSteps; j++) {
-				if (!hdfsIterator.hasNext()) break;
+				if (!hdfsIterator.hasNext())
+					break;
 				LocatedFileStatus next = hdfsIterator.next();
 				Path path = next.getPath();
 
@@ -146,8 +155,7 @@ public class MDSIterator extends BaseDataSetIterator implements MultiDataSetIter
 	}
 
 	@Override
-    	public void remove() {
-        	throw new UnsupportedOperationException("@{remove} not yet supported");
-    	}
+	public void remove() {
+		throw new UnsupportedOperationException("Remove not yet supported");
+	}
 }
-

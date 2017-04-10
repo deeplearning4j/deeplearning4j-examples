@@ -1,4 +1,4 @@
-package com.codor.alchemy.forecast;
+package org.deeplearning4j.examples.utils;
 
 import org.deeplearning4j.earlystopping.EarlyStoppingConfiguration;
 import org.deeplearning4j.earlystopping.EarlyStoppingResult;
@@ -49,4 +49,3 @@ public class LoggingEarlyStoppingListener implements EarlyStoppingListener<Compu
 	}
 
 }
-

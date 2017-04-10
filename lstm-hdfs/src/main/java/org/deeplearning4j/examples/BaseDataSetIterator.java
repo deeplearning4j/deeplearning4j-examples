@@ -1,4 +1,4 @@
-package com.codor.alchemy.forecast;
+package org.deeplearning4j.examples;
 
 import java.io.IOException;
 import java.util.StringTokenizer;
@@ -10,6 +10,8 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.RemoteIterator;
 
 /**
+ * Base class for HDFS Iterator. This class holds your HDFS configs
+ *
  * @author: Ousmane A. Dia
  */
 public class BaseDataSetIterator {
@@ -19,8 +21,16 @@ public class BaseDataSetIterator {
 	protected volatile FileSystem fs;
 	protected volatile String hdfsUrl;
 
+	/* Set your HDFS URL here */
 	static final String HDFS_URL = "hdfs://...";
+
+	/* Set your data directory in HDFS here */
 	static final String DATA_DIR = "/user/your_home/workplace";
+
+	/*
+	 * Set your CORE SITE, and HDFS SITE here. You might have different configs
+	 * than mine
+	 */
 	private static final String CORE_SITE = "/etc/hadoop-2.7.1/core-site.xml";
 	private static final String HDFS_SITE = "/etc/hadoop-2.7.1/hdfs-site.xml";
 
@@ -55,4 +65,3 @@ public class BaseDataSetIterator {
 		return index;
 	}
 }
-

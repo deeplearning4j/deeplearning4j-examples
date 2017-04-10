@@ -1,4 +1,4 @@
-package com.codor.alchemy.forecast
+package org.deeplearning4j.examples
 
 import java.util.concurrent.TimeUnit
 
@@ -24,29 +24,34 @@ import org.deeplearning4j.nn.graph.ComputationGraph
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork
 import org.deeplearning4j.nn.weights.WeightInit
 import org.deeplearning4j.spark.api.Repartition
+import org.deeplearning4j.spark.impl.paramavg.ParameterAveragingTrainingMaster
 import org.deeplearning4j.spark.impl.graph.SparkComputationGraph
 import org.deeplearning4j.spark.impl.multilayer.SparkDl4jMultiLayer
-import org.deeplearning4j.spark.impl.paramavg.ParameterAveragingTrainingMaster
 import org.deeplearning4j.spark.util.MLLibUtil
 import org.nd4j.linalg.dataset.api.MultiDataSet
 import org.nd4j.linalg.dataset.DataSet
 import org.nd4j.linalg.lossfunctions.LossFunctions
 import org.nd4j.linalg.factory.Nd4j
 
-import com.codor.alchemy.forecast.utils.ReflectionsHelper
-import com.codor.alchemy.forecast.utils.Logs
+import org.deeplearning4j.examples.utils.ReflectionsHelper
+import org.deeplearning4j.examples.utils.LoggingEarlyStoppingListener
+
+import com.typesafe.scalalogging._
+import org.slf4j.LoggerFactory
 
 /**
  * @author: Ousmane A. Dia
  */
-class Recommender(batchSize: Int = 50, featureSize: Int, nEpochs: Int, hiddenUnits: Int,
+class Recommender(batchSize: Int = 50, featureSize: Int, nEpochs: Int, hiddenLayers: Int,
     miniBatchSizePerWorker: Int = 10, averagingFrequency: Int = 5, numberOfAveragings: Int = 3,
-    learningRate: Double = 0.1, l1Regularization: Double = 0.001, labelSize: Int,
-    dataDirectory: String, sc: SparkContext) extends Serializable with Logs {
+    learningRate: Double = 0.1, l2Regularization: Double = 0.001, labelSize: Int,
+    dataDirectory: String, sc: SparkContext) extends Serializable {
+
+  val logger = Logger(LoggerFactory.getLogger(this.getClass))
  
   ReflectionsHelper.registerUrlTypes()  
 
-  val tm = new  ParameterAveragingTrainingMaster.Builder(5, 1) 
+  val tm = new ParameterAveragingTrainingMaster.Builder(5, 1)
     .averagingFrequency(averagingFrequency)
     .batchSizePerWorker(miniBatchSizePerWorker)
     .saveUpdater(true)
@@ -59,29 +64,29 @@ class Recommender(batchSize: Int = 50, featureSize: Int, nEpochs: Int, hiddenUni
   val conf = new NeuralNetConfiguration.Builder()
     .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
     .learningRate(learningRate)
-    .regularization(true).l1(l1Regularization)
+    .regularization(true).l1(l2Regularization)
     .weightInit(WeightInit.XAVIER)
     .gradientNormalization(GradientNormalization.ClipElementWiseAbsoluteValue)
     .gradientNormalizationThreshold(20.0)
-    .momentum(0.3675) // 0.7675
+    .momentum(0.3675)
     .dropOut(0.5)
-    .updater(Updater.ADAGRAD) // RMSPROP NESTEROVS 
-    .iterations(1) // number of parameter updates in a row, for each minibatch
+    .updater(Updater.ADAGRAD)
+    .iterations(1)
     .seed(12345)
     .graphBuilder()
     .addInputs("input")
-    .addLayer("firstLayer", new GravesLSTM.Builder().nIn(featureSize).nOut(hiddenUnits) 
-      .activation("relu").build(), "input")  // softsign // relu
-    .addLayer("secondLayer", new GravesLSTM.Builder().nIn(hiddenUnits).nOut(hiddenUnits)
-      .activation("relu").build(), "firstLayer") // softsign // relu
-    .addLayer("outputLayer", new RnnOutputLayer.Builder().activation("softmax") // relu
-    .lossFunction(LossFunctions.LossFunction.MCXENT).nIn(hiddenUnits).nOut(labelSize).build(), "secondLayer") 
+    .addLayer("firstLayer", new GravesLSTM.Builder().nIn(featureSize).nOut(hiddenLayers)
+      .activation("relu").build(), "input")
+    .addLayer("secondLayer", new GravesLSTM.Builder().nIn(hiddenLayers).nOut(hiddenLayers)
+      .activation("relu").build(), "firstLayer")
+    .addLayer("outputLayer", new RnnOutputLayer.Builder().activation("softmax")
+    .lossFunction(LossFunctions.LossFunction.MCXENT).nIn(hiddenLayers).nOut(labelSize).build(), "secondLayer")
     .setOutputs("outputLayer")
     .pretrain(false).backprop(true)
     .build()
 
   val sparkNet = new SparkComputationGraph(sc, conf, tm)
-  sparkNet.setCollectTrainingStats(false) // for debugging and optimization purposes
+  sparkNet.setCollectTrainingStats(false)
 
   def trainUsingEarlyStopping(modelDir: String) = {
     val trainIter = new MDSIterator(dataDirectory, batchSize, featureSize, labelSize, 1, 0)
@@ -91,7 +96,6 @@ class Recommender(batchSize: Int = 50, featureSize: Int, nEpochs: Int, hiddenUni
 
     val esConf = new EarlyStoppingConfiguration.Builder()
       .epochTerminationConditions(new MaxEpochsTerminationCondition(nEpochs))
-      //.iterationTerminationConditions(new MaxTimeIterationTerminationCondition(120, TimeUnit.MINUTES))
       .evaluateEveryNEpochs(1)
       .scoreCalculator(new DataSetLossCalculatorCG(testIter, true))
       .saveLastModel(true)
@@ -103,13 +107,14 @@ class Recommender(batchSize: Int = 50, featureSize: Int, nEpochs: Int, hiddenUni
 
     val result: EarlyStoppingResult[ComputationGraph] = trainer.fit()
 
-    info("Termination reason: " + result.getTerminationReason())
-    info("Termination details: " + result.getTerminationDetails())
-    info("Total epochs: " + result.getTotalEpochs())
-    info("Best epoch number: " + result.getBestModelEpoch())
-    info("Score at best epoch: " + result.getBestModelScore())
+    logger.info("Termination reason: " + result.getTerminationReason())
+    logger.info("Termination details: " + result.getTerminationDetails())
+    logger.info("Total epochs: " + result.getTotalEpochs())
+    logger.info("Best epoch number: " + result.getBestModelEpoch())
+    logger.info("Score at best epoch: " + result.getBestModelScore())
 
     result.getBestModel
+
   }
 
   def predict(graphPath: String, items: List[String]): RDD[List[(String, Double)]] = {
@@ -120,14 +125,15 @@ class Recommender(batchSize: Int = 50, featureSize: Int, nEpochs: Int, hiddenUni
   def predict(graph: ComputationGraph, items: List[String]): RDD[List[(String, Double)]] = {
 
     val iterator: MDSIterator =
-      new MDSIterator(dataDirectory, batchSize, featureSize, labelSize, 1, 1) 
-    var list = List[List[String, Double]]()
+      new MDSIterator(dataDirectory, batchSize, featureSize, labelSize, 1, 1)
+
+    var itemScores = List[List[(String, Double)]]() 
     while (iterator.hasNext) {
       val next = iterator.next
       val score = graph.output(next.getFeatures(0).dup()).apply(0).data().asDouble()
-      list = list :+ items.zip(score)
+      itemScores = itemScores :+ items.zip(score)
     }
-    sc.parallelize(list)
+    sc.parallelize(itemScores)
   }
-}
 
+}
