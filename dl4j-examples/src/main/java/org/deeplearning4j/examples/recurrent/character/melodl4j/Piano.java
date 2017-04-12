@@ -46,8 +46,6 @@ public class Piano extends Application {
     private static MultiLayerNetwork net=null;
     private static CharacterIterator characterIterator=null;
     private static Random random = new Random(1234);
-    private Map<KeyCode,Long> keyCodeToTimePressedInMlsMap = new HashMap<>();
-    private long lastNoteStopTimeInMls=0;
     private TextField notesEditor = new TextField();
     private int initialPitch=48;
     //----------------------
