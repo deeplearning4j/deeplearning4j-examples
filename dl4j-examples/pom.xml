@@ -86,6 +86,14 @@
             <version>${dl4j.version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>org.deeplearning4j</groupId>
+
+            <artifactId>deeplearning4j-parallel-wrapper_${scala.binary.version}</artifactId>
+
+            <version>${dl4j.version}</version>
+        </dependency>
+
         <!-- Force guava versions for using UI/HistogramIterationListener -->
         <dependency>
             <groupId>com.google.guava</groupId>
