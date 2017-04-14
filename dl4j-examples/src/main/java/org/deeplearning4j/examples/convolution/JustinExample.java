@@ -44,7 +44,7 @@ public class JustinExample {
          **/
         log.info("Loading paths....");
         ParentPathLabelGenerator labelMaker = new ParentPathLabelGenerator();
-        File mainPath = new File("/Users/raver119/Downloads/");
+        File mainPath = new File("/Users/raver119/Downloads/umdfaces_aligned_96_condensed/");
         FileSplit fileSplit = new FileSplit(mainPath, NativeImageLoader.ALLOWED_FORMATS, rng);
         RandomPathFilter randomFilter = new RandomPathFilter(rng, NativeImageLoader.ALLOWED_FORMATS);
 
@@ -63,7 +63,7 @@ public class JustinExample {
         // step 1
         log.info("Initializing RecordReader and pipelines....");
         List<Pair<ImageTransform, Double>> pipeline = new LinkedList<>();
-        pipeline.add(new Pair<>(new RandomCropTransform(resizeDimension,resizeDimension), 1.0));
+        //pipeline.add(new Pair<>(new RandomCropTransform(resizeDimension,resizeDimension), 1.0));
         pipeline.add(new Pair<>(new FlipImageTransform(1), 0.5));
         ImageTransform combinedTransform = new ProbabilisticPipelineTransform(pipeline, false);
 
@@ -94,8 +94,8 @@ public class JustinExample {
 
             adsi.reset();
 
-            if (cnt.incrementAndGet() % 100 == 0)
-                log.info("{} iterations passed...", cnt.get());
+          //  if (cnt.incrementAndGet() % 100 == 0)
+                log.info("{} iterations passed...", cnt.getAndIncrement());
         }
 
     }
