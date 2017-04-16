@@ -47,13 +47,16 @@ public class Piano extends Application {
     private static CharacterIterator characterIterator=null;
     private static Random random = new Random(1234);
     private TextField notesEditor = new TextField();
+    private final Button composeButton = new Button("Compose");
     private int initialPitch=48;
+    private volatile boolean composing=false;
     //----------------------
     public static void main(String[] args) {
 		try {
             String netPathName=args.length>0? args[0]: defaultSavedNetworkPath; // You must first create this in M
             String iteratorPath=args.length>1? args[1]: defaultSavedIteratorPath;
             net = ModelSerializer.restoreMultiLayerNetwork(new File(netPathName), false);
+            System.out.println(net.conf());
             characterIterator= loadCharacterIterator(iteratorPath);
         }
         catch (Exception exc) {
@@ -62,12 +65,14 @@ public class Piano extends Application {
         }
         launch(new String[]{});
     }
-    // Frere Jacques:
-    // C5q D5q E5q C5q   C5q D5q E5q C5q   E5q F5q G5q Rq    E5q F5q G5q Rq   G5i A5i G5i F5i E5q C5q Rt   G5i A5i G5i F5i E5q C5q Rt   C5q G4q C5q Rq  C5q G4q C5q
+    // Star Spangled Banner: F5i. D5i Bb4q  D5q F5q Bb5h D6i. C6s Bb5q D5q E5q F5h
+    // JC Superstar: E4q E5q Rq F5q Rq D5q D5i E5q
+    // Twinkle Twinkle Little Star:  C5q C5q G5q G5q A5q A5q G5q Rq F5q F5q E5q E5q D5q D5q C5q
+    // Frere Jacques: C5q D5q E5q C5q   C5q D5q E5q C5q   E5q F5q G5q Rq    E5q F5q G5q Rq   G5i A5i G5i F5i E5q C5q Rt   G5i A5i G5i F5i E5q C5q Rt   C5q G4q C5q Rq  C5q G4q C5q
     //  C5q B4q Eb5q C5q Rq D5q Eb5q G5q F5q Eb5q D5q F5q B4q  =  l!l4h#lRl2l1l4l@l@l!l3l^l
     //  C5q Eb5q G5q F5q Rq Eb5q D5q F5q Eb5q D5q Eb5q D5q C5q
     //----------
-    private static CharacterIterator loadCharacterIterator(String inPath) throws IOException, ClassNotFoundException {
+    public static CharacterIterator loadCharacterIterator(String inPath) throws IOException, ClassNotFoundException {
         ObjectInputStream ois = new ObjectInputStream(new FileInputStream(inPath));
         CharacterIterator iter = (CharacterIterator) ois.readObject();
         ois.close();
@@ -76,6 +81,8 @@ public class Piano extends Application {
     }
     //-----------
     private void composeAndPlayInSeparateThread() {
+        composeButton.setText("Playing");
+        composeButton.setDisable(true);
         Runnable runnable = new Runnable() {
           @Override
           public void run() {
@@ -86,6 +93,7 @@ public class Piano extends Application {
             }
           }
         };
+        composing=true;
         new Thread(runnable).start();
     }
     //-----------
@@ -96,17 +104,16 @@ public class Piano extends Application {
         for(String melody: melodies) {
             PlayMelodyStrings.playMelody(melody,20,initialPitch);
         }
+        composing=false; // We're in a non-UI thread, so we can't modify composeButton directly.
     }
     //----------------------
     // Mutates the member variable initialPitch
     private String convertNotesEditorNotesToMelodyString() {
-        String[] notes = notesEditor.getText().trim().replace("r","R").split("\\s+");
-        for(String note:notes) {
-            System.out.print(note + " ");
-        }
-        System.out.println();
-        if (notes.length==0) {
-            return "";
+        String[] notes = notesEditor.getText().trim().replace("r","R").
+            replaceAll("\\p{Cntrl}","").split("\\s+");
+        if (notes.length==0 || notes[0].length()==0) {
+            initialPitch=48;
+            return null; // Signal that there is no melody snippet to begin with
         }
         initialPitch = SymbolicNotes.getPitchFromJFuguePatternString(notes[0]);
         System.out.println("initial pitch = " + initialPitch  + " for " + notes[0]);
@@ -144,6 +151,9 @@ public class Piano extends Application {
         }
 
         String melody= convertNotesEditorNotesToMelodyString();
+        if (melody==null) {
+            return;
+        }
         System.out.println("Playing " + melody + " with initial pitch " + initialPitch);
         System.out.println(">>>>" + SymbolicNotes.melodyToJFugue(melody, initialPitch));
         try {
@@ -309,6 +319,10 @@ public class Piano extends Application {
                             box.setTranslateY(KEY_PRESS_DISTANCE_Y + box.getTranslateY());
                         }
                     }
+                    if (!composing && composeButton.getText()!="Compose") {
+                        composeButton.setText("Compose");
+                        composeButton.setDisable(false);
+                    }
                 }
             }
         };
@@ -366,7 +380,6 @@ public class Piano extends Application {
 
     //---------
     private void makeComposeButton() {
-        Button composeButton = new Button("Compose");
         composeButton.setTranslateX(WIDTH/2+80);
         composeButton.setTranslateY(HEIGHT-50);
         composeButton.setTooltip(new Tooltip("To compose a melody that starts with the notes you entered."));
