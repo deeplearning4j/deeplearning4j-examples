@@ -9,6 +9,7 @@ import javafx.scene.DepthTest;
 import javafx.scene.Group;
 import javafx.scene.PerspectiveCamera;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.control.Slider;
 import javafx.scene.input.InputEvent;
 import javafx.scene.input.KeyEvent;
@@ -60,6 +61,7 @@ public class GradientsAndParamsViewer extends Application {
     private static final double SELECTED_RADIUS = 30;
     public static final int FRAME_COUNT_TO_COLLECT = 200;
     private static final double DEFAULT_RADIUS_LOGIT_FACTOR = 100.0;
+    private static final String PAUSE_TEXT="Pause     ";
     public static boolean captureScreenImages = false; // Set to true to capture images to /tmp/images/gradients/
     private static int WIDTH = 1400;
     private static int HEIGHT = 900;
@@ -106,6 +108,10 @@ public class GradientsAndParamsViewer extends Application {
     private double maxParam = Double.NEGATIVE_INFINITY;
     private double radiusLogitFactor = DEFAULT_RADIUS_LOGIT_FACTOR; // TODO: make this adjustable
     private Text textForSelectedGradientParam;
+    final Button pauseButton = new Button(PAUSE_TEXT);
+    final Button stepButton =  new Button("Step");
+    private volatile boolean paused=false;
+    private volatile boolean stepping=false;
 
     //....
     private class GradientParamShape extends Sphere {
@@ -339,6 +345,9 @@ public class GradientsAndParamsViewer extends Application {
                     shapesGroup.setTranslateZ(shapesGroup.getTranslateZ() + 10);
                 }
                 break;
+            case P:
+                paused=! paused;
+                break;
             case PAGE_UP:
                 radiusLogitFactor *= 1.1;
                 System.out.println("radiusLogitFactor = " + radiusLogitFactor);
@@ -453,6 +462,14 @@ public class GradientsAndParamsViewer extends Application {
     // We can't update the JavaFX UI components from this thread, so we just store the updates in the GradientParamShape's variables. Later,
     // the animation handler will apply the updates to the JavaFX shapes themselves.
     public void requestBackwardPassUpdate(Model model) {
+        while (paused) {
+            try {
+                Thread.sleep(200);
+            } catch (InterruptedException exc) {
+                Thread.interrupted();
+                System.err.println("Interrupted!");
+            }
+        }
         Gradient gradient = model.gradient();
         Map<String, INDArray> gradientMap = gradient.gradientForVariable();
         Map<String, INDArray> paramMap = model.paramTable();
@@ -474,6 +491,9 @@ public class GradientsAndParamsViewer extends Application {
         for (GradientParamShape input : allGradientParamShapes) {
             input.updateFromNeuralGradientAndParams(gradientMap, paramMap);
         }
+        if (stepping) {
+            paused=true;
+        }
     }
 
     private long startTime = System.nanoTime();
@@ -488,10 +508,56 @@ public class GradientsAndParamsViewer extends Application {
         root.getChildren().add(textForSelectedGradientParam);
     }
 
+    private void buildPauseButton() {
+        pauseButton.setTranslateX(WIDTH-110);
+        pauseButton.setTranslateY(30);
+        pauseButton.setTextFill(Color.GREEN);
+        BackgroundFill backgroundFill = new BackgroundFill(Color.BLACK, CornerRadii.EMPTY, Insets.EMPTY);
+        Background background = new Background(backgroundFill);
+        pauseButton.setBackground(background);
+        root.getChildren().add(pauseButton);
+        pauseButton.setOnAction(action -> {
+            if (paused) {
+                paused=false;
+                stepping=false;
+            } else {
+                paused=true;
+                stepping=false;
+            }
+        });
+    }
+    private void buildStepButton() {
+        stepButton.setTranslateX(WIDTH-110);
+        stepButton.setTranslateY(60);
+        stepButton.setTextFill(Color.GREEN);
+        BackgroundFill backgroundFill = new BackgroundFill(Color.BLACK, CornerRadii.EMPTY, Insets.EMPTY);
+        Background background = new Background(backgroundFill);
+        stepButton.setBackground(background);
+        root.getChildren().add(stepButton);
+        stepButton.setOnAction(action -> {
+           paused=false;
+           stepping=true;
+        });
+    }
+    private void doPauseLogic() {
+        if (paused) {
+            pauseButton.setText("Continue");
+            pauseButton.setTextFill(Color.RED);
+        } else {
+            pauseButton.setText(PAUSE_TEXT);
+            pauseButton.setTextFill(Color.GREEN);
+        }
+        if (stepping) {
+            stepButton.setTextFill(Color.YELLOW);
+        } else {
+            stepButton.setTextFill(Color.GREEN);
+        }
+    }
     private void animate() {
         final AnimationTimer timer = new AnimationTimer() {
             @Override
             public void handle(long nowInNanoSeconds) {
+                doPauseLogic();
                 if (texts != null && !texts.isEmpty()) {
                     for (Text text : texts) {
                         shapesGroup.getChildren().add(text);
@@ -535,6 +601,8 @@ public class GradientsAndParamsViewer extends Application {
         stage.setMinHeight(600);
         buildCamera();
         buildSlider();
+        buildPauseButton();
+        buildStepButton();
         createTextForSelectedGradientParam();
         root.setDepthTest(DepthTest.ENABLE);
         root.getChildren().add(shapesGroup);
