@@ -44,149 +44,159 @@ import java.util.List;
  * A JavaFX application for viewing gradients and params in 3D.
  * Blue = negative gradient. Red = positive gradient. Green = gradient near zero.
  * The slider adjusts the sensitivity of the color mapping for gradients, on a logarithmic scale.
- *
+ * <p>
  * The radii of the spheres reflect the size of the weight or bias on the parameter:
  * negative params lead to small radii, while positive params lead to large radii.
- *
+ * <p>
  * You can navigate in 3d space by dragging the mouse or by the arrow keys.
- *
+ * <p>
  * Note: there are two layers in the visualization for each layer in the network:
  * one layer for the bias and another layer for the weights.
  *
  * @author Donald A. Smith
- *
  */
 public class GradientsAndParamsViewer extends Application {
-    private static double INITIAL_GRADIENT_FACTOR=100.0; // to make colors visible
-    private static final double RADIUS_FACTOR_WHEN_SELECTED=4.0;
-    public static final int FRAME_COUNT_TO_COLLECT=200;
-    private static final double DEFAULT_RADIUS_LOGIT_FACTOR=100.0;
+    private static double INITIAL_GRADIENT_FACTOR = 100.0; // to make colors visible
+    private static final double SELECTED_RADIUS = 30;
+    public static final int FRAME_COUNT_TO_COLLECT = 200;
+    private static final double DEFAULT_RADIUS_LOGIT_FACTOR = 100.0;
     public static boolean captureScreenImages = false; // Set to true to capture images to /tmp/images/gradients/
-    private static int WIDTH=1400;
-    private static int HEIGHT=900;
+    private static int WIDTH = 1400;
+    private static int HEIGHT = 900;
     static GradientsAndParamsViewer staticInstance; // output
     static MultiLayerNetwork network;  //input
     private static int sampleSizePerLayer;    //input
     private int numberOfLayers;        //input
     private final Slider slider = new Slider();
     private final Random random = new Random(1234);
-    private static NumberFormat numberFormatLonger=NumberFormat.getNumberInstance();
+    private static NumberFormat numberFormatLonger = NumberFormat.getNumberInstance();
     //...
-    private static NumberFormat numberFormat= NumberFormat.getInstance();
+    private static NumberFormat numberFormat = NumberFormat.getInstance();
+
     static {
         numberFormat.setMaximumFractionDigits(2);
         numberFormat.setMinimumFractionDigits(2);
         numberFormatLonger.setMaximumFractionDigits(8);
         numberFormatLonger.setMinimumFractionDigits(8);
     }
+
     //...
     private Stage stage;
-    private boolean sampleCoordinatesNeedToBeChosen=true;
+    private boolean sampleCoordinatesNeedToBeChosen = true;
     private double mousePosX, mousePosY, mouseOldX, mouseOldY, mouseDeltaX, mouseDeltaY;
-    private double gradientFactor=INITIAL_GRADIENT_FACTOR;
+    private double gradientFactor = INITIAL_GRADIENT_FACTOR;
     private final Group root = new Group();
     private final ShapesGroup shapesGroup = new ShapesGroup();
     private final List<GradientParamShape> allGradientParamShapes = new ArrayList<>();
     private List<Text> texts = new ArrayList<Text>(); // for layer names
 
     private static Robot robot; // For frame capture
-    private int frameCount=0;
+    private int frameCount = 0;
 
     private GradientParamShape selectedGradientParamShape;
     private final PerspectiveCamera camera = new PerspectiveCamera(true);
-    private static double cameraInitialX = WIDTH/2;
-    private static double cameraInitialY = HEIGHT/2;
+    private static double cameraInitialX = WIDTH / 2;
+    private static double cameraInitialY = HEIGHT / 2;
     private static double cameraInitialZ = -1600;
     private static final double CAMERA_NEAR_CLIP = 0.1;
     private static final double CAMERA_FAR_CLIP = 20000.0;
-    private static final long FIVE_SECOND_IN_NANO_SECONDS=5000000000L;
+    private static final long FIVE_SECOND_IN_NANO_SECONDS = 5000000000L;
     private Rectangle screenBounds;
-    private double minParam =Double.MAX_VALUE;
-    private double maxParam =Double.NEGATIVE_INFINITY;
-    private double radiusLogitFactor=DEFAULT_RADIUS_LOGIT_FACTOR; // TODO: make this adjustable
+    private double minParam = Double.MAX_VALUE;
+    private double maxParam = Double.NEGATIVE_INFINITY;
+    private double radiusLogitFactor = DEFAULT_RADIUS_LOGIT_FACTOR; // TODO: make this adjustable
     private Text textForSelectedGradientParam;
+
     //....
-    private class GradientParamShape extends Sphere{
+    private class GradientParamShape extends Sphere {
         private final String mapKey;
-        private final int [] coordinateInIndArray;
-        private volatile double lastGradient=1000.1;
-        private volatile double lastParam=1000.1;
-        private boolean initialized=false;
-        private double radiusFactor=1.0; // larger when selected
-        private volatile boolean needsUpdate=true;
+        private final int[] coordinateInIndArray;
+        private volatile double lastGradient = 1000.1;
+        private volatile double lastParam = 1000.1;
+        private boolean initialized = false;
+        private boolean selected = false;
+        private volatile boolean needsUpdate = true;
+
         public GradientParamShape(String mapKey, int layerIndex, int sampleIndex, List<Integer> listOfCoordinates, int numberOfSamples) {
             super(10);
             this.setUserData(this);
-            this.coordinateInIndArray=new int[listOfCoordinates.size()];
-            for(int i=0;i<listOfCoordinates.size();i++) {
+            this.coordinateInIndArray = new int[listOfCoordinates.size()];
+            for (int i = 0; i < listOfCoordinates.size(); i++) {
                 coordinateInIndArray[i] = listOfCoordinates.get(i).intValue();
             }
-            this.mapKey =mapKey;
+            this.mapKey = mapKey;
             //double deltaWidth=(0.0+WIDTH)/sampleSizePerLayer;
-            double deltaWidth=(0.0+WIDTH)/Math.min(numberOfSamples,10);
-            double deltaHeight= (0.0+HEIGHT)/numberOfLayers;
+            double deltaWidth = (0.0 + WIDTH) / Math.min(numberOfSamples, 10);
+            double deltaHeight = (0.0 + HEIGHT) / numberOfLayers;
             //setTranslateX(deltaWidth/2 + sampleIndex*deltaWidth);
-            setTranslateX(deltaWidth/2 + (sampleIndex%Math.min(numberOfSamples,10))*deltaWidth);
-            setTranslateY(HEIGHT-(deltaHeight/2+layerIndex*deltaHeight));
-            setTranslateZ(120*(sampleIndex/10));
+            setTranslateX(deltaWidth / 2 + (sampleIndex % Math.min(numberOfSamples, 10)) * deltaWidth);
+            setTranslateY(HEIGHT - (deltaHeight / 2 + layerIndex * deltaHeight));
+            setTranslateZ(120 * (sampleIndex / 10));
             allGradientParamShapes.add(this);
         }
+
         private double getGradient() {
             return lastGradient;
         }
+
         private double getParam() {
             return lastParam;
         }
-        private void larger() {
-            radiusFactor*= RADIUS_FACTOR_WHEN_SELECTED;
+
+        private void select() {
+            selected = true;
         }
-        private void smaller() {
-            radiusFactor/= RADIUS_FACTOR_WHEN_SELECTED;
+
+        private void unselect() {
+            selected=false;
         }
-        private void updateFromNeuralGradientAndParams(Map<String, INDArray> gradientMap, Map<String,INDArray> paramMap) {
+
+        private void updateFromNeuralGradientAndParams(Map<String, INDArray> gradientMap, Map<String, INDArray> paramMap) {
             INDArray gradientArray = gradientMap.get(mapKey);
             INDArray paramArray = paramMap.get(mapKey);
             double gradient = gradientArray.getDouble(coordinateInIndArray);
             double param = paramArray.getDouble(coordinateInIndArray);
-            if (gradient!= lastGradient) {
-                lastGradient=gradient;
-                needsUpdate=true;
+            if (gradient != lastGradient) {
+                lastGradient = gradient;
+                needsUpdate = true;
             }
-            if (param!=lastParam) {
-                lastParam=param;
-                needsUpdate=true;
-                if (lastParam< minParam) {
+            if (param != lastParam) {
+                lastParam = param;
+                needsUpdate = true;
+                if (lastParam < minParam) {
                     //System.out.println("minParam = " + lastParam);
-                    minParam =lastParam;
+                    minParam = lastParam;
                 }
-                if (lastParam> maxParam) {
+                if (lastParam > maxParam) {
                     //System.out.println("maxParam = " + lastParam);
-                    maxParam =lastParam;
+                    maxParam = lastParam;
                 }
             }
         }
+
         public void applyUpdatesToShapesAndRefresh() {
             if (!initialized) {
                 shapesGroup.getChildren().add(this);
-                initialized=true;
+                initialized = true;
             }
             if (needsUpdate) {
                 //double hue=360.0/(1+ Math.exp(gradientFactor*lastGradient));
-                double hue = 260 - 260.0/(1+ Math.exp(gradientFactor*lastGradient));
+                double hue = 260 - 260.0 / (1 + Math.exp(gradientFactor * lastGradient));
                 // Blue is negative, Green is near zero, Red is positive.
                 // The reason we don't let hues vary from 0 to 360 is that both ends are red. That is, 0=360=red.
-                PhongMaterial material = new PhongMaterial(Color.hsb(hue,1,1));
+                PhongMaterial material = new PhongMaterial(Color.hsb(hue, 1, 1));
                 this.setMaterial(material);
-                double newRadius = radiusFactor*(2+10.0/(1.0+Math.exp(-lastParam*radiusLogitFactor)));
+                double newRadius = selected? SELECTED_RADIUS : (2 + 10.0 / (1.0 + Math.exp(-lastParam * radiusLogitFactor)));
                 //newRadius = 5+ 10*Math.pow(newRadius,3);
                 // The animation becomes very slow if we update the radius too often. Hence the next if.
-                if (Math.abs(newRadius - getRadius()) > 1) {
+                if (Math.abs(newRadius - getRadius()) > 0.5) {
                     this.setRadius(newRadius);
                 }
-                needsUpdate=false;
+                needsUpdate = false;
             }
         }
     }
+
     // -------------------------
     private static class ShapesGroup extends Group {
         final Translate t = new Translate(0.0, 0.0, 0.0);
@@ -204,10 +214,12 @@ public class GradientsAndParamsViewer extends Application {
     public GradientsAndParamsViewer() {
 
     }
+
     public static void initialize(MultiLayerNetwork network, int sampleSizePerLayer) {
-        GradientsAndParamsViewer.network=network;
-        GradientsAndParamsViewer.sampleSizePerLayer=sampleSizePerLayer;
+        GradientsAndParamsViewer.network = network;
+        GradientsAndParamsViewer.sampleSizePerLayer = sampleSizePerLayer;
     }
+
     private void buildCamera() {
         root.getChildren().add(camera);
         camera.setNearClip(CAMERA_NEAR_CLIP);
@@ -216,9 +228,10 @@ public class GradientsAndParamsViewer extends Application {
         camera.setTranslateY(cameraInitialY);
         camera.setTranslateZ(cameraInitialZ);
     }
+
     private void buildSlider() {
-        slider.setTranslateX(WIDTH/4);
-        slider.setTranslateY(HEIGHT-60);
+        slider.setTranslateX(WIDTH / 4);
+        slider.setTranslateY(HEIGHT - 60);
         slider.setMin(-10);
         slider.setMax(50); // logarithmic scale
         slider.setValue(5);
@@ -228,18 +241,19 @@ public class GradientsAndParamsViewer extends Application {
         BackgroundFill backgroundFill = new BackgroundFill(Color.AQUAMARINE, CornerRadii.EMPTY, Insets.EMPTY);
         Background background = new Background(backgroundFill);
         slider.setBackground(background);
-        slider.setMinWidth(WIDTH/2);
+        slider.setMinWidth(WIDTH / 2);
         root.getChildren().add(slider);
 
         // We add this to prevent the slider from processing the key event
         EventHandler filter = new EventHandler<InputEvent>() {
-            public void handle (InputEvent event){
+            public void handle(InputEvent event) {
                 handleKeyEvent(event);
                 event.consume();
             }
         };
         root.addEventFilter(KeyEvent.KEY_PRESSED, filter);
     }
+
     private void handleMouse(Scene scene) {
         scene.setOnMousePressed((MouseEvent me) -> {
             mousePosX = me.getSceneX();
@@ -255,11 +269,11 @@ public class GradientsAndParamsViewer extends Application {
             if (pr.getIntersectedNode() instanceof Sphere) {
                 Sphere sphere = (Sphere) pr.getIntersectedNode();
                 GradientParamShape newGradientParamShape = (GradientParamShape) sphere.getUserData();
-                if (selectedGradientParamShape!=newGradientParamShape) {
+                if (selectedGradientParamShape != newGradientParamShape) {
                     if (selectedGradientParamShape != null) {
-                        selectedGradientParamShape.smaller();
+                        selectedGradientParamShape.unselect();
                     }
-                    newGradientParamShape.larger();
+                    newGradientParamShape.select();
                     selectedGradientParamShape = newGradientParamShape;
                 }
             }
@@ -289,6 +303,7 @@ public class GradientsAndParamsViewer extends Application {
             }
         });
     }
+
     private void handleKeyEvent(Event event) {
         KeyEvent ke = (KeyEvent) event;
         // System.out.println(ke.getCharacter() + " " + ke.getCode());
@@ -305,31 +320,31 @@ public class GradientsAndParamsViewer extends Application {
                 shapesGroup.rz.setAngle(0);
                 break;
             case LEFT:
-                shapesGroup.t.setX(shapesGroup.t.getX()-10);
+                shapesGroup.t.setX(shapesGroup.t.getX() - 10);
                 break;
             case RIGHT:
-                shapesGroup.t.setX(shapesGroup.t.getX()+10);
+                shapesGroup.t.setX(shapesGroup.t.getX() + 10);
                 break;
             case UP:
                 if (ke.isShiftDown()) {
                     shapesGroup.setTranslateY(shapesGroup.getTranslateY() - 10);
                 } else {
-                    shapesGroup.setTranslateZ(shapesGroup.getTranslateZ()-10);
+                    shapesGroup.setTranslateZ(shapesGroup.getTranslateZ() - 10);
                 }
                 break;
             case DOWN:
                 if (ke.isShiftDown()) {
                     shapesGroup.setTranslateY(shapesGroup.getTranslateY() + 10);
                 } else {
-                    shapesGroup.setTranslateZ(shapesGroup.getTranslateZ()+10);
+                    shapesGroup.setTranslateZ(shapesGroup.getTranslateZ() + 10);
                 }
                 break;
             case PAGE_UP:
-                radiusLogitFactor*=1.1;
+                radiusLogitFactor *= 1.1;
                 System.out.println("radiusLogitFactor = " + radiusLogitFactor);
                 break;
             case PAGE_DOWN:
-                radiusLogitFactor/=1.1;
+                radiusLogitFactor /= 1.1;
                 System.out.println("radiusLogitFactor = " + radiusLogitFactor);
                 break;
             default:
@@ -347,21 +362,23 @@ public class GradientsAndParamsViewer extends Application {
         scene.setOnKeyPressed(handler);
 
     }
+
     //-------------------
     private void initializeCapture() {
         try {
             robot = new Robot();
-            Window window=stage; // .getOwner();
-            if (window==null) {
+            Window window = stage; // .getOwner();
+            if (window == null) {
                 System.err.println("null window");
                 System.exit(1);
             }
-            screenBounds = new Rectangle((int)window.getX(),(int)window.getY(),(int)window.getWidth(), (int)window.getHeight());
+            screenBounds = new Rectangle((int) window.getX(), (int) window.getY(), (int) window.getWidth(), (int) window.getHeight());
         } catch (Exception exc) {
             exc.printStackTrace();
             System.exit(1);
         }
     }
+
     private static void mkdir(String path) {
         File dir = new File(path);
         if (dir.exists()) {
@@ -382,124 +399,130 @@ public class GradientsAndParamsViewer extends Application {
         try {
             BufferedImage image = robot.createScreenCapture(screenBounds);
             File file = new File("/tmp/images/gradients/image" + frameCount + ".jpg");
-            ImageIO.write(image, "JPEG",file);
+            ImageIO.write(image, "JPEG", file);
             frameCount++;
         } catch (Exception e) {
             e.printStackTrace();
             System.exit(1);
         }
     }
+
     //---------
     private static int product(final int[] array) {
-        int value=1;
-        for(int v:array) {
-            value*= v;
+        int value = 1;
+        for (int v : array) {
+            value *= v;
         }
         return value;
     }
 
     private List<Integer> chooseRandomSample(int[] shape) {
         List<Integer> list = new ArrayList<>(shape.length);
-        for(int i=0;i<shape.length;i++) {
+        for (int i = 0; i < shape.length; i++) {
             list.add(random.nextInt(shape[i]));
         }
-        return  list;
+        return list;
     }
+
     //.....
     private void chooseSampleCoordinates(Map<String, INDArray> map) { //[0_b, 0_W, 2_b, 2_W, 4_W, 4_b, 5_W, 5_b]
         int layerIndex = 0;
-        numberOfLayers=map.size();
+        numberOfLayers = map.size();
         System.out.println("Entering chooseSampleCoordinates with map.size() = " + map.size() + " and sampleSizePerLayer= " + sampleSizePerLayer);
         for (String key : map.keySet()) {
             INDArray array = map.get(key);
             int[] shape = array.shape();
             System.out.println("  Gradient map shape for " + key + " is " + GradientsAndParamsListener.toString(shape));
 
-            int sampleLengthWeWillUse = Math.min(sampleSizePerLayer,product(shape));
+            int sampleLengthWeWillUse = Math.min(sampleSizePerLayer, product(shape));
             Set<List<Integer>> chosen = new HashSet<>();
             // TODO: this could be slow if product(shape) is close to sampleSizePerLayer
             while (chosen.size() < sampleLengthWeWillUse) {
                 chosen.add(chooseRandomSample(shape));
             }
-            int sampleIndex=0;
-            for (List<Integer> coordinates:chosen) {
-                new GradientParamShape(key, layerIndex, sampleIndex, coordinates,sampleLengthWeWillUse);
+            int sampleIndex = 0;
+            for (List<Integer> coordinates : chosen) {
+                new GradientParamShape(key, layerIndex, sampleIndex, coordinates, sampleLengthWeWillUse);
                 sampleIndex++;
             }
             layerIndex++;
         }
         System.out.println();
     }
+
     // We can't update the JavaFX UI components from this thread, so we just store the updates in the GradientParamShape's variables. Later,
     // the animation handler will apply the updates to the JavaFX shapes themselves.
     public void requestBackwardPassUpdate(Model model) {
         Gradient gradient = model.gradient();
-        Map<String, INDArray> gradientMap= gradient.gradientForVariable();
-        Map<String,INDArray>  paramMap = model.paramTable();
+        Map<String, INDArray> gradientMap = gradient.gradientForVariable();
+        Map<String, INDArray> paramMap = model.paramTable();
         if (sampleCoordinatesNeedToBeChosen) {
             chooseSampleCoordinates(gradientMap);
             System.out.println("Created " + allGradientParamShapes.size() + " shapes");
-            assert(gradientMap.keySet().equals(paramMap.keySet()));
+            assert (gradientMap.keySet().equals(paramMap.keySet()));
             //
-            int layerIndex=0;
-            double deltaY = (0.0+HEIGHT)/gradientMap.size();
-            for(String key: gradientMap.keySet()) {
-                Text text = new Text(10,  (HEIGHT-deltaY/2) - deltaY * layerIndex, key);
+            int layerIndex = 0;
+            double deltaY = (0.0 + HEIGHT) / gradientMap.size();
+            for (String key : gradientMap.keySet()) {
+                Text text = new Text(10, (HEIGHT - deltaY / 2) - deltaY * layerIndex, key);
                 texts.add(text);
                 layerIndex++;
             }
-            sampleCoordinatesNeedToBeChosen=false;
+            sampleCoordinatesNeedToBeChosen = false;
         }
         // gradientForVariable keys= [0_b, 0_W, 2_b, 2_W, 4_W, 4_b, 5_W, 5_b]
-        for(GradientParamShape input: allGradientParamShapes) {
-            input.updateFromNeuralGradientAndParams(gradientMap,paramMap);
+        for (GradientParamShape input : allGradientParamShapes) {
+            input.updateFromNeuralGradientAndParams(gradientMap, paramMap);
         }
     }
-    private long startTime=System.nanoTime();
+
+    private long startTime = System.nanoTime();
 
     private void createTextForSelectedGradientParam() {
         textForSelectedGradientParam = new Text("(Click on a node to track its gradient and bias/weight in real time.)");
         textForSelectedGradientParam.setTranslateX(50);
         textForSelectedGradientParam.setTranslateY(40);
-        Font font=new Font(20);
+        Font font = new Font(20);
         textForSelectedGradientParam.setFont(font);
         textForSelectedGradientParam.setFill(Color.GREENYELLOW);
         root.getChildren().add(textForSelectedGradientParam);
     }
+
     private void animate() {
         final AnimationTimer timer = new AnimationTimer() {
             @Override
             public void handle(long nowInNanoSeconds) {
-                if (texts!=null && !texts.isEmpty()) {
-                    for(Text text: texts) {
+                if (texts != null && !texts.isEmpty()) {
+                    for (Text text : texts) {
                         shapesGroup.getChildren().add(text);
                     }
-                    texts=null;
+                    texts = null;
                 }
-                gradientFactor = Math.pow(2,slider.getValue());
-                for(GradientParamShape input: allGradientParamShapes) {
+                gradientFactor = Math.pow(2, slider.getValue());
+                for (GradientParamShape input : allGradientParamShapes) {
                     input.applyUpdatesToShapesAndRefresh();
                 }
                 shapesGroup.requestLayout();
-                if (captureScreenImages && nowInNanoSeconds-startTime> FIVE_SECOND_IN_NANO_SECONDS && frameCount<FRAME_COUNT_TO_COLLECT) {
-                    if (frameCount==0) {
+                if (captureScreenImages && nowInNanoSeconds - startTime > FIVE_SECOND_IN_NANO_SECONDS && frameCount < FRAME_COUNT_TO_COLLECT) {
+                    if (frameCount == 0) {
                         initializeCapture();
                         System.out.println("Starting capture");
                     }
                     capture();
-                    if (frameCount==100) {
+                    if (frameCount == 100) {
                         System.out.println("Ending capture");
                     }
                 }
-                if (selectedGradientParamShape!=null) {
-                    String g=numberFormatLonger.format(selectedGradientParamShape.getGradient());
-                    String p=numberFormatLonger.format(selectedGradientParamShape.getParam());
+                if (selectedGradientParamShape != null) {
+                    String g = numberFormatLonger.format(selectedGradientParamShape.getGradient());
+                    String p = numberFormatLonger.format(selectedGradientParamShape.getParam());
                     textForSelectedGradientParam.setText("param = " + p + ", gradient = " + g);
                 }
             }
         };
         timer.start();
     }
+
     @Override
     public void start(Stage primaryStage) throws Exception {
         stage = new Stage();
@@ -522,7 +545,7 @@ public class GradientsAndParamsViewer extends Application {
         handleMouse(scene);
         handleKeyEvents(scene);
         stage.setScene(scene);
-        staticInstance=this;
+        staticInstance = this;
         stage.show();
         animate();
     }

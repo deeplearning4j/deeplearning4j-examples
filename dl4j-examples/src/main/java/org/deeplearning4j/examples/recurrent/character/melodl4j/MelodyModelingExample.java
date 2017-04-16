@@ -1,7 +1,6 @@
 package org.deeplearning4j.examples.recurrent.character.melodl4j;
 
 import org.deeplearning4j.examples.recurrent.character.CharacterIterator;
-import org.deeplearning4j.examples.userInterface.util.GradientsListener;
 import org.deeplearning4j.nn.api.Layer;
 import org.deeplearning4j.nn.api.OptimizationAlgorithm;
 import org.deeplearning4j.nn.conf.BackpropType;
@@ -43,11 +42,11 @@ public class MelodyModelingExample {
 
     //....
     public static void main(String[] args) throws Exception {
-        String loadNetworkPath=null; //"/tmp/MelodyModel-bach.zip"; //null;
-        String generationInitialization=null;		//Optional character initialization; a random character is used if null
-        if (args.length==2) {
-            loadNetworkPath=args[0];
-            generationInitialization=args[1];
+        String loadNetworkPath = null; //"/tmp/MelodyModel-bach.zip"; //null;
+        String generationInitialization = null;        //Optional character initialization; a random character is used if null
+        if (args.length == 2) {
+            loadNetworkPath = args[0];
+            generationInitialization = args[1];
         }
 
         int lstmLayerSize = 200;                    //Number of units in each GravesLSTM layer
@@ -69,10 +68,10 @@ public class MelodyModelingExample {
         // our GravesLSTM network.
         CharacterIterator iter = getMidiIterator(miniBatchSize, exampleLength);
 
-        if (loadNetworkPath!=null) {
+        if (loadNetworkPath != null) {
             MultiLayerNetwork net = ModelSerializer.restoreMultiLayerNetwork(loadNetworkPath);
             String[] samples = sampleCharactersFromNetwork(generationInitialization, net, iter, rng, nCharactersToSample, nSamplesToGenerate);
-            for (String melody:samples) {
+            for (String melody : samples) {
                 System.out.println(melody);
                 PlayMelodyStrings.playMelody(melody, 10, 48);
                 System.out.println();
@@ -108,12 +107,14 @@ public class MelodyModelingExample {
 
         learn(miniBatchSize, exampleLength, numEpochs, generateSamplesEveryNMinibatches, nSamplesToGenerate, nCharactersToSample, generationInitialization, rng, startTime, iter, conf);
     }
+
     private static void save(CharacterIterator iter) throws IOException {
         FileOutputStream fos = new FileOutputStream("/tmp/midi-character-iterator.jobj");
         ObjectOutputStream oos = new ObjectOutputStream(fos);
         oos.writeObject(iter);
         oos.close();
     }
+
     private static void learn(int miniBatchSize, int exampleLength, int numEpochs, int generateSamplesEveryNMinibatches, int nSamplesToGenerate, int nCharactersToSample, String generationInitialization, Random rng, long startTime, CharacterIterator iter, MultiLayerConfiguration conf) throws Exception {
         MultiLayerNetwork net = new MultiLayerNetwork(conf);
         net.init();
@@ -151,8 +152,8 @@ public class MelodyModelingExample {
                         System.out.println();
                     }
                 }
-                if (miniBatchNumber==0) {
-                   // save(iter); System.exit(0);
+                if (miniBatchNumber == 0) {
+                    // save(iter); System.exit(0);
                 }
             }
             iter.reset();    //Reset iterator for another epoch
@@ -164,8 +165,8 @@ public class MelodyModelingExample {
             }
         }
         int indexOfLastPeriod = inputSymbolicMelodiesFilename.lastIndexOf('.');
-        String saveFileName = inputSymbolicMelodiesFilename.substring(0, indexOfLastPeriod>0 ? indexOfLastPeriod: inputSymbolicMelodiesFilename.length());
-        ModelSerializer.writeModel(net,"/tmp/" + saveFileName + ".zip",false);
+        String saveFileName = inputSymbolicMelodiesFilename.substring(0, indexOfLastPeriod > 0 ? indexOfLastPeriod : inputSymbolicMelodiesFilename.length());
+        ModelSerializer.writeModel(net, "/tmp/" + saveFileName + ".zip", false);
 
         // Write all melodies to the output file, in reverse order (so that the best melodies are at the start of the file).
         PrintWriter printWriter = new PrintWriter(composedMelodiesOutputFilePath);
@@ -219,7 +220,7 @@ public class MelodyModelingExample {
      * @param iter               CharacterIterator. Used for going from indexes back to characters
      */
     public static String[] sampleCharactersFromNetwork(String initialization, MultiLayerNetwork net,
-                                                        CharacterIterator iter, Random rng, int charactersToSample, int numSamples) {
+                                                       CharacterIterator iter, Random rng, int charactersToSample, int numSamples) {
         //Set up initialization. If no initialization: use a random character
         if (initialization == null) {
             initialization = String.valueOf(iter.getRandomCharacter());

@@ -17,27 +17,34 @@ import java.util.Map;
  * @author Donald A. Smith
  */
 public class GradientsAndParamsListener implements TrainingListener {
-    private boolean invoked=false;
+    private boolean invoked = false;
     private final MultiLayerNetwork network;
     private final int sampleSizePerLayer;
     private GradientsAndParamsViewer viewer;
+
     public GradientsAndParamsListener(MultiLayerNetwork network, int sampleSizePerLayer) {
-        this.network=network;
-        this.sampleSizePerLayer=sampleSizePerLayer;
+        this.network = network;
+        this.sampleSizePerLayer = sampleSizePerLayer;
     }
+
     private void initializeViewer() {
-        GradientsAndParamsViewer.initialize(network,sampleSizePerLayer);
+        GradientsAndParamsViewer.initialize(network, sampleSizePerLayer);
         new Thread(() -> Application.launch(GradientsAndParamsViewer.class)).start();
-        int count=0;
-        int sleepMls=20;
-        while (GradientsAndParamsViewer.staticInstance==null) {
+        int count = 0;
+        int sleepMls = 20;
+        while (GradientsAndParamsViewer.staticInstance == null) {
             count++;
-            try{Thread.sleep(sleepMls);} catch (InterruptedException exc) {Thread.interrupted();}
+            try {
+                Thread.sleep(sleepMls);
+            } catch (InterruptedException exc) {
+                Thread.interrupted();
+            }
         }
-        System.out.println("GradientsViewer started up after " + (count*sleepMls)/1000.0 + " seconds");
-        viewer= GradientsAndParamsViewer.staticInstance;
+        System.out.println("GradientsViewer started up after " + (count * sleepMls) / 1000.0 + " seconds");
+        viewer = GradientsAndParamsViewer.staticInstance;
         describeLayers();
     }
+
     @Override
     public boolean invoked() {
         if (!invoked) {
@@ -49,13 +56,14 @@ public class GradientsAndParamsListener implements TrainingListener {
     @Override
     public void invoke() {
         System.out.println("invoke()");
-        invoked=true;
+        invoked = true;
     }
-    public static String toString(int [] values) {
+
+    public static String toString(int[] values) {
         StringBuilder sb = new StringBuilder();
         sb.append('[');
-        for(int i=0;i<values.length;i++) {
-            if (i>0) {
+        for (int i = 0; i < values.length; i++) {
+            if (i > 0) {
                 sb.append(",");
             }
             sb.append(values[i]);
@@ -63,6 +71,7 @@ public class GradientsAndParamsListener implements TrainingListener {
         sb.append(']');
         return sb.toString();
     }
+
     private void describeLayers() {
         /*
 For GradientsListenerExample (whose network is from UIExampleUtils.getMnistNetwork()):
@@ -80,8 +89,8 @@ GradientsLister: describeLayers:  miniBatchSize = 32
 2: 11859 params, input shape = [32,200,50], activation shape = [32,59,50]
          */
         System.out.println("\nGradientsListener: describeLayers:  miniBatchSize = " + network.getInputMiniBatchSize());
-        for(Layer layer:network.getLayers()) {
-            INDArray input= layer.input();
+        for (Layer layer : network.getLayers()) {
+            INDArray input = layer.input();
             INDArray activation = layer.activate();
             System.out.println(layer.getIndex() + ": " + layer.numParams() +
                     " params, input shape = " + toString(input.shape())
@@ -124,7 +133,7 @@ GradientsLister: describeLayers:  miniBatchSize = 32
 
     @Override
     public void onBackwardPass(Model model) {
-        if (viewer==null) {
+        if (viewer == null) {
             initializeViewer();
         }
         viewer.requestBackwardPassUpdate(model);
