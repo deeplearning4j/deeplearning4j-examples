@@ -185,7 +185,7 @@ public class GradientsAndParamsViewer extends Application {
                 shapesGroup.getChildren().add(this);
                 initialized = true;
             }
-            if (needsUpdate) {
+            if (needsUpdate || stepping || paused) {
                 //double hue=360.0/(1+ Math.exp(gradientFactor*lastGradient));
                 double hue = 260 - 260.0 / (1 + Math.exp(gradientFactor * lastGradient));
                 // Blue is negative, Green is near zero, Red is positive.
