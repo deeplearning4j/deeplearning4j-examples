@@ -170,31 +170,8 @@ ActivationsListener layers:
         needUpdate=null;
     }
     private void updateInternal() {
-        double seconds =0.001*(System.currentTimeMillis()-start);
-        System.out.println("\n" + numberFormat.format(seconds) + ": ActivationsViewer requestIterationUpdate() called");
         for(ActivationShape activationShape : allActivationShapes) {
             activationShape.updateFromNeuralInput();
-        }
-
-        int layerIndex=0;
-        for(Layer layer:network.getLayers()) {
-            INDArray input = layer.input();
-            //INDArray activation = layer.activate();
-            //int r=input.rank(); // 4 for [64,20,24,24]
-            //int[] shape = input.shape();
-            System.out.println(layer.getIndex()
-                + ". min=" + input.minNumber()
-                + ". mean = " + input.meanNumber()
-                + ", max=" + input.maxNumber()
-                + ", var= " + input.varNumber()
-            );
-            List<int[]> samples = sampleCoordinatesByLayer[layerIndex];
-            for(int [] sample: samples) {
-                double d=input.getDouble(sample);
-                System.out.print("  " + d);
-            }
-            System.out.println();
-            layerIndex++;
         }
         root.requestLayout();
     }

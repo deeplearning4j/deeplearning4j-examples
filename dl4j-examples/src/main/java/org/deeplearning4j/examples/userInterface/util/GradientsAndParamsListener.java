@@ -12,30 +12,30 @@ import java.util.Map;
 //import javafx.
 
 /**
- * Use JavaFX to visualize network gradients during backward pass.
+ * Use JavaFX to visualize network gradients and params during backward pass.
  *
  * @author Donald A. Smith
  */
-public class GradientsListener implements TrainingListener {
+public class GradientsAndParamsListener implements TrainingListener {
     private boolean invoked=false;
     private final MultiLayerNetwork network;
     private final int sampleSizePerLayer;
-    private GradientsViewer viewer;
-    public GradientsListener(MultiLayerNetwork network, int sampleSizePerLayer) {
+    private GradientsAndParamsViewer viewer;
+    public GradientsAndParamsListener(MultiLayerNetwork network, int sampleSizePerLayer) {
         this.network=network;
         this.sampleSizePerLayer=sampleSizePerLayer;
     }
     private void initializeViewer() {
-        GradientsViewer.initialize(network,sampleSizePerLayer);
-        new Thread(() -> Application.launch(GradientsViewer.class)).start();
+        GradientsAndParamsViewer.initialize(network,sampleSizePerLayer);
+        new Thread(() -> Application.launch(GradientsAndParamsViewer.class)).start();
         int count=0;
         int sleepMls=20;
-        while (GradientsViewer.staticInstance==null) {
+        while (GradientsAndParamsViewer.staticInstance==null) {
             count++;
             try{Thread.sleep(sleepMls);} catch (InterruptedException exc) {Thread.interrupted();}
         }
         System.out.println("GradientsViewer started up after " + (count*sleepMls)/1000.0 + " seconds");
-        viewer= GradientsViewer.staticInstance;
+        viewer= GradientsAndParamsViewer.staticInstance;
         describeLayers();
     }
     @Override
