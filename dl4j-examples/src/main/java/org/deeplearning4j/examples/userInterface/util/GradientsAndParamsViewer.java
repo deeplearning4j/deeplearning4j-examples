@@ -614,9 +614,7 @@ public class GradientsAndParamsViewer extends Application {
     }
 
     @Override
-    public void start(Stage primaryStage) throws Exception {
-        stage = new Stage();
-        stage.initModality(Modality.NONE);
+    public void start(Stage stage) throws Exception {
         stage.setOnCloseRequest(r -> System.exit(0));
         stage.setTitle("Gradient & parameters visualization for a sample of neurons. " +
             "The mouse & arrow keys navigate in 3D. Blue is - gradient; red is +; slider adjusts colors." +
