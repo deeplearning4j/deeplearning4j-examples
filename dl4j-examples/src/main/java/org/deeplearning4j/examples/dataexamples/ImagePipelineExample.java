@@ -35,8 +35,6 @@ public class ImagePipelineExample {
     protected static int height = 50;
     protected static int width = 50;
     protected static int channels = 3;
-    protected static int numExamples = 80;
-    protected static int outputNum = 4;
 
     public static void main(String[] args) throws Exception {
 
@@ -88,6 +86,7 @@ public class ImagePipelineExample {
 
         //Initialize the record reader with the train data and the transform chain
         recordReader.initialize(trainData,transform);
+        int outputNum = recordReader.numLabels();
         //convert the record reader to an iterator for training - Refer to other examples for how to use an iterator
         DataSetIterator dataIter = new RecordReaderDataSetIterator(recordReader, 10, 1, outputNum);
         while (dataIter.hasNext()) {
