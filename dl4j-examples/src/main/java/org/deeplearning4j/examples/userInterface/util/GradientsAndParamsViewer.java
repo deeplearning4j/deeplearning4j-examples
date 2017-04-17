@@ -345,8 +345,25 @@ public class GradientsAndParamsViewer extends Application {
                     shapesGroup.setTranslateZ(shapesGroup.getTranslateZ() + 10);
                 }
                 break;
+
             case P:
-                paused=! paused;
+                if (paused) {
+                    paused=false;
+                    stepping=false;
+                } else {
+                    paused=true;
+                    stepping=false;
+                }
+                break;
+            case S: // step
+                paused=false;
+                stepping=true;
+                break;
+            case C:
+                if (paused) {
+                    paused=false;
+                    stepping=false;
+                }
                 break;
             case PAGE_UP:
                 radiusLogitFactor *= 1.1;
@@ -539,7 +556,7 @@ public class GradientsAndParamsViewer extends Application {
            stepping=true;
         });
     }
-    private void doPauseLogic() {
+    private void doPauseLogicInUIThread() {
         if (paused) {
             pauseButton.setText("Continue");
             pauseButton.setTextFill(Color.RED);
@@ -553,11 +570,18 @@ public class GradientsAndParamsViewer extends Application {
             stepButton.setTextFill(Color.GREEN);
         }
     }
+    private static String format(final double d) {
+        if (d>=0) {
+            return "+" + numberFormatLonger.format(d);
+        } else {
+            return numberFormatLonger.format(d);
+        }
+    }
     private void animate() {
         final AnimationTimer timer = new AnimationTimer() {
             @Override
             public void handle(long nowInNanoSeconds) {
-                doPauseLogic();
+                doPauseLogicInUIThread();
                 if (texts != null && !texts.isEmpty()) {
                     for (Text text : texts) {
                         shapesGroup.getChildren().add(text);
@@ -580,8 +604,8 @@ public class GradientsAndParamsViewer extends Application {
                     }
                 }
                 if (selectedGradientParamShape != null) {
-                    String g = numberFormatLonger.format(selectedGradientParamShape.getGradient());
-                    String p = numberFormatLonger.format(selectedGradientParamShape.getParam());
+                    String g = format(selectedGradientParamShape.getGradient());
+                    String p = format(selectedGradientParamShape.getParam());
                     textForSelectedGradientParam.setText("param = " + p + ", gradient = " + g);
                 }
             }
