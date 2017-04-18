@@ -1,5 +1,6 @@
 package org.deeplearning4j.examples.convolution;
 
+import org.deeplearning4j.datasets.iterator.AsyncShieldDataSetIterator;
 import org.deeplearning4j.datasets.iterator.impl.MnistDataSetIterator;
 import org.deeplearning4j.eval.Evaluation;
 import org.deeplearning4j.nn.api.OptimizationAlgorithm;
@@ -13,6 +14,7 @@ import org.deeplearning4j.nn.graph.ComputationGraph;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
 import org.deeplearning4j.optimize.listeners.PerformanceListener;
+import org.deeplearning4j.parallelism.ParallelWrapper;
 import org.nd4j.context.Nd4jContext;
 import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.api.ndarray.INDArray;
@@ -68,6 +70,7 @@ public class LenetMnistCGExample {
                         .nIn(nChannels)
                         .stride(1, 1)
                         .nOut(20)
+                        .dropOut(0.95)
                         .activation(Activation.IDENTITY)
                         .build(),"input")
                 .addLayer("pool1", new SubsamplingLayer.Builder(SubsamplingLayer.PoolingType.MAX)
@@ -113,15 +116,44 @@ public class LenetMnistCGExample {
 
         Nd4j.getMemoryManager().setAutoGcWindow(1000000);
 
+        // ParallelWrapper will take care of load balancing between GPUs.
+        ParallelWrapper wrapper = new ParallelWrapper.Builder(model)
+            // DataSets prefetching options. Set this value with respect to number of actual devices
+            .prefetchBuffer(8)
+
+            // set number of workers equal or higher then number of available devices. x1-x2 are good values to start with
+            .workers(2)
+
+            // rare averaging improves performance, but might reduce model accuracy
+            .averagingFrequency(5)
+
+            // if set to TRUE, on every averaging model score will be reported
+            .reportScoreAfterAveraging(false)
+
+            // optinal parameter, set to false ONLY if your system has support P2P memory access across PCIe (hint: AWS do not support P2P)
+            .useLegacyAveraging(false)
+
+            .workspaceMode(WorkspaceMode.SINGLE)
+
+            .useMQ(true)
+
+            .build();
+
         log.info("Train model....");
-        nEpochs = 1;
+        nEpochs = 100;
         model.setListeners(new PerformanceListener(50, true));
         for( int i=0; i<nEpochs; i++ ) {
             long time1 = System.currentTimeMillis();
-            model.fit(mnistTrain);
+            model.fit((mnistTrain));
+            //wrapper.fit(mnistTrain);
             long time2 = System.currentTimeMillis();
+
+
+
             log.info("*** Completed epoch {}; {} ms ***", i, time2 - time1);
+
         }
+
 
         log.info("Evaluate model....");
         Evaluation eval = new Evaluation(outputNum);
@@ -133,5 +165,6 @@ public class LenetMnistCGExample {
         log.info(eval.stats());
         mnistTest.reset();
         log.info("****************Example finished********************");
+
     }
 }

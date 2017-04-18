@@ -123,18 +123,19 @@ public class LenetMnistExample {
             model.fit(mnistTrain);
             long time2 = System.currentTimeMillis();
             log.info("*** Completed epoch {}; {} ms ***", i, time2 - time1);
-
-            log.info("Evaluate model....");
-            Evaluation eval = new Evaluation(outputNum);
-            while(mnistTest.hasNext()){
-                DataSet ds = mnistTest.next();
-                INDArray output = model.output(ds.getFeatureMatrix(), false);
-                eval.eval(ds.getLabels(), output);
-
-            }
-            log.info(eval.stats());
-            mnistTest.reset();
         }
+
+        log.info("Evaluate model....");
+        Evaluation eval = new Evaluation(outputNum);
+        while(mnistTest.hasNext()){
+            DataSet ds = mnistTest.next();
+            INDArray output = model.output(ds.getFeatureMatrix(), false);
+            eval.eval(ds.getLabels(), output);
+
+        }
+        log.info(eval.stats());
+        mnistTest.reset();
+
         log.info("****************Example finished********************");
     }
 }

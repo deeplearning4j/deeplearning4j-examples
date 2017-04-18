@@ -44,7 +44,7 @@ public class JustinExample {
          **/
         log.info("Loading paths....");
         ParentPathLabelGenerator labelMaker = new ParentPathLabelGenerator();
-        File mainPath = new File("/Users/raver119/Downloads/umdfaces_aligned_96_condensed/");
+        File mainPath = new File("/home/raver119/Downloads/umdfaces_aligned_96_condensed/");
         FileSplit fileSplit = new FileSplit(mainPath, NativeImageLoader.ALLOWED_FORMATS, rng);
         RandomPathFilter randomFilter = new RandomPathFilter(rng, NativeImageLoader.ALLOWED_FORMATS);
 
