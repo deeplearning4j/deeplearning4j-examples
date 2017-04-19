@@ -62,7 +62,7 @@ public class LenetMnistCGExample {
                 .weightInit(WeightInit.XAVIER)
                 .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
                 .updater(Updater.NESTEROVS).momentum(0.9)
-                .workspaceMode(WorkspaceMode.SEPARATE)
+                .workspaceMode(WorkspaceMode.SINGLE)
                 .graphBuilder()
                 .addInputs("input")
                 .addLayer("cnn1", new ConvolutionLayer.Builder(5, 5)

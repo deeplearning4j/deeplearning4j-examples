@@ -12,6 +12,7 @@ import org.deeplearning4j.nn.graph.ComputationGraph;
 import org.deeplearning4j.nn.weights.WeightInit;
 import org.deeplearning4j.optimize.listeners.PerformanceListener;
 import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
+import org.deeplearning4j.parallelism.ParallelWrapper;
 import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.api.ops.random.impl.BernoulliDistribution;
@@ -37,7 +38,7 @@ public class AlexMDSI {
         int vectorSize = 128;
 
         ComputationGraphConfiguration conf = new NeuralNetConfiguration.Builder()
-            .workspaceMode(WorkspaceMode.SINGLE)
+            .workspaceMode(WorkspaceMode.SEPARATE)
 //                .workspaceMode(WorkspaceMode.NONE)
             .updater(Updater.ADAM).adamMeanDecay(0.9).adamVarDecay(0.999)
             .weightInit(WeightInit.XAVIER)
@@ -76,8 +77,10 @@ public class AlexMDSI {
 
         int minibatch = 48;
         MultiDataSetIterator mds = new RandomMultiDataSetIterator(
-            minibatch, 128, new int[]{minibatch,inputSize, 32}, new int[]{minibatch, 10},
-            true, true, 0, 20, 12345);
+            minibatch, 512, new int[]{minibatch,inputSize, 16},
+            new int[]{minibatch,inputSize, 256},
+            new int[]{minibatch, 10},
+            true, true, 0, 0, 12345);
 
         Nd4j.getMemoryManager().setAutoGcWindow(2000);
 
@@ -85,17 +88,46 @@ public class AlexMDSI {
 
         log.info("DS size: {}", ds.getMemoryFootprint());
 
-        g.fit(mds);
-        //g.fit(new AsyncMultiDataSetIterator(mds, 20, true));
+        Nd4j.getMemoryManager().setAutoGcWindow(1000000);
+
+        // ParallelWrapper will take care of load balancing between GPUs.
+        ParallelWrapper wrapper = new ParallelWrapper.Builder(g)
+            // DataSets prefetching options. Set this value with respect to number of actual devices
+            .prefetchBuffer(10)
+
+            // set number of workers equal or higher then number of available devices. x1-x2 are good values to start with
+            .workers(2)
+
+            // rare averaging improves performance, but might reduce model accuracy
+            .averagingFrequency(5)
+
+            // if set to TRUE, on every averaging model score will be reported
+            .reportScoreAfterAveraging(false)
+
+            // optinal parameter, set to false ONLY if your system has support P2P memory access across PCIe (hint: AWS do not support P2P)
+            .useLegacyAveraging(false)
+
+            .workspaceMode(WorkspaceMode.SEPARATE)
+
+            .useMQ(true)
+
+            .build();
+
+
+        //wrapper.fit(mds);
+        //g.fit(mds);
+        g.fit(new AsyncMultiDataSetIterator(mds, 20, true));
         //g.fit(new AsyncShieldMultiDataSetIterator(mds));
 
     }
 
     public static class RandomMultiDataSetIterator implements MultiDataSetIterator {
 
+
         private final int minibatch;
         private final int maxMinibatches;
-        private final int[] featuresShape;
+        private final int[] featuresShapeMin;
+        private final int[] featuresShapeMax;
         private final int[] labelsShape;
         private final boolean featuresTimeSeriesMask;
         private final boolean labelsTimeSeriesMask;
@@ -106,12 +138,14 @@ public class AlexMDSI {
         private int cursor;
         private Random jRng;
 
-        public RandomMultiDataSetIterator(int minibatch, int maxMinibatches, int[] featuresShape, int[] labelsShape,
+        public RandomMultiDataSetIterator(int minibatch, int maxMinibatches, int[] featuresShapeMin,
+                                          int[] featuresShapeMax, int[] labelsShape,
                                           boolean featuresTimeSeriesMask, boolean labelsTimeSeriesMask,
                                           long delayMsMin, long delayMsMax, long rngSeed) {
             this.minibatch = minibatch;
             this.maxMinibatches = maxMinibatches;
-            this.featuresShape = featuresShape;
+            this.featuresShapeMin = featuresShapeMin;
+            this.featuresShapeMax = featuresShapeMax;
             this.labelsShape = labelsShape;
             this.featuresTimeSeriesMask = featuresTimeSeriesMask;
             this.labelsTimeSeriesMask = labelsTimeSeriesMask;
@@ -128,13 +162,24 @@ public class AlexMDSI {
 
             long start = System.currentTimeMillis();
 
-            INDArray f = Nd4j.rand(featuresShape);
+            int[] fShape = new int[featuresShapeMin.length];
+            for( int i=0; i<fShape.length; i++ ){
+                if(featuresShapeMin[i] == featuresShapeMax[i]){
+                    fShape[i] = featuresShapeMin[i];
+                } else {
+                    fShape[i] = featuresShapeMin[i] + jRng.nextInt(featuresShapeMax[i]-featuresShapeMin[i]);
+                }
+            }
+
+            INDArray f = Nd4j.rand(fShape);
             INDArray l = Nd4j.rand(labelsShape);
             INDArray fm = null;
             INDArray lm = null;
 
+//            log.info("Features shape: " + Arrays.toString(fShape));
+
             if(featuresTimeSeriesMask){
-                int length = featuresShape[2];
+                int length = fShape[2];
                 fm = Nd4j.zeros(minibatch, length);
                 for( int i=0; i<minibatch; i++ ){
                     int thisLength = jRng.nextInt(length);
