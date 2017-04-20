@@ -9,7 +9,9 @@ import org.datavec.api.split.InputSplit;
 import org.datavec.image.loader.BaseImageLoader;
 import org.datavec.image.recordreader.ImageRecordReader;
 import org.deeplearning4j.datasets.datavec.RecordReaderDataSetIterator;
+import org.deeplearning4j.datasets.iterator.AsyncDataSetIterator;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
+import org.nd4j.linalg.factory.Nd4j;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -41,9 +43,13 @@ public class ImageETLTester {
         ImageRecordReader recordReader = new ImageRecordReader(96, 96, 3,labelMaker);
         recordReader.initialize(trainData);
 
-        DataSetIterator dataIter = new RecordReaderDataSetIterator(recordReader, 10, 1, 244);
+        Nd4j.getMemoryManager().togglePeriodicGc(false);
+
+        DataSetIterator dataIter = new AsyncDataSetIterator(new RecordReaderDataSetIterator(recordReader, 16, 1, 244), 8, false);
+        //DataSetIterator dataIter = new RecordReaderDataSetIterator(recordReader, 16, 1, 244);
 
         List<Long> nanos = new ArrayList<>();
+/*
 
         for (int i = 0; i < 10; i++) {
             while (dataIter.hasNext()) {
@@ -52,6 +58,7 @@ public class ImageETLTester {
             dataIter.reset();
             log.info("warm-up iteration {} passed...", i);
         }
+*/
 
 
         while (dataIter.hasNext()) {
@@ -59,10 +66,14 @@ public class ImageETLTester {
             dataIter.next();
             long time2 = System.nanoTime();
 
+            //Thread.sleep(2);
+
+            //log.info("D: {}", time2 - time1);
             nanos.add(time2 - time1);
         }
 
         Collections.sort(nanos);
-        log.info("p50: {}", nanos.get(nanos.size() / 2));
+        int pos = (int) (nanos.size() * 0.9);
+        log.info("p90: {}", nanos.get(pos));
     }
 }
