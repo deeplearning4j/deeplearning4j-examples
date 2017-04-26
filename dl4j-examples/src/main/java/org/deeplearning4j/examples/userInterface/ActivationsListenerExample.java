@@ -1,19 +1,18 @@
 package org.deeplearning4j.examples.userInterface;
 
 import org.deeplearning4j.examples.userInterface.util.ActivationsListener;
-import org.deeplearning4j.examples.userInterface.util.GradientsListener;
 import org.deeplearning4j.examples.userInterface.util.UIExampleUtils;
 import org.deeplearning4j.nn.api.Layer;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 
 /**
- * A simple example of how to attach Deeplearning4j's training UI to a network
+ * An example of how to attach Deeplearning4j's training UI to a network and view activations.
  *
  * To change the UI port (usually not necessary) - set the org.deeplearning4j.ui.port system property
  * i.e., run the example and pass the following to the JVM, to use port 9001: -Dorg.deeplearning4j.ui.port=9001
  *
- * @author Alex Black
+ * @author Donald A. Smith, Alex Black
  */
 public class ActivationsListenerExample {
 

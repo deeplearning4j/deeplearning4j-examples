@@ -8,7 +8,7 @@ import org.datavec.api.split.NumberedFileInputSplit;
 import org.datavec.api.util.ClassPathResource;
 import org.deeplearning4j.datasets.datavec.SequenceRecordReaderDataSetIterator;
 import org.deeplearning4j.eval.RegressionEvaluation;
-import org.deeplearning4j.examples.userInterface.util.GradientsListener;
+import org.deeplearning4j.examples.userInterface.util.GradientsAndParamsListener;
 import org.deeplearning4j.nn.api.OptimizationAlgorithm;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
@@ -136,7 +136,7 @@ public class MultiTimestepRegressionExample {
         MultiLayerNetwork net = new MultiLayerNetwork(conf);
         net.init();
 
-        net.setListeners(new GradientsListener(net,100),new ScoreIterationListener(20));
+        net.setListeners(new GradientsAndParamsListener(net,100),new ScoreIterationListener(20));
 
         // ----- Train the network, evaluating the test set performance at each epoch -----
         int nEpochs = 50;

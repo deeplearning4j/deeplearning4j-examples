@@ -40,7 +40,7 @@ public class PlayMelodyStrings {
     //-----------------------------------
     public static void main(String[] args) {
         try {
-            //  playMelody("s2s2s1s",10,48); System.exit(0);
+          //  playMelody("s2s2s1s",10,48); System.exit(0);
             String pathToMelodiesFile = args.length == 0 ? getPathToExampleMelodiesFile() : args[0];
             playMelodies(pathToMelodiesFile, "Acoustic Grand Piano", 20);
         } catch (Exception exc) {

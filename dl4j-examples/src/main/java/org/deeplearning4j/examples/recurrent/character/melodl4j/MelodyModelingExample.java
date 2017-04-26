@@ -1,7 +1,6 @@
 package org.deeplearning4j.examples.recurrent.character.melodl4j;
 
 import org.deeplearning4j.examples.recurrent.character.CharacterIterator;
-import org.deeplearning4j.examples.userInterface.util.GradientsListener;
 import org.deeplearning4j.nn.api.Layer;
 import org.deeplearning4j.nn.api.OptimizationAlgorithm;
 import org.deeplearning4j.nn.conf.BackpropType;
@@ -21,9 +20,8 @@ import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 import org.apache.commons.io.FileUtils;
 
+import java.io.*;
 import java.net.URL;
-import java.io.File;
-import java.io.PrintWriter;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
@@ -44,15 +42,22 @@ public class MelodyModelingExample {
 
     //....
     public static void main(String[] args) throws Exception {
+        String loadNetworkPath = null; //"/tmp/MelodyModel-bach.zip"; //null;
+        String generationInitialization = null;        //Optional character initialization; a random character is used if null
+        if (args.length == 2) {
+            loadNetworkPath = args[0];
+            generationInitialization = args[1];
+        }
+
         int lstmLayerSize = 200;                    //Number of units in each GravesLSTM layer
-        int miniBatchSize = 32;                        //Size of mini batch to use when  training
+        int miniBatchSize = 32;                     //Size of mini batch to use when training
         int exampleLength = 500; //1000; 		    //Length of each training example sequence to use.
         int tbpttLength = 50;                       //Length for truncated backpropagation through time. i.e., do parameter updates ever 50 characters
         int numEpochs = 10;                            //Total number of training epochs
         int generateSamplesEveryNMinibatches = 20;  //How frequently to generate samples from the network? 1000 characters / 50 tbptt length: 20 parameter updates per minibatch
         int nSamplesToGenerate = 10;                //Number of samples to generate after each training epoch
         int nCharactersToSample = 300;                //Length of each sample to generate
-        String generationInitialization = null; // "s2s2s2s";		//Optional character initialization; a random character is used if null
+
         // Above is Used to 'prime' the LSTM with a character sequence to continue/complete.
         // Initialization characters must all be in CharacterIterator.getMinimalCharacterSet() by default
         Random rng = new Random(12345);
@@ -62,6 +67,18 @@ public class MelodyModelingExample {
         //Get a DataSetIterator that handles vectorization of text into something we can use to train
         // our GravesLSTM network.
         CharacterIterator iter = getMidiIterator(miniBatchSize, exampleLength);
+
+        if (loadNetworkPath != null) {
+            MultiLayerNetwork net = ModelSerializer.restoreMultiLayerNetwork(loadNetworkPath);
+            String[] samples = sampleCharactersFromNetwork(generationInitialization, net, iter, rng, nCharactersToSample, nSamplesToGenerate);
+            for (String melody : samples) {
+                System.out.println(melody);
+                PlayMelodyStrings.playMelody(melody, 10, 48);
+                System.out.println();
+            }
+            System.exit(0);
+        }
+
         int nOut = iter.totalOutcomes();
 
         //Set up network configuration:
@@ -87,6 +104,18 @@ public class MelodyModelingExample {
             .pretrain(false).backprop(true)
             .build();
 
+
+        learn(miniBatchSize, exampleLength, numEpochs, generateSamplesEveryNMinibatches, nSamplesToGenerate, nCharactersToSample, generationInitialization, rng, startTime, iter, conf);
+    }
+
+    private static void save(CharacterIterator iter) throws IOException {
+        FileOutputStream fos = new FileOutputStream("/tmp/midi-character-iterator.jobj");
+        ObjectOutputStream oos = new ObjectOutputStream(fos);
+        oos.writeObject(iter);
+        oos.close();
+    }
+
+    private static void learn(int miniBatchSize, int exampleLength, int numEpochs, int generateSamplesEveryNMinibatches, int nSamplesToGenerate, int nCharactersToSample, String generationInitialization, Random rng, long startTime, CharacterIterator iter, MultiLayerConfiguration conf) throws Exception {
         MultiLayerNetwork net = new MultiLayerNetwork(conf);
         net.init();
         //  GradientsListener listener2 = new GradientsListener(net,80);
@@ -123,6 +152,9 @@ public class MelodyModelingExample {
                         System.out.println();
                     }
                 }
+                if (miniBatchNumber == 0) {
+                    // save(iter); System.exit(0);
+                }
             }
             iter.reset();    //Reset iterator for another epoch
             if (melodies.size() > 0) {
@@ -132,7 +164,9 @@ public class MelodyModelingExample {
                 PlayMelodyStrings.playMelody(melody, seconds, 48);
             }
         }
-        //  ModelSerializer.writeModel(net,"D:/tmp/MelodyModel-bach.zip",false);
+        int indexOfLastPeriod = inputSymbolicMelodiesFilename.lastIndexOf('.');
+        String saveFileName = inputSymbolicMelodiesFilename.substring(0, indexOfLastPeriod > 0 ? indexOfLastPeriod : inputSymbolicMelodiesFilename.length());
+        ModelSerializer.writeModel(net, "/tmp/" + saveFileName + ".zip", false);
 
         // Write all melodies to the output file, in reverse order (so that the best melodies are at the start of the file).
         PrintWriter printWriter = new PrintWriter(composedMelodiesOutputFilePath);
@@ -185,8 +219,8 @@ public class MelodyModelingExample {
      * @param net                MultiLayerNetwork with one or more GravesLSTM/RNN layers and a softmax output layer
      * @param iter               CharacterIterator. Used for going from indexes back to characters
      */
-    private static String[] sampleCharactersFromNetwork(String initialization, MultiLayerNetwork net,
-                                                        CharacterIterator iter, Random rng, int charactersToSample, int numSamples) {
+    public static String[] sampleCharactersFromNetwork(String initialization, MultiLayerNetwork net,
+                                                       CharacterIterator iter, Random rng, int charactersToSample, int numSamples) {
         //Set up initialization. If no initialization: use a random character
         if (initialization == null) {
             initialization = String.valueOf(iter.getRandomCharacter());
