@@ -7,6 +7,7 @@ import javafx.scene.image.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
+import org.deeplearning4j.api.storage.StatsStorage;
 import org.deeplearning4j.nn.api.OptimizationAlgorithm;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
@@ -15,12 +16,14 @@ import org.deeplearning4j.nn.conf.layers.DenseLayer;
 import org.deeplearning4j.nn.conf.layers.OutputLayer;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
+import org.deeplearning4j.ui.api.UIServer;
+import org.deeplearning4j.ui.stats.StatsListener;
+import org.deeplearning4j.ui.storage.InMemoryStatsStorage;
 import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
-
 /**
  * JavaFX application to show a neural network learning to draw an image.
  * Demonstrates how to feed an NN with externally originated data.
@@ -31,6 +34,7 @@ import org.nd4j.linalg.lossfunctions.LossFunctions;
  * TODO: sample does not shut down correctly. Process must be stopped from the IDE.
  *
  * @author Robert Altena
+ * Many thanks to @tmanthey for constructive feedback and suggestions.
  */
 public class ImageDrawer extends Application {
 
@@ -60,14 +64,22 @@ public class ImageDrawer extends Application {
         ds = generateDataSet(originalImage);
         nn = createNN();
 
+        boolean fUseUI = false; // set to false if you do not want the web ui to track learning progress.
+        if(fUseUI) {
+            UIServer uiServer = UIServer.getInstance();
+            StatsStorage statsStorage = new InMemoryStatsStorage();
+            uiServer.attach(statsStorage);
+            nn.setListeners(new StatsListener(statsStorage));
+        }
+
         // The x,y grid to calculate the NN output only needs to be calculated once.
         int numPoints = h * w;
         xyOut = Nd4j.zeros(numPoints, 2);
         for (int i = 0; i < w; i++) {
-            double xp = (double) i / (double) (w - 1);
+            double xp = scaleXY(i,w);
             for (int j = 0; j < h; j++) {
                 int index = i + w * j;
-                double yp = (double) j / (double) (h - 1);
+                double yp = scaleXY(j,h);
 
                 xyOut.put(index, 0, xp); //2 inputs. x and y.
                 xyOut.put(index, 1, yp);
@@ -130,20 +142,20 @@ public class ImageDrawer extends Application {
             .iterations(iterations)
             .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
             .learningRate(learningRate)
-            .weightInit(WeightInit.XAVIER)
+            .weightInit(WeightInit.RELU)
             .updater(Updater.NESTEROVS).momentum(0.9)
             .list()
             .layer(0, new DenseLayer.Builder().nIn(numInputs).nOut(numHiddenNodes)
-                .activation(Activation.IDENTITY)
+                .activation(Activation.LEAKYRELU)
                 .build())
             .layer(1, new DenseLayer.Builder().nIn(numHiddenNodes).nOut(numHiddenNodes)
-                .activation(Activation.RELU)
+                .activation(Activation.LEAKYRELU)
                 .build())
             .layer(2, new DenseLayer.Builder().nIn(numHiddenNodes).nOut(numHiddenNodes)
-                .activation(Activation.RELU)
+                .activation(Activation.LEAKYRELU)
                 .build())
             .layer(3, new DenseLayer.Builder().nIn(numHiddenNodes).nOut(numHiddenNodes)
-                .activation(Activation.RELU)
+                .activation(Activation.LEAKYRELU)
                 .build())
             .layer(4, new OutputLayer.Builder(LossFunctions.LossFunction.L2)
                 .activation(Activation.IDENTITY)
@@ -174,11 +186,11 @@ public class ImageDrawer extends Application {
 
         //Simplest implementation first.
         for (int i = 0; i < w; i++) {
-            double xp = (double) i / (double) (w - 1);
+            double xp = scaleXY(i,w);
             for (int j = 0; j < h; j++) {
                 Color c = reader.getColor(i, j);
                 int index = i + w * j;
-                double yp = (double) j / (double) (h - 1);
+                double yp = scaleXY(j,h);
 
                 xy.put(index, 0, xp); //2 inputs. x and y.
                 xy.put(index, 1, yp);
@@ -220,5 +232,12 @@ public class ImageDrawer extends Application {
     private static double capNNOutput(double x) {
         double tmp = (x<0.0) ? 0.0 : x;
         return (tmp > 1.0) ? 1.0 : tmp;
+    }
+
+    /**
+     * scale x,y points
+     */
+    private static double scaleXY(int i, int maxI){
+        return (double) i / (double) (maxI - 1) -0.5;
     }
 }
