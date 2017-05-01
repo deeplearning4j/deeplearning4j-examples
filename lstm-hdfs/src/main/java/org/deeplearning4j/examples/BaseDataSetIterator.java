@@ -8,6 +8,7 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.LocatedFileStatus;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.RemoteIterator;
+import org.datavec.hadoop.conf.ConfigurationUtil;
 
 /**
  * Base class for HDFS Iterator. This class holds your HDFS configs
@@ -18,41 +19,29 @@ public class BaseDataSetIterator {
 
     protected volatile RemoteIterator<LocatedFileStatus> hdfsIterator;
 
+    private final Configuration configuration;
+
     protected volatile FileSystem fs;
     protected volatile String hdfsUrl;
 
-    /* Set your HDFS URL here */
-    static final String HDFS_URL = "hdfs://...";
-
-    /* Set your data directory in HDFS here */
-    static final String DATA_DIR = "/user/your_home/workplace";
-
-    /*
-     * Set your CORE SITE, and HDFS SITE here. You might have different configs than mine
-     */
-    private static final String CORE_SITE = "/etc/hadoop-2.7.1/core-site.xml";
-    private static final String HDFS_SITE = "/etc/hadoop-2.7.1/hdfs-site.xml";
-
-    public BaseDataSetIterator(String hdfsUrl) {
-        this.hdfsUrl = hdfsUrl;
-        initialize();
+    public BaseDataSetIterator(Configuration configuration, String hdfsUrl) {
+        this.configuration = configuration;
+        initIterator(hdfsUrl);
     }
 
-    final void initialize() {
+    /**
+     * This method creates an instance of {@code org.apache.hadoop.conf.Configuration} to pass to the constructor
+     * {@link BaseDataSetIterator#BaseDataSetIterator(Configuration, String)}
+     * 
+     * @param baseConfPath Config path
+     * @return an instance of {@code org.apache.hadoop.conf.Configuration}
+     */
+    public static final Configuration initialize(String baseConfPath) {
 
-        Configuration configuration = new Configuration();
-        configuration.addResource(new Path(CORE_SITE));
-        configuration.addResource(new Path(HDFS_SITE));
-
+        Configuration configuration = ConfigurationUtil.generateConfig(baseConfPath);
         configuration.set("fs.hdfs.impl", org.apache.hadoop.hdfs.DistributedFileSystem.class.getName());
         configuration.set("fs.file.impl", org.apache.hadoop.fs.LocalFileSystem.class.getName());
-
-        try {
-            fs = FileSystem.get(configuration);
-            hdfsIterator = fs.listFiles(new Path(hdfsUrl), true);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        return configuration;
     }
 
     protected String getRelativeFilename(String path) {
@@ -62,5 +51,18 @@ public class BaseDataSetIterator {
             index = pathTokens.nextToken();
         }
         return index;
+    }
+
+    /**
+     * Adding this method to help reset the iterator (see {@link MDSIterator#reset()}
+     */
+    protected void initIterator(String hdfsUrl) {
+        try {
+            this.hdfsUrl = hdfsUrl;
+            fs = FileSystem.get(configuration);
+            hdfsIterator = fs.listFiles(new Path(this.hdfsUrl), true);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

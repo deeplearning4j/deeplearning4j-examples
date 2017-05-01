@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.NoSuchElementException;
 import java.util.Stack;
 
+import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.LocatedFileStatus;
 import org.apache.hadoop.fs.Path;
 import org.deeplearning4j.examples.conf.Constants;
@@ -33,17 +34,21 @@ public class MDSIterator extends BaseDataSetIterator implements MultiDataSetIter
 
     private static final long serialVersionUID = -2132071188514707198L;
 
-    public MDSIterator(String dataDirectory, int batchSize, int vectorSize, int labelSize) {
-        this(dataDirectory, batchSize, vectorSize, labelSize, Constants.END_SEQ - Constants.START_SEQ + 1, 0);
-    }
-
-    public MDSIterator(String dataDirectory, int batchSize, int vectorSize, int labelSize, int numSteps, int flag) {
-        super(HDFS_URL + dataDirectory + (flag == 0 ? "/train" : flag == 1 ? "/test" : "/predict"));
+    /**
+     * 
+     * @param dataDirectory Hadoop directory that contains either training/validation/testing data. The dataDirectory
+     *        should be of the following form: hdfs://your_cluster:port/folder
+     * @param batchSize Size of the mini batch
+     * @param vectorSize Number of features of your embeddings
+     * @param labelSize Number of classes
+     * @param numSteps
+     * @param flag Takes values 0 (training, 1 (validation), 2 (testing) and helps set the start and end of your
+     *        sequence.
+     */
+    public MDSIterator(Configuration configuration, String dataDirectory, int batchSize, int vectorSize, int labelSize,
+                    int numSteps, int flag) {
+        super(configuration, dataDirectory);
         this.batchSize = batchSize;
-        int pos = dataDirectory.lastIndexOf("/");
-        dataDirectory = (pos > -1 ? dataDirectory.substring(0, pos) : dataDirectory);
-        String folder = flag == 0 ? "/train" : flag == 1 ? "/test" : "/predict";
-        this.hdfsUrl = HDFS_URL + dataDirectory + folder;
         this.vectorSize = vectorSize;
         this.labelSize = labelSize;
         int start = Constants.START_SEQ;
@@ -137,7 +142,7 @@ public class MDSIterator extends BaseDataSetIterator implements MultiDataSetIter
 
     @Override
     public void reset() {
-        initialize();
+        super.initIterator(hdfsUrl);
     }
 
     @Override

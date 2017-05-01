@@ -48,8 +48,8 @@ class Recommender(batchSize: Int = 50, featureSize: Int, nEpochs: Int, hiddenUni
     dataDirectory: String, sc: SparkContext) extends Serializable {
 
   val logger = Logger(LoggerFactory.getLogger(this.getClass))
- 
-  ReflectionsHelper.registerUrlTypes()  
+
+  ReflectionsHelper.registerUrlTypes()
 
   val tm = new ParameterAveragingTrainingMaster.Builder(5, 1)
     .averagingFrequency(averagingFrequency)
@@ -80,7 +80,7 @@ class Recommender(batchSize: Int = 50, featureSize: Int, nEpochs: Int, hiddenUni
     .addLayer("secondLayer", new GravesLSTM.Builder().nIn(hiddenUnits).nOut(hiddenUnits)
       .activation("relu").build(), "firstLayer")
     .addLayer("outputLayer", new RnnOutputLayer.Builder().activation("softmax")
-    .lossFunction(LossFunctions.LossFunction.MCXENT).nIn(hiddenUnits).nOut(labelSize).build(), "secondLayer")
+      .lossFunction(LossFunctions.LossFunction.MCXENT).nIn(hiddenUnits).nOut(labelSize).build(), "secondLayer")
     .setOutputs("outputLayer")
     .pretrain(false).backprop(true)
     .build()
@@ -89,8 +89,9 @@ class Recommender(batchSize: Int = 50, featureSize: Int, nEpochs: Int, hiddenUni
   sparkNet.setCollectTrainingStats(false)
 
   def trainUsingEarlyStopping(modelDir: String) = {
-    val trainIter = new MDSIterator(dataDirectory, batchSize, featureSize, labelSize, 1, 0)
-    val testIter = new MDSIterator(dataDirectory, batchSize, featureSize, labelSize, 1, 1)
+
+    val trainIter = new MDSIterator(sc.hadoopConfiguration, dataDirectory, batchSize, featureSize, labelSize, 1, 0)
+    val testIter = new MDSIterator(sc.hadoopConfiguration, dataDirectory, batchSize, featureSize, labelSize, 1, 1)
 
     val saver = new LocalFileGraphSaver(FilenameUtils.concat(modelDir, "Recommender/"))
 
@@ -120,14 +121,14 @@ class Recommender(batchSize: Int = 50, featureSize: Int, nEpochs: Int, hiddenUni
   def predict(graphPath: String, items: List[String]): RDD[List[(String, Double)]] = {
     val graph = ModelSerializer.restoreComputationGraph(graphPath)
     predict(graph, items)
-  } 
+  }
 
   def predict(graph: ComputationGraph, items: List[String]): RDD[List[(String, Double)]] = {
 
     val iterator: MDSIterator =
-      new MDSIterator(dataDirectory, batchSize, featureSize, labelSize, 1, 1)
+      new MDSIterator(sc.hadoopConfiguration, dataDirectory, batchSize, featureSize, labelSize, 1, 1)
 
-    var itemScores = List[List[(String, Double)]]() 
+    var itemScores = List[List[(String, Double)]]()
     while (iterator.hasNext) {
       val next = iterator.next
       val score = graph.output(next.getFeatures(0).dup()).apply(0).data().asDouble()
