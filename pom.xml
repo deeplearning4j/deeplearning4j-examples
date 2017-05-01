@@ -1,7 +1,7 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <groupId>org.deeplearning4j</groupId>
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <groupId>org.deeplearning4j</groupId>
     <artifactId>deeplearning4j-examples-parent</artifactId>
     <version>0.8-SNAPSHOT</version>
     <modelVersion>4.0.0</modelVersion>
@@ -44,18 +44,18 @@
         <jackson.version>2.6.6</jackson.version>
     </properties>
 
+    <modules>
+        <module>dl4j-examples</module>
+        <module>dl4j-spark-examples</module>
+        <module>datavec-examples</module>
+        <module>dl4j-cuda-specific-examples</module>
+        <module>nd4j-examples</module>
+        <module>rl4j-examples</module>
+        <module>arbiter-examples</module>
+	<module>lstm-hdfs</module>
+    </modules>
 
-	<modules>
-		<module>dl4j-examples</module>
-		<module>dl4j-spark-examples</module>
-		<module>datavec-examples</module>
-		<module>dl4j-cuda-specific-examples</module>
-		<module>nd4j-examples</module>
-		<module>rl4j-examples</module>
-		<module>arbiter-examples</module>
-		<module>lstm-hdfs</module>
-	</modules>
-<!-- Maven Enforcer: Ensures user has an up to date version of Maven before building -->
+    <!-- Maven Enforcer: Ensures user has an up to date version of Maven before building -->
     <build>
       <plugins>
         <plugin>
@@ -186,4 +186,3 @@
     </profiles>
 
   </project>
-</project>
