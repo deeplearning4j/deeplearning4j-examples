@@ -5,19 +5,17 @@ import javafx.application.Application;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.DepthTest;
 import javafx.scene.Group;
 import javafx.scene.PerspectiveCamera;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.Slider;
+import javafx.scene.control.*;
 import javafx.scene.input.InputEvent;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.PickResult;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundFill;
-import javafx.scene.layout.CornerRadii;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.PhongMaterial;
 import javafx.scene.shape.Sphere;
@@ -26,8 +24,13 @@ import javafx.scene.transform.Rotate;
 import javafx.scene.transform.Translate;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 import javafx.stage.Window;
+import org.deeplearning4j.nn.api.Layer;
 import org.deeplearning4j.nn.api.Model;
+import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
+import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
+import org.deeplearning4j.nn.conf.layers.FeedForwardLayer;
 import org.deeplearning4j.nn.gradient.Gradient;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.nd4j.linalg.api.ndarray.INDArray;
@@ -110,10 +113,16 @@ public class GradientsAndParamsViewer extends Application {
     private Text textForSelectedGradientParam;
     final Button pauseButton = new Button(PAUSE_TEXT);
     final Button stepButton =  new Button("Step");
+    //final Button saveButton = new Button("Save");
     private volatile boolean paused=false;
     private volatile boolean stepping=false;
-
-    //....
+    private Stage layerStage=null;
+    private final Label helpLabelForLayers = new Label("Click on a bias/weight param name to view details");
+    private final TextField learningRateTextField = new TextField("");
+    private final TextField momentumTextField = new TextField("");
+    private final TextField activationFunctionTextField = new TextField("");
+    private final TextField updaterTextField = new TextField("");
+    //........
     private class GradientParamShape extends Sphere {
         private final String mapKey;
         private final int[] coordinateInIndArray;
@@ -244,6 +253,7 @@ public class GradientsAndParamsViewer extends Application {
         slider.setShowTickLabels(false);
         slider.setShowTickMarks(true);
         slider.setMajorTickUnit(5);
+        slider.setTooltip(new Tooltip("Modify the sensitivity of the mapping from gradients to colors."));
         BackgroundFill backgroundFill = new BackgroundFill(Color.AQUAMARINE, CornerRadii.EMPTY, Insets.EMPTY);
         Background background = new Background(backgroundFill);
         slider.setBackground(background);
@@ -475,10 +485,119 @@ public class GradientsAndParamsViewer extends Application {
         }
         System.out.println();
     }
+    private static String pretty(String string) {
+        StringBuilder sb = new StringBuilder();
+        int col=0;
+        for(int i=0;i<string.length();i++) {
+            char ch=string.charAt(i);
+            if (col>120 && ch==',') {
+                sb.append("\n  ");
+                col=0;
+            }
+            sb.append(ch);
+            col++;
+        }
+        return sb.toString();
+    }
+    private void makeLayerStage() {
+        int layerStageWidth=350;
+        int layerStageHeight=200;
+        int vboxPaneSpacing=20;
+        int hboxSpacing=30;
+        int textFieldColumnCountForDoubles=8;
+        layerStage=new Stage(StageStyle.DECORATED);
+        //final Group layerStageGroup = new Group();
+        VBox vboxPane = new VBox(vboxPaneSpacing);
+        vboxPane.setAlignment(Pos.CENTER);
 
+        HBox hboxLearningRate = new HBox(hboxSpacing);
+        HBox hboxMomentum = new HBox(hboxSpacing);
+        HBox hboxActivationFunction = new HBox(hboxSpacing);
+        HBox hboxUpdater = new HBox(hboxSpacing);
+
+        hboxLearningRate.setAlignment(Pos.CENTER);
+        hboxMomentum.setAlignment(Pos.CENTER);
+        hboxActivationFunction.setAlignment(Pos.CENTER);
+        hboxUpdater.setAlignment(Pos.CENTER);
+
+        vboxPane.getChildren().addAll(hboxLearningRate,hboxMomentum,hboxActivationFunction, hboxUpdater);
+
+        Scene layerScene = new Scene(vboxPane,layerStageWidth,layerStageHeight);
+        vboxPane.setBackground(new Background( new BackgroundFill(Color.LIGHTBLUE, CornerRadii.EMPTY, Insets.EMPTY)));
+
+        Label learningRateTitleLabel = new Label("Learning Rate: " );
+        Label momentumTitleLabel = new Label("Momentum: ");
+        Label activationFunctionLabel = new Label("Activation function: ");
+        Label updatedLabel = new Label("Updater: ");
+
+        learningRateTextField.setPrefColumnCount(textFieldColumnCountForDoubles);
+        momentumTextField.setPrefColumnCount(textFieldColumnCountForDoubles);
+        learningRateTextField.setEditable(false);
+        momentumTextField.setEditable(false);
+        activationFunctionTextField.setEditable(false);
+        updaterTextField.setEditable(false);
+
+        hboxLearningRate.getChildren().addAll(learningRateTitleLabel, learningRateTextField);
+        hboxMomentum.getChildren().addAll(momentumTitleLabel, momentumTextField);
+        hboxActivationFunction.getChildren().addAll(activationFunctionLabel,activationFunctionTextField);
+        hboxUpdater.getChildren().addAll(updatedLabel,updaterTextField);
+
+        layerStage.setScene(layerScene);
+        layerStage.setAlwaysOnTop(true);
+        layerStage.setOnCloseRequest(r -> {});
+        layerStage.show();
+    }
+    private void showLayerData(String key, Layer layer, MultiLayerNetwork network, String param) {
+        org.deeplearning4j.nn.conf.layers.Layer conf = layer.conf().getLayer();
+        System.out.println("For " + key + ", conf = " + pretty(conf.toString()));
+        if (layerStage == null || !layerStage.isShowing()) {
+            makeLayerStage();
+        }
+        layerStage.setTitle(key + " (" + layer.type() + ")");
+        // TODO: verify this logic:
+        double learningRate = param.startsWith("b")?  conf.getBiasLearningRate(): conf.getLearningRate();
+        learningRateTextField.setText(""+ learningRate);
+        momentumTextField.setText("" +conf.getMomentum());
+        activationFunctionTextField.setText(conf.getActivationFn().toString());
+        updaterTextField.setText(conf.getUpdater().toString());
+
+        layerStage.setTitle(key + ": " + layer.type());
+        layerStage.requestFocus();
+        // Modifying the learning rate or momentum is trickier than just setting the values in the configuration,
+        // so we disable editing. TODO.
+//        learningRateTextField.setOnAction(c -> {
+//            try {
+//                double newRate = Double.parseDouble(learningRateTextField.getText());
+//                if (newRate<=0) {
+//                    System.err.println("Invalid learning rate: " + newRate);
+//                    learningRateTextField.setText(""+ conf.getLearningRate());
+//                } else {
+//                    conf.setLearningRate(newRate);
+//                    System.out.println("learningRate changed to " + newRate);
+//                }
+//            } catch (NumberFormatException exc) {
+//                System.err.println("Invalid learning rate: " + learningRateTextField.getText());
+//            }
+//        });
+//        momentumTextField.setOnAction(c -> {
+//            System.out.println("momentum changed to " + momentumTextField.getText());
+//            try {
+//                double newMomentum = Double.parseDouble(momentumTextField.getText());
+//                if (newMomentum<0 || newMomentum>=1) {
+//                    System.err.println("Illegal momentum: " + newMomentum);
+//                    momentumTextField.setText(""+conf.getMomentum());
+//                } else {
+//                    conf.setMomentum(newMomentum);
+//                    System.out.println("momentum changed to " + newMomentum);
+//                }
+//            } catch (NumberFormatException exc) {
+//                System.err.println("Invalid momentum: " + momentumTextField.getText());
+//            }
+//        });
+    }
+    public void requestBackwardPassUpdate(Model model) {
     // We can't update the JavaFX UI components from this thread, so we just store the updates in the GradientParamShape's variables. Later,
     // the animation handler will apply the updates to the JavaFX shapes themselves.
-    public void requestBackwardPassUpdate(Model model) {
         while (paused) {
             try {
                 Thread.sleep(200);
@@ -490,6 +609,7 @@ public class GradientsAndParamsViewer extends Application {
         Gradient gradient = model.gradient();
         Map<String, INDArray> gradientMap = gradient.gradientForVariable();
         Map<String, INDArray> paramMap = model.paramTable();
+        final MultiLayerNetwork multiLayerNetwork = (MultiLayerNetwork) model;
         if (sampleCoordinatesNeedToBeChosen) {
             chooseSampleCoordinates(gradientMap);
             System.out.println("Created " + allGradientParamShapes.size() + " shapes");
@@ -498,8 +618,20 @@ public class GradientsAndParamsViewer extends Application {
             int layerIndex = 0;
             double deltaY = (0.0 + HEIGHT) / gradientMap.size();
             for (String key : gradientMap.keySet()) {
-                Text text = new Text(10, (HEIGHT - deltaY / 2) - deltaY * layerIndex, key);
+                Text text = new Text(15, (HEIGHT - deltaY / 2) - deltaY * layerIndex, key);
+                text.setFill(Color.GOLD);
+                text.setFont(new Font(18));
                 texts.add(text);
+                text.setOnMouseClicked(e -> {
+                    System.out.println("Clicked " + key + ", model.getClass() = " + model.getClass());
+                    // Examples of a key are "2_W" and "5_B", where 2 and 5 are the layer numbers, respectively.
+                    String parts[]= key.split("_");
+                    if (parts.length==2) {
+                        Layer layer = multiLayerNetwork.getLayer(Integer.parseInt(parts[0]));
+                        String param=parts[1];
+                        showLayerData(key, layer, multiLayerNetwork, param);
+                    }
+                });
                 layerIndex++;
             }
             sampleCoordinatesNeedToBeChosen = false;
@@ -577,6 +709,16 @@ public class GradientsAndParamsViewer extends Application {
             return numberFormatLonger.format(d);
         }
     }
+    private void addHelpLabelForLayers() {
+        helpLabelForLayers.setTranslateX(-165);
+        helpLabelForLayers.setTranslateY(HEIGHT/2);
+        helpLabelForLayers.setRotationAxis(Rotate.Z_AXIS);
+        helpLabelForLayers.setRotate(-90);
+        helpLabelForLayers.setFont(new Font(15));
+        helpLabelForLayers.setTextFill(Color.ANTIQUEWHITE);
+        shapesGroup.getChildren().add(helpLabelForLayers);
+    }
+
     private void animate() {
         final AnimationTimer timer = new AnimationTimer() {
             @Override
@@ -618,13 +760,14 @@ public class GradientsAndParamsViewer extends Application {
         stage.setOnCloseRequest(r -> System.exit(0));
         stage.setTitle("Gradient & parameters visualization for a sample of neurons. " +
             "The mouse & arrow keys navigate in 3D. Blue is - gradient; red is +; slider adjusts colors." +
-            " Large radius is positive param; small radii is negative.");
+            " Large radius is positive param; small radius is negative.");
         stage.setMinWidth(850);
         stage.setMinHeight(600);
         buildCamera();
         buildSlider();
         buildPauseButton();
         buildStepButton();
+        addHelpLabelForLayers();
         createTextForSelectedGradientParam();
         root.setDepthTest(DepthTest.ENABLE);
         root.getChildren().add(shapesGroup);
