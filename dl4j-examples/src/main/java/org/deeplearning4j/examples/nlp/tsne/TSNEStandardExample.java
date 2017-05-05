@@ -23,7 +23,6 @@ import java.util.List;
  * Dimensionality reduction for high-dimension datasets
  */
 public class TSNEStandardExample {
-
     private static Logger log = LoggerFactory.getLogger(TSNEStandardExample.class);
 
     public static void main(String[] args) throws Exception  {
@@ -62,9 +61,14 @@ public class TSNEStandardExample {
         //This tsne will use the weights of the vectors as its matrix, have two dimensions, use the words strings as
         //labels, and be written to the outputFile created on the previous line
         // Plot Data with gnuplot
-        // set datafile separator ","
-        // plot 'tsne-standard-coords.csv' using 1:2:3 with labels font "Times,8"
+        //    set datafile separator ","
+        //    plot 'tsne-standard-coords.csv' using 1:2:3 with labels font "Times,8"
         //!!! Possible error: plot was recently deprecated. Might need to re-do the last line
+        //
+        // If you use nDims=3 in the call to tsne.plot above, you can use the following gnuplot commands to
+        // generate a 3d visualization of the word vectors:
+        //    set datafile separator ","
+        //    splot 'tsne-standard-coords.csv' using 1:2:3:4 with labels font "Times,8"
     }
 
 
