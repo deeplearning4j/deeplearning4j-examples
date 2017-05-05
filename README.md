@@ -49,7 +49,7 @@ Beware that your editor (e.g. IntelliJ) may not be using the JDK that is your sy
 
 ### On IntelliJ
 
-To run the JavaFX examples from IntelliJ, you'll have to add the `jfxrt.jar` as an exernal dependency of your project. Here's a screencast on how to do it: https://youtu.be/gbpnFwmtiW4
+To run the JavaFX examples from IntelliJ, you'll have to add the `jfxrt.jar` as an exernal dependency of your project. Here's a screencast on how to do it: https://youtu.be/si146q7WkSY
 
 #### On Ubuntu
 
