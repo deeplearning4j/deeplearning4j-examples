@@ -38,7 +38,7 @@ For more information, check out [deeplearning4j.org](http://deeplearning4j.org/)
 `GradientsListenerExample.java` in dl4j-examples/src/main/java/org/deeplearning4j/examples/userInterface uses JavaFX. If you're using Java 8 or greater, it should run as is.  If you're using Java 7 or an earlier version, you should set JAVAFX_HOME to point to the root directory of the JavaFX 2.0 SDK.
 
 
-### Known issues
+### Known issues with JavaFX
 
 If you are running on JDK 1.7 or inferior, the maven-enforcer plugin will require you to set the variable `JAVAFX_HOME` before building.
 That variable should point to a directory containing `jfxrt.jar`, a file that is part of the JavaFX 2.0 distrbution.
@@ -47,7 +47,11 @@ Please set it to an instance of JavaFX that matches the JDK with which you are t
 
 Beware that your editor (e.g. IntelliJ) may not be using the JDK that is your system default (and that you may ancounter on the command line).
 
-### On Ubuntu
+### On IntelliJ
+
+To run the JavaFX examples from IntelliJ, you'll have to add the `jfxrt.jar` as an exernal dependency of your project. Here's a screencast on how to do it: https://youtu.be/gbpnFwmtiW4
+
+#### On Ubuntu
 
 If you are using OpenJDK, on Ubuntu 16, you can install OpenJFX with `sudo apt-get install libopenjfx-java`. A typical `JAVAFX_HOME` is then `/usr/share/java/openjfx/jre/lib/ext/`. If you are on Ubuntu 14, you can install OpenJFX with the following process:
 
@@ -58,7 +62,7 @@ If you are using OpenJDK, on Ubuntu 16, you can install OpenJFX with `sudo apt-g
 - `sudo apt-get --compile source libopenjfx-java`
 - `ls -1 *.deb|xargs sudo dpkg -i`
 
-### On JDK 1.8
+#### On JDK 1.8
 
 The Sun version of JDK8 still comes with its own JavaFX, so that there should be no need to configure anything particular there and the build will succeed. If using OpenJDK8, you will still have to install OpenJFX and set `JAVAFX_HOME`, but the maven-enforcer plugin will not catch you — the reason being that it's difficult to distinguish between OpenJDK and Sun's JDK since version 8, with both adoptiong the same Vendor ID.
 
