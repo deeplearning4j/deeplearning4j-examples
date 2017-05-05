@@ -109,7 +109,7 @@ public class GradientsAndParamsViewer extends Application {
     private Rectangle screenBounds;
     private double minParam = Double.MAX_VALUE;
     private double maxParam = Double.NEGATIVE_INFINITY;
-    private double radiusLogitFactor = DEFAULT_RADIUS_LOGIT_FACTOR; // TODO: make this adjustable
+    private double radiusLogitFactor = DEFAULT_RADIUS_LOGIT_FACTOR;
     private Text textForSelectedGradientParam;
     final Button pauseButton = new Button(PAUSE_TEXT);
     final Button stepButton =  new Button("Step");
@@ -143,7 +143,6 @@ public class GradientsAndParamsViewer extends Application {
             //double deltaWidth=(0.0+WIDTH)/sampleSizePerLayer;
             double deltaWidth = (0.0 + WIDTH) / Math.min(numberOfSamples, 10);
             double deltaHeight = (0.0 + HEIGHT) / numberOfLayers;
-            //setTranslateX(deltaWidth/2 + sampleIndex*deltaWidth);
             setTranslateX(deltaWidth / 2 + (sampleIndex % Math.min(numberOfSamples, 10)) * deltaWidth);
             setTranslateY(HEIGHT - (deltaHeight / 2 + layerIndex * deltaHeight));
             setTranslateZ(120 * (sampleIndex / 10));
@@ -179,11 +178,9 @@ public class GradientsAndParamsViewer extends Application {
                 lastParam = param;
                 needsUpdate = true;
                 if (lastParam < minParam) {
-                    //System.out.println("minParam = " + lastParam);
                     minParam = lastParam;
                 }
                 if (lastParam > maxParam) {
-                    //System.out.println("maxParam = " + lastParam);
                     maxParam = lastParam;
                 }
             }
@@ -532,6 +529,9 @@ public class GradientsAndParamsViewer extends Application {
 
         learningRateTextField.setPrefColumnCount(textFieldColumnCountForDoubles);
         momentumTextField.setPrefColumnCount(textFieldColumnCountForDoubles);
+
+        // Modifying the learning rate or momentum is trickier than just setting the values in the configuration,
+        // so we disable editing and don't create action handlers.
         learningRateTextField.setEditable(false);
         momentumTextField.setEditable(false);
         activationFunctionTextField.setEditable(false);
@@ -554,8 +554,7 @@ public class GradientsAndParamsViewer extends Application {
             makeLayerStage();
         }
         layerStage.setTitle(key + " (" + layer.type() + ")");
-        // TODO: verify this logic:
-        double learningRate = param.startsWith("b")?  conf.getBiasLearningRate(): conf.getLearningRate();
+        double learningRate = conf.getLearningRateByParam(param);
         learningRateTextField.setText(""+ learningRate);
         momentumTextField.setText("" +conf.getMomentum());
         activationFunctionTextField.setText(conf.getActivationFn().toString());
@@ -563,37 +562,6 @@ public class GradientsAndParamsViewer extends Application {
 
         layerStage.setTitle(key + ": " + layer.type());
         layerStage.requestFocus();
-        // Modifying the learning rate or momentum is trickier than just setting the values in the configuration,
-        // so we disable editing. TODO.
-//        learningRateTextField.setOnAction(c -> {
-//            try {
-//                double newRate = Double.parseDouble(learningRateTextField.getText());
-//                if (newRate<=0) {
-//                    System.err.println("Invalid learning rate: " + newRate);
-//                    learningRateTextField.setText(""+ conf.getLearningRate());
-//                } else {
-//                    conf.setLearningRate(newRate);
-//                    System.out.println("learningRate changed to " + newRate);
-//                }
-//            } catch (NumberFormatException exc) {
-//                System.err.println("Invalid learning rate: " + learningRateTextField.getText());
-//            }
-//        });
-//        momentumTextField.setOnAction(c -> {
-//            System.out.println("momentum changed to " + momentumTextField.getText());
-//            try {
-//                double newMomentum = Double.parseDouble(momentumTextField.getText());
-//                if (newMomentum<0 || newMomentum>=1) {
-//                    System.err.println("Illegal momentum: " + newMomentum);
-//                    momentumTextField.setText(""+conf.getMomentum());
-//                } else {
-//                    conf.setMomentum(newMomentum);
-//                    System.out.println("momentum changed to " + newMomentum);
-//                }
-//            } catch (NumberFormatException exc) {
-//                System.err.println("Invalid momentum: " + momentumTextField.getText());
-//            }
-//        });
     }
     public void requestBackwardPassUpdate(Model model) {
     // We can't update the JavaFX UI components from this thread, so we just store the updates in the GradientParamShape's variables. Later,
