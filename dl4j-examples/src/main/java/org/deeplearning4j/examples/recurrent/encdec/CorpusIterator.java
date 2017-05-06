@@ -110,6 +110,17 @@ public class CorpusIterator implements MultiDataSetIterator {
 
     }
 
+    /**
+     * Get the {@link MultiDataSetPreProcessor}, if one has previously been set.
+     * Returns null if no preprocessor has been set
+     *
+     * @return Preprocessor
+     */
+    @Override
+    public MultiDataSetPreProcessor getPreProcessor() {
+        return null;
+    }
+
     @Override
     public boolean resetSupported() {
         // we don't want this iterator to be reset on each macrobatch pseudo-epoch

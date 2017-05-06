@@ -143,6 +143,17 @@ public class CustomSequenceIterator implements MultiDataSetIterator {
 
     }
 
+    /**
+     * Get the {@link MultiDataSetPreProcessor}, if one has previously been set.
+     * Returns null if no preprocessor has been set
+     *
+     * @return Preprocessor
+     */
+    @Override
+    public MultiDataSetPreProcessor getPreProcessor() {
+        return null;
+    }
+
     /*
         Helper method for encoder input
         Given two numbers, num1 and num, returns a string array which represents the input to the encoder RNN

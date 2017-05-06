@@ -123,7 +123,7 @@ public class MultiTimestepRegressionExample {
             .seed(140)
             .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
             .iterations(1)
-            .workspaceMode(WorkspaceMode.SINGLE)
+            .trainingWorkspaceMode(WorkspaceMode.SINGLE)
             .weightInit(WeightInit.XAVIER)
             .updater(Updater.NESTEROVS).momentum(0.9)
             .learningRate(0.15)

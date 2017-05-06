@@ -85,7 +85,7 @@ public class SingleTimestepRegressionExample {
             .iterations(1)
             .weightInit(WeightInit.XAVIER)
             .updater(Updater.NESTEROVS).momentum(0.9)
-            .workspaceMode(WorkspaceMode.SEPARATE)
+            .trainingWorkspaceMode(WorkspaceMode.SEPARATE)
             .learningRate(0.0015)
             .list()
             .layer(0, new GravesLSTM.Builder().activation(Activation.TANH).nIn(1).nOut(10)

@@ -94,7 +94,7 @@ public class AdditionRNN {
                 .updater(Updater.ADAM)
                 .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT).iterations(nIterations)
                 .seed(seed)
-                .workspaceMode(WorkspaceMode.SINGLE)
+                .trainingWorkspaceMode(WorkspaceMode.SINGLE)
                 .graphBuilder()
                 //These are the two inputs to the computation graph
                 .addInputs("additionIn", "sumOut")

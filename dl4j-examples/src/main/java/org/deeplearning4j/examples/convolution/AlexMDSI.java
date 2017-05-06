@@ -38,7 +38,7 @@ public class AlexMDSI {
         int vectorSize = 128;
 
         ComputationGraphConfiguration conf = new NeuralNetConfiguration.Builder()
-            .workspaceMode(WorkspaceMode.SEPARATE)
+            .trainingWorkspaceMode(WorkspaceMode.SEPARATE)
 //                .workspaceMode(WorkspaceMode.NONE)
             .updater(Updater.ADAM).adamMeanDecay(0.9).adamVarDecay(0.999)
             .weightInit(WeightInit.XAVIER)
@@ -222,6 +222,17 @@ public class AlexMDSI {
         @Override
         public void setPreProcessor(MultiDataSetPreProcessor preProcessor) {
             throw new UnsupportedOperationException();
+        }
+
+        /**
+         * Get the {@link MultiDataSetPreProcessor}, if one has previously been set.
+         * Returns null if no preprocessor has been set
+         *
+         * @return Preprocessor
+         */
+        @Override
+        public MultiDataSetPreProcessor getPreProcessor() {
+            return null;
         }
 
         @Override

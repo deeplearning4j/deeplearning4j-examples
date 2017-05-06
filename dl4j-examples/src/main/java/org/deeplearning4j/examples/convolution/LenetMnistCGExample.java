@@ -3,6 +3,7 @@ package org.deeplearning4j.examples.convolution;
 import org.deeplearning4j.datasets.iterator.AsyncShieldDataSetIterator;
 import org.deeplearning4j.datasets.iterator.impl.MnistDataSetIterator;
 import org.deeplearning4j.eval.Evaluation;
+import org.deeplearning4j.eval.ROC;
 import org.deeplearning4j.nn.api.OptimizationAlgorithm;
 import org.deeplearning4j.nn.conf.*;
 import org.deeplearning4j.nn.conf.inputs.InputType;
@@ -15,7 +16,6 @@ import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
 import org.deeplearning4j.optimize.listeners.PerformanceListener;
 import org.deeplearning4j.parallelism.ParallelWrapper;
-import org.nd4j.context.Nd4jContext;
 import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
@@ -38,6 +38,8 @@ public class LenetMnistCGExample {
         int nEpochs = 10; // Number of training epochs
         int iterations = 1; // Number of training iterations
         int seed = 123; //
+
+        //CudaEnvironment.getInstance().getConfiguration().allowCrossDeviceAccess(false);
 
         /*
             Create an iterator using the batch size for one iteration
@@ -62,7 +64,7 @@ public class LenetMnistCGExample {
                 .weightInit(WeightInit.XAVIER)
                 .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
                 .updater(Updater.NESTEROVS).momentum(0.9)
-                .workspaceMode(WorkspaceMode.SINGLE)
+                .trainingWorkspaceMode(WorkspaceMode.SINGLE)
                 .graphBuilder()
                 .addInputs("input")
                 .addLayer("cnn1", new ConvolutionLayer.Builder(5, 5)
@@ -119,7 +121,7 @@ public class LenetMnistCGExample {
         // ParallelWrapper will take care of load balancing between GPUs.
         ParallelWrapper wrapper = new ParallelWrapper.Builder(model)
             // DataSets prefetching options. Set this value with respect to number of actual devices
-            .prefetchBuffer(8)
+            .prefetchBuffer(4)
 
             // set number of workers equal or higher then number of available devices. x1-x2 are good values to start with
             .workers(2)
@@ -140,7 +142,7 @@ public class LenetMnistCGExample {
             .build();
 
         log.info("Train model....");
-        nEpochs = 100;
+        nEpochs = 1;
         model.setListeners(new PerformanceListener(50, true));
         for( int i=0; i<nEpochs; i++ ) {
             long time1 = System.currentTimeMillis();
@@ -155,13 +157,16 @@ public class LenetMnistCGExample {
         }
 
 
+
         log.info("Evaluate model....");
         Evaluation eval = new Evaluation(outputNum);
-        while(mnistTest.hasNext()){
+//        ROC roceval = new ROC(outputNum);
+        model.doEvaluation(mnistTest, eval);
+        /*while(mnistTest.hasNext()){
             DataSet ds = mnistTest.next();
             INDArray output = model.output(false,ds.getFeatureMatrix())[0];
             eval.eval(ds.getLabels(), output);
-        }
+        }*/
         log.info(eval.stats());
         mnistTest.reset();
         log.info("****************Example finished********************");

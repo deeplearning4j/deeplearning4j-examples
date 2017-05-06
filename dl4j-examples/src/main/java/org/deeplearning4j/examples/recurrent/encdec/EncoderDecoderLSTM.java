@@ -166,7 +166,7 @@ public class EncoderDecoderLSTM {
         NeuralNetConfiguration.Builder builder = new NeuralNetConfiguration.Builder();
         builder.iterations(1).learningRate(LEARNING_RATE).rmsDecay(RMS_DECAY)
                 .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT).miniBatch(true).updater(Updater.RMSPROP)
-                .workspaceMode(WorkspaceMode.SEPARATE)
+                .trainingWorkspaceMode(WorkspaceMode.SEPARATE)
                 .weightInit(WeightInit.XAVIER).gradientNormalization(GradientNormalization.RenormalizeL2PerLayer);
 
         GraphBuilder graphBuilder = builder.graphBuilder().pretrain(false).backprop(true);//.backpropType(BackpropType.Standard)
