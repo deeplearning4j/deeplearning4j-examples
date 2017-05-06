@@ -6,6 +6,7 @@ import org.deeplearning4j.nn.api.OptimizationAlgorithm;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
 import org.deeplearning4j.nn.conf.Updater;
+import org.deeplearning4j.nn.conf.WorkspaceMode;
 import org.deeplearning4j.nn.conf.inputs.InputType;
 import org.deeplearning4j.nn.conf.layers.ConvolutionLayer;
 import org.deeplearning4j.nn.conf.layers.DenseLayer;
@@ -22,6 +23,7 @@ import org.nd4j.linalg.api.buffer.util.DataTypeUtil;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
+import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -117,16 +119,16 @@ public class MultiGpuLenetMnistExample {
             .prefetchBuffer(24)
 
             // set number of workers equal or higher then number of available devices. x1-x2 are good values to start with
-            .workers(4)
+            .workers(Nd4j.getAffinityManager().getNumberOfDevices())
 
             // rare averaging improves performance, but might reduce model accuracy
-            .averagingFrequency(3)
+            .averagingFrequency(5)
 
             // if set to TRUE, on every averaging model score will be reported
             .reportScoreAfterAveraging(true)
 
-            // optinal parameter, set to false ONLY if your system has support P2P memory access across PCIe (hint: AWS do not support P2P)
-            .useLegacyAveraging(true)
+            // this model is small, so it should fit into SINGLE workspace without issues
+            .workspaceMode(WorkspaceMode.SINGLE)
 
             .build();
 
@@ -152,11 +154,8 @@ public class MultiGpuLenetMnistExample {
 
         log.info("Evaluate model....");
         Evaluation eval = new Evaluation(outputNum);
-        while(mnistTest.hasNext()){
-            DataSet ds = mnistTest.next();
-            INDArray output = model.output(ds.getFeatureMatrix(), false);
-            eval.eval(ds.getLabels(), output);
-        }
+        model.doEvaluation(mnistTest, eval);
+
         log.info(eval.stats());
         mnistTest.reset();
 

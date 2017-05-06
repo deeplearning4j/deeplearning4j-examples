@@ -3,10 +3,7 @@ package org.deeplearning4j.examples.convolution;
 import org.deeplearning4j.datasets.iterator.impl.MnistDataSetIterator;
 import org.deeplearning4j.eval.Evaluation;
 import org.deeplearning4j.nn.api.OptimizationAlgorithm;
-import org.deeplearning4j.nn.conf.LearningRatePolicy;
-import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
-import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
-import org.deeplearning4j.nn.conf.Updater;
+import org.deeplearning4j.nn.conf.*;
 import org.deeplearning4j.nn.conf.inputs.InputType;
 import org.deeplearning4j.nn.conf.layers.ConvolutionLayer;
 import org.deeplearning4j.nn.conf.layers.DenseLayer;
@@ -83,6 +80,8 @@ public class LenetMnistExample {
                 .weightInit(WeightInit.XAVIER)
                 .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
                 .updater(Updater.NESTEROVS).momentum(0.9)
+                .trainingWorkspaceMode(WorkspaceMode.SINGLE)
+                .inferenceWorkspaceMode(WorkspaceMode.SINGLE)
                 .list()
                 .layer(0, new ConvolutionLayer.Builder(5, 5)
                         //nIn and nOut specify depth. nIn here is the nChannels and nOut is the number of filters to be applied
@@ -140,12 +139,7 @@ public class LenetMnistExample {
 
             log.info("Evaluate model....");
             Evaluation eval = new Evaluation(outputNum);
-            while(mnistTest.hasNext()){
-                DataSet ds = mnistTest.next();
-                INDArray output = model.output(ds.getFeatureMatrix(), false);
-                eval.eval(ds.getLabels(), output);
-
-            }
+            model.doEvaluation(mnistTest, eval);
             log.info(eval.stats());
             mnistTest.reset();
         }
