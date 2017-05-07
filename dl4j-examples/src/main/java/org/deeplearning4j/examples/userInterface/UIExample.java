@@ -19,7 +19,6 @@ import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 public class UIExample {
 
     public static void main(String[] args){
-
         //Get our network and training data
         MultiLayerNetwork net = UIExampleUtils.getMnistNetwork();
         DataSetIterator trainData = UIExampleUtils.getMnistData();

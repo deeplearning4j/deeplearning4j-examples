@@ -59,13 +59,10 @@ public class Toy {
                     2000        //num step for eps greedy anneal
             );
 
+
     public static DQNFactoryStdDense.Configuration TOY_NET =
-            new DQNFactoryStdDense.Configuration(
-                    3,        //number of layers
-                    16,       //number of hidden nodes
-                    0.001,    //learning rate
-                    0.01      //l2 regularization
-            );
+             DQNFactoryStdDense.Configuration.builder()
+        .l2(0.01).learningRate(1e-2).numLayer(3).numHiddenNodes(16).build();
 
     public static void main(String[] args )
     {

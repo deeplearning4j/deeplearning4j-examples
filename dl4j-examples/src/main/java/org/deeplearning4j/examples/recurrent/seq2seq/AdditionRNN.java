@@ -90,7 +90,7 @@ public class AdditionRNN {
         ComputationGraphConfiguration configuration = new NeuralNetConfiguration.Builder()
                 .weightInit(WeightInit.XAVIER)
                 .learningRate(0.25)
-                .updater(Updater.SGD)
+                .updater(Updater.ADAM)
                 .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT).iterations(nIterations)
                 .seed(seed)
                 .graphBuilder()
@@ -119,7 +119,7 @@ public class AdditionRNN {
 
         //Train model:
         int iEpoch = 0;
-        int testSize = 20;
+        int testSize = 100;
         Seq2SeqPredicter predictor = new Seq2SeqPredicter(net);
         while (iEpoch < nEpochs) {
             net.fit(iterator);
@@ -127,7 +127,6 @@ public class AdditionRNN {
             MultiDataSet testData = iterator.generateTest(testSize);
             INDArray predictions = predictor.output(testData);
             encode_decode_eval(predictions,testData.getFeatures()[0],testData.getLabels()[0]);
-            iEpoch++;
             /*
             (Comment/Uncomment) the following block of code to (see/or not see) how the output of the decoder is fed back into the input during test time
             */
@@ -135,6 +134,7 @@ public class AdditionRNN {
             testData = iterator.generateTest(3);
             predictor.output(testData,true);
             System.out.println("\n* = * = * = * = * = * = * = * = * = ** EPOCH " + iEpoch + " COMPLETE ** = * = * = * = * = * = * = * = * = * = * = * = * = * =");
+            iEpoch++;
         }
 
     }

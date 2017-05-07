@@ -44,7 +44,7 @@ import org.slf4j.LoggerFactory;
 */
 public class MLPMnistTwoLayerExample {
 
-    private static Logger log = LoggerFactory.getLogger(MLPMnistSingleLayerExample.class);
+    private static Logger log = LoggerFactory.getLogger(MLPMnistTwoLayerExample.class);
 
     public static void main(String[] args) throws Exception {
         //number of rows and columns in the input pictures

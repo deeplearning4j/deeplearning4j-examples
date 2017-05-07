@@ -5,51 +5,48 @@
     <parent>
         <artifactId>dl4j-spark-examples</artifactId>
         <groupId>org.deeplearning4j</groupId>
-        <version>0.7-SNAPSHOT</version>
+        <version>0.8-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>dl4j-spark</artifactId>
 
     <properties>
-        <scala.binary.version>2.11</scala.binary.version>
-        <spark.version>1.6.0</spark.version>
-        <scala.version>2.11.7</scala.version>
         <jcommander.version>1.27</jcommander.version>
-        <spark.scope>compile</spark.scope>
     </properties>
+    
+    <dependencyManagement>
+    	<dependencies>
+    		<dependency>
+    			<groupId>com.fasterxml.jackson.core</groupId>
+    			<artifactId>jackson-databind</artifactId>
+    			<version>${jackson.version}</version>
+    		</dependency>
+    		<dependency>
+    			<groupId>com.fasterxml.jackson.core</groupId>
+    			<artifactId>jackson-annotations</artifactId>
+    			<version>${jackson.version}</version>
+    		</dependency>
+    		<dependency>
+    			<groupId>com.fasterxml.jackson.module</groupId>
+    			<artifactId>jackson-module-scala_2.11</artifactId>
+    			<version>${jackson.version}</version>
+    		</dependency>
+    	</dependencies>
+    </dependencyManagement>
 
     <dependencies>
 
         <dependency>
             <groupId>org.nd4j</groupId>
-            <artifactId>nd4j-native-platform</artifactId>
+            <artifactId>${nd4j.backend}</artifactId>
             <version>${nd4j.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.deeplearning4j</groupId>
             <artifactId>dl4j-spark_${scala.binary.version}</artifactId>
-            <version>${dl4j.version}</version>
-            <exclusions>
-                <exclusion>
-                    <artifactId>spark-core_2.10</artifactId>
-                    <groupId>org.apache.spark</groupId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.spark</groupId>
-            <artifactId>spark-core_${scala.binary.version}</artifactId>
-            <version>${spark.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>javax.servlet</groupId>
-                    <artifactId>servlet-api</artifactId>
-                </exclusion>
-            </exclusions>
-            <scope>${spark.scope}</scope>
+            <version>${dl4j.spark.version}</version>
         </dependency>
 
 
@@ -58,6 +55,20 @@
             <artifactId>jcommander</artifactId>
             <version>${jcommander.version}</version>
         </dependency>
+
+		<dependency>
+			<groupId>com.amazonaws</groupId>
+			<artifactId>aws-java-sdk-emr</artifactId>
+			<version>${aws.sdk.version}</version>
+			<scope>provided</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>com.amazonaws</groupId>
+			<artifactId>aws-java-sdk-s3</artifactId>
+			<version>${aws.sdk.version}</version>
+			<scope>provided</scope>
+		</dependency>
 
     </dependencies>
 
@@ -130,5 +141,4 @@
             </plugin>
         </plugins>
     </build>
-
 </project>

@@ -24,7 +24,7 @@ import org.deeplearning4j.nn.conf.layers.*;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
 import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
-import org.deeplearning4j.util.NetSaverLoaderUtils;
+import org.deeplearning4j.util.ModelSerializer;
 import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
@@ -48,7 +48,7 @@ import static org.bytedeco.javacpp.opencv_imgproc.COLOR_BGR2YCrCb;
  *
  * References:
  *  - U.S. Fish and Wildlife Service (animal sample dataset): http://digitalmedia.fws.gov/cdm/
- *  - Tiny ImageNet Classification with CNN: http://cs231n.stanford.edu/reports/leonyao_final.pdf
+ *  - Tiny ImageNet Classification with CNN: http://cs231n.stanford.edu/reports/2015/pdfs/leonyao_final.pdf
  *
  * CHALLENGE: Current setup gets low score results. Can you improve the scores? Some approaches:
  *  - Add additional images to the dataset
@@ -96,7 +96,7 @@ public class AnimalsClassification {
          * Data Setup -> train test split
          *  - inputSplit = define train and test split
          **/
-        InputSplit[] inputSplit = fileSplit.sample(pathFilter, numExamples * (1 + splitTrainTest), numExamples * (1 - splitTrainTest));
+        InputSplit[] inputSplit = fileSplit.sample(pathFilter, splitTrainTest, 1 - splitTrainTest);
         InputSplit trainData = inputSplit[0];
         InputSplit testData = inputSplit[1];
 
@@ -188,8 +188,7 @@ public class AnimalsClassification {
         if (save) {
             log.info("Save model....");
             String basePath = FilenameUtils.concat(System.getProperty("user.dir"), "src/main/resources/");
-            NetSaverLoaderUtils.saveNetworkAndParameters(network, basePath);
-            NetSaverLoaderUtils.saveUpdators(network, basePath);
+            ModelSerializer.writeModel(network, basePath + "model.bin", true);
         }
         log.info("****************Example finished********************");
     }

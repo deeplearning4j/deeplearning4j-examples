@@ -40,12 +40,8 @@ public class Cartpole
             );
 
     public static DQNFactoryStdDense.Configuration CARTPOLE_NET =
-            new DQNFactoryStdDense.Configuration(
-                    3,         //number of layers
-                    16,        //number of hidden nodes
-                    0.001,     //learning rate
-                    0.00       //l2 regularization
-            );
+        DQNFactoryStdDense.Configuration.builder()
+            .l2(0.001).learningRate(0.0005).numHiddenNodes(16).numLayer(3).build();
 
     public static void main( String[] args )
     {
