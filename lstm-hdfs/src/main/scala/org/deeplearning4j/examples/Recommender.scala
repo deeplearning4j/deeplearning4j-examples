@@ -47,7 +47,7 @@ class Recommender(batchSize: Int = 50, featureSize: Int, nEpochs: Int, hiddenUni
     learningRate: Double = 0.1, regularization: Double = 0.001, labelSize: Int,
     dataDirectory: String, sc: SparkContext) extends Serializable {
 
-  val logger = Logger(LoggerFactory.getLogger(this.getClass))
+  val logger = LoggerFactory.getLogger(this.getClass)
 
   ReflectionsHelper.registerUrlTypes()
 
