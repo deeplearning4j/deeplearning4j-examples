@@ -140,7 +140,12 @@ public class CustomSequenceIterator implements MultiDataSetIterator {
     }
 
     public void setPreProcessor(MultiDataSetPreProcessor multiDataSetPreProcessor) {
+        throw new UnsupportedOperationException();
+    }
 
+    @Override
+    public MultiDataSetPreProcessor getPreProcessor() {
+        throw new UnsupportedOperationException();
     }
 
     /*

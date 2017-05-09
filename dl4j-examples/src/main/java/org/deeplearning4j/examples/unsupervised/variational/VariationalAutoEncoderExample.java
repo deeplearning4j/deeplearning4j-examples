@@ -17,6 +17,7 @@ import org.nd4j.linalg.dataset.api.DataSet;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.indexing.NDArrayIndex;
+import org.nd4j.linalg.learning.config.RmsProp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,7 +61,7 @@ public class VariationalAutoEncoderExample {
             .seed(rngSeed)
             .iterations(1).optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
             .learningRate(1e-2)
-            .updater(Updater.RMSPROP).rmsDecay(0.95)
+            .updater(new RmsProp(0.95))
             .weightInit(WeightInit.XAVIER)
             .regularization(true).l2(1e-4)
             .list()
@@ -68,7 +69,7 @@ public class VariationalAutoEncoderExample {
                 .activation(Activation.LEAKYRELU)
                 .encoderLayerSizes(256, 256)        //2 encoder layers, each of size 256
                 .decoderLayerSizes(256, 256)        //2 decoder layers, each of size 256
-                .pzxActivationFunction("identity")  //p(z|data) activation function
+                .pzxActivationFunction(Activation.IDENTITY)  //p(z|data) activation function
                 .reconstructionDistribution(new BernoulliReconstructionDistribution(Activation.SIGMOID.getActivationFunction()))     //Bernoulli distribution for p(data|z) (binary or 0 to 1 data only)
                 .nIn(28 * 28)                       //Input size: 28x28
                 .nOut(2)                            //Size of the latent variable space: p(z|x). 2 dimensions here for plotting, use more in general

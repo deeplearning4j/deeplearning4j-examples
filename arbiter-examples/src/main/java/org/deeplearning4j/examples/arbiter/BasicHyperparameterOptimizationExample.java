@@ -2,13 +2,13 @@ package org.deeplearning4j.examples.arbiter;
 
 import org.deeplearning4j.arbiter.DL4JConfiguration;
 import org.deeplearning4j.arbiter.MultiLayerSpace;
-import org.deeplearning4j.arbiter.data.DataSetIteratorProvider;
 import org.deeplearning4j.arbiter.layers.DenseLayerSpace;
 import org.deeplearning4j.arbiter.layers.OutputLayerSpace;
 import org.deeplearning4j.arbiter.optimize.api.CandidateGenerator;
 import org.deeplearning4j.arbiter.optimize.api.OptimizationResult;
 import org.deeplearning4j.arbiter.optimize.api.ParameterSpace;
 import org.deeplearning4j.arbiter.optimize.api.data.DataProvider;
+import org.deeplearning4j.arbiter.optimize.api.data.DataSetIteratorProvider;
 import org.deeplearning4j.arbiter.optimize.api.saving.ResultReference;
 import org.deeplearning4j.arbiter.optimize.api.saving.ResultSaver;
 import org.deeplearning4j.arbiter.optimize.api.score.ScoreFunction;
@@ -86,13 +86,13 @@ public class BasicHyperparameterOptimizationExample {
 
         //Now: We need to define a few configuration options
         // (a) How are we going to generate candidates? (random search or grid search)
-        CandidateGenerator<DL4JConfiguration> candidateGenerator = new RandomSearchGenerator<>(hyperparameterSpace);    //Alternatively: new GridSearchCandidateGenerator<>(hyperparameterSpace, 5, GridSearchCandidateGenerator.Mode.RandomOrder);
+        CandidateGenerator<DL4JConfiguration> candidateGenerator = new RandomSearchGenerator<>(hyperparameterSpace, null);    //Alternatively: new GridSearchCandidateGenerator<>(hyperparameterSpace, 5, GridSearchCandidateGenerator.Mode.RandomOrder);
 
         // (b) How are going to provide data? For now, we'll use a simple built-in data provider for DataSetIterators
         int nTrainEpochs = 2;
         DataSetIterator mnistTrain = new MultipleEpochsIterator(nTrainEpochs, new MnistDataSetIterator(64,true,12345));
         DataSetIterator mnistTest = new MnistDataSetIterator(64,false,12345);
-        DataProvider<DataSetIterator> dataProvider = new DataSetIteratorProvider(mnistTrain, mnistTest);
+        DataProvider<Object> dataProvider = new DataSetIteratorProvider(mnistTrain, mnistTest);
 
         // (c) How we are going to save the models that are generated and tested?
         //     In this example, let's save them to disk the working directory
@@ -105,7 +105,7 @@ public class BasicHyperparameterOptimizationExample {
 
         // (d) What are we actually trying to optimize?
         //     In this example, let's use classification accuracy on the test set
-        ScoreFunction<MultiLayerNetwork,DataSetIterator> scoreFunction = new TestSetAccuracyScoreFunction();
+        ScoreFunction<MultiLayerNetwork,Object> scoreFunction = new TestSetAccuracyScoreFunction();
 
         // (e) When should we stop searching? Specify this with termination conditions
         //     For this example, we are stopping the search at 15 minutes or 20 candidates - whichever comes first
@@ -114,8 +114,8 @@ public class BasicHyperparameterOptimizationExample {
 
 
         //Given these configuration options, let's put them all together:
-        OptimizationConfiguration<DL4JConfiguration, MultiLayerNetwork, DataSetIterator, Object> configuration
-            = new OptimizationConfiguration.Builder<DL4JConfiguration, MultiLayerNetwork, DataSetIterator, Object>()
+        OptimizationConfiguration<DL4JConfiguration, MultiLayerNetwork, Object, Object> configuration
+            = new OptimizationConfiguration.Builder<DL4JConfiguration, MultiLayerNetwork, Object, Object>()
                 .candidateGenerator(candidateGenerator)
                 .dataProvider(dataProvider)
                 .modelSaver(modelSaver)
