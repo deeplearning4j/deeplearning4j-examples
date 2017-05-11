@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.deeplearning4j</groupId>
+	<artifactId>deeplearning4j-examples-parent</artifactId>
+	<version>0.8-SNAPSHOT</version>
+    </parent>
+    <groupId>org.deeplearning4j.examples</groupId>
+    <artifactId>lstm-hdfs</artifactId>
+    <name>lstm-hdfs</name>
+    <url>http://maven.apache.org</url>
+
+    <properties>
+        <dl4j.version>0.8.0</dl4j.version>
+	<dl4j.spark.version>0.8.0_spark_2</dl4j.spark.version>
+    </properties>
+
+    <build>
+        <pluginManagement>
+	    <plugins>
+	        <plugin>
+		    <groupId>org.apache.maven.plugins</groupId>
+		    <artifactId>maven-surefire-plugin</artifactId>
+	            <configuration>
+	                <argLine>-Ddtype=double</argLine>
+		    </configuration>
+		</plugin>
+		<plugin>
+		    <groupId>org.scala-tools</groupId>
+		    <artifactId>maven-scala-plugin</artifactId>
+		    <!--version>2.15.2</version -->
+		</plugin>
+	    </plugins>
+        </pluginManagement>
+	<plugins>
+	    <plugin>
+	        <groupId>org.scala-tools</groupId>
+		<artifactId>maven-scala-plugin</artifactId>
+		<executions>
+		<!-- <execution> <id>scala-compile-first</id> <phase>process-resources</phase> <goals> <goal>add-source</goal> <goal>compile</goal> </goals> </execution> <execution> <id>scala-test-compile</id> <phase>process-test-resources</phase> 
+		<goals> <goal>testCompile</goal> </goals> </execution> -->
+		</executions>
+	    </plugin>
+        </plugins>
+    </build>
+    <dependencyManagement>
+        <dependencies>
+	    <dependency>
+	        <groupId>org.nd4j</groupId>
+		<artifactId>nd4j-api</artifactId>
+		<version>${nd4j.version}</version>
+	    </dependency>
+	    <dependency>
+	        <groupId>org.nd4j</groupId>
+		<artifactId>nd4j-native</artifactId>
+		<version>${nd4j.version}</version>
+		<scope>test</scope>
+	    </dependency>
+	    <dependency>
+	        <groupId>org.nd4j</groupId>
+		<artifactId>nd4j-common</artifactId>
+		<version>${nd4j.version}</version>
+	    </dependency>
+	    <dependency>
+	        <groupId>org.nd4j</groupId>
+		<artifactId>nd4j-cuda-8.0</artifactId>
+		<version>${nd4j.version}</version>
+		<scope>test</scope>
+	    </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <dependencies>
+        <dependency>
+	    <groupId>junit</groupId>
+	    <artifactId>junit</artifactId>
+	    <version>3.8.1</version>
+	    <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.deeplearning4j</groupId>
+	    <artifactId>dl4j-spark-nlp_2.11</artifactId>
+	    <version>${dl4j.spark.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.deeplearning4j</groupId>
+	    <artifactId>dl4j-spark_2.11</artifactId>
+	    <version>${dl4j.spark.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.spark</groupId>
+	    <artifactId>spark-core_2.11</artifactId>
+	    <version>2.1.0</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/org.datavec/datavec-api -->
+        <dependency>
+            <groupId>org.datavec</groupId>
+	    <artifactId>datavec-hadoop</artifactId>
+	    <version>${dl4j.version}</version>
+        </dependency>
+
+        <dependency>
+	    <groupId>org.apache.commons</groupId>
+	    <artifactId>commons-collections4</artifactId>
+	    <version>4.1</version>
+        </dependency>
+
+        <!-- Logging Dependencies -->
+        <dependency>
+	    <groupId>com.typesafe.scala-logging</groupId>
+	    <artifactId>scala-logging_2.11</artifactId>
+	    <version>3.5.0</version>
+        </dependency>
+
+        <dependency>
+	    <groupId>ch.qos.logback</groupId>
+	    <artifactId>logback-classic</artifactId>
+	    <version>${logback.version}</version>
+        </dependency>
+
+        <!-- ND4J -->
+        <dependency>
+	    <groupId>org.nd4j</groupId>
+	    <artifactId>nd4j-native-platform</artifactId>
+	    <version>${nd4j.version}</version>
+        </dependency>
+        <dependency>
+	    <groupId>org.nd4j</groupId>
+	    <artifactId>nd4j-api</artifactId>
+        </dependency>
+    </dependencies>
+</project>

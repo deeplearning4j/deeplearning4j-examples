@@ -52,6 +52,7 @@
         <module>nd4j-examples</module>
         <module>rl4j-examples</module>
         <module>arbiter-examples</module>
+	<module>lstm-hdfs</module>
     </modules>
 
     <!-- Maven Enforcer: Ensures user has an up to date version of Maven before building -->
@@ -93,6 +94,7 @@
               <directory>nd4j-examples</directory>
               <directory>rl4j-examples</directory>
               <directory>arbiter-examples</directory>
+	      <directory>lstm-hdfs</directory>
             </directories>
           </configuration>
         </plugin>
