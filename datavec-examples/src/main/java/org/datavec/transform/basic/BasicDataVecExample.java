@@ -141,8 +141,10 @@ public class BasicDataVecExample {
 
         JavaSparkContext sc = new JavaSparkContext(conf);
 
-        String directory = new ClassPathResource("BasicDataVecExample/exampledata.csv").getFile().getAbsolutePath(); //Normally just define your directory like "file:/..." or "hdfs:/..."
-        JavaRDD<String> stringData = sc.textFile(directory);
+        //Define the path to the data file. You could use a directory here if the data is in multiple files
+        //Normally just define your path like "file:/..." or "hdfs:/..."
+        String path = new ClassPathResource("BasicDataVecExample/exampledata.csv").getFile().getAbsolutePath();
+        JavaRDD<String> stringData = sc.textFile(path);
 
         //We first need to parse this format. It's comma-delimited (CSV) format, so let's parse it using CSVRecordReader:
         RecordReader rr = new CSVRecordReader();
