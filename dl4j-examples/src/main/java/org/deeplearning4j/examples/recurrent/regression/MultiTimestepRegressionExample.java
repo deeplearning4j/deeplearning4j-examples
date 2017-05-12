@@ -1,6 +1,5 @@
 package org.deeplearning4j.examples.recurrent.regression;
 
-
 import org.apache.commons.io.FileUtils;
 import org.datavec.api.records.reader.SequenceRecordReader;
 import org.datavec.api.records.reader.impl.csv.CSVSequenceRecordReader;
@@ -152,14 +151,13 @@ public class MultiTimestepRegressionExample {
             while (testDataIter.hasNext()) {
                 DataSet t = testDataIter.next();
                 INDArray features = t.getFeatureMatrix();
-                INDArray lables = t.getLabels();
+                INDArray labels = t.getLabels();
                 INDArray predicted = net.output(features, true);
 
-                evaluation.evalTimeSeries(lables, predicted);
+                evaluation.evalTimeSeries(labels, predicted);
             }
 
             System.out.println(evaluation.stats());
-
             testDataIter.reset();
         }
 
@@ -167,7 +165,7 @@ public class MultiTimestepRegressionExample {
          * All code below this point is only necessary for plotting
          */
 
-        //Init rrnTimeStemp with train data and predict test data
+        //Init rrnTimeStep with train data and predict test data
         while (trainDataIter.hasNext()) {
             DataSet t = trainDataIter.next();
             net.rnnTimeStep(t.getFeatureMatrix());
@@ -214,25 +212,20 @@ public class MultiTimestepRegressionExample {
     }
 
     /**
-     * Used to create the different time series for ploting purposes
+     * Used to create the different time series for plotting purposes
      */
-    private static XYSeriesCollection createSeries(XYSeriesCollection seriesCollection, INDArray data, int offset, String name) {
+    private static void createSeries(XYSeriesCollection seriesCollection, INDArray data, int offset, String name) {
         int nRows = data.shape()[2];
         boolean predicted = name.startsWith("Predicted");
-        int repeat = predicted ? data.shape()[1] : data.shape()[0];
 
-        for (int j = 0; j < repeat; j++) {
-            XYSeries series = new XYSeries(name + j);
-            for (int i = 0; i < nRows; i++) {
-                if (predicted)
-                    series.add(i + offset, data.slice(0).slice(j).getDouble(i));
-                else
-                    series.add(i + offset, data.slice(j).getDouble(i));
-            }
-            seriesCollection.addSeries(series);
+        XYSeries series = new XYSeries(name);
+        for (int i = 0; i < nRows; i++) {
+            if (predicted)
+                series.add(i + offset, data.slice(0).slice(0).getDouble(i));
+            else
+                series.add(i + offset, data.slice(0).getDouble(i));
         }
-
-        return seriesCollection;
+        seriesCollection.addSeries(series);
     }
 
     /**
@@ -291,11 +284,10 @@ public class MultiTimestepRegressionExample {
         for (int i = 0; i < trainSize; i++) {
             Path featuresPath = Paths.get(featuresDirTrain.getAbsolutePath() + "/train_" + i + ".csv");
             Path labelsPath = Paths.get(labelsDirTrain + "/train_" + i + ".csv");
-            int j;
-            for (j = 0; j < numberOfTimesteps; j++) {
+            for (int j = 0; j < numberOfTimesteps; j++) {
                 Files.write(featuresPath, rawStrings.get(i + j).concat(System.lineSeparator()).getBytes(), StandardOpenOption.APPEND, StandardOpenOption.CREATE);
             }
-            Files.write(labelsPath, rawStrings.get(i + j).concat(System.lineSeparator()).getBytes(), StandardOpenOption.APPEND, StandardOpenOption.CREATE);
+            Files.write(labelsPath, rawStrings.get(i + numberOfTimesteps).concat(System.lineSeparator()).getBytes(), StandardOpenOption.APPEND, StandardOpenOption.CREATE);
         }
 
         for (int i = trainSize; i < testSize + trainSize; i++) {
