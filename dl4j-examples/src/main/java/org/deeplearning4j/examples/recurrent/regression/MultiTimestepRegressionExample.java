@@ -161,7 +161,7 @@ public class MultiTimestepRegressionExample {
             testDataIter.reset();
         }
 
-        /**
+        /*
          * All code below this point is only necessary for plotting
          */
 
@@ -293,11 +293,10 @@ public class MultiTimestepRegressionExample {
         for (int i = trainSize; i < testSize + trainSize; i++) {
             Path featuresPath = Paths.get(featuresDirTest + "/test_" + i + ".csv");
             Path labelsPath = Paths.get(labelsDirTest + "/test_" + i + ".csv");
-            int j;
-            for (j = 0; j < numberOfTimesteps; j++) {
+            for (int j = 0; j < numberOfTimesteps; j++) {
                 Files.write(featuresPath, rawStrings.get(i + j).concat(System.lineSeparator()).getBytes(), StandardOpenOption.APPEND, StandardOpenOption.CREATE);
             }
-            Files.write(labelsPath, rawStrings.get(i + j).concat(System.lineSeparator()).getBytes(), StandardOpenOption.APPEND, StandardOpenOption.CREATE);
+            Files.write(labelsPath, rawStrings.get(i + numberOfTimesteps).concat(System.lineSeparator()).getBytes(), StandardOpenOption.APPEND, StandardOpenOption.CREATE);
         }
 
         return rawStrings;
