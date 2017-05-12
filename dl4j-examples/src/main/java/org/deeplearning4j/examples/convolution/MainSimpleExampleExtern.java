@@ -16,7 +16,6 @@ import org.deeplearning4j.nn.conf.layers.OutputLayer;
 import org.deeplearning4j.nn.graph.ComputationGraph;
 import org.deeplearning4j.nn.weights.WeightInit;
 import org.deeplearning4j.optimize.listeners.PerformanceListener;
-import org.nd4j.jita.conf.CudaEnvironment;
 import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.api.buffer.DataBuffer;
 import org.nd4j.linalg.api.buffer.util.DataTypeUtil;
@@ -32,11 +31,6 @@ public class MainSimpleExampleExtern {
 
     public static void main(String[] args) {
         DataTypeUtil.setDTypeForContext(DataBuffer.Type.FLOAT);
-
-        Nd4j.create(1);
-
-        CudaEnvironment.getInstance().getConfiguration()
-            .setMaximumDeviceCache((5L * 1024 * 1024 * 1024L));
 
 
         Nd4j.getMemoryManager().togglePeriodicGc(false);

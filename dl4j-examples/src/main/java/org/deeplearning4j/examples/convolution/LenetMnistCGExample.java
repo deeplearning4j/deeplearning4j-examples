@@ -143,11 +143,11 @@ public class LenetMnistCGExample {
 
         log.info("Train model....");
         nEpochs = 1;
-        model.setListeners(new PerformanceListener(50, true));
+        model.setListeners(new PerformanceListener(50, true));//, new EvaluativeListener(mnistTest, 50));
         for( int i=0; i<nEpochs; i++ ) {
             long time1 = System.currentTimeMillis();
-            model.fit((mnistTrain));
-            //wrapper.fit(mnistTrain);
+            //model.fit((mnistTrain));
+            wrapper.fit(mnistTrain);
             long time2 = System.currentTimeMillis();
 
 
@@ -157,18 +157,19 @@ public class LenetMnistCGExample {
         }
 
 
-
+/*
         log.info("Evaluate model....");
         Evaluation eval = new Evaluation(outputNum);
 //        ROC roceval = new ROC(outputNum);
         model.doEvaluation(mnistTest, eval);
-        /*while(mnistTest.hasNext()){
+        while(mnistTest.hasNext()){
             DataSet ds = mnistTest.next();
             INDArray output = model.output(false,ds.getFeatureMatrix())[0];
             eval.eval(ds.getLabels(), output);
-        }*/
+        }
         log.info(eval.stats());
         mnistTest.reset();
+        */
         log.info("****************Example finished********************");
 
     }
