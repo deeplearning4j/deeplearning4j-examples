@@ -1,6 +1,5 @@
 package org.deeplearning4j.examples.recurrent.regression;
 
-
 import org.datavec.api.records.reader.SequenceRecordReader;
 import org.datavec.api.records.reader.impl.csv.CSVSequenceRecordReader;
 import org.datavec.api.split.NumberedFileInputSplit;
@@ -30,7 +29,6 @@ import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.nd4j.linalg.dataset.api.preprocessor.NormalizerMinMaxScaler;
-import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -126,10 +124,12 @@ public class SingleTimestepRegressionExample {
         normalizer.revert(testData);
         normalizer.revertLabels(predicted);
 
+        INDArray trainFeatures = trainData.getFeatures();
+        INDArray testFeatures = testData.getFeatures();
         //Create plot with out data
         XYSeriesCollection c = new XYSeriesCollection();
-        createSeries(c, trainData.getFeatures(), 0, "Train data");
-        createSeries(c, testData.getFeatures(), 99, "Actual test data");
+        createSeries(c, trainFeatures, 0, "Train data");
+        createSeries(c, testFeatures, 99, "Actual test data");
         createSeries(c, predicted, 100, "Predicted test data");
 
         plotDataset(c);
@@ -137,17 +137,14 @@ public class SingleTimestepRegressionExample {
         LOGGER.info("----- Example Complete -----");
     }
 
-    private static XYSeriesCollection createSeries(XYSeriesCollection seriesCollection, INDArray data, int offset, String name) {
+    private static void createSeries(XYSeriesCollection seriesCollection, INDArray data, int offset, String name) {
         int nRows = data.shape()[2];
         XYSeries series = new XYSeries(name);
         for (int i = 0; i < nRows; i++) {
             series.add(i + offset, data.getDouble(i));
         }
-
         seriesCollection.addSeries(series);
-
-        return seriesCollection;
-    }
+}
 
     /**
      * Generate an xy plot of the datasets provided.
