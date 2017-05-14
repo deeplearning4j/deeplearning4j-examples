@@ -165,7 +165,7 @@ public class MultiTimestepRegressionExample {
          * All code below this point is only necessary for plotting
          */
 
-        //Init rrnTimeStep with train data and predict test data
+        //Init rnnTimeStep with train data and predict test data
         while (trainDataIter.hasNext()) {
             DataSet t = trainDataIter.next();
             net.rnnTimeStep(t.getFeatureMatrix());
