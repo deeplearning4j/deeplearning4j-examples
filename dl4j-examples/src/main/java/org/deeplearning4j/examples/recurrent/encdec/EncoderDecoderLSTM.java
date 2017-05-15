@@ -45,78 +45,132 @@ import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 
+/**
+ * <p>
+ * This is a seq2seq encoder-decoder LSTM model made according to Google's paper
+ * <a href="https://arxiv.org/abs/1506.05869">A Neural Conversational Model</a>.
+ * </p>
+ * <p>
+ * The model tries to predict the next dialog line using the provided one. It
+ * learns on the <a href=
+ * "https://www.cs.cornell.edu/~cristian/Cornell_Movie-Dialogs_Corpus.html">Cornell
+ * Movie Dialogs corpus</a>. Unlike simple char RNNs this model is more
+ * sophisticated and theoretically, given enough time and data, can deduce facts
+ * from raw text. Your mileage may vary. This particular network architecture is
+ * based on AdditionRNN but changed to be used with a huge amount of possible
+ * tokens (10-40k) instead of just digits.
+ * </p>
+ * <p>
+ * Use the get_data.sh script to download, extract and optimize the train data.
+ * It's been only tested on Linux, it could work on OS X or even on Windows 10
+ * in the Ubuntu shell.
+ * </p>
+ * <p>
+ * Special tokens used:
+ * </p>
+ * <ul>
+ * <li><code>&lt;unk&gt;</code> - replaces any word or other token that's not in
+ * the dictionary (too rare to be included or completely unknown)</li>
+ * <li><code>&lt;eos&gt;</code> - end of sentence, used only in the output to
+ * stop the processing; the model input and output length is limited by the
+ * ROW_SIZE constant.</li>
+ * <li><code>&lt;go&gt;</code> - used only in the decoder input as the first
+ * token before the model produced anything
+ * </ul>
+ * <p>
+ * The architecture is like this:
+ *
+ * <pre>
+ * Input =&gt; Embedding Layer =&gt; Encoder =&gt; Decoder =&gt; Output (softmax)
+ * </pre>
+ * <p>
+ * The encoder layer produces a so called "thought vector" that contains a
+ * neurally-compressed representation of the input. Depending on that vector the
+ * model produces different sentences even if they start with the same token.
+ * There's one more input, connected directly to the decoder layer, it's used to
+ * provide the previous token of the output. For the very first output token we
+ * send a special <code>&gt;go&lt;</code> token there, on the next iteration we
+ * use the token that the model produced the last time. On the training stage
+ * everything is simple, we apriori know the desired output so the decoder input
+ * would be the same token set prepended with the <code>&gt;go&lt;</code> token
+ * and without the last <code>&lt;eos&gt;</code> token. Example:
+ * </p>
+ * <p>
+ * Input: "how" "do" "you" "do" "?"<br>
+ * Output: "I'm" "fine" "," "thanks" "!" "<code>&lt;eos&gt;</code>"<br>
+ * Decoder: "<code>&lt;go&gt;</code>" "I'm" "fine" "," "thanks" "!"
+ * </p>
+ * <p>
+ * Actually, the input is reversed as per <a href=
+ * "https://papers.nips.cc/paper/5346-sequence-to-sequence-learning-with-neural-networks.pdf">Sequence
+ * to Sequence Learning with Neural Networks</a>, the most important words are
+ * usually in the beginning of the phrase and they would get more weight if
+ * supplied last (the model "forgets" tokens that were supplied "long ago", i.e.
+ * they have lesser weight than the recent ones). The output and decoder input
+ * sequence lengths are always equal. The input and output could be of any
+ * length (less than {@link #ROW_SIZE}) so for purpose of batching we mask the
+ * unused part of the row. The encoder and decoder layers work sequentially.
+ * First the encoder creates the thought vector, that is the last activations of
+ * the layer. Those activations are then duplicated for as many time steps as
+ * there are elements in the output so that every output element can have its
+ * own copy of the thought vector. Then the decoder starts working. It receives
+ * two inputs, the thought vector made by the encoder and the token that it
+ * _should have produced_ (but usually it outputs something else so we have our
+ * loss metric and can compute gradients for the backward pass) on the previous
+ * step (or <code>&lt;go&gt;</code> for the very first step). These two vectors are simply
+ * concatenated by the merge vertex. The decoder's output goes to the softmax
+ * layer and that's it.
+ * </p>
+ * <p>
+ * The test phase is much more tricky. We don't know the decoder input because
+ * we don't know the output yet (unlike in the train phase), it could be
+ * anything. So we can't use methods like outputSingle() and have to do some
+ * manual work. Actually, we can but it would require full restarts of the
+ * entire process, it's super slow and ineffective.
+ * </p>
+ * <p>
+ * First, we do a single feed forward pass for the input with a single decoder
+ * element, <code>&lt;go&gt;</code>. We don't need the actual activations except
+ * the "thought vector". It resides in the second merge vertex input (named
+ * "dup"). So we get it and store for the entire response generation time. Then
+ * we put the decoder input (<code>&lt;go&gt;</code> for the first iteration) and the thought
+ * vector to the merge vertex inputs and feed it forward. The result goes to the
+ * decoder layer, now with rnnTimeStep() method so that the internal layer state
+ * is updated for the next iteration. The result is fed to the output softmax
+ * layer and then we sample it randomly (not with argMax(), it tends to give a
+ * lot of same tokens in a row). The resulting token is looked up in the
+ * dictionary, printed to the {@link System#out} and then it goes to the next
+ * iteration as the decoder input and so on until we get
+ * <code>&lt;eos&gt;</code>.
+ * </p>
+ * <p>
+ * To continue the training process from a specific batch number, enter it when
+ * prompted; batch numbers are printed after each processed macrobatch. If
+ * you've changed the minibatch size after the last launch, recalculate the
+ * number accordingly, i.e. if you doubled the minibatch size, specify half of
+ * the value and so on.
+ * </p>
+ */
 public class EncoderDecoderLSTM {
 
-    /*
-     * This is a seq2seq encoder-decoder LSTM model made according to the Google's paper: [1] The model tries to predict the next dialog
-     * line using the provided one. It learns on the Cornell Movie Dialogs corpus. Unlike simple char RNNs this model is more sophisticated
-     * and theoretically, given enough time and data, can deduce facts from raw text. Your mileage may vary. This particular network
-     * architecture is based on AdditionRNN but changed to be used with a huge amount of possible tokens (10-40k) instead of just digits.
-     * 
-     * Use the get_data.sh script to download, extract and optimize the train data. It's been only tested on Linux, it could work on OS X or
-     * even on Windows 10 in the Ubuntu shell.
-     * 
-     * Special tokens used:
-     * 
-     * <unk> - replaces any word or other token that's not in the dictionary (too rare to be included or completely unknown)
-     * 
-     * <eos> - end of sentence, used only in the output to stop the processing; the model input and output length is limited by the ROW_SIZE
-     * constant.
-     * 
-     * <go> - used only in the decoder input as the first token before the model produced anything
-     * 
-     * The architecture is like this: Input => Embedding Layer => Encoder => Decoder => Output (softmax)
-     * 
-     * The encoder layer produces a so called "thought vector" that contains a neurally-compressed representation of the input. Depending on
-     * that vector the model produces different sentences even if they start with the same token. There's one more input, connected directly
-     * to the decoder layer, it's used to provide the previous token of the output. For the very first output token we send a special <go>
-     * token there, on the next iteration we use the token that the model produced the last time. On the training stage everything is
-     * simple, we apriori know the desired output so the decoder input would be the same token set prepended with the <go> token and without
-     * the last <eos> token. Example:
-     * 
-     * Input: "how" "do" "you" "do" "?"
-     * 
-     * Output: "I'm" "fine" "," "thanks" "!" "<eos>"
-     * 
-     * Decoder: "<go>" "I'm" "fine" "," "thanks" "!"
-     * 
-     * Actually, the input is reversed as per [2], the most important words are usually in the beginning of the phrase and they would get
-     * more weight if supplied last (the model "forgets" tokens that were supplied "long ago", i.e. they have lesser weight than the recent
-     * ones). The output and decoder input sequence lengths are always equal. The input and output could be of any length (less than
-     * ROW_SIZE) so for purpose of batching we mask the unused part of the row. The encoder and decoder layers work sequentially. First the
-     * encoder creates the thought vector, that is the last activations of the layer. Those activations are then duplicated for as many time
-     * steps as there are elements in the output so that every output element can have its own copy of the thought vector. Then the decoder
-     * starts working. It receives two inputs, the thought vector made by the encoder and the token that it _should have produced_ (but
-     * usually it outputs something else so we have our loss metric and can compute gradients for the backward pass) on the previous step
-     * (or <go> for the very first step). These two vectors are simply concatenated by the merge vertex. The decoder's output goes to the
-     * softmax layer and that's it.
-     * 
-     * The test phase is much more tricky. We don't know the decoder input because we don't know the output yet (unlike in the train phase),
-     * it could be anything. So we can't use methods like outputSingle() and have to do some manual work. Actually, we can but it would
-     * require full restarts of the entire process, it's super slow and ineffective.
-     * 
-     * First, we do a single feed forward pass for the input with a single decoder element, <go>. We don't need the actual activations
-     * except the "thought vector". It resides in the second merge vertex input (named "dup"). So we get it and store for the entire
-     * response generation time. Then we put the decoder input (<go> for the first iteration) and the thought vector to the merge vertex
-     * inputs and feed it forward. The result goes to the decoder layer, now with rnnTimeStep() method so that the internal layer state is
-     * updated for the next iteration. The result is fed to the output softmax layer and then we sample it randomly (not with argMax(), it
-     * tends to give a lot of same tokens in a row). The resulting token is looked up in the dictionary, printed to the stdout and then it
-     * goes to the next iteration as the decoder input and so on until we get <eos>.
-     *
-     * To continue the training process from a specific batch number, enter it when prompted; batch numbers are printed after each processed
-     * macrobatch. If you've changed the minibatch size after the last launch, recalculate the number accordingly, i.e. if you doubled the
-     * minibatch size, specify half of the value and so on.
-     * 
-     * [1] https://arxiv.org/abs/1506.05869 A Neural Conversational Model
-     * 
-     * [2] https://papers.nips.cc/paper/5346-sequence-to-sequence-learning-with-neural-networks.pdf Sequence to Sequence Learning with
-     * Neural Networks
+    /**
+     * Dictionary that maps words into numbers.
      */
-
     private final Map<String, Double> dict = new HashMap<>();
+
+    /**
+     * Reverse map of {@link #dict}.
+     */
     private final Map<Double, String> revDict = new HashMap<>();
+
     private final String CHARS = "-\\/_&" + CorpusProcessor.SPECIALS;
-    private List<List<Double>> corpus = new ArrayList<>();
+
+    /**
+     * The contents of the corpus. This is a list of sentences (each word of the
+     * sentence is denoted by a {@link java.lang.Double}).
+     */
+    private final List<List<Double>> corpus = new ArrayList<>();
+
     private static final int HIDDEN_LAYER_WIDTH = 512; // this is purely empirical, affects performance and VRAM requirement
     private static final int EMBEDDING_WIDTH = 128; // one-hot vectors will be embedded to more dense vectors with this width
     private static final String CORPUS_FILENAME = "movie_lines.txt"; // filename of data corpus to learn
@@ -132,8 +186,14 @@ public class EncoderDecoderLSTM {
     private static final double LEARNING_RATE = 1e-1;
     private static final double RMS_DECAY = 0.95;
     private static final int ROW_SIZE = 40; // maximum line length in tokens
-    private static final int GC_WINDOW = 2000; // delay between garbage collections, try to reduce if you run out of VRAM or increase for
-                                               // better performance
+
+    /**
+     * The delay between invocations of {@link java.lang.System#gc()} in
+     * milliseconds. If VRAM is being exhausted, reduce this value. Increase
+     * this value to yield better performance.
+     */
+    private static final int GC_WINDOW = 2000;
+
     private static final int MACROBATCH_SIZE = 20; // see CorpusIterator
     private ComputationGraph net;
 
