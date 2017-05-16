@@ -195,6 +195,10 @@ public class EncoderDecoderLSTM {
     private static final int GC_WINDOW = 2000;
 
     private static final int MACROBATCH_SIZE = 20; // see CorpusIterator
+
+    /**
+     * The computation graph model.
+     */
     private ComputationGraph net;
 
     public static void main(String[] args) throws IOException {
@@ -231,30 +235,61 @@ public class EncoderDecoderLSTM {
         train(networkFile, offset);
     }
 
+    /**
+     * Configure and initialize the computation graph. This is done once in the
+     * beginning to prepare the {@link #net} for training.
+     */
     private void createComputationGraph() {
-        NeuralNetConfiguration.Builder builder = new NeuralNetConfiguration.Builder();
-        builder.iterations(1).learningRate(LEARNING_RATE).rmsDecay(RMS_DECAY)
-                .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT).miniBatch(true).updater(Updater.RMSPROP)
-                .weightInit(WeightInit.XAVIER).gradientNormalization(GradientNormalization.RenormalizeL2PerLayer);
+        final NeuralNetConfiguration.Builder builder = new NeuralNetConfiguration.Builder()
+            .iterations(1)
+            .learningRate(LEARNING_RATE)
+            .rmsDecay(RMS_DECAY)
+            .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
+            .miniBatch(true)
+            .updater(Updater.RMSPROP)
+            .weightInit(WeightInit.XAVIER)
+            .gradientNormalization(GradientNormalization.RenormalizeL2PerLayer);
 
-        GraphBuilder graphBuilder = builder.graphBuilder().pretrain(false).backprop(true).backpropType(BackpropType.Standard)
-                .tBPTTBackwardLength(TBPTT_SIZE).tBPTTForwardLength(TBPTT_SIZE);
-        graphBuilder.addInputs("inputLine", "decoderInput")
-                .setInputTypes(InputType.recurrent(dict.size()), InputType.recurrent(dict.size()))
-                .addLayer("embeddingEncoder", new EmbeddingLayer.Builder().nIn(dict.size()).nOut(EMBEDDING_WIDTH).build(), "inputLine")
-                .addLayer("encoder",
-                        new GravesLSTM.Builder().nIn(EMBEDDING_WIDTH).nOut(HIDDEN_LAYER_WIDTH).activation(Activation.TANH).build(),
-                        "embeddingEncoder")
-                .addVertex("thoughtVector", new LastTimeStepVertex("inputLine"), "encoder")
-                .addVertex("dup", new DuplicateToTimeSeriesVertex("decoderInput"), "thoughtVector")
-                .addVertex("merge", new MergeVertex(), "decoderInput", "dup")
-                .addLayer("decoder",
-                        new GravesLSTM.Builder().nIn(dict.size() + HIDDEN_LAYER_WIDTH).nOut(HIDDEN_LAYER_WIDTH).activation(Activation.TANH)
-                                .build(),
-                        "merge")
-                .addLayer("output", new RnnOutputLayer.Builder().nIn(HIDDEN_LAYER_WIDTH).nOut(dict.size()).activation(Activation.SOFTMAX)
-                        .lossFunction(LossFunctions.LossFunction.MCXENT).build(), "decoder")
-                .setOutputs("output");
+        final GraphBuilder graphBuilder = builder.graphBuilder()
+            .pretrain(false)
+            .backprop(true)
+            .backpropType(BackpropType.Standard)
+            .tBPTTBackwardLength(TBPTT_SIZE)
+            .tBPTTForwardLength(TBPTT_SIZE)
+            .addInputs("inputLine", "decoderInput")
+            .setInputTypes(InputType.recurrent(dict.size()), InputType.recurrent(dict.size()))
+            .addLayer("embeddingEncoder",
+                new EmbeddingLayer.Builder()
+                    .nIn(dict.size())
+                    .nOut(EMBEDDING_WIDTH)
+                    .build(),
+                "inputLine")
+            .addLayer("encoder",
+                new GravesLSTM.Builder()
+                    .nIn(EMBEDDING_WIDTH)
+                    .nOut(HIDDEN_LAYER_WIDTH)
+                    .activation(Activation.TANH)
+                    .build(),
+                "embeddingEncoder")
+            .addVertex("thoughtVector", new LastTimeStepVertex("inputLine"), "encoder")
+            .addVertex("dup", new DuplicateToTimeSeriesVertex("decoderInput"), "thoughtVector")
+            .addVertex("merge", new MergeVertex(), "decoderInput", "dup")
+            .addLayer("decoder",
+                new GravesLSTM.Builder()
+                    .nIn(dict.size() + HIDDEN_LAYER_WIDTH)
+                    .nOut(HIDDEN_LAYER_WIDTH)
+                    .activation(Activation.TANH)
+                    .build(),
+                "merge")
+            .addLayer("output",
+                new RnnOutputLayer.Builder()
+                    .nIn(HIDDEN_LAYER_WIDTH)
+                    .nOut(dict.size())
+                    .activation(Activation.SOFTMAX)
+                    .lossFunction(LossFunctions.LossFunction.MCXENT)
+                    .build(),
+                "decoder")
+            .setOutputs("output");
 
         net = new ComputationGraph(graphBuilder.build());
         net.init();
