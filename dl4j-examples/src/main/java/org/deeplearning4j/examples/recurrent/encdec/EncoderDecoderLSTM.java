@@ -340,8 +340,8 @@ public class EncoderDecoderLSTM {
                 protected void processLine(String lastLine) {
                     List<String> words = new ArrayList<>();
                     tokenizeLine(lastLine, words, true);
-                    List<Double> wordIdxs = new ArrayList<>();
-                    if (wordsToIndexes(words, wordIdxs)) {
+                    final List<Double> wordIdxs = wordsToIndexes(words);
+                    if (!wordIdxs.isEmpty()) {
                         System.out.print("Got words: ");
                         for (Double idx : wordIdxs) {
                             System.out.print(revDict.get(idx) + " ");
@@ -488,14 +488,9 @@ public class EncoderDecoderLSTM {
         corpusProcessor = new CorpusProcessor(toTempPath(CORPUS_FILENAME), ROW_SIZE, false) {
             @Override
             protected void processLine(String lastLine) {
-                ArrayList<String> words = new ArrayList<>();
+                List<String> words = new ArrayList<>();
                 tokenizeLine(lastLine, words, true);
-                if (!words.isEmpty()) {
-                    List<Double> wordIdxs = new ArrayList<>();
-                    if (wordsToIndexes(words, wordIdxs)) {
-                        corpus.add(wordIdxs);
-                    }
-                }
+                corpus.add(wordsToIndexes(words));
             }
         };
         corpusProcessor.setDict(dict);
