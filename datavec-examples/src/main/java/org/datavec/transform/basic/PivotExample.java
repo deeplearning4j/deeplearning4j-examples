@@ -56,7 +56,7 @@ public class PivotExample {
             //So, "USA" becomes [1,0,0,0], "Japan" becomes [0,1,0,0], "China" becomes [0,0,1,0] etc
             .categoricalToOneHot("country_visited")
 
-            //Reduction: For peach person, count up the number of times they have
+            //Reduction: For each person, count up the number of times they have
             .reduce(new Reducer.Builder(ReduceOp.Sum)
                 .keyColumns("person")
                 .maxColumn("entry_time")

@@ -1,7 +1,6 @@
 package org.datavec.transform.basic;
 
 import org.apache.spark.SparkConf;
-import org.apache.spark.SparkContext;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
 import org.datavec.api.records.reader.RecordReader;
@@ -12,13 +11,10 @@ import org.datavec.api.transform.condition.column.CategoricalColumnCondition;
 import org.datavec.api.transform.condition.column.DoubleColumnCondition;
 import org.datavec.api.transform.filter.ConditionFilter;
 import org.datavec.api.transform.schema.Schema;
-import org.datavec.api.transform.transform.condition.ConditionalReplaceValueTransform;
 import org.datavec.api.transform.transform.time.DeriveColumnsFromTimeTransform;
-import org.datavec.api.transform.transform.time.StringToTimeTransform;
 import org.datavec.api.util.ClassPathResource;
 import org.datavec.api.writable.DoubleWritable;
 import org.datavec.api.writable.Writable;
-import org.datavec.spark.functions.RecordReaderFunction;
 import org.datavec.spark.transform.SparkTransformExecutor;
 import org.datavec.spark.transform.misc.StringToWritablesFunction;
 import org.datavec.spark.transform.misc.WritablesToStringFunction;
@@ -88,7 +84,7 @@ public class BasicDataVecExample {
             .removeColumns("CustomerID","MerchantID")
 
             //Now, suppose we only want to analyze transactions involving merchants in USA or Canada. Let's filter out
-            // everthing except for those countries.
+            // everything except for those countries.
             //Here, we are applying a conditional filter. We remove all of the examples that match the condition
             // The condition is "MerchantCountryCode" isn't one of {"USA", "CAN"}
             .filter(new ConditionFilter(
