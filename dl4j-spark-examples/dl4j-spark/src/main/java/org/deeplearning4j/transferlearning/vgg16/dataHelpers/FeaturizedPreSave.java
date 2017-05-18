@@ -1,6 +1,5 @@
 package org.deeplearning4j.transferlearning.vgg16.dataHelpers;
 
-import lombok.extern.slf4j.Slf4j;
 import org.apache.spark.SparkConf;
 import org.deeplearning4j.nn.graph.ComputationGraph;
 import org.deeplearning4j.nn.modelimport.keras.InvalidKerasConfigurationException;
@@ -10,7 +9,8 @@ import org.deeplearning4j.nn.modelimport.keras.trainedmodels.TrainedModels;
 import org.deeplearning4j.nn.transferlearning.TransferLearningHelper;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.IOException;
 
@@ -20,26 +20,25 @@ import java.io.IOException;
  * Refer to the "FitFromFeaturized" example for how to fit a model with these featurized datasets
  * @author susaneraly on 2/28/17.
  */
-@Slf4j
 public class FeaturizedPreSave {
+    private static final Logger LOGGER = LoggerFactory.getLogger(FeaturizedPreSave.class);
 
     private static final int trainPerc = 80;
-    protected static final int batchSize = 15;
+    private static final int batchSize = 15;
     public static final String featurizeExtractionLayer = "fc2";
 
     public static void main(String [] args) throws UnsupportedKerasConfigurationException, IOException, InvalidKerasConfigurationException {
-        SparkConf sparkConf = new SparkConf();
 
         //import org.deeplearning4j.transferlearning.vgg16 and print summary
         TrainedModelHelper modelImportHelper = new TrainedModelHelper(TrainedModels.VGG16);
-        log.info("\n\nLoading org.deeplearning4j.transferlearning.vgg16...\n\n");
+        LOGGER.info("\n\nLoading org.deeplearning4j.transferlearning.vgg16...\n\n");
         ComputationGraph vgg16 = modelImportHelper.loadModel();
-        log.info(vgg16.summary());
+        LOGGER.info(vgg16.summary());
 
         //use the TransferLearningHelper to freeze the specified vertices and below
         //NOTE: This is done in place! Pass in a cloned version of the model if you would prefer to not do this in place
         TransferLearningHelper transferLearningHelper = new TransferLearningHelper(vgg16, featurizeExtractionLayer);
-        log.info(vgg16.summary());
+        LOGGER.info(vgg16.summary());
 
         FlowerDataSetIterator.setup(batchSize,trainPerc);
         DataSetIterator trainIter = FlowerDataSetIterator.trainIterator();
@@ -59,10 +58,10 @@ public class FeaturizedPreSave {
             testDataSaved++;
         }
 
-        log.info("Finished pre saving featurized test and train data");
+        LOGGER.info("Finished pre saving featurized test and train data");
     }
 
-    public static void saveToDisk(DataSet currentFeaturized, int iterNum, boolean isTrain) {
+    private static void saveToDisk(DataSet currentFeaturized, int iterNum, boolean isTrain) {
         File fileFolder = isTrain ? new File("trainFolder"): new File("testFolder");
         if (iterNum == 0) {
             fileFolder.mkdirs();
@@ -71,6 +70,6 @@ public class FeaturizedPreSave {
         fileName += isTrain ? "train-" : "test-";
         fileName += iterNum + ".bin";
         currentFeaturized.save(new File(fileFolder,fileName));
-        log.info("Saved " + (isTrain?"train ":"test ") + "dataset #"+ iterNum);
+        LOGGER.info("Saved " + (isTrain?"train ":"test ") + "dataset #"+ iterNum);
     }
 }
