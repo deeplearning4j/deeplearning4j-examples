@@ -57,7 +57,7 @@ public class VaeMNISTAnomaly {
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
             .seed(rngSeed)
             .learningRate(0.05)
-            .updater(Updater.ADAM).adamMeanDecay(0.9).adamVarDecay(0.999)
+            .updater(Updater.ADAM)    //To customize: .updater(Adam.builder().beta1(0.9).beta2(0.999).build())
             .weightInit(WeightInit.XAVIER)
             .regularization(true).l2(1e-4)
             .list()

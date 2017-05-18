@@ -69,7 +69,7 @@ public class CnnSentenceClassificationExample {
         ComputationGraphConfiguration config = new NeuralNetConfiguration.Builder()
             .weightInit(WeightInit.RELU)
             .activation(Activation.LEAKYRELU)
-            .updater(Updater.ADAM)
+            .updater(Updater.ADAM)    //To customize: .updater(Adam.builder().beta1(0.9).beta2(0.999).build())
             .convolutionMode(ConvolutionMode.Same)      //This is important so we can 'stack' the results later
             .regularization(true).l2(0.0001)
             .learningRate(0.01)
