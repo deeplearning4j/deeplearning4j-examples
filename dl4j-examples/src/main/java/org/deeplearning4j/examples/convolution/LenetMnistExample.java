@@ -16,8 +16,11 @@ import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
 import org.deeplearning4j.optimize.listeners.PerformanceListener;
 import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
+import org.deeplearning4j.parallelism.ParallelWrapper;
+import org.deeplearning4j.parallelism.factory.SymmetricTrainerContext;
 import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.api.ndarray.INDArray;
+import org.nd4j.linalg.api.ops.executioner.OpExecutioner;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.nd4j.linalg.factory.Nd4j;
@@ -116,11 +119,38 @@ public class LenetMnistExample {
 
         nEpochs = 1;
 
+        ParallelWrapper wrapper = new ParallelWrapper.Builder(model)
+            // DataSets prefetching options. Set this value with respect to number of actual devices
+            .prefetchBuffer(4)
+
+            // set number of workers equal or higher then number of available devices. x1-x2 are good values to start with
+            .workers(4)
+
+            // rare averaging improves performance, but might reduce model accuracy
+            .averagingFrequency(5)
+
+            // if set to TRUE, on every averaging model score will be reported
+            .reportScoreAfterAveraging(false)
+
+            // optinal parameter, set to false ONLY if your system has support P2P memory access across PCIe (hint: AWS do not support P2P)
+            .useLegacyAveraging(false)
+
+            .workspaceMode(WorkspaceMode.SINGLE)
+
+            .useMQ(true)
+
+            .trainerFactory(new SymmetricTrainerContext())
+
+            .build();
+
+        //Nd4j.getExecutioner().setProfilingMode(OpExecutioner.ProfilingMode.NAN_PANIC);
+
         log.info("Train model....");
         model.setListeners(new PerformanceListener(50, true));
         for( int i=0; i<nEpochs; i++ ) {
             long time1 = System.currentTimeMillis();
-            model.fit(mnistTrain);
+            wrapper.fit(mnistTrain);
+            //model.fit(mnistTrain);
             long time2 = System.currentTimeMillis();
             log.info("*** Completed epoch {}; {} ms ***", i, time2 - time1);
         }
