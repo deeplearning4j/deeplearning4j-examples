@@ -8,6 +8,8 @@ import org.nd4j.linalg.factory.Nd4j;
 
 import java.util.*;
 
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * Created by susaneraly on 3/27/16.
@@ -25,6 +27,9 @@ import java.util.*;
 
 public class CustomSequenceIterator implements MultiDataSetIterator {
 
+    @Getter
+    @Setter
+    private MultiDataSetPreProcessor preProcessor;
     private Random randnumG;
     private final int seed;
     private final int batchSize;
@@ -137,10 +142,6 @@ public class CustomSequenceIterator implements MultiDataSetIterator {
     @Override
     public void remove() {
         throw new UnsupportedOperationException("Not supported");
-    }
-
-    public void setPreProcessor(MultiDataSetPreProcessor multiDataSetPreProcessor) {
-
     }
 
     @Override
@@ -295,4 +296,3 @@ public class CustomSequenceIterator implements MultiDataSetIterator {
 
     }
 }
-
