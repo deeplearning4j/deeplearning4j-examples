@@ -82,7 +82,7 @@ public class MultiGpuLenetMnistExample {
             .weightInit(WeightInit.XAVIER)
             .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
             .updater(Updater.NESTEROVS).momentum(0.9)
-            .workspaceMode(WorkspaceMode.SINGLE)
+            //.workspaceMode(WorkspaceMode.SINGLE)
             .list()
             .layer(0, new ConvolutionLayer.Builder(5, 5)
                 //nIn and nOut specify depth. nIn here is the nChannels and nOut is the number of filters to be applied
@@ -131,9 +131,9 @@ public class MultiGpuLenetMnistExample {
             .reportScoreAfterAveraging(false)
 
             // optinal parameter, set to false ONLY if your system has support P2P memory access across PCIe (hint: AWS do not support P2P)
-            .useLegacyAveraging(false)
+            //.useLegacyAveraging(false)
 
-            .useMQ(false)
+            //.useMQ(false)
 
             .build();
 

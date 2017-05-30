@@ -155,7 +155,7 @@ public class GravesLSTMCharModellingExample {
             .reportScoreAfterAveraging(true)
 
             // optinal parameter, set to false ONLY if your system has support P2P memory access across PCIe (hint: AWS do not support P2P)
-            .useLegacyAveraging(true)
+            //.useLegacyAveraging(true)
 
             .build();
 

@@ -105,11 +105,11 @@ public class AlexMDSI {
             .reportScoreAfterAveraging(false)
 
             // optinal parameter, set to false ONLY if your system has support P2P memory access across PCIe (hint: AWS do not support P2P)
-            .useLegacyAveraging(false)
+//            .useLegacyAveraging(false)
 
             .workspaceMode(WorkspaceMode.SEPARATE)
 
-            .useMQ(true)
+//            .useMQ(true)
 
             .build();
 

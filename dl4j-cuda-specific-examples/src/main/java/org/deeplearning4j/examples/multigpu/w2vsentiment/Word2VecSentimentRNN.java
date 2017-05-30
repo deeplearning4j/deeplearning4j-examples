@@ -97,8 +97,8 @@ public class Word2VecSentimentRNN {
             .prefetchBuffer(16 * Nd4j.getAffinityManager().getNumberOfDevices())
             .reportScoreAfterAveraging(true)
             .averagingFrequency(10)
-            .useLegacyAveraging(false)
-            .useMQ(true)
+            //.useLegacyAveraging(false)
+            //.useMQ(true)
             .workers(Nd4j.getAffinityManager().getNumberOfDevices())
             .build();
 
