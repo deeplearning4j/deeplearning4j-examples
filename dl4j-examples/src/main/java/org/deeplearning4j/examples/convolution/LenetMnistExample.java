@@ -16,10 +16,7 @@ import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
 import org.deeplearning4j.optimize.listeners.PerformanceListener;
 import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
-import org.deeplearning4j.optimize.solvers.accumulation.BasicGradientsAccumulator;
-import org.deeplearning4j.optimize.solvers.accumulation.EncodingHandler;
-import org.deeplearning4j.optimize.solvers.accumulation.GradientsAccumulator;
-import org.deeplearning4j.optimize.solvers.accumulation.LocalHandler;
+import org.deeplearning4j.optimize.solvers.accumulation.*;
 import org.deeplearning4j.parallelism.ParallelWrapper;
 import org.deeplearning4j.parallelism.factory.SymmetricTrainerContext;
 import org.nd4j.linalg.activations.Activation;
@@ -142,8 +139,8 @@ public class LenetMnistExample {
 
             .trainingMode(ParallelWrapper.TrainingMode.CUSTOM)
 
-            //.gradientsAccumulator(new BasicGradientsAccumulator(2, new EncodingHandler(1e-4)))
-            .gradientsAccumulator(new BasicGradientsAccumulator(2, new LocalHandler()))
+            .gradientsAccumulator(new CudaGradientsAccumulator(2, 5e-3))
+            //.gradientsAccumulator(new BasicGradientsAccumulator(2, new LocalHandler()))
 
             .build();
 
