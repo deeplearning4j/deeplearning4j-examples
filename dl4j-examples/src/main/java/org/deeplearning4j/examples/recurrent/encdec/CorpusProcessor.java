@@ -11,6 +11,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
 
@@ -128,23 +129,29 @@ public class CorpusProcessor {
         this.dict = dict;
     }
 
-    protected boolean wordsToIndexes(Collection<String> words, List<Double> wordIdxs) {
+    /**
+     * Converts an iterable sequence of words to a list of indices. This will
+     * never return {@code null} but may return an empty {@link java.util.List}.
+     *
+     * @param words
+     *            sequence of words
+     * @return list of indices.
+     */
+    protected final List<Double> wordsToIndexes(final Iterable<String> words) {
         int i = rowSize;
-        for (String word : words) {
+        final List<Double> wordIdxs = new LinkedList<>();
+        for (final String word : words) {
             if (--i == 0) {
                 break;
             }
-            Double wordIdx = dict.get(word);
+            final Double wordIdx = dict.get(word);
             if (wordIdx != null) {
                 wordIdxs.add(wordIdx);
             } else {
                 wordIdxs.add(0.0);
             }
         }
-        if (!wordIdxs.isEmpty()) {
-            return true;
-        }
-        return false;
+        return wordIdxs;
     }
 
 }
