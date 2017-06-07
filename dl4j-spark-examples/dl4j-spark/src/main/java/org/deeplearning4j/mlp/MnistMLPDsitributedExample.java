@@ -118,6 +118,7 @@ public class MnistMLPDsitributedExample {
 
         //Configuration for Spark training: see http://deeplearning4j.org/spark for explanation of these configuration options
         TrainingMaster tm = new SharedTrainingMaster.Builder(123)
+            .updatesThreshold(1e-3)
             .build();
 
         //Create the Spark network
