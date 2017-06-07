@@ -116,17 +116,14 @@ public class MultiGpuLenetMnistExample {
             // DataSets prefetching options. Set this value with respect to number of actual devices
             .prefetchBuffer(24)
 
-            // set number of workers equal or higher then number of available devices. x1-x2 are good values to start with
-            .workers(4)
+            // set number of workers equal to number of available devices. x1-x2 are good values to start with
+            .workers(2)
 
             // rare averaging improves performance, but might reduce model accuracy
             .averagingFrequency(3)
 
             // if set to TRUE, on every averaging model score will be reported
             .reportScoreAfterAveraging(true)
-
-            // optinal parameter, set to false ONLY if your system has support P2P memory access across PCIe (hint: AWS do not support P2P)
-            .useLegacyAveraging(true)
 
             .build();
 
