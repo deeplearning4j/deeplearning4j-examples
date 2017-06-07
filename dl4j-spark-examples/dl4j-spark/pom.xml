@@ -13,6 +13,7 @@
 
     <properties>
         <jcommander.version>1.27</jcommander.version>
+        <java.version>1.8</java.version>
     </properties>
 
     <dependencies>
@@ -29,6 +30,11 @@
             <version>${dl4j.spark.version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>org.deeplearning4j</groupId>
+            <artifactId>dl4j-spark-parameterserver_${scala.binary.version}</artifactId>
+            <version>${dl4j.spark.version}</version>
+        </dependency>
 
         <dependency>
             <groupId>com.beust</groupId>
