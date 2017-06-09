@@ -23,6 +23,9 @@ import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
+import org.nd4j.parameterserver.distributed.conf.VoidConfiguration;
+import org.nd4j.parameterserver.distributed.enums.ExecutionMode;
+import org.nd4j.parameterserver.distributed.enums.NodeRole;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -117,7 +120,13 @@ public class MnistMLPDsitributedExample {
             .build();
 
         //Configuration for Spark training: see http://deeplearning4j.org/spark for explanation of these configuration options
-        TrainingMaster tm = new SharedTrainingMaster.Builder(123)
+        VoidConfiguration voidConfiguration = VoidConfiguration.builder()
+            .forcedRole(NodeRole.SHARD)
+            .executionMode(ExecutionMode.MANAGED)
+            .controllerAddress("127.0.0.1") // localhost for now
+            .build();
+
+        TrainingMaster tm = new SharedTrainingMaster.Builder(voidConfiguration,32)
             .updatesThreshold(1e-3)
             .build();
 
