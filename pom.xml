@@ -42,6 +42,7 @@
         <javafx.runtime.lib.jar>${env.JAVAFX_HOME}/jfxrt.jar</javafx.runtime.lib.jar>
         <aws.sdk.version>1.11.109</aws.sdk.version>
         <jackson.version>2.6.6</jackson.version>
+        <scala.plugin.version>3.2.2</scala.plugin.version>
     </properties>
 
     <modules>
@@ -52,7 +53,7 @@
         <module>nd4j-examples</module>
         <module>rl4j-examples</module>
         <module>arbiter-examples</module>
-	<module>lstm-hdfs</module>
+        <module>lstm-hdfs</module>
     </modules>
 
     <!-- Maven Enforcer: Ensures user has an up to date version of Maven before building -->
@@ -94,7 +95,7 @@
               <directory>nd4j-examples</directory>
               <directory>rl4j-examples</directory>
               <directory>arbiter-examples</directory>
-	      <directory>lstm-hdfs</directory>
+              <directory>lstm-hdfs</directory>
             </directories>
           </configuration>
         </plugin>
