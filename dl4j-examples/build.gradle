@@ -56,6 +56,5 @@ task MLPMnistTwoLayerExample(type: JavaExec) {
 }
 
 /*
-More Java examples converted to Kotlin
-to be included when I have some more time
+More Java examples to be converted to Kotlin
  */
