@@ -18,7 +18,9 @@
     </properties>
 
     <build>
-        <pluginManagement>
+      <sourceDirectory>src/main/scala, src/main/java</sourceDirectory>
+      <testSourceDirectory>src/test/scala, src/test/java</testSourceDirectory>
+      <pluginManagement>
             <plugins>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
