@@ -15,6 +15,7 @@ import org.deeplearning4j.nn.conf.Updater;
 import org.deeplearning4j.nn.conf.layers.DenseLayer;
 import org.deeplearning4j.nn.conf.layers.OutputLayer;
 import org.deeplearning4j.nn.weights.WeightInit;
+import org.deeplearning4j.spark.api.RDDTrainingApproach;
 import org.deeplearning4j.spark.api.TrainingMaster;
 import org.deeplearning4j.spark.impl.multilayer.SparkDl4jMultiLayer;
 import org.deeplearning4j.spark.impl.paramavg.ParameterAveragingTrainingMaster;
@@ -128,6 +129,7 @@ public class MnistMLPDsitributedExample {
 
         TrainingMaster tm = new SharedTrainingMaster.Builder(voidConfiguration,32)
             .updatesThreshold(1e-3)
+            .rddTrainingApproach(RDDTrainingApproach.Direct)
             .build();
 
         //Create the Spark network
