@@ -51,12 +51,12 @@ import java.util.Random;
 
 /**
  * This is modified version of original LenetMnistExample, made compatible with multi-gpu environment
+ * for the TinyImageNet dataset and VGG16.
  *
- * @author  @agibsonccc
- * @author raver119@gmail.com
+ * @author Justin Long (crockpotveggies)
  */
 @Slf4j
-public class MultiGpuVGG16MnistExample {
+public class MultiGpuVGG16TinyImageNetExample {
 
     public static void main(String[] args) throws Exception {
         // temp workaround for backend initialization
@@ -81,7 +81,7 @@ public class MultiGpuVGG16MnistExample {
         VGG16 zooModel = new VGG16(200, seed, 1);
         int[] inputShape = zooModel.metaData().getInputShape()[0];
         MultiLayerNetwork vgg16 = zooModel.init();
-        vgg16.setListeners(new PerformanceListener(1));
+        vgg16.setListeners(new PerformanceListener(1, true));
 
         log.info("Load data....");
         String dataPath = "/home/justin/Datasets/tiny-imagenet-200/train/";
@@ -121,7 +121,7 @@ public class MultiGpuVGG16MnistExample {
         testRR.setLabels(Arrays.asList(directories));
         testRR.initialize(testData);
 
-        log.info("Total dataset labels: "+ 200);
+        log.info("Total dataset labels: "+ directories.length);
         log.info("Total training labels: " + trainRR.getLabels().size());
         log.info("Total test labels: " + testRR.getLabels().size());
 
@@ -141,7 +141,7 @@ public class MultiGpuVGG16MnistExample {
             .prefetchBuffer(24)
 
             // set number of workers equal to number of available devices
-            .workers(Integer.parseInt(Nd4j.getExecutioner().getEnvironmentInformation().get("cuda.availableDevices").toString()))
+            .workers(Nd4j.getAffinityManager().getNumberOfDevices())
 
             // use gradient sharing, a more effective distributed training method
             .trainingMode(ParallelWrapper.TrainingMode.SHARED_GRADIENTS)
