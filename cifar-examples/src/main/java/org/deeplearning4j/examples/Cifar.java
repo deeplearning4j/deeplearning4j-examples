@@ -3,6 +3,7 @@ package org.deeplearning4j.examples;
 import org.apache.commons.io.FilenameUtils;
 import org.datavec.image.loader.CifarLoader;
 import org.datavec.image.loader.NativeImageLoader;
+import org.deeplearning4j.api.storage.StatsStorage;
 import org.deeplearning4j.datasets.iterator.impl.CifarDataSetIterator;
 import org.deeplearning4j.eval.Evaluation;
 import org.deeplearning4j.nn.api.OptimizationAlgorithm;
@@ -14,7 +15,10 @@ import org.deeplearning4j.nn.conf.inputs.InputType;
 import org.deeplearning4j.nn.conf.layers.*;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
+import org.deeplearning4j.optimize.api.IterationListener;
 import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
+import org.deeplearning4j.ui.flow.FlowIterationListener;
+import org.deeplearning4j.ui.weights.HistogramIterationListener;
 import org.deeplearning4j.util.ModelSerializer;
 import org.deeplearning4j.util.StringUtils;
 import org.nd4j.linalg.activations.Activation;
@@ -33,6 +37,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 
 /**
  * train model by cifar
@@ -54,7 +59,7 @@ public class Cifar {
         Cifar cf = new Cifar();
         //train model and eval model
         MultiLayerNetwork model = null;
-        if (true) { //default true
+        if (false) { //default true
             model = cf.trainModelByCifarData();
         } else {
             model = cf.trainModelByCifarWithAlexNet();//ignore
@@ -147,7 +152,7 @@ public class Cifar {
     }
     //train and eval with other way
     public MultiLayerNetwork trainModelByCifarWithAlexNet() throws IOException {
-
+        log.info("this is AlexNet");
         height = 32;
         width = 32;
         int channels = 3;
@@ -174,7 +179,7 @@ public class Cifar {
 
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
             .seed(seed)
-            .weightInit(WeightInit.DISTRIBUTION)
+            .weightInit(WeightInit.DISTRIBUTION)//The weight is taken as a coefficient factor
             .dist(new NormalDistribution(0.0, 0.01))
             .activation(Activation.RELU)
             .updater(Updater.NESTEROVS)
@@ -207,25 +212,45 @@ public class Cifar {
                 .nOut(256)
                 .biasInit(nonZeroBias)
                 .build())
-            .layer(4, new LocalResponseNormalization.Builder().name("lrn2").build())
+            .layer(4, new LocalResponseNormalization.Builder()
+                .name("lrn2")
+                .build())
             .layer(5, new SubsamplingLayer.Builder(new int[]{1,1}, new int[] {2, 2})
                 .name("maxpool2")
                 .build())
-            .layer(6, new DenseLayer.Builder()
+            .layer(6,new ConvolutionLayer.Builder(new int[]{3,3}, new int[] {1,1}, new int[] {1,1})
+                .name("cnn3")
+                .nOut(384)
+                .biasInit(0)
+                .build())
+            .layer(7,new ConvolutionLayer.Builder(new int[]{3,3}, new int[] {1,1}, new int[] {1,1})
+                .name("cnn4")
+                .nOut(384)
+                .biasInit(nonZeroBias)
+                .build())
+            .layer(8,new ConvolutionLayer.Builder(new int[]{3,3}, new int[] {1,1}, new int[] {1,1})
+                .name("cnn5")
+                .nOut(10)
+                .biasInit(nonZeroBias)
+                .build())
+            .layer(9,new SubsamplingLayer.Builder(new int[]{1,1}, new int[] {2, 2})
+                .name("maxpool3")
+                .build())
+            .layer(10, new DenseLayer.Builder()
                 .name("ffn1")
                 .nOut(4096)
                 .biasInit(nonZeroBias)
                 .dropOut(dropOut)
                 .dist(new GaussianDistribution(0, 0.005))
                 .build())
-            .layer(7, new DenseLayer.Builder()
+            .layer(11, new DenseLayer.Builder()
                 .name("ffn2")
                 .nOut(4096)
                 .biasInit(nonZeroBias)
                 .dropOut(dropOut)
                 .dist(new GaussianDistribution(0, 0.005))
                 .build())
-            .layer(8, new OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD)
+            .layer(12, new OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD)
                 .name("output")
                 .nOut(numLabels)
                 .activation(Activation.SOFTMAX)
@@ -237,8 +262,15 @@ public class Cifar {
 
         MultiLayerNetwork model = new MultiLayerNetwork(conf);
         model.init();
-        //Score iteration listener,Event listener for each iteration
-        model.setListeners(new ScoreIterationListener(listenerFreq));
+
+        //the visual ui
+        UIServer uiServer = UIServer.getInstance();
+        //PlayUIServer uiServer = PlayUIServer.getInstance();
+        uiServer.attach(statsStorage);
+       /* model.setListeners(Arrays.asList(new ScoreIterationListener(listenerFreq),
+            (IterationListener)new HistogramIterationListener(listenerFreq),new FlowIterationListener(listenerFreq)));*/
+        model.setListeners(new StatsListener(statsStorage));
+      //  model.setListeners(new ScoreIterationListener(listenerFreq));
         model.fit(cifar);
 
         cifar.test(10);
