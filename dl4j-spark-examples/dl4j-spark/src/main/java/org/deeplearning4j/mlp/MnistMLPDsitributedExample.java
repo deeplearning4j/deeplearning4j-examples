@@ -54,7 +54,7 @@ public class MnistMLPDsitributedExample {
     private static final Logger log = LoggerFactory.getLogger(MnistMLPDsitributedExample.class);
 
     @Parameter(names = "-useSparkLocal", description = "Use spark local (helper for testing/running without spark submit)", arity = 1)
-    private boolean useSparkLocal = true;
+    private boolean useSparkLocal = false;
 
     @Parameter(names = "-batchSizePerWorker", description = "Number of examples to fit each worker with")
     private int batchSizePerWorker = 16;
@@ -124,7 +124,7 @@ public class MnistMLPDsitributedExample {
         VoidConfiguration voidConfiguration = VoidConfiguration.builder()
             .forcedRole(NodeRole.SHARD)
             .executionMode(ExecutionMode.MANAGED)
-            .controllerAddress("127.0.0.1") // localhost for now
+            //.controllerAddress("127.0.0.1") // localhost for now
             .build();
 
         TrainingMaster tm = new SharedTrainingMaster.Builder(voidConfiguration,32)
