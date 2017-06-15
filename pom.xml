@@ -25,8 +25,8 @@
         <rl4j.version>0.8.0</rl4j.version>
 
         <!-- For Spark examples: change the _1 to _2 to switch between Spark 1 and Spark 2 -->
-        <dl4j.spark.version>0.8.1_spark_1-SNAPSHOT</dl4j.spark.version>
-        <datavec.spark.version>0.8.1_spark_1-SNAPSHOT</datavec.spark.version>
+        <dl4j.spark.version>0.8.1_spark_2-SNAPSHOT</dl4j.spark.version>
+        <datavec.spark.version>0.8.1_spark_2-SNAPSHOT</datavec.spark.version>
 
         <!-- Scala binary version: DL4J's Spark and UI functionality are released with both Scala 2.10 and 2.11 support -->
         <scala.binary.version>2.11</scala.binary.version>
