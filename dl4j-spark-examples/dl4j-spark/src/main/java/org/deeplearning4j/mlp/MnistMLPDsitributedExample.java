@@ -127,9 +127,10 @@ public class MnistMLPDsitributedExample {
             //.controllerAddress("127.0.0.1") // localhost for now
             .build();
 
-        TrainingMaster tm = new SharedTrainingMaster.Builder(voidConfiguration,32)
+        TrainingMaster tm = new SharedTrainingMaster.Builder(voidConfiguration,batchSizePerWorker)
             .updatesThreshold(1e-3)
             .rddTrainingApproach(RDDTrainingApproach.Direct)
+            .batchSizePerWorker(batchSizePerWorker)
             .build();
 
         //Create the Spark network
