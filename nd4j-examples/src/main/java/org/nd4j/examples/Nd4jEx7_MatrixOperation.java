@@ -16,10 +16,12 @@ public class Nd4jEx7_MatrixOperation {
 
     public static void main(String[] args) {
 
-        INDArray nd = Nd4j.create(new float[]{1,2},new int[]{1, 2}); //vector as row
-        INDArray nd2 = Nd4j.create(new float[]{3,4},new int[]{2, 1}); //vector as column
-        INDArray nd3 = Nd4j.create(new float[]{1,3,2,4},new int[]{2,2}); //elements arranged column major
-        INDArray nd4 = Nd4j.create(new float[]{3,4,5,6},new int[]{2, 2});
+        //See other examples for creating INDArrays from Java arrays
+        //See also http://nd4j.org/userguide
+        INDArray nd = Nd4j.create(new float[]{1,2},new int[]{1, 2});        //vector as row
+        INDArray nd2 = Nd4j.create(new float[]{3,4},new int[]{2, 1});       //vector as column
+        INDArray nd3 = Nd4j.create(new float[][]{{1,2},{3,4}});
+        INDArray nd4 = Nd4j.create(new float[][]{{3,4},{5,6}});
 
         System.out.println(nd);
         System.out.println(nd2);
