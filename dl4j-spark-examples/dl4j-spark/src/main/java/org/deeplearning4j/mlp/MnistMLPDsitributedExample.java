@@ -123,6 +123,8 @@ public class MnistMLPDsitributedExample {
         //Configuration for Spark training: see http://deeplearning4j.org/spark for explanation of these configuration options
         VoidConfiguration voidConfiguration = VoidConfiguration.builder()
             .forcedRole(NodeRole.SHARD)
+            .multicastPort(40543)
+            .unicastPort(401234)
             .executionMode(ExecutionMode.MANAGED)
             //.controllerAddress("127.0.0.1") // localhost for now
             .build();
