@@ -124,7 +124,7 @@ public class MnistMLPDsitributedExample {
         VoidConfiguration voidConfiguration = VoidConfiguration.builder()
             .forcedRole(NodeRole.SHARD)
             .multicastPort(40543)
-            .unicastPort(401234)
+            .unicastPort(40123)
             .executionMode(ExecutionMode.MANAGED)
             //.controllerAddress("127.0.0.1") // localhost for now
             .build();
