@@ -49,7 +49,7 @@ public class MnistMLPExample {
     private static final Logger log = LoggerFactory.getLogger(MnistMLPExample.class);
 
     @Parameter(names = "-useSparkLocal", description = "Use spark local (helper for testing/running without spark submit)", arity = 1)
-    private boolean useSparkLocal = true;
+    private boolean useSparkLocal = false;
 
     @Parameter(names = "-batchSizePerWorker", description = "Number of examples to fit each worker with")
     private int batchSizePerWorker = 16;
