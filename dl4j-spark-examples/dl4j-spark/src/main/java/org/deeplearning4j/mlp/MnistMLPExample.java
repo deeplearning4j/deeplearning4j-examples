@@ -120,6 +120,7 @@ public class MnistMLPExample {
             .averagingFrequency(5)
             .workerPrefetchNumBatches(2)            //Async prefetching: 2 examples per worker
             .batchSizePerWorker(batchSizePerWorker)
+            .rddTrainingApproach(RDDTrainingApproach.Direct)
             .build();
 
         //Create the Spark network
