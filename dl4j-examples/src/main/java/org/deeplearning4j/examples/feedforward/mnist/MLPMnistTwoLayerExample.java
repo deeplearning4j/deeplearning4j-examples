@@ -1,6 +1,8 @@
 package org.deeplearning4j.examples.feedforward.mnist;
 
 
+import org.deeplearning4j.nn.conf.WorkspaceMode;
+import org.deeplearning4j.parallelism.ParallelWrapper;
 import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.deeplearning4j.datasets.iterator.impl.MnistDataSetIterator;
@@ -16,6 +18,7 @@ import org.deeplearning4j.nn.weights.WeightInit;
 import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
+import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.lossfunctions.LossFunctions.LossFunction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -92,10 +95,39 @@ public class MLPMnistTwoLayerExample {
         model.init();
         model.setListeners(new ScoreIterationListener(5));  //print the score with every iteration
 
+        Nd4j.getMemoryManager().setAutoGcWindow(1000000);
+
+        // ParallelWrapper will take care of load balancing between GPUs.
+        ParallelWrapper wrapper = new ParallelWrapper.Builder(model)
+            // DataSets prefetching options. Set this value with respect to number of actual devices
+            .prefetchBuffer(4)
+
+            // set number of workers equal or higher then number of available devices. x1-x2 are good values to start with
+            .workers(2)
+
+            // rare averaging improves performance, but might reduce model accuracy
+            .averagingFrequency(5)
+
+            // if set to TRUE, on every averaging model score will be reported
+            .reportScoreAfterAveraging(false)
+
+            // optinal parameter, set to false ONLY if your system has support P2P memory access across PCIe (hint: AWS do not support P2P)
+            //.useLegacyAveraging(false)
+
+            .workspaceMode(WorkspaceMode.SINGLE)
+
+            //.useMQ(true)
+
+            .build();
+
+
         log.info("Train model....");
         for( int i=0; i<numEpochs; i++ ){
-        	log.info("Epoch " + i);
-            model.fit(mnistTrain);
+            long time1 = System.currentTimeMillis();
+            //model.fit(mnistTrain);
+            wrapper.fit(mnistTrain);
+            long time2 = System.currentTimeMillis();
+            log.info("Epoch {} finished; Time elapsed: {} ms;", i, time2 - time1);
         }
 
 
