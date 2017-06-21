@@ -2,6 +2,7 @@ package org.deeplearning4j.examples.feedforward.mnist;
 
 
 import org.deeplearning4j.nn.conf.WorkspaceMode;
+import org.deeplearning4j.optimize.listeners.SleepyTrainingListener;
 import org.deeplearning4j.parallelism.ParallelWrapper;
 import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
@@ -120,12 +121,13 @@ public class MLPMnistTwoLayerExample {
 
             .build();
 
+        //model.addListeners(SleepyTrainingListener.builder().timerIteration(1000).build());
 
         log.info("Train model....");
         for( int i=0; i<numEpochs; i++ ){
             long time1 = System.currentTimeMillis();
-            //model.fit(mnistTrain);
-            wrapper.fit(mnistTrain);
+            model.fit(mnistTrain);
+            //wrapper.fit(mnistTrain);
             long time2 = System.currentTimeMillis();
             log.info("Epoch {} finished; Time elapsed: {} ms;", i, time2 - time1);
         }
