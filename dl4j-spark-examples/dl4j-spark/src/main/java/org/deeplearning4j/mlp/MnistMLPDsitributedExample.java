@@ -133,6 +133,7 @@ public class MnistMLPDsitributedExample {
             .updatesThreshold(1e-3)
             .rddTrainingApproach(RDDTrainingApproach.Direct)
             .batchSizePerWorker(batchSizePerWorker)
+            .debugLongerIterations(500)
             .build();
 
         //Create the Spark network
