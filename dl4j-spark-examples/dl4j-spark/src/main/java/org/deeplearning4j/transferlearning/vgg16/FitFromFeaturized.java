@@ -182,7 +182,7 @@ public class FitFromFeaturized {
             }
         });
 
-
+/*
         IEvaluateFlatMapFunction<Evaluation> evalFn = new IEvaluateFlatMapFunction<>(sc.broadcast(vgg16.getConfiguration().toJson()),
             sc.broadcast(sparkComputationGraph.getNetwork().params()), batchSizePerWorker, new Evaluation(numClasses));
         JavaRDD<Evaluation> evaluations = data.mapPartitions(evalFn);
@@ -191,7 +191,7 @@ public class FitFromFeaturized {
         log.info("Eval stats BEFORE fit.....");
         log.info(eval.stats()+"\n");
         testIter.reset();
-
+*/
 
         log.info("Model build complete");
     }
