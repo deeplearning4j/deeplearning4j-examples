@@ -2,7 +2,6 @@ package org.deeplearning4j.examples.feedforward.mnist;
 
 
 import org.deeplearning4j.nn.conf.WorkspaceMode;
-import org.deeplearning4j.optimize.listeners.SleepyTrainingListener;
 import org.deeplearning4j.parallelism.ParallelWrapper;
 import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
