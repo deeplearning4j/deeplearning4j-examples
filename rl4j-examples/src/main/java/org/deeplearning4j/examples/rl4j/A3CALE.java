@@ -71,7 +71,12 @@ public class A3CALE {
         DataManager manager = new DataManager(true);
 
         //setup the emulation environment through ALE, you will need a ROM file
-        ALEMDP mdp = new ALEMDP("pong.bin");
+        ALEMDP mdp = null;
+        try {
+            mdp = new ALEMDP("pong.bin");
+        } catch (UnsatisfiedLinkError e) {
+            System.out.println("To run this example, uncomment the \"ale-platform\" dependency in the pom.xml file.");
+        }
 
         //setup the training
         A3CDiscreteConv<ALEMDP.GameScreen> a3c = new A3CDiscreteConv(mdp, ALE_NET_A3C, ALE_HP, ALE_A3C, manager);

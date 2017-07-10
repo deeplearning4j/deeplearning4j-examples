@@ -75,8 +75,12 @@ public class ALE {
         DataManager manager = new DataManager(true);
 
         //setup the emulation environment through ALE, you will need a ROM file
-        ALEMDP mdp = new ALEMDP("pong.bin");
-
+        ALEMDP mdp = null;
+        try {
+            mdp = new ALEMDP("pong.bin");
+        } catch (UnsatisfiedLinkError e) {
+            System.out.println("To run this example, uncomment the \"ale-platform\" dependency in the pom.xml file.");
+        }
         //setup the training
         QLearningDiscreteConv<ALEMDP.GameScreen> dql = new QLearningDiscreteConv(mdp, ALE_NET_QL, ALE_HP, ALE_QL, manager);
 

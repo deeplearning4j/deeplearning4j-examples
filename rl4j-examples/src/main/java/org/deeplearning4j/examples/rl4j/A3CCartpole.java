@@ -66,7 +66,7 @@ public class A3CCartpole {
         //close the mdp (http connection)
         mdp.close();
 
-        //reload the policy, will be equal to "pol"
-        ACPolicy<Box> pol2 = ACPolicy.load("/tmp/val1/", "/tmp/pol1", new Random(123));
+        //reload the policy, will be equal to "pol", but without the randomness
+        ACPolicy<Box> pol2 = ACPolicy.load("/tmp/val1/", "/tmp/pol1");
     }
 }
