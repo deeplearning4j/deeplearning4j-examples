@@ -15,16 +15,12 @@ import org.deeplearning4j.datasets.datavec.SequenceRecordReaderDataSetIterator;
 import org.deeplearning4j.eval.Evaluation;
 import org.deeplearning4j.eval.ROCMultiClass;
 import org.deeplearning4j.nn.api.OptimizationAlgorithm;
-import org.deeplearning4j.nn.conf.ComputationGraphConfiguration;
+import org.deeplearning4j.nn.conf.*;
 import org.deeplearning4j.nn.conf.distribution.UniformDistribution;
-import org.deeplearning4j.nn.conf.GradientNormalization;
-import org.deeplearning4j.nn.conf.LearningRatePolicy;
-import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
-import org.deeplearning4j.nn.conf.BackpropType;
-import org.deeplearning4j.nn.conf.Updater;
 import org.deeplearning4j.nn.conf.layers.GravesLSTM;
 import org.deeplearning4j.nn.conf.layers.RnnOutputLayer;
 import org.deeplearning4j.nn.weights.WeightInit;
+import org.deeplearning4j.spark.impl.multilayer.SparkDl4jMultiLayer;
 import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
@@ -39,12 +35,6 @@ import java.util.List;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.deeplearning4j.spark.impl.paramavg.ParameterAveragingTrainingMaster;
 import org.deeplearning4j.spark.api.TrainingMaster;
-import org.deeplearning4j.spark.impl.graph.SparkComputationGraph;
-import org.deeplearning4j.spark.parameterserver.training.SharedTrainingMaster;
-import org.nd4j.parameterserver.distributed.conf.VoidConfiguration;
-import org.nd4j.parameterserver.distributed.enums.ExecutionMode;
-import org.nd4j.parameterserver.distributed.enums.NodeRole;
-import org.deeplearning4j.spark.api.RDDTrainingApproach;
 
 /**
  * EXERCISE 4: train a LSTM using spark to predict mortality using the Physionet
@@ -81,10 +71,10 @@ public class SparkLSTMTaskExample {
 
     public static void main(String[] args) throws IOException, InterruptedException {
 
-        // Step 0: Set up Spark Conf
+        // Step 1: Set up Spark Conf
         boolean useSparkLocal = false;
 
-        SparkConf sparkConf = new SparkConf(); // Configuration for a Spark application
+        SparkConf sparkConf = new SparkConf(); 
 
         if (useSparkLocal) {
             sparkConf.setMaster("local[*]");
@@ -95,7 +85,7 @@ public class SparkLSTMTaskExample {
         // Spark application, connection to Spark environment
         JavaSparkContext sc = new JavaSparkContext(sparkConf);
 
-        // STEP 1: ETL/vectorization
+        // STEP 2: ETL/vectorization
 
         // Load training data
 
@@ -109,7 +99,6 @@ public class SparkLSTMTaskExample {
         DataSetIterator trainData = new SequenceRecordReaderDataSetIterator(trainFeatures, trainLabels,
                 BATCH_SIZE, numLabelClasses, false,SequenceRecordReaderDataSetIterator.AlignmentMode.ALIGN_END);
 
-
         // Load validation data
         SequenceRecordReader validFeatures = new CSVSequenceRecordReader(1, ",");
         validFeatures.initialize(new NumberedFileInputSplit(featuresDir.getAbsolutePath() + "/%d.csv", NB_TRAIN_EXAMPLES , NB_TRAIN_EXAMPLES + NB_VALID_EXAMPLES  - 1));
@@ -117,7 +106,6 @@ public class SparkLSTMTaskExample {
         validLabels.initialize(new NumberedFileInputSplit(labelsDir.getAbsolutePath() + "/%d.csv", NB_TRAIN_EXAMPLES , NB_TRAIN_EXAMPLES + NB_VALID_EXAMPLES  - 1));
         DataSetIterator validData = new SequenceRecordReaderDataSetIterator(validFeatures, validLabels,
                 BATCH_SIZE, numLabelClasses, false,SequenceRecordReaderDataSetIterator.AlignmentMode.ALIGN_END);
-
 
         // Load test data
         SequenceRecordReader testFeatures = new CSVSequenceRecordReader(1, ",");
@@ -127,11 +115,7 @@ public class SparkLSTMTaskExample {
         DataSetIterator testData = new SequenceRecordReaderDataSetIterator(testFeatures, testLabels,
                 BATCH_SIZE, numLabelClasses, false, SequenceRecordReaderDataSetIterator.AlignmentMode.ALIGN_END);
 
-
-        // STEP 2: Set up Spark configuration and context
-
-        // // Load data into memory
-        // parallelizes data through partitions
+        // STEP 3: Parallelize data
 
         List<DataSet> trainDataList = new ArrayList<>();
         List<DataSet> validDataList = new ArrayList<>();
@@ -151,36 +135,24 @@ public class SparkLSTMTaskExample {
         JavaRDD<DataSet> JvalidData = sc.parallelize(validDataList);
         JavaRDD<DataSet> JtestData = sc.parallelize(testDataList);
 
-        // STEP 3: Model configuration and initialization
+        // STEP 4: Model configuration
 
-        ComputationGraphConfiguration conf = new NeuralNetConfiguration.Builder()
+        MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
                 .seed(RANDOM_SEED)
                 .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
                 .learningRate(LEARNING_RATE)
                 .weightInit(WeightInit.XAVIER)
                 .updater(Updater.ADAM)
                 .dropOut(0.25)
-                .graphBuilder()
-                .addInputs("trainFeatures")
-                .setOutputs("predictMortality")
-                .addLayer("L1", new GravesLSTM.Builder()
-                                .nIn(NB_INPUTS)
-                                .nOut(lstmLayerSize)
-                                .forgetGateBiasInit(1)
-                                .activation(Activation.TANH)
-                                .build(),
-                        "trainFeatures")
-                .addLayer("predictMortality", new RnnOutputLayer.Builder(LossFunctions.LossFunction.XENT)
-                        .activation(Activation.SOFTMAX)
-                        .nIn(lstmLayerSize).nOut(numLabelClasses).build(),"L1")
+                .list()
+                .layer(0, new GravesLSTM.Builder().nIn(NB_INPUTS).nOut(lstmLayerSize).activation(Activation.TANH).build())
+                .layer(1, new RnnOutputLayer.Builder(LossFunctions.LossFunction.XENT).activation(Activation.SOFTMAX)        //MCXENT + softmax for classification
+                        .nIn(lstmLayerSize).nOut(numLabelClasses).build())
                 .pretrain(false).backprop(true)
                 .build();
 
-        // Step 4: Spark Training
 
-        // controls how distributed training is executed in practice
-
-        // This value specifies how many examples are in each DataSet object
+        // Step 5: Spark Distributed Training Configuration
 
         TrainingMaster tm = new ParameterAveragingTrainingMaster.Builder(BATCH_SIZE)    //Each DataSet object: contains (by default) 32 examples
                 .averagingFrequency(5)
@@ -188,11 +160,9 @@ public class SparkLSTMTaskExample {
                 .batchSizePerWorker(BATCH_SIZE)
                 .build();
 
-        // Step 5: Create Spark network
+        // Step 6: Create and train Spark network
 
-        // Main class for training computation graph using Spark, training configuration, context
-
-        SparkComputationGraph sparkNet = new SparkComputationGraph(sc, conf, tm);
+        SparkDl4jMultiLayer sparkNet = new SparkDl4jMultiLayer(sc, conf, tm);
 
         for (int i = 0; i < NB_EPOCHS; i++) {
             sparkNet.fit(JtrainData);
@@ -202,9 +172,9 @@ public class SparkLSTMTaskExample {
             log.info("***** Train Evaluation *****");
             log.info("{}", roc.calculateAUC());
 
-           roc = sparkNet.evaluateROC(JvalidData);
-           log.info("***** Valid Evaluation *****");
-           log.info("{}", roc.calculateAUC());
+            roc = sparkNet.evaluateROC(JvalidData);
+            log.info("***** Valid Evaluation *****");
+            log.info("{}", roc.calculateAUC());
         }
 
         ROC roc = sparkNet.evaluateROC(JtestData);
