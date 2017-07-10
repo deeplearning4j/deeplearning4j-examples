@@ -15,9 +15,9 @@
         <java.version>1.8</java.version>
         <nd4j.backend>nd4j-native-platform</nd4j.backend>
         <!--<nd4j.backend>nd4j-cuda-8.0-platform</nd4j.backend>-->
-        <nd4j.version>0.8.1-SNAPSHOT</nd4j.version>
-        <datavec.version>0.8.1-SNAPSHOT</datavec.version>
-        <dl4j.version>0.8.1-SNAPSHOT</dl4j.version>
+        <nd4j.version>0.8.0</nd4j.version>
+        <datavec.version>0.8.0</datavec.version>
+        <dl4j.version>0.8.0</dl4j.version>
         <!--<junit.version>4.12</junit.version>-->
         <jcommander.version>1.27</jcommander.version>
         <!--<maven-shade-plugin.version>3.0.0</maven-shade-plugin.version>-->
@@ -26,8 +26,8 @@
         <maven-resources-plugin.version>3.0.1</maven-resources-plugin.version>
         <maven-build-helper-plugin.version>1.12</maven-build-helper-plugin.version>
 
-        <dl4j.spark.version>0.8.1_spark_2-SNAPSHOT</dl4j.spark.version>
-        <datavec.spark.version>0.8.1_spark_2-SNAPSHOT</datavec.spark.version>
+        <dl4j.spark.version>0.8.0_spark_2</dl4j.spark.version>
+        <datavec.spark.version>0.8.0_spark_2</datavec.spark.version>
         <arbiter.version>0.8.0</arbiter.version>
 
         <scala.binary.version>2.11</scala.binary.version>
