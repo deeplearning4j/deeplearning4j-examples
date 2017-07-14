@@ -1,6 +1,7 @@
 package org.nd4j.examples;
 
 import org.nd4j.linalg.api.ndarray.INDArray;
+import org.nd4j.linalg.api.ops.impl.indexaccum.IAMax;
 import org.nd4j.linalg.api.ops.impl.indexaccum.IMin;
 import org.nd4j.linalg.factory.Nd4j;
 
@@ -53,12 +54,20 @@ public class Nd4jEx5_Accumulations {
         INDArray avgAlong0 = originalArray.mean(0);
         INDArray stdevAlong0 = originalArray.std(0);
 
+        // Index Accumulation operations
+        // IAMax returns index of max value along specified dimension
+        INDArray idxOfMaxInEachColumn = Nd4j.getExecutioner().exec(new IAMax(originalArray),0);
+        INDArray idxOfMaxInEachRow = Nd4j.getExecutioner().exec(new IAMax(originalArray),1);
+
+
         System.out.println("\n\n\n");
         System.out.println("min along dimension 0:  " + minAlong0);
         System.out.println("max along dimension 0:  " + maxAlong0);
         System.out.println("sum along dimension 0:  " + sumAlong0);
         System.out.println("avg along dimension 0:  " + avgAlong0);
-        System.out.println("stdev along dimension 0:  " + stdevAlong0);
+        System.out.println("Index of max dimension 0:  " + idxOfMaxInEachColumn);
+        System.out.println("Index of max dimension 1:  " + idxOfMaxInEachRow);
+
 
         //If we had instead performed these along dimension 1, we would instead get a [3,1] array out
         //In this case, each output value would be the reduction of the values in each column
@@ -74,6 +83,10 @@ public class Nd4jEx5_Accumulations {
         System.out.println("\n\nargmax along dimension 0:   " + argMaxAlongDim0);
         INDArray argMinAlongDim0 = Nd4j.getExecutioner().exec(new IMin(originalArray),0);   //Index of the min value, along dimension 0
         System.out.println("argmin along dimension 0:   " + argMinAlongDim0);
+
+
+
+
     }
 
 }
