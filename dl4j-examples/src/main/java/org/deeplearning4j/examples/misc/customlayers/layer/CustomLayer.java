@@ -3,7 +3,11 @@ package org.deeplearning4j.examples.misc.customlayers.layer;
 import org.deeplearning4j.nn.api.Layer;
 import org.deeplearning4j.nn.api.ParamInitializer;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
+import org.deeplearning4j.nn.conf.inputs.InputType;
+import org.deeplearning4j.nn.conf.layers.DenseLayer;
 import org.deeplearning4j.nn.conf.layers.FeedForwardLayer;
+import org.deeplearning4j.nn.conf.memory.LayerMemoryReport;
+import org.deeplearning4j.nn.conf.memory.MemoryReport;
 import org.deeplearning4j.nn.params.DefaultParamInitializer;
 import org.deeplearning4j.optimize.api.IterationListener;
 import org.nd4j.linalg.activations.Activation;
@@ -78,6 +82,37 @@ public class CustomLayer extends FeedForwardLayer {
         //https://github.com/deeplearning4j/deeplearning4j/tree/master/deeplearning4j-core/src/main/java/org/deeplearning4j/nn/params
 
         return DefaultParamInitializer.getInstance();
+    }
+
+    @Override
+    public LayerMemoryReport getMemoryReport(InputType inputType) {
+        //Memory report is used to estimate how much memory is required for the layer, for different configurations
+        //If you don't need this functionality for your custom layer, you can return a LayerMemoryReport
+        // with all 0s, or
+
+        //This implementation: based on DenseLayer implementation
+        InputType outputType = getOutputType(-1, inputType);
+
+        int numParams = initializer().numParams(this);
+        int updaterStateSize = (int)getIUpdater().stateSize(numParams);
+
+        int trainSizeFixed = 0;
+        int trainSizeVariable = 0;
+        if(getDropOut() > 0){
+            //Assume we dup the input for dropout
+            trainSizeVariable += inputType.arrayElementsPerExample();
+        }
+
+        //Also, during backprop: we do a preOut call -> gives us activations size equal to the output size
+        // which is modified in-place by activation function backprop
+        // then we have 'epsilonNext' which is equivalent to input size
+        trainSizeVariable += outputType.arrayElementsPerExample();
+
+        return new LayerMemoryReport.Builder(layerName, CustomLayer.class, inputType, outputType)
+            .standardMemory(numParams, updaterStateSize)
+            .workingMemory(0, 0, trainSizeFixed, trainSizeVariable)     //No additional memory (beyond activations) for inference
+            .cacheMemory(MemoryReport.CACHE_MODE_ALL_ZEROS, MemoryReport.CACHE_MODE_ALL_ZEROS) //No caching in DenseLayer
+            .build();
     }
 
 
