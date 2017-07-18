@@ -122,9 +122,10 @@ public class MnistMLPDsitributedExample {
 
         //Configuration for Spark training: see http://deeplearning4j.org/spark for explanation of these configuration options
         VoidConfiguration voidConfiguration = VoidConfiguration.builder()
-            .forcedRole(NodeRole.SHARD)
+            //.forcedRole(NodeRole.SHARD)
             .unicastPort(40123)
-            .executionMode(ExecutionMode.MANAGED)
+            .networkMask("10.1.1.0/24")
+            //.executionMode(ExecutionMode.MANAGED)
             //.controllerAddress("127.0.0.1") // localhost for now
             .build();
 
@@ -132,7 +133,7 @@ public class MnistMLPDsitributedExample {
             .updatesThreshold(1e-3)
             .rddTrainingApproach(RDDTrainingApproach.Direct)
             .batchSizePerWorker(batchSizePerWorker)
-            .debugLongerIterations(200)
+            //.debugLongerIterations()
             .workersPerNode(4)
             .build();
 
