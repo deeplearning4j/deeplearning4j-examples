@@ -1,26 +1,16 @@
 package org.deeplearning4j.examples.convolution;
 
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
-import org.datavec.api.io.labels.ParentPathLabelGenerator;
 import org.datavec.image.loader.CifarLoader;
 import org.datavec.image.loader.NativeImageLoader;
-import org.datavec.image.recordreader.ImageRecordReader;
-import org.datavec.image.transform.FlipImageTransform;
-import org.datavec.image.transform.ImageTransform;
-import org.datavec.image.transform.WarpImageTransform;
 import org.deeplearning4j.api.storage.StatsStorage;
-import org.deeplearning4j.datasets.iterator.MultipleEpochsIterator;
 import org.deeplearning4j.datasets.iterator.impl.CifarDataSetIterator;
 import org.deeplearning4j.eval.Evaluation;
 import org.deeplearning4j.nn.api.OptimizationAlgorithm;
 import org.deeplearning4j.nn.conf.*;
-import org.deeplearning4j.nn.conf.distribution.GaussianDistribution;
-import org.deeplearning4j.nn.conf.distribution.NormalDistribution;
 import org.deeplearning4j.nn.conf.inputs.InputType;
 import org.deeplearning4j.nn.conf.inputs.InvalidInputTypeException;
 import org.deeplearning4j.nn.conf.layers.*;
-import org.deeplearning4j.nn.conf.layers.setup.ConvolutionLayerSetup;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
 import org.deeplearning4j.optimize.api.IterationListener;
@@ -31,8 +21,11 @@ import org.deeplearning4j.ui.storage.InMemoryStatsStorage;
 import org.deeplearning4j.util.ModelSerializer;
 import org.deeplearning4j.util.StringUtils;
 import org.nd4j.linalg.activations.Activation;
+import org.nd4j.linalg.api.buffer.DataBuffer;
+import org.nd4j.linalg.api.buffer.util.DataTypeUtil;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
+import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.nd4j.linalg.dataset.api.preprocessor.DataNormalization;
 import org.nd4j.linalg.dataset.api.preprocessor.ImagePreProcessingScaler;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
@@ -46,9 +39,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
+import java.util.concurrent.Callable;
+
 
 /**
  * train model by cifar
@@ -63,261 +56,125 @@ public class Cifar {
     private static final String DATA_PATH = FilenameUtils.concat(System.getProperty("user.dir"), "cifar-model/");
     protected static final Logger log = LoggerFactory.getLogger(Cifar.class);
 
-    private static int height = 8;
-    private static int width = 8;
-    private static String labelStr = "[]";
-    public static void main(String[] args) throws IOException {
 
+    private static String labelStr = "[]";
+    private static int height = 32;
+    private static int width = 32;
+    private static int channels = 3;
+    private static int numLabels = CifarLoader.NUM_LABELS;
+    private static int numSamples = 50000;
+    private static int batchSize = 100;
+    //private static int maxStep = 10000;
+    private static int iterations = 1;
+    private static int seed = 123;
+    private static Random rng = new Random(seed);
+    private static double nonZeroBias = 1;
+    private static double dropOut = 0.5;
+    private static boolean preProcessCifar = false;//use Zagoruyko's preprocess for Cifar
+    private static int epochs = 30;
+    private static int nCores = 2;
+
+    public static void main(String[] args) throws Exception {
+       // CudaEnvironment.getInstance().getConfiguration().;
+        new Cifar().run(args);
+    }
+    public void run(String[] args) throws Exception {
+        //Scale pixel values to 0-1
+        //Scale pixel values to 0-1
+        DataTypeUtil.setDTypeForContext(DataBuffer.Type.FLOAT);
         Cifar cf = new Cifar();
         //train model and eval model
         MultiLayerNetwork model = null;
         String modelType = "alexNet";//bp,cnn,alexNet,costom
         switch (modelType) {
-            case "bp":
-                model = cf.trainModelByCifarDataWithDenseBP();
-                break;
-            case "cnn":
-                model = cf.trainModelByCifarData();
-                break;
             case "alexNet":
                 model = cf.trainModelByCifarWithAlexNet();//ignore
-                break;
-            case "costom":
-                model = cf.trainModelByCifarOtherNet();
                 break;
             default:
                 throw new InvalidInputTypeException("Incorrect model provided.");
         }
+        //the visual ui
+        UIServer uiServer = UIServer.getInstance();
+        StatsStorage statsStorage = new InMemoryStatsStorage();
+        uiServer.attach(statsStorage);
+        model.setListeners((IterationListener)new StatsListener( statsStorage),new ScoreIterationListener(iterations));
+
+        // CifarDataSetIterator=load binary file and Sequence combine file,instantiate data labels（下载或者加载数据，并且把数据按照训练和测试分类，如果存在多个文件就进行流合并）
+        CifarDataSetIterator cifar = new CifarDataSetIterator(batchSize, numSamples,
+            new int[] {height, width, channels}, preProcessCifar, true);
+        int x = cifar.totalExamples();
+        System.out.println("=========="+ x);
+        labelStr = String.join(",", cifar.getLabels().toArray(new String[cifar.getLabels().size()]));
+        DataNormalization scaler = new ImagePreProcessingScaler(0, 1);
+        scaler.fit(cifar);
+        cifar.setPreProcessor(scaler);
+
+        for(int i = 0; i <epochs; i++) {
+            System.out.println("Epoch" + i);
+            model.fit(cifar);
+        }
+
+        log.info("=====tranform images========");
+        //评估cifar10
+        cifar.test();
+        Evaluation eval = new Evaluation(cifar.getLabels());
+        scaler.fit(cifar);
+        cifar.setPreProcessor(scaler);
+        while (cifar.hasNext()) {
+            DataSet testDS = cifar.next(batchSize);
+            INDArray output = model.output(testDS.getFeatureMatrix());
+            eval.eval(testDS.getLabels(), output);
+        }
+        System.out.println(eval.stats(true));
         //provied service by makeing use of the model
         cf.testModelByUnkownImage(model);
+        saveModel(model, "trainModelByCifarWithAlexNet_model.json");
     }
-    //one DenseLayer,one OutLayer
-    public MultiLayerNetwork trainModelByCifarDataWithDenseBP() {
-        height = 100;
-        width = 100;
-        int channels = 3;
-        int rngseed = 123;
-        int numSamples = 60000;
-        int batchSize = 128;
-        int iterations = 3;
-        Random rng = new Random(rngseed);
-        int outputNum = CifarLoader.NUM_LABELS;
-        int numEpochs = 1;
-        boolean preProceeCifar = true;
-        CifarDataSetIterator cifar = new CifarDataSetIterator(batchSize, numSamples,
-            new int[] {height, width, channels}, false, true);
 
-        DataNormalization scaler = new ImagePreProcessingScaler(0,1);
-        scaler.fit(cifar);
-        cifar.setPreProcessor(scaler);
-        labelStr = String.join(",", cifar.getLabels().toArray(new String[cifar.getLabels().size()]));
 
-        // Build Our Neural Network
-        log.info("**** Build Model ****");
-        //no add weight F1 score =0.3552,
-        MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
-            .seed(rngseed)
-            .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT).updater(Updater.NESTEROVS).momentum(0.9)// improve train time加快训练速度
-            .iterations(iterations)//
-            .learningRate(0.0002)//the point of the learningRate is weight - deviation*learningRate(学习率是在反向传播中改变误差的一种方式）
-            .regularization(true).l2(1e-4)//To prevent over fitting and combining loss function（防止过拟合,配合损失函数）
-            .list()
-            .layer(0, new DenseLayer.Builder()
-                .nIn(height * width * channels)
-                .nOut(100)
-                .activation(Activation.RELU)
-                .weightInit(WeightInit.XAVIER)
-                .build())
-            .layer(1, new OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD)
-                .nIn(100)
-                .nOut(outputNum)
-                .activation(Activation.SOFTMAX)
-                .weightInit(WeightInit.XAVIER)
-                .build())
-            .backprop(true)
-            .pretrain(false)
-            .setInputType(InputType.convolutional(height,width,channels))
-            .build();
-
-        MultiLayerNetwork model = new MultiLayerNetwork(conf);
-        UIServer uiServer = UIServer.getInstance();
-        StatsStorage statsStorage = new InMemoryStatsStorage();
-        uiServer.attach(statsStorage);
-        model.setListeners(new StatsListener(statsStorage));
-        log.info("*****TRAIN MODEL********");
-        for(int i = 0; i<numEpochs; i++){
-            model.fit(cifar);
-        }
-        //Data Setup -> transformation,tranform and pollute image that tranform the picture over and deal with the pollution,
-        ImageTransform flipTransform1 = new FlipImageTransform(rng);
-        ImageTransform flipTransform2 = new FlipImageTransform(new Random(123));
-        ImageTransform warpTransform = new WarpImageTransform(rng, 42);
-        List<ImageTransform> transforms = Arrays.asList(new ImageTransform[]{flipTransform1, warpTransform, flipTransform2});
-        // Train with transformations
-        for (ImageTransform transform : transforms) {
-            System.out.print("\nTraining on transformation: " + transform.getClass().toString() + "\n\n");
-            scaler.fit(cifar);
-            cifar.setPreProcessor(scaler);
-            model.fit(cifar);
-        }
-        log.info("******EVALUATE MODEL******");
-
-        Evaluation eval = model.evaluate(cifar);
-        log.info(eval.stats(true));
-        cifar.reset();
-        DataSet testDataSet = cifar.next();
-        String expectedResult = testDataSet.getLabelName(0);
-        List<String> predict = model.predict(testDataSet);
-        String modelResult = predict.get(0);
-        System.out.print( "\nFor a single example that is labeled " + expectedResult + " the model predicted " + modelResult + "\n\n");
-
-        return saveModel(model, "trainModelByCifarWithSimpleData_model.json");
-    }
-    //one ConvolutionLayer,one SubsamplingLayer,one OutLayer
-    public MultiLayerNetwork trainModelByCifarData() {
-
-        height = 32;
-        width = 32;
-        int channels = 3;
-        int outputNum = CifarLoader.NUM_LABELS;
-        int numSamples = 60000;
-        int batchSize = 10;
-        int iterations = 2;
-        int seed = 123;
-        int listenerFreq = iterations;
-        boolean preProcessCifar = true;//use Zagoruyko's preprocess for Cifar
-        Random rng = new Random(seed);
-
-        CifarDataSetIterator cifar = new CifarDataSetIterator(batchSize, numSamples,
-            new int[] {height, width, channels}, preProcessCifar, true);
-        labelStr = String.join(",", cifar.getLabels().toArray(new String[cifar.getLabels().size()]));
-
-        DataNormalization scaler = new ImagePreProcessingScaler(0, 1);
-        scaler.fit(cifar);
-        cifar.setPreProcessor(scaler);
-
-        MultiLayerConfiguration.Builder builder = new NeuralNetConfiguration.Builder()
-            .seed(seed)
-            .iterations(iterations)
-            .gradientNormalization(GradientNormalization.RenormalizeL2PerLayer)
-            .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT).updater(Updater.NESTEROVS).momentum(0.9)// improve train time加快训练速度
-            .learningRate(0.003)//the point of the learningRate is weight - deviation*learningRate(学习率是在反向传播中改变误差的一种方式）
-            .regularization(true).l2(1e-4)//To prevent over fitting and combining loss function（防止过拟合,配合损失函数）
-            .list()
-            .layer(0, new ConvolutionLayer.Builder(5, 5)
-                .nIn(channels)
-                .nOut(6)
-                .weightInit(WeightInit.XAVIER)
-                .activation(Activation.RELU)
-                .build())
-            .layer(1, new SubsamplingLayer.Builder(SubsamplingLayer.PoolingType.MAX, new int[] {2, 2})
-                .build())
-            .layer(2, new OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD)
-                .nOut(outputNum)
-                .weightInit(WeightInit.XAVIER)
-                .activation(Activation.SOFTMAX)
-                .build())
-            .backprop(true)
-            .pretrain(false)
-            .setInputType(InputType.convolutionalFlat(height, width, channels));
-
-        MultiLayerNetwork model = new MultiLayerNetwork(builder.build());
-        model.init();
-        UIServer uiServer = UIServer.getInstance();
-        StatsStorage statsStorage = new InMemoryStatsStorage();
-        uiServer.attach(statsStorage);
-        model.setListeners(new StatsListener(statsStorage));
-        model.fit(cifar);
-
-        ImageTransform flipTransform1 = new FlipImageTransform();
-        ImageTransform flipTransform2 = new FlipImageTransform(new Random(123));
-        ImageTransform warpTransform = new WarpImageTransform(rng, 42);
-//        ImageTransform colorTransform = new ColorConversionTransform(new Random(seed), COLOR_BGR2YCrCb);
-        List<ImageTransform> transforms = Arrays.asList(new ImageTransform[]{flipTransform1, warpTransform, flipTransform2});
-        for (ImageTransform transform : transforms) {
-            System.out.print("\nTraining on transformation: " + transform.getClass().toString() + "\n\n");
-            scaler.fit(cifar);
-            cifar.setPreProcessor(scaler);
-            model.fit(cifar);
-        }
-
-        Evaluation eval = model.evaluate(cifar);
-        log.info(eval.stats(true));
-        cifar.reset();
-        DataSet testDataSet = cifar.next();
-        String expectedResult = testDataSet.getLabelName(0);
-        List<String> predict = model.predict(testDataSet);
-        String modelResult = predict.get(0);
-        System.out.print( "\nFor a single example that is labeled " + expectedResult + " the model predicted " + modelResult + "\n\n");
-
-        //save model
-        return saveModel(model, "trainModelByCifarData_model.json");
-    }
     //five ConvolutionLayer,three SubsamplingLayer,two DenseLayer,one OutLayer
     public MultiLayerNetwork trainModelByCifarWithAlexNet() throws IOException {
-        log.info("this is AlexNet");
-        height = 32;
-        width = 32;
-        int channels = 3;
-        int numLabels = CifarLoader.NUM_LABELS;
-        int numSamples = 60000;
-        int batchSize = 20;
-        int iterations = 1;
-        int seed = 123;
-        Random rng = new Random(seed);
-        int listenerFreq = 1;
-        double nonZeroBias = 1;
-        double dropOut = 0.5;
-        boolean preProcessCifar = true;//use Zagoruyko's preprocess for Cifar
-        int epochs = 50;
-        int nCores = 2;
-        /**
-         * CifarDataSetIterator=load binary file and Sequence combine file,instantiate data labels（下载或者加载数据，并且把数据按照训练和测试分类，如果存在多个文件就进行流合并）
-         */
-        CifarDataSetIterator cifar = new CifarDataSetIterator(batchSize, numSamples,
-            new int[] {height, width, channels}, preProcessCifar, true);
-
-        labelStr = String.join(",", cifar.getLabels().toArray(new String[cifar.getLabels().size()]));
-        //Scale pixel values to 0-1
-        DataNormalization scaler = new ImagePreProcessingScaler(0, 1);
-        scaler.fit(cifar);
-        cifar.setPreProcessor(scaler);
-
-
-
-
+        log.info("this is AlexNet for the cifar");
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
             .seed(seed)
-            .weightInit(WeightInit.DISTRIBUTION)
-            .dist(new NormalDistribution(0.0, 0.01))
-            .activation(Activation.RELU)
-            .updater(Updater.NESTEROVS)
+            .updater(Updater.RMSPROP)
             .iterations(iterations)
             .gradientNormalization(GradientNormalization.RenormalizeL2PerLayer) // normalize to prevent vanishing or exploding gradients
             .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
-            .learningRate(1e-2)
-            .biasLearningRate(1e-2*2)
             .learningRateDecayPolicy(LearningRatePolicy.Step)
             .lrPolicyDecayRate(0.1)
-            .lrPolicySteps(100000)
+            .lrPolicySteps(1000)
+            .l1(1e-4)
             .regularization(true)
             .l2(5 * 1e-4)
             .momentum(0.9)
-            .miniBatch(false)
+            .miniBatch(true)
             .list()
-            .layer(0, new ConvolutionLayer.Builder(new int[]{5, 5}, new int[]{1, 1}, new int[]{1, 1}).name("cnn1").nIn(3).nOut(96).biasInit(0).build())
-            .layer(1, new LocalResponseNormalization.Builder().name("lrn1").build())
-            .layer(2, new SubsamplingLayer.Builder(new int[]{3,3}, new int[]{1,1}).name("maxpool1").build())
-            .layer(3, new ConvolutionLayer.Builder(new int[]{3,3}, new int[] {1,1}, new int[] {1,1}).name("cnn2").nOut(256).biasInit(nonZeroBias).build())
+            ////cnn1
+            .layer(0, new ConvolutionLayer.Builder(new int[]{7, 7}, new int[]{1, 1}, new int[]{1, 1}).name("cnn1")
+                .nIn(3).nOut(96).weightInit(WeightInit.RELU_UNIFORM).activation(Activation.RELU)
+                .learningRate(1e-3).biasInit(1e-3*2).biasLearningRate(1e-3*2)
+                .build())
+            .layer(1, new SubsamplingLayer.Builder(PoolingType.MAX, new int[]{3,3}, new int[]{1,1}, new int[]{1,1}).name("maxpool1").build())
+            .layer(2, new LocalResponseNormalization.Builder().name("lrn1").build())
+            //cnn2
+            .layer(3, new ConvolutionLayer.Builder(new int[]{4,4}, new int[] {1,1}, new int[] {0,0}).name("cnn2")
+                .nOut(256).weightInit(WeightInit.RELU_UNIFORM).activation(Activation.RELU)
+                .learningRate(1e-2).biasInit(1e-2*2).biasLearningRate(1e-2*2)
+                .build())
             .layer(4, new LocalResponseNormalization.Builder().name("lrn2").build())
-            .layer(5, new SubsamplingLayer.Builder(new int[]{3,3}, new int[]{2,2}).name("maxpool2").build())
-            .layer(6, new ConvolutionLayer.Builder(new int[]{2,2}, new int[] {1,1}, new int[] {1,1}).name("cnn3").nOut(384).biasInit(0).build())
-            .layer(7, new ConvolutionLayer.Builder(new int[]{2,2}, new int[] {1,1}, new int[] {1,1}).name("cnn4").nOut(384).biasInit(nonZeroBias).build())
-            .layer(8, new ConvolutionLayer.Builder(new int[]{2,2}, new int[] {1,1}, new int[] {1,1}).name("cnn5").nOut(256).biasInit(nonZeroBias).build())
-            .layer(9, new SubsamplingLayer.Builder(new int[]{1,1}, new int[]{1,1}).name("maxpool3").build())
-            .layer(10, new DenseLayer.Builder().name("ffn1").nOut(100).biasInit(nonZeroBias).dropOut(dropOut).dist(new GaussianDistribution(0, 0.005)).build())
-            .layer(11, new DenseLayer.Builder().name("ffn2").nOut(100).biasInit(nonZeroBias).dropOut(dropOut).dist(new GaussianDistribution(0, 0.005)).build())
-            .layer(12, new OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD)
+            .layer(5, new SubsamplingLayer.Builder(PoolingType.AVG, new int[]{3,3}, new int[]{2,2}, new int[]{1,1}).name("maxpool2").build())
+            //cnn3
+            .layer(6, new ConvolutionLayer.Builder(new int[]{2,2}, new int[] {1,1}, new int[] {0,0}).name("cnn3")
+                .nOut(256).weightInit(WeightInit.RELU_UNIFORM).activation(Activation.RELU)
+                .learningRate(1e-1).biasInit(1e-1*2).biasLearningRate(1e-1*2)
+                .build())
+            .layer(7, new LocalResponseNormalization.Builder().name("lrn2").build())
+            .layer(8, new SubsamplingLayer.Builder(PoolingType.AVG, new int[]{3,3}, new int[]{2,2}, new int[]{1,1}).name("maxpool2").build())
+
+            .layer(9, new DenseLayer.Builder().name("ffn1").nOut(100).biasInit(nonZeroBias).dropOut(dropOut).build())
+            .layer(10, new DenseLayer.Builder().name("ffn2").nOut(100).biasInit(nonZeroBias).dropOut(dropOut).build())
+            .layer(11, new OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD)
                 .name("output")
                 .nOut(numLabels)
                 .activation(Activation.SOFTMAX)
@@ -326,56 +183,16 @@ public class Cifar {
             .pretrain(false)
             .setInputType(InputType.convolutional(height, width, channels))
             .build();
-
-
         MultiLayerNetwork model = new MultiLayerNetwork(conf);
+
+
         model.init();
 
-        //the visual ui
-        UIServer uiServer = UIServer.getInstance();
-        StatsStorage statsStorage = new InMemoryStatsStorage();
-        uiServer.attach(statsStorage);
-        model.setListeners(new StatsListener(statsStorage));
-        // model.setListeners(new ScoreIterationListener(listenerFreq));
-        MultipleEpochsIterator trainIter = new MultipleEpochsIterator(epochs, cifar, nCores);
 
-        model.fit(trainIter);
-
-
-        /**
-         * Data Setup -> transformation
-         *  - Transform = how to tranform images and generate large dataset to train on
-         **/
-        ImageTransform flipTransform1 = new FlipImageTransform(rng);
-        ImageTransform flipTransform2 = new FlipImageTransform(new Random(123));
-        ImageTransform warpTransform = new WarpImageTransform(rng, 42);
-//        ImageTransform colorTransform = new ColorConversionTransform(new Random(seed), COLOR_BGR2YCrCb);
-        List<ImageTransform> transforms = Arrays.asList(new ImageTransform[]{flipTransform1, warpTransform, flipTransform2});
-        // Train with transformations
-        for (ImageTransform transform : transforms) {
-            System.out.print("\nTraining on transformation: " + transform.getClass().toString() + "\n\n");
-            scaler.fit(cifar);
-            cifar.setPreProcessor(scaler);
-            trainIter = new MultipleEpochsIterator(epochs, cifar, nCores);
-            model.fit(trainIter);
-        }
-
-        cifar.test(10);
-        Evaluation eval = new Evaluation(cifar.getLabels());
-        while (cifar.hasNext()) {
-            DataSet testDS = cifar.next(batchSize);
-            INDArray output = model.output(testDS.getFeatureMatrix());
-            eval.eval(testDS.getLabels(), output);
-        }
-        System.out.println(eval.stats(true));
         //save model
-        return saveModel(model, "trainModelByCifarWithAlexNet_model.json");
+        return model;
     }
 
-    public MultiLayerNetwork trainModelByCifarOtherNet() {
-
-        return null;
-    }
 
     public MultiLayerNetwork saveModel(MultiLayerNetwork model, String fileName) {
         File locationModelFile = new File(DATA_PATH + fileName);
@@ -529,5 +346,26 @@ public class Cifar {
             setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
             setVisible(true);
         }
+    }
+
+
+
+}
+class ModelFitDeal implements Callable<Object> {
+    private MultiLayerNetwork model;
+    private DataSetIterator dataSetIterator;
+    ModelFitDeal(MultiLayerNetwork model, DataSetIterator dataSetIterator) {
+        this.model = model;
+        this.dataSetIterator = dataSetIterator;
+    }
+
+    public Object call() throws Exception {
+        Date dateTmp1 = new Date();
+        System.out.println("任务执行");
+
+        model.fit(dataSetIterator);
+        Date dateTmp2 = new Date();
+        long time = dateTmp2.getTime() - dateTmp1.getTime();
+        return "任务返回运行结果,当前任务时间【" + time + "毫秒】";
     }
 }

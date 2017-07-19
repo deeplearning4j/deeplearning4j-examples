@@ -118,6 +118,11 @@
             <artifactId>httpclient</artifactId>
             <version>4.3.5</version>
         </dependency>
+        <dependency>
+            <groupId>org.nd4j</groupId>
+            <artifactId>nd4j-cuda-8.0</artifactId>
+            <version>RELEASE</version>
+        </dependency>
 
     </dependencies>
 
