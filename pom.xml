@@ -18,15 +18,15 @@
 
 
         <java.version>1.8</java.version>
-          <nd4j.version>0.8.1-SNAPSHOT</nd4j.version>
+        <nd4j.version>0.8.1-SNAPSHOT</nd4j.version>
         <dl4j.version>0.8.1-SNAPSHOT</dl4j.version>
         <datavec.version>0.8.1-SNAPSHOT</datavec.version>
         <arbiter.version>0.8.1-SNAPSHOT</arbiter.version>
         <rl4j.version>0.8.1-SNAPSHOT</rl4j.version>
 
         <!-- For Spark examples: change the _1 to _2 to switch between Spark 1 and Spark 2 -->
-        <dl4j.spark.version>0.8.0_spark_1</dl4j.spark.version>
-        <datavec.spark.version>0.8.0_spark_1</datavec.spark.version>
+        <dl4j.spark.version>0.8.1_spark_1-SNAPSHOT</dl4j.spark.version>
+        <datavec.spark.version>0.8.1_spark_1-SNAPSHOT</datavec.spark.version>
 
         <!-- Scala binary version: DL4J's Spark and UI functionality are released with both Scala 2.10 and 2.11 support -->
         <scala.binary.version>2.11</scala.binary.version>
@@ -52,7 +52,7 @@
         <module>nd4j-examples</module>
         <module>rl4j-examples</module>
         <module>arbiter-examples</module>
-	<module>lstm-hdfs</module>
+	    <module>lstm-hdfs</module>
     </modules>
 
     <!-- Maven Enforcer: Ensures user has an up to date version of Maven before building -->
