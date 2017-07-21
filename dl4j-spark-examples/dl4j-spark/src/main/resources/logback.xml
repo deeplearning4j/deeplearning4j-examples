@@ -25,6 +25,7 @@
     <logger name="org.nd4j" level="INFO" />
     <logger name="opennlp.uima.util" level="OFF" />
     <logger name="org.apache.uima" level="OFF" />
+    <logger name="org.apache" level="OFF" />
     <logger name="org.cleartk" level="OFF" />
 
 
