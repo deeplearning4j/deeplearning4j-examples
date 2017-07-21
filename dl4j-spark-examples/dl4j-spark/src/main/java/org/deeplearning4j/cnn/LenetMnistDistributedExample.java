@@ -49,7 +49,7 @@ public class LenetMnistDistributedExample {
     private int batchSizePerWorker = 64;
 
     @Parameter(names = "-numEpochs", description = "Number of epochs for training")
-    private int numEpochs = 1;
+    private int numEpochs = 5;
 
     public static void main(String[] args) throws Exception {
         new LenetMnistDistributedExample().entryPoint(args);
@@ -150,7 +150,7 @@ public class LenetMnistDistributedExample {
             .updatesThreshold(1e-3)
             .rddTrainingApproach(RDDTrainingApproach.Direct)
             .batchSizePerWorker(batchSizePerWorker)
-            .workersPerNode(4)
+            .workersPerNode(2)
             .build();
 
         SparkDl4jMultiLayer sparkNet = new SparkDl4jMultiLayer(sc, conf, tm);
