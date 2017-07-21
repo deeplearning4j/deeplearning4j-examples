@@ -147,7 +147,7 @@ public class LenetMnistDistributedExample {
             .build();
 
         TrainingMaster tm = new SharedTrainingMaster.Builder(voidConfiguration, batchSizePerWorker)
-            .updatesThreshold(5e-4)
+            .updatesThreshold(1e-4)
             .rddTrainingApproach(RDDTrainingApproach.Direct)
             .batchSizePerWorker(batchSizePerWorker)
             .workersPerNode(2)
