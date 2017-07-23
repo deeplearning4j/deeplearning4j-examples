@@ -133,5 +133,10 @@ public class CustomLossL1L2 implements ILossFunction {
         return "CustomLossL1L2()";
     }
 
+	@Override
+	public String name() {
+		return toString();
+	}
+
 }
 
