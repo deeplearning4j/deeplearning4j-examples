@@ -75,7 +75,7 @@ public class Cifar {
     private static int nCores = 2;
 
     public static void main(String[] args) throws Exception {
-       // CudaEnvironment.getInstance().getConfiguration().;
+        // CudaEnvironment.getInstance().getConfiguration().;
         new Cifar().run(args);
     }
     public void run(String[] args) throws Exception {
@@ -88,7 +88,7 @@ public class Cifar {
         String modelType = "alexNet";//bp,cnn,alexNet,costom
         switch (modelType) {
             case "alexNet":
-                model = cf.trainModelByCifarWithAlexNet();//ignore
+                model = cf.trainModelByCifarWithNet();//ignore
                 break;
             default:
                 throw new InvalidInputTypeException("Incorrect model provided.");
@@ -116,7 +116,9 @@ public class Cifar {
 
         log.info("=====tranform images========");
         //评估cifar10
-        cifar.test();
+        cifar = new CifarDataSetIterator(batchSize, 10000,
+            new int[] {height, width, channels}, preProcessCifar, false);
+        // cifar.Test();
         Evaluation eval = new Evaluation(cifar.getLabels());
         scaler.fit(cifar);
         cifar.setPreProcessor(scaler);
@@ -133,48 +135,41 @@ public class Cifar {
 
 
     //five ConvolutionLayer,three SubsamplingLayer,two DenseLayer,one OutLayer
-    public MultiLayerNetwork trainModelByCifarWithAlexNet() throws IOException {
-        log.info("this is AlexNet for the cifar");
+    public MultiLayerNetwork trainModelByCifarWithNet() throws IOException {
+        log.info("this is Net for the cifar");
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
             .seed(seed)
-            .updater(Updater.RMSPROP)
+            // .updater(Updater.RMSPROP)
+            .updater(Updater.ADAM)
             .iterations(iterations)
             .gradientNormalization(GradientNormalization.RenormalizeL2PerLayer) // normalize to prevent vanishing or exploding gradients
             .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
-            .learningRateDecayPolicy(LearningRatePolicy.Step)
-            .lrPolicyDecayRate(0.1)
-            .lrPolicySteps(1000)
             .l1(1e-4)
             .regularization(true)
             .l2(5 * 1e-4)
-            .momentum(0.9)
-            .miniBatch(true)
             .list()
-            ////cnn1
-            .layer(0, new ConvolutionLayer.Builder(new int[]{7, 7}, new int[]{1, 1}, new int[]{1, 1}).name("cnn1")
-                .nIn(3).nOut(96).weightInit(WeightInit.RELU_UNIFORM).activation(Activation.RELU)
+            .layer(0, new ConvolutionLayer.Builder(new int[]{2, 2}, new int[]{1, 1}, new int[]{1, 1}).name("cnn1")
+                .nIn(3).nOut(100).weightInit(WeightInit.XAVIER_UNIFORM).activation(Activation.RRELU)
                 .learningRate(1e-3).biasInit(1e-3*2).biasLearningRate(1e-3*2)
                 .build())
             .layer(1, new SubsamplingLayer.Builder(PoolingType.MAX, new int[]{3,3}, new int[]{1,1}, new int[]{1,1}).name("maxpool1").build())
-            .layer(2, new LocalResponseNormalization.Builder().name("lrn1").build())
-            //cnn2
-            .layer(3, new ConvolutionLayer.Builder(new int[]{4,4}, new int[] {1,1}, new int[] {0,0}).name("cnn2")
-                .nOut(256).weightInit(WeightInit.RELU_UNIFORM).activation(Activation.RELU)
+            //.layer(2, new LocalResponseNormalization.Builder().name("lrn1").build())
+            .layer(2, new ConvolutionLayer.Builder(new int[]{3,3}, new int[] {1,1}, new int[] {1,1}).name("cnn2")
+                .nOut(100).weightInit(WeightInit.XAVIER_UNIFORM).activation(Activation.RRELU)
                 .learningRate(1e-2).biasInit(1e-2*2).biasLearningRate(1e-2*2)
                 .build())
-            .layer(4, new LocalResponseNormalization.Builder().name("lrn2").build())
-            .layer(5, new SubsamplingLayer.Builder(PoolingType.AVG, new int[]{3,3}, new int[]{2,2}, new int[]{1,1}).name("maxpool2").build())
-            //cnn3
-            .layer(6, new ConvolutionLayer.Builder(new int[]{2,2}, new int[] {1,1}, new int[] {0,0}).name("cnn3")
-                .nOut(256).weightInit(WeightInit.RELU_UNIFORM).activation(Activation.RELU)
+            //.layer(4, new LocalResponseNormalization.Builder().name("lrn2").build())
+            .layer(3, new SubsamplingLayer.Builder(PoolingType.MAX, new int[]{3,3}, new int[]{2,2}, new int[]{1,1}).name("maxpool2").build())
+            .layer(4, new ConvolutionLayer.Builder(new int[]{3,3}, new int[] {1,1}, new int[] {1,1}).name("cnn3")
+                .nOut(100).weightInit(WeightInit.XAVIER_UNIFORM).activation(Activation.RRELU)
                 .learningRate(1e-1).biasInit(1e-1*2).biasLearningRate(1e-1*2)
                 .build())
-            .layer(7, new LocalResponseNormalization.Builder().name("lrn2").build())
-            .layer(8, new SubsamplingLayer.Builder(PoolingType.AVG, new int[]{3,3}, new int[]{2,2}, new int[]{1,1}).name("maxpool2").build())
+            // .layer(7, new LocalResponseNormalization.Builder().name("lrn3").build())
+            .layer(5, new SubsamplingLayer.Builder(PoolingType.MAX, new int[]{3,3}, new int[]{2,2}, new int[]{1,1}).name("maxpool3").build())
 
-            .layer(9, new DenseLayer.Builder().name("ffn1").nOut(100).biasInit(nonZeroBias).dropOut(dropOut).build())
-            .layer(10, new DenseLayer.Builder().name("ffn2").nOut(100).biasInit(nonZeroBias).dropOut(dropOut).build())
-            .layer(11, new OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD)
+            .layer(6, new DenseLayer.Builder().name("ffn1").nOut(256).biasInit(nonZeroBias).dropOut(dropOut).build())
+            .layer(7, new DenseLayer.Builder().name("ffn2").nOut(512).biasInit(nonZeroBias).dropOut(dropOut).build())
+            .layer(8, new OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD)
                 .name("output")
                 .nOut(numLabels)
                 .activation(Activation.SOFTMAX)
