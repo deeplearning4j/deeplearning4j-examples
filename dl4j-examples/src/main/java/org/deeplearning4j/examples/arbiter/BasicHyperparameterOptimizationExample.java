@@ -1,7 +1,6 @@
 package org.deeplearning4j.examples.arbiter;
 
 import org.deeplearning4j.api.storage.StatsStorage;
-import org.deeplearning4j.arbiter.DL4JConfiguration;
 import org.deeplearning4j.arbiter.MultiLayerSpace;
 import org.deeplearning4j.arbiter.layers.DenseLayerSpace;
 import org.deeplearning4j.arbiter.layers.OutputLayerSpace;
@@ -9,7 +8,6 @@ import org.deeplearning4j.arbiter.optimize.api.CandidateGenerator;
 import org.deeplearning4j.arbiter.optimize.api.OptimizationResult;
 import org.deeplearning4j.arbiter.optimize.api.ParameterSpace;
 import org.deeplearning4j.arbiter.optimize.api.data.DataProvider;
-import org.deeplearning4j.arbiter.optimize.api.data.DataSetIteratorProvider;
 import org.deeplearning4j.arbiter.optimize.api.saving.ResultReference;
 import org.deeplearning4j.arbiter.optimize.api.saving.ResultSaver;
 import org.deeplearning4j.arbiter.optimize.api.score.ScoreFunction;
@@ -23,24 +21,25 @@ import org.deeplearning4j.arbiter.optimize.parameter.integer.IntegerParameterSpa
 import org.deeplearning4j.arbiter.optimize.runner.IOptimizationRunner;
 import org.deeplearning4j.arbiter.optimize.runner.LocalOptimizationRunner;
 import org.deeplearning4j.arbiter.saver.local.FileModelSaver;
-import org.deeplearning4j.arbiter.scoring.ScoreFunctions;
 import org.deeplearning4j.arbiter.scoring.impl.TestSetAccuracyScoreFunction;
-import org.deeplearning4j.arbiter.scoring.util.ScoreUtil;
 import org.deeplearning4j.arbiter.task.MultiLayerNetworkTaskCreator;
 import org.deeplearning4j.arbiter.ui.listener.ArbiterStatusListener;
 import org.deeplearning4j.datasets.iterator.MultipleEpochsIterator;
 import org.deeplearning4j.datasets.iterator.impl.MnistDataSetIterator;
-import org.deeplearning4j.nn.api.OptimizationAlgorithm;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
 import org.deeplearning4j.ui.api.UIServer;
 import org.deeplearning4j.ui.storage.FileStatsStorage;
+import org.deeplearning4j.ui.storage.sqlite.J7FileStatsStorage;
 import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
+import org.nd4j.shade.jackson.annotation.JsonProperty;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -89,11 +88,10 @@ public class BasicHyperparameterOptimizationExample {
         // (a) How are we going to generate candidates? (random search or grid search)
         CandidateGenerator candidateGenerator = new RandomSearchGenerator(hyperparameterSpace, null);    //Alternatively: new GridSearchCandidateGenerator<>(hyperparameterSpace, 5, GridSearchCandidateGenerator.Mode.RandomOrder);
 
-        // (b) How are going to provide data? For now, we'll use a simple built-in data provider for DataSetIterators
+        // (b) How are going to provide data? We'll use a simple data provider that returns MNIST data
         int nTrainEpochs = 2;
-        DataSetIterator mnistTrain = new MultipleEpochsIterator(nTrainEpochs, new MnistDataSetIterator(64,true,12345));
-        DataSetIterator mnistTest = new MnistDataSetIterator(64,false,12345);
-        DataProvider dataProvider = new DataSetIteratorProvider(mnistTrain, mnistTest);
+        int batchSize = 64;
+        DataProvider dataProvider = new ExampleDataProvider(nTrainEpochs, batchSize);
 
         // (c) How we are going to save the models that are generated and tested?
         //     In this example, let's save them to disk the working directory
@@ -133,7 +131,8 @@ public class BasicHyperparameterOptimizationExample {
 
         //Start the UI. Arbiter uses the same storage and persistence approach as DL4J's UI
         //Access at http://localhost:9000/arbiter
-        StatsStorage ss = new FileStatsStorage(new File("arbiterExampleUiStats.dl4j"));
+//        StatsStorage ss = new FileStatsStorage(new File("arbiterExampleUiStats.dl4j"));
+        StatsStorage ss = new J7FileStatsStorage(new File("arbiterExampleUiStats.dl4j"));
         runner.addListeners(new ArbiterStatusListener(ss));
         UIServer.getInstance().attach(ss);
 
@@ -165,4 +164,42 @@ public class BasicHyperparameterOptimizationExample {
         UIServer.getInstance().stop();
     }
 
+
+    public static class ExampleDataProvider implements DataProvider {
+        private int numEpochs;
+        private int batchSize;
+
+        public ExampleDataProvider(@JsonProperty("numEpochs") int numEpochs, @JsonProperty("batchSize") int batchSize){
+            this.numEpochs = numEpochs;
+            this.batchSize = batchSize;
+        }
+
+        private ExampleDataProvider(){
+
+        }
+
+
+        @Override
+        public Object trainData(Map<String, Object> dataParameters) {
+            try{
+                return new MultipleEpochsIterator(numEpochs, new MnistDataSetIterator(batchSize,true,12345));
+            } catch (IOException e){
+                throw new RuntimeException(e);
+            }
+        }
+
+        @Override
+        public Object testData(Map<String, Object> dataParameters) {
+            try{
+                return new MnistDataSetIterator(batchSize,false,12345);
+            } catch (IOException e){
+                throw new RuntimeException(e);
+            }
+        }
+
+        @Override
+        public Class<?> getDataType() {
+            return DataSetIterator.class;
+        }
+    }
 }
