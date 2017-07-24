@@ -131,8 +131,7 @@ public class BasicHyperparameterOptimizationExample {
 
         //Start the UI. Arbiter uses the same storage and persistence approach as DL4J's UI
         //Access at http://localhost:9000/arbiter
-//        StatsStorage ss = new FileStatsStorage(new File("arbiterExampleUiStats.dl4j"));
-        StatsStorage ss = new J7FileStatsStorage(new File("arbiterExampleUiStats.dl4j"));
+        StatsStorage ss = new FileStatsStorage(new File("arbiterExampleUiStats.dl4j"));
         runner.addListeners(new ArbiterStatusListener(ss));
         UIServer.getInstance().attach(ss);
 
