@@ -84,7 +84,13 @@ public class ImagePipelineExample {
         recordReader.initialize(trainData,transform);
         int outputNum = recordReader.numLabels();
         //convert the record reader to an iterator for training - Refer to other examples for how to use an iterator
-        DataSetIterator dataIter = new RecordReaderDataSetIterator(recordReader, 10, 1, outputNum);
+        int batchSize = 10; // Minibatch size. Here: The number of images to fetch for each call to dataIter.next().
+        int labelIndex = 1; // Index of the label Writable (usually an IntWritable), as obtained by recordReader.next()
+        // List<Writable> lw = recordReader.next();
+        // then lw[0] =  NDArray shaped [1,3,50,50] (1, heightm width, channels)
+        //      lw[0] =  label as integer.
+
+        DataSetIterator dataIter = new RecordReaderDataSetIterator(recordReader, batchSize, labelIndex, outputNum);
         while (dataIter.hasNext()) {
             DataSet ds = dataIter.next();
             System.out.println(ds);
