@@ -42,8 +42,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 /**
- * @author susaneraly on 3/10/17.
- *
  * Important:
  * Run the class "FeaturizePreSave" before attempting to run this. The outputs at the boundary of the frozen and unfrozen
  * vertices of a model are saved. These are referred to as "featurized" datasets in this description.
@@ -183,11 +181,14 @@ public class FitFromFeaturized {
         });
 
 
+        /*
         IEvaluateFlatMapFunction<Evaluation> evalFn = new IEvaluateFlatMapFunction<>(sc.broadcast(vgg16.getConfiguration().toJson()),
             sc.broadcast(sparkComputationGraph.getNetwork().params()), batchSizePerWorker, new Evaluation(numClasses));
         JavaRDD<Evaluation> evaluations = data.mapPartitions(evalFn);
         evaluations.reduce(new IEvaluationReduceFunction<>());
         Evaluation eval = sparkComputationGraph.getNetwork().evaluate(testIter);
+        */
+        Evaluation eval = sparkComputationGraph.evaluate(data);
         log.info("Eval stats BEFORE fit.....");
         log.info(eval.stats()+"\n");
         testIter.reset();
