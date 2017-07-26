@@ -50,7 +50,7 @@
         <module>datavec-examples</module>
         <module>dl4j-cuda-specific-examples</module>
         <module>nd4j-examples</module>
-        <module>rl4j-examples</module>
+        <!--<module>rl4j-examples</module>-->
 	    <module>lstm-hdfs</module>
     </modules>
 
