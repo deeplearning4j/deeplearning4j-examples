@@ -14,7 +14,7 @@
 
     <properties>
         <dl4j.version>0.8.1-SNAPSHOT</dl4j.version>
-	<dl4j.spark.version>0.8.1-SNAPSHOT_spark_2</dl4j.spark.version>
+        <dl4j.spark.version>0.8.1_spark_2-SNAPSHOT</dl4j.spark.version>
     </properties>
 
     <build>
