@@ -76,6 +76,7 @@ public class VariationalAutoEncoderExample {
             .pretrain(true).backprop(false).build();
 
         MultiLayerNetwork net = new MultiLayerNetwork(conf);
+        net.setListeners(new ScoreIterationListener(1));
         net.init();
 
         //Get the variational autoencoder layer

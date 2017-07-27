@@ -6,6 +6,7 @@ import org.deeplearning4j.models.embeddings.inmemory.InMemoryLookupTable;
 import org.deeplearning4j.models.embeddings.loader.WordVectorSerializer;
 import org.deeplearning4j.models.word2vec.wordstore.VocabCache;
 import org.deeplearning4j.plot.BarnesHutTsne;
+import org.deeplearning4j.ui.api.UIServer;
 import org.nd4j.linalg.api.buffer.DataBuffer;
 import org.nd4j.linalg.api.buffer.util.DataTypeUtil;
 import org.nd4j.linalg.api.ndarray.INDArray;
@@ -16,6 +17,7 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Created by agibsonccc on 9/20/14.
@@ -54,10 +56,13 @@ public class TSNEStandardExample {
                 .build();
 
         //STEP 4: establish the tsne values and save them to a file
-        log.info("Store TSNE Coordinates for Plotting....");
+        log.info("Store TSNE Coordinates for Plotting.... Go to http://localhost:9000/tsne and upload the output file.");
         String outputFile = "target/archive-tmp/tsne-standard-coords.csv";
-        (new File(outputFile)).getParentFile().mkdirs();
-        tsne.plot(weights,2,cacheList,outputFile);
+        File tmpFile = new File(System.getProperty("java.io.tmpdir"),"tsne-plot-" + UUID.randomUUID().toString());
+        tsne.saveAsFile(cacheList,tmpFile.getAbsolutePath());
+        tmpFile.deleteOnExit();
+        UIServer uiServer = UIServer.getInstance();
+
         //This tsne will use the weights of the vectors as its matrix, have two dimensions, use the words strings as
         //labels, and be written to the outputFile created on the previous line
         // Plot Data with gnuplot
