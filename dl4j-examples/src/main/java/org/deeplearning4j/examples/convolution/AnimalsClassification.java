@@ -73,7 +73,6 @@ public class AnimalsClassification {
     protected static int iterations = 1;
     protected static int epochs = 50;
     protected static double splitTrainTest = 0.8;
-    protected static int nCores = 2;
     protected static boolean save = false;
 
     protected static String modelType = "AlexNet"; // LeNet, AlexNet or Custom but you need to fill it out
@@ -155,7 +154,7 @@ public class AnimalsClassification {
         dataIter = new RecordReaderDataSetIterator(recordReader, batchSize, 1, numLabels);
         scaler.fit(dataIter);
         dataIter.setPreProcessor(scaler);
-        trainIter = new MultipleEpochsIterator(epochs, dataIter, nCores);
+        trainIter = new MultipleEpochsIterator(epochs, dataIter);
         network.fit(trainIter);
 
         // Train with transformations
@@ -165,7 +164,7 @@ public class AnimalsClassification {
             dataIter = new RecordReaderDataSetIterator(recordReader, batchSize, 1, numLabels);
             scaler.fit(dataIter);
             dataIter.setPreProcessor(scaler);
-            trainIter = new MultipleEpochsIterator(epochs, dataIter, nCores);
+            trainIter = new MultipleEpochsIterator(epochs, dataIter);
             network.fit(trainIter);
         }
 
@@ -177,13 +176,15 @@ public class AnimalsClassification {
         Evaluation eval = network.evaluate(dataIter);
         log.info(eval.stats(true));
 
-        // Example on how to get predict results with trained model
+        // Example on how to get predict results with trained model. Result for first example in minibatch is printed
         dataIter.reset();
         DataSet testDataSet = dataIter.next();
-        String expectedResult = testDataSet.getLabelName(0);
-        List<String> predict = network.predict(testDataSet);
-        String modelResult = predict.get(0);
-        System.out.print("\nFor a single example that is labeled " + expectedResult + " the model predicted " + modelResult + "\n\n");
+        List<String> allClassLabels = recordReader.getLabels();
+        int labelIndex = testDataSet.getLabels().argMax(1).getInt(0);
+        int[] predictedClasses = network.predict(testDataSet.getFeatures());
+        String expectedResult = allClassLabels.get(labelIndex);
+        String modelPrediction = allClassLabels.get(predictedClasses[0]);
+        System.out.print("\nFor a single example that is labeled " + expectedResult + " the model predicted " + modelPrediction + "\n\n");
 
         if (save) {
             log.info("Save model....");
