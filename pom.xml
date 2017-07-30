@@ -11,18 +11,20 @@
     <description>Examples of training different data sets</description>
     <properties>
         <!-- Change the nd4j.backend property to nd4j-cuda-7.5-platform or nd4j-cuda-8.0-platform to use CUDA GPUs -->
+<!--
         <nd4j.backend>nd4j-native-platform</nd4j.backend>
-        <!-- <nd4j.backend>nd4j-cuda-8.0-platform</nd4j.backend> -->
+-->
+         <nd4j.backend>nd4j-cuda-8.0-platform</nd4j.backend>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <shadedClassifier>bin</shadedClassifier>
 
 
         <java.version>1.8</java.version>
-          <nd4j.version>0.8.0</nd4j.version>
-        <dl4j.version>0.8.0</dl4j.version>
-        <datavec.version>0.8.0</datavec.version>
+        <nd4j.version>0.8.1-SNAPSHOT</nd4j.version>
+        <dl4j.version>0.8.1-SNAPSHOT</dl4j.version>
+        <datavec.version>0.8.1-SNAPSHOT</datavec.version>
         <arbiter.version>0.8.0</arbiter.version>
-        <rl4j.version>0.8.0</rl4j.version>
+        <rl4j.version>0.8.1-SNAPSHOT</rl4j.version>
 
         <!-- For Spark examples: change the _1 to _2 to switch between Spark 1 and Spark 2 -->
         <dl4j.spark.version>0.8.0_spark_1</dl4j.spark.version>
@@ -59,6 +61,7 @@
 
     <!-- Maven Enforcer: Ensures user has an up to date version of Maven before building -->
     <build>
+<<<<<<< HEAD
       <plugins>
         <plugin>
           <artifactId>maven-enforcer-plugin</artifactId>
@@ -175,64 +178,182 @@
       </pluginManagement>
 
     </build>
+=======
+        <plugins>
+            <plugin>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <version>1.0.1</version>
+                <executions>
+                    <execution>
+                        <id>enforce-default</id>
+                        <goals>
+                            <goal>enforce</goal>
+                        </goals>
+                        <configuration>
+                            <rules>
+                                <requireMavenVersion>
+                                    <version>[${maven.minimum.version},)</version>
+                                    <message>********** Minimum Maven Version is ${maven.minimum.version}. Please upgrade Maven before continuing (run "mvn --version" to check). **********</message>
+                                </requireMavenVersion>
+                            </rules>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- Automated Code Formatting -->
+            <plugin>
+                <groupId>net.revelc.code.formatter</groupId>
+                <artifactId>formatter-maven-plugin</artifactId>
+                <version>2.0.0</version>
+                <configuration>
+                    <configFile>${session.executionRootDirectory}/contrib/formatter.xml</configFile>
+                    <directories>
+                        <directory>dl4j-examples</directory>
+                        <directory>dl4j-spark-examples</directory>
+                        <directory>datavec-examples</directory>
+                        <directory>dl4j-cuda-specific-examples</directory>
+                        <directory>nd4j-examples</directory>
+                        <directory>rl4j-examples</directory>
+                        <directory>arbiter-examples</directory>
+                        <directory>lstm-hdfs</directory>
+                    </directories>
+                </configuration>
+            </plugin>
+>>>>>>> 8ed7f714a4480013f22f682335fd0c4339606cb8
+
+            <plugin>
+                <groupId>com.lewisd</groupId>
+                <artifactId>lint-maven-plugin</artifactId>
+                <version>0.0.11</version>
+                <configuration>
+                    <failOnViolation>true</failOnViolation>
+                    <onlyRunRules>
+                        <rule>DuplicateDep</rule>
+                        <rule>RedundantPluginVersion</rule>
+                        <rule>VersionProp</rule>
+                        <rule>DotVersionProperty</rule>
+                    </onlyRunRules>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>pom-lint</id>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>pl.project13.maven</groupId>
+                <artifactId>git-commit-id-plugin</artifactId>
+                <version>2.2.2</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>revision</goal>
+                        </goals>
+                        <phase>package</phase>
+                    </execution>
+                </executions>
+                <configuration>
+                    <generateGitPropertiesFile>true</generateGitPropertiesFile>
+                    <generateGitPropertiesFilename>${project.build.outputDirectory}/git.properties</generateGitPropertiesFilename>
+                    <gitDescribe>
+                        <skip>true</skip>
+                    </gitDescribe>
+                </configuration>
+            </plugin>
+
+        </plugins>
+
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.eclipse.m2e</groupId>
+                    <artifactId>lifecycle-mapping</artifactId>
+                    <version>1.0.0</version>
+                    <configuration>
+                        <lifecycleMappingMetadata>
+                            <pluginExecutions>
+                                <pluginExecution>
+                                    <pluginExecutionFilter>
+                                        <groupId>com.lewisd</groupId>
+                                        <artifactId>lint-maven-plugin</artifactId>
+                                        <versionRange>[0.0.11,)</versionRange>
+                                    </pluginExecutionFilter>
+                                    <action>
+                                        <ignore/>
+                                    </action>
+                                </pluginExecution>
+                            </pluginExecutions>
+                        </lifecycleMappingMetadata>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+
+    </build>
 
     <profiles>
-      <profile>
-        <id>OpenJFX</id>
-        <activation>
-          <jdk>1.7</jdk>
-        </activation>
+        <profile>
+            <id>OpenJFX</id>
+            <activation>
+                <jdk>1.7</jdk>
+            </activation>
 
-        <build>
-          <plugins>
-            <plugin>
-              <artifactId>maven-enforcer-plugin</artifactId>
-              <version>1.0.1</version>
-              <executions>
-                <execution>
-                  <id>enforce-default</id>
-                  <goals>
-                    <goal>enforce</goal>
-                  </goals>
-                  <configuration>
-                    <rules>
-                      <requireProperty>
-                        <property>env.JAVAFX_HOME</property>
-                        <message>You must set the environment variable JAVAFX_HOME to the installation directory of the JavaFX 2.0 SDK! (with Oracle JDK1.7, $JRE_HOME/lib/jfxrt.jar)</message>
-                      </requireProperty>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-enforcer-plugin</artifactId>
+                        <version>1.0.1</version>
+                        <executions>
+                            <execution>
+                                <id>enforce-default</id>
+                                <goals>
+                                    <goal>enforce</goal>
+                                </goals>
+                                <configuration>
+                                    <rules>
+                                        <requireProperty>
+                                            <property>env.JAVAFX_HOME</property>
+                                            <message>You must set the environment variable JAVAFX_HOME to the installation directory of the JavaFX 2.0 SDK! (with Oracle JDK1.7, $JRE_HOME/lib/jfxrt.jar)</message>
+                                        </requireProperty>
 
-                    </rules>
-                  </configuration>
-                </execution>
-              </executions>
-            </plugin>
+                                    </rules>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
 
-            <plugin>
-              <groupId>org.apache.maven.plugins</groupId>
-              <artifactId>maven-install-plugin</artifactId>
-              <version>2.5.2</version>
-              <executions>
-                <execution>
-                  <id>install-external</id>
-                  <phase>clean</phase>
-                  <configuration>
-                    <file>${javafx.runtime.lib.jar}</file>
-                    <repositoryLayout>default</repositoryLayout>
-                    <groupId>com.oracle</groupId>
-                    <artifactId>javafx</artifactId>
-                    <version>${javafx.version}</version>
-                    <packaging>jar</packaging>
-                    <generatePom>true</generatePom>
-                  </configuration>
-                  <goals>
-                    <goal>install-file</goal>
-                  </goals>
-                </execution>
-              </executions>
-            </plugin>
-          </plugins>
-        </build>
-      </profile>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-install-plugin</artifactId>
+                        <version>2.5.2</version>
+                        <executions>
+                            <execution>
+                                <id>install-external</id>
+                                <phase>clean</phase>
+                                <configuration>
+                                    <file>${javafx.runtime.lib.jar}</file>
+                                    <repositoryLayout>default</repositoryLayout>
+                                    <groupId>com.oracle</groupId>
+                                    <artifactId>javafx</artifactId>
+                                    <version>${javafx.version}</version>
+                                    <packaging>jar</packaging>
+                                    <generatePom>true</generatePom>
+                                </configuration>
+                                <goals>
+                                    <goal>install-file</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
     </profiles>
 
-  </project>
+</project>
