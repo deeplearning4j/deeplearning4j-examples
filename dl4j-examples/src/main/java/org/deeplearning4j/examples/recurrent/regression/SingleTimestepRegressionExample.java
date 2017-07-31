@@ -8,10 +8,7 @@ import org.datavec.api.util.ClassPathResource;
 import org.deeplearning4j.datasets.datavec.SequenceRecordReaderDataSetIterator;
 import org.deeplearning4j.eval.RegressionEvaluation;
 import org.deeplearning4j.nn.api.OptimizationAlgorithm;
-import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
-import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
-import org.deeplearning4j.nn.conf.Updater;
-import org.deeplearning4j.nn.conf.WorkspaceMode;
+import org.deeplearning4j.nn.conf.*;
 import org.deeplearning4j.nn.conf.layers.GravesLSTM;
 import org.deeplearning4j.nn.conf.layers.RnnOutputLayer;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
@@ -85,7 +82,9 @@ public class SingleTimestepRegressionExample {
             .iterations(1)
             .weightInit(WeightInit.XAVIER)
             .updater(Updater.NESTEROVS).momentum(0.9)
-            .trainingWorkspaceMode(WorkspaceMode.SEPARATE)
+            .trainingWorkspaceMode(WorkspaceMode.SINGLE)
+            .inferenceWorkspaceMode(WorkspaceMode.SINGLE)
+            .cacheMode(CacheMode.NONE)
             .learningRate(0.0015)
             .list()
             .layer(0, new GravesLSTM.Builder().activation(Activation.TANH).nIn(1).nOut(10)

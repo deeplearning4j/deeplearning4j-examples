@@ -50,7 +50,7 @@ public class GravesLSTMCharModellingExample {
 	public static void main( String[] args ) throws Exception {
 		int lstmLayerSize = 200;					//Number of units in each GravesLSTM layer
 		int miniBatchSize = 32;						//Size of mini batch to use when  training
-		int exampleLength = 1000;					//Length of each training example sequence to use. This could certainly be increased
+		int exampleLength = 200;					//Length of each training example sequence to use. This could certainly be increased
         int tbpttLength = 50;                       //Length for truncated backpropagation through time. i.e., do parameter updates ever 50 characters
 		int numEpochs = 1;							//Total number of training epochs
         int generateSamplesEveryNMinibatches = 10;  //How frequently to generate samples from the network? 1000 characters / 50 tbptt length: 20 parameter updates per minibatch
@@ -116,13 +116,15 @@ public class GravesLSTMCharModellingExample {
 
             @Override
             public void iterationDone(Model model, int iteration) {
-                System.out.println("--------------------");
-                System.out.println("Sampling characters from network given initialization \"" + (generationInitialization == null ? "" : generationInitialization) + "\"");
-                String[] samples = sampleCharactersFromNetwork(generationInitialization, (MultiLayerNetwork) model,iter,rng,nCharactersToSample,nSamplesToGenerate);
-                for( int j = 0; j<samples.length; j++) {
-                    System.out.println("----- Sample " + j + " -----");
-                    System.out.println(samples[j]);
-                    System.out.println();
+                if (iteration % 100 == 0) {
+                    System.out.println("--------------------");
+                    System.out.println("Sampling characters from network given initialization \"" + (generationInitialization == null ? "" : generationInitialization) + "\"");
+                    String[] samples = sampleCharactersFromNetwork(generationInitialization, (MultiLayerNetwork) model, iter, rng, nCharactersToSample, nSamplesToGenerate);
+                    for (int j = 0; j < samples.length; j++) {
+                        System.out.println("----- Sample " + j + " -----");
+                        System.out.println(samples[j]);
+                        System.out.println();
+                    }
                 }
             }
         });
@@ -146,7 +148,7 @@ public class GravesLSTMCharModellingExample {
             .prefetchBuffer(24)
 
             // set number of workers equal or higher then number of available devices. x1-x2 are good values to start with
-            .workers(4)
+            .workers(2)
 
             // rare averaging improves performance, but might reduce model accuracy
             .averagingFrequency(3)

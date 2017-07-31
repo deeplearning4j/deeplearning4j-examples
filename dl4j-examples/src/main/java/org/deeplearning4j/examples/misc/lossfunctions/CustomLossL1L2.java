@@ -127,6 +127,11 @@ public class CustomLossL1L2 implements ILossFunction {
                 computeGradient(labels, preOutput, activationFn, mask));
     }
 
+    @Override
+    public String name() {
+        return null;
+    }
+
 
     @Override
     public String toString() {

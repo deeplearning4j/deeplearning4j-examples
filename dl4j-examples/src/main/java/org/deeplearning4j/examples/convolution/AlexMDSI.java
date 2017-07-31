@@ -3,10 +3,7 @@ package org.deeplearning4j.examples.convolution;
 import lombok.extern.slf4j.Slf4j;
 import org.deeplearning4j.datasets.iterator.AsyncMultiDataSetIterator;
 import org.deeplearning4j.datasets.iterator.AsyncShieldMultiDataSetIterator;
-import org.deeplearning4j.nn.conf.ComputationGraphConfiguration;
-import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
-import org.deeplearning4j.nn.conf.Updater;
-import org.deeplearning4j.nn.conf.WorkspaceMode;
+import org.deeplearning4j.nn.conf.*;
 import org.deeplearning4j.nn.conf.layers.*;
 import org.deeplearning4j.nn.graph.ComputationGraph;
 import org.deeplearning4j.nn.weights.WeightInit;
@@ -38,7 +35,8 @@ public class AlexMDSI {
         int vectorSize = 128;
 
         ComputationGraphConfiguration conf = new NeuralNetConfiguration.Builder()
-            .trainingWorkspaceMode(WorkspaceMode.SEPARATE)
+            .trainingWorkspaceMode(WorkspaceMode.SINGLE)
+            .cacheMode(CacheMode.DEVICE)
 //                .workspaceMode(WorkspaceMode.NONE)
             .updater(Updater.ADAM).adamMeanDecay(0.9).adamVarDecay(0.999)
             .weightInit(WeightInit.XAVIER)

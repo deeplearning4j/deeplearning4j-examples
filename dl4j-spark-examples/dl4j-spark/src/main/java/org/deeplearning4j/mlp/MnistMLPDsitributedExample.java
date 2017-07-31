@@ -54,7 +54,7 @@ public class MnistMLPDsitributedExample {
     private static final Logger log = LoggerFactory.getLogger(MnistMLPDsitributedExample.class);
 
     @Parameter(names = "-useSparkLocal", description = "Use spark local (helper for testing/running without spark submit)", arity = 1)
-    private boolean useSparkLocal = false;
+    private boolean useSparkLocal = true;
 
     @Parameter(names = "-batchSizePerWorker", description = "Number of examples to fit each worker with")
     private int batchSizePerWorker = 16;
@@ -126,14 +126,14 @@ public class MnistMLPDsitributedExample {
             .multicastPort(40543)
             .unicastPort(40123)
             .executionMode(ExecutionMode.MANAGED)
-            //.controllerAddress("127.0.0.1") // localhost for now
+            .controllerAddress("127.0.0.1") // localhost for now
             .build();
 
         TrainingMaster tm = new SharedTrainingMaster.Builder(voidConfiguration,batchSizePerWorker)
             .updatesThreshold(1e-3)
             .rddTrainingApproach(RDDTrainingApproach.Direct)
             .batchSizePerWorker(batchSizePerWorker)
-            .debugLongerIterations(200)
+            //.debugLongerIterations(200)
             .workersPerNode(4)
             .build();
 
@@ -144,6 +144,10 @@ public class MnistMLPDsitributedExample {
         for (int i = 0; i < numEpochs; i++) {
             sparkNet.fit(trainData);
             log.info("Completed Epoch {}", i);
+
+            Evaluation evaluation = sparkNet.evaluate(trainData);
+            log.info("***** Evaluation *****");
+            log.info(evaluation.stats());
         }
 
         //Perform evaluation (distributed)

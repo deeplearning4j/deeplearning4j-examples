@@ -1,10 +1,12 @@
 package org.deeplearning4j.examples.feedforward.anomalydetection;
 
+import lombok.extern.slf4j.Slf4j;
 import org.deeplearning4j.berkeley.Pair;
 import org.deeplearning4j.datasets.iterator.impl.MnistDataSetIterator;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
 import org.deeplearning4j.nn.conf.Updater;
+import org.deeplearning4j.nn.conf.WorkspaceMode;
 import org.deeplearning4j.nn.conf.layers.variational.BernoulliReconstructionDistribution;
 import org.deeplearning4j.nn.conf.layers.variational.VariationalAutoencoder;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
@@ -12,6 +14,7 @@ import org.deeplearning4j.nn.weights.WeightInit;
 import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
 import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.api.ndarray.INDArray;
+import org.nd4j.linalg.api.ops.executioner.OpExecutioner;
 import org.nd4j.linalg.dataset.api.DataSet;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.nd4j.linalg.factory.Nd4j;
@@ -41,6 +44,7 @@ import java.util.*;
  *
  * @author Alex Black
  */
+@Slf4j
 public class VaeMNISTAnomaly {
 
     public static void main(String[] args) throws IOException {
@@ -52,12 +56,15 @@ public class VaeMNISTAnomaly {
         //MNIST data for training
         DataSetIterator trainIter = new MnistDataSetIterator(minibatchSize, true, rngSeed);
 
+        Nd4j.getExecutioner().setProfilingMode(OpExecutioner.ProfilingMode.NAN_PANIC);
+
         //Neural net configuration
         Nd4j.getRandom().setSeed(rngSeed);
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
             .seed(rngSeed)
             .learningRate(0.05)
             .updater(Updater.ADAM).adamMeanDecay(0.9).adamVarDecay(0.999)
+            //.trainingWorkspaceMode(WorkspaceMode.SINGLE)
             .weightInit(WeightInit.XAVIER)
             .regularization(true).l2(1e-4)
             .list()
@@ -76,7 +83,10 @@ public class VaeMNISTAnomaly {
         MultiLayerNetwork net = new MultiLayerNetwork(conf);
         net.init();
 
-        net.setListeners(new ScoreIterationListener(100));
+        log.info("Network params: {}",net.params().lengthLong());
+        log.info("Updater sum: {}",net.getUpdater().getStateViewArray().sumNumber().doubleValue());
+
+        net.setListeners(new ScoreIterationListener(1));
 
         //Fit the data (unsupervised training)
         for( int i=0; i<nEpochs; i++ ){

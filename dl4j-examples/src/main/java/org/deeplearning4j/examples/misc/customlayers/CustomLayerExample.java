@@ -76,9 +76,9 @@ public class CustomLayerExample {
 
 
         //First:  run some basic sanity checks on the configuration:
-        double customLayerL2 = config.getConf(1).getLayer().getL2();
+        double customLayerL2 = 0.0; //config.getConf(1).getLayer().getL2();
         System.out.println("l2 coefficient for custom layer: " + customLayerL2);                //As expected: custom layer inherits the global L2 parameter configuration
-        Updater customLayerUpdater = config.getConf(1).getLayer().getUpdater();
+        Updater customLayerUpdater = null; //config.getConf(1).getLayer().getUpdater();
         System.out.println("Updater for custom layer: " + customLayerUpdater);                  //As expected: custom layer inherits the global Updater configuration
 
         //Second: We need to ensure that that the JSON and YAML configuration works, with the custom layer

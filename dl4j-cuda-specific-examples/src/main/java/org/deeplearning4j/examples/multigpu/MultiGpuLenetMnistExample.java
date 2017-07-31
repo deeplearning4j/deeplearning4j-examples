@@ -61,7 +61,7 @@ public class MultiGpuLenetMnistExample {
 
         // for GPU you usually want to have higher batchSize
         int batchSize = 64;
-        int nEpochs = 10;
+        int nEpochs = 2;
         int iterations = 1;
         int seed = 123;
 
@@ -116,6 +116,8 @@ public class MultiGpuLenetMnistExample {
         MultiLayerNetwork model = new MultiLayerNetwork(conf);
         model.init();
 
+        model.setListeners(new PerformanceListener(25, true));
+
         // ParallelWrapper will take care of load balancing between GPUs.
         ParallelWrapper wrapper = new ParallelWrapper.Builder(model)
             // DataSets prefetching options. Set this value with respect to number of actual devices
@@ -132,13 +134,12 @@ public class MultiGpuLenetMnistExample {
 
             // optinal parameter, set to false ONLY if your system has support P2P memory access across PCIe (hint: AWS do not support P2P)
             //.useLegacyAveraging(false)
-
+            .workspaceMode(WorkspaceMode.SINGLE)
             //.useMQ(false)
 
             .build();
 
         log.info("Train model....");
-        model.setListeners(new PerformanceListener(50, true));
         long timeX = System.currentTimeMillis();
 
         Nd4j.getMemoryManager().setAutoGcWindow(1000000);

@@ -3,11 +3,9 @@ package org.deeplearning4j.examples.recurrent.character;
 import org.apache.commons.io.FileUtils;
 import org.deeplearning4j.nn.api.Layer;
 import org.deeplearning4j.nn.api.OptimizationAlgorithm;
-import org.deeplearning4j.nn.conf.BackpropType;
-import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
-import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
-import org.deeplearning4j.nn.conf.Updater;
+import org.deeplearning4j.nn.conf.*;
 import org.deeplearning4j.nn.conf.layers.GravesLSTM;
+import org.deeplearning4j.nn.conf.layers.LSTM;
 import org.deeplearning4j.nn.conf.layers.RnnOutputLayer;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
@@ -69,11 +67,12 @@ public class GravesLSTMCharModellingExample {
 			.regularization(true)
 			.l2(0.001)
             .weightInit(WeightInit.XAVIER)
+            .trainingWorkspaceMode(WorkspaceMode.SINGLE)
             .updater(Updater.RMSPROP)
 			.list()
-			.layer(0, new GravesLSTM.Builder().nIn(iter.inputColumns()).nOut(lstmLayerSize)
+			.layer(0, new LSTM.Builder().nIn(iter.inputColumns()).nOut(lstmLayerSize)
 					.activation(Activation.TANH).build())
-			.layer(1, new GravesLSTM.Builder().nIn(lstmLayerSize).nOut(lstmLayerSize)
+			.layer(1, new LSTM.Builder().nIn(lstmLayerSize).nOut(lstmLayerSize)
 					.activation(Activation.TANH).build())
 			.layer(2, new RnnOutputLayer.Builder(LossFunction.MCXENT).activation(Activation.SOFTMAX)        //MCXENT + softmax for classification
 					.nIn(lstmLayerSize).nOut(nOut).build())

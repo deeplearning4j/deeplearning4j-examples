@@ -7,12 +7,10 @@ import org.datavec.api.records.reader.impl.csv.CSVSequenceRecordReader;
 import org.datavec.api.split.NumberedFileInputSplit;
 import org.datavec.api.util.ClassPathResource;
 import org.deeplearning4j.datasets.datavec.SequenceRecordReaderDataSetIterator;
+import org.deeplearning4j.datasets.iterator.AsyncShieldDataSetIterator;
 import org.deeplearning4j.eval.RegressionEvaluation;
 import org.deeplearning4j.nn.api.OptimizationAlgorithm;
-import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
-import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
-import org.deeplearning4j.nn.conf.Updater;
-import org.deeplearning4j.nn.conf.WorkspaceMode;
+import org.deeplearning4j.nn.conf.*;
 import org.deeplearning4j.nn.conf.layers.GravesLSTM;
 import org.deeplearning4j.nn.conf.layers.RnnOutputLayer;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
@@ -123,7 +121,9 @@ public class MultiTimestepRegressionExample {
             .seed(140)
             .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
             .iterations(1)
-            .trainingWorkspaceMode(WorkspaceMode.SINGLE)
+            .trainingWorkspaceMode(WorkspaceMode.NONE)
+            .inferenceWorkspaceMode(WorkspaceMode.NONE)
+            .cacheMode(CacheMode.NONE)
             .weightInit(WeightInit.XAVIER)
             .updater(Updater.NESTEROVS).momentum(0.9)
             .learningRate(0.15)
@@ -143,6 +143,12 @@ public class MultiTimestepRegressionExample {
         int nEpochs = 50;
 
         for (int i = 0; i < nEpochs; i++) {
+            /*
+            while (trainDataIter.hasNext()) {
+                net.fit(trainDataIter.next());
+            }
+            */
+            //net.fit(new AsyncShieldDataSetIterator(trainDataIter));
             net.fit(trainDataIter);
             trainDataIter.reset();
             LOGGER.info("Epoch " + i + " complete. Time series evaluation:");

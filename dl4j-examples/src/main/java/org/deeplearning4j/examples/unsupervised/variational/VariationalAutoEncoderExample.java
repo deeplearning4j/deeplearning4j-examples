@@ -65,6 +65,7 @@ public class VariationalAutoEncoderExample {
             .weightInit(WeightInit.XAVIER)
             .regularization(true).l2(1e-4)
             .trainingWorkspaceMode(WorkspaceMode.SEPARATE)
+            .inferenceWorkspaceMode(WorkspaceMode.SEPARATE)
             .list()
             .layer(0, new VariationalAutoencoder.Builder()
                 .activation(Activation.LEAKYRELU)

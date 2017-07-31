@@ -3,7 +3,9 @@ package org.deeplearning4j.examples.misc.customlayers.layer;
 import org.deeplearning4j.nn.api.Layer;
 import org.deeplearning4j.nn.api.ParamInitializer;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
+import org.deeplearning4j.nn.conf.inputs.InputType;
 import org.deeplearning4j.nn.conf.layers.FeedForwardLayer;
+import org.deeplearning4j.nn.conf.memory.LayerMemoryReport;
 import org.deeplearning4j.nn.params.DefaultParamInitializer;
 import org.deeplearning4j.optimize.api.IterationListener;
 import org.nd4j.linalg.activations.Activation;
@@ -78,6 +80,11 @@ public class CustomLayer extends FeedForwardLayer {
         //https://github.com/deeplearning4j/deeplearning4j/tree/master/deeplearning4j-core/src/main/java/org/deeplearning4j/nn/params
 
         return DefaultParamInitializer.getInstance();
+    }
+
+    @Override
+    public LayerMemoryReport getMemoryReport(InputType inputType) {
+        return null;
     }
 
 
