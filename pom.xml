@@ -35,6 +35,7 @@
         <logback.version>1.1.7</logback.version>
         <jfreechart.version>1.0.13</jfreechart.version>
         <jcommon.version>1.0.23</jcommon.version>
+        <maven-compiler-plugin.version>3.6.1</maven-compiler-plugin.version>
         <maven-shade-plugin.version>2.4.3</maven-shade-plugin.version>
         <exec-maven-plugin.version>1.4.0</exec-maven-plugin.version>
         <maven.minimum.version>3.3.1</maven.minimum.version>
@@ -42,6 +43,7 @@
         <javafx.runtime.lib.jar>${env.JAVAFX_HOME}/jfxrt.jar</javafx.runtime.lib.jar>
         <aws.sdk.version>1.11.109</aws.sdk.version>
         <jackson.version>2.6.6</jackson.version>
+        <scala.plugin.version>3.2.2</scala.plugin.version>
     </properties>
 
     <modules>
