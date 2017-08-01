@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.deeplearning4j</groupId>
         <artifactId>deeplearning4j-examples-parent</artifactId>
-        <version>0.8.1-SNAPSHOT</version>
+        <version>0.9.0</version>
     </parent>
     <groupId>org.deeplearning4j.examples</groupId>
     <artifactId>lstm-hdfs</artifactId>
@@ -60,7 +60,7 @@
             </dependency>
             <dependency>
                 <groupId>org.nd4j</groupId>
-                <artifactId>nd4j-native</artifactId>
+                <artifactId>nd4j-native-platform</artifactId>
                 <version>${nd4j.version}</version>
                 <scope>test</scope>
             </dependency>
@@ -71,7 +71,7 @@
             </dependency>
             <dependency>
                 <groupId>org.nd4j</groupId>
-                <artifactId>nd4j-cuda-8.0</artifactId>
+                <artifactId>nd4j-cuda-8.0-platform</artifactId>
                 <version>${nd4j.version}</version>
                 <scope>test</scope>
             </dependency>
