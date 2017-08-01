@@ -7,6 +7,8 @@ import org.deeplearning4j.text.sentenceiterator.SentenceIterator;
 import org.deeplearning4j.text.tokenization.tokenizer.preprocessor.CommonPreprocessor;
 import org.deeplearning4j.text.tokenization.tokenizerfactory.DefaultTokenizerFactory;
 import org.deeplearning4j.text.tokenization.tokenizerfactory.TokenizerFactory;
+import org.nd4j.linalg.api.ops.executioner.OpExecutioner;
+import org.nd4j.linalg.factory.Nd4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,6 +27,8 @@ public class GloVeExample {
 
         // creating SentenceIterator wrapping our training corpus
         SentenceIterator iter = new BasicLineIterator(inputFile.getAbsolutePath());
+
+        Nd4j.getExecutioner().setProfilingMode(OpExecutioner.ProfilingMode.INF_PANIC);
 
         // Split on white spaces in the line to get words
         TokenizerFactory t = new DefaultTokenizerFactory();
@@ -51,7 +55,7 @@ public class GloVeExample {
                 .shuffle(true)
 
                 // if set to true word pairs will be built in both directions, LTR and RTL
-                .symmetric(true)
+                .symmetric(true).useAdaGrad(false)
                 .build();
 
         glove.fit();

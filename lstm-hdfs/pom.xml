@@ -39,7 +39,7 @@
 	        <groupId>org.scala-tools</groupId>
 		<artifactId>maven-scala-plugin</artifactId>
 		<executions>
-		<!-- <execution> <id>scala-compile-first</id> <phase>process-resources</phase> <goals> <goal>add-source</goal> <goal>compile</goal> </goals> </execution> <execution> <id>scala-test-compile</id> <phase>process-test-resources</phase> 
+		<!-- <execution> <id>scala-compile-first</id> <phase>process-resources</phase> <goals> <goal>add-source</goal> <goal>compile</goal> </goals> </execution> <execution> <id>scala-test-compile</id> <phase>process-test-resources</phase>
 		<goals> <goal>testCompile</goal> </goals> </execution> -->
 		</executions>
 	    </plugin>
@@ -74,24 +74,18 @@
 
     <dependencies>
         <dependency>
-	    <groupId>junit</groupId>
-	    <artifactId>junit</artifactId>
-	    <version>3.8.1</version>
-	    <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>org.deeplearning4j</groupId>
-	    <artifactId>dl4j-spark-nlp_2.11</artifactId>
+	    <artifactId>dl4j-spark-nlp_${scala.binary.version}</artifactId>
 	    <version>${dl4j.spark.version}</version>
         </dependency>
         <dependency>
             <groupId>org.deeplearning4j</groupId>
-	    <artifactId>dl4j-spark_2.11</artifactId>
+	    <artifactId>dl4j-spark_${scala.binary.version}</artifactId>
 	    <version>${dl4j.spark.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.spark</groupId>
-	    <artifactId>spark-core_2.11</artifactId>
+	    <artifactId>spark-core_${scala.binary.version}</artifactId>
 	    <version>2.1.0</version>
         </dependency>
         <!-- https://mvnrepository.com/artifact/org.datavec/datavec-api -->
@@ -110,7 +104,7 @@
         <!-- Logging Dependencies -->
         <dependency>
 	    <groupId>com.typesafe.scala-logging</groupId>
-	    <artifactId>scala-logging_2.11</artifactId>
+	    <artifactId>scala-logging_${scala.binary.version}</artifactId>
 	    <version>3.5.0</version>
         </dependency>
 
