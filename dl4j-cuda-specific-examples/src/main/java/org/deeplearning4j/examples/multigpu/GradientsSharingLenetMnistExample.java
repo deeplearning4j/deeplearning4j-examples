@@ -31,7 +31,7 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * This is modified version of original LenetMnistExample, made compatible with multi-gpu environment
+ * This is modified version of original LenetMnistExample, made compatible with multi-gpu environment and works using gradients sharing
  *
  * @author  @agibsonccc
  * @author raver119@gmail.com
