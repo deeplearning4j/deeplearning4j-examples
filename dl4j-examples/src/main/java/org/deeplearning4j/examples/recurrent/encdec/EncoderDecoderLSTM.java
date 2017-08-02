@@ -243,7 +243,6 @@ public class EncoderDecoderLSTM {
         final NeuralNetConfiguration.Builder builder = new NeuralNetConfiguration.Builder()
             .iterations(1)
             .learningRate(LEARNING_RATE)
-            .rmsDecay(RMS_DECAY)
             .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
             .miniBatch(true)
             .updater(Updater.RMSPROP)
