@@ -14,7 +14,7 @@ import org.nd4j.linalg.factory.Nd4j;
  *
  * Background:
  *
- * ND4j Workspace is memory chunk, preallocated once, and reused over in over.
+ * ND4j Workspace is a memory chunk, allocated once, and reused over in over.
  * Basically it gives you a way to avoid garbage collection for off-heap memory if you work with cyclic workloads.
  *
  * PLEASE NOTE: Workspaces are OPTIONAL. If you prefer using original GC-based memory managemend - you can use it without any issues.
@@ -24,7 +24,7 @@ import org.nd4j.linalg.factory.Nd4j;
  */
 @Slf4j
 public class Nd4jEx15_Workspaces {
-    public static void main() throws Exception {
+    public static void main(String[] args) throws Exception {
         /**
          * Each workspace is tied to a JVM Thread via ID. So, same ID in different threads will point to different actual workspaces
          * Each workspace is created using some configuration, and different workspaces can either share the same config, or have their own
@@ -68,7 +68,7 @@ public class Nd4jEx15_Workspaces {
          */
 
         WorkspaceConfiguration learningConfig = WorkspaceConfiguration.builder()
-            .policyAllocation(AllocationPolicy.STRICT)
+            .policyAllocation(AllocationPolicy.STRICT) // <-- this option disables overallocation behavior
             .policyLearning(LearningPolicy.FIRST_LOOP) // <-- this option makes workspace learning after first loop
             .build();
 
@@ -131,7 +131,7 @@ public class Nd4jEx15_Workspaces {
         WorkspaceConfiguration circularConfig = WorkspaceConfiguration.builder()
             .initialSize(10 * 1024L * 1024L)
             .policyAllocation(AllocationPolicy.STRICT)
-            .policyLearning(LearningPolicy.NONE)
+            .policyLearning(LearningPolicy.NONE)    // <-- this options disables workspace reallocation over time
             .policyReset(ResetPolicy.ENDOFBUFFER_REACHED) // <--- this option makes workspace act as circular buffer, beware.
             .build();
 
