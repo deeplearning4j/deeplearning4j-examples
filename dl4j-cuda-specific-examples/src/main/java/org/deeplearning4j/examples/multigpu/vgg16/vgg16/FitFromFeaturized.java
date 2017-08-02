@@ -110,7 +110,7 @@ public class FitFromFeaturized {
             .prefetchBuffer(24)
 
             // set number of workers equal to number of available devices
-            .workers(Integer.parseInt(Nd4j.getExecutioner().getEnvironmentInformation().get("cuda.availableDevices").toString()))
+            .workers(Nd4j.getAffinityManager().getNumberOfDevices())
 
             // rare averaging improves performance, but might reduce model accuracy
             .averagingFrequency(3)
