@@ -110,7 +110,7 @@ public class MnistMLPDistributedExample {
             .activation(Activation.LEAKYRELU)
             .weightInit(WeightInit.XAVIER)
             .learningRate(0.02)
-            .updater(Updater.NESTEROVS).momentum(0.9)
+            .updater(Updater.NESTEROVS)// To configure: .updater(Nesterovs.builder().momentum(0.9).build())
             .regularization(true).l2(1e-4)
             .list()
             .layer(0, new DenseLayer.Builder().nIn(28 * 28).nOut(500).build())

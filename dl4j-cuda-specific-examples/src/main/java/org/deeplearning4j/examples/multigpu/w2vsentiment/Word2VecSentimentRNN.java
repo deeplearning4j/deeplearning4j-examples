@@ -73,7 +73,7 @@ public class Word2VecSentimentRNN {
 
         //Set up network configuration
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
-            .updater(Updater.ADAM).adamMeanDecay(0.9).adamVarDecay(0.999)
+            .updater(Updater.ADAM)
             .regularization(true).l2(1e-5)
             .weightInit(WeightInit.XAVIER)
             .gradientNormalization(GradientNormalization.ClipElementWiseAbsoluteValue).gradientNormalizationThreshold(1.0)

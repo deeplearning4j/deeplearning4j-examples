@@ -11,7 +11,7 @@
     <description>Examples of training different data sets</description>
     <properties>
         <!-- Change the nd4j.backend property to nd4j-cuda-7.5-platform or nd4j-cuda-8.0-platform to use CUDA GPUs -->
-        <nd4j.backend>nd4j-cuda-8.0-platform</nd4j.backend>
+        <nd4j.backend>nd4j-native-platform</nd4j.backend>
         <!-- <nd4j.backend>nd4j-cuda-8.0-platform</nd4j.backend> -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <shadedClassifier>bin</shadedClassifier>
@@ -55,14 +55,6 @@
         <module>rl4j-examples</module>
 	    <module>lstm-hdfs</module>
     </modules>
-
-    <repositories>
-        <repository>
-            <id>nexus-staging</id>
-            <name>Nexus Staging</name>
-            <url>https://oss.sonatype.org/content/repositories/orgnd4j-1171/</url>
-        </repository>
-    </repositories>
 
     <!-- Maven Enforcer: Ensures user has an up to date version of Maven before building -->
     <build>
