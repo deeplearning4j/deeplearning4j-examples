@@ -24,6 +24,7 @@ import org.deeplearning4j.nn.conf.layers.SubsamplingLayer;
 import org.deeplearning4j.nn.weights.WeightInit;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -57,7 +58,7 @@ public class EarlyStoppingMNIST {
             .weightInit(WeightInit.XAVIER)
             .activation(Activation.RELU)
             .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
-            .updater(Updater.NESTEROVS).momentum(0.9)
+            .updater(Updater.NESTEROVS)
             .list()
             .layer(0, new ConvolutionLayer.Builder(5, 5)
                 .nIn(nChannels)
@@ -83,6 +84,8 @@ public class EarlyStoppingMNIST {
 
         String tempDir = System.getProperty("java.io.tmpdir");
         String exampleDirectory = FilenameUtils.concat(tempDir, "DL4JEarlyStoppingExample/");
+        File dirFile = new File(exampleDirectory); //We have to create the temp directory or the sample will fail.
+        dirFile.mkdir(); // If mkdir fails, it is probably because the directory already exists. Which is fine.
         EarlyStoppingModelSaver saver = new LocalFileModelSaver(exampleDirectory);
         EarlyStoppingConfiguration esConf = new EarlyStoppingConfiguration.Builder()
                 .epochTerminationConditions(new MaxEpochsTerminationCondition(50)) //Max of 50 epochs

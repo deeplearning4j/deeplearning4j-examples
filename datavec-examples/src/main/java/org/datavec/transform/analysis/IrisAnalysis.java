@@ -5,7 +5,6 @@ import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
 import org.datavec.api.records.reader.RecordReader;
 import org.datavec.api.records.reader.impl.csv.CSVRecordReader;
-import org.datavec.api.transform.DataAction;
 import org.datavec.api.transform.analysis.DataAnalysis;
 import org.datavec.api.transform.analysis.columns.DoubleAnalysis;
 import org.datavec.api.transform.schema.Schema;
@@ -14,7 +13,6 @@ import org.datavec.api.util.ClassPathResource;
 import org.datavec.api.writable.Writable;
 import org.datavec.spark.transform.AnalyzeSpark;
 import org.datavec.spark.transform.misc.StringToWritablesFunction;
-import org.datavec.spark.transform.utils.SparkUtils;
 
 import java.io.File;
 import java.util.List;
@@ -62,8 +60,8 @@ public class IrisAnalysis {
         HtmlAnalysis.createHtmlAnalysisFile(dataAnalysis, new File("DataVecIrisAnalysis.html"));
 
         //To write to HDFS instead:
-        //String htmlAnalysisFileContents = HtmlAnalysis.createHtmlAnalysisString(dataAnalysis);
-        //SparkUtils.writeStringToFile("hdfs://your/hdfs/path/here",htmlAnalysisFileContents,sc);
+//        String htmlAnalysisFileContents = HtmlAnalysis.createHtmlAnalysisString(dataAnalysis);
+//        SparkUtils.writeStringToFile("hdfs://your/hdfs/path/here",htmlAnalysisFileContents,sc);
     }
 
 

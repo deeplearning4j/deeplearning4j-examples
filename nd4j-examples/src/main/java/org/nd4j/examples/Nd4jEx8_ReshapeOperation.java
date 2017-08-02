@@ -17,7 +17,6 @@ public class Nd4jEx8_ReshapeOperation {
     public static void main(String[] args) {
 
         INDArray nd = Nd4j.create(new float[]{1, 2, 3, 4}, new int[]{2, 2});
-        INDArray nd3 = Nd4j.create(new float[]{5,6,7,8},new int[]{2,2});
         INDArray ndv;
 
         System.out.println(nd);

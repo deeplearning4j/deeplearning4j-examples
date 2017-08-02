@@ -4,6 +4,7 @@ import org.datavec.api.io.filters.BalancedPathFilter;
 import org.datavec.api.io.labels.ParentPathLabelGenerator;
 import org.datavec.api.split.FileSplit;
 import org.datavec.api.split.InputSplit;
+import org.datavec.api.util.ClassPathResource;
 import org.datavec.image.loader.BaseImageLoader;
 import org.datavec.image.recordreader.ImageRecordReader;
 import org.datavec.image.transform.ImageTransform;
@@ -12,9 +13,6 @@ import org.datavec.image.transform.ShowImageTransform;
 import org.deeplearning4j.datasets.datavec.RecordReaderDataSetIterator;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.File;
 import java.util.Random;
 
@@ -23,20 +21,16 @@ import java.util.Random;
  */
 public class ImagePipelineExample {
 
-    protected static final Logger log = LoggerFactory.getLogger(ImagePipelineExample.class);
-
     //Images are of format given by allowedExtension -
-    protected static final String [] allowedExtensions = BaseImageLoader.ALLOWED_FORMATS;
+    private static final String [] allowedExtensions = BaseImageLoader.ALLOWED_FORMATS;
 
-    protected static final long seed = 12345;
+    private static final long seed = 12345;
 
-    public static final Random randNumGen = new Random(seed);
+    private static final Random randNumGen = new Random(seed);
 
-    protected static int height = 50;
-    protected static int width = 50;
-    protected static int channels = 3;
-    protected static int numExamples = 80;
-    protected static int outputNum = 4;
+    private static final int height = 50;
+    private static final int width = 50;
+    private static final int channels = 3;
 
     public static void main(String[] args) throws Exception {
 
@@ -53,21 +47,21 @@ public class ImagePipelineExample {
         //And these label/class directories live together in the parent directory
         //
         //
-        File parentDir = new File(System.getProperty("user.dir"), "dl4j-examples/src/main/resources/DataExamples/ImagePipeline/");
-        //Files in directories under the parent dir that have "allowed extensions" plit needs a random number generator for reproducibility when splitting the files into train and test
+        File parentDir=new ClassPathResource("DataExamples/ImagePipeline/").getFile();
+        //Files in directories under the parent dir that have "allowed extensions" split needs a random number generator for reproducibility when splitting the files into train and test
         FileSplit filesInDir = new FileSplit(parentDir, allowedExtensions, randNumGen);
 
         //You do not have to manually specify labels. This class (instantiated as below) will
         //parse the parent dir and use the name of the subdirectories as label/class names
         ParentPathLabelGenerator labelMaker = new ParentPathLabelGenerator();
         //The balanced path filter gives you fine tune control of the min/max cases to load for each class
-        //Below is a bare bones version. Refer to javadocs for details
+        //Below is a bare bones version. Refer to javadoc for details
         BalancedPathFilter pathFilter = new BalancedPathFilter(randNumGen, allowedExtensions, labelMaker);
 
         //Split the image files into train and test. Specify the train test split as 80%,20%
         InputSplit[] filesInDirSplit = filesInDir.sample(pathFilter, 80, 20);
         InputSplit trainData = filesInDirSplit[0];
-        InputSplit testData = filesInDirSplit[1];
+        //InputSplit testData = filesInDirSplit[1];  //The testData is never used in the example, commenting out.
 
         //Specifying a new record reader with the height and width you want the images to be resized to.
         //Note that the images in this example are all of different size
@@ -88,8 +82,15 @@ public class ImagePipelineExample {
 
         //Initialize the record reader with the train data and the transform chain
         recordReader.initialize(trainData,transform);
+        int outputNum = recordReader.numLabels();
         //convert the record reader to an iterator for training - Refer to other examples for how to use an iterator
-        DataSetIterator dataIter = new RecordReaderDataSetIterator(recordReader, 10, 1, outputNum);
+        int batchSize = 10; // Minibatch size. Here: The number of images to fetch for each call to dataIter.next().
+        int labelIndex = 1; // Index of the label Writable (usually an IntWritable), as obtained by recordReader.next()
+        // List<Writable> lw = recordReader.next();
+        // then lw[0] =  NDArray shaped [1,3,50,50] (1, heightm width, channels)
+        //      lw[0] =  label as integer.
+
+        DataSetIterator dataIter = new RecordReaderDataSetIterator(recordReader, batchSize, labelIndex, outputNum);
         while (dataIter.hasNext()) {
             DataSet ds = dataIter.next();
             System.out.println(ds);
@@ -99,16 +100,5 @@ public class ImagePipelineExample {
                 Thread.currentThread().interrupt();
             }
         }
-        recordReader.reset();
-
-        //transform = new MultiImageTransform(randNumGen,new CropImageTransform(50), new ShowImageTransform("Display - after"));
-        //recordReader.initialize(trainData,transform);
-        recordReader.initialize(trainData);
-        dataIter = new RecordReaderDataSetIterator(recordReader, 10, 1, outputNum);
-        while (dataIter.hasNext()) {
-            DataSet ds = dataIter.next();
-        }
-        recordReader.reset();
-
     }
 }

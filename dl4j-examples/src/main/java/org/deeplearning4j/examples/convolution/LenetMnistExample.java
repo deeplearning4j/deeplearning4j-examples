@@ -3,7 +3,10 @@ package org.deeplearning4j.examples.convolution;
 import org.deeplearning4j.datasets.iterator.impl.MnistDataSetIterator;
 import org.deeplearning4j.eval.Evaluation;
 import org.deeplearning4j.nn.api.OptimizationAlgorithm;
-import org.deeplearning4j.nn.conf.*;
+import org.deeplearning4j.nn.conf.LearningRatePolicy;
+import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
+import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
+import org.deeplearning4j.nn.conf.Updater;
 import org.deeplearning4j.nn.conf.inputs.InputType;
 import org.deeplearning4j.nn.conf.layers.ConvolutionLayer;
 import org.deeplearning4j.nn.conf.layers.DenseLayer;
@@ -19,8 +22,9 @@ import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.util.Map;
+
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by agibsonccc on 9/16/15.
@@ -79,9 +83,7 @@ public class LenetMnistExample {
                 //.lrPolicyPower(0.75)
                 .weightInit(WeightInit.XAVIER)
                 .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
-                .updater(Updater.NESTEROVS).momentum(0.9)
-                .trainingWorkspaceMode(WorkspaceMode.SINGLE)
-                .inferenceWorkspaceMode(WorkspaceMode.SINGLE)
+                .updater(Updater.NESTEROVS) //To configure: .updater(new Nesterovs(0.9))
                 .list()
                 .layer(0, new ConvolutionLayer.Builder(5, 5)
                         //nIn and nOut specify depth. nIn here is the nChannels and nOut is the number of filters to be applied
@@ -139,7 +141,12 @@ public class LenetMnistExample {
 
             log.info("Evaluate model....");
             Evaluation eval = new Evaluation(outputNum);
-            model.doEvaluation(mnistTest, eval);
+            while(mnistTest.hasNext()){
+                DataSet ds = mnistTest.next();
+                INDArray output = model.output(ds.getFeatureMatrix(), false);
+                eval.eval(ds.getLabels(), output);
+
+            }
             log.info(eval.stats());
             mnistTest.reset();
         }

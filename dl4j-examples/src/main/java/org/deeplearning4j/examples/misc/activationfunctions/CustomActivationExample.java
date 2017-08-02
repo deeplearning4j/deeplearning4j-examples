@@ -51,7 +51,7 @@ public class CustomActivationExample {
             .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
             .learningRate(learningRate)
             .weightInit(WeightInit.XAVIER)
-            .updater(Updater.NESTEROVS).momentum(0.95)
+            .updater(Updater.NESTEROVS)
             .list()
             //INSTANTIATING CUSTOM ACTIVATION FUNCTION here as follows
             //Refer to CustomActivation class for more details on implementation

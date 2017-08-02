@@ -18,6 +18,13 @@ import javax.sound.midi.Track;
 /*
  *  Parses MIDI files and outputs music in symbolic format, for input to MelodyModelingExample.
  *
+ *  If a MIDI track has polyphony, this class will extract two melodies: one for the upper
+ *  part of the harmony, and another for the lower part of the harmony.
+ *
+ *  If passed a directory it extracts melodies from all files appearing in the directory.
+ *
+ *  It skips tracks that have too much silence or too little variety of pitches.
+ *
  *  @author Donald A. Smith (ThinkerFeeler@gmail.com)
  */
 public class Midi2MelodyStrings {
@@ -29,6 +36,7 @@ public class Midi2MelodyStrings {
     // R is used to indicate the beginning of a rest
     public static int durationDeltaParts = 8;
     public static final String durationChars = "defghijklmnopqrstuvwzyzEFGHIJKLM"; // 32 divisions.
+                                             // 012345678
     // 'd' indicates the smallest pitch duration allowed (typically a 1/32 note or so).
     // 'e' is a duration twice that of 'd'
     // 'f' is a duration three times that of 'd', etc.
@@ -258,7 +266,7 @@ public class Midi2MelodyStrings {
         return 0;
     }
 
-    public static String decodeCommand(int cmd) {
+    private static String decodeCommand(int cmd) {
         switch (cmd) {
             case ShortMessage.ACTIVE_SENSING:
                 return "ACTIVE_SENSING";
@@ -306,6 +314,28 @@ public class Midi2MelodyStrings {
             + ", data1 = " + msg.getData1() + ", data2= " + msg.getData2();
     }
 
+    //----------------
+    public static boolean isDurationChar(char ch) {
+        return durationChars.indexOf(ch)>=0;
+    }
+    public static boolean isPitchDeltaChar(char ch) {
+        return noteGapCharsNegative.indexOf(ch)>=0 || noteGapCharsPositive.indexOf(ch)>=0;
+    }
+    public static boolean isRestChar(char ch) {
+        return ch=='R';
+    }
+    public static int getPitchDeltaFromMelodyChar(char ch) {
+        int delta = noteGapCharsPositive.indexOf(ch);
+        if (delta>=0) {
+            return delta;
+        }
+        delta = noteGapCharsNegative.indexOf(ch);
+        if (delta>=0) {
+            return -(delta+1);
+        }
+        System.err.println("WARNING: Bad pitch delta char (" + ch + "), using default of 0");
+        return 0; // default: bad data
+    }
     //-------------------
     private static long pow(int base, int n) {
         long result = 1;

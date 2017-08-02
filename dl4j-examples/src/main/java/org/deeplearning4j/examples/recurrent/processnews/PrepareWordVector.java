@@ -1,15 +1,3 @@
-/**-
- * This program generates a word-vector from news items stored in resources folder.
- * News File is located at \dl4j-examples\src\main\resources\NewsData\RawNewsToGenerateWordVector.txt
- * Word vector file : \dl4j-examples\src\main\resources\NewsData\NewsWordVector.txt
- * Note :
- * 1) This code is modification of original example named Word2VecRawTextExample.java
- * 2) Word vector generated in this program is used in Training RNN to categorise news headlines.
- * <p>
- * <b></b>KIT Solutions Pvt. Ltd. (www.kitsol.com)</b>
- */
-
-
 package org.deeplearning4j.examples.recurrent.processnews;
 
 import org.datavec.api.util.ClassPathResource;
@@ -25,6 +13,16 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 
+/**-
+ * This program generates a word-vector from news items stored in resources folder.
+ * News File is located at \dl4j-examples\src\main\resources\NewsData\RawNewsToGenerateWordVector.txt
+ * Word vector file : \dl4j-examples\src\main\resources\NewsData\NewsWordVector.txt
+ * Note :
+ * 1) This code is modification of original example named Word2VecRawTextExample.java
+ * 2) Word vector generated in this program is used in Training RNN to categorise news headlines.
+ * <p>
+ * <b></b>KIT Solutions Pvt. Ltd. (www.kitsol.com)</b>
+ */
 public class PrepareWordVector {
 
     private static Logger log = LoggerFactory.getLogger(PrepareWordVector.class);
