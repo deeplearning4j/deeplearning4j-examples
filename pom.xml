@@ -25,7 +25,7 @@
         <rl4j.version>0.9.0</rl4j.version>
 
         <!-- For Spark examples: change the _1 to _2 to switch between Spark 1 and Spark 2 -->
-        <dl4j.spark.version>0.9.0_1_spark_1</dl4j.spark.version>
+        <dl4j.spark.version>0.9.0_spark_1</dl4j.spark.version>
         <datavec.spark.version>0.9.0_spark_1</datavec.spark.version>
 
         <!-- Scala binary version: DL4J's Spark and UI functionality are released with both Scala 2.10 and 2.11 support -->
