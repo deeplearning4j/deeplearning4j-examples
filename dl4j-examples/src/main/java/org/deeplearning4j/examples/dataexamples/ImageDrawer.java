@@ -143,7 +143,7 @@ public class ImageDrawer extends Application {
             .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
             .learningRate(learningRate)
             .weightInit(WeightInit.RELU)
-            .updater(Updater.NESTEROVS).momentum(0.9)
+            .updater(Updater.NESTEROVS)
             .list()
             .layer(0, new DenseLayer.Builder().nIn(numInputs).nOut(numHiddenNodes)
                 .activation(Activation.LEAKYRELU)
