@@ -71,7 +71,7 @@ public class SparkLSTMClinicalTimeSeriesClassificationExampleHDFS{
 
     public static final int NB_EPOCHS = 25;
     public static final int RANDOM_SEED = 1234;
-    public static final double LEARNING_RATE = 0.032;
+    public static final double LEARNING_RATE = 0.036;
     public static final int BATCH_SIZE = 40;
     public static final int lstmLayerSize = 200;    //Number of units in each GravesLSTM layer
 
@@ -103,7 +103,7 @@ public class SparkLSTMClinicalTimeSeriesClassificationExampleHDFS{
         JavaPairRDD<String, PortableDataStream> featureFiles = sc.binaryFiles(featuresPath);
         JavaPairRDD<String, PortableDataStream> labelFiles = sc.binaryFiles(labelsPath);
 
-        PathToKeyConverter pathToKeyConverter = new PathToKeyConverterFilename();   //new PathToKeyConverterNumber();
+        PathToKeyConverter pathToKeyConverter = new PathToKeyConverterFilename();  
         JavaPairRDD<Text, BytesPairWritable> rdd = DataVecSparkUtil.combineFilesForSequenceFile(sc, featuresPath, labelsPath, pathToKeyConverter);
 
         SequenceRecordReader srr1 = new CSVSequenceRecordReader(1, ",");;
@@ -133,7 +133,7 @@ public class SparkLSTMClinicalTimeSeriesClassificationExampleHDFS{
                 .dropOut(0.25)
                 .list()
                 .layer(0, new GravesLSTM.Builder().nIn(NB_INPUTS).nOut(lstmLayerSize).activation(Activation.TANH).build())
-                .layer(1, new RnnOutputLayer.Builder(LossFunctions.LossFunction.XENT).activation(Activation.SOFTMAX)        //MCXENT + softmax for classification
+                .layer(1, new RnnOutputLayer.Builder(LossFunctions.LossFunction.MCXENT).activation(Activation.SOFTMAX)
                         .nIn(lstmLayerSize).nOut(nClasses).build())
                 .pretrain(false).backprop(true)
                 .build();
@@ -141,9 +141,9 @@ public class SparkLSTMClinicalTimeSeriesClassificationExampleHDFS{
         // Set Training Master
 
         TrainingMaster tm = new ParameterAveragingTrainingMaster.Builder(1)
-                .averagingFrequency(5) //This controls how frequently the parameters are averaged and redistributed, in terms of number of minibatches of size batchSizePerWorker
-                .workerPrefetchNumBatches(0)
-                .batchSizePerWorker(BATCH_SIZE) //it is the number of examples used for each parameter update in each worker.
+                .averagingFrequency(3) 
+                .workerPrefetchNumBatches(2)
+                .batchSizePerWorker(BATCH_SIZE) 
                 .build();
 
         // Initialize SparkMultiLayer
