@@ -65,7 +65,7 @@ public class SparkLSTMClinicalTimeSeriesClassificationExample {
 
     public static final int NB_EPOCHS = 5;
     public static final int RANDOM_SEED = 1234;
-    public static final double LEARNING_RATE = 0.032;
+    public static final double LEARNING_RATE = 0.036;
     public static final int BATCH_SIZE = 40;
     public static final int lstmLayerSize = 200;    //Number of units in each GravesLSTM layer
 
@@ -146,7 +146,7 @@ public class SparkLSTMClinicalTimeSeriesClassificationExample {
                 .dropOut(0.25)
                 .list()
                 .layer(0, new GravesLSTM.Builder().nIn(NB_INPUTS).nOut(lstmLayerSize).activation(Activation.TANH).build())
-                .layer(1, new RnnOutputLayer.Builder(LossFunctions.LossFunction.XENT).activation(Activation.SOFTMAX)        //MCXENT + softmax for classification
+                .layer(1, new RnnOutputLayer.Builder(LossFunctions.LossFunction.MCXENT).activation(Activation.SOFTMAX)        
                         .nIn(lstmLayerSize).nOut(numLabelClasses).build())
                 .pretrain(false).backprop(true)
                 .build();
