@@ -13,8 +13,8 @@
     <url>http://maven.apache.org</url>
 
     <properties>
-        <dl4j.version>0.9.0</dl4j.version>
-        <dl4j.spark.version>0.9.0_spark_2</dl4j.spark.version>
+        <dl4j.version>0.8.0</dl4j.version>
+        <dl4j.spark.version>0.8.0_spark_2</dl4j.spark.version>
     </properties>
 
     <build>
