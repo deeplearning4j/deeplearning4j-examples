@@ -86,13 +86,6 @@
             <version>${dl4j.version}</version>
         </dependency>
 
-        <!-- ParallelWrapper & ParallelInference live here -->
-        <dependency>
-            <groupId>org.deeplearning4j</groupId>
-            <artifactId>deeplearning4j-parallel-wrapper_${scala.binary.version}</artifactId>
-            <version>${dl4j.version}</version>
-        </dependency>
-
 
         <!-- Arbiter - used for hyperparameter optimization (grid/random search) -->
         <dependency>
