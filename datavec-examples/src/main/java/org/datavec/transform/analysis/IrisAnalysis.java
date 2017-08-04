@@ -13,6 +13,7 @@ import org.datavec.api.util.ClassPathResource;
 import org.datavec.api.writable.Writable;
 import org.datavec.spark.transform.AnalyzeSpark;
 import org.datavec.spark.transform.misc.StringToWritablesFunction;
+import org.datavec.spark.transform.utils.SparkUtils;
 
 import java.io.File;
 import java.util.List;

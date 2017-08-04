@@ -53,7 +53,7 @@ public class CustomLayerImpl extends BaseLayer<CustomLayer> { //Generic paramete
         INDArray firstHalf = output.get(NDArrayIndex.all(), NDArrayIndex.interval(0, columns / 2));
         INDArray secondHalf = output.get(NDArrayIndex.all(), NDArrayIndex.interval(columns / 2, columns));
 
-        IActivation activation1 = layerConf().getActivationFn();
+        IActivation activation1 = conf.getLayer().getActivationFn();
         IActivation activation2 = ((CustomLayer) conf.getLayer()).getSecondActivationFunction();
 
         //IActivation function instances modify the activation functions in-place
@@ -102,7 +102,7 @@ public class CustomLayerImpl extends BaseLayer<CustomLayer> { //Generic paramete
         INDArray epsilonFirstHalf = epsilon.get(NDArrayIndex.all(), NDArrayIndex.interval(0, columns / 2));
         INDArray epsilonSecondHalf = epsilon.get(NDArrayIndex.all(), NDArrayIndex.interval(columns / 2, columns));
 
-        IActivation activation1 = layerConf().getActivationFn();
+        IActivation activation1 = conf.getLayer().getActivationFn();
         IActivation activation2 = ((CustomLayer) conf.getLayer()).getSecondActivationFunction();
 
         //IActivation backprop method modifies the 'firstHalf' and 'secondHalf' arrays in-place, to contain dL/dz

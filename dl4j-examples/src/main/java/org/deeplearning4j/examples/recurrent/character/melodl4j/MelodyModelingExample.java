@@ -85,6 +85,7 @@ public class MelodyModelingExample {
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
             .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT).iterations(1)
             .learningRate(0.1)
+            .rmsDecay(0.95)
             .seed(12345)
             .regularization(true)
             .l2(0.001)

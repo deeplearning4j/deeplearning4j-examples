@@ -22,9 +22,8 @@ import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.HashMap;
 import java.util.Map;
+import java.util.HashMap;
 
 /**
  * Created by agibsonccc on 9/16/15.
@@ -83,7 +82,7 @@ public class LenetMnistExample {
                 //.lrPolicyPower(0.75)
                 .weightInit(WeightInit.XAVIER)
                 .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
-                .updater(Updater.NESTEROVS) //To configure: .updater(new Nesterovs(0.9))
+                .updater(Updater.NESTEROVS).momentum(0.9)
                 .list()
                 .layer(0, new ConvolutionLayer.Builder(5, 5)
                         //nIn and nOut specify depth. nIn here is the nChannels and nOut is the number of filters to be applied

@@ -53,7 +53,6 @@ import org.deeplearning4j.text.tokenization.tokenizer.preprocessor.CommonPreproc
 import org.deeplearning4j.text.tokenization.tokenizerfactory.DefaultTokenizerFactory;
 import org.deeplearning4j.text.tokenization.tokenizerfactory.TokenizerFactory;
 import org.deeplearning4j.util.ModelSerializer;
-import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.api.DataSet;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
@@ -119,8 +118,8 @@ public class TrainNews {
             .learningRate(0.0018)
             .list()
             .layer(0, new GravesLSTM.Builder().nIn(inputNeurons).nOut(200)
-                .activation(Activation.SOFTSIGN).build())
-            .layer(1, new RnnOutputLayer.Builder().activation(Activation.SOFTMAX)
+                .activation("softsign").build())
+            .layer(1, new RnnOutputLayer.Builder().activation("softmax")
                 .lossFunction(LossFunctions.LossFunction.MCXENT).nIn(200).nOut(outputs).build())
             .pretrain(false).backprop(true).build();
 
@@ -138,7 +137,7 @@ public class TrainNews {
             Evaluation evaluation = new Evaluation();
             while (iTest.hasNext()) {
                 DataSet t = iTest.next();
-                INDArray features = t.getFeatures();
+                INDArray features = t.getFeatureMatrix();
                 INDArray lables = t.getLabels();
                 //System.out.println("labels : " + lables);
                 INDArray inMask = t.getFeaturesMaskArray();

@@ -106,7 +106,7 @@ public class LoadPreSavedLenetMnistExample {
             //.learningRateDecayPolicy(LearningRatePolicy.Inverse).lrPolicyDecayRate(0.001).lrPolicyPower(0.75)
             .weightInit(WeightInit.XAVIER)
             .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
-            .updater(Updater.NESTEROVS)
+            .updater(Updater.NESTEROVS).momentum(0.9)
             .list()
             .layer(0, new ConvolutionLayer.Builder(5, 5)
                 //nIn and nOut specify depth. nIn here is the nChannels and nOut is the number of filters to be applied

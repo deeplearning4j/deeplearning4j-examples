@@ -154,7 +154,7 @@ public class TrainingStatsExample {
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
             .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT).iterations(1)
             .learningRate(0.1)
-            .updater(Updater.RMSPROP)   //To configure: .updater(new RmsProp(0.95))
+            .updater(Updater.RMSPROP).rmsDecay(0.95)
             .seed(12345)
             .regularization(true).l2(0.001)
             .weightInit(WeightInit.XAVIER)

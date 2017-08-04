@@ -20,7 +20,7 @@ public class CorpusIterator implements MultiDataSetIterator {
      * Motivation: I want to get asynchronous data iteration while not blocking on net.fit() until the end of epoch. I want to checkpoint
      * the network, show intermediate test results and some stats, it would be harder to achieve with listeners I think so this is how I
      * solved the problem. This way the learn process is asynchronous inside one macrobatch and synchronous across all the macrobatches.
-     *
+     * 
      * Macrobatch is a group of minibatches. The iterator is modified so that it reports the end of data when it exhausts a macrobatch. Then
      * it advances (manually) to the next macrobatch.
      */
@@ -108,11 +108,6 @@ public class CorpusIterator implements MultiDataSetIterator {
     @Override
     public void setPreProcessor(MultiDataSetPreProcessor preProcessor) {
 
-    }
-
-    @Override
-    public MultiDataSetPreProcessor getPreProcessor() {
-        return null;
     }
 
     @Override

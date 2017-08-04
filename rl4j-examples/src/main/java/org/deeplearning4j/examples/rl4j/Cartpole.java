@@ -43,13 +43,13 @@ public class Cartpole
         DQNFactoryStdDense.Configuration.builder()
             .l2(0.001).learningRate(0.0005).numHiddenNodes(16).numLayer(3).build();
 
-    public static void main( String[] args ) throws Exception
+    public static void main( String[] args )
     {
         cartPole();
         loadCartpole();
     }
 
-    public static void cartPole() throws Exception {
+    public static void cartPole() {
 
         //record the training data in rl4j-data in a new folder (save)
         DataManager manager = new DataManager(true);
@@ -80,7 +80,7 @@ public class Cartpole
     }
 
 
-    public static void loadCartpole() throws Exception {
+    public static void loadCartpole(){
 
         //showcase serialization by using the trained agent on a new similar mdp (but render it this time)
 

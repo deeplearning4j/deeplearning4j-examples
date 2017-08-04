@@ -66,7 +66,7 @@ public class MLPClassifierLinear {
                 .iterations(1)
                 .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
                 .learningRate(learningRate)
-                .updater(Updater.NESTEROVS)     //To configure: .updater(new Nesterovs(0.9))
+                .updater(Updater.NESTEROVS).momentum(0.9)
                 .list()
                 .layer(0, new DenseLayer.Builder().nIn(numInputs).nOut(numHiddenNodes)
                         .weightInit(WeightInit.XAVIER)

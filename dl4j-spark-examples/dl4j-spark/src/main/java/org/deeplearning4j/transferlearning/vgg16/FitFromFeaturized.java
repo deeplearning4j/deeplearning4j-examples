@@ -173,24 +173,26 @@ public class FitFromFeaturized {
             log.info("Epoch #" + epoch + " complete");
         }
 
-        JavaRDD<DataSet> data = sc.binaryFiles(testDir + "/*").map(new LoadDataFunction());
+        JavaRDD<DataSet> data = sc.binaryFiles(testDir + "/*").map(new Function<Tuple2<String, PortableDataStream>, DataSet>() {
+            @Override
+            public DataSet call(Tuple2<String, PortableDataStream> v1) throws Exception {
+                DataSet d = new DataSet();
+                d.load(v1._2().open());
+                return d;
+            }
+        });
 
 
-        Evaluation eval = sparkComputationGraph.evaluate(data);
+        IEvaluateFlatMapFunction<Evaluation> evalFn = new IEvaluateFlatMapFunction<>(sc.broadcast(vgg16.getConfiguration().toJson()),
+            sc.broadcast(sparkComputationGraph.getNetwork().params()), batchSizePerWorker, new Evaluation(numClasses));
+        JavaRDD<Evaluation> evaluations = data.mapPartitions(evalFn);
+        evaluations.reduce(new IEvaluationReduceFunction<>());
+        Evaluation eval = sparkComputationGraph.getNetwork().evaluate(testIter);
         log.info("Eval stats BEFORE fit.....");
         log.info(eval.stats()+"\n");
         testIter.reset();
 
 
         log.info("Model build complete");
-    }
-
-    private static class LoadDataFunction implements Function<Tuple2<String, PortableDataStream>, DataSet> {
-        @Override
-        public DataSet call(Tuple2<String, PortableDataStream> v1) throws Exception {
-            DataSet d = new DataSet();
-            d.load(v1._2().open());
-            return d;
-        }
     }
 }

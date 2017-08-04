@@ -21,7 +21,6 @@ import org.deeplearning4j.spark.impl.paramavg.ParameterAveragingTrainingMaster;
 import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
-import org.nd4j.linalg.learning.config.Nesterovs;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -106,7 +105,7 @@ public class MnistMLPExample {
             .activation(Activation.LEAKYRELU)
             .weightInit(WeightInit.XAVIER)
             .learningRate(0.02)
-            .updater(Updater.NESTEROVS)// To configure: .updater(Nesterovs.builder().momentum(0.9).build())
+            .updater(Updater.NESTEROVS).momentum(0.9)
             .regularization(true).l2(1e-4)
             .list()
             .layer(0, new DenseLayer.Builder().nIn(28 * 28).nOut(500).build())

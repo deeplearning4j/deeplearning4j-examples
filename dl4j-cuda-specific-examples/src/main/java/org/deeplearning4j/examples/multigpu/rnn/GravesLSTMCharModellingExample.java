@@ -84,6 +84,7 @@ public class GravesLSTMCharModellingExample {
 		MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
 			.optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT).iterations(1)
 			.learningRate(0.1)
+			.rmsDecay(0.95)
 			.seed(12345)
 			.regularization(true)
 			.l2(0.001)
@@ -144,7 +145,7 @@ public class GravesLSTMCharModellingExample {
             // DataSets prefetching options. Set this value with respect to number of actual devices
             .prefetchBuffer(24)
 
-            // set number of workers equal to number of available devices. x1-x2 are good values to start with
+            // set number of workers equal or higher then number of available devices. x1-x2 are good values to start with
             .workers(4)
 
             // rare averaging improves performance, but might reduce model accuracy
@@ -152,6 +153,9 @@ public class GravesLSTMCharModellingExample {
 
             // if set to TRUE, on every averaging model score will be reported
             .reportScoreAfterAveraging(true)
+
+            // optinal parameter, set to false ONLY if your system has support P2P memory access across PCIe (hint: AWS do not support P2P)
+            .useLegacyAveraging(true)
 
             .build();
 
