@@ -12,5 +12,3 @@ Explore preferably in the following order.
  	* Run "FitFromFeaturize" which will show you how to fit to presaved data so you can iterate quicker with different learning parameters. Fitting with the presaved dataset is very quick.
  4. "EditAtBottleneckOthersFrozen" for a look into how to rework model architecure by adding/removing vertices
  5. "FineTuneFromBlockFour" to show you how to continue training on a saved transfer learning model
-
-You can read the documentation for the Transfer Learning API at [https://deeplearning4j.org/transfer-learning](https://deeplearning4j.org/transfer-learning).

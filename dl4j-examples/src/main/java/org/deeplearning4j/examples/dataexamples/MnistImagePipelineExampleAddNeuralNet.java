@@ -145,7 +145,7 @@ public class MnistImagePipelineExampleAddNeuralNet {
             .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
             .iterations(1)
             .learningRate(0.006)
-            .updater(Updater.NESTEROVS)
+            .updater(Updater.NESTEROVS).momentum(0.9)
             .regularization(true).l2(1e-4)
             .list()
             .layer(0, new DenseLayer.Builder()

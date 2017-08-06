@@ -39,13 +39,13 @@ public class AsyncNStepCartpole {
         .l2(0.001).learningRate(0.0005).numHiddenNodes(16).numLayer(3).build();
 
 
-    public static void main( String[] args ) throws Exception
+    public static void main( String[] args )
     {
         cartPole();
     }
 
 
-    public static void cartPole() throws Exception {
+    public static void cartPole() {
 
         //record the training data in rl4j-data in a new folder
         DataManager manager = new DataManager(true);

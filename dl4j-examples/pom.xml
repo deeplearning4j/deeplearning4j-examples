@@ -8,7 +8,7 @@
     <parent>
         <groupId>org.deeplearning4j</groupId>
         <artifactId>deeplearning4j-examples-parent</artifactId>
-        <version>0.9.0</version>
+        <version>0.8-SNAPSHOT</version>
     </parent>
 
     <name>DeepLearning4j Examples</name>
@@ -86,24 +86,11 @@
             <version>${dl4j.version}</version>
         </dependency>
 
-        <!-- ParallelWrapper & ParallelInference live here -->
+        <!-- Force guava versions for using UI/HistogramIterationListener -->
         <dependency>
-            <groupId>org.deeplearning4j</groupId>
-            <artifactId>deeplearning4j-parallel-wrapper_${scala.binary.version}</artifactId>
-            <version>${dl4j.version}</version>
-        </dependency>
-
-
-        <!-- Arbiter - used for hyperparameter optimization (grid/random search) -->
-        <dependency>
-            <groupId>org.deeplearning4j</groupId>
-            <artifactId>arbiter-deeplearning4j</artifactId>
-            <version>${arbiter.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.deeplearning4j</groupId>
-            <artifactId>arbiter-ui_2.11</artifactId>
-            <version>${arbiter.version}</version>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>${guava.version}</version>
         </dependency>
 
         <!-- datavec-data-codec: used only in video example for loading video data -->
@@ -130,12 +117,6 @@
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
             <version>4.3.5</version>
-        </dependency>
-
-        <dependency>
-            <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-classic</artifactId>
-            <version>${logback.version}</version>
         </dependency>
 
     </dependencies>

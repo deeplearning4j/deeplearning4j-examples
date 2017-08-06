@@ -39,7 +39,7 @@ public class CSVExampleEvaluationMetaData {
 
     public static void main(String[] args) throws  Exception {
         //First: get the dataset using the record reader. This is as per CSV example - see that example for details
-        RecordReader recordReader = new CSVRecordReader(0, ',');
+        RecordReader recordReader = new CSVRecordReader(0, ",");
         recordReader.initialize(new FileSplit(new ClassPathResource("iris.txt").getFile()));
         int labelIndex = 4;
         int numClasses = 3;

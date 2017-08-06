@@ -16,7 +16,6 @@ import org.deeplearning4j.nn.weights.WeightInit;
 import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
-import org.nd4j.linalg.learning.config.Nesterovs;
 import org.nd4j.linalg.lossfunctions.LossFunctions.LossFunction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -70,7 +69,7 @@ public class MLPMnistTwoLayerExample {
             .activation(Activation.RELU)
             .weightInit(WeightInit.XAVIER)
             .learningRate(rate) //specify the learning rate
-            .updater(new Nesterovs(0.98))
+            .updater(Updater.NESTEROVS).momentum(0.98) //specify the rate of change of the learning rate.
             .regularization(true).l2(rate * 0.005) // regularize learning model
             .list()
             .layer(0, new DenseLayer.Builder() //create the first input layer.

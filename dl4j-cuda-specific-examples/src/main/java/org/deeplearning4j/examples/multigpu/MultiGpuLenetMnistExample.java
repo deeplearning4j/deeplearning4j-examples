@@ -77,7 +77,7 @@ public class MultiGpuLenetMnistExample {
             //.learningRateDecayPolicy(LearningRatePolicy.Inverse).lrPolicyDecayRate(0.001).lrPolicyPower(0.75)
             .weightInit(WeightInit.XAVIER)
             .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
-            .updater(Updater.NESTEROVS)
+            .updater(Updater.NESTEROVS).momentum(0.9)
             .list()
             .layer(0, new ConvolutionLayer.Builder(5, 5)
                 //nIn and nOut specify depth. nIn here is the nChannels and nOut is the number of filters to be applied
@@ -116,14 +116,17 @@ public class MultiGpuLenetMnistExample {
             // DataSets prefetching options. Set this value with respect to number of actual devices
             .prefetchBuffer(24)
 
-            // set number of workers equal to number of available devices. x1-x2 are good values to start with
-            .workers(2)
+            // set number of workers equal or higher then number of available devices. x1-x2 are good values to start with
+            .workers(4)
 
             // rare averaging improves performance, but might reduce model accuracy
             .averagingFrequency(3)
 
             // if set to TRUE, on every averaging model score will be reported
             .reportScoreAfterAveraging(true)
+
+            // optinal parameter, set to false ONLY if your system has support P2P memory access across PCIe (hint: AWS do not support P2P)
+            .useLegacyAveraging(true)
 
             .build();
 

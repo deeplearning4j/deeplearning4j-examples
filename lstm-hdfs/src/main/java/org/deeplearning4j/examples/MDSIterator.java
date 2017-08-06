@@ -19,7 +19,7 @@ import org.nd4j.linalg.dataset.api.iterator.MultiDataSetIterator;
  * sub-folders, each HDFS file consists of rows representing time-steps (as in an LSTM) starting with a time index. Each
  * file is therefore an input sequence (as in an LSTM). You must specify the time index for this to re-order the
  * sequence or pad it in case some time-steps are missing.
- *
+ * 
  * @author: Ousmane A. Dia
  */
 public class MDSIterator extends BaseDataSetIterator implements MultiDataSetIterator {
@@ -35,7 +35,7 @@ public class MDSIterator extends BaseDataSetIterator implements MultiDataSetIter
     private static final long serialVersionUID = -2132071188514707198L;
 
     /**
-     *
+     * 
      * @param dataDirectory Hadoop directory that contains either training/validation/testing data. The dataDirectory
      *        should be of the following form: hdfs://your_cluster:port/folder
      * @param batchSize Size of the mini batch
@@ -153,10 +153,6 @@ public class MDSIterator extends BaseDataSetIterator implements MultiDataSetIter
     @Override
     public void setPreProcessor(MultiDataSetPreProcessor preprocessor) {
 
-    }
-
-    public MultiDataSetPreProcessor getPreProcessor() {
-        return null;
     }
 
     @Override
