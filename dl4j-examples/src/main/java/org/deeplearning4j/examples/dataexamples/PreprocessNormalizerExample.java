@@ -27,7 +27,7 @@ public class PreprocessNormalizerExample {
         //========= This section is to create a dataset and a dataset iterator from the iris dataset stored in csv =============
         //                               Refer to the csv example for details
         int numLinesToSkip = 0;
-        String delimiter = ",";
+        char delimiter = ',';
         RecordReader recordReader = new CSVRecordReader(numLinesToSkip,delimiter);
         RecordReader recordReaderA = new CSVRecordReader(numLinesToSkip,delimiter);
         RecordReader recordReaderB = new CSVRecordReader(numLinesToSkip,delimiter);

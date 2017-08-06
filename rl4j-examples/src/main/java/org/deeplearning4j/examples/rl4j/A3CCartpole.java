@@ -33,12 +33,12 @@ public class A3CCartpole {
     private static final ActorCriticFactorySeparateStdDense.Configuration CARTPOLE_NET_A3C =  ActorCriticFactorySeparateStdDense.Configuration
     .builder().learningRate(1e-2).l2(0).numHiddenNodes(16).numLayer(3).build();
 
-    public static void main( String[] args )
+    public static void main( String[] args ) throws Exception
     {
         A3CcartPole();
     }
 
-    public static void A3CcartPole() {
+    public static void A3CcartPole() throws Exception  {
 
         //record the training data in rl4j-data in a new folder
         DataManager manager = new DataManager(true);
