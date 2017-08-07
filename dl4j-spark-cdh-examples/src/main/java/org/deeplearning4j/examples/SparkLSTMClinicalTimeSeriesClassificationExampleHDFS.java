@@ -71,7 +71,7 @@ public class SparkLSTMClinicalTimeSeriesClassificationExampleHDFS{
 
     public static final int NB_EPOCHS = 25;
     public static final int RANDOM_SEED = 1234;
-    public static final double LEARNING_RATE = 0.036;
+    public static final double LEARNING_RATE = 0.042;
     public static final int BATCH_SIZE = 40;
     public static final int lstmLayerSize = 200;    //Number of units in each GravesLSTM layer
 
@@ -116,7 +116,7 @@ public class SparkLSTMClinicalTimeSeriesClassificationExampleHDFS{
         JavaRDD<DataSet> dataSets = writables.map(new DataVecSequencePairDataSetFunction(nClasses, regression, DataVecSequencePairDataSetFunction.AlignmentMode.ALIGN_END));
 
         // Split into train, validation, and test sets
-        JavaRDD<DataSet>[] splits = dataSets.randomSplit(new double[] { 0.80, 0.10, 0.10 } );
+        JavaRDD<DataSet>[] splits = dataSets.randomSplit(new double[] { 0.80, 0.10, 0.10 } ,1);
 
         JavaRDD<DataSet> JtrainData = splits[0];
         JavaRDD<DataSet> JvalidData = splits[1];
