@@ -41,7 +41,7 @@
 
     <dependencyManagement>
         <dependencies>
-            <dependency>
+           <dependency>
                 <groupId>org.nd4j</groupId>
                 <artifactId>nd4j-native-platform</artifactId>
                 <version>${nd4j.version}</version>
@@ -56,7 +56,7 @@
                 <artifactId>nd4j-cuda-8.0-platform</artifactId>
                 <version>${nd4j.version}</version>
             </dependency>
-       </dependencies>
+        </dependencies>
     </dependencyManagement>
 
     <dependencies>
@@ -64,6 +64,7 @@
         <dependency>
             <groupId>org.nd4j</groupId>
             <artifactId>${nd4j.backend}</artifactId>
+            <version>${nd4j.version}</version>
         </dependency>
 
         <!-- Core DL4J functionality -->
@@ -110,7 +111,7 @@
         <dependency>
             <artifactId>datavec-data-codec</artifactId>
             <groupId>org.datavec</groupId>
-            <version>${datavec.version}</version>
+            <version>0.8.1-SNAPSHOT</version>
         </dependency>
 
         <!-- Used in the feedforward/classification/MLP* and feedforward/regression/RegressionMathFunctions example -->
@@ -176,7 +177,9 @@
                             </excludes>
                         </filter>
                     </filters>
+
                 </configuration>
+
                 <executions>
                     <execution>
                         <phase>package</phase>
@@ -210,16 +213,16 @@
     </build>
 
     <profiles>
-      <profile>
-        <id>OpenJFX</id>
-        <dependencies>
-          <dependency>
-            <groupId>com.oracle</groupId>
-            <artifactId>javafx</artifactId>
-            <version>${javafx.version}</version>
-          </dependency>
-        </dependencies>
-      </profile>
+        <profile>
+            <id>OpenJFX</id>
+            <dependencies>
+                <dependency>
+                    <groupId>com.oracle</groupId>
+                    <artifactId>javafx</artifactId>
+                    <version>${javafx.version}</version>
+                </dependency>
+            </dependencies>
+        </profile>
     </profiles>
 
 </project>
