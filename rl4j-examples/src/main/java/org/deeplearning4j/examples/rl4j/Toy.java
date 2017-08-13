@@ -64,14 +64,14 @@ public class Toy {
              DQNFactoryStdDense.Configuration.builder()
         .l2(0.01).learningRate(1e-2).numLayer(3).numHiddenNodes(16).build();
 
-    public static void main(String[] args )
+    public static void main(String[] args ) throws Exception
     {
         simpleToy();
         //toyAsyncNstep();
 
     }
 
-    public static void simpleToy() {
+    public static void simpleToy() throws Exception {
 
         //record the training data in rl4j-data in a new folder
         DataManager manager = new DataManager();
@@ -93,7 +93,7 @@ public class Toy {
 
     }
 
-    public static void hardToy() {
+    public static void hardToy() throws Exception {
 
         //record the training data in rl4j-data in a new folder
         DataManager manager = new DataManager();
@@ -114,7 +114,7 @@ public class Toy {
     }
 
 
-    public static void toyAsyncNstep() {
+    public static void toyAsyncNstep() throws Exception {
 
         //record the training data in rl4j-data in a new folder
         DataManager manager = new DataManager();

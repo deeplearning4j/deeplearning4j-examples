@@ -1,22 +1,13 @@
 package org.deeplearning4j.examples.misc.lossfunctions;
 
 import lombok.EqualsAndHashCode;
-import org.apache.commons.math3.ode.MainStateJacobianProvider;
-import org.apache.commons.math3.util.Pair;
-import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.activations.IActivation;
-import org.nd4j.linalg.activations.impl.ActivationIdentity;
-import org.nd4j.linalg.api.iter.NdIndexIterator;
 import org.nd4j.linalg.api.ndarray.INDArray;
-import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.lossfunctions.ILossFunction;
-import org.nd4j.linalg.lossfunctions.LossUtil;
 import org.nd4j.linalg.ops.transforms.Transforms;
+import org.nd4j.linalg.primitives.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
-import java.util.*;
 
 /**
  * Created by susaneraly on 11/8/16.
@@ -125,6 +116,11 @@ public class CustomLossL1L2 implements ILossFunction {
         return new Pair<>(
                 computeScore(labels, preOutput, activationFn, mask, average),
                 computeGradient(labels, preOutput, activationFn, mask));
+    }
+
+    @Override
+    public String name() {
+        return "CustomLossL1L2";
     }
 
 

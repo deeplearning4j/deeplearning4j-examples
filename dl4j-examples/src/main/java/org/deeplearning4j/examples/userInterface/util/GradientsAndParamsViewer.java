@@ -30,6 +30,7 @@ import org.deeplearning4j.nn.api.Layer;
 import org.deeplearning4j.nn.api.Model;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
+import org.deeplearning4j.nn.conf.layers.BaseLayer;
 import org.deeplearning4j.nn.conf.layers.FeedForwardLayer;
 import org.deeplearning4j.nn.gradient.Gradient;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
@@ -548,7 +549,7 @@ public class GradientsAndParamsViewer extends Application {
         layerStage.show();
     }
     private void showLayerData(String key, Layer layer, MultiLayerNetwork network, String param) {
-        org.deeplearning4j.nn.conf.layers.Layer conf = layer.conf().getLayer();
+        org.deeplearning4j.nn.conf.layers.BaseLayer conf = (BaseLayer)layer.conf().getLayer();
         System.out.println("For " + key + ", conf = " + pretty(conf.toString()));
         if (layerStage == null || !layerStage.isShowing()) {
             makeLayerStage();

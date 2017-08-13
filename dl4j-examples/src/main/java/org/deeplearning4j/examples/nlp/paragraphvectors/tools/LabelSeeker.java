@@ -1,7 +1,7 @@
 package org.deeplearning4j.examples.nlp.paragraphvectors.tools;
 
 import lombok.NonNull;
-import org.deeplearning4j.berkeley.Pair;
+import org.nd4j.linalg.primitives.Pair;
 import org.deeplearning4j.models.embeddings.inmemory.InMemoryLookupTable;
 import org.deeplearning4j.models.word2vec.VocabWord;
 import org.nd4j.linalg.api.ndarray.INDArray;

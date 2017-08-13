@@ -1,6 +1,6 @@
 package org.deeplearning4j.examples.feedforward.anomalydetection;
 
-import org.deeplearning4j.berkeley.Pair;
+import org.nd4j.linalg.primitives.Pair;
 import org.deeplearning4j.datasets.iterator.impl.MnistDataSetIterator;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
@@ -57,7 +57,7 @@ public class VaeMNISTAnomaly {
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
             .seed(rngSeed)
             .learningRate(0.05)
-            .updater(Updater.ADAM).adamMeanDecay(0.9).adamVarDecay(0.999)
+            .updater(Updater.ADAM)  //To configure: .updater(Adam.builder().beta1(0.9).beta2(0.999).build())
             .weightInit(WeightInit.XAVIER)
             .regularization(true).l2(1e-4)
             .list()

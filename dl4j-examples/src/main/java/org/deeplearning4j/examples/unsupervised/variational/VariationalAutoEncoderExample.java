@@ -58,9 +58,8 @@ public class VariationalAutoEncoderExample {
         Nd4j.getRandom().setSeed(rngSeed);
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
             .seed(rngSeed)
-            .iterations(1).optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
             .learningRate(1e-2)
-            .updater(Updater.RMSPROP).rmsDecay(0.95)
+            .updater(Updater.RMSPROP)
             .weightInit(WeightInit.XAVIER)
             .regularization(true).l2(1e-4)
             .list()
@@ -68,7 +67,7 @@ public class VariationalAutoEncoderExample {
                 .activation(Activation.LEAKYRELU)
                 .encoderLayerSizes(256, 256)        //2 encoder layers, each of size 256
                 .decoderLayerSizes(256, 256)        //2 decoder layers, each of size 256
-                .pzxActivationFunction("identity")  //p(z|data) activation function
+                .pzxActivationFunction(Activation.IDENTITY)  //p(z|data) activation function
                 .reconstructionDistribution(new BernoulliReconstructionDistribution(Activation.SIGMOID.getActivationFunction()))     //Bernoulli distribution for p(data|z) (binary or 0 to 1 data only)
                 .nIn(28 * 28)                       //Input size: 28x28
                 .nOut(2)                            //Size of the latent variable space: p(z|x). 2 dimensions here for plotting, use more in general

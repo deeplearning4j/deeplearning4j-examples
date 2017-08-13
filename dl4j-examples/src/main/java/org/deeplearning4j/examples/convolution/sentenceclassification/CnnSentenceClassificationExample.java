@@ -10,10 +10,7 @@ import org.deeplearning4j.iterator.provider.FileLabeledSentenceProvider;
 import org.deeplearning4j.models.embeddings.loader.WordVectorSerializer;
 import org.deeplearning4j.models.embeddings.wordvectors.WordVectors;
 import org.deeplearning4j.nn.api.Layer;
-import org.deeplearning4j.nn.conf.ComputationGraphConfiguration;
-import org.deeplearning4j.nn.conf.ConvolutionMode;
-import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
-import org.deeplearning4j.nn.conf.Updater;
+import org.deeplearning4j.nn.conf.*;
 import org.deeplearning4j.nn.conf.graph.MergeVertex;
 import org.deeplearning4j.nn.conf.layers.ConvolutionLayer;
 import org.deeplearning4j.nn.conf.layers.GlobalPoolingLayer;
@@ -21,9 +18,11 @@ import org.deeplearning4j.nn.conf.layers.OutputLayer;
 import org.deeplearning4j.nn.conf.layers.PoolingType;
 import org.deeplearning4j.nn.graph.ComputationGraph;
 import org.deeplearning4j.nn.weights.WeightInit;
+import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
 import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
+import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 
 import java.io.File;
@@ -66,7 +65,10 @@ public class CnnSentenceClassificationExample {
         //Set up the network configuration. Note that we have multiple convolution layers, each wih filter
         //widths of 3, 4 and 5 as per Kim (2014) paper.
 
+        Nd4j.getMemoryManager().setAutoGcWindow(5000);
+
         ComputationGraphConfiguration config = new NeuralNetConfiguration.Builder()
+            .trainingWorkspaceMode(WorkspaceMode.SINGLE).inferenceWorkspaceMode(WorkspaceMode.SINGLE)
             .weightInit(WeightInit.RELU)
             .activation(Activation.LEAKYRELU)
             .updater(Updater.ADAM)
@@ -121,6 +123,7 @@ public class CnnSentenceClassificationExample {
         DataSetIterator testIter = getDataSetIterator(false, wordVectors, batchSize, truncateReviewsToLength, rng);
 
         System.out.println("Starting training");
+        net.setListeners(new ScoreIterationListener(100));
         for (int i = 0; i < nEpochs; i++) {
             net.fit(trainIter);
             System.out.println("Epoch " + i + " complete. Starting evaluation:");

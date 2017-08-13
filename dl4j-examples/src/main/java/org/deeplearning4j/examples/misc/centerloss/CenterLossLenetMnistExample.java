@@ -1,6 +1,6 @@
 package org.deeplearning4j.examples.misc.centerloss;
 
-import org.deeplearning4j.berkeley.Pair;
+import org.nd4j.linalg.primitives.Pair;
 import org.deeplearning4j.datasets.iterator.impl.MnistDataSetIterator;
 import org.deeplearning4j.examples.unsupervised.variational.plot.PlotUtil;
 import org.deeplearning4j.examples.userInterface.util.GradientsAndParamsListener;
@@ -68,7 +68,7 @@ public class CenterLossLenetMnistExample {
             .activation(Activation.LEAKYRELU)
             .weightInit(WeightInit.RELU)
             .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
-            .updater(Updater.ADAM).adamMeanDecay(0.9).adamVarDecay(0.999)
+            .updater(Updater.ADAM)
             .list()
             .layer(0, new ConvolutionLayer.Builder(5, 5).stride(1, 1).nOut(32).activation(Activation.LEAKYRELU).build())
             .layer(1, new SubsamplingLayer.Builder(SubsamplingLayer.PoolingType.MAX).kernelSize(2, 2).stride(2, 2).build())

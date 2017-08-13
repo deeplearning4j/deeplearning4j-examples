@@ -87,7 +87,7 @@ public class CSVPlotter {
                 .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
                 .learningRate(learningRate)
                 .weightInit(WeightInit.XAVIER)
-                .updater(Updater.NESTEROVS).momentum(0.9)
+                .updater(Updater.NESTEROVS)
                 .list()
                 .layer(0, new DenseLayer.Builder().nIn(numInputs).nOut(numOutputs)
                         .activation(Activation.IDENTITY)

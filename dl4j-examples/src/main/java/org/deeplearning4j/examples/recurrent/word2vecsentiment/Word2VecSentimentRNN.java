@@ -1,8 +1,5 @@
 package org.deeplearning4j.examples.recurrent.word2vecsentiment;
 
-import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
-import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
-import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.deeplearning4j.eval.Evaluation;
@@ -24,7 +21,7 @@ import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.indexing.NDArrayIndex;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 
-import java.io.*;
+import java.io.File;
 import java.net.URL;
 
 /**Example: Given a movie review (raw text), classify that movie review as either positive or negative based on the words it contains.
@@ -75,7 +72,7 @@ public class Word2VecSentimentRNN {
 
         //Set up network configuration
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
-            .updater(Updater.ADAM).adamMeanDecay(0.9).adamVarDecay(0.999)
+            .updater(Updater.ADAM)  //To configure: .updater(Adam.builder().beta1(0.9).beta2(0.999).build())
             .regularization(true).l2(1e-5)
             .weightInit(WeightInit.XAVIER)
             .gradientNormalization(GradientNormalization.ClipElementWiseAbsoluteValue).gradientNormalizationThreshold(1.0)
