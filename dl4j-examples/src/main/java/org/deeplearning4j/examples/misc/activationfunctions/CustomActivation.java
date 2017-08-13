@@ -1,10 +1,10 @@
 package org.deeplearning4j.examples.misc.activationfunctions;
 
-import org.apache.commons.math3.util.Pair;
 import org.nd4j.linalg.activations.BaseActivationFunction;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.api.ops.impl.transforms.Tanh;
 import org.nd4j.linalg.factory.Nd4j;
+import org.nd4j.linalg.primitives.Pair;
 
 /**
  * This is an example of how to implement a custom activation function that does not take any learnable parameters
