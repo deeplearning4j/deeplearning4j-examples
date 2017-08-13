@@ -1,6 +1,6 @@
 package org.deeplearning4j.examples.misc.centerloss;
 
-import org.deeplearning4j.berkeley.Pair;
+import org.nd4j.linalg.primitives.Pair;
 import org.deeplearning4j.datasets.iterator.impl.MnistDataSetIterator;
 import org.deeplearning4j.examples.unsupervised.variational.plot.PlotUtil;
 import org.deeplearning4j.examples.userInterface.util.GradientsAndParamsListener;
