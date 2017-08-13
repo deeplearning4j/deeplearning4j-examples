@@ -1,7 +1,7 @@
 package org.deeplearning4j.examples.nlp.tsne;
 
 import org.datavec.api.util.ClassPathResource;
-import org.deeplearning4j.berkeley.Pair;
+import org.nd4j.linalg.primitives.Pair;
 import org.deeplearning4j.models.embeddings.inmemory.InMemoryLookupTable;
 import org.deeplearning4j.models.embeddings.loader.WordVectorSerializer;
 import org.deeplearning4j.models.word2vec.wordstore.VocabCache;
@@ -74,4 +74,3 @@ public class TSNEStandardExample {
 
 
 }
-

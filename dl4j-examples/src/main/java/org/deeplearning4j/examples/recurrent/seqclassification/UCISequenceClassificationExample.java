@@ -2,7 +2,7 @@ package org.deeplearning4j.examples.recurrent.seqclassification;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.datavec.api.berkeley.Pair;
+import org.nd4j.linalg.primitives.Pair;
 import org.datavec.api.records.reader.SequenceRecordReader;
 import org.datavec.api.records.reader.impl.csv.CSVSequenceRecordReader;
 import org.datavec.api.split.NumberedFileInputSplit;
