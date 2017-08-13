@@ -35,7 +35,7 @@ public class CSVExample {
 
         //First: get the dataset using the record reader. CSVRecordReader handles loading/parsing
         int numLinesToSkip = 0;
-        String delimiter = ",";
+        char delimiter = ',';
         RecordReader recordReader = new CSVRecordReader(numLinesToSkip,delimiter);
         recordReader.initialize(new FileSplit(new ClassPathResource("iris.txt").getFile()));
 

@@ -15,14 +15,17 @@ import org.deeplearning4j.nn.conf.Updater;
 import org.deeplearning4j.nn.conf.layers.DenseLayer;
 import org.deeplearning4j.nn.conf.layers.OutputLayer;
 import org.deeplearning4j.nn.weights.WeightInit;
+import org.deeplearning4j.spark.api.RDDTrainingApproach;
 import org.deeplearning4j.spark.api.TrainingMaster;
 import org.deeplearning4j.spark.impl.multilayer.SparkDl4jMultiLayer;
-import org.deeplearning4j.spark.impl.paramavg.ParameterAveragingTrainingMaster;
+import org.deeplearning4j.spark.parameterserver.training.SharedTrainingMaster;
 import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
-import org.nd4j.linalg.learning.config.Nesterovs;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
+import org.nd4j.parameterserver.distributed.conf.VoidConfiguration;
+import org.nd4j.parameterserver.distributed.enums.ExecutionMode;
+import org.nd4j.parameterserver.distributed.enums.NodeRole;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,21 +48,22 @@ import java.util.List;
  *   OR first modify the example by setting the field "useSparkLocal = false"
  *
  * @author Alex Black
+ * @author raver119@gmail.com
  */
-public class MnistMLPExample {
-    private static final Logger log = LoggerFactory.getLogger(MnistMLPExample.class);
+public class MnistMLPDistributedExample {
+    private static final Logger log = LoggerFactory.getLogger(MnistMLPDistributedExample.class);
 
     @Parameter(names = "-useSparkLocal", description = "Use spark local (helper for testing/running without spark submit)", arity = 1)
-    private boolean useSparkLocal = true;
+    private boolean useSparkLocal = false;
 
     @Parameter(names = "-batchSizePerWorker", description = "Number of examples to fit each worker with")
     private int batchSizePerWorker = 16;
 
     @Parameter(names = "-numEpochs", description = "Number of epochs for training")
-    private int numEpochs = 15;
+    private int numEpochs = 3;
 
     public static void main(String[] args) throws Exception {
-        new MnistMLPExample().entryPoint(args);
+        new MnistMLPDistributedExample().entryPoint(args);
     }
 
     protected void entryPoint(String[] args) throws Exception {
@@ -116,11 +120,33 @@ public class MnistMLPExample {
             .pretrain(false).backprop(true)
             .build();
 
-        //Configuration for Spark training: see http://deeplearning4j.org/spark for explanation of these configuration options
-        TrainingMaster tm = new ParameterAveragingTrainingMaster.Builder(batchSizePerWorker)    //Each DataSet object: contains (by default) 32 examples
-            .averagingFrequency(5)
-            .workerPrefetchNumBatches(2)            //Async prefetching: 2 examples per worker
+        //Configuration for Spark training: see https://deeplearning4j.org/distributed for explanation of these configuration options
+        VoidConfiguration voidConfiguration = VoidConfiguration.builder()
+
+            /**
+             * This can be any port, but it should be open for IN/OUT comms on all Spark nodes
+             */
+            .unicastPort(40123)
+
+            /**
+             * if you're running this example on Hadoop/YARN, please provide proper netmask for out-of-spark comms
+             */
+            .networkMask("10.1.1.0/24")
+
+            /**
+             * However, if you're running this example on Spark standalone cluster, you can rely on Spark internal addressing via $SPARK_PUBLIC_DNS env variables announced on each node
+             */
+            .controllerAddress(useSparkLocal ? "127.0.0.1" : null)
+            .build();
+
+        TrainingMaster tm = new SharedTrainingMaster.Builder(voidConfiguration, batchSizePerWorker)
+            // encoding threshold. Please check https://deeplearning4j.org/distributed for details
+            .updatesThreshold(1e-3)
+            .rddTrainingApproach(RDDTrainingApproach.Direct)
             .batchSizePerWorker(batchSizePerWorker)
+
+            // this option will enforce exactly 4 workers for each Spark node
+            .workersPerNode(4)
             .build();
 
         //Create the Spark network

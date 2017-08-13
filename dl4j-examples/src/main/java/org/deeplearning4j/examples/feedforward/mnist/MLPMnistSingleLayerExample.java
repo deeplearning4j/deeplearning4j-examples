@@ -63,7 +63,7 @@ public class MLPMnistSingleLayerExample {
                 .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
                 .iterations(1)
                 .learningRate(0.006) //specify the learning rate
-                .updater(Updater.NESTEROVS).momentum(0.9) //specify the rate of change of the learning rate.
+                .updater(Updater.NESTEROVS)
                 .regularization(true).l2(1e-4)
                 .list()
                 .layer(0, new DenseLayer.Builder() //create the first, input layer with xavier initialization
