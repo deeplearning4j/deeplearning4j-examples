@@ -62,7 +62,7 @@ public class A3CALE {
             new ActorCriticFactoryCompGraphStdConv.Configuration(
                     0.00025, //learning rate
                     0.000,   //l2 regularization
-                    null
+                    null, null, false
             );
 
     public static void main(String[] args) throws IOException {

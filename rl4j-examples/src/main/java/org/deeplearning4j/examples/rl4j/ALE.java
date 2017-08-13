@@ -66,7 +66,7 @@ public class ALE {
             new DQNFactoryStdConv.Configuration(
                     0.00025, //learning rate
                     0.000,   //l2 regularization
-                    null
+                    null, null
             );
 
     public static void main(String[] args) throws IOException {
