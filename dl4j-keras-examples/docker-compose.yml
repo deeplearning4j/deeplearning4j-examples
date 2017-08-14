@@ -1,0 +1,7 @@
+version: '2'
+services:
+    jupyter:
+        image: keras-dl4j
+        ports:
+            - "8888:8888"
+
