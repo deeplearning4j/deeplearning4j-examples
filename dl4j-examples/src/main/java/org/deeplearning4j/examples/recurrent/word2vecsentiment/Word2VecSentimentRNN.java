@@ -100,19 +100,7 @@ public class Word2VecSentimentRNN {
             System.out.println("Epoch " + i + " complete. Starting evaluation:");
 
             //Run evaluation. This is on 25k reviews, so can take some time
-            Evaluation evaluation = new Evaluation();
-            while (test.hasNext()) {
-                DataSet t = test.next();
-                INDArray features = t.getFeatureMatrix();
-                INDArray lables = t.getLabels();
-                INDArray inMask = t.getFeaturesMaskArray();
-                INDArray outMask = t.getLabelsMaskArray();
-                INDArray predicted = net.output(features, false, inMask, outMask);
-
-                evaluation.evalTimeSeries(lables, predicted, outMask);
-            }
-            test.reset();
-
+            Evaluation evaluation = net.evaluate(test);
             System.out.println(evaluation.stats());
         }
 
