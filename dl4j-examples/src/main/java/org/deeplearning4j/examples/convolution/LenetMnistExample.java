@@ -140,13 +140,7 @@ public class LenetMnistExample {
             log.info("*** Completed epoch {} ***", i);
 
             log.info("Evaluate model....");
-            Evaluation eval = new Evaluation(outputNum);
-            while(mnistTest.hasNext()){
-                DataSet ds = mnistTest.next();
-                INDArray output = model.output(ds.getFeatureMatrix(), false);
-                eval.eval(ds.getLabels(), output);
-
-            }
+            Evaluation eval = model.evaluate(mnistTest);
             log.info(eval.stats());
             mnistTest.reset();
         }
