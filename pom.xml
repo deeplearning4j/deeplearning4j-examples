@@ -47,6 +47,7 @@
     </properties>
 
     <modules>
+        <module>arbiter-examples</module>
         <module>dl4j-examples</module>
         <module>dl4j-spark-examples</module>
         <module>datavec-examples</module>
