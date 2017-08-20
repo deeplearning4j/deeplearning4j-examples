@@ -6,7 +6,8 @@ import org.deeplearning4j.models.embeddings.inmemory.InMemoryLookupTable;
 import org.deeplearning4j.models.embeddings.loader.WordVectorSerializer;
 import org.deeplearning4j.models.word2vec.VocabWord;
 import org.deeplearning4j.models.word2vec.Word2Vec;
-import org.deeplearning4j.models.word2vec.wordstore.inmemory.InMemoryLookupCache;
+import org.deeplearning4j.models.word2vec.wordstore.VocabCache;
+import org.deeplearning4j.models.word2vec.wordstore.inmemory.AbstractCache;
 import org.deeplearning4j.text.sentenceiterator.BasicLineIterator;
 import org.deeplearning4j.text.sentenceiterator.SentenceIterator;
 import org.deeplearning4j.text.tokenization.tokenizer.preprocessor.CommonPreprocessor;
@@ -46,12 +47,11 @@ public class Word2VecUptrainingExample {
 
         // manual creation of VocabCache and WeightLookupTable usually isn't necessary
         // but in this case we'll need them
-        InMemoryLookupCache cache = new InMemoryLookupCache();
+        VocabCache<VocabWord> cache = new AbstractCache<>();
         WeightLookupTable<VocabWord> table = new InMemoryLookupTable.Builder<VocabWord>()
                 .vectorLength(100)
                 .useAdaGrad(false)
-                .cache(cache)
-                .lr(0.025f).build();
+                .cache(cache).build();
 
         log.info("Building model....");
         Word2Vec vec = new Word2Vec.Builder()
@@ -77,13 +77,13 @@ public class Word2VecUptrainingExample {
         /*
             at this moment we're supposed to have model built, and it can be saved for future use.
          */
-        WordVectorSerializer.writeFullModel(vec, "pathToSaveModel.txt");
+        WordVectorSerializer.writeWord2VecModel(vec, "pathToSaveModel.txt");
 
         /*
             Let's assume that some time passed, and now we have new corpus to be used to weights update.
             Instead of building new model over joint corpus, we can use weights update mode.
          */
-        Word2Vec word2Vec = WordVectorSerializer.loadFullModel("pathToSaveModel.txt");
+        Word2Vec word2Vec = WordVectorSerializer.readWord2VecModel("pathToSaveModel.txt");
 
         /*
             PLEASE NOTE: after model is restored, it's still required to set SentenceIterator and TokenizerFactory, if you're going to train this model
