@@ -9,11 +9,13 @@ import org.deeplearning4j.nn.api.OptimizationAlgorithm;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
 import org.deeplearning4j.nn.conf.Updater;
+import org.deeplearning4j.nn.conf.layers.DenseLayer;
 import org.deeplearning4j.nn.conf.layers.OutputLayer;
 import org.deeplearning4j.nn.conf.layers.RBM;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
 import org.deeplearning4j.optimize.api.IterationListener;
+import org.deeplearning4j.optimize.listeners.PerformanceListener;
 import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.api.buffer.DataBuffer;
 import org.nd4j.linalg.api.buffer.util.DataTypeUtil;
@@ -33,30 +35,28 @@ import org.nd4j.linalg.lossfunctions.impl.LossMixtureDensity;
  * and extract the parameters "alpha" (relative strength of that gaussian),
  * the "sigma" or "standard-deviation" of that gaussian, and "mu", the
  * mean of that distribution.
- * 
+ *
  * For a more detailed explanation of this, see Christopher Bishop's paper.
- *  
+ *
  * Bishop CM. Mixture density networks,
  * Neural Computing Research Group Report:
  * NCRG/94/004, Aston University, Birmingham, 1994
  * https://www.microsoft.com/en-us/research/wp-content/uploads/2016/02/bishop-ncrg-94-004.pdf
- * 
+ *
  * @author Jonathan Arney
  */
 public class MixtureDensityNetwork {
     public static void main(String[] args) {
-        
+
         final int inputSize = 1;
         final int outputLabels = 2;
-        
+
         // Number of gaussian mixtures to
         // attempt to fit.
         final int mixturesToFit = 2;
-        
-        DataTypeUtil.setDTypeForContext(DataBuffer.Type.DOUBLE);
-        
+
         final int hiddenLayerSize = 20 * mixturesToFit;
-        
+
         Random rng = new Random();
 
         NumberFormat formatter = new DecimalFormat("#0.0000");
@@ -64,21 +64,19 @@ public class MixtureDensityNetwork {
                             .gaussians(mixturesToFit)
                             .labelWidth(outputLabels)
                             .build();
-        
+
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
-                .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT).iterations(1)
                 .learningRate(1e-2)
-                .rmsDecay(0.95)
                 .seed(rng.nextInt())
                 .weightInit(WeightInit.XAVIER)
-                .updater(Updater.RMSPROP)
+                .updater(Updater.ADAM)
                 .list()
-                .layer(0, new RBM.Builder()
+                .layer(0, new DenseLayer.Builder()
                         .nIn(inputSize)
                         .nOut(hiddenLayerSize)
                         .activation(Activation.TANH)
                         .build())
-                .layer(1, new RBM.Builder()
+                .layer(1, new DenseLayer.Builder()
                         .nIn(hiddenLayerSize)
                         .nOut(hiddenLayerSize)
                         .activation(Activation.TANH)
@@ -93,13 +91,13 @@ public class MixtureDensityNetwork {
                 .build();
         MultiLayerNetwork net = new MultiLayerNetwork(conf);
         net.init();
-        net.setListeners(new ScoreIterationListener(System.out));
-        
+        net.setListeners(new PerformanceListener(32));
+
         int trainingEpochs = 500;
-        
+
         DataSetIterator iter = new GaussianMixtureIterator(mixturesToFit);
         PrintStream logOutput = System.out;
-        
+
         //Do training, and then generate and print samples from network
         for (int i = 0; i < trainingEpochs; i++) {
             logOutput.println("Epoch number " + i);
@@ -109,7 +107,7 @@ public class MixtureDensityNetwork {
             }
 
             iter.reset();	//Reset iterator for another epoch
-            
+
             INDArray in = Nd4j.zeros(1);
 
             // Output what the network
@@ -121,7 +119,7 @@ public class MixtureDensityNetwork {
                 INDArray output = net.activateSelectedLayers(0, net.getnLayers()-1, in);
 
                 LossMixtureDensity.MixtureDensityComponents mixtures = loss.extractComponents(output);
-                
+
                 System.out.print("" + formatter.format(input) + "\t");
                 for (int mixtureNumber = 0; mixtureNumber < mixturesToFit; mixtureNumber++) {
                     System.out.print("a" + mixtureNumber + " = " + formatter.format(mixtures.getAlpha().getDouble(0, mixtureNumber)) +
@@ -132,7 +130,7 @@ public class MixtureDensityNetwork {
                         if (labelNumber != 0) {
                             System.out.print(",");
                         }
-                        System.out.print( 
+                        System.out.print(
                                 formatter.format(mixtures.getMu().getDouble(0, mixtureNumber, labelNumber))
                         );
                     }
@@ -142,38 +140,4 @@ public class MixtureDensityNetwork {
             }
         }
     }
-    
-    public static class ScoreIterationListener implements IterationListener {
-        private long iterCount = 0;
-        private long lastSampleTime;
-        private final PrintStream logWriter;
-        /**
-         * @param writer Output writer.
-         */
-        public ScoreIterationListener(PrintStream writer) {
-            lastSampleTime = System.currentTimeMillis();
-            logWriter = writer;
-        }
-
-        @Override
-        public boolean invoked(){ return iterCount > 0;}
-
-        @Override
-        public void invoke() {
-            iterCount++;
-        }
-
-        @Override
-        public void iterationDone(Model model, int iteration) {
-            invoke();
-            double result = model.score();
-            long currentTime = System.currentTimeMillis();
-            if ((iterCount % 32) == 0) {
-                logWriter.println("Score at iteration " + iterCount + " is " + result + " took " + (currentTime - lastSampleTime) + " ms");
-                lastSampleTime = currentTime;
-            }
-        }
-    }
-    
-    
 }
