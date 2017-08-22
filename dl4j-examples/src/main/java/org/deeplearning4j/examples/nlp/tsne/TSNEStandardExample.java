@@ -9,7 +9,6 @@ import org.deeplearning4j.plot.BarnesHutTsne;
 import org.nd4j.linalg.api.buffer.DataBuffer;
 import org.nd4j.linalg.api.buffer.util.DataTypeUtil;
 import org.nd4j.linalg.api.ndarray.INDArray;
-import org.nd4j.linalg.factory.Nd4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,7 +56,9 @@ public class TSNEStandardExample {
         log.info("Store TSNE Coordinates for Plotting....");
         String outputFile = "target/archive-tmp/tsne-standard-coords.csv";
         (new File(outputFile)).getParentFile().mkdirs();
-        tsne.plot(weights,2,cacheList,outputFile);
+
+        tsne.fit(weights);
+        tsne.saveAsFile(cacheList, outputFile);
         //This tsne will use the weights of the vectors as its matrix, have two dimensions, use the words strings as
         //labels, and be written to the outputFile created on the previous line
         // Plot Data with gnuplot
