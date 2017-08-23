@@ -20,6 +20,7 @@ import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.learning.config.IUpdater;
+import org.nd4j.linalg.learning.config.RmsProp;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 
 import java.io.File;
@@ -62,7 +63,7 @@ public class CustomLayerExample {
 
         MultiLayerConfiguration config = new NeuralNetConfiguration.Builder()
             .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT).iterations(1)
-            .updater(Updater.RMSPROP).rmsDecay(0.95)
+            .updater( new RmsProp(0.95))
             .weightInit(WeightInit.XAVIER)
             .regularization(true).l2(0.03)
             .list()
