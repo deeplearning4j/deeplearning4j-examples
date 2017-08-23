@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import org.apache.commons.lang3.ArrayUtils;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.api.MultiDataSet;
@@ -34,6 +37,9 @@ public class CorpusIterator implements MultiDataSetIterator {
     private int currentMacroBatch = 0;
     private int dictSize;
     private int rowSize;
+    @Getter
+    @Setter
+    private MultiDataSetPreProcessor preProcessor;
 
     public CorpusIterator(List<List<Double>> corpus, int batchSize, int batchesPerMacrobatch, int dictSize, int rowSize) {
         this.corpus = corpus;
@@ -103,11 +109,6 @@ public class CorpusIterator implements MultiDataSetIterator {
         ++currentBatch;
         return new org.nd4j.linalg.dataset.MultiDataSet(new INDArray[] { input, decode }, new INDArray[] { prediction },
                 new INDArray[] { inputMask, predictionMask }, new INDArray[] { predictionMask });
-    }
-
-    @Override
-    public void setPreProcessor(MultiDataSetPreProcessor preProcessor) {
-
     }
 
     @Override
