@@ -5,6 +5,7 @@ package org.deeplearning4j.examples.feedforward.classification.detectgender;
  */
 
 import org.datavec.api.split.FileSplit;
+import org.deeplearning4j.api.storage.StatsStorage;
 import org.deeplearning4j.datasets.datavec.RecordReaderDataSetIterator;
 import org.deeplearning4j.eval.Evaluation;
 import org.deeplearning4j.nn.api.OptimizationAlgorithm;
@@ -15,7 +16,9 @@ import org.deeplearning4j.nn.conf.layers.DenseLayer;
 import org.deeplearning4j.nn.conf.layers.OutputLayer;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
-import org.deeplearning4j.ui.weights.HistogramIterationListener;
+import org.deeplearning4j.ui.api.UIServer;
+import org.deeplearning4j.ui.stats.StatsListener;
+import org.deeplearning4j.ui.storage.InMemoryStatsStorage;
 import org.deeplearning4j.util.ModelSerializer;
 import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.api.ndarray.INDArray;
@@ -103,8 +106,11 @@ public class PredictGenderTrain
 
             MultiLayerNetwork model = new MultiLayerNetwork(conf);
             model.init();
-            model.setListeners(new HistogramIterationListener(10));
 
+            UIServer uiServer = UIServer.getInstance();
+            StatsStorage statsStorage = new InMemoryStatsStorage();
+            uiServer.attach(statsStorage);
+            model.setListeners(new StatsListener(statsStorage));
 
             for ( int n = 0; n < nEpochs; n++)
             {

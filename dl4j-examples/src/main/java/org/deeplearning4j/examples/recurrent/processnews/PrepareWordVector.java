@@ -61,6 +61,6 @@ public class PrepareWordVector {
         log.info("Writing word vectors to text file....");
 
         // Write word vectors to file
-        WordVectorSerializer.writeWordVectors(vec, classPathResource + "NewsWordVector.txt");
+        WordVectorSerializer.writeWordVectors(vec.lookupTable(), classPathResource + "NewsWordVector.txt");
     }
 }

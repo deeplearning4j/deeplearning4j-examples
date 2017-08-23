@@ -185,7 +185,7 @@ public class TestNews extends javax.swing.JFrame {
             tokenizerFactory = new DefaultTokenizerFactory();
             tokenizerFactory.setTokenPreProcessor(new CommonPreprocessor());
             net = ModelSerializer.restoreMultiLayerNetwork(userDirectory + "NewsModel.net");
-            wordVectors = WordVectorSerializer.loadTxtVectors(new File(WORD_VECTORS_PATH));
+            wordVectors = WordVectorSerializer.readWord2VecModel(new File(WORD_VECTORS_PATH));
         } catch (Exception e) {
 
         }
