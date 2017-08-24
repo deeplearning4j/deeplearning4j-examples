@@ -71,10 +71,10 @@ public class Cifar {
     private static int numSamples = 50000;
     private static int batchSize = 100;
     private static int iterations = 1;
-    private static int freIterations = 30;
+    private static int freIterations = 25;
     private static int seed = 123;
     private static boolean preProcessCifar = false;//use Zagoruyko's preprocess for Cifar
-    private static int epochs = 100;
+    private static int epochs = 300;
 
     public static void main(String[] args) throws Exception {
         // CudaEnvironment.getInstance().getConfiguration().;
@@ -101,17 +101,24 @@ public class Cifar {
 
         //MultipleEpochsIterator trainIter = new MultipleEpochsIterator(epochs, cifar);
         //model.fit(trainIter);
-        for ( int i = 0; i < epochs; i ++ ) {
-            System.out.println("Epoch=====================" + i);
-            model.fit(cifar);
-        }
-        log.info("=====eval one========");
-        cifar = new CifarDataSetIterator(batchSize, 10000,
+
+        CifarDataSetIterator cifarTest = new CifarDataSetIterator(batchSize, 10000,
             new int[] {height, width, channels}, preProcessCifar, false);
 
-        Evaluation eval = new Evaluation(cifar.getLabels());
+        for ( int i = 0; i < epochs; i ++ ) {
+            System.out.println("Epoch===================== " + i + " ===complete");
+            model.fit(cifar);
+            System.out.println("Epoch=== " + i + " ===complete. Starting evaluation:");
+
+           // cifarTest.reset();
+            //Evaluation evaluation = model.evaluate(cifarTest);
+          //  System.out.println(evaluation.stats());
+        }
+        log.info("=====eval one========");
+
+        Evaluation eval = new Evaluation(cifarTest.getLabels());
         while(cifar.hasNext()) {
-            DataSet testDS = cifar.next(batchSize);
+            DataSet testDS = cifarTest.next(batchSize);
             INDArray output = model.output(testDS.getFeatureMatrix());
             eval.eval(testDS.getLabels(), output);
         }
