@@ -74,7 +74,7 @@ public class Cifar {
     private static int freIterations = 30;
     private static int seed = 123;
     private static boolean preProcessCifar = false;//use Zagoruyko's preprocess for Cifar
-    private static int epochs = 35;
+    private static int epochs = 100;
 
     public static void main(String[] args) throws Exception {
         // CudaEnvironment.getInstance().getConfiguration().;
@@ -136,11 +136,11 @@ public class Cifar {
             .regularization(true)
             .l2(5 * 1e-4)
             .list()
-            .layer(0, new ConvolutionLayer.Builder(new int[]{3, 3}, new int[]{1, 1}, new int[]{0, 0}).name("cnn1").convolutionMode(ConvolutionMode.Same)
+            .layer(0, new ConvolutionLayer.Builder(new int[]{4, 4}, new int[]{1, 1}, new int[]{0, 0}).name("cnn1").convolutionMode(ConvolutionMode.Same)
                 .nIn(3).nOut(32).weightInit(WeightInit.XAVIER_UNIFORM).activation(Activation.RELU)//.learningRateDecayPolicy(LearningRatePolicy.Step)
                 .learningRate(1e-3).biasInit(1e-1).biasLearningRate(1e-4*2).build())
             .layer(1, new SubsamplingLayer.Builder(PoolingType.MAX, new int[]{2,2}).name("maxpool1").build())
-            .layer(2, new ConvolutionLayer.Builder(new int[]{3,3}, new int[] {1,1}, new int[] {0,0}).name("cnn2").convolutionMode(ConvolutionMode.Same)
+            .layer(2, new ConvolutionLayer.Builder(new int[]{4,4}, new int[] {1,1}, new int[] {0,0}).name("cnn2").convolutionMode(ConvolutionMode.Same)
                 .nOut(32).weightInit(WeightInit.XAVIER_UNIFORM).activation(Activation.RELU)
                 .learningRate(1e-3).biasInit(1e-1).biasLearningRate(1e-3*2).build())
             .layer(3, new SubsamplingLayer.Builder(PoolingType.MAX, new int[]{2,2}).name("maxpool2").build())
@@ -157,21 +157,20 @@ public class Cifar {
              .layer(8, new ConvolutionLayer.Builder(new int[]{3,3}, new int[] {1,1}, new int[] {0,0}).name("cnn6").convolutionMode(ConvolutionMode.Same)
                 .nOut(96).weightInit(WeightInit.XAVIER_UNIFORM).activation(Activation.RELU)//.momentum(0.9)
                 .learningRate(1e-2).biasInit(1e-2).biasLearningRate(1e-2*2).build())
-            .layer(9, new SubsamplingLayer.Builder(PoolingType.MAX, new int[]{3,3}, new int[] {1,1}, new int[] {1,1}).name("maxpool6").build())
-           /* .layer(10, new ConvolutionLayer.Builder(new int[]{5,5}, new int[] {1,1}, new int[] {2,2}).name("cnn7").convolutionMode(ConvolutionMode.Same)
+            .layer(9, new SubsamplingLayer.Builder(PoolingType.MAX, new int[]{2,2}, new int[] {2,2}, new int[] {1,1}).name("maxpool6").build())
+           .layer(10, new ConvolutionLayer.Builder(new int[]{2,2}, new int[] {1,1}, new int[] {0,0}).name("cnn7").convolutionMode(ConvolutionMode.Same)
                 .nOut(128).weightInit(WeightInit.XAVIER_UNIFORM).activation(Activation.RELU)//.momentum(0.9)
-                .learningRate(1e-1).biasInit(1e-1).biasLearningRate(1e-1*2).build())
-            .layer(11, new SubsamplingLayer.Builder(PoolingType.MAX, new int[]{3,3}, new int[] {1,1}, new int[] {1,1}).name("maxpool7").build())
-            .layer(12, new ConvolutionLayer.Builder(new int[]{5,5}, new int[] {1,1}, new int[] {2,2}).name("cnn8").convolutionMode(ConvolutionMode.Same)
+                .learningRate(1e-1).biasInit(1e-2).biasLearningRate(1e-1*2).build())
+            .layer(11, new SubsamplingLayer.Builder(PoolingType.MAX, new int[]{2,2}, new int[] {2,2}, new int[] {1,1}).name("maxpool7").build())
+            .layer(12, new ConvolutionLayer.Builder(new int[]{2,2}, new int[] {1,1}, new int[] {0,0}).name("cnn8").convolutionMode(ConvolutionMode.Same)
                 .nOut(128).weightInit(WeightInit.XAVIER_UNIFORM).activation(Activation.RELU)//.momentum(0.9)
-                .learningRate(1e-1).biasInit(1e-1).biasLearningRate(1e-1*2).build())
-            .layer(13, new SubsamplingLayer.Builder(PoolingType.MAX, new int[]{3,3}, new int[] {1,1}, new int[] {1,1}).name("maxpool8").build())
-            */
-            .layer(10, new DenseLayer.Builder().name("ffn1").nOut(1024).learningRate(1e-3).biasInit(1e-3).biasLearningRate(1e-3*2).build())
-            .layer(11,new DropoutLayer.Builder().name("dropout1").dropOut(0.2).build())
-            .layer(12, new DenseLayer.Builder().name("ffn2").nOut(1024).learningRate(1e-2).biasInit(1e-2).biasLearningRate(1e-2*2).build())
-            .layer(13,new DropoutLayer.Builder().name("dropout2").dropOut(0.2).build())
-            .layer(14, new OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD)
+                .learningRate(1e-1).biasInit(1e-2).biasLearningRate(1e-2*2).build())
+            .layer(13, new SubsamplingLayer.Builder(PoolingType.MAX, new int[]{2,2}, new int[] {2,2}, new int[] {1,1}).name("maxpool8").build())
+            .layer(14, new DenseLayer.Builder().name("ffn1").nOut(1024).learningRate(1e-3).biasInit(1e-3).biasLearningRate(1e-3*2).build())
+            .layer(15,new DropoutLayer.Builder().name("dropout1").dropOut(0.2).build())
+            .layer(16, new DenseLayer.Builder().name("ffn2").nOut(1024).learningRate(1e-2).biasInit(1e-2).biasLearningRate(1e-2*2).build())
+            .layer(17,new DropoutLayer.Builder().name("dropout2").dropOut(0.2).build())
+            .layer(18, new OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD)
                 .name("output")
                 .nOut(numLabels)
                 .activation(Activation.SOFTMAX)
