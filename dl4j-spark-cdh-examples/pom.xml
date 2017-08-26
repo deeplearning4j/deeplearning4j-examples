@@ -18,6 +18,7 @@
         <nd4j.version>0.9.0</nd4j.version>
         <datavec.version>0.9.0</datavec.version>
         <dl4j.version>0.9.0</dl4j.version>
+	<hadoop.version>2.6.0-cdh5.12.0</hadoop.version>
         <!--<junit.version>4.12</junit.version>-->
         <jcommander.version>1.27</jcommander.version>
         <!--<maven-shade-plugin.version>3.0.0</maven-shade-plugin.version>-->
@@ -63,6 +64,11 @@
                 <artifactId>nd4j-cuda-8.0-platform</artifactId>
                 <version>${nd4j.version}</version>
             </dependency>
+               <dependency>
+            <groupId>org.nd4j</groupId>
+            <artifactId>nd4j-kryo_2.11</artifactId>
+            <version>${nd4j.version}</version>
+        </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -149,6 +155,10 @@
                 <enabled>true</enabled>
                 <updatePolicy>daily</updatePolicy>  <!-- Optional, update daily -->
             </snapshots>
+        </repository>
+        <repository>
+            <id>cloudera</id>
+            <url>https://repository.cloudera.com/artifactory/cloudera-repos/</url>
         </repository>
     </repositories>
 
