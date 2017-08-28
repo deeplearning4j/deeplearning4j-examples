@@ -74,7 +74,7 @@ public class Cifar {
     private static int freIterations = 30;
     private static int seed = 123;
     private static boolean preProcessCifar = false;//use Zagoruyko's preprocess for Cifar
-    private static int epochs = 35;
+    private static int epochs = 38;
 
     public static void main(String[] args) throws Exception {
         // CudaEnvironment.getInstance().getConfiguration().;
@@ -157,12 +157,12 @@ public class Cifar {
             .layer(8, new ConvolutionLayer.Builder(new int[]{3,3}, new int[] {1,1}, new int[] {0,0}).name("cnn6").convolutionMode(ConvolutionMode.Same)
                 .nOut(96).weightInit(WeightInit.XAVIER_UNIFORM).activation(Activation.RELU)//.momentum(0.9)
                 .learningRate(1e-2).biasInit(1e-2).biasLearningRate(1e-2*2).build())
-            .layer(9, new SubsamplingLayer.Builder(PoolingType.MAX, new int[]{2,2}, new int[] {2,2}, new int[] {1,1}).name("maxpool6").build())
-            .layer(10, new ConvolutionLayer.Builder(new int[]{2,2}, new int[] {1,1}, new int[] {0,0}).name("cnn7").convolutionMode(ConvolutionMode.Same)
+            .layer(9, new SubsamplingLayer.Builder(PoolingType.MAX, new int[]{2,2}).name("maxpool6").build())
+            .layer(10, new ConvolutionLayer.Builder(new int[]{3,3}, new int[] {1,1}, new int[] {1,1}).name("cnn7").convolutionMode(ConvolutionMode.Same)
                 .nOut(128).weightInit(WeightInit.XAVIER_UNIFORM).activation(Activation.RELU)//.momentum(0.9)
                 .learningRate(1e-2).biasInit(1e-2).biasLearningRate(1e-2*2).build())
-            .layer(11, new SubsamplingLayer.Builder(PoolingType.MAX, new int[]{2,2}, new int[] {2,2}, new int[] {1,1}).name("maxpool7").build())
-            .layer(12, new ConvolutionLayer.Builder(new int[]{2,2}, new int[] {1,1}, new int[] {0,0}).name("cnn8").convolutionMode(ConvolutionMode.Same)
+            .layer(11, new SubsamplingLayer.Builder(PoolingType.MAX, new int[]{2,2}).name("maxpool7").build())
+            .layer(12, new ConvolutionLayer.Builder(new int[]{3,3}, new int[] {1,1}, new int[] {1,1}).name("cnn8").convolutionMode(ConvolutionMode.Same)
                 .nOut(128).weightInit(WeightInit.XAVIER_UNIFORM).activation(Activation.RELU)//.momentum(0.9)
                 .learningRate(1e-2).biasInit(1e-2).biasLearningRate(1e-2*2).build())
             .layer(13, new SubsamplingLayer.Builder(PoolingType.MAX, new int[]{2,2}, new int[] {2,2}, new int[] {1,1}).name("maxpool8").build())
