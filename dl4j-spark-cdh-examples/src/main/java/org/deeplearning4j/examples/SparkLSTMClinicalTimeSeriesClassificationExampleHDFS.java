@@ -92,11 +92,15 @@ public class SparkLSTMClinicalTimeSeriesClassificationExampleHDFS{
         // Set Spark Configuration
 
         Configuration config = sc.hadoopConfiguration();
-        config.set("fs.azure", "org.apache.hadoop.fs.azure.NativeAzureFileSystem");
+        //config.set("fs.azure", "org.apache.hadoop.fs.azure.NativeAzureFileSystem");
 
         // Path to sequence and mortality directories via Azure blob container
-        String featuresPath = "wasb:///resources/physionet2012/sequence";
-        String labelsPath = "wasb:///resources/physionet2012/mortality";
+        //String featuresPath = "wasb:///resources/physionet2012/sequence";
+        //String labelsPath = "wasb:///resources/physionet2012/mortality";
+
+        // Path to sequence and mortality directories via HDFS
+        String featuresPath = "/resources/physionet2012/sequence";
+        String labelsPath = "/resources/physionet2012/mortality";
 
         // Convert data to JavaRDD<DataSet>
 
