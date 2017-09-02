@@ -134,6 +134,14 @@ public class Word2VecSentimentRNN {
         System.out.println("p(positive): " + probabilitiesAtLastWord.getDouble(0));
         System.out.println("p(negative): " + probabilitiesAtLastWord.getDouble(1));
 
+        // Confusion Matrix
+        Evaluation eval = new Evaluation(test.getLabels().size());
+        while(test.hasNext()){
+            DataSet next = test.next();
+            INDArray output = net.output(next.getFeatureMatrix()); //get the networks prediction
+            eval.eval(next.getLabels(), output); //check the prediction against the true class
+        }
+
         System.out.println("----- Example complete -----");
     }
 
