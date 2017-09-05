@@ -1,45 +1,15 @@
 package org.deeplearning4j.examples;
 
-import org.apache.commons.io.FileUtils;
-import org.apache.spark.SparkConf;
-import org.apache.spark.api.java.JavaRDD;
-import org.apache.spark.api.java.JavaSparkContext;
-import org.datavec.api.records.reader.SequenceRecordReader;
-import org.datavec.api.records.reader.impl.csv.CSVRecordReader;
-import org.datavec.api.records.reader.impl.csv.CSVSequenceRecordReader;
-import org.datavec.api.split.NumberedFileInputSplit;
-import org.deeplearning4j.eval.ROCMultiClass;
-import org.deeplearning4j.api.storage.StatsStorage;
-import org.deeplearning4j.datasets.datavec.RecordReaderMultiDataSetIterator;
-import org.deeplearning4j.datasets.datavec.SequenceRecordReaderDataSetIterator;
-import org.deeplearning4j.eval.Evaluation;
-import org.deeplearning4j.nn.api.OptimizationAlgorithm;
-import org.deeplearning4j.nn.conf.*;
-import org.deeplearning4j.nn.conf.distribution.UniformDistribution;
-import org.deeplearning4j.nn.conf.layers.GravesLSTM;
-import org.deeplearning4j.nn.conf.layers.RnnOutputLayer;
-import org.deeplearning4j.nn.weights.WeightInit;
-import org.deeplearning4j.spark.impl.multilayer.SparkDl4jMultiLayer;
-import org.nd4j.linalg.activations.Activation;
-import org.nd4j.linalg.dataset.DataSet;
-import org.nd4j.linalg.lossfunctions.LossFunctions;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
-import org.deeplearning4j.spark.impl.paramavg.ParameterAveragingTrainingMaster;
-import org.deeplearning4j.spark.api.TrainingMaster;
-import org.deeplearning4j.spark.impl.graph.SparkComputationGraph;
-import org.apache.spark.input.PortableDataStream;
-import org.apache.spark.api.java.JavaPairRDD;
+import org.apache.commons.io.IOUtils;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.Text;
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
+import org.apache.spark.api.java.function.PairFunction;
 import org.apache.spark.input.PortableDataStream;
 import org.datavec.api.records.reader.SequenceRecordReader;
 import org.datavec.api.records.reader.impl.csv.CSVSequenceRecordReader;
@@ -49,12 +19,29 @@ import org.datavec.spark.functions.pairdata.PairSequenceRecordReaderBytesFunctio
 import org.datavec.spark.functions.pairdata.PathToKeyConverter;
 import org.datavec.spark.functions.pairdata.PathToKeyConverterFilename;
 import org.datavec.spark.util.DataVecSparkUtil;
-import org.deeplearning4j.spark.datavec.DataVecSequencePairDataSetFunction;
-import org.nd4j.linalg.dataset.DataSet;
-import scala.Tuple2;
-import java.util.List;
-import org.apache.hadoop.conf.Configuration;
 import org.deeplearning4j.eval.ROC;
+import org.deeplearning4j.nn.api.OptimizationAlgorithm;
+import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
+import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
+import org.deeplearning4j.nn.conf.Updater;
+import org.deeplearning4j.nn.conf.layers.GravesLSTM;
+import org.deeplearning4j.nn.conf.layers.RnnOutputLayer;
+import org.deeplearning4j.nn.weights.WeightInit;
+import org.deeplearning4j.spark.api.TrainingMaster;
+import org.deeplearning4j.spark.datavec.DataVecSequencePairDataSetFunction;
+import org.deeplearning4j.spark.impl.multilayer.SparkDl4jMultiLayer;
+import org.deeplearning4j.spark.impl.paramavg.ParameterAveragingTrainingMaster;
+import org.deeplearning4j.spark.util.SparkUtils;
+import org.nd4j.linalg.activations.Activation;
+import org.nd4j.linalg.dataset.DataSet;
+import org.nd4j.linalg.lossfunctions.LossFunctions;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import scala.Tuple2;
+
+import java.io.BufferedInputStream;
+import java.io.IOException;
+import java.util.List;
 
 public class SparkLSTMClinicalTimeSeriesClassificationExampleHDFS{
 
@@ -77,9 +64,7 @@ public class SparkLSTMClinicalTimeSeriesClassificationExampleHDFS{
 
 
     public static void main(String[] args) throws IOException, InterruptedException {
-
         // Set up Spark Context
-
         boolean useSparkLocal = false;
 
         SparkConf sparkConf = new SparkConf();
@@ -102,13 +87,9 @@ public class SparkLSTMClinicalTimeSeriesClassificationExampleHDFS{
         String featuresPath = "/resources/physionet2012/sequence";
         String labelsPath = "/resources/physionet2012/mortality";
 
-        // Convert data to JavaRDD<DataSet>
-
-        JavaPairRDD<String, PortableDataStream> featureFiles = sc.binaryFiles(featuresPath);
-        JavaPairRDD<String, PortableDataStream> labelFiles = sc.binaryFiles(labelsPath);
-
-        PathToKeyConverter pathToKeyConverter = new PathToKeyConverterFilename();  
-        JavaPairRDD<Text, BytesPairWritable> rdd = DataVecSparkUtil.combineFilesForSequenceFile(sc, featuresPath, labelsPath, pathToKeyConverter);
+        JavaPairRDD<Integer, String> featureFilePaths = SparkUtils.listPaths(sc, featuresPath).filter(s -> s.endsWith("csv")).mapToPair(new MapFn());
+        JavaPairRDD<Integer, String> labelFilePaths = SparkUtils.listPaths(sc, labelsPath).filter(s -> s.endsWith("csv")).mapToPair(new MapFn());
+        JavaPairRDD<Text, BytesPairWritable> rdd = featureFilePaths.join(labelFilePaths).mapToPair(new MapFn2());
 
         SequenceRecordReader srr1 = new CSVSequenceRecordReader(1, ",");;
         SequenceRecordReader srr2 = new CSVSequenceRecordReader();
@@ -145,9 +126,9 @@ public class SparkLSTMClinicalTimeSeriesClassificationExampleHDFS{
         // Set Training Master
 
         TrainingMaster tm = new ParameterAveragingTrainingMaster.Builder(1)
-                .averagingFrequency(3) 
+                .averagingFrequency(3)
                 .workerPrefetchNumBatches(2)
-                .batchSizePerWorker(BATCH_SIZE) 
+                .batchSizePerWorker(BATCH_SIZE)
                 .build();
 
         // Initialize SparkMultiLayer
@@ -172,5 +153,38 @@ public class SparkLSTMClinicalTimeSeriesClassificationExampleHDFS{
         ROC roc = sparkNet.evaluateROC(JtestData);
         log.info("***** Test Evaluation *****");
         log.info("{}", roc.calculateAUC());
+    }
+
+    private static class MapFn implements PairFunction<String, Integer, String>{
+        @Override
+        public Tuple2<Integer, String> call(String s) throws Exception {
+            int idx = s.lastIndexOf("/");
+            idx = Math.max(idx, s.lastIndexOf("\\"));
+
+            String sub = s.substring(idx+1, s.length()-4 );
+            return new Tuple2<>(Integer.parseInt(sub), s);
+        }
+    }
+
+    private static class MapFn2 implements PairFunction<Tuple2<Integer, Tuple2<String, String>>, Text, BytesPairWritable>{
+
+
+
+        @Override
+        public Tuple2<Text, BytesPairWritable> call(Tuple2<Integer, Tuple2<String, String>> t2) throws Exception {
+            Configuration hc = new Configuration();
+            Text t = new Text(String.valueOf(t2._1()));
+            byte[] first;
+            byte[] second;
+            FileSystem fileSystem = FileSystem.get(hc);
+            try (BufferedInputStream bis = new BufferedInputStream(fileSystem.open(new Path(t2._2()._1())))) {
+                first = IOUtils.toByteArray(bis);
+            }
+            try (BufferedInputStream bis = new BufferedInputStream(fileSystem.open(new Path(t2._2()._2())))) {
+                second = IOUtils.toByteArray(bis);
+            }
+
+            return new Tuple2<>(t, new BytesPairWritable(first, second, t2._2()._1(), t2._2()._1()));
+        }
     }
 }

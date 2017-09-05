@@ -1,28 +1,26 @@
 package org.deeplearning4j.examples;
 
-import org.deeplearning4j.eval.ROC;
-import org.apache.commons.io.FileUtils;
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
 import org.datavec.api.records.reader.SequenceRecordReader;
-import org.datavec.api.records.reader.impl.csv.CSVRecordReader;
 import org.datavec.api.records.reader.impl.csv.CSVSequenceRecordReader;
 import org.datavec.api.split.NumberedFileInputSplit;
-import org.deeplearning4j.api.storage.StatsStorage;
-import org.deeplearning4j.datasets.datavec.RecordReaderMultiDataSetIterator;
 import org.deeplearning4j.datasets.datavec.SequenceRecordReaderDataSetIterator;
-import org.deeplearning4j.eval.Evaluation;
-import org.deeplearning4j.eval.ROCMultiClass;
+import org.deeplearning4j.eval.ROC;
 import org.deeplearning4j.nn.api.OptimizationAlgorithm;
-import org.deeplearning4j.nn.conf.*;
-import org.deeplearning4j.nn.conf.distribution.UniformDistribution;
+import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
+import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
+import org.deeplearning4j.nn.conf.Updater;
 import org.deeplearning4j.nn.conf.layers.GravesLSTM;
 import org.deeplearning4j.nn.conf.layers.RnnOutputLayer;
 import org.deeplearning4j.nn.weights.WeightInit;
+import org.deeplearning4j.spark.api.TrainingMaster;
 import org.deeplearning4j.spark.impl.multilayer.SparkDl4jMultiLayer;
+import org.deeplearning4j.spark.impl.paramavg.ParameterAveragingTrainingMaster;
 import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.dataset.DataSet;
+import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,10 +29,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
-import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
-import org.deeplearning4j.spark.impl.paramavg.ParameterAveragingTrainingMaster;
-import org.deeplearning4j.spark.api.TrainingMaster;
 
 /**
  * EXERCISE 4: train a LSTM using spark to predict mortality using the Physionet
@@ -74,7 +68,7 @@ public class SparkLSTMClinicalTimeSeriesClassificationExample {
         // Step 1: Set up Spark Conf
         boolean useSparkLocal = false;
 
-        SparkConf sparkConf = new SparkConf(); 
+        SparkConf sparkConf = new SparkConf();
 
         if (useSparkLocal) {
             sparkConf.setMaster("local[*]");
@@ -146,7 +140,7 @@ public class SparkLSTMClinicalTimeSeriesClassificationExample {
                 .dropOut(0.25)
                 .list()
                 .layer(0, new GravesLSTM.Builder().nIn(NB_INPUTS).nOut(lstmLayerSize).activation(Activation.TANH).build())
-                .layer(1, new RnnOutputLayer.Builder(LossFunctions.LossFunction.MCXENT).activation(Activation.SOFTMAX)        
+                .layer(1, new RnnOutputLayer.Builder(LossFunctions.LossFunction.MCXENT).activation(Activation.SOFTMAX)
                         .nIn(lstmLayerSize).nOut(numLabelClasses).build())
                 .pretrain(false).backprop(true)
                 .build();
