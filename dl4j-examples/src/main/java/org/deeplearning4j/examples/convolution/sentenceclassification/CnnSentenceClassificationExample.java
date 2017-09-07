@@ -98,6 +98,7 @@ public class CnnSentenceClassificationExample {
             .addVertex("merge", new MergeVertex(), "cnn3", "cnn4", "cnn5")      //Perform depth concatenation
             .addLayer("globalPool", new GlobalPoolingLayer.Builder()
                 .poolingType(globalPoolingType)
+                .dropOut(0.5)
                 .build(), "merge")
             .addLayer("out", new OutputLayer.Builder()
                 .lossFunction(LossFunctions.LossFunction.MCXENT)
