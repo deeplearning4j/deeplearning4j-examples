@@ -94,8 +94,7 @@ public class Cifar {
             new int[] {height, width, channels}, preProcessCifar, true);
         CifarDataSetIterator cifarEval = new CifarDataSetIterator(batchSize, 10000,
             new int[] {height, width, channels}, preProcessCifar, false);
-        int x = cifar.totalExamples();
-        System.out.println("=========="+ x);
+       
         labelStr = String.join(",", cifar.getLabels().toArray(new String[cifar.getLabels().size()]));
      /*   DataNormalization scaler = new ImagePreProcessingScaler(0, 1);
         scaler.fit(cifar);
