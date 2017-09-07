@@ -141,11 +141,11 @@ public class Cifar {
             .l2(5 * 1e-4)
             .list()
             .layer(0, new ConvolutionLayer.Builder(new int[]{4, 4}, new int[]{1, 1}, new int[]{0, 0}).name("cnn1").convolutionMode(ConvolutionMode.Same)
-                .nIn(3).nOut(32).weightInit(WeightInit.XAVIER_UNIFORM).activation(Activation.RELU)//.learningRateDecayPolicy(LearningRatePolicy.Step)
+                .nIn(3).nOut(64).weightInit(WeightInit.XAVIER_UNIFORM).activation(Activation.RELU)//.learningRateDecayPolicy(LearningRatePolicy.Step)
                 .learningRate(1e-2).biasInit(1e-2).biasLearningRate(1e-2*2).build())
             // .layer(1, new SubsamplingLayer.Builder(PoolingType.MAX, new int[]{2,2}).name("maxpool1").build())
             .layer(1, new ConvolutionLayer.Builder(new int[]{4,4}, new int[] {1,1}, new int[] {0,0}).name("cnn2").convolutionMode(ConvolutionMode.Same)
-                .nOut(32).weightInit(WeightInit.XAVIER_UNIFORM).activation(Activation.RELU)
+                .nOut(64).weightInit(WeightInit.XAVIER_UNIFORM).activation(Activation.RELU)
                 .learningRate(1e-2).biasInit(1e-2).biasLearningRate(1e-2*2).build())
             .layer(2, new SubsamplingLayer.Builder(PoolingType.MAX, new int[]{2,2}).name("maxpool2").build())
 
