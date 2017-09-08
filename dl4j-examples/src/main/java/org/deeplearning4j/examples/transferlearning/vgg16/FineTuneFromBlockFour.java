@@ -8,6 +8,7 @@ import org.deeplearning4j.nn.transferlearning.FineTuneConfiguration;
 import org.deeplearning4j.nn.transferlearning.TransferLearning;
 import org.deeplearning4j.util.ModelSerializer;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
+import org.nd4j.linalg.learning.config.Sgd;
 import org.slf4j.Logger;
 
 import java.io.File;
@@ -48,8 +49,7 @@ public class FineTuneFromBlockFour {
         //  For eg. We override the learning rate and updater
         //          But our optimization algorithm remains unchanged (already sgd)
         FineTuneConfiguration fineTuneConf = new FineTuneConfiguration.Builder()
-            .learningRate(1e-5)
-            .updater(Updater.SGD)
+            .updater(new Sgd(1e-5))
             .seed(seed)
             .build();
         ComputationGraph vgg16FineTune = new TransferLearning.GraphBuilder(vgg16Transfer)
