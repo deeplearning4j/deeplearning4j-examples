@@ -14,6 +14,7 @@ import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.factory.Nd4j;
+import org.nd4j.linalg.learning.config.RmsProp;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 
 import java.util.Random;
@@ -54,24 +55,21 @@ public class CompGraphLSTMExample {
 
         //Set up network configuration:
         ComputationGraphConfiguration conf = new NeuralNetConfiguration.Builder()
-            .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT).iterations(1)
-            .learningRate(0.1)
             .seed(12345)
-            .regularization(true)
             .l2(0.001)
             .weightInit(WeightInit.XAVIER)
+            .updater(new RmsProp(0.1))
             .graphBuilder()
             .addInputs("input") //Give the input a name. For a ComputationGraph with multiple inputs, this also defines the input array orders
             //First layer: name "first", with inputs from the input called "input"
             .addLayer("first", new GravesLSTM.Builder().nIn(iter.inputColumns()).nOut(lstmLayerSize)
-                .updater(Updater.RMSPROP).activation(Activation.TANH).build(),"input")
+                .activation(Activation.TANH).build(),"input")
             //Second layer, name "second", with inputs from the layer called "first"
             .addLayer("second", new GravesLSTM.Builder().nIn(lstmLayerSize).nOut(lstmLayerSize)
-                .updater(Updater.RMSPROP)
                 .activation(Activation.TANH).build(),"first")
             //Output layer, name "outputlayer" with inputs from the two layers called "first" and "second"
             .addLayer("outputLayer", new RnnOutputLayer.Builder(LossFunctions.LossFunction.MCXENT)
-                .activation(Activation.SOFTMAX).updater(Updater.RMSPROP)
+                .activation(Activation.SOFTMAX)
                 .nIn(2*lstmLayerSize).nOut(nOut).build(),"first","second")
             .setOutputs("outputLayer")  //List the output. For a ComputationGraph with multiple outputs, this also defines the input array orders
             .backpropType(BackpropType.TruncatedBPTT).tBPTTForwardLength(tbpttLength).tBPTTBackwardLength(tbpttLength)

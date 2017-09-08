@@ -71,14 +71,14 @@ public class MultiGpuLenetMnistExample {
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
             .seed(seed)
             .iterations(iterations) // Training iterations as above
-            .regularization(true).l2(0.0005)
+            .l2(0.0005)
                 /*
                     Uncomment the following for learning decay and bias
                  */
             .learningRate(.01)//.biasLearningRate(0.02)
             //.learningRateDecayPolicy(LearningRatePolicy.Inverse).lrPolicyDecayRate(0.001).lrPolicyPower(0.75)
             .weightInit(WeightInit.XAVIER)
-            .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
+
             .updater(Updater.NESTEROVS)
             .list()
             .layer(0, new ConvolutionLayer.Builder(5, 5)

@@ -1,14 +1,11 @@
 package org.deeplearning4j.examples.misc.centerloss;
 
-import org.deeplearning4j.examples.utilities.MnistDownloader;
-import org.nd4j.linalg.primitives.Pair;
 import org.deeplearning4j.datasets.iterator.impl.MnistDataSetIterator;
 import org.deeplearning4j.examples.unsupervised.variational.plot.PlotUtil;
 import org.deeplearning4j.examples.userInterface.util.GradientsAndParamsListener;
-import org.deeplearning4j.nn.api.OptimizationAlgorithm;
+import org.deeplearning4j.examples.utilities.MnistDownloader;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
-import org.deeplearning4j.nn.conf.Updater;
 import org.deeplearning4j.nn.conf.inputs.InputType;
 import org.deeplearning4j.nn.conf.layers.CenterLossOutputLayer;
 import org.deeplearning4j.nn.conf.layers.ConvolutionLayer;
@@ -21,7 +18,9 @@ import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
+import org.nd4j.linalg.learning.config.Adam;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
+import org.nd4j.linalg.primitives.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -65,12 +64,10 @@ public class CenterLossLenetMnistExample {
         log.info("Build model....");
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
             .seed(seed)
-            .regularization(true).l2(0.0005)
-            .learningRate(0.01)
+            .l2(0.0005)
             .activation(Activation.LEAKYRELU)
             .weightInit(WeightInit.RELU)
-            .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
-            .updater(Updater.ADAM)
+            .updater(new Adam(0.01))
             .list()
             .layer(0, new ConvolutionLayer.Builder(5, 5).stride(1, 1).nOut(32).activation(Activation.LEAKYRELU).build())
             .layer(1, new SubsamplingLayer.Builder(SubsamplingLayer.PoolingType.MAX).kernelSize(2, 2).stride(2, 2).build())

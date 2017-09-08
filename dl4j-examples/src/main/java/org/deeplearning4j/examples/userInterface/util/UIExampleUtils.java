@@ -34,11 +34,9 @@ public class UIExampleUtils {
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
             .seed(seed)
             .iterations(iterations) // Training iterations as above
-            .regularization(true).l2(0.0005)
-            .learningRate(0.01)
+            .l2(0.0005)
             .weightInit(WeightInit.XAVIER)
-            .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
-            .updater(new Nesterovs(0.9))
+            .updater(new Nesterovs(0.01, 0.9))
             .list()
             .layer(0, new ConvolutionLayer.Builder(5, 5)
                 //nIn and nOut specify depth. nIn here is the nChannels and nOut is the number of filters to be applied

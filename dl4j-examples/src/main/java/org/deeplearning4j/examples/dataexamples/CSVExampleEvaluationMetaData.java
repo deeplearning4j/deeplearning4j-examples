@@ -23,6 +23,7 @@ import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.dataset.SplitTestAndTrain;
 import org.nd4j.linalg.dataset.api.preprocessor.DataNormalization;
 import org.nd4j.linalg.dataset.api.preprocessor.NormalizerStandardize;
+import org.nd4j.linalg.learning.config.Sgd;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 
 import java.util.ArrayList;
@@ -90,8 +91,8 @@ public class CSVExampleEvaluationMetaData {
             .iterations(iterations)
             .activation(Activation.TANH)
             .weightInit(WeightInit.XAVIER)
-            .learningRate(0.1)
-            .regularization(true).l2(1e-4)
+            .updater(new Sgd(0.1))
+            .l2(1e-4)
             .list()
             .layer(0, new DenseLayer.Builder().nIn(numInputs).nOut(3).build())
             .layer(1, new OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD)

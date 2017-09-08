@@ -82,10 +82,10 @@ public class GravesLSTMCharModellingExample {
 
 		//Set up network configuration:
 		MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
-			.optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT).iterations(1)
+
 			.learningRate(0.1)
 			.seed(12345)
-			.regularization(true)
+
 			.l2(0.001)
             .weightInit(WeightInit.XAVIER)
             .updater(Updater.RMSPROP)

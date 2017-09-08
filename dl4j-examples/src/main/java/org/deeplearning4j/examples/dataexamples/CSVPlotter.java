@@ -84,7 +84,7 @@ public class CSVPlotter {
 		MultiLayerConfiguration conf = new  NeuralNetConfiguration.Builder()
                 .seed(seed)
                 .iterations(iterations)
-                .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
+
                 .learningRate(learningRate)
                 .weightInit(WeightInit.XAVIER)
                 .updater(Updater.NESTEROVS)

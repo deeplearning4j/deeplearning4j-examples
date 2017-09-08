@@ -146,7 +146,7 @@ public class ImageDrawer extends Application {
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
             .seed(seed)
             .iterations(iterations)
-            .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
+
             .learningRate(learningRate)
             .weightInit(WeightInit.XAVIER)
             .updater(new Nesterovs(0.9))

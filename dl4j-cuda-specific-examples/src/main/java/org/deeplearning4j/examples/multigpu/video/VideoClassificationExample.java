@@ -75,9 +75,9 @@ public class VideoClassificationExample {
         Updater updater = Updater.ADAGRAD;
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
                 .seed(12345)
-                .regularization(true).l2(0.001) //l2 regularization on all layers
-                .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
-                .iterations(1)
+                .l2(0.001) //l2 regularization on all layers
+
+
                 .learningRate(0.04)
                 .list()
                 .layer(0, new ConvolutionLayer.Builder(10, 10)

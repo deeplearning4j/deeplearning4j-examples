@@ -39,7 +39,7 @@ import java.util.Random;
  * Data is downloaded from
  * wget http://github.com/myleott/mnist_png/raw/master/mnist_png.tar.gz
  * followed by tar xzvf mnist_png.tar.gz
- * 
+ *
  * This examples builds on the MnistImagePipelineExample
  * by Saving the Trained Network
  */
@@ -103,10 +103,8 @@ public class MnistImagePipelineExampleSave {
     MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
         .seed(rngseed)
         .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
-        .iterations(1)
-        .learningRate(0.006)
-        .updater(new Nesterovs(0.9))
-        .regularization(true).l2(1e-4)
+        .updater(new Nesterovs(0.006, 0.9))
+        .l2(1e-4)
         .list()
         .layer(0, new DenseLayer.Builder()
             .nIn(height * width)

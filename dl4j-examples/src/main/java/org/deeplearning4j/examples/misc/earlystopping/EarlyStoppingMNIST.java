@@ -23,6 +23,7 @@ import org.deeplearning4j.nn.conf.layers.DenseLayer;
 import org.deeplearning4j.nn.conf.layers.OutputLayer;
 import org.deeplearning4j.nn.conf.layers.SubsamplingLayer;
 import org.deeplearning4j.nn.weights.WeightInit;
+import org.nd4j.linalg.learning.config.Nesterovs;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 
 import java.io.File;
@@ -54,12 +55,10 @@ public class EarlyStoppingMNIST {
         MultiLayerConfiguration configuration = new NeuralNetConfiguration.Builder()
             .seed(seed)
             .iterations(iterations)
-            .regularization(true).l2(0.0005)
-            .learningRate(0.02)
+            .l2(0.0005)
             .weightInit(WeightInit.XAVIER)
             .activation(Activation.RELU)
-            .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
-            .updater(Updater.NESTEROVS)
+            .updater(new Nesterovs(0.02, 0.9))
             .list()
             .layer(0, new ConvolutionLayer.Builder(5, 5)
                 .nIn(nChannels)

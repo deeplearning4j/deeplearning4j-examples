@@ -23,6 +23,7 @@ import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.nd4j.linalg.factory.Nd4j;
+import org.nd4j.linalg.learning.config.Adam;
 import org.nd4j.linalg.lossfunctions.impl.LossMixtureDensity;
 
 /**
@@ -66,10 +67,9 @@ public class MixtureDensityNetwork {
                             .build();
 
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
-                .learningRate(1e-2)
                 .seed(rng.nextInt())
                 .weightInit(WeightInit.XAVIER)
-                .updater(Updater.ADAM)
+                .updater(new Adam(1e-2))
                 .list()
                 .layer(0, new DenseLayer.Builder()
                         .nIn(inputSize)

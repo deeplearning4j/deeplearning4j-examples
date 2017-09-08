@@ -67,13 +67,10 @@ public class MLPMnistTwoLayerExample {
         log.info("Build model....");
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
             .seed(rngSeed) //include a random seed for reproducibility
-            .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT) // use stochastic gradient descent as an optimization algorithm
-            .iterations(1)
             .activation(Activation.RELU)
             .weightInit(WeightInit.XAVIER)
-            .learningRate(rate) //specify the learning rate
-            .updater(new Nesterovs(0.98))
-            .regularization(true).l2(rate * 0.005) // regularize learning model
+            .updater(new Nesterovs(rate, 0.98))
+            .l2(rate * 0.005) // regularize learning model
             .list()
             .layer(0, new DenseLayer.Builder() //create the first input layer.
                     .nIn(numRows * numColumns)
