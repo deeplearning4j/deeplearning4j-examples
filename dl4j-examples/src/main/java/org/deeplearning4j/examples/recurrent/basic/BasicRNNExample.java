@@ -15,6 +15,7 @@ import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.api.ops.impl.indexaccum.IMax;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.factory.Nd4j;
+import org.nd4j.linalg.learning.config.RmsProp;
 import org.nd4j.linalg.lossfunctions.LossFunctions.LossFunction;
 
 import java.util.ArrayList;
@@ -53,12 +54,10 @@ public class BasicRNNExample {
 		// some common parameters
 		NeuralNetConfiguration.Builder builder = new NeuralNetConfiguration.Builder();
 		builder.iterations(10);
-		builder.learningRate(0.001);
-		builder.optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT);
 		builder.seed(123);
 		builder.biasInit(0);
 		builder.miniBatch(false);
-		builder.updater(Updater.RMSPROP);
+		builder.updater(new RmsProp(0.001));
 		builder.weightInit(WeightInit.XAVIER);
 
 		ListBuilder listBuilder = builder.list();

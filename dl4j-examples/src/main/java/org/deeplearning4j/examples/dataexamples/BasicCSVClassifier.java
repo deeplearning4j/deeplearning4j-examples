@@ -21,6 +21,7 @@ import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.nd4j.linalg.dataset.api.preprocessor.DataNormalization;
 import org.nd4j.linalg.dataset.api.preprocessor.NormalizerStandardize;
+import org.nd4j.linalg.learning.config.Sgd;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -90,8 +91,8 @@ public class BasicCSVClassifier {
                     .iterations(iterations)
                     .activation(Activation.TANH)
                     .weightInit(WeightInit.XAVIER)
-                    .learningRate(0.1)
-                    .regularization(true).l2(1e-4)
+                    .updater(new Sgd(0.1))
+                    .l2(1e-4)
                     .list()
                     .layer(0, new DenseLayer.Builder().nIn(numInputs).nOut(3).build())
                     .layer(1, new DenseLayer.Builder().nIn(3).nOut(3).build())
