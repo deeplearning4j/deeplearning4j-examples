@@ -2,19 +2,14 @@ package org.deeplearning4j.examples.convolution;
 
 import org.deeplearning4j.datasets.iterator.impl.MnistDataSetIterator;
 import org.deeplearning4j.eval.Evaluation;
-import org.deeplearning4j.nn.api.OptimizationAlgorithm;
-import org.deeplearning4j.nn.conf.LearningRatePolicy;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
-import org.deeplearning4j.nn.conf.Updater;
 import org.deeplearning4j.nn.conf.inputs.InputType;
 import org.deeplearning4j.nn.conf.layers.*;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
 import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
 import org.nd4j.linalg.activations.Activation;
-import org.nd4j.linalg.api.ndarray.INDArray;
-import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.nd4j.linalg.learning.config.Nesterovs;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
@@ -35,7 +30,6 @@ public class LenetMnistExample {
         int outputNum = 10; // The number of possible outcomes
         int batchSize = 64; // Test batch size
         int nEpochs = 1; // Number of training epochs
-        int iterations = 1; // Number of training iterations
         int seed = 123; //
 
         /*
@@ -58,7 +52,6 @@ public class LenetMnistExample {
 
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
                 .seed(seed)
-                .iterations(iterations) // Training iterations as above
                 .l2(0.0005)
                 .weightInit(WeightInit.XAVIER)
                 .updater(new Nesterovs(0.01, 0.9))

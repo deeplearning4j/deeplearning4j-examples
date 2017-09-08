@@ -69,7 +69,6 @@ public class MultiGpuLenetMnistExample {
         log.info("Build model....");
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
             .seed(seed)
-            .iterations(iterations) // Training iterations as above
             .l2(0.0005)
             .weightInit(WeightInit.XAVIER)
             .updater(new Nesterovs.Builder().learningRate(.01).build())
