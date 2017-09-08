@@ -92,6 +92,7 @@ public class Cifar {
             new int[] {height, width, channels}, preProcessCifar, true);
         CifarDataSetIterator cifarEval = new CifarDataSetIterator(batchSize, 10000,
             new int[] {height, width, channels}, preProcessCifar, false);
+
         labelStr = String.join(",", cifar.getLabels().toArray(new String[cifar.getLabels().size()]));
         for ( int i = 0; i < epochs; i ++ ) {
             System.out.println("Epoch=====================" + i);
