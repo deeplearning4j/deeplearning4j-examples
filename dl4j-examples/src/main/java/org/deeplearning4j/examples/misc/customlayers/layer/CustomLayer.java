@@ -98,7 +98,7 @@ public class CustomLayer extends FeedForwardLayer {
 
         int trainSizeFixed = 0;
         int trainSizeVariable = 0;
-        if(getDropOut() > 0){
+        if(getIDropout() != null){
             //Assume we dup the input for dropout
             trainSizeVariable += inputType.arrayElementsPerExample();
         }

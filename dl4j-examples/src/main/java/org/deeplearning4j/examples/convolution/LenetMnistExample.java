@@ -9,10 +9,7 @@ import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
 import org.deeplearning4j.nn.conf.Updater;
 import org.deeplearning4j.nn.conf.inputs.InputType;
-import org.deeplearning4j.nn.conf.layers.ConvolutionLayer;
-import org.deeplearning4j.nn.conf.layers.DenseLayer;
-import org.deeplearning4j.nn.conf.layers.OutputLayer;
-import org.deeplearning4j.nn.conf.layers.SubsamplingLayer;
+import org.deeplearning4j.nn.conf.layers.*;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
 import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
@@ -66,7 +63,6 @@ public class LenetMnistExample {
                 .iterations(iterations) // Training iterations as above
                 .l2(0.0005)
                 .weightInit(WeightInit.XAVIER)
-
                 .updater(new Nesterovs(0.01, 0.9))
                 .list()
                 .layer(0, new ConvolutionLayer.Builder(5, 5)
@@ -76,7 +72,7 @@ public class LenetMnistExample {
                         .nOut(20)
                         .activation(Activation.IDENTITY)
                         .build())
-                .layer(1, new SubsamplingLayer.Builder(SubsamplingLayer.PoolingType.MAX)
+                .layer(1, new SubsamplingLayer.Builder(PoolingType.MAX)
                         .kernelSize(2,2)
                         .stride(2,2)
                         .build())
@@ -86,7 +82,7 @@ public class LenetMnistExample {
                         .nOut(50)
                         .activation(Activation.IDENTITY)
                         .build())
-                .layer(3, new SubsamplingLayer.Builder(SubsamplingLayer.PoolingType.MAX)
+                .layer(3, new SubsamplingLayer.Builder(PoolingType.MAX)
                         .kernelSize(2,2)
                         .stride(2,2)
                         .build())

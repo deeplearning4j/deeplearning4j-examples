@@ -1,7 +1,6 @@
 package org.deeplearning4j.examples.recurrent.video;
 
 import org.apache.commons.io.FilenameUtils;
-import org.jcodec.api.SequenceEncoder;
 
 import java.awt.*;
 import java.awt.geom.Arc2D;
@@ -66,6 +65,7 @@ public class VideoGenerator {
         }
 
         //Generate a sequence of BufferedImages with the given shapes, and write them to the video
+        /*
         SequenceEncoder enc = new SequenceEncoder(new File(path));
         int currShape = 0;
         int[] labels = new int[nFrames];
@@ -149,6 +149,8 @@ public class VideoGenerator {
         enc.finish();   //write .mp4
 
         return labels;
+        */
+        throw new UnsupportedOperationException("TODO");
     }
 
     public static void generateVideoData(String outputFolder, String filePrefix, int nVideos, int nFrames,
