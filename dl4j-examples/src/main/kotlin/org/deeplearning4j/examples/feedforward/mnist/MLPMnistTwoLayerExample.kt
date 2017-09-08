@@ -65,13 +65,13 @@ object MLPMnistTwoLayerExample {
         log.info("Build model....")
         val conf = NeuralNetConfiguration.Builder()
                 .seed(rngSeed) //include a random seed for reproducibility
-                .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT) // use stochastic gradient descent as an optimization algorithm
-                .iterations(1)
+                 // use stochastic gradient descent as an optimization algorithm
+
                 .activation(Activation.RELU)
                 .weightInit(WeightInit.XAVIER)
                 .learningRate(rate) //specify the learning rate
                 .updater(Updater.NESTEROVS).momentum(0.98) //specify the rate of change of the learning rate.
-                .regularization(true).l2(rate * 0.005) // regularize learning model
+                .l2(rate * 0.005) // regularize learning model
                 .list()
                 .layer(0, DenseLayer.Builder() //create the first input layer.
                         .nIn(numRows * numColumns)

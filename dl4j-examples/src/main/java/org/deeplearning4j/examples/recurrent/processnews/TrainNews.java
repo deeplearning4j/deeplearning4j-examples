@@ -56,6 +56,7 @@ import org.deeplearning4j.util.ModelSerializer;
 import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.api.DataSet;
+import org.nd4j.linalg.learning.config.RmsProp;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 
 import java.io.File;
@@ -111,12 +112,10 @@ public class TrainNews {
         tokenizerFactory.setTokenPreProcessor(new CommonPreprocessor());
         //Set up network configuration
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
-            .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT).iterations(1)
-            .updater(Updater.RMSPROP)
-            .regularization(true).l2(1e-5)
+            .updater(new RmsProp(0.0018))
+            .l2(1e-5)
             .weightInit(WeightInit.XAVIER)
             .gradientNormalization(GradientNormalization.ClipElementWiseAbsoluteValue).gradientNormalizationThreshold(1.0)
-            .learningRate(0.0018)
             .list()
             .layer(0, new GravesLSTM.Builder().nIn(inputNeurons).nOut(200)
                 .activation(Activation.SOFTSIGN).build())

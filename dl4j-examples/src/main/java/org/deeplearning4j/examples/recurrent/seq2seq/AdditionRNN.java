@@ -17,6 +17,7 @@ import org.nd4j.linalg.api.buffer.DataBuffer;
 import org.nd4j.linalg.api.buffer.util.DataTypeUtil;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.api.MultiDataSet;
+import org.nd4j.linalg.learning.config.Adam;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 
 
@@ -89,9 +90,8 @@ public class AdditionRNN {
 
         ComputationGraphConfiguration configuration = new NeuralNetConfiguration.Builder()
                 .weightInit(WeightInit.XAVIER)
-                .learningRate(0.25)
-                .updater(Updater.ADAM)
-                .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT).iterations(nIterations)
+                .updater(new Adam(0.25))
+                .iterations(nIterations)
                 .seed(seed)
                 .graphBuilder()
                 //These are the two inputs to the computation graph

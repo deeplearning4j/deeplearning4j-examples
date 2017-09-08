@@ -65,7 +65,7 @@ public class BasicHyperparameterOptimizationExample {
         MultiLayerSpace hyperparameterSpace = new MultiLayerSpace.Builder()
             //These next few options: fixed values for all models
             .weightInit(WeightInit.XAVIER)
-            .regularization(true)
+
             .l2(0.0001)
             //Learning rate hyperparameter: search over different values, applied to all models
             .learningRate(learningRateHyperparam)

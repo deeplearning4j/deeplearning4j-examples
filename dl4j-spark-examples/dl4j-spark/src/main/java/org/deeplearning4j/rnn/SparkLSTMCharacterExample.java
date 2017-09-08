@@ -105,13 +105,10 @@ public class SparkLSTMCharacterExample {
 
         //Set up network configuration:
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
-            .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT).iterations(1)
-            .learningRate(0.1)
             .seed(12345)
-            .regularization(true)
             .l2(0.001)
             .weightInit(WeightInit.XAVIER)
-            .updater(Updater.RMSPROP)   //To configure: .updater(new RmsProp(0.95))
+            .updater(new RmsProp(0.1))
             .list()
             .layer(0, new GravesLSTM.Builder().nIn(CHAR_TO_INT.size()).nOut(lstmLayerSize).activation(Activation.TANH).build())
             .layer(1, new GravesLSTM.Builder().nIn(lstmLayerSize).nOut(lstmLayerSize).activation(Activation.TANH).build())

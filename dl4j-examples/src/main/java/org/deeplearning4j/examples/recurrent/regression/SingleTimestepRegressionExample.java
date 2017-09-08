@@ -29,6 +29,7 @@ import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.nd4j.linalg.dataset.api.preprocessor.NormalizerMinMaxScaler;
+import org.nd4j.linalg.learning.config.Nesterovs;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -78,11 +79,8 @@ public class SingleTimestepRegressionExample {
         // ----- Configure the network -----
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
             .seed(140)
-            .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
-            .iterations(1)
             .weightInit(WeightInit.XAVIER)
-            .updater(Updater.NESTEROVS)
-            .learningRate(0.0015)
+            .updater(new Nesterovs(0.0015))
             .list()
             .layer(0, new GravesLSTM.Builder().activation(Activation.TANH).nIn(1).nOut(10)
                 .build())

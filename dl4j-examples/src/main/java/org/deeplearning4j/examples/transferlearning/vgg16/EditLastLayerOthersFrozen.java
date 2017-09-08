@@ -16,6 +16,7 @@ import org.deeplearning4j.nn.transferlearning.TransferLearning;
 import org.deeplearning4j.nn.weights.WeightInit;
 import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
+import org.nd4j.linalg.learning.config.Nesterovs;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 import org.slf4j.Logger;
 
@@ -59,9 +60,7 @@ public class EditLastLayerOthersFrozen {
         //In cases where there already exists a setting the fine tune setting will
         //  override the setting for all layers that are not "frozen".
         FineTuneConfiguration fineTuneConf = new FineTuneConfiguration.Builder()
-            .learningRate(5e-5)
-            .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
-            .updater(Updater.NESTEROVS)
+            .updater(new Nesterovs(5e-5))
             .seed(seed)
             .build();
 

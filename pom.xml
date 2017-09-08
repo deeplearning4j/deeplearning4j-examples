@@ -11,22 +11,22 @@
     <description>Examples of training different data sets</description>
     <properties>
         <!-- Change the nd4j.backend property to nd4j-cuda-7.5-platform or nd4j-cuda-8.0-platform to use CUDA GPUs -->
-        <nd4j.backend>nd4j-native-platform</nd4j.backend>
-        <!-- <nd4j.backend>nd4j-cuda-8.0-platform</nd4j.backend> -->
+        <nd4j.backend>nd4j-native</nd4j.backend>
+        <!-- <nd4j.backend>nd4j-cuda-8.0</nd4j.backend> -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <shadedClassifier>bin</shadedClassifier>
 
 
         <java.version>1.8</java.version>
-        <nd4j.version>0.9.1</nd4j.version>
-        <dl4j.version>0.9.1</dl4j.version>
-        <datavec.version>0.9.1</datavec.version>
-        <arbiter.version>0.9.1</arbiter.version>
-        <rl4j.version>0.9.1</rl4j.version>
+        <nd4j.version>0.9.2-SNAPSHOT</nd4j.version>
+        <dl4j.version>0.9.2-SNAPSHOT</dl4j.version>
+        <datavec.version>0.9.2_SNAPSHOT</datavec.version>
+        <arbiter.version>0.9.2-SNAPSHOT</arbiter.version>
+        <rl4j.version>0.9.2-SNAPSHOT</rl4j.version>
 
         <!-- For Spark examples: change the _1 to _2 to switch between Spark 1 and Spark 2 -->
-        <dl4j.spark.version>0.9.1_spark_1</dl4j.spark.version>
-        <datavec.spark.version>0.9.1_spark_1</datavec.spark.version>
+        <dl4j.spark.version>0.9.2_spark_1-SNAPSHOT</dl4j.spark.version>
+        <datavec.spark.version>0.9.2_spark_1-SNAPSHOT</datavec.spark.version>
 
         <!-- Scala binary version: DL4J's Spark and UI functionality are released with both Scala 2.10 and 2.11 support -->
         <scala.binary.version>2.11</scala.binary.version>

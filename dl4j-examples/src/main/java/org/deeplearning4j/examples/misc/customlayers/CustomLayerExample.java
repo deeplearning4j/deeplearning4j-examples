@@ -20,6 +20,7 @@ import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.learning.config.IUpdater;
+import org.nd4j.linalg.learning.config.NoOp;
 import org.nd4j.linalg.learning.config.RmsProp;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 
@@ -62,10 +63,10 @@ public class CustomLayerExample {
         //Let's create a network with our custom layer
 
         MultiLayerConfiguration config = new NeuralNetConfiguration.Builder()
-            .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT).iterations(1)
+
             .updater( new RmsProp(0.95))
             .weightInit(WeightInit.XAVIER)
-            .regularization(true).l2(0.03)
+            .l2(0.03)
             .list()
             .layer(0, new DenseLayer.Builder().activation(Activation.TANH).nIn(nIn).nOut(6).build())     //Standard DenseLayer
             .layer(1, new CustomLayer.Builder()
@@ -151,10 +152,9 @@ public class CustomLayerExample {
 
         MultiLayerConfiguration config = new NeuralNetConfiguration.Builder()
             .seed(12345)
-            .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT).iterations(1)
-            .updater(Updater.NONE).learningRate(1.0)
+            .updater(new NoOp())
             .weightInit(WeightInit.DISTRIBUTION).dist(new NormalDistribution(0,1))              //Larger weight init than normal can help with gradient checks
-            .regularization(true).l2(0.03)
+            .l2(0.03)
             .list()
             .layer(0, new DenseLayer.Builder().activation(Activation.TANH).nIn(nIn).nOut(3).build())    //Standard DenseLayer
             .layer(1, new CustomLayer.Builder()

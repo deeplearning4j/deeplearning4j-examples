@@ -1,5 +1,6 @@
 package org.deeplearning4j.examples.misc.externalerrors;
 
+import org.nd4j.linalg.learning.config.Nesterovs;
 import org.nd4j.linalg.primitives.Pair;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
@@ -38,8 +39,7 @@ public class MultiLayerNetworkExternalErrors {
             .seed(12345)
             .activation(Activation.TANH)
             .weightInit(WeightInit.XAVIER)
-            .updater(Updater.NESTEROVS)
-            .learningRate(0.1)
+            .updater(new Nesterovs(0.1))
             .list()
             .layer(0, new DenseLayer.Builder().nIn(nIn).nOut(3).build())
             .layer(1, new DenseLayer.Builder().nIn(3).nOut(3).build())
@@ -62,7 +62,8 @@ public class MultiLayerNetworkExternalErrors {
         //This modifies the Gradient object in-place
         Gradient gradient = p.getFirst();
         int iteration = 0;
-        model.getUpdater().update(model, gradient, iteration, minibatch);
+        int epoch = 0;
+        model.getUpdater().update(model, gradient, iteration, epoch, minibatch);
 
         //Get a row vector gradient array, and apply it to the parameters to update the model
         INDArray updateVector = gradient.gradient();

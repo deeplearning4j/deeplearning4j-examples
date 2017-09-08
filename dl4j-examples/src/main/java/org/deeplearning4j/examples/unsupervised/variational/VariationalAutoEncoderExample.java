@@ -17,6 +17,7 @@ import org.nd4j.linalg.dataset.api.DataSet;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.indexing.NDArrayIndex;
+import org.nd4j.linalg.learning.config.RmsProp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,10 +59,9 @@ public class VariationalAutoEncoderExample {
         Nd4j.getRandom().setSeed(rngSeed);
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
             .seed(rngSeed)
-            .learningRate(1e-2)
-            .updater(Updater.RMSPROP)
+            .updater(new RmsProp(1e-2))
             .weightInit(WeightInit.XAVIER)
-            .regularization(true).l2(1e-4)
+            .l2(1e-4)
             .list()
             .layer(0, new VariationalAutoencoder.Builder()
                 .activation(Activation.LEAKYRELU)

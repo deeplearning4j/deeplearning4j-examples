@@ -17,6 +17,7 @@ import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.factory.Nd4j;
+import org.nd4j.linalg.learning.config.RmsProp;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 import org.apache.commons.io.FileUtils;
 
@@ -83,13 +84,10 @@ public class MelodyModelingExample {
 
         //Set up network configuration:
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
-            .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT).iterations(1)
-            .learningRate(0.1)
+            .updater(new RmsProp(0.1))
             .seed(12345)
-            .regularization(true)
             .l2(0.001)
             .weightInit(WeightInit.XAVIER)
-            .updater(Updater.RMSPROP)
             .list()
             .layer(0, new GravesLSTM.Builder().nIn(iter.inputColumns()).nOut(lstmLayerSize)
                 .activation(Activation.TANH).build())

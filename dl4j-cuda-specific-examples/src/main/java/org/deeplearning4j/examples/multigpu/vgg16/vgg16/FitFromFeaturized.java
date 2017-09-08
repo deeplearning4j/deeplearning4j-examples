@@ -76,7 +76,7 @@ public class FitFromFeaturized {
         //  override the setting for all layers that are not "frozen".
         FineTuneConfiguration fineTuneConf = new FineTuneConfiguration.Builder()
             .learningRate(3e-5)
-            .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
+
             .updater(Updater.NESTEROVS)
             .seed(seed)
             .build();
