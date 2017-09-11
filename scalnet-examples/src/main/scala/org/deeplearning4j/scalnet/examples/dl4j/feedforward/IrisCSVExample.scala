@@ -48,6 +48,7 @@ object IrisCSVExample extends App {
   private val numClasses = 3
   private val batchSize = 150
   private val learningRate = 0.0015
+  private val momentum = 0.98
   private val decay = 0.005
   private val numDenseOut = 128
   private val numIn = 4
@@ -74,7 +75,8 @@ object IrisCSVExample extends App {
   model.add(Dense(numDenseOut, activation = "relu", regularizer = L2(learningRate * decay)))
   model.add(Dense(numDenseOut, activation = "relu", regularizer = L2(learningRate * decay)))
   model.add(Dense(numOut, activation = "softmax", regularizer = L2(learningRate * decay)))
-  model.compile(lossFunction = LossFunction.MCXENT, optimizer = SGD(learningRate))
+  model.compile(lossFunction = LossFunction.MCXENT,
+    optimizer = SGD(learningRate))
 
   log.info("Train model....")
   model.fit(iter = training_data, nbEpoch = numEpochs, listeners = List(new ScoreIterationListener(scoreFrequency)))
