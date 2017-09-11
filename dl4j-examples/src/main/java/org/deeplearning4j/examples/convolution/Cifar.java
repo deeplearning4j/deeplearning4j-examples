@@ -82,7 +82,6 @@ public class Cifar {
         Cifar cf = new Cifar();
         //train model and eval model
         MultiLayerNetwork model = cf.trainModelByCifarWithNet();//ignore
-
         UIServer uiServer = UIServer.getInstance();
         StatsStorage statsStorage = new InMemoryStatsStorage();
         uiServer.attach(statsStorage);
@@ -109,7 +108,7 @@ public class Cifar {
         System.out.println(eval.stats());
 
         cf.testModelByUnkownImage(model);
-        // cf.saveModel(model, "trainModelByCifarWithAlexNet_model.json");
+        cf.saveModel(model, "trainModelByCifarWithAlexNet_model.json");
     }
 
 
@@ -338,24 +337,5 @@ public class Cifar {
         }
     }
 
-
-
 }
-class ModelFitDeal implements Callable<Object> {
-    private MultiLayerNetwork model;
-    private DataSetIterator dataSetIterator;
-    ModelFitDeal(MultiLayerNetwork model, DataSetIterator dataSetIterator) {
-        this.model = model;
-        this.dataSetIterator = dataSetIterator;
-    }
 
-    public Object call() throws Exception {
-        Date dateTmp1 = new Date();
-        System.out.println("任务执行");
-
-        model.fit(dataSetIterator);
-        Date dateTmp2 = new Date();
-        long time = dateTmp2.getTime() - dateTmp1.getTime();
-        return "任务返回运行结果,当前任务时间【" + time + "毫秒】";
-    }
-}
