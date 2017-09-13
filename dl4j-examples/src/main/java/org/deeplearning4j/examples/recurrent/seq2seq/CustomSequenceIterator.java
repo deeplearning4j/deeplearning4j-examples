@@ -8,9 +8,6 @@ import org.nd4j.linalg.factory.Nd4j;
 
 import java.util.*;
 
-import lombok.Getter;
-import lombok.Setter;
-
 /**
  * Created by susaneraly on 3/27/16.
  * This is class to generate a multidataset from the AdditionRNN problem
@@ -27,8 +24,6 @@ import lombok.Setter;
 
 public class CustomSequenceIterator implements MultiDataSetIterator {
 
-    @Getter
-    @Setter
     private MultiDataSetPreProcessor preProcessor;
     private Random randnumG;
     private final int seed;
@@ -294,5 +289,9 @@ public class CustomSequenceIterator implements MultiDataSetIterator {
         oneHotOrder[13] = "End";
         oneHotMap.put("End", 13);
 
+    }
+
+    public void setPreProcessor(MultiDataSetPreProcessor preProcessor) {
+        this.preProcessor = preProcessor;
     }
 }

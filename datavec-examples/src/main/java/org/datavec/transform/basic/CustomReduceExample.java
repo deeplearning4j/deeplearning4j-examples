@@ -1,41 +1,21 @@
 package org.datavec.transform.basic;
 
-import org.apache.spark.SparkConf;
-import org.apache.spark.api.java.JavaRDD;
-import org.apache.spark.api.java.JavaSparkContext;
-import org.datavec.api.records.reader.RecordReader;
-import org.datavec.api.records.reader.impl.csv.CSVRecordReader;
 import org.datavec.api.transform.ReduceOp;
 import org.datavec.api.transform.TransformProcess;
 import org.datavec.api.transform.metadata.ColumnMetaData;
 import org.datavec.api.transform.metadata.StringMetaData;
 import org.datavec.api.transform.ops.AggregableMultiOp;
 import org.datavec.api.transform.ops.IAggregableReduceOp;
-import org.datavec.api.transform.condition.ConditionOp;
-import org.datavec.api.transform.condition.column.CategoricalColumnCondition;
-import org.datavec.api.transform.condition.column.DoubleColumnCondition;
-import org.datavec.api.transform.filter.ConditionFilter;
 import org.datavec.api.transform.reduce.AggregableColumnReduction;
 import org.datavec.api.transform.reduce.Reducer;
 import org.datavec.api.transform.schema.Schema;
-import org.datavec.api.transform.transform.time.DeriveColumnsFromTimeTransform;
-import org.datavec.api.util.ClassPathResource;
-import org.datavec.api.writable.DoubleWritable;
 import org.datavec.api.writable.UnsafeWritableInjector;
 import org.datavec.api.writable.Writable;
-import org.datavec.spark.transform.SparkTransformExecutor;
-import org.datavec.spark.transform.misc.StringToWritablesFunction;
-import org.datavec.spark.transform.misc.WritablesToStringFunction;
-import org.joda.time.DateTimeFieldType;
 import org.joda.time.DateTimeZone;
 
-import java.lang.UnsupportedOperationException;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
-
-import lombok.Getter;
 
 /**
  * Custom Reduction example for operations on some simple CSV data that involve a custom reduction.
@@ -65,11 +45,16 @@ public class CustomReduceExample {
         }
 
         public static class AggregableSecond<T> implements IAggregableReduceOp<T, Writable> {
-
-            @Getter
             private T firstMet = null;
-            @Getter
             private T elem = null;
+
+            protected T getFirstMet(){
+                return firstMet;
+            }
+
+            protected T getElem(){
+                return elem;
+            }
 
             @Override
             public void accept(T element) {
