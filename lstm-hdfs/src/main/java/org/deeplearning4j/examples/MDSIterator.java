@@ -4,8 +4,6 @@ import java.io.IOException;
 import java.util.NoSuchElementException;
 import java.util.Stack;
 
-import lombok.Getter;
-import lombok.Setter;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.LocatedFileStatus;
 import org.apache.hadoop.fs.Path;
@@ -31,8 +29,6 @@ public class MDSIterator extends BaseDataSetIterator implements MultiDataSetIter
     private final int batchSize;
     private int numSteps = 6;
     private Stack<Path> stack = new Stack<Path>();
-    @Getter
-    @Setter
     private MultiDataSetPreProcessor preProcessor;
 
     private StackSequenceRecordReader ssRecordReader;
@@ -98,6 +94,10 @@ public class MDSIterator extends BaseDataSetIterator implements MultiDataSetIter
         }
     }
 
+    public void setPreProcessor(MultiDataSetPreProcessor preProcessor) {
+        this.preProcessor = preProcessor;
+    }
+
     private void pushAndClear(Path path, String index) {
         String p = stack.isEmpty() ? "" : stack.peek().toUri().toString();
         if (p.contains(index.split("_")[0])) {
@@ -157,7 +157,7 @@ public class MDSIterator extends BaseDataSetIterator implements MultiDataSetIter
 
 
     public MultiDataSetPreProcessor getPreProcessor() {
-        return null;
+        return preProcessor;
     }
 
     @Override

@@ -3,7 +3,6 @@ package org.deeplearning4j.transferlearning.vgg16;
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.spark.SparkConf;
@@ -27,8 +26,6 @@ import org.deeplearning4j.nn.transferlearning.TransferLearningHelper;
 import org.deeplearning4j.nn.weights.WeightInit;
 import org.deeplearning4j.spark.api.TrainingMaster;
 import org.deeplearning4j.spark.impl.graph.SparkComputationGraph;
-import org.deeplearning4j.spark.impl.multilayer.evaluation.IEvaluateFlatMapFunction;
-import org.deeplearning4j.spark.impl.multilayer.evaluation.IEvaluationReduceFunction;
 import org.deeplearning4j.spark.impl.paramavg.ParameterAveragingTrainingMaster;
 import org.deeplearning4j.transferlearning.vgg16.dataHelpers.FeaturizedPreSave;
 import org.deeplearning4j.transferlearning.vgg16.dataHelpers.FlowerDataSetIteratorFeaturized;
@@ -36,6 +33,7 @@ import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
+import org.slf4j.Logger;
 import scala.Tuple2;
 
 import java.io.IOException;
@@ -54,13 +52,13 @@ import java.io.OutputStream;
  * Since the helper avoids the forward pass through the frozen layers we save on computation time when running multiple epochs.
  * In this manner, users can iterate quickly tweaking learning rates, weight initialization etc` to settle on a model that gives good results.
  */
-@Slf4j
 public class FitFromFeaturized {
 
     public static final String featureExtractionLayer = FeaturizedPreSave.featurizeExtractionLayer;
     protected static final long seed = 12345;
     protected static final int numClasses = 5;
     protected static final int nEpochs = 3;
+    private static final Logger log = org.slf4j.LoggerFactory.getLogger(FitFromFeaturized.class);
     @Parameter(names = "-useSparkLocal", description = "Use spark local (helper for testing/running without spark submit)", arity = 1)
     private boolean useSparkLocal = true;
 

@@ -1,12 +1,5 @@
 package org.deeplearning4j.examples.recurrent.encdec;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
-import lombok.Getter;
-import lombok.Setter;
-
 import org.apache.commons.lang3.ArrayUtils;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.api.MultiDataSet;
@@ -15,6 +8,10 @@ import org.nd4j.linalg.dataset.api.iterator.MultiDataSetIterator;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.indexing.INDArrayIndex;
 import org.nd4j.linalg.indexing.NDArrayIndex;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 @SuppressWarnings("serial")
 public class CorpusIterator implements MultiDataSetIterator {
@@ -37,8 +34,6 @@ public class CorpusIterator implements MultiDataSetIterator {
     private int currentMacroBatch = 0;
     private int dictSize;
     private int rowSize;
-    @Getter
-    @Setter
     private MultiDataSetPreProcessor preProcessor;
 
     public CorpusIterator(List<List<Double>> corpus, int batchSize, int batchesPerMacrobatch, int dictSize, int rowSize) {
@@ -155,4 +150,7 @@ public class CorpusIterator implements MultiDataSetIterator {
         ++currentMacroBatch;
     }
 
+    public void setPreProcessor(MultiDataSetPreProcessor preProcessor) {
+        this.preProcessor = preProcessor;
+    }
 }

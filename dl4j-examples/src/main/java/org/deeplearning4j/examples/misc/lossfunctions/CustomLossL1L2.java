@@ -1,6 +1,5 @@
 package org.deeplearning4j.examples.misc.lossfunctions;
 
-import lombok.EqualsAndHashCode;
 import org.nd4j.linalg.activations.IActivation;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.lossfunctions.ILossFunction;
@@ -12,7 +11,6 @@ import org.slf4j.LoggerFactory;
 /**
  * Created by susaneraly on 11/8/16.
  */
-@EqualsAndHashCode
 public class CustomLossL1L2 implements ILossFunction {
 
     /* This example illustrates how to implements a custom loss function that can then be applied to training your neural net
@@ -129,5 +127,21 @@ public class CustomLossL1L2 implements ILossFunction {
         return "CustomLossL1L2()";
     }
 
+    public boolean equals(Object o) {
+        if (o == this) return true;
+        if (!(o instanceof CustomLossL1L2)) return false;
+        final CustomLossL1L2 other = (CustomLossL1L2) o;
+        if (!other.canEqual((Object) this)) return false;
+        return true;
+    }
+
+    public int hashCode() {
+        int result = 1;
+        return result;
+    }
+
+    protected boolean canEqual(Object other) {
+        return other instanceof CustomLossL1L2;
+    }
 }
 

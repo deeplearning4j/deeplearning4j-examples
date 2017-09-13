@@ -1,6 +1,5 @@
 package org.nd4j.examples;
 
-import lombok.extern.slf4j.Slf4j;
 import org.nd4j.linalg.api.memory.MemoryWorkspace;
 import org.nd4j.linalg.api.memory.conf.WorkspaceConfiguration;
 import org.nd4j.linalg.api.memory.enums.AllocationPolicy;
@@ -8,6 +7,7 @@ import org.nd4j.linalg.api.memory.enums.LearningPolicy;
 import org.nd4j.linalg.api.memory.enums.ResetPolicy;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
+import org.slf4j.Logger;
 
 /**
  * This example shows how to use memory Workspaces with ND4j for cyclic workloads.
@@ -22,8 +22,9 @@ import org.nd4j.linalg.factory.Nd4j;
  *
  * @author raver119@gmail.com
  */
-@Slf4j
 public class Nd4jEx15_Workspaces {
+    private static final Logger log = org.slf4j.LoggerFactory.getLogger(Nd4jEx15_Workspaces.class);
+
     public static void main(String[] args) throws Exception {
         /**
          * Each workspace is tied to a JVM Thread via ID. So, same ID in different threads will point to different actual workspaces

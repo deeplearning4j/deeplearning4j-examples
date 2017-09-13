@@ -1,6 +1,5 @@
 package org.deeplearning4j.examples.nlp.paragraphvectors.tools;
 
-import lombok.NonNull;
 import org.deeplearning4j.models.embeddings.inmemory.InMemoryLookupTable;
 import org.deeplearning4j.models.word2vec.VocabWord;
 import org.deeplearning4j.models.word2vec.wordstore.VocabCache;
@@ -23,8 +22,7 @@ public class MeansBuilder {
     private InMemoryLookupTable<VocabWord> lookupTable;
     private TokenizerFactory tokenizerFactory;
 
-    public MeansBuilder(@NonNull InMemoryLookupTable<VocabWord> lookupTable,
-        @NonNull TokenizerFactory tokenizerFactory) {
+    public MeansBuilder(InMemoryLookupTable<VocabWord> lookupTable, TokenizerFactory tokenizerFactory) {
         this.lookupTable = lookupTable;
         this.vocabCache = lookupTable.getVocab();
         this.tokenizerFactory = tokenizerFactory;
@@ -36,7 +34,7 @@ public class MeansBuilder {
      * @param document
      * @return
      */
-    public INDArray documentAsVector(@NonNull LabelledDocument document) {
+    public INDArray documentAsVector(LabelledDocument document) {
         List<String> documentAsTokens = tokenizerFactory.create(document.getContent()).getTokens();
         AtomicInteger cnt = new AtomicInteger(0);
         for (String word: documentAsTokens) {

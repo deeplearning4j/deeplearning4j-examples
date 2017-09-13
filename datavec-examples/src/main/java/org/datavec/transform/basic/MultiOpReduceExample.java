@@ -1,23 +1,13 @@
 package org.datavec.transform.basic;
 
-import lombok.Getter;
 import org.datavec.api.transform.ReduceOp;
 import org.datavec.api.transform.TransformProcess;
-import org.datavec.api.transform.metadata.ColumnMetaData;
-import org.datavec.api.transform.metadata.StringMetaData;
-import org.datavec.api.transform.ops.AggregableMultiOp;
-import org.datavec.api.transform.ops.IAggregableReduceOp;
-import org.datavec.api.transform.reduce.AggregableColumnReduction;
 import org.datavec.api.transform.reduce.Reducer;
 import org.datavec.api.transform.schema.Schema;
-import org.datavec.api.writable.UnsafeWritableInjector;
-import org.datavec.api.writable.Writable;
 import org.joda.time.DateTimeZone;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 
 /**
  * Custom Reduction example for operations on some simple CSV data that involve a custom reduction.

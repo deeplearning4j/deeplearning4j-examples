@@ -1,6 +1,5 @@
 package org.deeplearning4j.examples.multigpu.vgg16;
 
-import lombok.extern.slf4j.Slf4j;
 import org.datavec.api.io.filters.RandomPathFilter;
 import org.datavec.api.io.labels.ParentPathLabelGenerator;
 import org.datavec.api.split.FileSplit;
@@ -22,6 +21,7 @@ import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.nd4j.linalg.dataset.api.preprocessor.ImagePreProcessingScaler;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.primitives.Pair;
+import org.slf4j.Logger;
 
 import java.io.File;
 import java.io.FilenameFilter;
@@ -37,8 +37,8 @@ import java.util.Random;
  *
  * @author Justin Long (crockpotveggies)
  */
-@Slf4j
 public class MultiGpuVGG16TinyImageNetExample {
+    private static final Logger log = org.slf4j.LoggerFactory.getLogger(MultiGpuVGG16TinyImageNetExample.class);
 
     public static void main(String[] args) throws Exception {
         // temp workaround for backend initialization
