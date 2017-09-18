@@ -111,7 +111,7 @@
         <dependency>
             <artifactId>datavec-data-codec</artifactId>
             <groupId>org.datavec</groupId>
-            <version>0.8.1-SNAPSHOT</version>
+            <version>${datavec.version}</version>
         </dependency>
 
         <!-- Used in the feedforward/classification/MLP* and feedforward/regression/RegressionMathFunctions example -->
