@@ -34,6 +34,7 @@ deeplearning4j-scaleout/deeplearning4j-aws/src/main/java/org/deeplearning4j/aws/
 *.log
 .project
 .classpath
+.settings/
 metastore_db
 *.ipynb*
 *.html
