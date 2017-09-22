@@ -8,6 +8,17 @@ import org.nd4j.linalg.ops.transforms.Transforms;
 import java.io.IOException;
 import java.util.Arrays;
 
+/**
+ * Created by shams on 8/12/2017.
+ *
+ * These are common functions that most python numpy users use for their daily work.
+ * I've provided examples for all such users who are coming from the numpy environment to ND4J
+ * You can view the cheatsheat and see the implementations and use cases here
+ *
+ * Following is the link to the cheatsheat I've implemented
+ * https://www.dataquest.io/blog/images/cheat-sheets/numpy-cheat-sheet.pdf
+ */
+
 public class NumpyCheatSheat {
     public static void main(String[] args) {
         /* A. IMPORTING/EXPORTING */
