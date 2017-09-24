@@ -56,9 +56,6 @@ public class NumpyCheatSheat {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        if(true) {
-            return;
-        }
         /* B. CREATING ARRAYS */
         // 1. np.array([1,2,3]) - One dimensional array
         INDArray oneDArray = Nd4j.create(new float[]{1,2,3,4,5,6} , new int[]{6});
@@ -217,24 +214,49 @@ public class NumpyCheatSheat {
         //For the functions below, since there's no boolean type in ND4J so I'll work on 0.0s(false) and 1.0s(true)
         // 9. arr<5 - Returns an array with boolean values
         INDArray lessThan5 = CustomOperations.operateOnElements(
-            CustomOperations.randInt(new int[] {3, 3}, 10),
-            aDouble -> aDouble < 5);
+            CustomOperations.randInt(new int[]{3, 3}, 10),
+            new Predicate<Double>() {
+                @Override
+                public boolean test(Double aDouble) {
+                    return aDouble < 5;
+                }
+            });
         print("Less than 5", lessThan5);
         // 10. (arr1<3) & (arr2>5) - Returns an array with boolean values
         INDArray lessThan3 = CustomOperations.operateOnElements(
-            CustomOperations.randInt(new int[] {3, 3}, 10),
-            aDouble -> aDouble < 3);
+            CustomOperations.randInt(new int[]{3, 3}, 10),
+            new Predicate<Double>() {
+                @Override
+                public boolean test(Double aDouble) {
+                    return aDouble < 3;
+                }
+            });
         INDArray greaterThan5 = CustomOperations.operateOnElements(
-            CustomOperations.randInt(new int[] {3, 3}, 10),
-            aDouble -> aDouble > 5);
-        INDArray compared = CustomOperations.compare(lessThan3, greaterThan5, booleans -> booleans[0] & booleans[1]);
+            CustomOperations.randInt(new int[]{3, 3}, 10),
+            new Predicate<Double>() {
+                @Override
+                public boolean test(Double aDouble) {
+                    return aDouble > 5;
+                }
+            });
+        INDArray compared = CustomOperations.compare(lessThan3, greaterThan5, new Predicate<Boolean[]>() {
+            @Override
+            public boolean test(Boolean[] booleans) {
+                return booleans[0] & booleans[1];
+            }
+        });
         print("Compared", compared);
         // 11. ~arr - Inverts a boolean array
         INDArray inverted = CustomOperations.invert(lessThan5);
         print("Inverted", inverted);
         // 12. arr[arr<5] - Returns array elements smaller than 5
-        INDArray lessThan5Elements = CustomOperations.find(CustomOperations.randInt(new int[] {3, 3}, 10),
-            aDouble -> aDouble < 5);
+        INDArray lessThan5Elements = CustomOperations.find(CustomOperations.randInt(new int[]{3, 3}, 10),
+            new Predicate<Double>() {
+                @Override
+                public boolean test(Double aDouble) {
+                    return aDouble < 5;
+                }
+            });
         print("Less than 5 elements", lessThan5Elements);
 
         /* H. SCALAR MATH */
@@ -329,15 +351,13 @@ public class NumpyCheatSheat {
     private static void print(String tag, INDArray [] arrays) {
         System.out.println("----------------");
         System.out.println(tag);
-        for(int i = 0; i < arrays.length; i++) {
-            System.out.println("\n" + arrays[i]);
+        for (INDArray array : arrays) {
+            System.out.println("\n" + array);
         }
         System.out.println("----------------");
     }
 
     private static String makeResourcePath(String template) {
-        String path = NumpyCheatSheat.class.getResource(template).getPath();
-        System.out.println("Generated Path: " + path);
-        return path;
+        return NumpyCheatSheat.class.getResource(template).getPath();
     }
 }

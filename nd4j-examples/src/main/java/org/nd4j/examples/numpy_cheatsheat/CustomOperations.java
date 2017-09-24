@@ -10,7 +10,6 @@ import org.nd4j.linalg.util.ArrayUtil;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Predicate;
 
 /**
  * Created by shams on 8/12/2017.
@@ -21,6 +20,10 @@ import java.util.function.Predicate;
  * Following is the link to the cheatsheat I've implemented
  * https://www.dataquest.io/blog/images/cheat-sheets/numpy-cheat-sheet.pdf
  */
+interface Predicate<T> {
+    boolean test(T t);
+}
+
 class CustomOperations {
     static INDArray arange(double lower, double upper, double step) {
         List<Float> floats = new ArrayList<>();
@@ -146,7 +149,7 @@ class CustomOperations {
 
     static INDArray operateOnElements(INDArray arr1, Predicate<Double> predicate) {
         INDArray arr2 = Nd4j.create(arr1.shape());
-        Nd4j.copy(arr2, arr1);
+        Nd4j.copy(arr1, arr2);
         for (int i = 0; i < arr2.length(); i++) {
             boolean answer = predicate.test(arr2.getDouble(i));
             arr2.putScalar(i, answer ? 1.0 : 0.0);
@@ -155,7 +158,12 @@ class CustomOperations {
     }
 
     static INDArray invert(INDArray arr1) {
-        return operateOnElements(arr1, aDouble -> aDouble != 1.0);
+        return operateOnElements(arr1, new Predicate<Double>() {
+            @Override
+            public boolean test(Double aDouble) {
+                return aDouble != 1.0;
+            }
+        });
     }
 
     static INDArray compare(INDArray arr1, INDArray arr2, Predicate<Boolean []> predicate) {
