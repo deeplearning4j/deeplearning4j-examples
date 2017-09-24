@@ -25,7 +25,7 @@ public class NumpyCheatSheat {
         // 1. np.loadtxt('file.txt') - From a text file
         INDArray readFromText = null;
         try {
-            readFromText = Nd4j.readNumpy("src/main/java/file.txt");
+            readFromText = Nd4j.readNumpy(makeResourcePath("/numpy_cheatsheet/file.txt"));
             print("Read from text", readFromText);
         } catch (IOException e) {
             e.printStackTrace();
@@ -33,7 +33,7 @@ public class NumpyCheatSheat {
         // 2. np.genfromtxt('file.csv',delimiter=',') - From a CSV file
         INDArray readFromCSV = null;
         try {
-            readFromCSV = Nd4j.readNumpy("src/main/java/file.csv", ",");
+            readFromCSV = Nd4j.readNumpy(makeResourcePath("/numpy_cheatsheet/file.csv"), ",");
             print("Read from csv", readFromCSV);
         } catch (IOException e) {
             e.printStackTrace();
@@ -41,7 +41,7 @@ public class NumpyCheatSheat {
         // 3. np.savetxt('file.txt',arr,delimiter=' ') - Writes to a text file
         try {
             if (readFromText != null) {
-                Nd4j.writeNumpy(readFromText,"src/main/java/saveFile.txt", " "); //This method is deprecated but it's the closest to the numpy one
+                Nd4j.writeNumpy(readFromText, makeResourcePath("/numpy_cheatsheet/saveFile.txt"), " "); //This method is deprecated but it's the closest to the numpy one
                 System.out.println("Printed array into a text file");
             }
         } catch (IOException e) {
@@ -50,13 +50,15 @@ public class NumpyCheatSheat {
         // 4. np.savetxt('file.csv',arr,delimiter=',') - Writes to a CSV file
         try {
             if (readFromCSV != null) {
-                Nd4j.writeNumpy(readFromCSV,"src/main/java/saveFile.csv", ","); //This method is deprecated but it's the closest to the numpy one
+                Nd4j.writeNumpy(readFromCSV, makeResourcePath("/numpy_cheatsheet/saveFile.csv"), ","); //This method is deprecated but it's the closest to the numpy one
                 System.out.println("Printed array into a csv file");
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
-
+        if(true) {
+            return;
+        }
         /* B. CREATING ARRAYS */
         // 1. np.array([1,2,3]) - One dimensional array
         INDArray oneDArray = Nd4j.create(new float[]{1,2,3,4,5,6} , new int[]{6});
@@ -333,5 +335,11 @@ public class NumpyCheatSheat {
             System.out.println("\n" + arrays[i]);
         }
         System.out.println("----------------");
+    }
+
+    private static String makeResourcePath(String template) {
+        String path = NumpyCheatSheat.class.getResource(template).getPath();
+        System.out.println("Generated Path: " + path);
+        return path;
     }
 }
