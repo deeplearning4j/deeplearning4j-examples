@@ -105,8 +105,7 @@ public class NumpyCheatSheat {
         String type = CustomOperations.type(fourByFiveRandomZeroToOne);
         System.out.println("Array type: " + type);
         // 4. arr.astype(dtype) - Convert arr elements to type dtype
-        /*
-         * This can't be implemented as according to the documentation all ND4J arrays should have the same datatype
+        /* This can't be implemented as according to the documentation all ND4J arrays should have the same datatype
          * If you want to set it globally then use the following function
          * ------------------------------------------
          * For 0.4-rc3.8 and earlier:
@@ -138,8 +137,7 @@ public class NumpyCheatSheat {
         INDArray copy = fourByFiveRandomZeroToOne.dup();
         print("Copied array: ", copy);
         // 2. arr.view(dtype) - Creates view of arr elements with type dtype
-        /*
-         * This can't be implemented as according to the documentation all ND4J arrays should have the same datatype.
+        /* This can't be implemented as according to the documentation all ND4J arrays should have the same datatype.
          * So if we change an array's view it's going to be reflected on all the arrays
          */
         // 3. arr.sort() - Sorts arr
