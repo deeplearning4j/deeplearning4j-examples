@@ -1,8 +1,6 @@
 package org.nd4j.examples.numpy_cheatsheat;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.indexing.INDArrayIndex;
@@ -10,10 +8,6 @@ import org.nd4j.linalg.indexing.NDArrayIndex;
 import org.nd4j.linalg.ops.transforms.Transforms;
 import org.nd4j.linalg.util.ArrayUtil;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
@@ -28,40 +22,6 @@ import java.util.function.Predicate;
  * https://www.dataquest.io/blog/images/cheat-sheets/numpy-cheat-sheet.pdf
  */
 class CustomOperations {
-    static INDArray genFromTxt(String fileName, String delimiter) {
-        try(FileInputStream inputStream = new FileInputStream(fileName)) {
-            String[] everything = IOUtils.toString(inputStream).split(delimiter);
-            float[] floats = new float[everything.length];
-
-            for (int i = 0; i < everything.length; i++) {
-                floats[i] = Float.parseFloat(everything[i].trim());
-            }
-            return Nd4j.create(floats, new int[]{everything.length},'c');
-        } catch(Exception e) {
-            e.printStackTrace();
-            return Nd4j.create(new float[]{}, new int[]{0},'c');
-        }
-    }
-
-    static INDArray loadText(String fileName) {
-        return genFromTxt(fileName, "\\r?\\n");
-    }
-
-    static void saveTxt(String fileName, INDArray arr, String delimiter) {
-        try (PrintStream out = new PrintStream(new FileOutputStream(fileName))) {
-            float [] floats = arr.data().asFloat();
-            String [] textArray = new String[floats.length];
-            for(int i = 0; i < floats.length; i++) {
-                textArray[i] = String.valueOf(floats[i]);
-                System.out.println(textArray[i]);
-            }
-
-            out.print(StringUtils.join(textArray, delimiter));
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-    }
-
     static INDArray arange(double lower, double upper, double step) {
         List<Float> floats = new ArrayList<>();
 
@@ -224,10 +184,6 @@ class CustomOperations {
         }
 
         return result;
-    }
-
-    static int [] arange(int start, int end) {
-        return Nd4j.arange(start, end).data().asInt();
     }
 
     static INDArrayIndex [] createIntervalOnDimension(int dimension, boolean inclusive, int... interval) {
