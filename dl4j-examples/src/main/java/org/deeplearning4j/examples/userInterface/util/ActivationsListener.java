@@ -38,19 +38,7 @@ public class ActivationsListener implements IterationListener {
         System.out.println("ActivationsViewer started up after " + (count*sleepMls)/1000.0 + " seconds");
         viewer= ActivationsViewer.staticInstance;
     }
-    @Override
-    public boolean invoked() {
-        if (!invoked) {
-            System.out.println("Invoked");
-        }
-        return invoked;
-    }
 
-    @Override
-    public void invoke() {
-        System.out.println("invoke()");
-        invoked=true;
-    }
     public static String toString(int [] values) {
         StringBuilder sb = new StringBuilder();
         sb.append('[');
@@ -65,7 +53,7 @@ public class ActivationsListener implements IterationListener {
     }
 
     @Override
-    public void iterationDone(Model model, int iteration) {
+    public void iterationDone(Model model, int iteration, int epoch) {
         if (iteration==0) {
             initializeViewer();
             describeLayers();
