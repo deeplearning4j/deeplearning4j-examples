@@ -45,20 +45,6 @@ public class GradientsAndParamsListener implements TrainingListener {
         describeLayers();
     }
 
-    @Override
-    public boolean invoked() {
-        if (!invoked) {
-            System.out.println("Invoked");
-        }
-        return invoked;
-    }
-
-    @Override
-    public void invoke() {
-        System.out.println("invoke()");
-        invoked = true;
-    }
-
     public static String toString(int[] values) {
         StringBuilder sb = new StringBuilder();
         sb.append('[');
@@ -103,7 +89,7 @@ GradientsLister: describeLayers:  miniBatchSize = 32
     }
 
     @Override
-    public void iterationDone(Model model, int iteration) {
+    public void iterationDone(Model model, int iteration, int epoch) {
     }
 
     @Override
