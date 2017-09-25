@@ -2,6 +2,7 @@ package org.deeplearning4j.examples.arbiter;
 
 import org.deeplearning4j.api.storage.StatsStorage;
 import org.deeplearning4j.arbiter.MultiLayerSpace;
+import org.deeplearning4j.arbiter.conf.updater.SgdSpace;
 import org.deeplearning4j.arbiter.layers.DenseLayerSpace;
 import org.deeplearning4j.arbiter.layers.OutputLayerSpace;
 import org.deeplearning4j.arbiter.optimize.api.CandidateGenerator;
@@ -33,6 +34,7 @@ import org.deeplearning4j.ui.storage.FileStatsStorage;
 import org.deeplearning4j.ui.storage.sqlite.J7FileStatsStorage;
 import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
+import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 import org.nd4j.shade.jackson.annotation.JsonProperty;
 
@@ -65,10 +67,10 @@ public class BasicHyperparameterOptimizationExample {
         MultiLayerSpace hyperparameterSpace = new MultiLayerSpace.Builder()
             //These next few options: fixed values for all models
             .weightInit(WeightInit.XAVIER)
-            .regularization(true)
+
             .l2(0.0001)
             //Learning rate hyperparameter: search over different values, applied to all models
-            .learningRate(learningRateHyperparam)
+            .updater(new SgdSpace(learningRateHyperparam))
             .addLayer( new DenseLayerSpace.Builder()
                     //Fixed values for this layer:
                     .nIn(784)  //Fixed input: 28x28=784 pixels for MNIST

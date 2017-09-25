@@ -22,6 +22,7 @@ import org.deeplearning4j.spark.parameterserver.training.SharedTrainingMaster;
 import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
+import org.nd4j.linalg.learning.config.Nesterovs;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 import org.nd4j.parameterserver.distributed.conf.VoidConfiguration;
 import org.nd4j.parameterserver.distributed.enums.ExecutionMode;
@@ -106,12 +107,11 @@ public class MnistMLPDistributedExample {
         //Create network configuration and conduct network training
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
             .seed(12345)
-            .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT).iterations(1)
+
             .activation(Activation.LEAKYRELU)
             .weightInit(WeightInit.XAVIER)
-            .learningRate(0.02)
-            .updater(Updater.NESTEROVS)// To configure: .updater(Nesterovs.builder().momentum(0.9).build())
-            .regularization(true).l2(1e-4)
+            .updater(new Nesterovs(0.02))// To configure: .updater(Nesterovs.builder().momentum(0.9).build())
+            .l2(1e-4)
             .list()
             .layer(0, new DenseLayer.Builder().nIn(28 * 28).nOut(500).build())
             .layer(1, new DenseLayer.Builder().nIn(500).nOut(100).build())

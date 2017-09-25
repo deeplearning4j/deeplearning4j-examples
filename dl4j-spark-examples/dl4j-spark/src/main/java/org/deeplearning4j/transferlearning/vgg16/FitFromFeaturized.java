@@ -16,8 +16,8 @@ import org.deeplearning4j.nn.conf.Updater;
 import org.deeplearning4j.nn.conf.distribution.NormalDistribution;
 import org.deeplearning4j.nn.conf.layers.OutputLayer;
 import org.deeplearning4j.nn.graph.ComputationGraph;
-import org.deeplearning4j.nn.modelimport.keras.InvalidKerasConfigurationException;
-import org.deeplearning4j.nn.modelimport.keras.UnsupportedKerasConfigurationException;
+import org.deeplearning4j.nn.modelimport.keras.exceptions.InvalidKerasConfigurationException;
+import org.deeplearning4j.nn.modelimport.keras.exceptions.UnsupportedKerasConfigurationException;
 import org.deeplearning4j.nn.modelimport.keras.trainedmodels.TrainedModelHelper;
 import org.deeplearning4j.nn.modelimport.keras.trainedmodels.TrainedModels;
 import org.deeplearning4j.nn.transferlearning.FineTuneConfiguration;
@@ -32,6 +32,7 @@ import org.deeplearning4j.transferlearning.vgg16.dataHelpers.FlowerDataSetIterat
 import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
+import org.nd4j.linalg.learning.config.Nesterovs;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 import org.slf4j.Logger;
 import scala.Tuple2;
@@ -102,9 +103,8 @@ public class FitFromFeaturized {
         //In cases where there already exists a setting the fine tune setting will
         //  override the setting for all layers that are not "frozen".
         FineTuneConfiguration fineTuneConf = new FineTuneConfiguration.Builder()
-            .learningRate(3e-5)
-            .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
-            .updater(Updater.NESTEROVS)
+
+            .updater(new Nesterovs(3e-5))
             .seed(seed)
             .build();
 

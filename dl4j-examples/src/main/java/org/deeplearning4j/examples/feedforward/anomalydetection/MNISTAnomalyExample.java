@@ -19,6 +19,7 @@ import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.dataset.SplitTestAndTrain;
 import org.nd4j.linalg.factory.Nd4j;
+import org.nd4j.linalg.learning.config.AdaGrad;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 
 import javax.swing.*;
@@ -44,13 +45,10 @@ public class MNISTAnomalyExample {
         //784 -> 250 -> 10 -> 250 -> 784
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
                 .seed(12345)
-                .iterations(1)
                 .weightInit(WeightInit.XAVIER)
-                .updater(Updater.ADAGRAD)
+                .updater(new AdaGrad(0.05))
                 .activation(Activation.RELU)
-                .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
-                .learningRate(0.05)
-                .regularization(true).l2(0.0001)
+                .l2(0.0001)
                 .list()
                 .layer(0, new DenseLayer.Builder().nIn(784).nOut(250)
                         .build())
