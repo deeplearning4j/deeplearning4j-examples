@@ -38,10 +38,6 @@ class CustomOperations {
             0.0F), new int[] {floats.size()});
     }
 
-    static INDArray full(int [] shape, Number value) {
-        return Nd4j.zeros(shape).add(value);
-    }
-
     static INDArray randInt(int [] shape, int upper) {
         return Transforms.floor(Nd4j.rand(shape).mul(upper));
     }

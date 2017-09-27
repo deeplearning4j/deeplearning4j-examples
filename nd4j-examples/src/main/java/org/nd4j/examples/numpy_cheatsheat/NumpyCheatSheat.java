@@ -79,7 +79,7 @@ public class NumpyCheatSheat {
         INDArray stepOfThreeTillTen = CustomOperations.arange(0, 10, 3);
         print("ARange", stepOfThreeTillTen);
         // 8. np.full((2,3),8) - 2x3 array with all values 8
-        INDArray allEights = CustomOperations.full(new int[] {2,3}, 8);
+        INDArray allEights = Nd4j.valueArrayOf(new int[] {2,3}, 8);
         print("2x3 Eights", allEights);
         // 9. np.random.rand(4,5) - 4x5 array of random floats between 0-1
         INDArray fourByFiveRandomZeroToOne = Nd4j.rand(new int[] {4, 5});
@@ -178,11 +178,11 @@ public class NumpyCheatSheat {
         INDArray concatenatedAxisOne = Nd4j.concat(1, Nd4j.create(3, 2), Nd4j.create(3, 5));
         print("Concatenated arrays on dimension 1", concatenatedAxisOne);
         // 3. np.split(arr,3) - Splits arr into 3 sub-arrays
-        INDArray [] verticalSplit = CustomOperations.split(CustomOperations.full(new int[] {9, 9}, 9),
+        INDArray [] verticalSplit = CustomOperations.split(Nd4j.valueArrayOf(new int[] {9, 9}, 9),
             3);
         print("Vertical Split", verticalSplit);
         // 4. np.hsplit(arr,5) - Splits arr horizontally into 5 sub-arrays
-        INDArray [] horizontalSplit = CustomOperations.hsplit(CustomOperations.full(new int[]{10, 10}, 10),
+        INDArray [] horizontalSplit = CustomOperations.hsplit(Nd4j.valueArrayOf(new int[]{10, 10}, 10),
             5);
         print("Horizontal Split", horizontalSplit);
 
