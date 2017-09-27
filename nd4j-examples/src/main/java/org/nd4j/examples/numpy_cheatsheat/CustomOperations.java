@@ -12,13 +12,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by shams on 8/12/2017.
- *
  * These are some functions which I couldn't find the the ND4J library so I implemented them myself.
  * You can see the usages in the file NumpyCheatSheat.java
  *
  * Following is the link to the cheatsheat I've implemented
  * https://www.dataquest.io/blog/images/cheat-sheets/numpy-cheat-sheet.pdf
+ *
+ * @author Shams Ul Azeem
  */
 interface Predicate<T> {
     boolean test(T t);
