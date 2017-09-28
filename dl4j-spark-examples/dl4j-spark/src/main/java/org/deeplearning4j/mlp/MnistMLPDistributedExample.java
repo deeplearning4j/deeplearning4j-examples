@@ -159,7 +159,8 @@ public class MnistMLPDistributedExample {
         }
 
         //Perform evaluation (distributed)
-        Evaluation evaluation = sparkNet.evaluate(testData);
+//        Evaluation evaluation = sparkNet.evaluate(testData);
+        Evaluation evaluation = sparkNet.doEvaluation(testData, 64, new Evaluation(10))[0]; //Work-around for 0.9.1 bug: see https://deeplearning4j.org/releasenotes
         log.info("***** Evaluation *****");
         log.info(evaluation.stats());
 
