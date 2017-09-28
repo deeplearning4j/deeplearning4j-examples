@@ -56,7 +56,7 @@ public class MnistMLPExample {
     private int batchSizePerWorker = 16;
 
     @Parameter(names = "-numEpochs", description = "Number of epochs for training")
-    private int numEpochs = 15;
+    private int numEpochs = 2;
 
     public static void main(String[] args) throws Exception {
         new MnistMLPExample().entryPoint(args);
@@ -105,7 +105,7 @@ public class MnistMLPExample {
             .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT).iterations(1)
             .activation(Activation.LEAKYRELU)
             .weightInit(WeightInit.XAVIER)
-            .learningRate(0.05)
+            .learningRate(0.1)
             .updater(Updater.NESTEROVS)// To configure: .updater(Nesterovs.builder().momentum(0.9).build())
             .regularization(true).l2(1e-4)
             .list()
