@@ -105,7 +105,7 @@ public class MnistMLPExample {
             .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT).iterations(1)
             .activation(Activation.LEAKYRELU)
             .weightInit(WeightInit.XAVIER)
-            .learningRate(0.02)
+            .learningRate(0.05)
             .updater(Updater.NESTEROVS)// To configure: .updater(Nesterovs.builder().momentum(0.9).build())
             .regularization(true).l2(1e-4)
             .list()
@@ -133,7 +133,8 @@ public class MnistMLPExample {
         }
 
         //Perform evaluation (distributed)
-        Evaluation evaluation = sparkNet.evaluate(testData);
+//        Evaluation evaluation = sparkNet.evaluate(testData);
+        Evaluation evaluation = sparkNet.doEvaluation(testData, 64, new Evaluation(10))[0]; //Work-around for 0.9.1 bug: see https://deeplearning4j.org/releasenotes
         log.info("***** Evaluation *****");
         log.info(evaluation.stats());
 
