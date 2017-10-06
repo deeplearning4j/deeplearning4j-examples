@@ -1,0 +1,926 @@
+{
+  "paragraphs": [
+    {
+      "title": "MultiLayerNetwork And ComputationGraph",
+      "text": "%md\n## DL4j Network Architectures\n\n``` \nDL4j provides the following network architectures:\n1. \u0027MultiLayerNetwork\u0027\n2. \u0027ComputationGraph\u0027\n```\n\n### 1. MultiLayerNetwork\n```\n\u0027MultiLayerNetwork\u0027 consists of a single input layer and a single output layer with a stack of layers in between them.\n```\n\n### 2. ComputationGraph\n```\n\u0027ComputationGraph\u0027 is used for constructing networks with a more complex architecture than \u0027MultiLayerNetwork\u0027. \nIt can have multiple input layers, multiple output layers and the layers in between can be connected through a direct acyclic graph.\n```",
+      "user": "anonymous",
+      "dateUpdated": "Oct 6, 2017 2:58:00 AM",
+      "config": {
+        "colWidth": 12.0,
+        "enabled": true,
+        "results": {},
+        "editorSetting": {
+          "language": "markdown",
+          "editOnDblClick": true
+        },
+        "editorMode": "ace/mode/markdown",
+        "title": false,
+        "tableHide": false,
+        "lineNumbers": false,
+        "editorHide": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "HTML",
+            "data": "\u003cdiv class\u003d\"markdown-body\"\u003e\n\u003ch2\u003eDL4j Network Architectures\u003c/h2\u003e\n\u003cpre\u003e\u003ccode\u003eDL4j provides the following network architectures:\n1. \u0026#39;MultiLayerNetwork\u0026#39;\n2. \u0026#39;ComputationGraph\u0026#39;\n\u003c/code\u003e\u003c/pre\u003e\n\u003ch3\u003e1. MultiLayerNetwork\u003c/h3\u003e\n\u003cpre\u003e\u003ccode\u003e\u0026#39;MultiLayerNetwork\u0026#39; consists of a single input layer and a single output layer with a stack of layers in between them.\n\u003c/code\u003e\u003c/pre\u003e\n\u003ch3\u003e2. ComputationGraph\u003c/h3\u003e\n\u003cpre\u003e\u003ccode\u003e\u0026#39;ComputationGraph\u0026#39; is used for constructing networks with a more complex architecture than \u0026#39;MultiLayerNetwork\u0026#39;. \nIt can have multiple input layers, multiple output layers and the layers in between can be connected through a direct acyclic graph.\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/div\u003e"
+          }
+        ]
+      },
+      "apps": [],
+      "jobName": "paragraph_1507136667257_-1984031242",
+      "id": "20171004-170427_1364811928",
+      "dateCreated": "Oct 4, 2017 5:04:27 PM",
+      "dateStarted": "Oct 6, 2017 2:58:00 AM",
+      "dateFinished": "Oct 6, 2017 2:58:00 AM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "title": "Network Configurations",
+      "text": "%md \n```\nWhether you create \u0027MultiLayerNetwork\u0027 or \u0027ComputationGraph\u0027, you have to provide a network configuration to it through \u0027NeuralNetConfiguration.Builder\u0027.\n\u0027NeuralNetConfiguration.Builder\u0027, as the name tells, provides a Builder pattern to configure a network architecture.\nFor Creating \u0027MultiLayerNetwork\u0027 we build a \u0027MultiLayerConfiguraion\u0027 and for \u0027ComputationGraph\u0027 it\u0027s \u0027ComputationGraphConfiguration\u0027\n\nThe pattern goes like this: [High Level Configuration] -\u003e [Configure Layers] -\u003e [Pretraining and Backprop Configuration] -\u003e [Build Configuration]\n```",
+      "user": "anonymous",
+      "dateUpdated": "Oct 5, 2017 7:53:57 PM",
+      "config": {
+        "colWidth": 12.0,
+        "enabled": true,
+        "results": {},
+        "editorSetting": {
+          "language": "markdown",
+          "editOnDblClick": true
+        },
+        "editorMode": "ace/mode/markdown",
+        "editorHide": true,
+        "title": true,
+        "tableHide": false
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "HTML",
+            "data": "\u003cdiv class\u003d\"markdown-body\"\u003e\n\u003cpre\u003e\u003ccode\u003eWhether you create \u0026#39;MultiLayerNetwork\u0026#39; or \u0026#39;ComputationGraph\u0026#39;, you have to provide a network configuration to it through \u0026#39;NeuralNetConfiguration.Builder\u0026#39;.\n\u0026#39;NeuralNetConfiguration.Builder\u0026#39;, as the name tells, provides a Builder pattern to configure a network architecture.\nFor Creating \u0026#39;MultiLayerNetwork\u0026#39; we build a \u0026#39;MultiLayerConfiguraion\u0026#39; and for \u0026#39;ComputationGraph\u0026#39; it\u0026#39;s \u0026#39;ComputationGraphConfiguration\u0026#39;\n\nThe pattern goes like this: [High Level Configuration] -\u0026gt; [Configure Layers] -\u0026gt; [Pretraining and Backprop Configuration] -\u0026gt; [Build Configuration]\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/div\u003e"
+          }
+        ]
+      },
+      "apps": [],
+      "jobName": "paragraph_1507161219181_1074734623",
+      "id": "20171004-235339_793867740",
+      "dateCreated": "Oct 4, 2017 11:53:39 PM",
+      "dateStarted": "Oct 5, 2017 7:53:57 PM",
+      "dateFinished": "Oct 5, 2017 7:53:57 PM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "title": "Required imports",
+      "text": "import org.deeplearning4j.nn.api.OptimizationAlgorithm\r\nimport org.deeplearning4j.nn.conf.layers.{DenseLayer, OutputLayer}\r\nimport org.deeplearning4j.nn.conf.{ComputationGraphConfiguration, MultiLayerConfiguration, NeuralNetConfiguration}\r\nimport org.deeplearning4j.nn.graph.ComputationGraph\r\nimport org.deeplearning4j.nn.multilayer.MultiLayerNetwork\r\nimport org.deeplearning4j.nn.weights.WeightInit\r\nimport org.nd4j.linalg.activations.Activation\r\nimport org.nd4j.linalg.learning.config.Nesterovs\r\nimport org.nd4j.linalg.lossfunctions.LossFunctions",
+      "user": "anonymous",
+      "dateUpdated": "Oct 6, 2017 4:07:46 AM",
+      "config": {
+        "colWidth": 12.0,
+        "enabled": true,
+        "results": {},
+        "editorSetting": {
+          "language": "scala"
+        },
+        "editorMode": "ace/mode/scala",
+        "title": true,
+        "tableHide": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "import org.deeplearning4j.nn.api.OptimizationAlgorithm\nimport org.deeplearning4j.nn.conf.layers.{DenseLayer, OutputLayer}\nimport org.deeplearning4j.nn.conf.{ComputationGraphConfiguration, MultiLayerConfiguration, NeuralNetConfiguration}\nimport org.deeplearning4j.nn.graph.ComputationGraph\nimport org.deeplearning4j.nn.multilayer.MultiLayerNetwork\nimport org.deeplearning4j.nn.weights.WeightInit\nimport org.nd4j.linalg.activations.Activation\nimport org.nd4j.linalg.learning.config.Nesterovs\nimport org.nd4j.linalg.lossfunctions.LossFunctions\nnull\n"
+          }
+        ]
+      },
+      "apps": [],
+      "jobName": "paragraph_1507161859001_-1516866094",
+      "id": "20171005-000419_678819715",
+      "dateCreated": "Oct 5, 2017 12:04:19 AM",
+      "dateStarted": "Oct 6, 2017 4:07:46 AM",
+      "dateFinished": "Oct 6, 2017 4:07:47 AM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "title": "Building a MultiLayerConfiguration",
+      "text": "\r\nval multiLayerConf: MultiLayerConfiguration \u003d new NeuralNetConfiguration.Builder()\r\n  .seed(123).learningRate(0.1).iterations(1).optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT).updater(new Nesterovs(0.9)) //High Level Configuration\r\n  .list() //For configuring MultiLayerNetwork we call the list method\r\n  .layer(0, new DenseLayer.Builder().nIn(784).nOut(100).weightInit(WeightInit.XAVIER).activation(Activation.RELU).build()) //Configuring Layers\r\n  .layer(1, new OutputLayer.Builder().nIn(100).nOut(10).weightInit(WeightInit.XAVIER).activation(Activation.SIGMOID).build())\r\n  .pretrain(false).backprop(true) //Pretraining and Backprop Configuration\r\n  .build() //Building Configuration",
+      "user": "anonymous",
+      "dateUpdated": "Oct 6, 2017 4:28:00 AM",
+      "config": {
+        "colWidth": 12.0,
+        "enabled": true,
+        "results": {},
+        "editorSetting": {
+          "language": "scala"
+        },
+        "editorMode": "ace/mode/scala",
+        "title": true,
+        "tableHide": true,
+        "editorHide": false
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "multiLayerConf: org.deeplearning4j.nn.conf.MultiLayerConfiguration \u003d\n{\n  \"backprop\" : true,\n  \"backpropType\" : \"Standard\",\n  \"cacheMode\" : \"NONE\",\n  \"confs\" : [ {\n    \"cacheMode\" : \"NONE\",\n    \"iterationCount\" : 0,\n    \"l1ByParam\" : { },\n    \"l2ByParam\" : { },\n    \"layer\" : {\n      \"dense\" : {\n        \"activationFn\" : {\n          \"ReLU\" : { }\n        },\n        \"adamMeanDecay\" : \"NaN\",\n        \"adamVarDecay\" : \"NaN\",\n        \"biasInit\" : 0.0,\n        \"biasLearningRate\" : 0.1,\n        \"dist\" : null,\n        \"dropOut\" : 0.0,\n        \"epsilon\" : \"NaN\",\n        \"gradientNormalization\" : \"None\",\n        \"gradientNormalizationThreshold\" : 1.0,\n        \"iupdater\" : {\n          \"@class\" : \"org.nd4j.linalg.learning.config.Nesterovs\",\n          \"learningRate\" : 0.1,\n          \"momentum\" : 0.9\n   ..."
+          }
+        ]
+      },
+      "apps": [],
+      "jobName": "paragraph_1507162398858_486506629",
+      "id": "20171005-001318_1291178273",
+      "dateCreated": "Oct 5, 2017 12:13:18 AM",
+      "dateStarted": "Oct 6, 2017 4:27:19 AM",
+      "dateFinished": "Oct 6, 2017 4:27:19 AM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "title": "What we did here?",
+      "text": "%md \r\n\r\n**- High Level Configuration**\r\n\r\nFunction         | Details\r\n---------------- | -------------\r\nseed             | For keeping the network outputs reproducable during runs by initializing weights and other network randomizations through a seed\r\nlearningRate     | For identifying the network learning rate\r\niterations       | For identifying the number of optimization iterations\r\noptimizationAlgo | Optimization Algorithm to use for training. Run \u0027OptimizationAlgorithm.values().foreach { println }\u0027 to see different optimization algorithms that you can use.\r\nupdater          | Algorithm to be used for updating the parameters\r\n\r\n---\r\n**- Configuration of Layers**\r\n```\r\nHere we are calling list() to get the \u0027ListBuilder\u0027. It provides us the necessary api to add layers to the network through the \u0027layer(arg1, arg2)\u0027 function.\r\n- The first parameter is the index of the position where the layer needs to be added.\r\n- The second parameter is the type of layer we need to add to the network.\r\n\r\nTo build and add a layer we use a similar builder pattern as:\r\n```\r\nFunction         | Details\r\n---------------- | -------------\r\nnIn              | The number of inputs coming from the previous layer. (In the first layer, it represents the input it is going to take from the input layer)\r\nnOut             | The number of outputs it\u0027s going to send to the next layer. (For output layer it represents the labels here)\r\nweightInit       | The type of weights initialization to use for the layer parameters. Run \u0027WeightInit.values().foreach { println }\u0027 to see different weight initializations that you can use.\r\nactivation       | The activation function between layers. Run \u0027Activation.values().foreach { println }\u0027 to see different activations that you can use.\r\n\r\n---\r\n**- Pretraining and Backprop Configuration**\r\n\r\nFunction         | Details\r\n---------------- | -------------\r\npretrain         | False if training from scratch\r\nbackprop         | Whether to backprop or not\r\n\r\n---\r\n**- Building a Graph**\r\n```\r\nFinally, the last build() call builds the configuration for us\r\n```\r\n",
+      "user": "anonymous",
+      "dateUpdated": "Oct 6, 2017 4:20:40 AM",
+      "config": {
+        "colWidth": 12.0,
+        "enabled": true,
+        "results": {},
+        "editorSetting": {
+          "language": "markdown",
+          "editOnDblClick": true
+        },
+        "editorMode": "ace/mode/markdown",
+        "editorHide": true,
+        "tableHide": false,
+        "title": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "HTML",
+            "data": "\u003cdiv class\u003d\"markdown-body\"\u003e\n\u003cp\u003e\u003cstrong\u003e- High Level Configuration\u003c/strong\u003e\u003c/p\u003e\n\u003ctable\u003e\n  \u003cthead\u003e\n    \u003ctr\u003e\n      \u003cth\u003eFunction \u003c/th\u003e\n      \u003cth\u003eDetails\u003c/th\u003e\n    \u003c/tr\u003e\n  \u003c/thead\u003e\n  \u003ctbody\u003e\n    \u003ctr\u003e\n      \u003ctd\u003eseed \u003c/td\u003e\n      \u003ctd\u003eFor keeping the network outputs reproducable during runs by initializing weights and other network randomizations through a seed\u003c/td\u003e\n    \u003c/tr\u003e\n    \u003ctr\u003e\n      \u003ctd\u003elearningRate \u003c/td\u003e\n      \u003ctd\u003eFor identifying the network learning rate\u003c/td\u003e\n    \u003c/tr\u003e\n    \u003ctr\u003e\n      \u003ctd\u003eiterations \u003c/td\u003e\n      \u003ctd\u003eFor identifying the number of optimization iterations\u003c/td\u003e\n    \u003c/tr\u003e\n    \u003ctr\u003e\n      \u003ctd\u003eoptimizationAlgo \u003c/td\u003e\n      \u003ctd\u003eOptimization Algorithm to use for training. Run \u0026lsquo;OptimizationAlgorithm.values().foreach { println }\u0026rsquo; to see different optimization algorithms that you can use.\u003c/td\u003e\n    \u003c/tr\u003e\n    \u003ctr\u003e\n      \u003ctd\u003eupdater \u003c/td\u003e\n      \u003ctd\u003eAlgorithm to be used for updating the parameters\u003c/td\u003e\n    \u003c/tr\u003e\n  \u003c/tbody\u003e\n\u003c/table\u003e\n\u003chr/\u003e\n\u003cp\u003e\u003cstrong\u003e- Configuration of Layers\u003c/strong\u003e\u003c/p\u003e\n\u003cpre\u003e\u003ccode\u003eHere we are calling list() to get the \u0026#39;ListBuilder\u0026#39;. It provides us the necessary api to add layers to the network through the \u0026#39;layer(arg1, arg2)\u0026#39; function.\r\n- The first parameter is the index of the position where the layer needs to be added.\r\n- The second parameter is the type of layer we need to add to the network.\r\n\r\nTo build and add a layer we use a similar builder pattern as:\n\u003c/code\u003e\u003c/pre\u003e\n\u003ctable\u003e\n  \u003cthead\u003e\n    \u003ctr\u003e\n      \u003cth\u003eFunction \u003c/th\u003e\n      \u003cth\u003eDetails\u003c/th\u003e\n    \u003c/tr\u003e\n  \u003c/thead\u003e\n  \u003ctbody\u003e\n    \u003ctr\u003e\n      \u003ctd\u003enIn \u003c/td\u003e\n      \u003ctd\u003eThe number of inputs coming from the previous layer. (In the first layer, it represents the input it is going to take from the input layer)\u003c/td\u003e\n    \u003c/tr\u003e\n    \u003ctr\u003e\n      \u003ctd\u003enOut \u003c/td\u003e\n      \u003ctd\u003eThe number of outputs it\u0026rsquo;s going to send to the next layer. (For output layer it represents the labels here)\u003c/td\u003e\n    \u003c/tr\u003e\n    \u003ctr\u003e\n      \u003ctd\u003eweightInit \u003c/td\u003e\n      \u003ctd\u003eThe type of weights initialization to use for the layer parameters. Run \u0026lsquo;WeightInit.values().foreach { println }\u0026rsquo; to see different weight initializations that you can use.\u003c/td\u003e\n    \u003c/tr\u003e\n    \u003ctr\u003e\n      \u003ctd\u003eactivation \u003c/td\u003e\n      \u003ctd\u003eThe activation function between layers. Run \u0026lsquo;Activation.values().foreach { println }\u0026rsquo; to see different activations that you can use.\u003c/td\u003e\n    \u003c/tr\u003e\n  \u003c/tbody\u003e\n\u003c/table\u003e\n\u003chr/\u003e\n\u003cp\u003e\u003cstrong\u003e- Pretraining and Backprop Configuration\u003c/strong\u003e\u003c/p\u003e\n\u003ctable\u003e\n  \u003cthead\u003e\n    \u003ctr\u003e\n      \u003cth\u003eFunction \u003c/th\u003e\n      \u003cth\u003eDetails\u003c/th\u003e\n    \u003c/tr\u003e\n  \u003c/thead\u003e\n  \u003ctbody\u003e\n    \u003ctr\u003e\n      \u003ctd\u003epretrain \u003c/td\u003e\n      \u003ctd\u003eFalse if training from scratch\u003c/td\u003e\n    \u003c/tr\u003e\n    \u003ctr\u003e\n      \u003ctd\u003ebackprop \u003c/td\u003e\n      \u003ctd\u003eWhether to backprop or not\u003c/td\u003e\n    \u003c/tr\u003e\n  \u003c/tbody\u003e\n\u003c/table\u003e\n\u003chr/\u003e\n\u003cp\u003e\u003cstrong\u003e- Building a Graph\u003c/strong\u003e\u003c/p\u003e\n\u003cpre\u003e\u003ccode\u003eFinally, the last build() call builds the configuration for us\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/div\u003e"
+          }
+        ]
+      },
+      "apps": [],
+      "jobName": "paragraph_1507258732868_2102175291",
+      "id": "20171006-025852_1017122274",
+      "dateCreated": "Oct 6, 2017 2:58:52 AM",
+      "dateStarted": "Oct 6, 2017 4:20:40 AM",
+      "dateFinished": "Oct 6, 2017 4:20:40 AM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "title": "Reality checking for our MultiLayerConfiguration",
+      "text": "%md\n```\nYou can get your network configuration as String, JSON or YAML for reality checking.\nFor JSON we can use the \u0027toJson()\u0027 function\n```\n",
+      "user": "anonymous",
+      "dateUpdated": "Oct 6, 2017 4:10:21 AM",
+      "config": {
+        "colWidth": 12.0,
+        "enabled": true,
+        "results": {},
+        "editorSetting": {
+          "language": "markdown",
+          "editOnDblClick": true
+        },
+        "editorMode": "ace/mode/markdown",
+        "tableHide": false,
+        "editorHide": true,
+        "title": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "HTML",
+            "data": "\u003cdiv class\u003d\"markdown-body\"\u003e\n\u003cpre\u003e\u003ccode\u003eYou can get your network configuration as String, JSON or YAML for reality checking.\nFor JSON we can use the \u0026#39;toJson()\u0026#39; function\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/div\u003e"
+          }
+        ]
+      },
+      "apps": [],
+      "jobName": "paragraph_1507162655793_1903504535",
+      "id": "20171005-001735_1522259409",
+      "dateCreated": "Oct 5, 2017 12:17:35 AM",
+      "dateStarted": "Oct 6, 2017 4:10:21 AM",
+      "dateFinished": "Oct 6, 2017 4:10:21 AM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "text": "println(multiLayerConf.toJson)",
+      "user": "anonymous",
+      "dateUpdated": "Oct 6, 2017 4:12:13 AM",
+      "config": {
+        "colWidth": 12.0,
+        "enabled": true,
+        "results": {},
+        "editorSetting": {
+          "language": "scala"
+        },
+        "editorMode": "ace/mode/scala"
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "{\n  \"backprop\" : true,\n  \"backpropType\" : \"Standard\",\n  \"cacheMode\" : \"NONE\",\n  \"confs\" : [ {\n    \"cacheMode\" : \"NONE\",\n    \"iterationCount\" : 0,\n    \"l1ByParam\" : { },\n    \"l2ByParam\" : { },\n    \"layer\" : {\n      \"dense\" : {\n        \"activationFn\" : {\n          \"ReLU\" : { }\n        },\n        \"adamMeanDecay\" : \"NaN\",\n        \"adamVarDecay\" : \"NaN\",\n        \"biasInit\" : 0.0,\n        \"biasLearningRate\" : 0.1,\n        \"dist\" : null,\n        \"dropOut\" : 0.0,\n        \"epsilon\" : \"NaN\",\n        \"gradientNormalization\" : \"None\",\n        \"gradientNormalizationThreshold\" : 1.0,\n        \"iupdater\" : {\n          \"@class\" : \"org.nd4j.linalg.learning.config.Nesterovs\",\n          \"learningRate\" : 0.1,\n          \"momentum\" : 0.9\n        },\n        \"l1\" : 0.0,\n        \"l1Bias\" : 0.0,\n        \"l2\" : 0.0,\n        \"l2Bias\" : 0.0,\n        \"layerName\" : \"layer0\",\n        \"learningRate\" : 0.1,\n        \"learningRateSchedule\" : null,\n        \"momentum\" : 0.9,\n        \"momentumSchedule\" : { },\n        \"nin\" : 784,\n        \"nout\" : 100,\n        \"rho\" : \"NaN\",\n        \"rmsDecay\" : \"NaN\",\n        \"updater\" : \"NESTEROVS\",\n        \"weightInit\" : \"XAVIER\"\n      }\n    },\n    \"leakyreluAlpha\" : 0.0,\n    \"learningRateByParam\" : { },\n    \"learningRatePolicy\" : \"None\",\n    \"lrPolicyDecayRate\" : \"NaN\",\n    \"lrPolicyPower\" : \"NaN\",\n    \"lrPolicySteps\" : \"NaN\",\n    \"maxNumLineSearchIterations\" : 5,\n    \"miniBatch\" : true,\n    \"minimize\" : true,\n    \"numIterations\" : 1,\n    \"optimizationAlgo\" : \"STOCHASTIC_GRADIENT_DESCENT\",\n    \"pretrain\" : false,\n    \"seed\" : 123,\n    \"stepFunction\" : null,\n    \"useDropConnect\" : false,\n    \"useRegularization\" : false,\n    \"variables\" : [ ]\n  }, {\n    \"cacheMode\" : \"NONE\",\n    \"iterationCount\" : 0,\n    \"l1ByParam\" : { },\n    \"l2ByParam\" : { },\n    \"layer\" : {\n      \"output\" : {\n        \"activationFn\" : {\n          \"Sigmoid\" : { }\n        },\n        \"adamMeanDecay\" : \"NaN\",\n        \"adamVarDecay\" : \"NaN\",\n        \"biasInit\" : 0.0,\n        \"biasLearningRate\" : 0.1,\n        \"dist\" : null,\n        \"dropOut\" : 0.0,\n        \"epsilon\" : \"NaN\",\n        \"gradientNormalization\" : \"None\",\n        \"gradientNormalizationThreshold\" : 1.0,\n        \"iupdater\" : {\n          \"@class\" : \"org.nd4j.linalg.learning.config.Nesterovs\",\n          \"learningRate\" : 0.1,\n          \"momentum\" : 0.9\n        },\n        \"l1\" : 0.0,\n        \"l1Bias\" : 0.0,\n        \"l2\" : 0.0,\n        \"l2Bias\" : 0.0,\n        \"layerName\" : \"layer1\",\n        \"learningRate\" : 0.1,\n        \"learningRateSchedule\" : null,\n        \"lossFn\" : {\n          \"MCXENT\" : {\n            \"softmaxClipEps\" : 1.0E-10\n          }\n        },\n        \"lossFunction\" : \"MCXENT\",\n        \"momentum\" : 0.9,\n        \"momentumSchedule\" : { },\n        \"nin\" : 100,\n        \"nout\" : 10,\n        \"rho\" : \"NaN\",\n        \"rmsDecay\" : \"NaN\",\n        \"updater\" : \"NESTEROVS\",\n        \"weightInit\" : \"XAVIER\"\n      }\n    },\n    \"leakyreluAlpha\" : 0.0,\n    \"learningRateByParam\" : { },\n    \"learningRatePolicy\" : \"None\",\n    \"lrPolicyDecayRate\" : \"NaN\",\n    \"lrPolicyPower\" : \"NaN\",\n    \"lrPolicySteps\" : \"NaN\",\n    \"maxNumLineSearchIterations\" : 5,\n    \"miniBatch\" : true,\n    \"minimize\" : true,\n    \"numIterations\" : 1,\n    \"optimizationAlgo\" : \"STOCHASTIC_GRADIENT_DESCENT\",\n    \"pretrain\" : false,\n    \"seed\" : 123,\n    \"stepFunction\" : null,\n    \"useDropConnect\" : false,\n    \"useRegularization\" : false,\n    \"variables\" : [ ]\n  } ],\n  \"inferenceWorkspaceMode\" : \"SEPARATE\",\n  \"inputPreProcessors\" : { },\n  \"iterationCount\" : 0,\n  \"pretrain\" : false,\n  \"tbpttBackLength\" : 20,\n  \"tbpttFwdLength\" : 20,\n  \"trainingWorkspaceMode\" : \"NONE\"\n}\n"
+          }
+        ]
+      },
+      "apps": [],
+      "jobName": "paragraph_1507260539212_855946767",
+      "id": "20171006-032859_1092583294",
+      "dateCreated": "Oct 6, 2017 3:28:59 AM",
+      "dateStarted": "Oct 6, 2017 4:12:13 AM",
+      "dateFinished": "Oct 6, 2017 4:12:13 AM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "title": "Creating a MultiLayerNetwork",
+      "text": "%md\n```\nFinally, to create a \u0027MultiLayerNetwork\u0027, we pass the configuration to it as shown below\n```",
+      "user": "anonymous",
+      "dateUpdated": "Oct 6, 2017 4:08:58 AM",
+      "config": {
+        "colWidth": 12.0,
+        "enabled": true,
+        "results": {},
+        "editorSetting": {
+          "language": "markdown",
+          "editOnDblClick": true
+        },
+        "editorMode": "ace/mode/markdown",
+        "editorHide": true,
+        "tableHide": false,
+        "title": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "HTML",
+            "data": "\u003cdiv class\u003d\"markdown-body\"\u003e\n\u003cpre\u003e\u003ccode\u003eFinally, to create a \u0026#39;MultiLayerNetwork\u0026#39;, we pass the configuration to it as shown below\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/div\u003e"
+          }
+        ]
+      },
+      "apps": [],
+      "jobName": "paragraph_1507260936435_-82533542",
+      "id": "20171006-033536_821667427",
+      "dateCreated": "Oct 6, 2017 3:35:36 AM",
+      "dateStarted": "Oct 6, 2017 4:08:58 AM",
+      "dateFinished": "Oct 6, 2017 4:08:58 AM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "text": "val multiLayerNetwork : MultiLayerNetwork \u003d new MultiLayerNetwork(multiLayerConf)",
+      "user": "anonymous",
+      "dateUpdated": "Oct 6, 2017 3:38:16 AM",
+      "config": {
+        "colWidth": 12.0,
+        "enabled": true,
+        "results": {},
+        "editorSetting": {
+          "language": "scala",
+          "editOnDblClick": true
+        },
+        "editorMode": "ace/mode/scala",
+        "editorHide": false,
+        "tableHide": false
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "multiLayerNetwork: org.deeplearning4j.nn.multilayer.MultiLayerNetwork \u003d org.deeplearning4j.nn.multilayer.MultiLayerNetwork@275ee45e\n"
+          }
+        ]
+      },
+      "apps": [],
+      "jobName": "paragraph_1507260962215_1958421456",
+      "id": "20171006-033602_2145744030",
+      "dateCreated": "Oct 6, 2017 3:36:02 AM",
+      "dateStarted": "Oct 6, 2017 3:38:10 AM",
+      "dateFinished": "Oct 6, 2017 3:38:10 AM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "text": "%md\n\n- See tutorial [here](http://someurl) to learn about different ways to feed training data to a network\n- See tutorial [here](http://someurl) to learn about how to fit a network to a specified configuration and training data\n",
+      "user": "anonymous",
+      "dateUpdated": "Oct 6, 2017 4:00:36 AM",
+      "config": {
+        "colWidth": 12.0,
+        "enabled": true,
+        "results": {},
+        "editorSetting": {
+          "language": "markdown",
+          "editOnDblClick": true
+        },
+        "editorMode": "ace/mode/markdown",
+        "editorHide": true,
+        "tableHide": false
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "HTML",
+            "data": "\u003cdiv class\u003d\"markdown-body\"\u003e\n\u003cul\u003e\n  \u003cli\u003eSee tutorial \u003ca href\u003d\"http://someurl\"\u003ehere\u003c/a\u003e to learn about different ways to feed training data to a network\u003c/li\u003e\n  \u003cli\u003eSee tutorial \u003ca href\u003d\"http://someurl\"\u003ehere\u003c/a\u003e to learn about how to fit a network to a specified configuration and training data\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/div\u003e"
+          }
+        ]
+      },
+      "apps": [],
+      "jobName": "paragraph_1507261131347_1525841099",
+      "id": "20171006-033851_966386395",
+      "dateCreated": "Oct 6, 2017 3:38:51 AM",
+      "dateStarted": "Oct 6, 2017 4:00:36 AM",
+      "dateFinished": "Oct 6, 2017 4:00:36 AM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "title": "Building a ComputationGraphConfiguration",
+      "text": "val computationGraphConf : ComputationGraphConfiguration \u003d new NeuralNetConfiguration.Builder()\r\n      .seed(123).learningRate(0.1).iterations(1).optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT).updater(new Nesterovs(0.9)) //High Level Configuration\r\n      .graphBuilder()  //For configuring ComputationGraph we call the graphBuilder method\r\n      .addInputs(\"input\") //Configuring Layers\r\n      .addLayer(\"L1\", new DenseLayer.Builder().nIn(3).nOut(4).build(), \"input\")\r\n      .addLayer(\"out1\", new OutputLayer.Builder().lossFunction(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD).nIn(4).nOut(3).build(), \"L1\")\r\n      .addLayer(\"out2\", new OutputLayer.Builder().lossFunction(LossFunctions.LossFunction.MSE).nIn(4).nOut(2).build(), \"L1\")\r\n      .setOutputs(\"out1\",\"out2\")\r\n      .pretrain(false).backprop(true) //Pretraining and Backprop Configuration\r\n      .build() //Building configuration",
+      "user": "anonymous",
+      "dateUpdated": "Oct 6, 2017 4:27:46 AM",
+      "config": {
+        "colWidth": 12.0,
+        "enabled": true,
+        "results": {},
+        "editorSetting": {
+          "language": "scala"
+        },
+        "editorMode": "ace/mode/scala",
+        "title": true,
+        "tableHide": true,
+        "editorHide": false
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "computationGraphConf: org.deeplearning4j.nn.conf.ComputationGraphConfiguration \u003d\n{\n  \"backprop\" : true,\n  \"backpropType\" : \"Standard\",\n  \"cacheMode\" : \"NONE\",\n  \"defaultConfiguration\" : {\n    \"cacheMode\" : \"NONE\",\n    \"iterationCount\" : 0,\n    \"l1ByParam\" : { },\n    \"l2ByParam\" : { },\n    \"layer\" : null,\n    \"leakyreluAlpha\" : 0.0,\n    \"learningRateByParam\" : { },\n    \"learningRatePolicy\" : \"None\",\n    \"lrPolicyDecayRate\" : \"NaN\",\n    \"lrPolicyPower\" : \"NaN\",\n    \"lrPolicySteps\" : \"NaN\",\n    \"maxNumLineSearchIterations\" : 5,\n    \"miniBatch\" : true,\n    \"minimize\" : true,\n    \"numIterations\" : 1,\n    \"optimizationAlgo\" : \"STOCHASTIC_GRADIENT_DESCENT\",\n    \"pretrain\" : false,\n    \"seed\" : 123,\n    \"stepFunction\" : null,\n    \"useDropConnect\" : false,\n    \"useRegularization\" : false,\n    \"v..."
+          }
+        ]
+      },
+      "apps": [],
+      "jobName": "paragraph_1507162750377_-2097575898",
+      "id": "20171005-001910_831598009",
+      "dateCreated": "Oct 5, 2017 12:19:10 AM",
+      "dateStarted": "Oct 6, 2017 4:27:40 AM",
+      "dateFinished": "Oct 6, 2017 4:27:41 AM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "title": "What we did here?",
+      "text": "%md\n```\nThe only difference here is the way we are building layers.\nInstead of calling the \u0027list()\u0027 function, we call the \u0027graphBuilder()\u0027 to get a \u0027GraphBuilder\u0027 for building our \u0027ComputationGraphConfiguration\u0027\nFollowing table explains what each function of a \u0027GraphBuilder\u0027 does\n```\n\n---\n\nFunction         | Details\n---------------- | -------------\naddInputs        | A list of strings telling the network what layers to use as input layers\naddLayer         | First parameter is the layer name, then the layer object and finally a list of strings defined previously to feed this layer as inputs\nsetOutputs       | A list of strings telling the network what layers to use as output layers\n\n---\n\n```\nThe output layers defined here use another function \u0027lossFunction\u0027 to define what loss function to use. \nUse LossFunctions.LossFunction.values().foreach { println } to see what loss functions are available.\n```",
+      "user": "anonymous",
+      "dateUpdated": "Oct 6, 2017 4:36:09 AM",
+      "config": {
+        "colWidth": 12.0,
+        "enabled": true,
+        "results": {},
+        "editorSetting": {
+          "language": "markdown",
+          "editOnDblClick": true
+        },
+        "editorMode": "ace/mode/markdown",
+        "title": true,
+        "editorHide": true,
+        "tableHide": false
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "HTML",
+            "data": "\u003cdiv class\u003d\"markdown-body\"\u003e\n\u003cpre\u003e\u003ccode\u003eThe only difference here is the way we are building layers.\nInstead of calling the \u0026#39;list()\u0026#39; function, we call the \u0026#39;graphBuilder()\u0026#39; to get a \u0026#39;GraphBuilder\u0026#39; for building our \u0026#39;ComputationGraphConfiguration\u0026#39;\nFollowing table explains what each function of a \u0026#39;GraphBuilder\u0026#39; does\n\u003c/code\u003e\u003c/pre\u003e\n\u003chr/\u003e\n\u003ctable\u003e\n  \u003cthead\u003e\n    \u003ctr\u003e\n      \u003cth\u003eFunction \u003c/th\u003e\n      \u003cth\u003eDetails\u003c/th\u003e\n    \u003c/tr\u003e\n  \u003c/thead\u003e\n  \u003ctbody\u003e\n    \u003ctr\u003e\n      \u003ctd\u003eaddInputs \u003c/td\u003e\n      \u003ctd\u003eA list of strings telling the network what layers to use as input layers\u003c/td\u003e\n    \u003c/tr\u003e\n    \u003ctr\u003e\n      \u003ctd\u003eaddLayer \u003c/td\u003e\n      \u003ctd\u003eFirst parameter is the layer name, then the layer object and finally a list of strings defined previously to feed this layer as inputs\u003c/td\u003e\n    \u003c/tr\u003e\n    \u003ctr\u003e\n      \u003ctd\u003esetOutputs \u003c/td\u003e\n      \u003ctd\u003eA list of strings telling the network what layers to use as output layers\u003c/td\u003e\n    \u003c/tr\u003e\n  \u003c/tbody\u003e\n\u003c/table\u003e\n\u003chr/\u003e\n\u003cpre\u003e\u003ccode\u003eThe output layers defined here use another function \u0026#39;lossFunction\u0026#39; to define what loss function to use. \nUse LossFunctions.LossFunction.values().foreach { println } to see what loss functions are available.\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/div\u003e"
+          }
+        ]
+      },
+      "apps": [],
+      "jobName": "paragraph_1507163695690_1758336540",
+      "id": "20171005-003455_853806",
+      "dateCreated": "Oct 5, 2017 12:34:55 AM",
+      "dateStarted": "Oct 6, 2017 4:36:09 AM",
+      "dateFinished": "Oct 6, 2017 4:36:09 AM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "title": "Reality checking for our ComputationGraphConfiguration",
+      "text": "%md\n```\nYou can get your network configuration as String, JSON or YAML for reality checking.\nFor JSON we can use the \u0027toJson()\u0027 function\n```\n",
+      "user": "anonymous",
+      "dateUpdated": "Oct 6, 2017 4:10:31 AM",
+      "config": {
+        "colWidth": 12.0,
+        "enabled": true,
+        "results": {},
+        "editorSetting": {
+          "language": "markdown",
+          "editOnDblClick": true
+        },
+        "editorMode": "ace/mode/markdown",
+        "title": true,
+        "editorHide": true,
+        "tableHide": false
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "HTML",
+            "data": "\u003cdiv class\u003d\"markdown-body\"\u003e\n\u003cpre\u003e\u003ccode\u003eYou can get your network configuration as String, JSON or YAML for reality checking.\nFor JSON we can use the \u0026#39;toJson()\u0026#39; function\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/div\u003e"
+          }
+        ]
+      },
+      "apps": [],
+      "jobName": "paragraph_1507262729526_-536950997",
+      "id": "20171006-040529_1681699382",
+      "dateCreated": "Oct 6, 2017 4:05:29 AM",
+      "dateStarted": "Oct 6, 2017 4:10:31 AM",
+      "dateFinished": "Oct 6, 2017 4:10:31 AM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "text": "println(computationGraphConf.toJson)",
+      "user": "anonymous",
+      "dateUpdated": "Oct 6, 2017 4:12:32 AM",
+      "config": {
+        "colWidth": 12.0,
+        "enabled": true,
+        "results": {},
+        "editorSetting": {
+          "language": "scala"
+        },
+        "editorMode": "ace/mode/scala"
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "{\n  \"backprop\" : true,\n  \"backpropType\" : \"Standard\",\n  \"cacheMode\" : \"NONE\",\n  \"defaultConfiguration\" : {\n    \"cacheMode\" : \"NONE\",\n    \"iterationCount\" : 0,\n    \"l1ByParam\" : { },\n    \"l2ByParam\" : { },\n    \"layer\" : null,\n    \"leakyreluAlpha\" : 0.0,\n    \"learningRateByParam\" : { },\n    \"learningRatePolicy\" : \"None\",\n    \"lrPolicyDecayRate\" : \"NaN\",\n    \"lrPolicyPower\" : \"NaN\",\n    \"lrPolicySteps\" : \"NaN\",\n    \"maxNumLineSearchIterations\" : 5,\n    \"miniBatch\" : true,\n    \"minimize\" : true,\n    \"numIterations\" : 1,\n    \"optimizationAlgo\" : \"STOCHASTIC_GRADIENT_DESCENT\",\n    \"pretrain\" : false,\n    \"seed\" : 1507262194369,\n    \"stepFunction\" : null,\n    \"useDropConnect\" : false,\n    \"useRegularization\" : false,\n    \"variables\" : [ ]\n  },\n  \"inferenceWorkspaceMode\" : \"SEPARATE\",\n  \"iterationCount\" : 0,\n  \"networkInputs\" : [ \"input\" ],\n  \"networkOutputs\" : [ \"out1\", \"out2\" ],\n  \"pretrain\" : false,\n  \"tbpttBackLength\" : 20,\n  \"tbpttFwdLength\" : 20,\n  \"trainingWorkspaceMode\" : \"NONE\",\n  \"vertexInputs\" : {\n    \"L1\" : [ \"input\" ],\n    \"out1\" : [ \"L1\" ],\n    \"out2\" : [ \"L1\" ]\n  },\n  \"vertices\" : {\n    \"L1\" : {\n      \"LayerVertex\" : {\n        \"layerConf\" : {\n          \"cacheMode\" : \"NONE\",\n          \"iterationCount\" : 0,\n          \"l1ByParam\" : { },\n          \"l2ByParam\" : { },\n          \"layer\" : {\n            \"dense\" : {\n              \"activationFn\" : {\n                \"Sigmoid\" : { }\n              },\n              \"adamMeanDecay\" : \"NaN\",\n              \"adamVarDecay\" : \"NaN\",\n              \"biasInit\" : 0.0,\n              \"biasLearningRate\" : 0.01,\n              \"dist\" : null,\n              \"dropOut\" : 0.0,\n              \"epsilon\" : \"NaN\",\n              \"gradientNormalization\" : \"None\",\n              \"gradientNormalizationThreshold\" : 1.0,\n              \"iupdater\" : {\n                \"@class\" : \"org.nd4j.linalg.learning.config.Sgd\",\n                \"learningRate\" : 0.01\n              },\n              \"l1\" : 0.0,\n              \"l1Bias\" : 0.0,\n              \"l2\" : 0.0,\n              \"l2Bias\" : 0.0,\n              \"layerName\" : \"L1\",\n              \"learningRate\" : 0.01,\n              \"learningRateSchedule\" : null,\n              \"momentum\" : \"NaN\",\n              \"momentumSchedule\" : null,\n              \"nin\" : 3,\n              \"nout\" : 4,\n              \"rho\" : \"NaN\",\n              \"rmsDecay\" : \"NaN\",\n              \"updater\" : \"SGD\",\n              \"weightInit\" : \"XAVIER\"\n            }\n          },\n          \"leakyreluAlpha\" : 0.0,\n          \"learningRateByParam\" : { },\n          \"learningRatePolicy\" : \"None\",\n          \"lrPolicyDecayRate\" : \"NaN\",\n          \"lrPolicyPower\" : \"NaN\",\n          \"lrPolicySteps\" : \"NaN\",\n          \"maxNumLineSearchIterations\" : 5,\n          \"miniBatch\" : true,\n          \"minimize\" : true,\n          \"numIterations\" : 1,\n          \"optimizationAlgo\" : \"STOCHASTIC_GRADIENT_DESCENT\",\n          \"pretrain\" : false,\n          \"seed\" : 1507262194369,\n          \"stepFunction\" : null,\n          \"useDropConnect\" : false,\n          \"useRegularization\" : false,\n          \"variables\" : [ ]\n        },\n        \"outputVertex\" : false,\n        \"preProcessor\" : null\n      }\n    },\n    \"out1\" : {\n      \"LayerVertex\" : {\n        \"layerConf\" : {\n          \"cacheMode\" : \"NONE\",\n          \"iterationCount\" : 0,\n          \"l1ByParam\" : { },\n          \"l2ByParam\" : { },\n          \"layer\" : {\n            \"output\" : {\n              \"activationFn\" : {\n                \"Sigmoid\" : { }\n              },\n              \"adamMeanDecay\" : \"NaN\",\n              \"adamVarDecay\" : \"NaN\",\n              \"biasInit\" : 0.0,\n              \"biasLearningRate\" : 0.01,\n              \"dist\" : null,\n              \"dropOut\" : 0.0,\n              \"epsilon\" : \"NaN\",\n              \"gradientNormalization\" : \"None\",\n              \"gradientNormalizationThreshold\" : 1.0,\n              \"iupdater\" : {\n                \"@class\" : \"org.nd4j.linalg.learning.config.Sgd\",\n                \"learningRate\" : 0.01\n              },\n              \"l1\" : 0.0,\n              \"l1Bias\" : 0.0,\n              \"l2\" : 0.0,\n              \"l2Bias\" : 0.0,\n              \"layerName\" : \"out1\",\n              \"learningRate\" : 0.01,\n              \"learningRateSchedule\" : null,\n              \"lossFn\" : {\n                \"NegativeLogLikelihood\" : {\n                  \"softmaxClipEps\" : 1.0E-10\n                }\n              },\n              \"lossFunction\" : \"NEGATIVELOGLIKELIHOOD\",\n              \"momentum\" : \"NaN\",\n              \"momentumSchedule\" : null,\n              \"nin\" : 4,\n              \"nout\" : 3,\n              \"rho\" : \"NaN\",\n              \"rmsDecay\" : \"NaN\",\n              \"updater\" : \"SGD\",\n              \"weightInit\" : \"XAVIER\"\n            }\n          },\n          \"leakyreluAlpha\" : 0.0,\n          \"learningRateByParam\" : { },\n          \"learningRatePolicy\" : \"None\",\n          \"lrPolicyDecayRate\" : \"NaN\",\n          \"lrPolicyPower\" : \"NaN\",\n          \"lrPolicySteps\" : \"NaN\",\n          \"maxNumLineSearchIterations\" : 5,\n          \"miniBatch\" : true,\n          \"minimize\" : true,\n          \"numIterations\" : 1,\n          \"optimizationAlgo\" : \"STOCHASTIC_GRADIENT_DESCENT\",\n          \"pretrain\" : false,\n          \"seed\" : 1507262194369,\n          \"stepFunction\" : null,\n          \"useDropConnect\" : false,\n          \"useRegularization\" : false,\n          \"variables\" : [ ]\n        },\n        \"outputVertex\" : false,\n        \"preProcessor\" : null\n      }\n    },\n    \"out2\" : {\n      \"LayerVertex\" : {\n        \"layerConf\" : {\n          \"cacheMode\" : \"NONE\",\n          \"iterationCount\" : 0,\n          \"l1ByParam\" : { },\n          \"l2ByParam\" : { },\n          \"layer\" : {\n            \"output\" : {\n              \"activationFn\" : {\n                \"Sigmoid\" : { }\n              },\n              \"adamMeanDecay\" : \"NaN\",\n              \"adamVarDecay\" : \"NaN\",\n              \"biasInit\" : 0.0,\n              \"biasLearningRate\" : 0.01,\n              \"dist\" : null,\n              \"dropOut\" : 0.0,\n              \"epsilon\" : \"NaN\",\n              \"gradientNormalization\" : \"None\",\n              \"gradientNormalizationThreshold\" : 1.0,\n              \"iupdater\" : {\n                \"@class\" : \"org.nd4j.linalg.learning.config.Sgd\",\n                \"learningRate\" : 0.01\n              },\n              \"l1\" : 0.0,\n              \"l1Bias\" : 0.0,\n              \"l2\" : 0.0,\n              \"l2Bias\" : 0.0,\n              \"layerName\" : \"out2\",\n              \"learningRate\" : 0.01,\n              \"learningRateSchedule\" : null,\n              \"lossFn\" : {\n                \"MSE\" : { }\n              },\n              \"lossFunction\" : \"MSE\",\n              \"momentum\" : \"NaN\",\n              \"momentumSchedule\" : null,\n              \"nin\" : 4,\n              \"nout\" : 2,\n              \"rho\" : \"NaN\",\n              \"rmsDecay\" : \"NaN\",\n              \"updater\" : \"SGD\",\n              \"weightInit\" : \"XAVIER\"\n            }\n          },\n          \"leakyreluAlpha\" : 0.0,\n          \"learningRateByParam\" : { },\n          \"learningRatePolicy\" : \"None\",\n          \"lrPolicyDecayRate\" : \"NaN\",\n          \"lrPolicyPower\" : \"NaN\",\n          \"lrPolicySteps\" : \"NaN\",\n          \"maxNumLineSearchIterations\" : 5,\n          \"miniBatch\" : true,\n          \"minimize\" : true,\n          \"numIterations\" : 1,\n          \"optimizationAlgo\" : \"STOCHASTIC_GRADIENT_DESCENT\",\n          \"pretrain\" : false,\n          \"seed\" : 1507262194369,\n          \"stepFunction\" : null,\n          \"useDropConnect\" : false,\n          \"useRegularization\" : false,\n          \"variables\" : [ ]\n        },\n        \"outputVertex\" : false,\n        \"preProcessor\" : null\n      }\n    }\n  }\n}\n"
+          }
+        ]
+      },
+      "apps": [],
+      "jobName": "paragraph_1507262730868_324117042",
+      "id": "20171006-040530_601765710",
+      "dateCreated": "Oct 6, 2017 4:05:30 AM",
+      "dateStarted": "Oct 6, 2017 4:12:32 AM",
+      "dateFinished": "Oct 6, 2017 4:12:32 AM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "title": "Creating a ComputationGraph",
+      "text": "%md\n```\nFinally, to create a \u0027ComputationGraph\u0027, we pass the configuration to it as shown below\n```",
+      "user": "anonymous",
+      "dateUpdated": "Oct 6, 2017 4:09:28 AM",
+      "config": {
+        "colWidth": 12.0,
+        "enabled": true,
+        "results": {},
+        "editorSetting": {
+          "language": "markdown",
+          "editOnDblClick": true
+        },
+        "editorMode": "ace/mode/markdown",
+        "title": true,
+        "editorHide": true,
+        "tableHide": false
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "HTML",
+            "data": "\u003cdiv class\u003d\"markdown-body\"\u003e\n\u003cpre\u003e\u003ccode\u003eFinally, to create a \u0026#39;ComputationGraph\u0026#39;, we pass the configuration to it as shown below\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/div\u003e"
+          }
+        ]
+      },
+      "apps": [],
+      "jobName": "paragraph_1507262732333_1324079433",
+      "id": "20171006-040532_1698179355",
+      "dateCreated": "Oct 6, 2017 4:05:32 AM",
+      "dateStarted": "Oct 6, 2017 4:09:28 AM",
+      "dateFinished": "Oct 6, 2017 4:09:28 AM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "title": "",
+      "text": "val computationGraph : ComputationGraph \u003d new ComputationGraph(computationGraphConf)",
+      "user": "anonymous",
+      "dateUpdated": "Oct 6, 2017 4:08:27 AM",
+      "config": {
+        "colWidth": 12.0,
+        "enabled": true,
+        "results": {},
+        "editorSetting": {
+          "language": "scala"
+        },
+        "editorMode": "ace/mode/scala",
+        "title": false
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "computationGraph: org.deeplearning4j.nn.graph.ComputationGraph \u003d org.deeplearning4j.nn.graph.ComputationGraph@207d25cf\n"
+          }
+        ]
+      },
+      "apps": [],
+      "jobName": "paragraph_1507262734293_877770709",
+      "id": "20171006-040534_1681194931",
+      "dateCreated": "Oct 6, 2017 4:05:34 AM",
+      "dateStarted": "Oct 6, 2017 4:08:00 AM",
+      "dateFinished": "Oct 6, 2017 4:08:00 AM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "title": "More MultiLayerConfiguration Examples",
+      "text": "",
+      "user": "anonymous",
+      "dateUpdated": "Oct 6, 2017 4:12:51 AM",
+      "config": {
+        "colWidth": 12.0,
+        "enabled": true,
+        "results": {},
+        "editorSetting": {
+          "language": "scala"
+        },
+        "editorMode": "ace/mode/scala",
+        "title": true,
+        "tableHide": false,
+        "editorHide": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "apps": [],
+      "jobName": "paragraph_1507163717889_-683048473",
+      "id": "20171005-003517_996988439",
+      "dateCreated": "Oct 5, 2017 12:35:17 AM",
+      "status": "READY",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "title": "Example 1",
+      "user": "anonymous",
+      "dateUpdated": "Oct 5, 2017 12:37:26 AM",
+      "config": {
+        "colWidth": 4.0,
+        "enabled": true,
+        "results": {},
+        "editorSetting": {
+          "language": "scala"
+        },
+        "editorMode": "ace/mode/scala",
+        "title": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "apps": [],
+      "jobName": "paragraph_1507163789650_1108635210",
+      "id": "20171005-003629_722905215",
+      "dateCreated": "Oct 5, 2017 12:36:29 AM",
+      "status": "READY",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "title": "Example 2",
+      "user": "anonymous",
+      "dateUpdated": "Oct 5, 2017 12:37:37 AM",
+      "config": {
+        "colWidth": 4.0,
+        "enabled": true,
+        "results": {},
+        "editorSetting": {
+          "language": "scala"
+        },
+        "editorMode": "ace/mode/scala",
+        "title": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "apps": [],
+      "jobName": "paragraph_1507163805824_-931672884",
+      "id": "20171005-003645_1033200218",
+      "dateCreated": "Oct 5, 2017 12:36:45 AM",
+      "status": "READY",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "title": "Example 3",
+      "user": "anonymous",
+      "dateUpdated": "Oct 5, 2017 12:37:48 AM",
+      "config": {
+        "colWidth": 4.0,
+        "enabled": true,
+        "results": {},
+        "editorSetting": {
+          "language": "scala"
+        },
+        "editorMode": "ace/mode/scala",
+        "title": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "apps": [],
+      "jobName": "paragraph_1507163807785_2077478913",
+      "id": "20171005-003647_1870614088",
+      "dateCreated": "Oct 5, 2017 12:36:47 AM",
+      "status": "READY",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "title": "More ComputationGraphConfiguration Examples",
+      "user": "anonymous",
+      "dateUpdated": "Oct 6, 2017 4:12:59 AM",
+      "config": {
+        "colWidth": 12.0,
+        "enabled": true,
+        "results": {},
+        "editorSetting": {
+          "language": "scala"
+        },
+        "editorMode": "ace/mode/scala",
+        "title": true,
+        "editorHide": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "apps": [],
+      "jobName": "paragraph_1507163830908_-2078963455",
+      "id": "20171005-003710_2016728915",
+      "dateCreated": "Oct 5, 2017 12:37:10 AM",
+      "status": "READY",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "title": "Example 1",
+      "text": "",
+      "user": "anonymous",
+      "dateUpdated": "Oct 5, 2017 12:38:45 AM",
+      "config": {
+        "colWidth": 4.0,
+        "enabled": true,
+        "results": {},
+        "editorSetting": {
+          "language": "scala"
+        },
+        "editorMode": "ace/mode/scala",
+        "title": true,
+        "editorHide": false
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "apps": [],
+      "jobName": "paragraph_1507163900773_357741630",
+      "id": "20171005-003820_61703775",
+      "dateCreated": "Oct 5, 2017 12:38:20 AM",
+      "status": "READY",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "title": "Example 2",
+      "text": "",
+      "user": "anonymous",
+      "dateUpdated": "Oct 6, 2017 4:02:02 AM",
+      "config": {
+        "colWidth": 4.0,
+        "enabled": true,
+        "results": {},
+        "editorSetting": {
+          "language": "scala"
+        },
+        "editorMode": "ace/mode/scala",
+        "title": true,
+        "editorHide": false
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "apps": [],
+      "jobName": "paragraph_1507163919060_-893446469",
+      "id": "20171005-003839_1750323004",
+      "dateCreated": "Oct 5, 2017 12:38:39 AM",
+      "status": "READY",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "title": "Example 3",
+      "text": "",
+      "user": "anonymous",
+      "dateUpdated": "Oct 5, 2017 12:38:56 AM",
+      "config": {
+        "colWidth": 4.0,
+        "enabled": true,
+        "results": {},
+        "editorSetting": {
+          "language": "scala"
+        },
+        "editorMode": "ace/mode/scala",
+        "title": true,
+        "editorHide": false
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "apps": [],
+      "jobName": "paragraph_1507163921687_-228215621",
+      "id": "20171005-003841_25082385",
+      "dateCreated": "Oct 5, 2017 12:38:41 AM",
+      "status": "READY",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "title": "What\u0027s next?",
+      "text": "%md\n\n- See tutorial [here](http://someurl) to learn about different ways to feed training data to a network\n- See tutorial [here](http://someurl) to learn about how to fit a network to a specified configuration and training data\n",
+      "user": "anonymous",
+      "dateUpdated": "Oct 6, 2017 4:01:07 AM",
+      "config": {
+        "colWidth": 12.0,
+        "enabled": true,
+        "results": {},
+        "editorSetting": {
+          "language": "markdown",
+          "editOnDblClick": true
+        },
+        "editorMode": "ace/mode/markdown",
+        "title": true,
+        "editorHide": true,
+        "tableHide": false
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "HTML",
+            "data": "\u003cdiv class\u003d\"markdown-body\"\u003e\n\u003cul\u003e\n  \u003cli\u003eSee tutorial \u003ca href\u003d\"http://someurl\"\u003ehere\u003c/a\u003e to learn about different ways to feed training data to a network\u003c/li\u003e\n  \u003cli\u003eSee tutorial \u003ca href\u003d\"http://someurl\"\u003ehere\u003c/a\u003e to learn about how to fit a network to a specified configuration and training data\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/div\u003e"
+          }
+        ]
+      },
+      "apps": [],
+      "jobName": "paragraph_1507262448727_-681381787",
+      "id": "20171006-040048_813348401",
+      "dateCreated": "Oct 6, 2017 4:00:48 AM",
+      "dateStarted": "Oct 6, 2017 4:01:07 AM",
+      "dateFinished": "Oct 6, 2017 4:01:07 AM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "text": "%md\n",
+      "user": "anonymous",
+      "dateUpdated": "Oct 6, 2017 4:14:34 AM",
+      "config": {
+        "colWidth": 12.0,
+        "enabled": true,
+        "results": {},
+        "editorSetting": {
+          "language": "markdown",
+          "editOnDblClick": true
+        },
+        "editorMode": "ace/mode/markdown",
+        "editorHide": false,
+        "tableHide": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "apps": [],
+      "jobName": "paragraph_1507263195308_2072711016",
+      "id": "20171006-041315_391815286",
+      "dateCreated": "Oct 6, 2017 4:13:15 AM",
+      "status": "READY",
+      "progressUpdateIntervalMs": 500
+    }
+  ],
+  "name": "MultiLayersAndComputationGraph",
+  "id": "2CURYW31H",
+  "angularObjects": {
+    "2CWT7RARK:shared_process": [],
+    "2CWC7QYA6:shared_process": [],
+    "2CVR2R6G6:shared_process": [],
+    "2CU1XH93F:shared_process": [],
+    "2CXK8TUV5:shared_process": [],
+    "2CX9M4BCT:shared_process": [],
+    "2CVUSSZFR:shared_process": [],
+    "2CU8TJ8T2:shared_process": [],
+    "2CU26DDVN:shared_process": [],
+    "2CV8WSRJ6:shared_process": [],
+    "2CTT8WBA1:shared_process": [],
+    "2CU8H2B4E:shared_process": [],
+    "2CVFZ3VYD:shared_process": [],
+    "2CWVWGQHU:shared_process": [],
+    "2CVJSDH9J:shared_process": [],
+    "2CTZZHSW6:shared_process": [],
+    "2CVWWW1SQ:shared_process": [],
+    "2CWHHZQSC:shared_process": [],
+    "2CVCERZ9K:shared_process": []
+  },
+  "config": {},
+  "info": {}
+}
