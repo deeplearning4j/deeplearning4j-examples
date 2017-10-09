@@ -215,7 +215,7 @@ public class NumpyCheatSheat {
         print("Get interval from array ([:,1])", allRowsIndexOne);
         //For the functions below, since there's no boolean type in ND4J so I'll work on 0.0s(false) and 1.0s(true)
         // 9. arr<5 - Returns an array with boolean values
-        INDArray lessThan5 = CustomOperations.booleanOp(CustomOperations.randInt(new int[]{3, 3}, 10);, Conditions.lessThan(5));
+        INDArray lessThan5 = CustomOperations.booleanOp(CustomOperations.randInt(new int[]{3, 3}, 10), Conditions.lessThan(5));
         print("Less than 5", lessThan5);
         // 10. (arr1<3) & (arr2>5) - Returns an array with boolean values
         INDArray lessThan3 = CustomOperations.booleanOp(CustomOperations.randInt(new int[]{3, 3}, 10),
