@@ -3,7 +3,7 @@ package org.nd4j.examples.numpy_cheatsheat;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.indexing.NDArrayIndex;
-import org.nd4j.linalg.ops.transforms.Transforms;
+import static org.nd4j.linalg.ops.transforms.Transforms.*;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -274,7 +274,7 @@ public class NumpyCheatSheat {
         INDArray divideFour = fourByFiveRandomZeroToOne.div(4);
         print("Divide array by 4", divideFour);
         // 5. np.power(arr,5) - Raise each array element to the 5th power
-        INDArray pow = Transforms.pow(fourByFiveRandomZeroToOne, 5);
+        INDArray pow = pow(fourByFiveRandomZeroToOne, 5);
         print("5th power of array", pow);
 
         /* I. VECTOR MATH */
@@ -292,32 +292,32 @@ public class NumpyCheatSheat {
         INDArray vectorDivide = fourByFiveRandomZeroToOne.div(secondArray);
         print("Vector divide", vectorDivide);
         // 5. np.power(arr1,arr2) - Elementwise raise arr1 raised to the power of arr2
-        INDArray power = Transforms.pow(fourByFiveRandomZeroToOne, secondArray);
+        INDArray power = pow(fourByFiveRandomZeroToOne, secondArray);
         print("Vector power", power);
         // 6. np.array_equal(arr1,arr2) - Returns True if the arrays have the same elements and shape
         boolean areArraysEquals1 = CustomOperations.Equal(fourByFiveRandomZeroToOne, threeByFourOnes);
         boolean areArraysEquals2 = CustomOperations.Equal(fourByFiveRandomZeroToOne, fourByFiveRandomZeroToOne);
         System.out.println("Are arrays equals: 1. " + areArraysEquals1 + ", 2. " + areArraysEquals2);
         // 7. np.sqrt(arr) - Square root of each element in the array
-        INDArray sqrt = Transforms.sqrt(fourByFiveRandomZeroToOne);
+        INDArray sqrt = sqrt(fourByFiveRandomZeroToOne);
         print("Vector square root", sqrt);
         // 8. np.sin(arr) - Sine of each element in the array
-        INDArray sin = Transforms.sin(fourByFiveRandomZeroToOne);
+        INDArray sin = sin(fourByFiveRandomZeroToOne);
         print("Vector sin", sin);
         // 9. np.log(arr) - Natural log of each element in the array
-        INDArray log = Transforms.log(fourByFiveRandomZeroToOne);
+        INDArray log = log(fourByFiveRandomZeroToOne);
         print("Vector log", log);
         // 10. np.abs(arr) - Absolute value of each element in the array
-        INDArray abs = Transforms.abs(fourByFiveRandomZeroToOne);
+        INDArray abs = abs(fourByFiveRandomZeroToOne);
         print("Vector abs", abs);
         // 11. np.ceil(arr) - Rounds up to the nearest int
-        INDArray ceil = Transforms.ceil(fourByFiveRandomZeroToOne);
+        INDArray ceil = ceil(fourByFiveRandomZeroToOne);
         print("Vector ceil", ceil);
         // 12. np.floor(arr) - Rounds down to the nearest int
-        INDArray floor = Transforms.floor(fourByFiveRandomZeroToOne);
+        INDArray floor = floor(fourByFiveRandomZeroToOne);
         print("Vector floor", floor);
         // 13. np.round(arr) - Rounds to the nearest int
-        INDArray round = Transforms.round(fourByFiveRandomZeroToOne);
+        INDArray round = round(fourByFiveRandomZeroToOne);
         print("Vector round", round);
 
         /* J. STATISTICS */
