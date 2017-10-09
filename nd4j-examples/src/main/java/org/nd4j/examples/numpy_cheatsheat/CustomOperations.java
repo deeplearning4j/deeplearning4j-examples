@@ -25,17 +25,10 @@ interface Predicate<T> {
 }
 
 class CustomOperations {
-    static INDArray arange(double lower, double upper, double step) {
-        List<Float> floats = new ArrayList<>();
-
-        float value = (float) lower;
-        do {
-            floats.add(value);
-            value += step;
-        } while (step > 0 && value <= upper);
-
-        return Nd4j.create(ArrayUtils.toPrimitive(floats.toArray(new Float[0]),
-            0.0F), new int[] {floats.size()});
+    static INDArray arange(double start, double end, double step) {
+        int elements = (int) ((end - start) / step);
+        System.out.println(elements);
+        return Nd4j.linspace(start, start + elements * step,  elements + 1);
     }
 
     static INDArray randInt(int [] shape, int upper) {
@@ -144,8 +137,7 @@ class CustomOperations {
     }
 
     static INDArray operateOnElements(INDArray arr1, Predicate<Double> predicate) {
-        INDArray arr2 = Nd4j.create(arr1.shape());
-        Nd4j.copy(arr1, arr2);
+        INDArray arr2 = arr1.dup();
         for (int i = 0; i < arr2.length(); i++) {
             boolean answer = predicate.test(arr2.getDouble(i));
             arr2.putScalar(i, answer ? 1.0 : 0.0);

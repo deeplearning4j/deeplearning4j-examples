@@ -76,8 +76,9 @@ public class NumpyCheatSheat {
         INDArray zeroToHundredLinspaceOfSix = Nd4j.linspace(0, 100, 6);
         print("Zero to Hundred With linspace interval 6", zeroToHundredLinspaceOfSix);
         // 7. np.arange(0,10,3) - Array of values from 0 to less than 10 with step 3 (eg [0,3,6,9])
-        INDArray stepOfThreeTillTen = CustomOperations.arange(0, 10, 3);
+        INDArray stepOfThreeTillTen = CustomOperations.arange(-10, -20, -0.4);
         print("ARange", stepOfThreeTillTen);
+        if(true) return;
         // 8. np.full((2,3),8) - 2x3 array with all values 8
         INDArray allEights = Nd4j.valueArrayOf(new int[] {2,3}, 8);
         print("2x3 Eights", allEights);
