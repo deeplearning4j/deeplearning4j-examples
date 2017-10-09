@@ -159,7 +159,7 @@ class CustomOperations {
     }
 
     static INDArray invert(INDArray arr1) {
-        return booleanOp(arr1, Conditions.notEquals(1.0));
+        return booleanOp(arr1, Conditions.equals(0));
     }
 
     static INDArray compare(INDArray arr1, INDArray arr2, Predicate<Boolean []> predicate) {
