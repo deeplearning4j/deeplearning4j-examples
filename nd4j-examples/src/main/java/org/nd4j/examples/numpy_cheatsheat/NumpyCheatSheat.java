@@ -3,10 +3,12 @@ package org.nd4j.examples.numpy_cheatsheat;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.indexing.NDArrayIndex;
-import static org.nd4j.linalg.ops.transforms.Transforms.*;
+import org.nd4j.linalg.indexing.conditions.Conditions;
 
 import java.io.IOException;
 import java.util.Arrays;
+
+import static org.nd4j.linalg.ops.transforms.Transforms.*;
 
 /**
  * These are common functions that most python numpy users use for their daily work.
@@ -78,7 +80,6 @@ public class NumpyCheatSheat {
         // 7. np.arange(0,10,3) - Array of values from 0 to less than 10 with step 3 (eg [0,3,6,9])
         INDArray stepOfThreeTillTen = CustomOperations.arange(-10, -20, -0.4);
         print("ARange", stepOfThreeTillTen);
-        if(true) return;
         // 8. np.full((2,3),8) - 2x3 array with all values 8
         INDArray allEights = Nd4j.valueArrayOf(new int[] {2,3}, 8);
         print("2x3 Eights", allEights);
@@ -214,32 +215,13 @@ public class NumpyCheatSheat {
         print("Get interval from array ([:,1])", allRowsIndexOne);
         //For the functions below, since there's no boolean type in ND4J so I'll work on 0.0s(false) and 1.0s(true)
         // 9. arr<5 - Returns an array with boolean values
-        INDArray lessThan5 = CustomOperations.operateOnElements(
-            CustomOperations.randInt(new int[]{3, 3}, 10),
-            new Predicate<Double>() {
-                @Override
-                public boolean test(Double aDouble) {
-                    return aDouble < 5;
-                }
-            });
+        INDArray lessThan5 = CustomOperations.booleanOp(CustomOperations.randInt(new int[]{3, 3}, 10);, Conditions.lessThan(5));
         print("Less than 5", lessThan5);
         // 10. (arr1<3) & (arr2>5) - Returns an array with boolean values
-        INDArray lessThan3 = CustomOperations.operateOnElements(
-            CustomOperations.randInt(new int[]{3, 3}, 10),
-            new Predicate<Double>() {
-                @Override
-                public boolean test(Double aDouble) {
-                    return aDouble < 3;
-                }
-            });
-        INDArray greaterThan5 = CustomOperations.operateOnElements(
-            CustomOperations.randInt(new int[]{3, 3}, 10),
-            new Predicate<Double>() {
-                @Override
-                public boolean test(Double aDouble) {
-                    return aDouble > 5;
-                }
-            });
+        INDArray lessThan3 = CustomOperations.booleanOp(CustomOperations.randInt(new int[]{3, 3}, 10),
+            Conditions.lessThan(3));
+        INDArray greaterThan5 = CustomOperations.booleanOp(CustomOperations.randInt(new int[]{3, 3}, 10),
+            Conditions.greaterThan(5));
         INDArray compared = CustomOperations.compare(lessThan3, greaterThan5, new Predicate<Boolean[]>() {
             @Override
             public boolean test(Boolean[] booleans) {

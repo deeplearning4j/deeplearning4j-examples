@@ -1,13 +1,18 @@
 package org.nd4j.examples.numpy_cheatsheat;
 
+import com.google.common.base.Function;
 import org.apache.commons.lang3.ArrayUtils;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
+import org.nd4j.linalg.indexing.BooleanIndexing;
 import org.nd4j.linalg.indexing.INDArrayIndex;
 import org.nd4j.linalg.indexing.NDArrayIndex;
+import org.nd4j.linalg.indexing.conditions.Condition;
+import org.nd4j.linalg.indexing.conditions.Conditions;
 import org.nd4j.linalg.ops.transforms.Transforms;
 import org.nd4j.linalg.util.ArrayUtil;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -136,22 +141,25 @@ class CustomOperations {
         return split(arr1, numOfSplits, 1);
     }
 
-    static INDArray operateOnElements(INDArray arr1, Predicate<Double> predicate) {
-        INDArray arr2 = arr1.dup();
-        for (int i = 0; i < arr2.length(); i++) {
-            boolean answer = predicate.test(arr2.getDouble(i));
-            arr2.putScalar(i, answer ? 1.0 : 0.0);
-        }
-        return arr2;
+    static INDArray booleanOp(INDArray arr, Condition condition) {
+        INDArray dup = arr.dup();
+        BooleanIndexing.applyWhere(dup, condition,
+            new Function<Number, Number>() {
+                @Override
+                public Number apply(@Nullable Number number) {
+                    return 1.0;
+                }
+            }, new Function<Number, Number>() {
+                @Override
+                public Number apply(@Nullable Number number) {
+                    return 0.0;
+                }
+            });
+        return dup;
     }
 
     static INDArray invert(INDArray arr1) {
-        return operateOnElements(arr1, new Predicate<Double>() {
-            @Override
-            public boolean test(Double aDouble) {
-                return aDouble != 1.0;
-            }
-        });
+        return booleanOp(arr1, Conditions.notEquals(1.0));
     }
 
     static INDArray compare(INDArray arr1, INDArray arr2, Predicate<Boolean []> predicate) {
