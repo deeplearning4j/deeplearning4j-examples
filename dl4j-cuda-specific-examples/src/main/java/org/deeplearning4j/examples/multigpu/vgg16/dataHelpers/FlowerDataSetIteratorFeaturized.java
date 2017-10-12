@@ -6,6 +6,8 @@ import org.deeplearning4j.nn.modelimport.keras.InvalidKerasConfigurationExceptio
 import org.deeplearning4j.nn.modelimport.keras.UnsupportedKerasConfigurationException;
 import org.nd4j.linalg.dataset.ExistingMiniBatchDataSetIterator;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -16,6 +18,8 @@ import java.io.IOException;
  */
 @Slf4j
 public class FlowerDataSetIteratorFeaturized {
+
+    private static final Logger log = LoggerFactory.getLogger(FlowerDataSetIteratorFeaturized.class);
 
     static String featureExtractorLayer = FeaturizedPreSave.featurizeExtractionLayer;
 
