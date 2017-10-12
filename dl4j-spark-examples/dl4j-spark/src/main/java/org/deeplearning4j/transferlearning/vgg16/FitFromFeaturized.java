@@ -12,6 +12,7 @@ import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.api.java.function.Function;
 import org.apache.spark.input.PortableDataStream;
 import org.deeplearning4j.eval.Evaluation;
+//import org.deeplearning4j.examples.multigpu.vgg16.vgg16.FitFromFeaturized;
 import org.deeplearning4j.nn.api.OptimizationAlgorithm;
 import org.deeplearning4j.nn.conf.Updater;
 import org.deeplearning4j.nn.conf.distribution.NormalDistribution;
@@ -36,6 +37,9 @@ import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import scala.Tuple2;
 
 import java.io.IOException;
@@ -56,6 +60,8 @@ import java.io.OutputStream;
  */
 @Slf4j
 public class FitFromFeaturized {
+
+    private static final Logger log = LoggerFactory.getLogger(FitFromFeaturized.class);
 
     public static final String featureExtractionLayer = FeaturizedPreSave.featurizeExtractionLayer;
     protected static final long seed = 12345;
