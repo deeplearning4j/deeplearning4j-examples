@@ -2,6 +2,7 @@ package org.deeplearning4j.examples.multigpu.vgg16.vgg16;
 
 import lombok.extern.slf4j.Slf4j;
 
+import org.deeplearning4j.emr.EmrSparkExample;
 import org.deeplearning4j.eval.Evaluation;
 import org.deeplearning4j.examples.multigpu.vgg16.dataHelpers.FeaturizedPreSave;
 import org.deeplearning4j.examples.multigpu.vgg16.dataHelpers.FlowerDataSetIteratorFeaturized;
@@ -25,6 +26,8 @@ import org.nd4j.linalg.api.environment.Nd4jEnvironment;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
@@ -43,6 +46,8 @@ import java.io.IOException;
  */
 @Slf4j
 public class FitFromFeaturized {
+
+    private static final Logger log = LoggerFactory.getLogger(FitFromFeaturized.class);
 
     public static final String featureExtractionLayer = FeaturizedPreSave.featurizeExtractionLayer;
     protected static final long seed = 12345;
