@@ -10,8 +10,11 @@ import org.datavec.api.util.ArchiveUtils;
 import org.datavec.image.loader.BaseImageLoader;
 import org.datavec.image.recordreader.ImageRecordReader;
 import org.deeplearning4j.datasets.datavec.RecordReaderDataSetIterator;
+import org.deeplearning4j.emr.EmrSparkExample;
 import org.deeplearning4j.nn.modelimport.keras.trainedmodels.TrainedModels;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -26,6 +29,8 @@ import java.util.Random;
  */
 @Slf4j
 public class FlowerDataSetIterator {
+
+    private static final Logger log = LoggerFactory.getLogger(FlowerDataSetIterator.class);
 
     private static final String DATA_DIR = new File(System.getProperty("user.home")) + "/dl4jDataDir";
     private static final String DATA_URL = "http://download.tensorflow.org/example_images/flower_photos.tgz";
