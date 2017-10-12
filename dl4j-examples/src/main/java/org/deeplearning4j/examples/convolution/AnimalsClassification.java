@@ -282,7 +282,6 @@ public class AnimalsClassification {
             .lrPolicySteps(100000)
             .regularization(true)
             .l2(5 * 1e-4)
-            .miniBatch(false)
             .list()
             .layer(0, convInit("cnn1", channels, 96, new int[]{11, 11}, new int[]{4, 4}, new int[]{3, 3}, 0))
             .layer(1, new LocalResponseNormalization.Builder().name("lrn1").build())
