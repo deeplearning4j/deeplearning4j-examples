@@ -12,6 +12,7 @@ import org.datavec.image.transform.ImageTransform;
 import org.datavec.image.transform.PipelineImageTransform;
 import org.datavec.image.transform.ResizeImageTransform;
 import org.deeplearning4j.datasets.datavec.RecordReaderDataSetIterator;
+import org.deeplearning4j.emr.EmrSparkExample;
 import org.deeplearning4j.eval.Evaluation;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.optimize.listeners.PerformanceListener;
@@ -22,6 +23,8 @@ import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.nd4j.linalg.dataset.api.preprocessor.ImagePreProcessingScaler;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.primitives.Pair;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FilenameFilter;
@@ -39,6 +42,8 @@ import java.util.Random;
  */
 @Slf4j
 public class MultiGpuVGG16TinyImageNetExample {
+
+    private static final Logger log = LoggerFactory.getLogger(MultiGpuVGG16TinyImageNetExample.class);
 
     public static void main(String[] args) throws Exception {
         // temp workaround for backend initialization
