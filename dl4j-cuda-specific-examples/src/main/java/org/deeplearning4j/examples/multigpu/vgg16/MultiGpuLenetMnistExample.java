@@ -35,7 +35,6 @@ import org.slf4j.LoggerFactory;
  * @author  @agibsonccc
  * @author raver119@gmail.com
  */
-@Slf4j
 public class MultiGpuLenetMnistExample {
 
     private static final Logger log = LoggerFactory.getLogger(MultiGpuLenetMnistExample.class);
