@@ -40,7 +40,6 @@ import java.util.Random;
  *
  * @author Justin Long (crockpotveggies)
  */
-@Slf4j
 public class MultiGpuVGG16TinyImageNetExample {
 
     private static final Logger log = LoggerFactory.getLogger(MultiGpuVGG16TinyImageNetExample.class);
