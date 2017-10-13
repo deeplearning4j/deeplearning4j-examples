@@ -27,7 +27,6 @@ import java.util.Random;
  * and untar's it to the users home directory
  * @author susaneraly on 3/9/17.
  */
-@Slf4j
 public class FlowerDataSetIterator {
 
     private static final Logger log = LoggerFactory.getLogger(FlowerDataSetIterator.class);
