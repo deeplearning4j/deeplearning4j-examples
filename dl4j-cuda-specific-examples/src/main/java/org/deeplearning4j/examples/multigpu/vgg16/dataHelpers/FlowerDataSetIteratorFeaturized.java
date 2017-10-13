@@ -2,10 +2,13 @@ package org.deeplearning4j.examples.multigpu.vgg16.dataHelpers;
 
 import lombok.extern.slf4j.Slf4j;
 import org.deeplearning4j.datasets.iterator.AsyncDataSetIterator;
+import org.deeplearning4j.emr.EmrSparkExample;
 import org.deeplearning4j.nn.modelimport.keras.InvalidKerasConfigurationException;
 import org.deeplearning4j.nn.modelimport.keras.UnsupportedKerasConfigurationException;
 import org.nd4j.linalg.dataset.ExistingMiniBatchDataSetIterator;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -14,8 +17,9 @@ import java.io.IOException;
  * Iterator for featurized data.
  * @author susaneraly on 3/10/17.
  */
-@Slf4j
 public class FlowerDataSetIteratorFeaturized {
+
+    private static final Logger log = LoggerFactory.getLogger(FlowerDataSetIteratorFeaturized.class);
 
     static String featureExtractorLayer = FeaturizedPreSave.featurizeExtractionLayer;
 
