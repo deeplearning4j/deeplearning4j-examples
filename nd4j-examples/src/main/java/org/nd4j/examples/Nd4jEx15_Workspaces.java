@@ -26,7 +26,6 @@ import org.slf4j.LoggerFactory;
  *
  * @author raver119@gmail.com
  */
-@Slf4j
 public class Nd4jEx15_Workspaces {
 	
     private static final Logger log = LoggerFactory.getLogger(Nd4jEx15_Workspaces.class);
