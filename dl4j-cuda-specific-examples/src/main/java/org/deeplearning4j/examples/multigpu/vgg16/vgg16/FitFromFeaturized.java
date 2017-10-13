@@ -44,7 +44,6 @@ import java.io.IOException;
  * Since the helper avoids the forward pass through the frozen layers we save on computation time when running multiple epochs.
  * In this manner, users can iterate quickly tweaking learning rates, weight initialization etc` to settle on a model that gives good results.
  */
-@Slf4j
 public class FitFromFeaturized {
 
     private static final Logger log = LoggerFactory.getLogger(FitFromFeaturized.class);
