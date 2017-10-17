@@ -22,16 +22,12 @@ import javafx.scene.shape.Sphere;
 import javafx.scene.text.*;
 import javafx.scene.transform.Rotate;
 import javafx.scene.transform.Translate;
-import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.stage.Window;
 import org.deeplearning4j.nn.api.Layer;
 import org.deeplearning4j.nn.api.Model;
-import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
-import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
 import org.deeplearning4j.nn.conf.layers.BaseLayer;
-import org.deeplearning4j.nn.conf.layers.FeedForwardLayer;
 import org.deeplearning4j.nn.gradient.Gradient;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.nd4j.linalg.api.ndarray.INDArray;
@@ -120,7 +116,6 @@ public class GradientsAndParamsViewer extends Application {
     private Stage layerStage=null;
     private final Label helpLabelForLayers = new Label("Click on a bias/weight param name to view details");
     private final TextField learningRateTextField = new TextField("");
-    private final TextField momentumTextField = new TextField("");
     private final TextField activationFunctionTextField = new TextField("");
     private final TextField updaterTextField = new TextField("");
     //........
@@ -529,17 +524,14 @@ public class GradientsAndParamsViewer extends Application {
         Label updatedLabel = new Label("Updater: ");
 
         learningRateTextField.setPrefColumnCount(textFieldColumnCountForDoubles);
-        momentumTextField.setPrefColumnCount(textFieldColumnCountForDoubles);
 
         // Modifying the learning rate or momentum is trickier than just setting the values in the configuration,
         // so we disable editing and don't create action handlers.
         learningRateTextField.setEditable(false);
-        momentumTextField.setEditable(false);
         activationFunctionTextField.setEditable(false);
         updaterTextField.setEditable(false);
 
         hboxLearningRate.getChildren().addAll(learningRateTitleLabel, learningRateTextField);
-        hboxMomentum.getChildren().addAll(momentumTitleLabel, momentumTextField);
         hboxActivationFunction.getChildren().addAll(activationFunctionLabel,activationFunctionTextField);
         hboxUpdater.getChildren().addAll(updatedLabel,updaterTextField);
 
@@ -557,9 +549,8 @@ public class GradientsAndParamsViewer extends Application {
         layerStage.setTitle(key + " (" + layer.type() + ")");
         double learningRate = conf.getLearningRateByParam(param);
         learningRateTextField.setText(""+ learningRate);
-        momentumTextField.setText("" +conf.getMomentum());
         activationFunctionTextField.setText(conf.getActivationFn().toString());
-        updaterTextField.setText(conf.getUpdater().toString());
+        updaterTextField.setText(conf.getIUpdater().toString());
 
         layerStage.setTitle(key + ": " + layer.type());
         layerStage.requestFocus();
