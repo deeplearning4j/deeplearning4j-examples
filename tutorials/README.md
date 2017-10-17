@@ -61,7 +61,7 @@ z.load("org.deeplearning4j:deeplearning4j-core:0.9.1")
 // don't forget to type Shift-Enter to run!
 ```
 
-## Handling memory
+## Out-of-memory
 
 It's very possible that Zeppelin will run out of memory when you start using larger networks. The default memory setting is too low. To fix this, create a zeppelin-env.sh file [like this one](https://github.com/apache/zeppelin/blob/master/conf/zeppelin-env.sh.template#L23) and enable the `ZEPPELIN_INTP_MEM` option.
 
