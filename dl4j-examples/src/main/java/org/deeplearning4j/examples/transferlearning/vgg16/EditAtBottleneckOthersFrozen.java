@@ -13,6 +13,8 @@ import org.deeplearning4j.nn.transferlearning.FineTuneConfiguration;
 import org.deeplearning4j.nn.transferlearning.TransferLearning;
 import org.deeplearning4j.nn.weights.WeightInit;
 import org.deeplearning4j.util.ModelSerializer;
+import org.deeplearning4j.zoo.ZooModel;
+import org.deeplearning4j.zoo.model.VGG16;
 import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
@@ -52,9 +54,10 @@ public class EditAtBottleneckOthersFrozen {
         //Import vgg
         //Note that the model imported does not have an output layer (check printed summary)
         //  nor any training related configs (model from keras was imported with only weights and json)
-        TrainedModelHelper modelImportHelper = new TrainedModelHelper(TrainedModels.VGG16);
         log.info("\n\nLoading org.deeplearning4j.transferlearning.vgg16...\n\n");
-        ComputationGraph vgg16 = modelImportHelper.loadModel();
+
+        ZooModel zooModel = new VGG16();
+        ComputationGraph vgg16 = (ComputationGraph) zooModel.initPretrained();
         log.info(vgg16.summary());
 
         //Decide on a fine tune configuration to use.
