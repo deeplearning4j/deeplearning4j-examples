@@ -19,7 +19,7 @@ You may want to read some resources on how the JVM works before using these tuto
 
 #### Via Binaries
 
-Native binaries are also available for Zeppelin which can be donwloaded [here](https://zeppelin.apache.org/download.html).
+Native binaries are also available for Zeppelin which can be downloaded here: https://zeppelin.apache.org/download.html.
 
 ## Setting up dependencies
 
