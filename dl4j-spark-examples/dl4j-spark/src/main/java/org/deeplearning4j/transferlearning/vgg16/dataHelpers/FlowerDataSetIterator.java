@@ -11,6 +11,7 @@ import org.datavec.image.recordreader.ImageRecordReader;
 import org.deeplearning4j.datasets.datavec.RecordReaderDataSetIterator;
 import org.deeplearning4j.nn.modelimport.keras.trainedmodels.TrainedModels;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
+import org.nd4j.linalg.dataset.api.preprocessor.VGG16ImagePreProcessor;
 import org.slf4j.Logger;
 
 import java.io.File;
@@ -76,7 +77,7 @@ public class FlowerDataSetIterator {
         ImageRecordReader recordReader = new ImageRecordReader(height,width,channels,labelMaker);
         recordReader.initialize(split);
         DataSetIterator iter = new RecordReaderDataSetIterator(recordReader, batchSize, 1, numClasses);
-        iter.setPreProcessor(TrainedModels.VGG16.getPreProcessor());
+        iter.setPreProcessor(new VGG16ImagePreProcessor());
         return iter;
     }
 
