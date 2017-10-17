@@ -33,7 +33,7 @@ Once you have located the Spark Interpreter, you will need to add the following 
 |---|---|---|
 | `org.nd4j:nd4j-native-platform:0.9.1` | n/a | CPU-only machines |
 | `org.nd4j:nd4j-cuda-8.0-platform:0.9.1` | n/a | GPU-enabled machines w/ CUDA |
-| `org.deeplearning4j:deeplearning4j-core:0.9.1` | n/a | CPU-only machines |
+| `org.deeplearning4j:deeplearning4j-core:0.9.1` | n/a | CPU-only or GPU machines w/o CuDNN |
 | `org.deeplearning4j:deeplearning4j-cuda-8.0:0.9.1` | n/a | GPU machines w/ CuDNN installed |
 | `org.deeplearning4j:deeplearning4j-zoo:0.9.1` | n/a | native zoo functionality (pretrained models) |
 
