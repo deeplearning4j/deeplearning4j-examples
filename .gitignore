@@ -44,4 +44,3 @@ Word2vec-index/
 !/tutorials/*.json
 !/tutorials/*.ipynb*
 *end.model
-
