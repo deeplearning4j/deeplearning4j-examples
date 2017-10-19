@@ -15,7 +15,10 @@ You may want to read some resources on how the JVM works before using these tuto
 
 [Docker](https://www.docker.com/) is an easy-to-use containerization platform. This is the preferred method for running Zeppelin. Download the latest release from the [Zeppelin Docker Hub](https://hub.docker.com/r/apache/zeppelin/).
 
-**TO-DO:** Create a Docker image that has latest version of Zeppelin with all notebooks installed.
+Or you can use our public docker image with all the dependencies set and notebooks installed
+```
+docker run -it --rm  -p 8080:8080 shamsulazeem/zeppelin-0.8.0-snapshot:latest
+```
 
 #### Via Binaries
 
