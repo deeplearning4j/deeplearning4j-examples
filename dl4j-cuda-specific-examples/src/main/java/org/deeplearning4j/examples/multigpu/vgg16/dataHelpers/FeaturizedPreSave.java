@@ -6,6 +6,8 @@ import org.deeplearning4j.nn.modelimport.keras.UnsupportedKerasConfigurationExce
 import org.deeplearning4j.nn.modelimport.keras.trainedmodels.TrainedModelHelper;
 import org.deeplearning4j.nn.modelimport.keras.trainedmodels.TrainedModels;
 import org.deeplearning4j.nn.transferlearning.TransferLearningHelper;
+import org.deeplearning4j.zoo.ZooModel;
+import org.deeplearning4j.zoo.model.VGG16;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.slf4j.Logger;
@@ -28,9 +30,9 @@ public class FeaturizedPreSave {
     public static void main(String [] args) throws UnsupportedKerasConfigurationException, IOException, InvalidKerasConfigurationException {
 
         //import org.deeplearning4j.transferlearning.vgg16 and print summary
-        TrainedModelHelper modelImportHelper = new TrainedModelHelper(TrainedModels.VGG16);
         LOGGER.info("\n\nLoading org.deeplearning4j.transferlearning.vgg16...\n\n");
-        ComputationGraph vgg16 = modelImportHelper.loadModel();
+        ZooModel zooModel = new VGG16();
+        ComputationGraph vgg16 = (ComputationGraph) zooModel.initPretrained();
         LOGGER.info(vgg16.summary());
 
         //use the TransferLearningHelper to freeze the specified vertices and below
