@@ -5,9 +5,9 @@ Welcome to the [Deeplearning4j](https://deeplearning4j.org/) tutorial series in 
 
 ## Prerequisites
 
-While Deeplearning4j has been written in Java, the advantage of the Java Virtual Machine (JVM) is you can import and share code in any other JVM language. These tutorials are written in Scala, the de facto standard for data science in the java environment. There's nothing stopping you from using any other interpreter such as Java, Kotlin, or Clojure.
+While Deeplearning4j has been written in Java, the advantage of the Java Virtual Machine (JVM) is you can import and share code in any other JVM language. These tutorials are written in Scala, the de facto standard for data science in the Java environment. There's nothing stopping you from using any other interpreter such as Java, Kotlin, or Clojure.
 
-You may want to read some resources on how the JVM works before using these tutorials. Knowing the basic terms such as classpath, virtual machine, "strongly-typed" languages, and functional programming will help you debug and expand on the knowledge you learn here. If you don't know Scala and aren't sure if you can learn it, Coursera has a great course named [Functional Programming Principles in Scala](https://www.coursera.org/learn/progfun1) on the language.
+You may want to read some resources on how the JVM works before using these tutorials. Knowing the basic terms such as classpath, virtual machine, "strongly-typed" languages, and functional programming will help you debug and expand on the knowledge you learn here. If you don't know Scala and aren't sure if you can learn it, Coursera has a great course named [Functional Programming Principles in Scala](https://www.coursera.org/learn/progfun1).
 
 ### Install Apache Zeppelin
 
@@ -42,7 +42,7 @@ Once you have located the Spark Interpreter, you will need to add the following 
 | `org.datavec:datavec-spark_2.11:0.9.1_spark_2` | `org.scala-lang:scala-compiler` | always |
 
 
-Alternatively, you can dynamically load dependencies into notebooks but this is not recommended. The reason is that if you intend on adding new dependencies, you will have to restart the interpreter before re-running dynamic loading code. Nevertheless, here's an example on how you can do this:
+Alternatively, you can dynamically load dependencies into notebooks, but this is not recommended: If you intend on adding new dependencies, you will have to restart the interpreter before re-running dynamic loading code. Nevertheless, here's an example on how to do it:
 
 
 ```
@@ -67,16 +67,16 @@ z.load("org.deeplearning4j:deeplearning4j-core:0.9.1")
 
 ## Out-of-memory
 
-It's very possible that Zeppelin will run out of memory when you start using larger networks. The default memory setting is too low. To fix this, create a zeppelin-env.sh file [like this one](https://github.com/apache/zeppelin/blob/master/conf/zeppelin-env.sh.template#L23) and enable the `ZEPPELIN_INTP_MEM` option.
+Zeppelin may run out of memory when using larger networks. Its default memory setting is low. To fix this, create a zeppelin-env.sh file [like this one](https://github.com/apache/zeppelin/blob/master/conf/zeppelin-env.sh.template#L23) and enable the `ZEPPELIN_INTP_MEM` option.
 
 ```
 export ZEPPELIN_INTP_MEM="-Xmx10g"
 ```
 
-Increase the -Xmx option to something higher than 5GB of RAM. If you plan on using complex convolutional networks like VGG-16, you may need `-Xmx18g` or higher.
+Increase the `-Xmx` option to something higher than 5GB of RAM. If you plan on using complex convolutional networks like VGG-16, you may need `-Xmx18g` or higher.
 
 ## Importing notebooks
 
-Once your Zeppelin environment is fully setup, you can start importing our tutorials (if they aren't already included in a Docker image). Load the Zeppelin UI using the default host and port (likely http://localhost:8080/) and you should see the welcome screen with "Welcome to Zeppelin!". Once you have loaded this page, the `Import Note` link will be just below the Notebook column header.
+Once your Zeppelin environment is set up, you can start importing our tutorials (if they aren't already included in a Docker image). Load the Zeppelin UI using the default host and port (likely http://localhost:8080/) and you should see "Welcome to Zeppelin!" on your screen. Once you have loaded this page, the `Import Note` link will be just below the Notebook column header.
 
 **Note:** The notebooks use Zeppelin's JSON format. The `*.ipynb` format is for users who want to view the notebook using nbviewer or natively in Github.
