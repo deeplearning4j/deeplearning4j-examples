@@ -40,6 +40,7 @@ Once you have located the Spark Interpreter, you will need to add the following 
 | `org.deeplearning4j:deeplearning4j-cuda-8.0:0.9.1` | n/a | GPU machines w/ CuDNN installed |
 | `org.deeplearning4j:deeplearning4j-zoo:0.9.1` | n/a | native zoo functionality (pretrained models) |
 | `org.datavec:datavec-spark_2.11:0.9.1_spark_2` | `org.scala-lang:scala-compiler` | always |
+| `org.deeplearning4j:dl4j-spark_2.11:0.9.1_spark_2` | `org.scala-lang:scala-compiler` | always |
 
 
 Alternatively, you can dynamically load dependencies into notebooks, but this is not recommended: If you intend on adding new dependencies, you will have to restart the interpreter before re-running dynamic loading code. Nevertheless, here's an example on how to do it:
