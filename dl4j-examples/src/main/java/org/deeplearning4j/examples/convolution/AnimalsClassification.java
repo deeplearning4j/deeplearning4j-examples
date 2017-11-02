@@ -147,7 +147,7 @@ public class AnimalsClassification {
         UIServer uiServer = UIServer.getInstance();
         StatsStorage statsStorage = new InMemoryStatsStorage();
         uiServer.attach(statsStorage);
-        network.setListeners((IterationListener)new StatsListener( statsStorage),new ScoreIterationListener(iterations));
+        network.setListeners((IterationListener)new StatsListener( statsStorage),new ScoreIterationListener(listenerFreq));
         /**
          * Data Setup -> define how to load data into net:
          *  - recordReader = the reader that loads and converts image data pass in inputSplit to initialize

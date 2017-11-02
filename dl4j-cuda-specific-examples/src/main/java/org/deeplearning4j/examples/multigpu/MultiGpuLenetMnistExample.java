@@ -22,6 +22,7 @@ import org.nd4j.linalg.api.buffer.util.DataTypeUtil;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
+import org.nd4j.linalg.learning.config.Nesterovs;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -70,14 +71,9 @@ public class MultiGpuLenetMnistExample {
             .seed(seed)
             .iterations(iterations) // Training iterations as above
             .l2(0.0005)
-                /*
-                    Uncomment the following for learning decay and bias
-                 */
-            .learningRate(.01)//.biasLearningRate(0.02)
-            //.learningRateDecayPolicy(LearningRatePolicy.Inverse).lrPolicyDecayRate(0.001).lrPolicyPower(0.75)
             .weightInit(WeightInit.XAVIER)
-
-            .updater(Updater.NESTEROVS)
+            .updater(new Nesterovs.Builder().learningRate(.01).build())
+            .biasUpdater(new Nesterovs.Builder().learningRate(0.02).build())
             .list()
             .layer(0, new ConvolutionLayer.Builder(5, 5)
                 //nIn and nOut specify depth. nIn here is the nChannels and nOut is the number of filters to be applied
