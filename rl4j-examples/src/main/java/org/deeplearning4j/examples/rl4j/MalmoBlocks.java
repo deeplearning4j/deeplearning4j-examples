@@ -16,6 +16,7 @@ import org.deeplearning4j.malmo.MalmoEnv;
 import org.deeplearning4j.malmo.MalmoObservationSpace;
 import org.deeplearning4j.malmo.MalmoObservationSpaceGrid;
 import org.deeplearning4j.malmo.MalmoResetHandler;
+import org.nd4j.linalg.learning.config.Adam;
 
 import java.io.IOException;
 import java.util.Random;
@@ -43,7 +44,7 @@ public class MalmoBlocks {
     );
 
     public static DQNFactoryStdDense.Configuration MALMO_NET = DQNFactoryStdDense.Configuration.builder().l2(0.00)
-                    .learningRate(0.01).numHiddenNodes(50).numLayer(3).build();
+                    .updater(new Adam(0.01)).numHiddenNodes(50).numLayer(3).build();
 
     public static void main(String[] args) throws IOException {
         try {

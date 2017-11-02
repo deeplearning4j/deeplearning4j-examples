@@ -22,6 +22,7 @@ import org.nd4j.linalg.api.buffer.util.DataTypeUtil;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.factory.Nd4j;
+import org.nd4j.linalg.learning.config.RmsProp;
 import org.nd4j.linalg.lossfunctions.LossFunctions.LossFunction;
 
 import java.io.File;
@@ -82,13 +83,10 @@ public class GravesLSTMCharModellingExample {
 
 		//Set up network configuration:
 		MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
-
-			.learningRate(0.1)
 			.seed(12345)
-
 			.l2(0.001)
             .weightInit(WeightInit.XAVIER)
-            .updater(Updater.RMSPROP)
+            .updater(new RmsProp.Builder().learningRate(0.1).build())
 			.list()
 			.layer(0, new GravesLSTM.Builder().nIn(iter.inputColumns()).nOut(lstmLayerSize)
 					.activation(Activation.TANH).build())
@@ -104,17 +102,7 @@ public class GravesLSTMCharModellingExample {
 		net.init();
 		net.setListeners(new ScoreIterationListener(1), new IterationListener() {
             @Override
-            public boolean invoked() {
-                return true;
-            }
-
-            @Override
-            public void invoke() {
-
-            }
-
-            @Override
-            public void iterationDone(Model model, int iteration) {
+            public void iterationDone(Model model, int iteration, int epoch) {
                 System.out.println("--------------------");
                 System.out.println("Sampling characters from network given initialization \"" + (generationInitialization == null ? "" : generationInitialization) + "\"");
                 String[] samples = sampleCharactersFromNetwork(generationInitialization, (MultiLayerNetwork) model,iter,rng,nCharactersToSample,nSamplesToGenerate);

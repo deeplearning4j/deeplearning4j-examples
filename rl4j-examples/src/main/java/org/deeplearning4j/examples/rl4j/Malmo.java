@@ -13,6 +13,7 @@ import org.deeplearning4j.malmo.MalmoDescretePositionPolicy;
 import org.deeplearning4j.malmo.MalmoEnv;
 import org.deeplearning4j.malmo.MalmoObservationSpace;
 import org.deeplearning4j.malmo.MalmoObservationSpacePosition;
+import org.nd4j.linalg.learning.config.Adam;
 
 import java.io.IOException;
 import java.util.logging.Logger;
@@ -38,7 +39,7 @@ public class Malmo {
     );
 
     public static DQNFactoryStdDense.Configuration MALMO_NET = DQNFactoryStdDense.Configuration.builder().l2(0.00)
-                    .learningRate(0.001).numHiddenNodes(50).numLayer(3).build();
+                    .updater(new Adam(0.001)).numHiddenNodes(50).numLayer(3).build();
 
     public static void main(String[] args) throws IOException {
         try {

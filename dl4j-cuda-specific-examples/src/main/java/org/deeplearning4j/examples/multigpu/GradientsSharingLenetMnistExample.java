@@ -3,10 +3,8 @@ package org.deeplearning4j.examples.multigpu;
 import org.deeplearning4j.datasets.iterator.impl.MnistDataSetIterator;
 import org.deeplearning4j.eval.Evaluation;
 import org.deeplearning4j.examples.multigpu.utilities.MnistDownloader;
-import org.deeplearning4j.nn.api.OptimizationAlgorithm;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
-import org.deeplearning4j.nn.conf.Updater;
 import org.deeplearning4j.nn.conf.WorkspaceMode;
 import org.deeplearning4j.nn.conf.inputs.InputType;
 import org.deeplearning4j.nn.conf.layers.ConvolutionLayer;
@@ -22,11 +20,11 @@ import org.deeplearning4j.parallelism.factory.SymmetricTrainerContext;
 import org.nd4j.jita.conf.CudaEnvironment;
 import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.api.buffer.DataBuffer;
-import org.nd4j.linalg.api.buffer.util.DataTypeUtil;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.nd4j.linalg.factory.Nd4j;
+import org.nd4j.linalg.learning.config.Nesterovs;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,7 +61,6 @@ public class GradientsSharingLenetMnistExample {
         // for GPU you usually want to have higher batchSize
         int batchSize = 128;
         int nEpochs = 10;
-        int iterations = 1;
         int seed = 123;
 
         log.info("Load data....");
@@ -74,16 +71,10 @@ public class GradientsSharingLenetMnistExample {
         log.info("Build model....");
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
             .seed(seed)
-            .iterations(iterations) // Training iterations as above
             .l2(0.0005)
-                /*
-                    Uncomment the following for learning decay and bias
-                 */
-            .learningRate(.01)//.biasLearningRate(0.02)
-            //.learningRateDecayPolicy(LearningRatePolicy.Inverse).lrPolicyDecayRate(0.001).lrPolicyPower(0.75)
             .weightInit(WeightInit.XAVIER)
-
-            .updater(Updater.NESTEROVS)
+            .updater(new Nesterovs.Builder().learningRate(.01).build())
+            .biasUpdater(new Nesterovs.Builder().learningRate(0.02).build())
             .list()
             .layer(0, new ConvolutionLayer.Builder(5, 5)
                 //nIn and nOut specify depth. nIn here is the nChannels and nOut is the number of filters to be applied
