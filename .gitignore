@@ -41,5 +41,6 @@ metastore_db
 Word2vec-index/
 *.conf
 *.json
+!/tutorials/*.json
+!/tutorials/*.ipynb*
 *end.model
-

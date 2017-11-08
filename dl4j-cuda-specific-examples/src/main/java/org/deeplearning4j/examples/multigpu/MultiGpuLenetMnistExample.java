@@ -6,6 +6,7 @@ import org.deeplearning4j.nn.api.OptimizationAlgorithm;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
 import org.deeplearning4j.nn.conf.Updater;
+import org.deeplearning4j.nn.conf.WorkspaceMode;
 import org.deeplearning4j.nn.conf.inputs.InputType;
 import org.deeplearning4j.nn.conf.layers.ConvolutionLayer;
 import org.deeplearning4j.nn.conf.layers.DenseLayer;
@@ -14,7 +15,9 @@ import org.deeplearning4j.nn.conf.layers.SubsamplingLayer;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
 import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
+import org.deeplearning4j.optimize.solvers.accumulation.EncodedGradientsAccumulator;
 import org.deeplearning4j.parallelism.ParallelWrapper;
+import org.deeplearning4j.parallelism.factory.SymmetricTrainerContext;
 import org.nd4j.jita.conf.CudaEnvironment;
 import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.api.buffer.DataBuffer;
@@ -110,25 +113,19 @@ public class MultiGpuLenetMnistExample {
             .backprop(true).pretrain(false).build();
         MultiLayerNetwork model = new MultiLayerNetwork(conf);
         model.init();
+        model.setListeners(new ScoreIterationListener(100));
 
         // ParallelWrapper will take care of load balancing between GPUs.
         ParallelWrapper wrapper = new ParallelWrapper.Builder(model)
-            // DataSets prefetching options. Set this value with respect to number of actual devices
-            .prefetchBuffer(24)
-
-            // set number of workers equal to number of available devices. x1-x2 are good values to start with
+            .trainingMode(ParallelWrapper.TrainingMode.CUSTOM)
+            .workspaceMode(WorkspaceMode.SINGLE)
+            .trainerFactory(new SymmetricTrainerContext())
+            .gradientsAccumulator(new EncodedGradientsAccumulator(2, 1e-4))
+            .prefetchBuffer(8)
             .workers(2)
-
-            // rare averaging improves performance, but might reduce model accuracy
-            .averagingFrequency(3)
-
-            // if set to TRUE, on every averaging model score will be reported
-            .reportScoreAfterAveraging(true)
-
             .build();
 
         log.info("Train model....");
-        model.setListeners(new ScoreIterationListener(100));
         long timeX = System.currentTimeMillis();
 
         // optionally you might want to use MultipleEpochsIterator instead of manually iterating/resetting over your iterator
