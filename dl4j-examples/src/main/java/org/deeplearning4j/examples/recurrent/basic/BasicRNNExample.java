@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.Random;
 
 /**
- * This example trains a RNN. WHen trained we only have to put the first
+ * This example trains a RNN. When trained we only have to put the first
  * character of LEARNSTRING to the RNN, and it will recite the following chars
  *
  * @author Peter Grossmann
@@ -138,7 +138,7 @@ public class BasicRNNExample {
             for (char dummy : LEARNSTRING) {
 
                 // first process the last output of the network to a concrete
-                // neuron, the neuron with the highest output cas the highest
+                // neuron, the neuron with the highest output has the highest
                 // chance to get chosen
                 int sampledCharacterIdx = Nd4j.getExecutioner().exec(new IMax(output), 1).getInt(0);
 
