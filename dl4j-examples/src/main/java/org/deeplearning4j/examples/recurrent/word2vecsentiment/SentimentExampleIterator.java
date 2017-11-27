@@ -122,19 +122,27 @@ public class SentimentExampleIterator implements DataSetIterator {
         INDArray featuresMask = Nd4j.zeros(reviews.size(), maxLength);
         INDArray labelsMask = Nd4j.zeros(reviews.size(), maxLength);
 
-        int[] temp = new int[2];
         for( int i=0; i<reviews.size(); i++ ){
             List<String> tokens = allTokens.get(i);
-            temp[0] = i;
-            //Get word vectors for each word in review, and put them in the training data
-            for( int j=0; j<tokens.size() && j<maxLength; j++ ){
-                String token = tokens.get(j);
-                INDArray vector = wordVectors.getWordVectorMatrix(token);
-                features.put(new INDArrayIndex[]{NDArrayIndex.point(i), NDArrayIndex.all(), NDArrayIndex.point(j)}, vector);
 
-                temp[1] = j;
-                featuresMask.putScalar(temp, 1.0);  //Word is present (not padding) for this example + time step -> 1.0 in features mask
-            }
+            // Get the truncated sequence length of document (i)
+            int seqLength = Math.min(tokens.size(), maxLength);
+
+            // Get all wordvectors for the current document and transpose them to fit the 2nd and 3rd feature shape
+            final INDArray vectors = wordVectors.getWordVectors(tokens.subList(0, seqLength)).transpose();
+
+            // Put wordvectors into features array at the following indices:
+            // 1) Document (i)
+            // 2) All vector elements which is equal to NDArrayIndex.interval(0, vectorSize)
+            // 3) All elements between 0 and the length of the current sequence
+            features.put(
+                new INDArrayIndex[] {
+                    NDArrayIndex.point(i), NDArrayIndex.all(), NDArrayIndex.interval(0, seqLength)
+                },
+                vectors);
+
+            // Assign "1" to each position where a feature is present, that is, in the interval of [0, seqLength)
+            featuresMask.get(new INDArrayIndex[] {NDArrayIndex.point(i), NDArrayIndex.interval(0, seqLength)}).assign(1);
 
             int idx = (positive[i] ? 0 : 1);
             int lastIdx = Math.min(tokens.size(),maxLength);
