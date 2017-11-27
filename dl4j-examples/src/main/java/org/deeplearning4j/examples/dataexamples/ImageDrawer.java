@@ -138,7 +138,6 @@ public class ImageDrawer extends Application {
      */
     private static MultiLayerNetwork createNN() {
         int seed = 2345;
-        int iterations = 10;
         double learningRate = 0.05;
         int numInputs = 2;   // x and y.
         int numHiddenNodes = 100;

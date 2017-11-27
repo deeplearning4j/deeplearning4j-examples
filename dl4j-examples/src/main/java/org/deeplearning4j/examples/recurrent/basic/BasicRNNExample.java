@@ -53,7 +53,6 @@ public class BasicRNNExample {
 
 		// some common parameters
 		NeuralNetConfiguration.Builder builder = new NeuralNetConfiguration.Builder();
-		builder.iterations(10);
 		builder.seed(123);
 		builder.biasInit(0);
 		builder.miniBatch(false);

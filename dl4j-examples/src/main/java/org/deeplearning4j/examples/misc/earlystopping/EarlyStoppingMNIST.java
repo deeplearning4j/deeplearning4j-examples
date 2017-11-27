@@ -49,11 +49,9 @@ public class EarlyStoppingMNIST {
         int nChannels = 1;
         int outputNum = 10;
         int batchSize = 25;
-        int iterations = 1;
         int seed = 123;
         MultiLayerConfiguration configuration = new NeuralNetConfiguration.Builder()
             .seed(seed)
-            .iterations(iterations)
             .l2(0.0005)
             .weightInit(WeightInit.XAVIER)
             .activation(Activation.RELU)

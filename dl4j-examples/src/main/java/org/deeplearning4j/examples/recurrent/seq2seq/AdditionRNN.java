@@ -72,7 +72,6 @@ public class AdditionRNN {
     public static int batchSize = 10;
     public static int totalBatches = 500;
     public static int nEpochs = 10;
-    public static int nIterations = 1;
 
     //Tweak the number of hidden nodes
     public static final int numHiddenNodes = 128;
@@ -91,7 +90,6 @@ public class AdditionRNN {
         ComputationGraphConfiguration configuration = new NeuralNetConfiguration.Builder()
                 .weightInit(WeightInit.XAVIER)
                 .updater(new Adam(0.25))
-                .iterations(nIterations)
                 .seed(seed)
                 .graphBuilder()
                 //These are the two inputs to the computation graph

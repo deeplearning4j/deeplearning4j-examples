@@ -71,7 +71,6 @@ public class Cifar {
     private static int numLabels = CifarLoader.NUM_LABELS;
     private static int numSamples = 50000;
     private static int batchSize = 100;
-    private static int iterations = 1;
     private static int freIterations = 50;
     private static int seed = 123;
     private static boolean preProcessCifar = false;//use Zagoruyko's preprocess for Cifar
@@ -120,7 +119,6 @@ public class Cifar {
             .cacheMode(CacheMode.DEVICE)
             .updater(new Adam(1e-2))
             .biasUpdater(new Adam(1e-2*2))
-            .iterations(iterations)
             .gradientNormalization(GradientNormalization.RenormalizeL2PerLayer) // normalize to prevent vanishing or exploding gradients
             .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
             .l1(1e-4)
