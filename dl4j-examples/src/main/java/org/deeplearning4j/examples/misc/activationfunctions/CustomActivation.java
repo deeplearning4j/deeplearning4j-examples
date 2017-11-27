@@ -3,6 +3,7 @@ package org.deeplearning4j.examples.misc.activationfunctions;
 import org.nd4j.linalg.activations.BaseActivationFunction;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.api.ops.impl.transforms.Tanh;
+import org.nd4j.linalg.api.ops.impl.transforms.TanhDerivative;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.primitives.Pair;
 
@@ -57,7 +58,7 @@ public class CustomActivation extends BaseActivationFunction{
         //
         //      h(x) = 1.7159*tanh(2x/3);
         //      h'(x) = 1.7159*[tanh(2x/3)]' * 2/3
-        INDArray dLdz = Nd4j.getExecutioner().execAndReturn(new Tanh(in.muli(2/3.0)).derivative());
+        INDArray dLdz = Nd4j.getExecutioner().execAndReturn(new TanhDerivative(in.muli(2/3.0)));
         dLdz.muli(2/3.0);
         dLdz.muli(1.7159);
 

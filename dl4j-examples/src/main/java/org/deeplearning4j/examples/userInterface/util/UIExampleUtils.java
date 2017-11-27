@@ -28,12 +28,10 @@ public class UIExampleUtils {
 
         int nChannels = 1; // Number of input channels
         int outputNum = 10; // The number of possible outcomes
-        int iterations = 1; // Number of training iterations
         int seed = 123; //
 
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
             .seed(seed)
-            .iterations(iterations) // Training iterations as above
             .l2(0.0005)
             .weightInit(WeightInit.XAVIER)
             .updater(new Nesterovs(0.01, 0.9))

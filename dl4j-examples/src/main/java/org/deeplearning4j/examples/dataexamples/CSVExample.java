@@ -62,14 +62,12 @@ public class CSVExample {
 
         final int numInputs = 4;
         int outputNum = 3;
-        int iterations = 1000;
         long seed = 6;
 
 
         log.info("Build model....");
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
             .seed(seed)
-            .iterations(iterations)
             .activation(Activation.TANH)
             .weightInit(WeightInit.XAVIER)
             .updater(new Sgd(0.1))
@@ -90,7 +88,9 @@ public class CSVExample {
         model.init();
         model.setListeners(new ScoreIterationListener(100));
 
-        model.fit(trainingData);
+        for(int i=0; i<1000; i++ ) {
+            model.fit(trainingData);
+        }
 
         //evaluate the model on the test set
         Evaluation eval = new Evaluation(3);

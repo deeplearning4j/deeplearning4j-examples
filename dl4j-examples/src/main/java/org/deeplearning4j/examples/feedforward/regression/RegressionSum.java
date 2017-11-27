@@ -28,8 +28,6 @@ import java.util.Random;
 public class RegressionSum {
     //Random number generator seed, for reproducability
     public static final int seed = 12345;
-    //Number of iterations per minibatch
-    public static final int iterations = 1;
     //Number of epochs (full passes of the data)
     public static final int nEpochs = 200;
     //Number of data points
@@ -56,7 +54,6 @@ public class RegressionSum {
         int nHidden = 10;
         MultiLayerNetwork net = new MultiLayerNetwork(new NeuralNetConfiguration.Builder()
                 .seed(seed)
-                .iterations(iterations)
                 .weightInit(WeightInit.XAVIER)
                 .updater(new Nesterovs(learningRate, 0.9))
                 .list()
