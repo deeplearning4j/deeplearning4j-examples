@@ -81,7 +81,7 @@ public class VaeMNISTAnomaly {
 
         //Fit the data (unsupervised training)
         for( int i=0; i<nEpochs; i++ ){
-            net.fit(trainIter);
+            net.pretrain(trainIter);        //Note use of .pretrain(DataSetIterator) not fit(DataSetIterator) for unsupervised training
             System.out.println("Finished epoch " + (i+1) + " of " + nEpochs);
         }
 
