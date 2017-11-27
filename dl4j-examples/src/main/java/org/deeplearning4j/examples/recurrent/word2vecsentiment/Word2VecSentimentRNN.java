@@ -68,11 +68,13 @@ public class Word2VecSentimentRNN {
         int vectorSize = 300;   //Size of the word vectors. 300 in the Google News model
         int nEpochs = 1;        //Number of epochs (full passes of training data) to train on
         int truncateReviewsToLength = 256;  //Truncate reviews with length (# words) greater than this
+        final int seed = 0;     //Seed for reproducibility
 
         Nd4j.getMemoryManager().setAutoGcWindow(10000);  //https://deeplearning4j.org/workspaces
 
         //Set up network configuration
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
+            .seed(seed)
             .updater(new Adam(2e-2))
             .l2(1e-5)
             .weightInit(WeightInit.XAVIER)
