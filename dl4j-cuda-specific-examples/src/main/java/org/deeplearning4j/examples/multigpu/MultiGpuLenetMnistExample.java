@@ -59,7 +59,6 @@ public class MultiGpuLenetMnistExample {
         // for GPU you usually want to have higher batchSize
         int batchSize = 128;
         int nEpochs = 10;
-        int iterations = 1;
         int seed = 123;
 
         log.info("Load data....");

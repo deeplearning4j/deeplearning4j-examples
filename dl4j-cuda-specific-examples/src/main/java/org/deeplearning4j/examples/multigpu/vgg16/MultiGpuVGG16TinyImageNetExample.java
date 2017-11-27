@@ -56,11 +56,10 @@ public class MultiGpuVGG16TinyImageNetExample {
         // for GPU you usually want to have higher batchSize
         int batchSize = 16;
         int nEpochs = 10;
-        int iterations = 1;
         int seed = 123;
         Random rng = new Random(seed);
 
-        VGG16 zooModel = new VGG16(200, seed, 1);
+        VGG16 zooModel = new VGG16(200, seed);
         int[] inputShape = zooModel.metaData().getInputShape()[0];
         MultiLayerNetwork vgg16 = zooModel.init();
         vgg16.setListeners(new PerformanceListener(1, true));
