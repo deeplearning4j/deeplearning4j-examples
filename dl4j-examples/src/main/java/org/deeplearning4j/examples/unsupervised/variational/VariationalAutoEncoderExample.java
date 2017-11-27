@@ -105,7 +105,7 @@ public class VariationalAutoEncoderExample {
         //Perform training
         for (int i = 0; i < nEpochs; i++) {
             log.info("Starting epoch {} of {}",(i+1),nEpochs);
-            net.pretrain(trainIter);    //Note use of .pretrain(DataSetIterator) not fit(DataSetIterator) for unsuperwised training
+            net.pretrain(trainIter);    //Note use of .pretrain(DataSetIterator) not fit(DataSetIterator) for unsupervised training
         }
 
         //Plot MNIST test set - latent space vs. iteration (every 100 minibatches by default)
