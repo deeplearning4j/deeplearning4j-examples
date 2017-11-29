@@ -59,8 +59,15 @@ public class Word2VecRawTextExample {
 
         // Prints out the closest 10 words to "day". An example on what to do with these Word Vectors.
         log.info("Closest Words:");
-        Collection<String> lst = vec.wordsNearest("day", 10);
-        System.out.println("10 Words closest to 'day': " + lst);
+        log.info("Closest Words:");
+        Collection<String> lst = vec.wordsNearest("saarc", 10);
+        System.out.println("10 Words closest to 'SAARC': " + lst);
+
+        Collection<String> lst1 = vec.wordsNearest("culture", 10);
+        System.out.println("10 Words closest to 'culture': " + lst1);
+
+        Collection<String> lst2 = vec.wordsNearest("asia", 10);
+        System.out.println("10 Words closest to 'asia': " + lst2);
 
         // TODO resolve missing UiServer
 //        UiServer server = UiServer.getInstance();
