@@ -10,7 +10,6 @@ where:
   -e|--example       Run a single example by class name.
   -c|--choose        List all examples and choose the one to run.
   -a|--all           Run all the examples.
-}
 EOF1
 }
 
