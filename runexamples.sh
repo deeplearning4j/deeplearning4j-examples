@@ -1,142 +1,149 @@
 #!/usr/bin/env bash
 # Run one or all of the examples.
-# Use runexamples.sh -h to see the options.
+
+dir=$PWD
 
 help() {
-  [ -n "$1" ] && echo $1
   cat <<-EOF1
-usage: $0 [-h|--help] [-a|-all] [-n|--no-pauses]
+usage: $0 [-e|--example class-name] [-c|--choose] [-a|--all]
 where:
-  -h|--help          Show help and quit
-  -a|--all           Run all the examples. Default is to prompt for which one to run.
-  -n|--no-pauses     Don't pause between examples (use with --all).
+  -e|--example       Run a single example by class name.
+  -c|--choose        List all examples and choose the one to run.
+  -a|--all           Run all the examples.
 }
 EOF1
 }
 
-# This is shown only if all examples are executed.
 banner() {
-  if [ $all -eq 0 ]
-  then
     cat <<-EOF2
 =======================================================================
 
     deeplearning4j examples:
 
     Each example will be executed, then some of them will pop up a
-    dialog with a data plot. Quit the data plot application to proceed
-    to the next example.
-EOF2
-    if [ $pauses -eq 0 ]
-    then
-    cat <<-EOF2
-
-    We'll pause after each one; hit <return> to continue or <ctrl-c>
-    to quit.
-EOF2
-    fi
-    cat <<-EOF3
+    dialog with a data plot. Quit the data plot application to 
+    proceed to the next example.
+    
+    <ctrl-c> to quit.
 
 =======================================================================
-EOF3
-  fi
+EOF2
 }
 
-
-let all=1
-let pauses=0
-while [ $# -ne 0 ]
-do
-  case $1 in
-    -h|--h*)
-      help
-      exit 0
-      ;;
-    -a|--a*)
-      let all=0
-      ;;
-    -n|--n*)
-      let pauses=1
-      ;;
-    *)
-      help "Unrecognized argument $1"
-      exit 1
-      ;;
-  esac
-  shift
-done
-
 # Most have class names that end with "Example", but not all.
-# So, we use a hack; we search the Java files for "void main"
+# So, we use a hack; we search the Java files for "void main" 
 # to find all of them.
-
-dir=$PWD
-cd dl4j-examples/src/main/java
-
-find_examples() {
+find_examples() {  
+  cd dl4j-examples/src/main/java
+  if [ $# -eq 0 ]
+    then
+      query="*.java"
+    else
+      query="$1.java"
+  fi
   # Find all the Java files with "main" routines, then replace
   # all '/' with '.', then remove extraneous leading '.' and
   # the file extension, yielding the fully-qualified class name.
-  find . -name '*.java' -exec grep -l 'void main' {} \; | \
+  find . -name "$query" -exec grep -l 'void main' {} \; | \
     sed "s?/?.?g" | sed "s?^\.*\(.*\)\.java?\1?"
+  cd $dir
 }
 
-# The following works because IFS, the "field" separator is \n.
-# So, substituting the result of find_examples into the the
-# string and then evaluating the array definition, produces
-# an array of the class names!
-eval "arr=($(find_examples))"
-
-cd $dir
-
-
-# Invoke with
-#   NOOP=echo runexamples.sh
+# Invoke with NOOP=echo runexamples.sh
 # to echo the command, but not run it.
 runit() {
   echo; echo "====== $1"; echo
-  $NOOP java -cp ./dl4j-examples/target/dl4j-examples-*-bin.jar "$1"
+  $NOOP java -cp dl4j-examples/target/dl4j-examples-*-bin.jar "$1"
 }
 
-let which_one=0
-if [ $all -ne 0 ]
+# Main logic starts here
+let example=0
+let choose=0
+let all=0
+let nop=0
+case $1 in
+  -e|--example)
+    let example=1
+    ;;
+  -c|--choose)
+    let choose=1
+    ;;
+  -a|--all)
+    let all=1
+    ;;
+  *)
+    help
+    exit 0
+    ;;
+esac
+
+if [ $example -eq 1 ] 
 then
 
-  for index in "${!arr[@]}"   # ! returns indices instead
-  do
-    let i=$index+1
-    echo "[$(printf "%2d" $i)] ${arr[$index]}"
-  done
-  printf "Enter a number for the example to run: "
-  read which_one
-  if [ -z "$which_one" ]
-  then
-    which_one=0
-  elif [ $which_one = 'q' ]  # accept 'q' as "quit".
-  then
-    exit 0
-  elif [ $which_one -le 0 -o $which_one -gt ${#arr[@]} ]
-  then
-    echo "ERROR: Must enter a number between 1 and ${#arr[@]}."
-    exit 1
-  else
-    let which_one=$which_one-1
+  name=$2
+  if [ -z "$name" ] 
+    then
+      echo "ERROR: Must enter the example's class name"
+      exit 1
+    else
+      eval "arr=($(find_examples "$name"))"
+      qname="${arr[0]}"
+      if [ -z "$qname" ] 
+        then
+          echo "ERROR: Can't find the class name"
+          exit 1
+        else
+          runit $qname
+      fi
   fi
-
-  runit ${arr[$which_one]}
 
 else
 
-  banner
+  # The following works because IFS, the "field" separator is \n.
+  # So, substituting the result of find_examples into the the
+  # string and then evaluating the array definition, produces
+  # an array of the class names!
+  echo "Loading all examples..."
+  eval "arr=($(find_examples))"
 
-  ## now loop through the above array
-  for e in "${arr[@]}"
-  do
-    runit "$e"
-    if [ $pauses -eq 0 ]
+  if [ $choose -eq 1 ]
+  then  
+    let which_one=0
+    for index in "${!arr[@]}" # ! returns indices instead
+    do
+      let i=$index+1
+      echo "[$(printf "%2d" $i)] ${arr[$index]}"
+    done
+    printf "Enter the number of the example to run (q to quit): "
+    read which_one
+    if [ -z "$which_one" ]
     then
-      echo; echo -n "hit return to continue: "
-      read toss
+      which_one=0
+    elif [ $which_one = 'q' ] # accept 'q' as "quit".
+    then
+      exit 0
+    elif [ $which_one -le 0 -o $which_one -gt ${#arr[@]} ]
+    then
+      echo "ERROR: Must enter a number between 1 and ${#arr[@]}."
+      exit 1
+    else
+      let which_one=$which_one-1
     fi
-  done
+
+    runit ${arr[$which_one]}
+  fi
+  
+  if [ $all -eq 1 ]
+  then
+    banner
+    sleep 10
+
+    ## now loop through the above array
+    for e in "${arr[@]}"
+    do
+      runit "$e"
+      sleep 2
+    done
+  fi
+
 fi
