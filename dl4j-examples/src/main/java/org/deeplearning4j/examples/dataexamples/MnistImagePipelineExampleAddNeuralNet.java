@@ -103,8 +103,7 @@ public class MnistImagePipelineExampleAddNeuralNet {
     dataIter.setPreProcessor(scaler);
 
     // Build Our Neural Network
-    log.info("**** Build Model ****");
-
+    log.info("BUILD MODEL");
     MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
         .seed(rngseed)
         .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
@@ -135,13 +134,12 @@ public class MnistImagePipelineExampleAddNeuralNet {
     // output to show how well the network is training
     model.setListeners(new ScoreIterationListener(10));
 
-    log.info("*****TRAIN MODEL********");
+    log.info("TRAIN MODEL");
     for (int i = 0; i < numEpochs; i++) {
       model.fit(dataIter);
     }
 
-    log.info("******EVALUATE MODEL******");
-
+    log.info("EVALUATE MODEL");
     recordReader.reset();
 
     // The model trained on the training dataset split
@@ -173,7 +171,6 @@ public class MnistImagePipelineExampleAddNeuralNet {
       // Compare the Feature Matrix from the model
       // with the labels from the RecordReader
       eval.eval(next.getLabels(), output);
-
     }
 
     log.info(eval.stats());

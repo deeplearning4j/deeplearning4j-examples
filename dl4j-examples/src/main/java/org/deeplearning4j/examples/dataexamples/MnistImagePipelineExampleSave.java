@@ -99,8 +99,7 @@ public class MnistImagePipelineExampleSave {
     dataIter.setPreProcessor(scaler);
 
     // Build Our Neural Network
-    log.info("**** Build Model ****");
-
+    log.info("BUILD MODEL");
     MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
         .seed(rngseed)
         .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
@@ -130,14 +129,14 @@ public class MnistImagePipelineExampleSave {
 
     model.setListeners(new ScoreIterationListener(10));
 
-    log.info("*****TRAIN MODEL********");
+    log.info("TRAIN MODEL");
     for (int i = 0; i < numEpochs; i++) {
       model.fit(dataIter);
     }
 
-    log.info("******SAVE TRAINED MODEL******");
+    log.info("SAVE TRAINED MODEL");
     // Where to save model
-    File locationToSave = new File("trained_mnist_model.zip");
+    File locationToSave = new File(DATA_PATH + "trained_mnist_model.zip");
 
     // boolean save Updater
     boolean saveUpdater = false;

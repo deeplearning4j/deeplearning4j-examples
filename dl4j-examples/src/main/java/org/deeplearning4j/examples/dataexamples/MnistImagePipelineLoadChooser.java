@@ -1,5 +1,6 @@
 package org.deeplearning4j.examples.dataexamples;
 
+import org.apache.commons.io.FilenameUtils;
 import org.datavec.image.loader.NativeImageLoader;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.util.ModelSerializer;
@@ -36,13 +37,16 @@ import java.util.List;
  */
 public class MnistImagePipelineLoadChooser {
   private static Logger log = LoggerFactory.getLogger(MnistImagePipelineLoadChooser.class);
+  
+  /** Location to save and extract the training/testing data */
+  public static final String DATA_PATH = FilenameUtils.concat(System.getProperty("java.io.tmpdir"), "dl4j_Mnist/");
 
   /*
   Create a popup window to allow you to chose an image file to test against the
   trained Neural Network
   Chosen images will be automatically
   scaled to 28*28 grayscale
-   */
+  */
   public static String fileChose() {
     JFileChooser fc = new JFileChooser();
     int ret = fc.showOpenDialog(null);
@@ -72,23 +76,19 @@ public class MnistImagePipelineLoadChooser {
     //LOAD NEURAL NETWORK
 
     // Where to save model
-    File locationToSave = new File("trained_mnist_model.zip");
+    File locationToSave = new File(DATA_PATH + "trained_mnist_model.zip");
     // Check for presence of saved model
     if (locationToSave.exists()) {
-      System.out.println("\n######Saved Model Found######\n");
+      log.info("Saved Model Found!");
     } else {
-      System.out.println("\n\n#######File not found!#######");
-      System.out.println("This example depends on running ");
-      System.out.println("MnistImagePipelineExampleSave");
-      System.out.println("Run that Example First");
-      System.out.println("#############################\n\n");
+      log.error("File not found!");
+      log.error("This example depends on running MnistImagePipelineExampleSave, run that example first");
       System.exit(0);
     }
 
     MultiLayerNetwork model = ModelSerializer.restoreMultiLayerNetwork(locationToSave);
 
-    log.info("*********TEST YOUR IMAGE AGAINST SAVED NETWORK********");
-
+    log.info("TEST YOUR IMAGE AGAINST SAVED NETWORK");
     // FileChose is a string we will need a file
     File file = new File(filechose);
 
@@ -102,13 +102,12 @@ public class MnistImagePipelineLoadChooser {
     // 0-1
     DataNormalization scaler = new ImagePreProcessingScaler(0, 1);
     scaler.transform(image);
+    
     // Pass through to neural Net
-
     INDArray output = model.output(image);
 
-    log.info("## The FILE CHOSEN WAS " + filechose);
-    log.info("## The Neural Nets Pediction ##");
-    log.info("## list of probabilities per label ##");
+    log.info("The file chosen was " + filechose);
+    log.info("The neural nets prediction (list of probabilities per label)");
     //log.info("## List of Labels in Order## ");
     // In new versions labels are always in order
     log.info(output.toString());

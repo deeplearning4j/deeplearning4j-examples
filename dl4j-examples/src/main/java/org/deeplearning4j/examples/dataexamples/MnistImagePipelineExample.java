@@ -165,7 +165,7 @@ public class MnistImagePipelineExample {
     File f = new File(archizePath);
     if (!f.exists()) {
       DataUtilities.downloadFile(DATA_URL, archizePath);
-      log.info("Data downloaded to ", f.getAbsolutePath());
+      log.info("Data downloaded to ", archizePath);
     } else {
       log.info("Using existing directory at ", f.getAbsolutePath());
     }
