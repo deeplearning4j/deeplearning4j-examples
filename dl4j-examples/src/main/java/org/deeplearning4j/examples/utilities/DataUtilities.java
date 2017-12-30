@@ -3,51 +3,84 @@ package org.deeplearning4j.examples.utilities;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
+import org.apache.http.HttpEntity;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
 
 import java.io.*;
 
 /**
- * Created by Alex on 27/01/2017.
+ * Common data utility functions.
+ * 
+ * @author fvaleri
  */
 public class DataUtilities {
 
-    private static final int BUFFER_SIZE = 4096;
-
-    public static void extractTarGz(String filePath, String outputPath) throws IOException {
-        int fileCount = 0;
-        int dirCount = 0;
-        System.out.print("Extracting files");
-        try(TarArchiveInputStream tais = new TarArchiveInputStream(
-            new GzipCompressorInputStream( new BufferedInputStream( new FileInputStream(filePath))))){
-            TarArchiveEntry entry;
-
-            /** Read the tar entries using the getNextEntry method **/
-            while ((entry = (TarArchiveEntry) tais.getNextEntry()) != null) {
-                //System.out.println("Extracting file: " + entry.getName());
-
-                //Create directories as required
-                if (entry.isDirectory()) {
-                    new File(outputPath + entry.getName()).mkdirs();
-                    dirCount++;
-                }else {
-                    int count;
-                    byte data[] = new byte[BUFFER_SIZE];
-
-                    FileOutputStream fos = new FileOutputStream(outputPath + entry.getName());
-                    BufferedOutputStream dest = new BufferedOutputStream(fos,BUFFER_SIZE);
-                    while ((count = tais.read(data, 0, BUFFER_SIZE)) != -1) {
-                        dest.write(data, 0, count);
-                    }
-                    dest.close();
-                    fileCount++;
-                }
-                if(fileCount % 1000 == 0) System.out.print(".");
-            }
+  /**
+   * Download a remote file if it doesn't exist.
+   * @param remoteUrl URL of the remote file.
+   * @param localPath Where to download the file.
+   * @return True if and only if the file has been downloaded.
+   * @throws Exception IO error.
+   */
+  public static boolean downloadFile(String remoteUrl, String localPath) throws IOException {
+    boolean downloaded = false;
+    if (remoteUrl == null || localPath == null)
+      return downloaded;
+    File file = new File(localPath);
+    if (!file.exists()) {
+      file.getParentFile().mkdirs();
+      HttpClientBuilder builder = HttpClientBuilder.create();
+      CloseableHttpClient client = builder.build();
+      try (CloseableHttpResponse response = client.execute(new HttpGet(remoteUrl))) {
+        HttpEntity entity = response.getEntity();
+        if (entity != null) {
+          try (FileOutputStream outstream = new FileOutputStream(file)) {
+            entity.writeTo(outstream);
+            outstream.flush();
+            outstream.close();
+          }
         }
-
-        System.out.println("\n" + fileCount + " files and " + dirCount + " directories extracted to: " + outputPath);
+      }
+      downloaded = true;
     }
+    if (!file.exists())
+      throw new IOException("File doesn't exist: " + localPath);
+    return downloaded;
+  }
 
+  /**
+   * Extract a "tar.gz" file into a local folder.
+   * @param inputPath Input file path.
+   * @param outputPath Output directory path.
+   * @throws IOException IO error.
+   */
+  public static void extractTarGz(String inputPath, String outputPath) throws IOException {
+    if (inputPath == null || outputPath == null)
+      return;
+    final int bufferSize = 4096;
+    if (!outputPath.endsWith("" + File.separatorChar))
+      outputPath = outputPath + File.separatorChar;
+    try (TarArchiveInputStream tais = new TarArchiveInputStream(
+        new GzipCompressorInputStream(new BufferedInputStream(new FileInputStream(inputPath))))) {
+      TarArchiveEntry entry;
+      while ((entry = (TarArchiveEntry) tais.getNextEntry()) != null) {
+        if (entry.isDirectory()) {
+          new File(outputPath + entry.getName()).mkdirs();
+        } else {
+          int count;
+          byte data[] = new byte[bufferSize];
+          FileOutputStream fos = new FileOutputStream(outputPath + entry.getName());
+          BufferedOutputStream dest = new BufferedOutputStream(fos, bufferSize);
+          while ((count = tais.read(data, 0, bufferSize)) != -1) {
+            dest.write(data, 0, count);
+          }
+          dest.close();
+        }
+      }
+    }
+  }
 
 }
-
