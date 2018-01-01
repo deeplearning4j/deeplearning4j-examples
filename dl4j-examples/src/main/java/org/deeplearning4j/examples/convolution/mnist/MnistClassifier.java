@@ -63,8 +63,8 @@ public class MnistClassifier {
 
     log.info("Data load and vectorization...");
     String localFilePath = basePath + "/mnist_png.tar.gz";
-    if (!DataUtilities.downloadFile(dataUrl, localFilePath))
-      log.info("Data file is already there");
+    if (DataUtilities.downloadFile(dataUrl, localFilePath))
+      log.debug("Data downloaded from {}", dataUrl);
     if (!new File(basePath + "/mnist_png").exists())
       DataUtilities.extractTarGz(localFilePath, basePath);
 
@@ -76,7 +76,7 @@ public class MnistClassifier {
     trainRR.initialize(trainSplit);
     DataSetIterator trainIter = new RecordReaderDataSetIterator(trainRR, batchSize, 1, outputNum);
 
-    // pixel values scaling from 0-255 to 0-1
+    // pixel values from 0-255 to 0-1 (min-max scaling)
     DataNormalization scaler = new ImagePreProcessingScaler(0, 1);
     scaler.fit(trainIter);
     trainIter.setPreProcessor(scaler);
@@ -94,13 +94,13 @@ public class MnistClassifier {
     lrSchedule.put(0, 0.06); // iteration #, learning rate
     lrSchedule.put(300, 0.05);
     lrSchedule.put(500, 0.029);
-    lrSchedule.put(700, 0.0043);
-    lrSchedule.put(1000, 0.001);
+    lrSchedule.put(700, 0.0044);
+    lrSchedule.put(1000, 0.0011);
 
     MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
         .seed(seed)
         .iterations(iterations)
-        .regularization(true).l2(0.0005)
+        .regularization(true).l1(0.0005)
         .learningRate(.01)
         .learningRateDecayPolicy(LearningRatePolicy.Schedule)
         .learningRateSchedule(lrSchedule) // overrides the rate set in learningRate
@@ -139,13 +139,9 @@ public class MnistClassifier {
     MultiLayerNetwork net = new MultiLayerNetwork(conf);
     net.init();
     net.setListeners(new ScoreIterationListener(10));
-
     log.debug("Total num of params: {}", net.numParams());
-    for (int i = 0; i < net.getnLayers(); i++) {
-      log.debug("Layer {}, num of params: {}", i, net.getLayer(i).numParams());
-    }
 
-    // evaluation while training (the error/score should go down)
+    // evaluation while training (the score should go down)
     for (int i = 0; i < nEpochs; i++) {
       net.fit(trainIter);
       log.info("Completed epoch {}", i);
