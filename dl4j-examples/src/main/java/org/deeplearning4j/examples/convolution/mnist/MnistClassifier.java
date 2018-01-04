@@ -92,15 +92,15 @@ public class MnistClassifier {
     log.info("Network configuration and training...");
     Map<Integer, Double> lrSchedule = new HashMap<>();
     lrSchedule.put(0, 0.06); // iteration #, learning rate
-    lrSchedule.put(300, 0.05);
-    lrSchedule.put(500, 0.029);
-    lrSchedule.put(700, 0.0044);
-    lrSchedule.put(1000, 0.0011);
+    lrSchedule.put(200, 0.05);
+    lrSchedule.put(600, 0.028);
+    lrSchedule.put(800, 0.0060);
+    lrSchedule.put(1000, 0.001);
 
     MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
         .seed(seed)
         .iterations(iterations)
-        .regularization(true).l1(0.0005)
+        .regularization(true).l2(0.0005)
         .learningRate(.01)
         .learningRateDecayPolicy(LearningRatePolicy.Schedule)
         .learningRateSchedule(lrSchedule) // overrides the rate set in learningRate
