@@ -96,28 +96,27 @@ public class KerasImportCSVSparkRunner {
         DataSetIterator iterator = new RecordReaderDataSetIterator(
             recordReader, batchSizePerWorker, indexLabel, numClasses);
 
-        // Load all the data into a DataSet
-        DataSet data = iterator.next();
-
         List<DataSet> dataList = new ArrayList<>();
         while (iterator.hasNext()) {
             dataList.add(iterator.next());
         }
-        JavaRDD<DataSet> testData = sc.parallelize(dataList);
+        JavaRDD<DataSet> data = sc.parallelize(dataList);
 
-
+        // Load Keras model
         MultiLayerNetwork network = KerasModelImport.importKerasSequentialModelAndWeights(modelFileName);
 
+        // Build training master
         ParameterAveragingTrainingMaster tm = new ParameterAveragingTrainingMaster.Builder(40)
             .averagingFrequency(5)
             .workerPrefetchNumBatches(2)
             .batchSizePerWorker(40)
             .build();
 
+        // Init Spark net
         SparkDl4jMultiLayer sparkNet = new SparkDl4jMultiLayer(sc, network, tm);
 
         // Distributed evaluation
-        Evaluation evaluation = sparkNet.doEvaluation(testData, 64, new Evaluation(10))[0]; //Work-around for 0.9.1 bug: see https://deeplearning4j.org/releasenotes
+        Evaluation evaluation = sparkNet.doEvaluation(data, 64, new Evaluation(10))[0];
         log.info(evaluation.stats());
         log.info("***** Example Complete *****");
     }
