@@ -1,4 +1,0 @@
-DESKTOP_SESSION=name-of-desktop-file
-export DESKTOP_SESSION
-exec-command-from-desktop-file
-vncserver-virtual -kill $DISPLAY
