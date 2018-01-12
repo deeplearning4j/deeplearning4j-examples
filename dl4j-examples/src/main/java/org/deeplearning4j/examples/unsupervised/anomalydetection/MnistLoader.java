@@ -86,12 +86,14 @@ public class MnistLoader extends NativeImageLoader implements Serializable {
             File image = fileIterator.next();
             INDArray features = null;
             try {
-                features = super.asMatrix(image);
-                features =  features.muli(1.0/255.0);
-                features = features.ravel();
+                features = asMatrix(image);
+
             } catch (Exception e) {
                 log.error("loading the file showing exception ", e);
+                throw new RuntimeException(e);
             }
+            features =  features.muli(1.0/255.0);
+            features = features.ravel();
             Nd4j.getAffinityManager().ensureLocation(features, AffinityManager.Location.DEVICE);
             dataSets.add(new DataSet(features, features));
             fileNum ++;
