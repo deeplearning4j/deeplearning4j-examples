@@ -77,7 +77,6 @@ public class MnistLoader extends NativeImageLoader implements Serializable {
         }
     }
 
-
     public DataSet convertDataSet(int num)  {
         int batchNumCount = 0;
         List<DataSet> dataSets = new ArrayList();
@@ -89,7 +88,6 @@ public class MnistLoader extends NativeImageLoader implements Serializable {
                 features = asMatrix(image);
             } catch (Exception e) {
                 log.error("loading the file showing exception ", e);
-                throw new RuntimeException(e.getCause());
             }
             features =  features.muli(1.0/255.0);
             features = features.ravel();
@@ -108,7 +106,6 @@ public class MnistLoader extends NativeImageLoader implements Serializable {
             return result;
         }
     }
-
 
     public DataSet next(int batchSize) {
         DataSet result = convertDataSet( batchSize );
