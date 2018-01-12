@@ -63,13 +63,12 @@ public class ImageWithByteUtil {
     }
     public static byte[] image2Bytes(File f) throws Exception {
         BufferedImage bi = ImageIO.read(f);
-        int imageType = bi.getType();// 获取图片类型
-        int width = bi.getWidth();// 获取图片宽度
-        int height = bi.getHeight();// 获取图片高度
+        int imageType = bi.getType();
+        int width = bi.getWidth();
+        int height = bi.getHeight();
 
         BufferedImage grayImage = new BufferedImage(width, height,BufferedImage.TYPE_BYTE_GRAY);
         new ColorConvertOp(ColorSpace.getInstance(ColorSpace.CS_GRAY), null).filter(bi, grayImage);
-        // getData方法返回BufferedImage的raster成员对象
         return (byte[]) grayImage.getData().getDataElements(0, 0, width, height, null);
     }
 
