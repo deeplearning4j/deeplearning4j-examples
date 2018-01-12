@@ -20,8 +20,6 @@ public class ImageWithByteUtil {
     protected static final String MNIST_ROOT= TEMP_ROOT + File.separator + "MNIST" + File.separator;
 
 
-
-
     public static void bytes2Image( ) throws Exception {
         String images;
         String labels;
@@ -62,16 +60,15 @@ public class ImageWithByteUtil {
 
     }
     public static byte[] image2Bytes(File f) throws Exception {
-        BufferedImage bi = ImageIO.read(f);
-        int imageType = bi.getType();
-        int width = bi.getWidth();
-        int height = bi.getHeight();
+		BufferedImage bi = ImageIO.read(f);
+		int imageType = bi.getType();
+		int width = bi.getWidth();
+		int height = bi.getHeight();
 
-        BufferedImage grayImage = new BufferedImage(width, height,BufferedImage.TYPE_BYTE_GRAY);
-        new ColorConvertOp(ColorSpace.getInstance(ColorSpace.CS_GRAY), null).filter(bi, grayImage);
-        return (byte[]) grayImage.getData().getDataElements(0, 0, width, height, null);
-    }
-
+		BufferedImage grayImage = new BufferedImage(width, height,BufferedImage.TYPE_BYTE_GRAY);
+		new ColorConvertOp(ColorSpace.getInstance(ColorSpace.CS_GRAY), null).filter(bi, grayImage);
+		return (byte[]) grayImage.getData().getDataElements(0, 0, width, height, null);
+	}
     public static void main(String[] args) throws Exception {
         bytes2Image();
     }
