@@ -100,7 +100,7 @@ public class Word2VecUptrainingExample {
 
         word2Vec.fit();
 
-        lst = word2Vec.wordsNearest("day", 10);
+        lst = word2Vec.wordsNearestSum("day", 10);
         log.info("Closest words to 'day' on 2nd run: " + lst);
 
         /*

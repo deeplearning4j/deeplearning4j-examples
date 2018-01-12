@@ -34,8 +34,6 @@ import java.util.Random;
  * This example uses JavaFX, which requires the Oracle JDK. Comment out this example if you use a different JDK.
  * OpenJDK and openjfx have been reported to work fine.
  *
- * TODO: sample does not shut down correctly. Process must be stopped from the IDE.
- *
  * @author Robert Altena
  * Many thanks to @tmanthey for constructive feedback and suggestions.
  */
@@ -120,6 +118,7 @@ public class ImageDrawer extends Application {
 
         primaryStage.setTitle("Neural Network Drawing Demo.");
         primaryStage.setScene(scene);
+        primaryStage.setOnCloseRequest(we -> System.exit(0));
         primaryStage.show();
 
         Platform.setImplicitExit(true);

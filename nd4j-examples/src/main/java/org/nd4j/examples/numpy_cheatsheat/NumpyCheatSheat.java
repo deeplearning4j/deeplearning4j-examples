@@ -3,10 +3,23 @@ package org.nd4j.examples.numpy_cheatsheat;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.indexing.NDArrayIndex;
-import org.nd4j.linalg.ops.transforms.Transforms;
+import org.nd4j.linalg.indexing.conditions.Conditions;
 
 import java.io.IOException;
 import java.util.Arrays;
+
+import static org.nd4j.linalg.ops.transforms.Transforms.*;
+
+/**
+ * These are common functions that most python numpy users use for their daily work.
+ * I've provided examples for all such users who are coming from the numpy environment to ND4J
+ * You can view the cheatsheat and see the implementations and use cases here
+ *
+ * Following is the link to the cheatsheat I've implemented
+ * https://www.dataquest.io/blog/images/cheat-sheets/numpy-cheat-sheet.pdf
+ *
+ * @author Shams Ul Azeem
+ */
 
 public class NumpyCheatSheat {
     public static void main(String[] args) {
@@ -14,7 +27,7 @@ public class NumpyCheatSheat {
         // 1. np.loadtxt('file.txt') - From a text file
         INDArray readFromText = null;
         try {
-            readFromText = Nd4j.readNumpy("src/main/java/numpy_cheatsheat/file.txt");
+            readFromText = Nd4j.readNumpy(makeResourcePath("/numpy_cheatsheet/file.txt"));
             print("Read from text", readFromText);
         } catch (IOException e) {
             e.printStackTrace();
@@ -22,7 +35,7 @@ public class NumpyCheatSheat {
         // 2. np.genfromtxt('file.csv',delimiter=',') - From a CSV file
         INDArray readFromCSV = null;
         try {
-            readFromCSV = Nd4j.readNumpy("src/main/java/numpy_cheatsheat/file.csv", ",");
+            readFromCSV = Nd4j.readNumpy(makeResourcePath("/numpy_cheatsheet/file.csv"), ",");
             print("Read from csv", readFromCSV);
         } catch (IOException e) {
             e.printStackTrace();
@@ -30,7 +43,7 @@ public class NumpyCheatSheat {
         // 3. np.savetxt('file.txt',arr,delimiter=' ') - Writes to a text file
         try {
             if (readFromText != null) {
-                Nd4j.writeNumpy(readFromText,"src/main/java/numpy_cheatsheat/saveFile.txt", " "); //This method is deprecated but it's the closest to the numpy one
+                Nd4j.writeNumpy(readFromText, makeResourcePath("/numpy_cheatsheet/saveFile.txt"), " "); //This method is deprecated but it's the closest to the numpy one
                 System.out.println("Printed array into a text file");
             }
         } catch (IOException e) {
@@ -39,13 +52,12 @@ public class NumpyCheatSheat {
         // 4. np.savetxt('file.csv',arr,delimiter=',') - Writes to a CSV file
         try {
             if (readFromCSV != null) {
-                Nd4j.writeNumpy(readFromCSV,"src/main/java/numpy_cheatsheat/saveFile.csv", ","); //This method is deprecated but it's the closest to the numpy one
+                Nd4j.writeNumpy(readFromCSV, makeResourcePath("/numpy_cheatsheet/saveFile.csv"), ","); //This method is deprecated but it's the closest to the numpy one
                 System.out.println("Printed array into a csv file");
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
-
         /* B. CREATING ARRAYS */
         // 1. np.array([1,2,3]) - One dimensional array
         INDArray oneDArray = Nd4j.create(new float[]{1,2,3,4,5,6} , new int[]{6});
@@ -66,11 +78,10 @@ public class NumpyCheatSheat {
         INDArray zeroToHundredLinspaceOfSix = Nd4j.linspace(0, 100, 6);
         print("Zero to Hundred With linspace interval 6", zeroToHundredLinspaceOfSix);
         // 7. np.arange(0,10,3) - Array of values from 0 to less than 10 with step 3 (eg [0,3,6,9])
-        //todo: have to add stepping feature
-        INDArray stepOfThreeTillTen = CustomOperations.arange(0, 10, 3);
+        INDArray stepOfThreeTillTen = CustomOperations.arange(-10, -20, -0.4);
         print("ARange", stepOfThreeTillTen);
         // 8. np.full((2,3),8) - 2x3 array with all values 8
-        INDArray allEights = CustomOperations.full(new int[] {2,3}, 8);
+        INDArray allEights = Nd4j.valueArrayOf(new int[] {2,3}, 8);
         print("2x3 Eights", allEights);
         // 9. np.random.rand(4,5) - 4x5 array of random floats between 0-1
         INDArray fourByFiveRandomZeroToOne = Nd4j.rand(new int[] {4, 5});
@@ -93,7 +104,20 @@ public class NumpyCheatSheat {
         String type = CustomOperations.type(fourByFiveRandomZeroToOne);
         System.out.println("Array type: " + type);
         // 4. arr.astype(dtype) - Convert arr elements to type dtype
-        //todo: INDArray typeChanges = CustomOperations.asType(fourByFiveRandomZeroToOne, DataBuffer.Type.INT); (throwing error)
+        /* This can't be implemented as according to the documentation all ND4J arrays should have the same datatype
+         * If you want to set it globally then use the following function
+         * ------------------------------------------
+         * For 0.4-rc3.8 and earlier:
+         * ------------------------------------------
+         * Nd4j.dtype = DataBuffer.Type.DOUBLE;
+         * NDArrayFactory factory = Nd4j.factory();
+         * factory.setDType(DataBuffer.Type.DOUBLE);
+         * ------------------------------------------
+         * For 0.4-rc3.9 and later:
+         * ------------------------------------------
+         * DataTypeUtil.setDTypeForContext(DataBuffer.Type.DOUBLE);
+         * ------------------------------------------
+         */
         // 5. arr.tolist() - Convert arr to a Python list
         byte[] bytes = fourByFiveRandomZeroToOne.data().asBytes();
         System.out.println("Array byte: " + Arrays.toString(bytes));
@@ -112,7 +136,9 @@ public class NumpyCheatSheat {
         INDArray copy = fourByFiveRandomZeroToOne.dup();
         print("Copied array: ", copy);
         // 2. arr.view(dtype) - Creates view of arr elements with type dtype
-        //todo:
+        /* This can't be implemented as according to the documentation all ND4J arrays should have the same datatype.
+         * So if we change an array's view it's going to be reflected on all the arrays
+         */
         // 3. arr.sort() - Sorts arr
         INDArray sortedArray = Nd4j.sort(fourByFiveRandomZeroToOne, true);
         print("Ascended sorted array: ", sortedArray);
@@ -134,13 +160,17 @@ public class NumpyCheatSheat {
 
         /* E. ADDING/REMOVING ELEMENTS */
         // 1. np.append(arr,values) - Appends values to end of arr
-        //todo:
+        INDArray appended = CustomOperations.append(reshaped, resized);
+        print("Appended array", appended);
         // 2. np.insert(arr,2,values) - Inserts values into arr before index 2
-        //todo:
+        INDArray inserted = CustomOperations.insert(reshaped, 2, resized);
+        print("Inserted array", inserted);
         // 3. np.delete(arr,3,axis=0) - Deletes row on index 3 of arr
-        //todo:
+        INDArray deletedIndex3Axis0 = CustomOperations.delete(0, resized, 3);
+        print("Deleted array on index 3 axis 0", deletedIndex3Axis0);
         // 4. np.delete(arr,4,axis=1) - Deletes column on index 4 of arr
-        //todo:
+        INDArray deletedIndex4Axis1 = CustomOperations.delete(1, resized, 4);
+        print("Deleted array on index 4 axis 1", deletedIndex4Axis1);
 
         /* F. COMBINING/SPLITTING */
         // 1. np.concatenate((arr1,arr2),axis=0) - Adds arr2 as rows to the end of arr1
@@ -150,9 +180,13 @@ public class NumpyCheatSheat {
         INDArray concatenatedAxisOne = Nd4j.concat(1, Nd4j.create(3, 2), Nd4j.create(3, 5));
         print("Concatenated arrays on dimension 1", concatenatedAxisOne);
         // 3. np.split(arr,3) - Splits arr into 3 sub-arrays
-        //todo:
-        // 4. np.hsplit(arr,5) - Splits arr horizontally on the 5th index
-        //todo:
+        INDArray [] verticalSplit = CustomOperations.split(Nd4j.valueArrayOf(new int[] {9, 9}, 9),
+            3);
+        print("Vertical Split", verticalSplit);
+        // 4. np.hsplit(arr,5) - Splits arr horizontally into 5 sub-arrays
+        INDArray [] horizontalSplit = CustomOperations.hsplit(Nd4j.valueArrayOf(new int[]{10, 10}, 10),
+            5);
+        print("Horizontal Split", horizontalSplit);
 
         /* G. INDEXING/SLICING/SUBSETTING */
         // 1. arr[5] - Returns the element at index 5
@@ -179,14 +213,34 @@ public class NumpyCheatSheat {
         // 8. arr[:,1] - Returns the elements at index 1 on all rows
         INDArray allRowsIndexOne = fourByFiveRandomZeroToOne.get(NDArrayIndex.all(), NDArrayIndex.point(1));
         print("Get interval from array ([:,1])", allRowsIndexOne);
+        //For the functions below, since there's no boolean type in ND4J so I'll work on 0.0s(false) and 1.0s(true)
         // 9. arr<5 - Returns an array with boolean values
-        //todo:
+        INDArray lessThan5 = CustomOperations.booleanOp(CustomOperations.randInt(new int[]{3, 3}, 10), Conditions.lessThan(5));
+        print("Less than 5", lessThan5);
         // 10. (arr1<3) & (arr2>5) - Returns an array with boolean values
-        //todo:
+        INDArray lessThan3 = CustomOperations.booleanOp(CustomOperations.randInt(new int[]{3, 3}, 10),
+            Conditions.lessThan(3));
+        INDArray greaterThan5 = CustomOperations.booleanOp(CustomOperations.randInt(new int[]{3, 3}, 10),
+            Conditions.greaterThan(5));
+        INDArray compared = CustomOperations.compare(lessThan3, greaterThan5, new Predicate<Boolean[]>() {
+            @Override
+            public boolean test(Boolean[] booleans) {
+                return booleans[0] & booleans[1];
+            }
+        });
+        print("Compared", compared);
         // 11. ~arr - Inverts a boolean array
-        //todo:
+        INDArray inverted = CustomOperations.invert(lessThan5);
+        print("Inverted", inverted);
         // 12. arr[arr<5] - Returns array elements smaller than 5
-        //todo:
+        INDArray lessThan5Elements = CustomOperations.find(CustomOperations.randInt(new int[]{3, 3}, 10),
+            new Predicate<Double>() {
+                @Override
+                public boolean test(Double aDouble) {
+                    return aDouble < 5;
+                }
+            });
+        print("Less than 5 elements", lessThan5Elements);
 
         /* H. SCALAR MATH */
         // 1. np.add(arr,1) - Add 1 to each array element
@@ -202,7 +256,7 @@ public class NumpyCheatSheat {
         INDArray divideFour = fourByFiveRandomZeroToOne.div(4);
         print("Divide array by 4", divideFour);
         // 5. np.power(arr,5) - Raise each array element to the 5th power
-        INDArray pow = Transforms.pow(fourByFiveRandomZeroToOne, 5);
+        INDArray pow = pow(fourByFiveRandomZeroToOne, 5);
         print("5th power of array", pow);
 
         /* I. VECTOR MATH */
@@ -220,30 +274,32 @@ public class NumpyCheatSheat {
         INDArray vectorDivide = fourByFiveRandomZeroToOne.div(secondArray);
         print("Vector divide", vectorDivide);
         // 5. np.power(arr1,arr2) - Elementwise raise arr1 raised to the power of arr2
-        INDArray power = Transforms.pow(fourByFiveRandomZeroToOne, secondArray);
+        INDArray power = pow(fourByFiveRandomZeroToOne, secondArray);
         print("Vector power", power);
         // 6. np.array_equal(arr1,arr2) - Returns True if the arrays have the same elements and shape
-        //todo:
+        boolean areArraysEquals1 = CustomOperations.Equal(fourByFiveRandomZeroToOne, threeByFourOnes);
+        boolean areArraysEquals2 = CustomOperations.Equal(fourByFiveRandomZeroToOne, fourByFiveRandomZeroToOne);
+        System.out.println("Are arrays equals: 1. " + areArraysEquals1 + ", 2. " + areArraysEquals2);
         // 7. np.sqrt(arr) - Square root of each element in the array
-        INDArray sqrt = Transforms.sqrt(fourByFiveRandomZeroToOne);
+        INDArray sqrt = sqrt(fourByFiveRandomZeroToOne);
         print("Vector square root", sqrt);
         // 8. np.sin(arr) - Sine of each element in the array
-        INDArray sin = Transforms.sin(fourByFiveRandomZeroToOne);
+        INDArray sin = sin(fourByFiveRandomZeroToOne);
         print("Vector sin", sin);
         // 9. np.log(arr) - Natural log of each element in the array
-        INDArray log = Transforms.log(fourByFiveRandomZeroToOne);
+        INDArray log = log(fourByFiveRandomZeroToOne);
         print("Vector log", log);
         // 10. np.abs(arr) - Absolute value of each element in the array
-        INDArray abs = Transforms.abs(fourByFiveRandomZeroToOne);
+        INDArray abs = abs(fourByFiveRandomZeroToOne);
         print("Vector abs", abs);
         // 11. np.ceil(arr) - Rounds up to the nearest int
-        INDArray ceil = Transforms.ceil(fourByFiveRandomZeroToOne);
+        INDArray ceil = ceil(fourByFiveRandomZeroToOne);
         print("Vector ceil", ceil);
         // 12. np.floor(arr) - Rounds down to the nearest int
-        INDArray floor = Transforms.floor(fourByFiveRandomZeroToOne);
+        INDArray floor = floor(fourByFiveRandomZeroToOne);
         print("Vector floor", floor);
         // 13. np.round(arr) - Rounds to the nearest int
-        INDArray round = Transforms.round(fourByFiveRandomZeroToOne);
+        INDArray round = round(fourByFiveRandomZeroToOne);
         print("Vector round", round);
 
         /* J. STATISTICS */
@@ -266,13 +322,25 @@ public class NumpyCheatSheat {
         INDArray std = Nd4j.std(fourByFiveRandomZeroToOne, 1);
         print("Standard deviation", std);
         // 7. arr.corrcoef() - Returns correlation coefficient of array
-        //todo:
-
+        //todo: Returns correlation coefficient of array
     }
 
     private static void print(String tag, INDArray arr) {
         System.out.println("----------------");
         System.out.println(tag + ":\n" + arr.toString());
         System.out.println("----------------");
+    }
+
+    private static void print(String tag, INDArray [] arrays) {
+        System.out.println("----------------");
+        System.out.println(tag);
+        for (INDArray array : arrays) {
+            System.out.println("\n" + array);
+        }
+        System.out.println("----------------");
+    }
+
+    private static String makeResourcePath(String template) {
+        return NumpyCheatSheat.class.getResource(template).getPath();
     }
 }
