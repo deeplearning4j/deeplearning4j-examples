@@ -87,10 +87,9 @@ public class MnistLoader extends NativeImageLoader implements Serializable {
             INDArray features = null;
             try {
                 features = asMatrix(image);
-
             } catch (Exception e) {
                 log.error("loading the file showing exception ", e);
-                throw new RuntimeException(e);
+                throw new RuntimeException(e.getCause());
             }
             features =  features.muli(1.0/255.0);
             features = features.ravel();
