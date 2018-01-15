@@ -32,7 +32,7 @@ import java.util.List;
 
 
 /**this's unsupervised examples for anormaly detection using autoencoder on MNIST,the example don't use the label of the MNIST
- * when doing the example,the dataset contains  some digits writeen by me,especially those images don't look like digit
+ * when doing the example,the dataset contains  some digits written by me,especially those images don't look like digit
  * of course you can use ImageWithBytesUtil  to generate images from ubyte format files of MNIST, and then add your pictures to training or testing directory .
  * The goal is to identify outliers digits, i.e., those digits that are unusual or not like the typical digits.
  * in fact, the normal images should have low reconfiguration error,whereas those weird pictures have high reconstruction error
@@ -108,7 +108,6 @@ public class AEMNISTAnomalyDectection {
         for( int j = 0; j < listsize && j < 60; j ++ ){
             normalList.add(evalList.get(j).getRight());
             anomalyList.add(evalList.get(listsize -j -1).getRight());
-
         }
         VisualizerUtil bestVisualizer = new VisualizerUtil(2.0,normalList,"best (High Rec. Error)");
         bestVisualizer.visualize();
