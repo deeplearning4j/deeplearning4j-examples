@@ -39,7 +39,7 @@ public class CustomLayerExample {
     static{
         //Double precision for the gradient checks. See comments in the doGradientCheck() method
         // See also http://nd4j.org/userguide.html#miscdatatype
-        DataTypeUtil.setDTypeForContext(DataBuffer.Type.DOUBLE);
+        Nd4j.setDataType(DataBuffer.Type.DOUBLE);
     }
 
     public static void main(String[] args) throws IOException {

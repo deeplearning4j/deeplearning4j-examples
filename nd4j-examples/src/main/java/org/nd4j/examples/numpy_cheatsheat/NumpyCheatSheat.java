@@ -115,7 +115,7 @@ public class NumpyCheatSheat {
          * ------------------------------------------
          * For 0.4-rc3.9 and later:
          * ------------------------------------------
-         * DataTypeUtil.setDTypeForContext(DataBuffer.Type.DOUBLE);
+         * Nd4j.setDataType(DataBuffer.Type.DOUBLE);
          * ------------------------------------------
          */
         // 5. arr.tolist() - Convert arr to a Python list
