@@ -17,6 +17,7 @@ import org.nd4j.linalg.api.buffer.DataBuffer;
 import org.nd4j.linalg.api.buffer.util.DataTypeUtil;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.api.MultiDataSet;
+import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 
 
@@ -82,7 +83,7 @@ public class AdditionRNN {
     public static void main(String[] args) throws Exception {
 
         //DataType is set to double for higher precision
-        DataTypeUtil.setDTypeForContext(DataBuffer.Type.DOUBLE);
+        Nd4j.setDataType(DataBuffer.Type.DOUBLE);
 
         //This is a custom iterator that returns MultiDataSets on each call of next - More details in comments in the class
         CustomSequenceIterator iterator = new CustomSequenceIterator(seed, batchSize, totalBatches);

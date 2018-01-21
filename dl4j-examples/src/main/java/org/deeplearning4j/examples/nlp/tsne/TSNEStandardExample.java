@@ -1,6 +1,7 @@
 package org.deeplearning4j.examples.nlp.tsne;
 
 import org.datavec.api.util.ClassPathResource;
+import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.primitives.Pair;
 import org.deeplearning4j.models.embeddings.inmemory.InMemoryLookupTable;
 import org.deeplearning4j.models.embeddings.loader.WordVectorSerializer;
@@ -28,7 +29,7 @@ public class TSNEStandardExample {
         //STEP 1: Initialization
         int iterations = 100;
         //create an n-dimensional array of doubles
-        DataTypeUtil.setDTypeForContext(DataBuffer.Type.DOUBLE);
+        Nd4j.setDataType(DataBuffer.Type.DOUBLE);
         List<String> cacheList = new ArrayList<>(); //cacheList is a dynamic array of strings used to hold all words
 
         //STEP 2: Turn text input into a list of words
