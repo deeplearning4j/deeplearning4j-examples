@@ -45,7 +45,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
-import static org.bytedeco.javacpp.opencv_imgproc.COLOR_BGR2YCrCb;
+import static java.lang.Math.toIntExact;
 
 /**
  * Animal Classification
@@ -69,19 +69,17 @@ public class AnimalsClassification {
     protected static int height = 100;
     protected static int width = 100;
     protected static int channels = 3;
-    protected static int numExamples = 80;
-    protected static int numLabels = 4;
     protected static int batchSize = 20;
 
     protected static long seed = 42;
     protected static Random rng = new Random(seed);
-    protected static int listenerFreq = 1;
     protected static int iterations = 1;
     protected static int epochs = 50;
     protected static double splitTrainTest = 0.8;
     protected static boolean save = false;
 
     protected static String modelType = "AlexNet"; // LeNet, AlexNet or Custom but you need to fill it out
+    private int numLabels;
 
     public void run(String[] args) throws Exception {
 
@@ -93,9 +91,10 @@ public class AnimalsClassification {
          *  - pathFilter = define additional file load filter to limit size and balance batch content
          **/
         ParentPathLabelGenerator labelMaker = new ParentPathLabelGenerator();
-        System.out.println(System.getProperty("user.dir") + "======" + "dl4j-examples/src/main/resources/animals/");
         File mainPath = new File(System.getProperty("user.dir"), "dl4j-examples/src/main/resources/animals/");
         FileSplit fileSplit = new FileSplit(mainPath, NativeImageLoader.ALLOWED_FORMATS, rng);
+        int numExamples = toIntExact(fileSplit.length());
+        numLabels = fileSplit.getRootDir().listFiles(File::isDirectory).length; //This only works if your root is clean: only label subdirs.
         BalancedPathFilter pathFilter = new BalancedPathFilter(rng, labelMaker, numExamples, numLabels, batchSize);
 
         /**
