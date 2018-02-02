@@ -144,11 +144,6 @@
             <artifactId>logback-classic</artifactId>
             <version>${logback.version}</version>
         </dependency>
-        <dependency>
-            <groupId>org.nd4j</groupId>
-            <artifactId>nd4j-cuda-8.0</artifactId>
-            <version>0.9.1</version>
-        </dependency>
 
     </dependencies>
 
