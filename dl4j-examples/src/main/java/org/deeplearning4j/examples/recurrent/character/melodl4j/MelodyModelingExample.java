@@ -28,16 +28,17 @@ import java.util.List;
 import java.util.Random;
 
 /**
- * GravesLSTM  Symbolic melody modelling example, based closely on GravesLSTMCharModellingExample.java.
+ * GravesLSTM  Symbolic melody modelling example, to compose music from symbolic melodies extracted from MIDI.
+ * Based closely on GravesLSTMCharModellingExample.java.
  * See the README file in this directory for documentation.
  *
  * @author Alex Black, Donald A. Smith.
  */
 public class MelodyModelingExample {
-    final static String inputSymbolicMelodiesFilename = "midi-melodies-bach.txt"; // Try also midi-melodies-pop.txt
+    final static String inputSymbolicMelodiesFilename = "bach-melodies.txt"; // Try also pop-melodies.txt
     final static String tmpDir = System.getProperty("java.io.tmpdir");
 
-    final static String symbolicMelodiesInputFilePath = tmpDir + "/" + inputSymbolicMelodiesFilename;  // Point to melodies created by Midi2MelodyStrings.java
+    final static String symbolicMelodiesInputFilePath = tmpDir + "/" + inputSymbolicMelodiesFilename;  // Point to melodies created by MidiMelodyExtractor.java
     final static String composedMelodiesOutputFilePath = tmpDir + "/composition.txt"; // You can listen to these melodies by running PlayMelodyStrings.java against this file.
 
     //....
@@ -73,7 +74,7 @@ public class MelodyModelingExample {
             String[] samples = sampleCharactersFromNetwork(generationInitialization, net, iter, rng, nCharactersToSample, nSamplesToGenerate);
             for (String melody : samples) {
                 System.out.println(melody);
-                PlayMelodyStrings.playMelody(melody, 10, 48);
+                PlayMelodyStrings.playMelody(melody, 10);
                 System.out.println();
             }
             System.exit(0);
@@ -160,7 +161,7 @@ public class MelodyModelingExample {
                 String melody = melodies.get(melodies.size() - 1);
                 int seconds = 15;
                 System.out.println("\nFirst " + seconds + " seconds of " + melody);
-                PlayMelodyStrings.playMelody(melody, seconds, 48);
+                PlayMelodyStrings.playMelody(melody, seconds);
             }
         }
         int indexOfLastPeriod = inputSymbolicMelodiesFilename.lastIndexOf('.');
@@ -186,7 +187,7 @@ public class MelodyModelingExample {
      * @param sequenceLength Number of characters in each text segment.
      */
     public static CharacterIterator getMidiIterator(int miniBatchSize, int sequenceLength) throws Exception {
-        File f = new File(symbolicMelodiesInputFilePath);
+        final File f = new File(symbolicMelodiesInputFilePath);
         if (!f.exists()) {
             URL url = null;
             try {
@@ -203,9 +204,9 @@ public class MelodyModelingExample {
         } else {
             System.out.println("Using existing text file at " + f.getAbsolutePath());
         }
-        char[] validCharacters = "0123456789abc!@#$%^&*(ABCDdefghijklmnopqrstuvwzyzEFGHIJKLMR".toCharArray(); //Which characters are allowed? Others will be removed
+        final char[] validCharacters = MelodyStrings.allValidCharacters.toCharArray(); //Which characters are allowed? Others will be removed
         return new CharacterIterator(symbolicMelodiesInputFilePath, Charset.forName("UTF-8"),
-            miniBatchSize, sequenceLength, validCharacters, new Random(12345));
+            miniBatchSize, sequenceLength, validCharacters, new Random(12345), MelodyStrings.COMMENT_STRING);
     }
 
     /**
