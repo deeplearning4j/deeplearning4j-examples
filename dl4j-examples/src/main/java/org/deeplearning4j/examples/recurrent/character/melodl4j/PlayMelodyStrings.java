@@ -513,7 +513,9 @@ public class PlayMelodyStrings {
     }
     //-----------------------------------
     public static void main(String[] args) {
-        args = new String[] {"d:/tmp/classical.txt"};
+        String filename="pop-melodies.txt";
+        MelodyModelingExample.makeSureFileIsInTmpDir(filename);
+        args = new String[] {MelodyModelingExample.tmpDir + "/" + filename};
         try {
             String pathToMelodiesFile = args.length == 0 ? getPathToExampleMelodiesFile() : args[0];
             playMelodies(pathToMelodiesFile, 10);

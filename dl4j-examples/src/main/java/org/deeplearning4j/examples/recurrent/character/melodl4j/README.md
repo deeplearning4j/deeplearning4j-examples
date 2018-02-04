@@ -36,22 +36,21 @@ See http://www.asimovinstitute.org/analyzing-deep-learning-tools-music/, and htt
 5.  There is a utility class, <tt>PlayMelodyStrings.java</tt>, that converts melody strings into MIDI and plays the melody on your computer's builtin synthesizer (tested on Windows).
 6.  To limit the number of possible symbols, the program restricts pitches to a two-octave interval centered on Middle C. Notes outside those two octaves are moved up or down an octave until they're inside the interval.
 7.  The program ignores gradations of volume (aka "velocity") of MIDI notes. It also ignores other effects such as pitch bending.
-8.  For each MIDI file that it processes, and for each MIDI track appearing in that file, MidiMelodyExtractor outputs zero or more melodies for that track.
-9.  The parser skips percussion tracks and, optionally, bass tracks.
+8.  For each MIDI file that it processes, and for each MIDI track, channel, and instrument appearing in that file, MidiMelodyExtractor outputs zero or one melodies.
+9.  The parser skips percussion channels and, optionally, bass instruments.
 10.  To exclude uninteresting melodies (e.g., certain bass accompaniments or tracks with long silences) the program skips melodies that have too too small a variety of pitches or too few notes.
-11.  For polyphonic tracks, the program outputs (up to) two monophonic melodies from the track: (i) the top notes of the harmony and (ii) the bottom notes of the harmony.
-12.  A monophonic track results in a single output melody.
-13.  The sequence of pitches in a melody is represented by a sequence of intervals (delta pitches). Effectively, all melodies are transposed to a standard key.
-14.  To handle different tempos, the program normalize all durations relative to the average duration of notes in the melody.
-15.  The program quanticizes tempos into 32 possible durations: 1*d, 2*d, 3*d, .... 32*d, where d is 1/8th the duration of the average note. Assuming the average note is a quarter note, the smallest possible duration for notes and rests is typically a 1/32nd note.
-16.  The longest duration for a note or a rest is four times the duration of the average note. Typically, this means that notes longer than a whole note are truncated to be a whole note in length.
-17.  No attempt is made to learn the characteristics of different instruments (e.g. pianos versus violins).
-18.  <tt>MelodyModelingExample.java</tt> is the neural network code that composes melodies. It's closely based on GravesLSTMCharModellingExample.java by Alex Black.
-19.  At the end of each learning epoch, <tt>MelodyModelingExample.java</tt> plays 15 seconds of the last melody generated. As learning progresses you can hear the compositions getting better.
-20.  Before exiting, <tt>MelodyModelingExample.java</tt> writes the generated melodies to a specified file (in reverse order, so that the highest quality melodies tend to be at the start of the file).
-21.  The melody strings composed by the neural network sometimes have invalid syntax (especially at the beginning of training). For example, in a valid melody string, each pitch character is followed by a duration character. PlayMelodyStrings.java will ignore invalid characters in melody strings.
-22.  You can download symbolic music files from [http://truthsite.org/music/bach-melodies.txt](http://truthsite.org/music/bach-melodies.txt) and [http://truthsite.org/music/pop-melodies.txt](http://truthsite.org/music/pop-melodies.txt) .
-23.  You can download some MIDI files from [http://truthsite.org/music/bach-midi.zip](http://truthsite.org/music/bach-midi.zip), [http://truthsite.org/music/pop-midi.zip](http://truthsite.org/music/pop-midi.zip), from [http://musedata.org](http://musedata.org), or from the huge Lakh MIDI Dataset at [http://colinraffel.com/projects/lmd/](http://colinraffel.com/projects/lmd/).
+11.  For polyphonic lists of notes, the program optionally outputs a monophonic melody built from the polyphonic list of notes.
+12.  The sequence of pitches in a melody is represented by a sequence of intervals (delta pitches). Effectively, all melodies are transposed to a standard key.
+13.  To handle different tempos, the program normalizes all durations relative to the average duration of notes in the melody.
+14.  The program quanticizes tempos into 32 possible durations: 1*d, 2*d, 3*d, .... 32*d, where d is 1/8th the duration of the average note. Assuming the average note is a quarter note, the smallest possible duration for notes and rests is typically a 1/32nd note.
+15.  The longest duration for a note or a rest is four times the duration of the average note. Typically, this means that notes longer than a whole note are truncated to be a whole note in length.
+16.  No attempt is made to learn the characteristics of different instruments (e.g. pianos versus violins).
+17.  <tt>MelodyModelingExample.java</tt> is the neural network code that composes melodies. It's closely based on GravesLSTMCharModellingExample.java by Alex Black.
+18.  At the end of each learning epoch, <tt>MelodyModelingExample.java</tt> plays 15 seconds of the last melody generated. As learning progresses you can hear the compositions getting better.
+19.  Before exiting, <tt>MelodyModelingExample.java</tt> writes the generated melodies to a specified file (in reverse order, so that the highest quality melodies tend to be at the start of the file).
+20.  The melody strings composed by the neural network sometimes have invalid syntax (especially at the beginning of training). For example, in a valid melody string, each pitch character is followed by a duration character. PlayMelodyStrings.java will ignore invalid characters in melody strings.
+21.  You can download symbolic music files from [http://truthsite.org/music/bach-melodies.txt](http://truthsite.org/music/bach-melodies.txt) and [http://truthsite.org/music/pop-melodies.txt](http://truthsite.org/music/pop-melodies.txt) .
+22.  You can download some MIDI files from [http://truthsite.org/music/bach-midi.zip](http://truthsite.org/music/bach-midi.zip), [http://truthsite.org/music/pop-midi.zip](http://truthsite.org/music/pop-midi.zip), from [http://musedata.org](http://musedata.org), or from the huge Lakh MIDI Dataset at [http://colinraffel.com/projects/lmd/](http://colinraffel.com/projects/lmd/).
 
 * * *
 

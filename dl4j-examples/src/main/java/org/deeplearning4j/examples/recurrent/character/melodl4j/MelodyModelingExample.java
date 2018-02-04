@@ -35,7 +35,7 @@ import java.util.Random;
  * @author Alex Black, Donald A. Smith.
  */
 public class MelodyModelingExample {
-    final static String inputSymbolicMelodiesFilename = "bach-melodies.txt"; // Try also pop-melodies.txt
+    final static String inputSymbolicMelodiesFilename = "bach-melodies.txt"; // Examples:  bach-melodies.txt ,  pop-melodies.txt
     final static String tmpDir = System.getProperty("java.io.tmpdir");
 
     final static String symbolicMelodiesInputFilePath = tmpDir + "/" + inputSymbolicMelodiesFilename;  // Point to melodies created by MidiMelodyExtractor.java
@@ -180,22 +180,16 @@ public class MelodyModelingExample {
         System.exit(0);
     }
 
-    /**
-     * Sets up and return a simple DataSetIterator that does vectorization based on the melody sample.
-     *
-     * @param miniBatchSize  Number of text segments in each training mini-batch
-     * @param sequenceLength Number of characters in each text segment.
-     */
-    public static CharacterIterator getMidiIterator(int miniBatchSize, int sequenceLength) throws Exception {
-        final File f = new File(symbolicMelodiesInputFilePath);
+    public static void makeSureFileIsInTmpDir(String filename) {
+        final File f = new File(tmpDir + "/" + filename);
         if (!f.exists()) {
             URL url = null;
             try {
-                url = new URL("http://truthsite.org/music/" + inputSymbolicMelodiesFilename);
+                url = new URL("http://truthsite.org/music/" + filename);
                 FileUtils.copyURLToFile(url, f);
             } catch (Exception exc) {
                 System.err.println("Error copying " + url + " to " + f);
-                throw (exc);
+                throw new RuntimeException(exc);
             }
             if (!f.exists()) {
                 throw new RuntimeException(f.getAbsolutePath() + " does not exist");
@@ -204,6 +198,16 @@ public class MelodyModelingExample {
         } else {
             System.out.println("Using existing text file at " + f.getAbsolutePath());
         }
+    }
+
+    /**
+     * Sets up and return a simple DataSetIterator that does vectorization based on the melody sample.
+     *
+     * @param miniBatchSize  Number of text segments in each training mini-batch
+     * @param sequenceLength Number of characters in each text segment.
+     */
+    public static CharacterIterator getMidiIterator(int miniBatchSize, int sequenceLength) throws Exception {
+        makeSureFileIsInTmpDir(inputSymbolicMelodiesFilename);
         final char[] validCharacters = MelodyStrings.allValidCharacters.toCharArray(); //Which characters are allowed? Others will be removed
         return new CharacterIterator(symbolicMelodiesInputFilePath, Charset.forName("UTF-8"),
             miniBatchSize, sequenceLength, validCharacters, new Random(12345), MelodyStrings.COMMENT_STRING);
