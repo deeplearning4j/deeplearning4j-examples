@@ -7,6 +7,7 @@ import java.io.PrintStream;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -25,28 +26,28 @@ import javax.sound.midi.Track;
 /*
  *  MidiMelodyExtractor extracts all monophonic melodies from the midifiles and converts the melodies to strings using MelodyStrings.java.
  *  Each such melody has no harmony and consists of a single instrument playing in a single track and channel.
- *  
+ *
  *  To handle notes that change volume, there's a flag combineSamePitchNotes that lets you control whether the various notes having
  *  the same pitch are combined into one longer note or separated into multiple short notes.
- *  
+ *
  *  The percussion channel is ignored.   Melodies with too few notes or two few pitches are ignored. (See constants minSizeInNotesOfMelody and minDistinctPitches).
- *  
+ *
  *  By default, channels playing a bass instrument are skipped for purposes of extracting melodies (controlled by skipBassesForMelody flag).
- *  
- *  The flag extractMelodyFromPolyphonicNoteList determines what to do with lists of notes that contain polyphony (harmony). 
- *  If extractMelodyFromPolyphonicNoteList is true, the program extracts a list of monophonic notes from the polyphonic notes, by choosing the first 
+ *
+ *  The flag extractMelodyFromPolyphonicNoteList determines what to do with lists of notes that contain polyphony (harmony).
+ *  If extractMelodyFromPolyphonicNoteList is true, the program extracts a list of monophonic notes from the polyphonic notes, by choosing the first
  *  non-overlapping note of each chord.  If extractMelodyFromPolyphonicNoteList is false, the list of notes are skipped.
- *  
+ *
  *  The main method processes all files in inputDirectoryPath and outputs two files, "analysis.txt" and "melodies.txt" to outputDirectoryPath.
- *  
+ *
  *  Invoke the static method processDirectoryAndWriteMelodyAndAnalysisFiles to run this from another program.
- *  
- *  The program may print out many warning messages. These are due to bad data in MIDI files, such as an END_NOTE message with no corresponding 
+ *
+ *  The program may print out many warning messages. These are due to bad data in MIDI files, such as an END_NOTE message with no corresponding
  *  START_NOTE message.
  */
 public class MidiMelodyExtractor  {
 	public static boolean combineSamePitchNotes=true;
-	public static boolean skipBassesForMelody = true; 
+	public static boolean skipBassesForMelody = true;
 	public static int minSizeInNotesOfMelody=8;
 	public static int minDistinctPitches=6;
 	public static final String DEFAULT_INPUT_DIRECTORY_PATH="d:/Music/MIDI/CLASSICAL";
@@ -68,7 +69,7 @@ public class MidiMelodyExtractor  {
 	private static int totalCountOfMelodies=0;
 	private final List<Set<Integer>> setOfPitchesPerTrack = new ArrayList<>();
 	private final List<TreeMap<Integer,TreeMap<Long,Integer>>> perTrackMapFromChannelToTickToInstrument  = new ArrayList<>();
-	
+
 	// Given the list of Notes in a track, we break it into sublists consisting of one channel and one instrument (TODO: with small gaps)
 	private final List<TreeMap<Integer,TreeMap<Integer,List<Note>>>> perTrackMapFromChannelToInstrumentToListOfNotes = new ArrayList<>();
 	private static int totalCountPolyphonicNoteLists=0;
@@ -92,7 +93,7 @@ public class MidiMelodyExtractor  {
 		countPolyphonyPerTrack = new int[tracks.length];
 		processTracks();
 	}
-	
+
 	public void printMelodies(PrintStream melodiesPrintStream) {
 		//private final List<TreeMap<Integer,TreeMap<Integer,List<Note>>>> perTrackMapFromChannelToInstrumentToListOfNotes = new ArrayList<>();
 		for(int trackIndex=0;trackIndex<perTrackMapFromChannelToInstrumentToListOfNotes.size();trackIndex++) {
@@ -126,7 +127,7 @@ public class MidiMelodyExtractor  {
 						totalCountOfMelodies++;
 						int startNote = notes.get(0).getPitch();
 						melodiesPrintStream.println(MelodyStrings.COMMENT_STRING + " Track = trackIndex, Channel = "
-								+ channel + ", Instrument = " + instrument + ", StartNote = " + startNote 
+								+ channel + ", Instrument = " + instrument + ", StartNote = " + startNote
 								+ (polyphony>0? ", polyphony = " + polyphony : "")
 								);
 						melodiesPrintStream.println(melodyString);
@@ -137,10 +138,15 @@ public class MidiMelodyExtractor  {
 	}
 	private static List<Note> extractMonophonicMelodyFromPolyphonicNoteList(List<Note> notes) {
 		final List<Note> result = new ArrayList<>();
-		for(Note note:notes) {
-			if (!overlaps(note,result)) {
-				result.add(note);
+		final Set<Note> notesToSkip = new HashSet<>(); // This contains the set of notes that we should skip because they overlap an earlier note
+        // TODO: we COULD choose a note that is, say, highest in pitch from among the overlappers.
+		for(int i=0;i<notes.size();i++) {
+			Note note=notes.get(i);
+			if (notesToSkip.contains(note)) {
+				continue;
 			}
+			result.add(note);
+			addOverlappedNotesToNotesToSkip(note, notes, i,notesToSkip);
 		}
 		return result;
 	}
@@ -166,7 +172,7 @@ public class MidiMelodyExtractor  {
 	public void printAnalysis(PrintStream printStream) {
 		printStream.println();
 		printStream.println(path);
-		printStream.println("tracks = " + tracks.length + ", totalNoteInstances = " + totalNotesInstances 
+		printStream.println("tracks = " + tracks.length + ", totalNoteInstances = " + totalNotesInstances
 				+ ", totalNotesInstancesTreatedAsDifferent = " + totalNotesInstancesTreatedAsDifferent
 				+ ", resolution = " + sequence.getResolution() + ", microsecondLength " + sequence.getMicrosecondLength()
 				+ ", tickLength = " + sequence.getTickLength()  + ", countOfTrackChannelInstrumentNoteSequences = " + countOfTrackChannelInstrumentNoteSequences
@@ -371,7 +377,7 @@ public class MidiMelodyExtractor  {
 	}
 	/**
 	 * Precondition:  notes is sorted by startTick
-	 * 
+	 *
 	 * @param notes
 	 * @return the number of notes which overlap in time with another note (of higher index)
 	 */
@@ -386,18 +392,19 @@ public class MidiMelodyExtractor  {
 		}
 		return polyphony;
 	}
-	
-	// Precondition: notes are sorted by startTick and note's startTick is greater than all the startTicks of notes
+
+	// Precondition: notes are sorted by startTick and note's startTick is >= all the startTicks of notes
 	public static boolean overlaps(Note note, List<Note> existingNotes) {
 		long startTick = note.getStartTick();
-		for(Note existsing:existingNotes) {
-			if (existsing.getEndTick()>startTick) {
+		for(Note existing:existingNotes) { // TODO: this is a linear search
+			if (existing.getEndTick()>startTick) {
 				return true;
 			}
 		}
 		return false;
 	}
 	// Precondition: notes are sorted by startTick
+	// Returns the note that overlaps note
 	public static boolean overlapsANoteWithAHigherNoteIndex(Note note, List<Note> notes, int notesIndexOfNote) {
 		assert(notes.get(notesIndexOfNote)==note);
 		long endTick = note.getEndTick();
@@ -411,6 +418,20 @@ public class MidiMelodyExtractor  {
 			}
 		}
 		return false;
+	}
+	// Precondition: notes are sorted by startTick
+	public static void addOverlappedNotesToNotesToSkip(Note note, List<Note> notes, int notesIndexOfNote, Set<Note> notesToSkip) {
+		assert(notes.get(notesIndexOfNote)==note);
+		long endTick = note.getEndTick();
+		for(int noteIndex=notesIndexOfNote+1;noteIndex<notes.size();noteIndex++) {
+			Note other=notes.get(noteIndex);
+			if (other.getStartTick()<endTick) {
+				notesToSkip.add(other);
+			}
+			if (other.getStartTick()>endTick) { // We can do this because the notes are sorted by startTick
+				return;
+			}
+		}
 	}
 	private long endNote(List<Note> notes, int pitch, int channel, Long tick, int track, Set<Note> activeNotes) {
 		for(int i=notes.size()-1;i>=0;i--) {
@@ -428,7 +449,7 @@ public class MidiMelodyExtractor  {
 		//System.err.println("WARNING: for " + path + " couldn't find start note to end pitch " + pitch + " in channel " + channel + " at tick " + tick + " in track " + track);
 		return 0;
 	}
-	
+
 	public static void processRecursively(File file, PrintStream analysisPrintStream, PrintStream melodiesPrintStream) {
 		if (file.isDirectory()) {
 			for(File child:file.listFiles()) {
@@ -437,7 +458,7 @@ public class MidiMelodyExtractor  {
 		} else {
 			String nameLowerCase=file.getName().toLowerCase();
 			if (nameLowerCase.endsWith(".mid") || nameLowerCase.endsWith(".midi")) {
-				try {				
+				try {
 					MidiMelodyExtractor midiFeatures = new MidiMelodyExtractor(file);
 					melodiesPrintStream.println(MelodyStrings.COMMENT_STRING + file.getAbsolutePath());
 					midiFeatures.printAnalysis(analysisPrintStream);
@@ -450,7 +471,7 @@ public class MidiMelodyExtractor  {
 			}
 		}
 	}
-	
+
 	public static void processDirectoryAndWriteMelodyAndAnalysisFiles(String inputDirectoryPathLocal, String outputAnalysisFilePath, String outputMelodiesFilePath) {
 		System.out.println("Processing " + inputDirectoryPathLocal);
 		long startTime=System.currentTimeMillis();
@@ -460,13 +481,13 @@ public class MidiMelodyExtractor  {
 			processRecursively(new File(inputDirectoryPathLocal), analysisPrintStream, melodiesPrintStream);
 			analysisPrintStream.close();
 			melodiesPrintStream.close();
-		
+
 		} catch (IOException exc) {
 			exc.printStackTrace();
 		}
 		double percent=(100.0*couldntFindStartNoteCount)/(couldntFindStartNoteCount+couldFindStartNoteCount);
 		double seconds = 0.001*(System.currentTimeMillis() - startTime);
-		System.out.println("couldFindStartNoteCount = " + couldFindStartNoteCount 
+		System.out.println("couldFindStartNoteCount = " + couldFindStartNoteCount
 				+ ", couldntFindStartNoteCount " + couldntFindStartNoteCount + " (" + numberFormat.format(percent) + " %)"
 				+ ", totalCountOfUnEndedNotes = " + totalCountOfUnEndedNotes
 				);
@@ -476,7 +497,7 @@ public class MidiMelodyExtractor  {
 		System.exit(0);
 	}
 	public static void main(String [] args) {
-		processDirectoryAndWriteMelodyAndAnalysisFiles(DEFAULT_INPUT_DIRECTORY_PATH,DEFAULT_OUTPUT_DIRECTORY_PATH + "/analysis.txt", 
+		processDirectoryAndWriteMelodyAndAnalysisFiles(DEFAULT_INPUT_DIRECTORY_PATH,DEFAULT_OUTPUT_DIRECTORY_PATH + "/analysis.txt",
 				DEFAULT_OUTPUT_DIRECTORY_PATH + "/melodies.txt");
 	//	processDirectoryAndWriteMelodyAndAnalysisFiles("d:/music/MIDI/POP","d:/tmp/analysis-pop.txt","d:/tmp/pop-melodies.txt");
 	}
