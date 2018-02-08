@@ -2,6 +2,7 @@ package org.deeplearning4j.examples.unsupervised.variational;
 
 import org.deeplearning4j.datasets.iterator.impl.MnistDataSetIterator;
 import org.deeplearning4j.examples.unsupervised.variational.plot.PlotUtil;
+import org.deeplearning4j.examples.utilities.MnistDownloader;
 import org.deeplearning4j.nn.api.OptimizationAlgorithm;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
@@ -52,6 +53,7 @@ public class VariationalAutoEncoderExample {
         int plotNumSteps = 16;              //Number of steps for reconstructions, between plotMin and plotMax
 
         //MNIST data for training
+        MnistDownloader.download(); //Workaround for download location change since 0.9.1 release
         DataSetIterator trainIter = new MnistDataSetIterator(minibatchSize, true, rngSeed);
 
         //Neural net configuration

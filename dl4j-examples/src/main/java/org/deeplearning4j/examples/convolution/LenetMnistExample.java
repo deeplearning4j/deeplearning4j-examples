@@ -2,6 +2,7 @@ package org.deeplearning4j.examples.convolution;
 
 import org.deeplearning4j.datasets.iterator.impl.MnistDataSetIterator;
 import org.deeplearning4j.eval.Evaluation;
+import org.deeplearning4j.examples.utilities.MnistDownloader;
 import org.deeplearning4j.nn.api.OptimizationAlgorithm;
 import org.deeplearning4j.nn.conf.LearningRatePolicy;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
@@ -44,6 +45,7 @@ public class LenetMnistExample {
             Create an iterator using the batch size for one iteration
          */
         log.info("Load data....");
+        MnistDownloader.download(); //Workaround for download location change since 0.9.1 release
         DataSetIterator mnistTrain = new MnistDataSetIterator(batchSize,true,12345);
         DataSetIterator mnistTest = new MnistDataSetIterator(batchSize,false,12345);
 
@@ -134,7 +136,7 @@ public class LenetMnistExample {
 
 
         log.info("Train model....");
-        model.setListeners(new ScoreIterationListener(1));
+        model.setListeners(new ScoreIterationListener(10)); //Print score every 10 iterations
         for( int i=0; i<nEpochs; i++ ) {
             model.fit(mnistTrain);
             log.info("*** Completed epoch {} ***", i);
