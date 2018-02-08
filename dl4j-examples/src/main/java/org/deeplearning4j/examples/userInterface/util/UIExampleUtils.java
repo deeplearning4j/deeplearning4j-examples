@@ -1,6 +1,7 @@
 package org.deeplearning4j.examples.userInterface.util;
 
 import org.deeplearning4j.datasets.iterator.impl.MnistDataSetIterator;
+import org.deeplearning4j.examples.utilities.MnistDownloader;
 import org.deeplearning4j.nn.api.OptimizationAlgorithm;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
@@ -77,6 +78,7 @@ public class UIExampleUtils {
 
     public static DataSetIterator getMnistData(){
         try{
+            MnistDownloader.download(); //Workaround for download location change since 0.9.1 release
             return new MnistDataSetIterator(64,true,12345);
         }catch (IOException e){
             throw new RuntimeException(e);

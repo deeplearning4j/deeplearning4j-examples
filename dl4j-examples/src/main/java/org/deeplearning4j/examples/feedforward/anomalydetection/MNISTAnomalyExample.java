@@ -2,6 +2,7 @@ package org.deeplearning4j.examples.feedforward.anomalydetection;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
+import org.deeplearning4j.examples.utilities.MnistDownloader;
 import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.deeplearning4j.datasets.iterator.impl.MnistDataSetIterator;
@@ -68,6 +69,7 @@ public class MNISTAnomalyExample {
         net.setListeners(Collections.singletonList((IterationListener) new ScoreIterationListener(1)));
 
         //Load data and split into training and testing sets. 40000 train, 10000 test
+        MnistDownloader.download(); //Workaround for download location change since 0.9.1 release
         DataSetIterator iter = new MnistDataSetIterator(100,50000,false);
 
         List<INDArray> featuresTrain = new ArrayList<>();
