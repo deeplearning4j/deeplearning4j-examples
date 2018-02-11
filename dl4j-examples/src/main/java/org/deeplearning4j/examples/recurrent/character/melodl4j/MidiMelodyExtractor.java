@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.net.URL;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -23,8 +24,10 @@ import javax.sound.midi.Sequence;
 import javax.sound.midi.ShortMessage;
 import javax.sound.midi.Track;
 
+import org.datavec.api.util.ArchiveUtils;
+
 /*
- *  MidiMelodyExtractor extracts all monophonic melodies from the midifiles and converts the melodies to strings using MelodyStrings.java.
+ *  MidiMelodyExtractor extracts all monophonic melodies from the midi files and converts the melodies to strings using MelodyStrings.java.
  *  Each such melody has no harmony and consists of a single instrument playing in a single track and channel.
  *
  *  To handle notes that change volume, there's a flag combineSamePitchNotes that lets you control whether the various notes having
@@ -45,6 +48,13 @@ import javax.sound.midi.Track;
  *
  *  The program may print out many warning messages. These are due to bad data in MIDI files, such as an END_NOTE message with no corresponding
  *  START_NOTE message.
+ *
+ *  Note: You cam download MIDI files from http://truthsite.org/music/bach-midi.zip , http://truthsite.org/music/pop-midi.zip, and the
+ *  large collection at http://colinraffel.com/projects/lmd/ .
+ *
+ *  By default, this application downloads bach-midi.zip from http://truthsite.org/music/. Override the paths below if you want to use your
+ *  own midi files.
+ *
  */
 public class MidiMelodyExtractor  {
 	public static boolean combineSamePitchNotes=true;
@@ -52,9 +62,11 @@ public class MidiMelodyExtractor  {
 	public static int minSizeInNotesOfMelody=8;
 	public static int minDistinctPitches=7;
 	public static double maxProportionOfRepeatsOfPreviousNote=0.333;
-	public static final String DEFAULT_INPUT_DIRECTORY_PATH="d:/Music/MIDI/CLASSICAL";
-	public static final String DEFAULT_OUTPUT_DIRECTORY_PATH = System.getProperty("user.home"); // d:/tmp
-	public static boolean extractMelodyFromPolyphonicNoteList=true; // If false, polyphonic note lists are skipped and not turned into melodies
+    private final static String tmpDir = System.getProperty("java.io.tmpdir");
+    private final static String subDirectoryName = "bach-midi";
+	private static final String DEFAULT_INPUT_DIRECTORY_PATH= tmpDir + "/" + subDirectoryName;
+	private static final String DEFAULT_OUTPUT_DIRECTORY_PATH = System.getProperty("user.home"); // d:/tmp
+	private static boolean extractMelodyFromPolyphonicNoteList=true; // If false, polyphonic note lists are skipped and not turned into melodies
 	//...
     protected static final int PERCUSSION_CHANNEL = 9; // 10 in normal MIDI
     private static final NumberFormat numberFormat = NumberFormat.getInstance();
@@ -520,9 +532,44 @@ public class MidiMelodyExtractor  {
 		System.out.println(totalCountOfMelodies + " melodies written to " + outputMelodiesFilePath);
 		System.exit(0);
 	}
+
+
+	private static void checkForDirectoryAndTryToDownloadToTmpDir() {
+		File directory = new File(DEFAULT_INPUT_DIRECTORY_PATH);
+		if (!directory.exists()) {
+			// Try to get from truthsite.org/music/
+			String lastName=directory.getName();
+			String zipFileName = lastName + ".zip";
+			String urlPath="http://truthsite.org/music/"+ zipFileName;
+			String outputZipFilePath = tmpDir + "/" + zipFileName;
+			try {
+				PlayMelodyStrings.copyURLContentsToFile(new URL(urlPath), new File(outputZipFilePath));
+			} catch (Exception e) {
+				System.err.println("Unable to download zip file from " + urlPath + " into " + tmpDir);
+				System.exit(1);
+			}
+			if (!directory.mkdir()) {
+				System.err.println("Could note create " + directory);
+				System.exit(1);
+			}
+			try {
+				ArchiveUtils.unzipFileTo(outputZipFilePath, DEFAULT_INPUT_DIRECTORY_PATH);
+				System.out.println("Extracted " + outputZipFilePath + " to " + DEFAULT_INPUT_DIRECTORY_PATH);
+			} catch (IOException e) {
+				directory.delete();
+				System.err.println("Unable to unzip file from " + outputZipFilePath + " into " + tmpDir + " due to " + e.getMessage());
+				System.exit(1);
+			}
+		}
+	}
+
+
 	public static void main(String [] args) {
-		processDirectoryAndWriteMelodyAndAnalysisFiles(DEFAULT_INPUT_DIRECTORY_PATH,DEFAULT_OUTPUT_DIRECTORY_PATH + "/analysis.txt",
+		checkForDirectoryAndTryToDownloadToTmpDir();
+		processDirectoryAndWriteMelodyAndAnalysisFiles(DEFAULT_INPUT_DIRECTORY_PATH, DEFAULT_OUTPUT_DIRECTORY_PATH + "/analysis.txt",
 				DEFAULT_OUTPUT_DIRECTORY_PATH + "/melodies.txt");
 		//processDirectoryAndWriteMelodyAndAnalysisFiles("D:/Music/MIDI/classical/bach","d:/tmp/analysis-bach.txt","d:/tmp/bach-melodies.txt");
 	}
+
+
 }

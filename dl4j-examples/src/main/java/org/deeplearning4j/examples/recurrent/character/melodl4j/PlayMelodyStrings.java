@@ -40,9 +40,12 @@ import javax.sound.midi.Track;
  *  a duration. But during learning some of the melody strings are invalid syntax.
  *  This class will ignore invalid characters in the melody strings.
  *
+ *  By default, this app plays the first 30 seconds of each melody.
+ *
  * @author Donald A. Smith
  */
 public class PlayMelodyStrings {
+    private static String inputMelodyFilename = "bach-composition-2018-02-10.txt"; // These melodies were composed by MelodyModelingExample.java.
     private static Random random = new Random();
     private final static String tempDir = System.getProperty("java.io.tmpdir");
     private static Map<String, Integer> instrumentsByName = new HashMap<>();
@@ -458,7 +461,7 @@ public class PlayMelodyStrings {
         try {
             if (!file.exists()) {
                 System.out.println("Downloading soundbank (first time only!). This may take a while.");
-                copyURLToFile(new URL("http://truthsite.org/music/" + filename), file);
+                copyURLContentsToFile(new URL("http://truthsite.org/music/" + filename), file);
                 System.out.println("Soundbank downloaded to " + file.getAbsolutePath());
             }
             Synthesizer synth = MidiSystem.getSynthesizer();
@@ -473,12 +476,11 @@ public class PlayMelodyStrings {
     }
 
     private static String getPathToExampleMelodiesFile() throws Exception {
-        String filename = "composed-in-the-style-of-bach.txt"; // These melodies were composed by MelodyModelingExample.java.
         //filename = "composed-in-the-style-of-pop.txt";
-        String fileLocation = tempDir + "/" + filename;
+        String fileLocation = tempDir + "/" + inputMelodyFilename;
         File file = new File(fileLocation);
         if (!file.exists()) {
-            copyURLToFile(new URL("http://truthsite.org/music/" + filename), file);
+            copyURLContentsToFile(new URL("http://truthsite.org/music/" + inputMelodyFilename), file);
             System.out.println("Melody file downloaded to " + file.getAbsolutePath());
         } else {
             System.out.println("Using existing melody file at " + file.getAbsolutePath());
@@ -486,7 +488,7 @@ public class PlayMelodyStrings {
         return fileLocation;
     }
 
-    private static void copyURLToFile(URL url, File file) throws IOException {
+    public static void copyURLContentsToFile(URL url, File file) throws IOException {
         final int blockSize=256;
         BufferedInputStream bis = new BufferedInputStream(url.openStream(),blockSize);
         FileOutputStream fos = new FileOutputStream(file);
@@ -513,12 +515,12 @@ public class PlayMelodyStrings {
     }
     //-----------------------------------
     public static void main(String[] args) {
-        String filename="pop-melodies.txt";
-        MelodyModelingExample.makeSureFileIsInTmpDir(filename);
-        args = new String[] {MelodyModelingExample.tmpDir + "/" + filename};
+//        String filename="beatles-melodies-input.txt";
+//        MelodyModelingExample.makeSureFileIsInTmpDir(filename);
+//        args = new String[] {MelodyModelingExample.tmpDir + "/" + filename};
         try {
             String pathToMelodiesFile = args.length == 0 ? getPathToExampleMelodiesFile() : args[0];
-            playMelodies(pathToMelodiesFile, 10);
+            playMelodies(pathToMelodiesFile, 30); /// Note: by default it plays 30 seconds of each melody
         } catch (Exception exc) {
             exc.printStackTrace();
             System.exit(1);

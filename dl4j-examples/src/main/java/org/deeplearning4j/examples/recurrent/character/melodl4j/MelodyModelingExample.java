@@ -35,7 +35,9 @@ import java.util.Random;
  * @author Alex Black, Donald A. Smith.
  */
 public class MelodyModelingExample {
-    final static String inputSymbolicMelodiesFilename = "bach-melodies.txt"; // Examples:  bach-melodies.txt ,  pop-melodies.txt
+    final static String inputSymbolicMelodiesFilename = "bach-melodies-input.txt";
+    // Examples:  bach-melodies-input.txt, beatles-melodies-input.txt ,  pop-melodies-input.txt (large)
+
     final static String tmpDir = System.getProperty("java.io.tmpdir");
 
     final static String symbolicMelodiesInputFilePath = tmpDir + "/" + inputSymbolicMelodiesFilename;  // Point to melodies created by MidiMelodyExtractor.java

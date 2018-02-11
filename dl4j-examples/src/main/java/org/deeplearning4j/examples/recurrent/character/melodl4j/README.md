@@ -12,7 +12,7 @@ During network training, it plays melodies at the end of each training epoch. "D
 
 Listen: http://truthsite.org/music/melodies-like-pop.mp3, http://truthsite.org/music/melodies-like-bach.mp3, and http://truthsite.org/music/melodies-like-the-beatles.mp3 are examples of melodies created by the neural network (eight melodies each).
 
-The neural network was trained on melodies extracted from midi files at http://truthsite.org/music/pop-midi.zip, http://truthsite.org/music/bach-midi.zip, and the Beatles MIDI files at http://colinraffel.com/projects/lmd/.
+The neural network was trained on melodies extracted from midi files at http://truthsite.org/music/pop-midi.zip, http://truthsite.org/music/bach-midi.zip, and http://colinraffel.com/projects/lmd/.
 
 The LSTM neural network is based on the GravesLSTMCharModellingExample class by Alex Black in deeplearning4j.
 
