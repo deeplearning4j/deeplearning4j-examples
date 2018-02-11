@@ -41,6 +41,9 @@ public class MelodyModelingExample {
     final static String symbolicMelodiesInputFilePath = tmpDir + "/" + inputSymbolicMelodiesFilename;  // Point to melodies created by MidiMelodyExtractor.java
     final static String composedMelodiesOutputFilePath = tmpDir + "/composition.txt"; // You can listen to these melodies by running PlayMelodyStrings.java against this file.
 
+    //final static String symbolicMelodiesInputFilePath = "D:/tmp/bach-melodies.txt";
+    //final static String composedMelodiesOutputFilePath = tmpDir + "/bach-composition.txt"; // You can listen to these melodies by running PlayMelodyStrings.java against this file.
+
     //....
     public static void main(String[] args) throws Exception {
         String loadNetworkPath = null; //"/tmp/MelodyModel-bach.zip"; //null;
@@ -54,7 +57,7 @@ public class MelodyModelingExample {
         int miniBatchSize = 32;                     //Size of mini batch to use when training
         int exampleLength = 500; //1000; 		    //Length of each training example sequence to use.
         int tbpttLength = 50;                       //Length for truncated backpropagation through time. i.e., do parameter updates ever 50 characters
-        int numEpochs = 10;                            //Total number of training epochs
+        int numEpochs = 50;                            //Total number of training epochs
         int generateSamplesEveryNMinibatches = 20;  //How frequently to generate samples from the network? 1000 characters / 50 tbptt length: 20 parameter updates per minibatch
         int nSamplesToGenerate = 10;                //Number of samples to generate after each training epoch
         int nCharactersToSample = 300;                //Length of each sample to generate
@@ -159,7 +162,7 @@ public class MelodyModelingExample {
             iter.reset();    //Reset iterator for another epoch
             if (melodies.size() > 0) {
                 String melody = melodies.get(melodies.size() - 1);
-                int seconds = 15;
+                int seconds = 25;
                 System.out.println("\nFirst " + seconds + " seconds of " + melody);
                 PlayMelodyStrings.playMelody(melody, seconds);
             }

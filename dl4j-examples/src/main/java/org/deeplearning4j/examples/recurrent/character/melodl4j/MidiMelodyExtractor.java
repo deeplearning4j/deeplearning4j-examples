@@ -30,7 +30,8 @@ import javax.sound.midi.Track;
  *  To handle notes that change volume, there's a flag combineSamePitchNotes that lets you control whether the various notes having
  *  the same pitch are combined into one longer note or separated into multiple short notes.
  *
- *  The percussion channel is ignored.   Melodies with too few notes or two few pitches are ignored. (See constants minSizeInNotesOfMelody and minDistinctPitches).
+ *  The percussion channel is ignored.   Melodies with too few notes, two few distinct pitches, or too many repeats are ignored.
+ *  (See constants minSizeInNotesOfMelody, minDistinctPitches, and maxProportionOfRepeatsOfPreviousNote).
  *
  *  By default, channels playing a bass instrument are skipped for purposes of extracting melodies (controlled by skipBassesForMelody flag).
  *
@@ -49,7 +50,8 @@ public class MidiMelodyExtractor  {
 	public static boolean combineSamePitchNotes=true;
 	public static boolean skipBassesForMelody = true;
 	public static int minSizeInNotesOfMelody=8;
-	public static int minDistinctPitches=6;
+	public static int minDistinctPitches=7;
+	public static double maxProportionOfRepeatsOfPreviousNote=0.333;
 	public static final String DEFAULT_INPUT_DIRECTORY_PATH="d:/Music/MIDI/CLASSICAL";
 	public static final String DEFAULT_OUTPUT_DIRECTORY_PATH = System.getProperty("user.home"); // d:/tmp
 	public static boolean extractMelodyFromPolyphonicNoteList=true; // If false, polyphonic note lists are skipped and not turned into melodies
@@ -80,6 +82,8 @@ public class MidiMelodyExtractor  {
 	private static int couldntFindStartNoteCount=0;
 	private static int countMidiFiles=0;
 	private static int countWarnings=0;
+	private static int countMelodiesRejectedDueTooFewDistinctPitches=0;
+	private static int countMelodiesRejectedDueTooManyRepeatsOfPreviousNote=0;
 	static {
 		numberFormat.setMaximumFractionDigits(2);
 	}
@@ -136,10 +140,23 @@ public class MidiMelodyExtractor  {
 			}
 		}
 	}
+	private static double proportionOfNotesThatAreRepeatsOfPreviousNote(final List<Note> notes) {
+		if (notes.isEmpty()) {
+			return 0;
+		}
+		int sum=0;
+		for(int i=1;i<notes.size();i++) {
+			Note previousNote = notes.get(i-1);
+			Note thisNote = notes.get(i);
+			if (previousNote.getPitch()==thisNote.getPitch()) {
+				sum++;
+			}
+		}
+		return (0.0+sum)/notes.size();
+	}
 	private static List<Note> extractMonophonicMelodyFromPolyphonicNoteList(List<Note> notes) {
 		final List<Note> result = new ArrayList<>();
 		final Set<Note> notesToSkip = new HashSet<>(); // This contains the set of notes that we should skip because they overlap an earlier note
-        // TODO: we COULD choose a note that is, say, highest in pitch from among the overlappers.
 		for(int i=0;i<notes.size();i++) {
 			Note note=notes.get(i);
 			if (notesToSkip.contains(note)) {
@@ -156,6 +173,11 @@ public class MidiMelodyExtractor  {
 			return true;
 		}
 		if (countDistinctPitches(notes)< minDistinctPitches) {
+			countMelodiesRejectedDueTooFewDistinctPitches++;
+			return true;
+		}
+		if (proportionOfNotesThatAreRepeatsOfPreviousNote(notes)>maxProportionOfRepeatsOfPreviousNote) {
+			countMelodiesRejectedDueTooManyRepeatsOfPreviousNote++;
 			return true;
 		}
 		return false;
@@ -492,6 +514,8 @@ public class MidiMelodyExtractor  {
 				+ ", totalCountOfUnEndedNotes = " + totalCountOfUnEndedNotes
 				);
 		System.out.println(countMidiFiles + " midi files succeeded, " + countWarnings + " warnings in " + numberFormat.format(seconds) + " seconds.");
+		System.out.println(countMelodiesRejectedDueTooFewDistinctPitches + " melodies rejected due to too few distinct pitches");
+		System.out.println(countMelodiesRejectedDueTooManyRepeatsOfPreviousNote + " melodies rejected due to too many repeated pitches");
 		System.out.println(totalCountPolyphonicNoteLists + " polyphonic note lists, " + totalCountMonophonicNoteLists + " monophonic note lists");
 		System.out.println(totalCountOfMelodies + " melodies written to " + outputMelodiesFilePath);
 		System.exit(0);
@@ -499,6 +523,6 @@ public class MidiMelodyExtractor  {
 	public static void main(String [] args) {
 		processDirectoryAndWriteMelodyAndAnalysisFiles(DEFAULT_INPUT_DIRECTORY_PATH,DEFAULT_OUTPUT_DIRECTORY_PATH + "/analysis.txt",
 				DEFAULT_OUTPUT_DIRECTORY_PATH + "/melodies.txt");
-	//	processDirectoryAndWriteMelodyAndAnalysisFiles("d:/music/MIDI/POP","d:/tmp/analysis-pop.txt","d:/tmp/pop-melodies.txt");
+		//processDirectoryAndWriteMelodyAndAnalysisFiles("D:/Music/MIDI/classical/bach","d:/tmp/analysis-bach.txt","d:/tmp/bach-melodies.txt");
 	}
 }
