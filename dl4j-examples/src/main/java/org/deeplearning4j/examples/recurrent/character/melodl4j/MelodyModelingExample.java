@@ -28,17 +28,23 @@ import java.util.List;
 import java.util.Random;
 
 /**
- * GravesLSTM  Symbolic melody modelling example, based closely on GravesLSTMCharModellingExample.java.
+ * GravesLSTM  Symbolic melody modelling example, to compose music from symbolic melodies extracted from MIDI.
+ * Based closely on GravesLSTMCharModellingExample.java.
  * See the README file in this directory for documentation.
  *
  * @author Alex Black, Donald A. Smith.
  */
 public class MelodyModelingExample {
-    final static String inputSymbolicMelodiesFilename = "midi-melodies-bach.txt"; // Try also midi-melodies-pop.txt
+    final static String inputSymbolicMelodiesFilename = "bach-melodies-input.txt";
+    // Examples:  bach-melodies-input.txt, beatles-melodies-input.txt ,  pop-melodies-input.txt (large)
+
     final static String tmpDir = System.getProperty("java.io.tmpdir");
 
-    final static String symbolicMelodiesInputFilePath = tmpDir + "/" + inputSymbolicMelodiesFilename;  // Point to melodies created by Midi2MelodyStrings.java
+    final static String symbolicMelodiesInputFilePath = tmpDir + "/" + inputSymbolicMelodiesFilename;  // Point to melodies created by MidiMelodyExtractor.java
     final static String composedMelodiesOutputFilePath = tmpDir + "/composition.txt"; // You can listen to these melodies by running PlayMelodyStrings.java against this file.
+
+    //final static String symbolicMelodiesInputFilePath = "D:/tmp/bach-melodies.txt";
+    //final static String composedMelodiesOutputFilePath = tmpDir + "/bach-composition.txt"; // You can listen to these melodies by running PlayMelodyStrings.java against this file.
 
     //....
     public static void main(String[] args) throws Exception {
@@ -53,7 +59,7 @@ public class MelodyModelingExample {
         int miniBatchSize = 32;                     //Size of mini batch to use when training
         int exampleLength = 500; //1000; 		    //Length of each training example sequence to use.
         int tbpttLength = 50;                       //Length for truncated backpropagation through time. i.e., do parameter updates ever 50 characters
-        int numEpochs = 10;                            //Total number of training epochs
+        int numEpochs = 50;                            //Total number of training epochs
         int generateSamplesEveryNMinibatches = 20;  //How frequently to generate samples from the network? 1000 characters / 50 tbptt length: 20 parameter updates per minibatch
         int nSamplesToGenerate = 10;                //Number of samples to generate after each training epoch
         int nCharactersToSample = 300;                //Length of each sample to generate
@@ -73,7 +79,7 @@ public class MelodyModelingExample {
             String[] samples = sampleCharactersFromNetwork(generationInitialization, net, iter, rng, nCharactersToSample, nSamplesToGenerate);
             for (String melody : samples) {
                 System.out.println(melody);
-                PlayMelodyStrings.playMelody(melody, 10, 48);
+                PlayMelodyStrings.playMelody(melody, 10);
                 System.out.println();
             }
             System.exit(0);
@@ -158,9 +164,9 @@ public class MelodyModelingExample {
             iter.reset();    //Reset iterator for another epoch
             if (melodies.size() > 0) {
                 String melody = melodies.get(melodies.size() - 1);
-                int seconds = 15;
+                int seconds = 25;
                 System.out.println("\nFirst " + seconds + " seconds of " + melody);
-                PlayMelodyStrings.playMelody(melody, seconds, 48);
+                PlayMelodyStrings.playMelody(melody, seconds);
             }
         }
         int indexOfLastPeriod = inputSymbolicMelodiesFilename.lastIndexOf('.');
@@ -179,22 +185,16 @@ public class MelodyModelingExample {
         System.exit(0);
     }
 
-    /**
-     * Sets up and return a simple DataSetIterator that does vectorization based on the melody sample.
-     *
-     * @param miniBatchSize  Number of text segments in each training mini-batch
-     * @param sequenceLength Number of characters in each text segment.
-     */
-    public static CharacterIterator getMidiIterator(int miniBatchSize, int sequenceLength) throws Exception {
-        File f = new File(symbolicMelodiesInputFilePath);
+    public static void makeSureFileIsInTmpDir(String filename) {
+        final File f = new File(tmpDir + "/" + filename);
         if (!f.exists()) {
             URL url = null;
             try {
-                url = new URL("http://truthsite.org/music/" + inputSymbolicMelodiesFilename);
+                url = new URL("http://truthsite.org/music/" + filename);
                 FileUtils.copyURLToFile(url, f);
             } catch (Exception exc) {
                 System.err.println("Error copying " + url + " to " + f);
-                throw (exc);
+                throw new RuntimeException(exc);
             }
             if (!f.exists()) {
                 throw new RuntimeException(f.getAbsolutePath() + " does not exist");
@@ -203,9 +203,19 @@ public class MelodyModelingExample {
         } else {
             System.out.println("Using existing text file at " + f.getAbsolutePath());
         }
-        char[] validCharacters = "0123456789abc!@#$%^&*(ABCDdefghijklmnopqrstuvwzyzEFGHIJKLMR".toCharArray(); //Which characters are allowed? Others will be removed
+    }
+
+    /**
+     * Sets up and return a simple DataSetIterator that does vectorization based on the melody sample.
+     *
+     * @param miniBatchSize  Number of text segments in each training mini-batch
+     * @param sequenceLength Number of characters in each text segment.
+     */
+    public static CharacterIterator getMidiIterator(int miniBatchSize, int sequenceLength) throws Exception {
+        makeSureFileIsInTmpDir(inputSymbolicMelodiesFilename);
+        final char[] validCharacters = MelodyStrings.allValidCharacters.toCharArray(); //Which characters are allowed? Others will be removed
         return new CharacterIterator(symbolicMelodiesInputFilePath, Charset.forName("UTF-8"),
-            miniBatchSize, sequenceLength, validCharacters, new Random(12345));
+            miniBatchSize, sequenceLength, validCharacters, new Random(12345), MelodyStrings.COMMENT_STRING);
     }
 
     /**

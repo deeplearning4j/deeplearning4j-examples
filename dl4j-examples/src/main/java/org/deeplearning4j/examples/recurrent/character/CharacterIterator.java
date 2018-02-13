@@ -48,6 +48,20 @@ public class CharacterIterator implements DataSetIterator {
 	 */
 	public CharacterIterator(String textFilePath, Charset textFileEncoding, int miniBatchSize, int exampleLength,
                              char[] validCharacters, Random rng) throws IOException {
+	    this(textFilePath,textFileEncoding,miniBatchSize,exampleLength,validCharacters,rng,null);
+    }
+    /**
+     * @param textFilePath Path to text file to use for generating samples
+     * @param textFileEncoding Encoding of the text file. Can try Charset.defaultCharset()
+     * @param miniBatchSize Number of examples per mini-batch
+     * @param exampleLength Number of characters in each input/output vector
+     * @param validCharacters Character array of valid characters. Characters not present in this array will be removed
+     * @param rng Random number generator, for repeatability if required
+     * @param commentChars if non-null, lines starting with this string are skipped.
+     * @throws IOException If text file cannot  be loaded
+     */
+    public CharacterIterator(String textFilePath, Charset textFileEncoding, int miniBatchSize, int exampleLength,
+                             char[] validCharacters, Random rng, String commentChars) throws IOException {
 		if( !new File(textFilePath).exists()) throw new IOException("Could not access file (does not exist): " + textFilePath);
 		if( miniBatchSize <= 0 ) throw new IllegalArgumentException("Invalid miniBatchSize (must be >0)");
 		this.validCharacters = validCharacters;
@@ -62,6 +76,15 @@ public class CharacterIterator implements DataSetIterator {
 		//Load file and convert contents to a char[]
 		boolean newLineValid = charToIdxMap.containsKey('\n');
 		List<String> lines = Files.readAllLines(new File(textFilePath).toPath(),textFileEncoding);
+		if (commentChars != null) {
+		    List<String> withoutComments = new ArrayList<>();
+		    for(String line:lines) {
+		        if (!line.startsWith(commentChars)) {
+                     withoutComments.add(line);
+                }
+            }
+            lines=withoutComments;
+        }
 		int maxSize = lines.size();	//add lines.size() to account for newline characters at end of each line
 		for( String s : lines ) maxSize += s.length();
 		char[] characters = new char[maxSize];
