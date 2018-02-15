@@ -7,23 +7,19 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import org.datavec.api.util.ClassPathResource;
 import org.deeplearning4j.datasets.iterator.IteratorDataSetIterator;
-import org.deeplearning4j.examples.utilities.DataUtilities;
 import org.nd4j.linalg.api.ndarray.INDArray;
-import org.nd4j.linalg.api.ops.impl.transforms.comparison.CompareAndSet;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.dataset.SplitTestAndTrain;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.nd4j.linalg.factory.Nd4j;
-import org.nd4j.linalg.indexing.conditions.EqualsCondition;
-import org.nd4j.linalg.indexing.conditions.NotEqualsCondition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,38 +35,32 @@ import org.slf4j.LoggerFactory;
 public class MultiClassLogit {
 
   private static final Logger log = LoggerFactory.getLogger(MultiClassLogit.class);
-  private static final String remoteUrl = "https://archive.ics.uci.edu/ml/machine-learning-databases/iris/iris.data";
-  private static final String localPath = System.getProperty("user.home") + "/dl4je/iris/iris.data";
 
   public static void main(String[] args) {
     DataSet irisDataSet = getIrisDataSet();
 
     //dataset split: 80% training, 20% test
     SplitTestAndTrain trainAndTest = irisDataSet.splitTestAndTrain(120, new Random(42));
-    DataSet trainDataSet = trainAndTest.getTrain();
-    DataSet testDataSet = trainAndTest.getTest();
+    DataSet trainingData = trainAndTest.getTrain();
+    DataSet testData = trainAndTest.getTest();
 
     //hyperparameters
     long maxIterations = 10000;
     double learningRate = 0.01;
     double minLearningRate = 0.0001;
 
-    INDArray model = trainModel(trainDataSet, maxIterations, learningRate, minLearningRate);
-    testModel(testDataSet, model);
+    INDArray model = trainModel(trainingData, maxIterations, learningRate, minLearningRate);
+    testModel(testData, model);
   }
 
   private static DataSet getIrisDataSet() {
     DataSet irisDataSet = null;
     try {
 
-      if (DataUtilities.downloadFile(remoteUrl, localPath))
-        log.debug("Data downloaded from {}", remoteUrl);
+      File irisData = new ClassPathResource("iris.txt").getFile();
+      BufferedReader reader = new BufferedReader(new FileReader(irisData));
 
-      BufferedReader reader = new BufferedReader(
-          new FileReader(new File(localPath)));
-
-      List<DataSet> data = new ArrayList<DataSet>();
-      data = reader.lines()
+      List<DataSet> data = reader.lines()
           .filter(l -> !l.trim().isEmpty())
           .map(mapRowToDataSet)
           .collect(Collectors.toList());
@@ -92,12 +82,12 @@ public class MultiClassLogit {
     double[] parsedRows = Arrays.stream(line.split(","))
         .mapToDouble(v -> {
           switch (v) {
-          case "Iris-setosa":
+          case "0":
+            return 0.0;
+          case "1":
             return 1.0;
-          case "Iris-versicolor":
+          case "2":
             return 2.0;
-          case "Iris-virginica":
-            return 3.0;
           default:
             return Double.parseDouble(v);
           }
@@ -118,18 +108,17 @@ public class MultiClassLogit {
     //to work with multiple classes we build a model for each class that can predict
     //if an example belongs to it, then we'll pick the class with the highest probability
     //to give the final class prediction
-    INDArray class1 = oneHotEncode(trainLabels, 1.0);
-    INDArray class2 = oneHotEncode(trainLabels, 2.0);
-    INDArray class3 = oneHotEncode(trainLabels, 3.0);
+    INDArray class1Labels = getClassLabels(trainLabels, 0);
+    INDArray class2Labels = getClassLabels(trainLabels, 1);
+    INDArray class3Labels = getClassLabels(trainLabels, 2);
+    INDArray model1 = training(trainFeatures, class1Labels, maxIterations, learningRate, minLearningRate);
+    INDArray model2 = training(trainFeatures, class2Labels, maxIterations, learningRate, minLearningRate);
+    INDArray model3 = training(trainFeatures, class3Labels, maxIterations, learningRate, minLearningRate);
 
-    INDArray model1 = training(trainFeatures, class1, maxIterations, learningRate, minLearningRate);
-    INDArray model2 = training(trainFeatures, class2, maxIterations, learningRate, minLearningRate);
-    INDArray model3 = training(trainFeatures, class3, maxIterations, learningRate, minLearningRate);
-
-    INDArray params = Nd4j.hstack(model1, model2, model3);
-    log.debug("Model's parameters:\n{}", params);
+    INDArray finalModel = Nd4j.hstack(model1, model2, model3);
+    log.debug("Model's parameters:\n{}", finalModel);
     log.info("Took {} ms", (System.currentTimeMillis() - start));
-    return params;
+    return finalModel;
   }
 
   public static void testModel(DataSet testDataSet, INDArray params) {
@@ -199,12 +188,12 @@ public class MultiClassLogit {
    * Compute the gradient of the cost function and
    * how much error each parameter puts into the result.
    *
-   * @param p parameters
    * @param x features
    * @param y labels
+   * @param p parameters
    * @return paramters gradients
    */
-  private static INDArray gradient(INDArray p, INDArray x, INDArray y) {
+  private static INDArray gradient(INDArray x, INDArray y, INDArray p) {
     int m = x.size(0); //number of examples
     INDArray pred = predict(x, p);
     INDArray diff = pred.dup().sub(y); //diff between predicted and actual class
@@ -237,7 +226,7 @@ public class MultiClassLogit {
     INDArray optimalParams = params.dup();
 
     for (int i = 0; i < maxIterations; i++) {
-      INDArray gradients = gradient(params, x, y);
+      INDArray gradients = gradient(x, y, params);
       gradients = gradients.mul(learningRate);
       newParams = params.sub(gradients);
 
@@ -257,18 +246,22 @@ public class MultiClassLogit {
     return diffSum / oldParams.size(0) < threshold;
   }
 
-  private static INDArray oneHotEncode(INDArray labels, Number label) {
-    INDArray encoding = labels.dup();
-    encoding = Nd4j.getExecutioner().execAndReturn(new CompareAndSet(
-        encoding, 0.0, new NotEqualsCondition(label)));
-    encoding = Nd4j.getExecutioner().execAndReturn(new CompareAndSet(
-        encoding, 1.0, new EqualsCondition(label)));
-    return encoding;
+  private static INDArray getClassLabels(INDArray labels, double label) {
+    INDArray binaryLabels = labels.dup();
+    for (int i = 0; i < binaryLabels.rows(); i++) {
+      double v = binaryLabels.getDouble(i);
+      if (v == label)
+        binaryLabels.putScalar(i, 1.0);
+      else
+        binaryLabels.putScalar(i, 0.0);
+    }
+    return binaryLabels;
   }
 
   /**
    * Label prediction.
    *
+   * Maximum a posteriori probability estimate.
    * For each example: run N independent predictions (one for each class)
    * and return the one with the highest value (argmax).
    *
@@ -277,7 +270,7 @@ public class MultiClassLogit {
    * @return predicted labels
    */
   private static INDArray predictLabels(INDArray features, INDArray params) {
-    INDArray predictions = features.mmul(params).argMax(1).addi(1);
+    INDArray predictions = features.mmul(params).argMax(1);
     return predictions;
   }
 
