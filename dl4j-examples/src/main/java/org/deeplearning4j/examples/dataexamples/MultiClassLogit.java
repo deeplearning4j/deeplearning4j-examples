@@ -25,7 +25,8 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Multiclass logistic regression.
- * The classes must be linearly separable.
+ * To successfully apply this algorithm the classes must be linearly separable.
+ * Unlike Naive Bayes it doesn't assume strong independence on features. 
  *
  * This example can be useful to introduce machine learning.
  * Neural nets can be seen as a non-linear extension of this model.
