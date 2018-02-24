@@ -1,6 +1,21 @@
 Deeplearning4J Examples
 =========================
 
+## NOTE: HOW to interpret these examples
+
+## Data Loading
+In this repository, you may likely see custom [datasetiterators](https://github.com/deeplearning4j/nd4j/blob/master/nd4j-backends/nd4j-api-parent/nd4j-api/src/main/java/org/nd4j/linalg/dataset/api/iterator/DataSetIterator.java) - these iterators are only for special examples and 1 off use cases. Consult the [gitter](https://gitter.im/deeplearning4j/deeplearning4j) if you are not sure how to proceed.
+
+We have special iterators for 1 off use cases where normal data does not quite exist, or sometimes it is legacy.
+99% of the time you should be using [datavec](https://deeplearning4j.org/datavec) and writing your own custom [record readers](https://deeplearning4j.org/datavecdoc/org/datavec/api/records/reader/RecordReader.html) if one of our pre provided ones is not suitable. If you are not sure what is available, please again consult the [gitter](https://gitter.im/deeplearning4j/deeplearning4j) - In general, you can find both [normal record readers](https://deeplearning4j.org/datavecdoc/org/datavec/api/records/reader/RecordReader.html) and [sequence record readers](https://deeplearning4j.org/datavecdoc/org/datavec/api/records/reader/SequenceRecordReader.html) in the datavec [javadoc](http://deeplearning4j.org/datavecdoc).
+
+
+## Dependencies
+
+Note that this repository contains all dl4j examples for all modules. It will download about 1.5g of dependencies from maven central when you are first starting out. That being said, this makes it easier to get started without worrying about what to download. This examples repository is meant to be a reference point to get started with most common use cases.
+It is broken up in to modules. If you would like to just have a more minimal/simple, guide please go [here](http://www.dubs.tech/guides/maven-essentials/)
+
+
 Repository of Deeplearning4J neural net examples:
 
 - MLP Neural Nets
