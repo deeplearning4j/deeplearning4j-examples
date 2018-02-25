@@ -28,33 +28,25 @@ public class MulRecordDataLoader extends NativeImageLoader implements Serializab
     private static int channels = 1;
     private File fullDir = null;
     private Iterator<File> fileIterator;
-    private boolean train;
-    private long seed;
-    private boolean shuffle;
-    private int fileNum = 0;
     private int numExample = 0;
 
 
     public MulRecordDataLoader(String dataSetType) {
-        this( height, width, channels, null, dataSetType, System.currentTimeMillis(), true );
+        this( height, width, channels, null, dataSetType);
     }
     public MulRecordDataLoader(ImageTransform imageTransform, String dataSetType)  {
-        this( height, width, channels, imageTransform, dataSetType, System.currentTimeMillis(), true );
+        this( height, width, channels, imageTransform, dataSetType );
     }
-    public MulRecordDataLoader(int height, int width, int channels, ImageTransform imageTransform, String dataSetType, long seed, boolean shuffle) {
+    public MulRecordDataLoader(int height, int width, int channels, ImageTransform imageTransform, String dataSetType) {
         super(height, width, channels, imageTransform);
-        this.shuffle = true;
-        this.fileNum = 0;
         this.height = height;
         this.width = width;
         this.channels = channels;
-        this.train = train;
-        this.seed = seed;
-        this.shuffle = shuffle;
         try {
             this.fullDir = fullDir != null && fullDir.exists() ? fullDir : new ClassPathResource("/captchaImage").getFile();
         } catch (Exception e) {
-            log.error("the datasets directory failed, plz checking", e);
+           // log.error("the datasets directory failed, plz checking", e);
+            throw new RuntimeException( e );
         }
         this.fullDir = new File(fullDir, dataSetType);
         load();
@@ -100,7 +92,6 @@ public class MulRecordDataLoader extends NativeImageLoader implements Serializab
 
             multiDataSets.add(new MultiDataSet(features, labels, featuresMask, labelMask));
 
-            fileNum ++;
             batchNumCount ++;
         }
         MultiDataSet result = MultiDataSet.merge(multiDataSets);
@@ -118,7 +109,6 @@ public class MulRecordDataLoader extends NativeImageLoader implements Serializab
     }
 
     public void reset() {
-        fileNum = 0;
         load();
     }
     public int totalExamples() {
