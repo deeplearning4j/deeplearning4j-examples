@@ -549,7 +549,7 @@ public class MidiMelodyExtractor  {
 				System.exit(1);
 			}
 			if (!directory.mkdir()) {
-				System.err.println("Could note create " + directory);
+				System.err.println("Could not create " + directory);
 				System.exit(1);
 			}
 			try {

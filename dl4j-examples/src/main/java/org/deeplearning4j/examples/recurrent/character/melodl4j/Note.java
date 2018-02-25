@@ -11,7 +11,7 @@ public class Note implements Comparable<Note> {
     private final long startTick;
     private long endTick;
     private final Integer instrument;
-    private final Integer channel;
+    private Integer channel;
     private final int velocity;
     public Note(int pitch, long startTick, int instrument, int channel, int velocity) {
         this.pitch=pitch;
@@ -23,7 +23,8 @@ public class Note implements Comparable<Note> {
 
     @Override
     public String toString() {
-        return "Pitch " + pitch + " starting at " + startTick + " ending at " + endTick + " on channel " + channel + " with instrument " + instrument;
+        return "Pitch " + pitch + " starting at " + startTick + " ending at " + endTick + " on channel "
+            + channel + " with instrument " + instrument + " and volume " + velocity;
     }
     public long getEndTick() {
         return endTick;
@@ -34,14 +35,17 @@ public class Note implements Comparable<Note> {
     public int getPitch() {
         return pitch;
     }
+    public int getNoteValueInScale() {
+        return pitch%12;
+    }
     public long getStartTick() {
         return startTick;
     }
     public double getStartSeconds(double microsecondsPerTick) {
-        return 0.001*microsecondsPerTick*getStartTick();
+        return 1e-6*microsecondsPerTick*getStartTick();
     }
     public double getEndSeconds(double microsecondsPerTick) {
-        return 0.001*microsecondsPerTick*getEndTick();
+        return 1e-6*microsecondsPerTick*getEndTick();
     }
     public int getInstrument() {
         return instrument;
@@ -52,7 +56,7 @@ public class Note implements Comparable<Note> {
     public int getVelocity() {
         return velocity;
     }
-    public long getDuration() {
+    public long getDurationInTicks() {
         return endTick-startTick;
     }
     @Override
@@ -81,5 +85,13 @@ public class Note implements Comparable<Note> {
         track.add(new MidiEvent(midiMessageStart,startTick));
         MidiMessage midiMessageEnd=new ShortMessage(ShortMessage.NOTE_OFF,channel,pitch,0);
         track.add(new MidiEvent(midiMessageEnd,endTick));
+    }
+
+    public double getDurationInSeconds(double microsecondsPerTick) {
+        return 1e-6*microsecondsPerTick*(endTick-startTick);
+    }
+
+    public void setChannel(Integer channel) {
+        this.channel=channel;
     }
 } // class Note
