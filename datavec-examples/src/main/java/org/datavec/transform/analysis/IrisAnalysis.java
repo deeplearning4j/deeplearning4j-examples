@@ -39,8 +39,8 @@ public class IrisAnalysis {
 
         JavaSparkContext sc = new JavaSparkContext(conf);
 
-        String directory = new ClassPathResource("IrisData/iris.txt").getFile().getParent(); //Normally just define your directory like "file:/..." or "hdfs:/..."
-        JavaRDD<String> stringData = sc.textFile(directory);
+        String path = new ClassPathResource("IrisData/iris.txt").getFile().getAbsolutePath(); //Normally just define your directory like "file:/..." or "hdfs:/..."
+        JavaRDD<String> stringData = sc.textFile(path);
 
         //We first need to parse this comma-delimited (CSV) format; we can do this using CSVRecordReader:
         RecordReader rr = new CSVRecordReader();
