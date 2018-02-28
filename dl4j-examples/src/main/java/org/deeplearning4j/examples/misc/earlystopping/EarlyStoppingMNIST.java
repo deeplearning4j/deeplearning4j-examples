@@ -1,6 +1,7 @@
 package org.deeplearning4j.examples.misc.earlystopping;
 
 import org.apache.commons.io.FilenameUtils;
+import org.deeplearning4j.examples.utilities.MnistDownloader;
 import org.deeplearning4j.nn.conf.inputs.InputType;
 import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
@@ -79,6 +80,7 @@ public class EarlyStoppingMNIST {
             .backprop(true).pretrain(false).build();
 
         //Get data:
+        MnistDownloader.download(); //Workaround for download location change since 0.9.1 release
         DataSetIterator mnistTrain1024 = new MnistDataSetIterator(batchSize,1024,false,true,true,12345);
         DataSetIterator mnistTest512 = new MnistDataSetIterator(batchSize,512,false,false,true,12345);
 

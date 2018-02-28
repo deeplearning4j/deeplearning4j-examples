@@ -1,5 +1,6 @@
 package org.deeplearning4j.examples.feedforward.anomalydetection;
 
+import org.deeplearning4j.examples.utilities.MnistDownloader;
 import org.nd4j.linalg.primitives.Pair;
 import org.deeplearning4j.datasets.iterator.impl.MnistDataSetIterator;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
@@ -50,6 +51,7 @@ public class VaeMNISTAnomaly {
         int reconstructionNumSamples = 16;  //Reconstruction probabilities are estimated using Monte-Carlo techniques; see An & Cho for details
 
         //MNIST data for training
+        MnistDownloader.download(); //Workaround for download location change since 0.9.1 release
         DataSetIterator trainIter = new MnistDataSetIterator(minibatchSize, true, rngSeed);
 
         //Neural net configuration

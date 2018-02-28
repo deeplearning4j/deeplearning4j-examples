@@ -2,6 +2,7 @@ package org.deeplearning4j.examples.unsupervised.deepbelief;
 
 import org.deeplearning4j.datasets.fetchers.MnistDataFetcher;
 import org.deeplearning4j.datasets.iterator.impl.MnistDataSetIterator;
+import org.deeplearning4j.examples.utilities.MnistDownloader;
 import org.deeplearning4j.nn.api.OptimizationAlgorithm;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
@@ -38,6 +39,7 @@ public class DeepAutoEncoderExample {
         int listenerFreq = iterations/5;
 
         log.info("Load data....");
+        MnistDownloader.download(); //Workaround for download location change since 0.9.1 release
         DataSetIterator iter = new MnistDataSetIterator(batchSize,numSamples,true);
 
         log.info("Build model....");
