@@ -24,7 +24,8 @@ public class Note implements Comparable<Note> {
     @Override
     public String toString() {
         return "Pitch " + pitch + " starting at " + startTick + " ending at " + endTick + " on channel "
-            + channel + " with instrument " + instrument + " and volume " + velocity;
+	    + channel + " with instrument " + instrument + " (" + PlayMelodyStrings.programs[instrument] + ")"
+	    + " and volume " + velocity;
     }
     public long getEndTick() {
         return endTick;

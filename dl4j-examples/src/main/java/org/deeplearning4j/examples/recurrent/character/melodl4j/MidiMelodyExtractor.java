@@ -15,7 +15,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
-
 import javax.sound.midi.InvalidMidiDataException;
 import javax.sound.midi.MidiEvent;
 import javax.sound.midi.MidiMessage;
@@ -23,14 +22,20 @@ import javax.sound.midi.MidiSystem;
 import javax.sound.midi.Sequence;
 import javax.sound.midi.ShortMessage;
 import javax.sound.midi.Track;
-
 import org.datavec.api.util.ArchiveUtils;
 
 /*
- *  MidiMelodyExtractor extracts all monophonic melodies from the midi files and converts the melodies to strings using MelodyStrings.java.
- *  Each such melody has no harmony and consists of a single instrument playing in a single track and channel.
+ *  MidiMusicExtractor processes MIDI files and outputs melodies as strings, for processing by LSTM Deep Learning of text. The strings model only monotonic melodies (no harmony) but not harmony, instruments, or volume.
  *
- *  To handle notes that change volume, there's a flag combineSamePitchNotes that lets you control whether the various notes having
+ *  The main method of PlayMelodyStrings will play melody strings using MIDI.
+ *
+ *  The method printMelodies extracts all monophonic melodies from the midi files and converts the
+ *  melodies to strings using MelodyStrings.java. Each such melody has no harmony and consists of a single instrument playing
+ *  in a single track and channel.
+ *
+ *  The main method processes all files in inputDirectoryPath and outputs two files, "analysis.txt" and "melodies.txt" to outputDirectoryPath.
+ *
+ *  To handle notes that change volume, there's a flag combineSamePitchNotes that lets you control whether the (contiguous) notes having
  *  the same pitch are combined into one longer note or separated into multiple short notes.
  *
  *  The percussion channel is ignored.   Melodies with too few notes, two few distinct pitches, or too many repeats are ignored.
@@ -42,18 +47,16 @@ import org.datavec.api.util.ArchiveUtils;
  *  If extractMelodyFromPolyphonicNoteList is true, the program extracts a list of monophonic notes from the polyphonic notes, by choosing the first
  *  non-overlapping note of each chord.  If extractMelodyFromPolyphonicNoteList is false, the list of notes are skipped.
  *
- *  The main method processes all files in inputDirectoryPath and outputs two files, "analysis.txt" and "melodies.txt" to outputDirectoryPath.
+ *  The boolean variable useStrictOverlap controls how overlapping nodes are handled.  When false, notes overlap if they have
+ *  the same startTick. When true, they overlap if they share ticks.  The loose interpretation seems to extract more melodies.
  *
  *  Invoke the static method processDirectoryAndWriteMelodyAndAnalysisFiles to run this from another program.
  *
  *  The program may print out many warning messages. These are due to bad data in MIDI files, such as an END_NOTE message with no corresponding
  *  START_NOTE message.
  *
- *  Note: You cam download MIDI files from http://truthsite.org/music/bach-midi.zip , http://truthsite.org/music/pop-midi.zip, and the
+ *  Note: You can download MIDI files from http://truthsite.org/music/bach-midi.zip , http://truthsite.org/music/pop-midi.zip, and the
  *  large collection at http://colinraffel.com/projects/lmd/ .
- *
- *  By default, this application downloads bach-midi.zip from http://truthsite.org/music/. Override the paths below if you want to use your
- *  own midi files.
  *
  */
 public class MidiMelodyExtractor  {
@@ -61,11 +64,29 @@ public class MidiMelodyExtractor  {
 	public static boolean skipBassesForMelody = true;
 	public static int minSizeInNotesOfMelody=8;
 	public static int minDistinctPitches=7;
+	public static boolean useStrictOverlap=true; // When false, notes overlap if they have the same startTick. When true, they overlap if they share ticks.
+	//  The loose interpretation seems to extract more melodies.
+
+	//In many MIDI files, a sequence of notes is played with "legato" (smoothly), meaning that there is some temporal overlap between the notes.
+	//When extracting melodies we need to decide whether two successive notes are part of a monophonic melody or are in harmony (polyphony).
+	//If we are strict about that decision then we will be unable to extract many melodies correctly, or we will extract every other note in the sequence.
+	// The following variable lets you adjust the amount of overlap allowed before successive notes are considered in harmony.  A value of 0 would be strict.
+	public static double maximumProportionOfOverlapBeforeNotesAreConsideredInHarmony=0.25;
+	// After reading in the notes from the MIDI file, if the above variable has a value greater than 0, we remove make a pass through the
+	// notes (sorted by start time) and a note overlaps the subsequent note by less than maximumProportionOfOverlapBeforeNotesAreConsideredInHarmony,
+	// we modify the end time of the first note to coincide with the start time of the subsequent note.
+
+	public static double minimumDurationInSecondsOfNoteToIncludeInImageOutput=0.02; // 1/50th of a second
 	public static double maxProportionOfRepeatsOfPreviousNote=0.333;
-    private final static String tmpDir = System.getProperty("java.io.tmpdir");
+    public final static String tmpDirPath = System.getProperty("java.io.tmpdir");
     private final static String subDirectoryName = "bach-midi";
-	private static final String DEFAULT_INPUT_DIRECTORY_PATH= tmpDir + "/" + subDirectoryName;
-	private static final String DEFAULT_OUTPUT_DIRECTORY_PATH = System.getProperty("user.home"); // d:/tmp
+    public final static String midiImageSubdirectory = "midi-images";
+    //.....
+    public final static File imageDirectoryFile= new File(tmpDirPath + "/" + midiImageSubdirectory);
+    static {
+    	imageDirectoryFile.mkdir();
+    }
+	private static final String DEFAULT_OUTPUT_DIRECTORY_PATH = tmpDirPath; // System.getProperty("user.home"); // d:/tmp
 	private static boolean extractMelodyFromPolyphonicNoteList=true; // If false, polyphonic note lists are skipped and not turned into melodies
 	//...
     protected static final int PERCUSSION_CHANNEL = 9; // 10 in normal MIDI
@@ -80,6 +101,7 @@ public class MidiMelodyExtractor  {
 	private int totalNotesInstancesTreatedAsDifferent=0;
 	private int countOfTrackChannelInstrumentNoteSequences=0;
 	private int countMelodies=0;
+	protected static int countOfNotesSkippedToTheirBeingShort=0;
 	private static int totalCountOfMelodies=0;
 	private final List<Set<Integer>> setOfPitchesPerTrack = new ArrayList<>();
 	private final List<TreeMap<Integer,TreeMap<Long,Integer>>> perTrackMapFromChannelToTickToInstrument  = new ArrayList<>();
@@ -96,6 +118,8 @@ public class MidiMelodyExtractor  {
 	private static int countWarnings=0;
 	private static int countMelodiesRejectedDueTooFewDistinctPitches=0;
 	private static int countMelodiesRejectedDueTooManyRepeatsOfPreviousNote=0;
+	private static int countOfNotesTruncatedDueToLooseOverlapping=0;
+	private static int countOfShortenedNotes=0;
 	static {
 		numberFormat.setMaximumFractionDigits(2);
 	}
@@ -108,10 +132,31 @@ public class MidiMelodyExtractor  {
 		countOfNoteInstancesPerTrack = new int[tracks.length];
 		countPolyphonyPerTrack = new int[tracks.length];
 		processTracks();
+		shortenNotesThatOverlapTheSubsequentNoteLessThanMaximumProportionOfOverlapBeforeNotesAreConsideredInHarmony();
 	}
 
+	private void shortenNotesThatOverlapTheSubsequentNoteLessThanMaximumProportionOfOverlapBeforeNotesAreConsideredInHarmony() {
+		if (maximumProportionOfOverlapBeforeNotesAreConsideredInHarmony>0) {
+			for(TreeMap<Integer,TreeMap<Integer,List<Note>>> map1: perTrackMapFromChannelToInstrumentToListOfNotes) {
+				for(TreeMap<Integer,List<Note>> map2:   map1.values()) {
+					for(List<Note> list:map2.values()) {
+						for(int i=0;i<list.size()-1;i++) {
+							Note note1=list.get(i);
+							Note note2=list.get(i+1);
+							double overlap=overlapProportion(note1,note2);
+							if (overlap>=0 && overlap<=maximumProportionOfOverlapBeforeNotesAreConsideredInHarmony) {
+								countOfShortenedNotes++;
+								note1.setEndTick(note2.getStartTick());
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	//private final List<TreeMap<Integer,TreeMap<Integer,List<Note>>>> perTrackMapFromChannelToInstrumentToListOfNotes = new ArrayList<>();
 	public void printMelodies(PrintStream melodiesPrintStream) {
-		//private final List<TreeMap<Integer,TreeMap<Integer,List<Note>>>> perTrackMapFromChannelToInstrumentToListOfNotes = new ArrayList<>();
 		for(int trackIndex=0;trackIndex<perTrackMapFromChannelToInstrumentToListOfNotes.size();trackIndex++) {
 			TreeMap<Integer,TreeMap<Integer,List<Note>>> mapFromChannelToMapFromInstrumentToListOfNotes = perTrackMapFromChannelToInstrumentToListOfNotes.get(trackIndex);
 			if (mapFromChannelToMapFromInstrumentToListOfNotes!=null && mapFromChannelToMapFromInstrumentToListOfNotes.size()>0) {
@@ -169,17 +214,70 @@ public class MidiMelodyExtractor  {
 	private static List<Note> extractMonophonicMelodyFromPolyphonicNoteList(List<Note> notes) {
 		final List<Note> result = new ArrayList<>();
 		final Set<Note> notesToSkip = new HashSet<>(); // This contains the set of notes that we should skip because they overlap an earlier note
+		Note previousNote=null;
 		for(int i=0;i<notes.size();i++) {
 			Note note=notes.get(i);
 			if (notesToSkip.contains(note)) {
 				continue;
 			}
+			if (previousNote!=null && previousNote.getEndTick()>note.getStartTick()) {
+				countOfNotesTruncatedDueToLooseOverlapping++;
+				previousNote.setEndTick(note.getStartTick());
+			}
 			result.add(note);
 			addOverlappedNotesToNotesToSkip(note, notes, i,notesToSkip);
+			previousNote=note;
 		}
 		return result;
 	}
 
+
+	private static void addOverlappedNotesToNotesToSkipNonStrict(Note note, List<Note> notes, int notesIndexOfNote, Set<Note> notesToSkip) {
+		assert(notes.get(notesIndexOfNote)==note);
+		long startTick=note.getStartTick();
+		for(int noteIndex=notesIndexOfNote+1;noteIndex<notes.size();noteIndex++) {
+			Note other=notes.get(noteIndex);
+			if (other.getStartTick()==startTick) {
+				notesToSkip.add(other);
+			} else {
+				break; // We can do this because the notes are sorted by startTick.
+			}
+		}
+	}
+
+	 private static void addOverlappedNotesToNotesToSkipStrict(Note note, List<Note> notes, int notesIndexOfNote, Set<Note> notesToSkip) {
+         assert(notes.get(notesIndexOfNote)==note);
+         long endTick = note.getEndTick();
+         for(int noteIndex=notesIndexOfNote+1;noteIndex<notes.size();noteIndex++) {
+                 Note other=notes.get(noteIndex);
+                 if (other.getStartTick()<endTick) {
+                         notesToSkip.add(other);
+                 }
+                 if (other.getStartTick()>endTick) { // We can do this because the notes are sorted by startTick
+                         return;
+                 }
+         }
+	 }
+	 /**
+		 * Pre condition: notes are sorted by startTick
+		 *
+		 *  We could implement one of the following semantics:
+		 *     1. (strict) If note overlaps some other note at all (they play at the same time), we skip the second (other) note.
+		 *     2. (loose) If two notes start at the same time, we skip the second one.
+		 *
+		 *     If we choose the first semantics, we omit too many melody strings.
+		 * @param note
+		 * @param notes
+		 * @param notesIndexOfNote
+		 * @param notesToSkip
+		 */
+	 public static void addOverlappedNotesToNotesToSkip(Note note, List<Note> notes, int notesIndexOfNote, Set<Note> notesToSkip) {
+		 if (useStrictOverlap) {
+			 addOverlappedNotesToNotesToSkipStrict(note, notes, notesIndexOfNote, notesToSkip);
+		 } else {
+			 addOverlappedNotesToNotesToSkipNonStrict(note, notes, notesIndexOfNote, notesToSkip);
+		 }
+	 }
 	private boolean noteListIsTooBoring(List<Note> notes) {
 		if (notes.size()<minSizeInNotesOfMelody) {
 			return true;
@@ -221,6 +319,8 @@ public class MidiMelodyExtractor  {
 		}
 	}
 
+	// Populates perTrackMapFromChannelToTickToInstrument, perTrackMapFromChannelToInstrumentToListOfNotes, countPolyphonyPerTrack, and countOfNoteInstancesPerTrack.
+	// Note lists are sorted by startTick.
 	private void processTracks() throws InvalidMidiDataException {
 		for (int i = 0; i < tracks.length; i++) {
 			setOfPitchesPerTrack.add(new TreeSet<>());
@@ -420,15 +520,26 @@ public class MidiMelodyExtractor  {
 		int polyphony=0;
 		for(int noteIndex=0;noteIndex<notes.size();noteIndex++) {
 			Note note = notes.get(noteIndex);
-			if (overlapsANoteWithAHigherNoteIndex(note,notes,noteIndex)) {
+			if (overlapsANoteWithAHigherNoteIndexStrict(note,notes,noteIndex)) {
 				polyphony++;
 			}
 		}
 		return polyphony;
 	}
 
+	public static double overlapProportion(Note note1, Note note2) {
+		long startNumerator= Math.max(note1.getStartTick(), note2.getStartTick());
+		long endNumerator= Math.min(note1.getEndTick(), note2.getEndTick());
+		if (startNumerator>=endNumerator) {
+			return 0.0;
+		}
+		long startDenominator= Math.min(note1.getStartTick(), note2.getStartTick());
+		long endDenominator= Math.max(note1.getEndTick(), note2.getEndTick());
+		return (1.0*(endNumerator-startNumerator))/(endDenominator-startDenominator);
+	}
+
 	// Precondition: notes are sorted by startTick and note's startTick is >= all the startTicks of notes
-	public static boolean overlaps(Note note, List<Note> existingNotes) {
+	public static boolean overlapsStrict(Note note, List<Note> existingNotes) {
 		long startTick = note.getStartTick();
 		for(Note existing:existingNotes) { // TODO: this is a linear search
 			if (existing.getEndTick()>startTick) {
@@ -437,9 +548,21 @@ public class MidiMelodyExtractor  {
 		}
 		return false;
 	}
+	// Precondition: notes are sorted by startTick and note's startTick is >= all the startTicks of notes
+	// According to this definition, two notes overlap ONLY if they have the same startTick
+		public static boolean overlapsLoose(Note note, List<Note> existingNotes) {
+			long startTick = note.getStartTick();
+			for(Note existing:existingNotes) { // TODO: this is a linear search
+				if (existing.getStartTick()==startTick) {
+					return true;
+				} else {
+					return false;
+				}
+			}
+			return false;
+		}
 	// Precondition: notes are sorted by startTick
-	// Returns the note that overlaps note
-	public static boolean overlapsANoteWithAHigherNoteIndex(Note note, List<Note> notes, int notesIndexOfNote) {
+	public static boolean overlapsANoteWithAHigherNoteIndexStrict(Note note, List<Note> notes, int notesIndexOfNote) {
 		assert(notes.get(notesIndexOfNote)==note);
 		long endTick = note.getEndTick();
 		for(int noteIndex=notesIndexOfNote+1;noteIndex<notes.size();noteIndex++) {
@@ -453,20 +576,7 @@ public class MidiMelodyExtractor  {
 		}
 		return false;
 	}
-	// Precondition: notes are sorted by startTick
-	public static void addOverlappedNotesToNotesToSkip(Note note, List<Note> notes, int notesIndexOfNote, Set<Note> notesToSkip) {
-		assert(notes.get(notesIndexOfNote)==note);
-		long endTick = note.getEndTick();
-		for(int noteIndex=notesIndexOfNote+1;noteIndex<notes.size();noteIndex++) {
-			Note other=notes.get(noteIndex);
-			if (other.getStartTick()<endTick) {
-				notesToSkip.add(other);
-			}
-			if (other.getStartTick()>endTick) { // We can do this because the notes are sorted by startTick
-				return;
-			}
-		}
-	}
+
 	private long endNote(List<Note> notes, int pitch, int channel, Long tick, int track, Set<Note> activeNotes) {
 		for(int i=notes.size()-1;i>=0;i--) {
 			Note other = notes.get(i);
@@ -530,34 +640,58 @@ public class MidiMelodyExtractor  {
 		System.out.println(countMelodiesRejectedDueTooManyRepeatsOfPreviousNote + " melodies rejected due to too many repeated pitches");
 		System.out.println(totalCountPolyphonicNoteLists + " polyphonic note lists, " + totalCountMonophonicNoteLists + " monophonic note lists");
 		System.out.println(totalCountOfMelodies + " melodies written to " + outputMelodiesFilePath);
-		System.exit(0);
+		System.out.println(countOfNotesSkippedToTheirBeingShort + " notes skipped from being too short");
+		System.out.println(countOfNotesTruncatedDueToLooseOverlapping + " notes truncated due to loose overlapping");
+		System.out.println(countOfShortenedNotes + " notes shortened due to overlapping less than maximumProportionOfOverlapBeforeNotesAreConsideredInHarmony");
 	}
 
 
-	private static void checkForDirectoryAndTryToDownloadToTmpDir() {
-		File directory = new File(DEFAULT_INPUT_DIRECTORY_PATH);
-		if (!directory.exists()) {
-			// Try to get from truthsite.org/music/
+	public static boolean directoryIsEmpty(File directory) {
+		File[] children=directory.listFiles();
+		for(File child:children) {
+			if (child.getName().equals(".") || child.getName().equals("..")) { // linux, but this doesn't actually happen on linux
+				continue;
+			}
+			if (child.isDirectory()) {
+				return false;
+			}
+			if (child.length()>0) {
+				return false;
+			}
+		}
+		return true;
+	}
+	/**
+	 *
+	 * @param directoryName, such as "bach-midi"
+	 *
+	 * Downloads zip file to specified directoryNameInTmpDirectory from truthsite.org/music/ and unzips it.
+	 * If the directory already exists, this method does nothing.
+	 */
+	public static void checkForDirectoryAndTryToDownloadToTmpDirAndUnzip(String directoryName) {
+		String outputDirectoryPath = tmpDirPath + "/" + directoryName;
+		File directory = new File(outputDirectoryPath);
+		if (!directory.exists() || directoryIsEmpty(directory)) {
 			String lastName=directory.getName();
 			String zipFileName = lastName + ".zip";
 			String urlPath="http://truthsite.org/music/"+ zipFileName;
-			String outputZipFilePath = tmpDir + "/" + zipFileName;
+			String outputZipFilePath = tmpDirPath + "/" + zipFileName;
 			try {
 				PlayMelodyStrings.copyURLContentsToFile(new URL(urlPath), new File(outputZipFilePath));
 			} catch (Exception e) {
-				System.err.println("Unable to download zip file from " + urlPath + " into " + tmpDir);
+				System.err.println("Unable to download zip file from " + urlPath + " into " + tmpDirPath);
 				System.exit(1);
 			}
-			if (!directory.mkdir()) {
+			directory.mkdir(); // It may already exist but be empty.
+			if (!directory.exists()) {
 				System.err.println("Could not create " + directory);
 				System.exit(1);
 			}
 			try {
-				ArchiveUtils.unzipFileTo(outputZipFilePath, DEFAULT_INPUT_DIRECTORY_PATH);
-				System.out.println("Extracted " + outputZipFilePath + " to " + DEFAULT_INPUT_DIRECTORY_PATH);
+				ArchiveUtils.unzipFileTo(outputZipFilePath, outputDirectoryPath);
 			} catch (IOException e) {
 				directory.delete();
-				System.err.println("Unable to unzip file from " + outputZipFilePath + " into " + tmpDir + " due to " + e.getMessage());
+				System.err.println("Unable to unzip file from " + outputZipFilePath + " into " + tmpDirPath + " due to " + e.getMessage());
 				System.exit(1);
 			}
 		}
@@ -565,11 +699,12 @@ public class MidiMelodyExtractor  {
 
 
 	public static void main(String [] args) {
-		checkForDirectoryAndTryToDownloadToTmpDir();
-		processDirectoryAndWriteMelodyAndAnalysisFiles(DEFAULT_INPUT_DIRECTORY_PATH, DEFAULT_OUTPUT_DIRECTORY_PATH + "/analysis.txt",
+		long startTime=System.currentTimeMillis();
+		checkForDirectoryAndTryToDownloadToTmpDirAndUnzip(subDirectoryName);
+		processDirectoryAndWriteMelodyAndAnalysisFiles(tmpDirPath + "/" + subDirectoryName, DEFAULT_OUTPUT_DIRECTORY_PATH + "/analysis.txt",
 				DEFAULT_OUTPUT_DIRECTORY_PATH + "/melodies.txt");
-		//processDirectoryAndWriteMelodyAndAnalysisFiles("D:/Music/MIDI/classical/bach","d:/tmp/analysis-bach.txt","d:/tmp/bach-melodies.txt");
+//		processDirectoryAndWriteMelodyAndAnalysisFiles("D:/Music/MIDI/pop/Beatles","d:/tmp/analysis-beatles.txt","d:/tmp/beatles-melodies-input.txt");
+		double seconds = 0.001*(System.currentTimeMillis()-startTime);
+		System.out.println(seconds + " seconds");
 	}
-
-
 }
