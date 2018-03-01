@@ -181,6 +181,7 @@ public class PlayMelodyStrings {
         "Gunshot"
     };
     private static final NumberFormat numberFormat = NumberFormat.getInstance();
+
     //----------------------------------
     public static int getInstrument(String name) {
         Integer instrument = instrumentsByName.get(name);
@@ -192,9 +193,9 @@ public class PlayMelodyStrings {
     }
 
     static {
-    	for(int instrumentNumber = 0; instrumentNumber< programs.length; instrumentNumber++) {
-    		instrumentsByName.put(programs[instrumentNumber], instrumentNumber);
-    	}
+        for (int instrumentNumber = 0; instrumentNumber < programs.length; instrumentNumber++) {
+            instrumentsByName.put(programs[instrumentNumber], instrumentNumber);
+        }
         numberFormat.setMaximumFractionDigits(1);
     }
 
@@ -209,7 +210,7 @@ public class PlayMelodyStrings {
      *  @param secondsToPlay -- seconds after which to stop the music playback.
      */
     public static void playMelodies(String inFilepath, int instrumentNumber, double secondsToPlay) throws IOException, MidiUnavailableException, InvalidMidiDataException {
-    	System.out.println("Playing melodies from " + inFilepath);
+        System.out.println("Playing melodies from " + inFilepath);
         BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(inFilepath)));
         int lineNumber = 0;
         int startNote = 45;
@@ -224,11 +225,11 @@ public class PlayMelodyStrings {
                 continue;
             }
             if (line.startsWith(MelodyStrings.COMMENT_STRING)) {
-            	System.out.println(line);
-            	instrumentNumber= getInstrumentNumberFromLine(line,instrumentNumber);
-            	startNote= getStartNoteFromLine(line,startNote);
-            	System.out.println("Using instrument " + programs[instrumentNumber] + " and startNote " + startNote);
-            	continue;
+                System.out.println(line);
+                instrumentNumber = getInstrumentNumberFromLine(line, instrumentNumber);
+                startNote = getStartNoteFromLine(line, startNote);
+                System.out.println("Using instrument " + programs[instrumentNumber] + " and startNote " + startNote);
+                continue;
             }
             System.out.println("\nPlaying " + lineNumber + " : " + line);
             playMelody(line, startNote, instrumentNumber, secondsToPlay);
@@ -239,23 +240,24 @@ public class PlayMelodyStrings {
     }
 
     private static int getInstrumentNumberFromLine(String line, int defaultInstrumentNumber) {
-    	Matcher matcher = INSTRUMENT_PATTERN.matcher(line);
-    	if (matcher.find()) {
-    		String instrumentNumberString = matcher.group(1);
-    		return Integer.parseInt(instrumentNumberString);
-    	}
-		return defaultInstrumentNumber;
-	}
-    private static int getStartNoteFromLine(String line, int theDefault) {
-    	Matcher matcher = START_NOTE_PATTERN.matcher(line);
-    	if (matcher.find()) {
-    		String instrumentNumberString = matcher.group(1);
-    		return Integer.parseInt(instrumentNumberString);
-    	}
-		return theDefault;
-	}
+        Matcher matcher = INSTRUMENT_PATTERN.matcher(line);
+        if (matcher.find()) {
+            String instrumentNumberString = matcher.group(1);
+            return Integer.parseInt(instrumentNumberString);
+        }
+        return defaultInstrumentNumber;
+    }
 
-	private static void sleep(long mls) {
+    private static int getStartNoteFromLine(String line, int theDefault) {
+        Matcher matcher = START_NOTE_PATTERN.matcher(line);
+        if (matcher.find()) {
+            String instrumentNumberString = matcher.group(1);
+            return Integer.parseInt(instrumentNumberString);
+        }
+        return theDefault;
+    }
+
+    private static void sleep(long mls) {
         try {
             Thread.sleep(mls);
         } catch (InterruptedException exc) {
@@ -330,20 +332,20 @@ public class PlayMelodyStrings {
      * Otherwise, it will use startPitch 55 and Acoustic Grand Piano (instrument number 0)
      */
     public static void playMelody(String melody, double secondsToPlay) throws Exception {
-    	int startPitch=55;
-    	int instrumentNumber=0; // Acoustic Grand Piano
-//    	int separatorIndex = melody.indexOf(Midi2Slices.SEPARATOR);
+        int startPitch = 55;
+        int instrumentNumber = 0; // Acoustic Grand Piano
+//        int separatorIndex = melody.indexOf(Midi2Slices.SEPARATOR);
 //        if (separatorIndex>0) {
-//        	String [] parts = melody.substring(0, separatorIndex).split(":",4);
-//        	melody = melody.substring(separatorIndex+1);
-//        	//return firstPitch + ":" + firstInstrument + ":" + resolution + " " + result.toString();
-//        	startPitch = Integer.parseInt(parts[0]);
-//        	instrumentNumber = Integer.parseInt(parts[1]);
-//        	String forPath="";
-//        	if (parts.length>3) {
-//        		forPath = " for " + parts[3];
-//        	}
-//        	System.out.println("Using startPitch = " + startPitch + ", instrument = " + instrumentNumber + forPath);
+//            String [] parts = melody.substring(0, separatorIndex).split(":",4);
+//            melody = melody.substring(separatorIndex+1);
+//            //return firstPitch + ":" + firstInstrument + ":" + resolution + " " + result.toString();
+//            startPitch = Integer.parseInt(parts[0]);
+//            instrumentNumber = Integer.parseInt(parts[1]);
+//            String forPath="";
+//            if (parts.length>3) {
+//                forPath = " for " + parts[3];
+//            }
+//            System.out.println("Using startPitch = " + startPitch + ", instrument = " + instrumentNumber + forPath);
 //        }
         playMelody(melody, startPitch, instrumentNumber, secondsToPlay);
     }
@@ -361,10 +363,10 @@ public class PlayMelodyStrings {
         List<Note> ns = new ArrayList<>();
         long tick = 0;
         if (isDurationChar(melody.charAt(index))) {
-        	             //  Note(int pitch, long startTick, int instrument, int channel, int velocity)
-            Note note = new Note(startNote, tick, instrumentNumber, channel,velocity);
+            //  Note(int pitch, long startTick, int instrument, int channel, int velocity)
+            Note note = new Note(startNote, tick, instrumentNumber, channel, velocity);
             long duration = getDurationInTicks(melody.charAt(index), resolutionDelta);
-            note.setEndTick(tick+duration);
+            note.setEndTick(tick + duration);
             ns.add(note);
             index++;
             tick += duration;
@@ -402,9 +404,9 @@ public class PlayMelodyStrings {
                     System.out.print('D'); // Badly formed melody string
                     noteDurationInTicks = 4 * resolutionDelta;
                 }
-            //                 Note(int pitch, long startTick, int instrument, int channel, int velocity)
-                Note note = new Note(lastRawNote,tick,instrumentNumber, channel, velocity);
-                note.setEndTick(tick+noteDurationInTicks);
+                //                 Note(int pitch, long startTick, int instrument, int channel, int velocity)
+                Note note = new Note(lastRawNote, tick, instrumentNumber, channel, velocity);
+                note.setEndTick(tick + noteDurationInTicks);
                 ns.add(note);
                 tick += noteDurationInTicks;
             } else {
@@ -414,12 +416,13 @@ public class PlayMelodyStrings {
         }
         return ns;
     }
+
     // This method will try to play a melody even if the string is malformed.  The neural networks sometimes output invalid substrings, especially at the beginning of learning.
     public static void playMelody(String melody, int startNote, int instrumentNumber, double secondsToPlay) throws MidiUnavailableException, InvalidMidiDataException {
-    	loadSoundBank();
+        loadSoundBank();
         List<Note> ns = createNoteSequence(melody, instrumentNumber, startNote);
         Sequencer sequencer = MidiSystem.getSequencer();
-        Sequence sequence = makeSequence(ns,instrumentNumber);
+        Sequence sequence = makeSequence(ns, instrumentNumber);
         sequencer.setSequence(sequence);
         long tickLength = sequencer.getTickLength();
         //JOptionPane.showMessageDialog(null, "Click enter to abort.");
@@ -437,36 +440,38 @@ public class PlayMelodyStrings {
             }
         }
     }
+
     public static void playSequence(Sequence sequence, double tempoFactor) throws MidiUnavailableException, InvalidMidiDataException {
-    	loadSoundBank();
-    	Sequencer sequencer = MidiSystem.getSequencer();
-    	sequencer.setSequence(sequence);
-    	sequencer.setTickPosition(0);
-    	sequencer.open();
-    	sequencer.setTempoFactor((float) tempoFactor);
-    	sequencer.start();
+        loadSoundBank();
+        Sequencer sequencer = MidiSystem.getSequencer();
+        sequencer.setSequence(sequence);
+        sequencer.setTickPosition(0);
+        sequencer.open();
+        sequencer.setTempoFactor((float) tempoFactor);
+        sequencer.start();
     }
 
     private static Sequence makeSequence(List<Note> ns, int instrumentNumber) throws InvalidMidiDataException {
-    	  Sequence sequence = new Sequence(Sequence.PPQ, 120 /*resolution*/);
-    	  Track track = sequence.createTrack();
-    	  int channel = ns.get(0).getChannel();
-    	  MidiMessage midiMessage = new ShortMessage(ShortMessage.PROGRAM_CHANGE,channel,instrumentNumber,0);
-    	  track.add(new MidiEvent(midiMessage, 0));
-    	  for(Note note:ns) {
-    		  //System.out.println(note);
-    		note.addMidiEvents(track);
-    	  }
-    	  return sequence;
-	}
+        Sequence sequence = new Sequence(Sequence.PPQ, 120 /*resolution*/);
+        Track track = sequence.createTrack();
+        int channel = ns.get(0).getChannel();
+        MidiMessage midiMessage = new ShortMessage(ShortMessage.PROGRAM_CHANGE, channel, instrumentNumber, 0);
+        track.add(new MidiEvent(midiMessage, 0));
+        for (Note note : ns) {
+            //System.out.println(note);
+            note.addMidiEvents(track);
+        }
+        return sequence;
+    }
 
-	//---------------------------------
-    private static boolean soundBackLoaded=false;
+    //---------------------------------
+    private static boolean soundBackLoaded = false;
+
     private static void loadSoundBank() {// Download for higher quality MIDI
-    	if (soundBackLoaded) {
-    		return;
-    	}
-    	soundBackLoaded=true;
+        if (soundBackLoaded) {
+            return;
+        }
+        soundBackLoaded = true;
         final String filename = "GeneralUser_GS_SoftSynth.sf2";  // FreeFont.sf2   Airfont_340.dls
         final String soundBankLocation = tempDir + "/" + filename;
         File file = new File(soundBankLocation);
@@ -493,7 +498,7 @@ public class PlayMelodyStrings {
         String fileLocation = tempDir + "/" + filename;
         File file = new File(fileLocation);
         if (!file.exists()) {
-        	copyURLContentsToFile(new URL("http://truthsite.org/music/" + filename), file);
+            copyURLContentsToFile(new URL("http://truthsite.org/music/" + filename), file);
             System.out.println("Melody file downloaded to " + file.getAbsolutePath());
         } else {
             System.out.println("Using existing melody file at " + file.getAbsolutePath());
@@ -501,32 +506,34 @@ public class PlayMelodyStrings {
         return fileLocation;
     }
 
-	public static void copyURLContentsToFile(URL url, File file) throws IOException {
-		final int blockSize=256;
-		BufferedInputStream bis = new BufferedInputStream(url.openStream(),blockSize);
-		FileOutputStream fos = new FileOutputStream(file);
-		long totalRead=0;
-		byte bytes[] = new byte[blockSize];
-		while (true) {
-			int read= bis.read(bytes);
-			if (read<0) {
-				break;
-			}
-			totalRead+= read;
-			fos.write(bytes, 0, read);
-		}
-		bis.close();
-		fos.close();
-		System.out.println("Read " + numberFormat.format(totalRead) + " bytes from " + url + " into " + file.getAbsolutePath());
-	}
-	public static void main1(String [] args) {
-		try {
-			getPathToExampleMelodiesFile();
-		} catch (Throwable thr) {
-			thr.printStackTrace();
-		}
-	}
-	  //-----------------------------------
+    public static void copyURLContentsToFile(URL url, File file) throws IOException {
+        final int blockSize = 256;
+        BufferedInputStream bis = new BufferedInputStream(url.openStream(), blockSize);
+        FileOutputStream fos = new FileOutputStream(file);
+        long totalRead = 0;
+        byte bytes[] = new byte[blockSize];
+        while (true) {
+            int read = bis.read(bytes);
+            if (read < 0) {
+                break;
+            }
+            totalRead += read;
+            fos.write(bytes, 0, read);
+        }
+        bis.close();
+        fos.close();
+        System.out.println("Read " + numberFormat.format(totalRead) + " bytes from " + url + " into " + file.getAbsolutePath());
+    }
+
+    public static void main1(String[] args) {
+        try {
+            getPathToExampleMelodiesFile();
+        } catch (Throwable thr) {
+            thr.printStackTrace();
+        }
+    }
+
+    //-----------------------------------
     public static void main(String[] args) {
 //        String filename="beatles-melodies-input.txt";
 //        MelodyModelingExample.makeSureFileIsInTmpDir(filename);
