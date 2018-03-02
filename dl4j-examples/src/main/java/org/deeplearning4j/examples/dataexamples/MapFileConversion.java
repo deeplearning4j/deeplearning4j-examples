@@ -12,10 +12,12 @@ import java.io.File;
 import java.util.Random;
 
 /**
- * A simple example on how to convert a CSV (text format) to a Hadoop MapFile
+ * A simple example on how to convert a CSV (text format) to a Hadoop MapFile format. After conversion, you can use the
+ * MapFileRecordReader in place of the CSV reader for your code
  *
  * Why would you want to do this?
- * 1. Faster: reading from a map file is much faster than reading from a CSV (parse once, plus reading binary format)
+ * 1. Performance: reading from a map file is much faster than reading from a CSV (parse once, plus reading binary
+ *    format instead of text format)
  * 2. Randomization: MapFileRecordReader supports randomization of iteration order
  *
  * Note that MapFileRecordReader/Writer are in datavec-hadoop package. You will also likely need hadoop-common.
@@ -41,12 +43,12 @@ public class MapFileConversion {
 
         //Read back in from binary MapFile, random order:
         Random rng = new Random(12345);
-        RecordReader rr1 = new MapFileRecordReader(rng);
-        rr1.initialize(new FileSplit(mapFileLoc));
+        RecordReader mapFileReader = new MapFileRecordReader(rng);
+        mapFileReader.initialize(new FileSplit(mapFileLoc));
 
         //Print out:
-        while(rr1.hasNext()){
-            System.out.println(rr1.next());
+        while(mapFileReader.hasNext()){
+            System.out.println(mapFileReader.next());
         }
 
     }
