@@ -4,8 +4,8 @@ import java.util.List;
 
 /**
  * Converts a sequence of Notes to textual form for use by LSTM learning.
- * @author Don Smith
  *
+ * @author Don Smith
  */
 public class MelodyStrings {
     public static final String COMMENT_STRING = "//";
@@ -23,10 +23,9 @@ public class MelodyStrings {
     // 'e' is a duration twice that of 'd'
     // 'f' is a duration three times that of 'd', etc.
     // If there is a rest between notes, we append 'R' followed by a char for the duration of the rest.
-    public static final char restChar='R';
+    public static final char restChar = 'R';
 
     /**
-     *
      * @return characters that may occur in a valid melody string
      */
     private static String getValidCharacters() {
@@ -37,61 +36,65 @@ public class MelodyStrings {
         sb.append('R');
         return sb.toString();
     }
+
     public static String convertToMelodyString(List<Note> noteSequence) {
         double averageNoteDuration = computeAverageDuration(noteSequence);
-        double durationDelta = averageNoteDuration/durationDeltaParts;
+        double durationDelta = averageNoteDuration / durationDeltaParts;
         Note previousNote = null;
-        StringBuilder sb=new StringBuilder();
-        for(Note note: noteSequence) {
-            if (previousNote==null) {
+        StringBuilder sb = new StringBuilder();
+        for (Note note : noteSequence) {
+            if (previousNote == null) {
                 // The first pitch is excluded. Only its duration is included
-                char noteDurationChar = computeDurationChar(note.getDuration(),durationDelta);
+                char noteDurationChar = computeDurationChar(note.getDurationInTicks(), durationDelta);
                 sb.append(noteDurationChar);
             } else {
                 long restDuration = note.getStartTick() - previousNote.getEndTick();
-                if (restDuration>0) {
+                if (restDuration > 0) {
                     char restDurationChar = computeDurationChar(restDuration, durationDelta);
                     sb.append(restChar);
                     sb.append(restDurationChar);
                 }
-                int pitchGap = note.getPitch()- previousNote.getPitch();
-                while (pitchGap>12) {
-                    pitchGap-=12;
+                int pitchGap = note.getPitch() - previousNote.getPitch();
+                while (pitchGap >= noteGapCharsPositive.length()) {
+                    pitchGap -= noteGapCharsPositive.length();
                 }
-                while (pitchGap<-12) {
-                    pitchGap+=12;
+                while (pitchGap < -noteGapCharsNegative.length()) {
+                    pitchGap += noteGapCharsNegative.length();
                 }
                 sb.append(getCharForPitchGap(pitchGap));
-                long noteDuration = note.getDuration();
-                char noteDurationChar = computeDurationChar(noteDuration,durationDelta);
+                long noteDuration = note.getDurationInTicks();
+                char noteDurationChar = computeDurationChar(noteDuration, durationDelta);
                 sb.append(noteDurationChar);
             }
-            previousNote=note;
+            previousNote = note;
         }
         return sb.toString();
     }
+
     private static char getCharForPitchGap(int pitchGap) {
         return pitchGap >= 0 ? noteGapCharsPositive.charAt(pitchGap) : noteGapCharsNegative.charAt(-1 - pitchGap);
     }
 
     private static char computeDurationChar(long duration, double durationDelta) {
         int times = Math.min((int) Math.round(duration / durationDelta), durationChars.length() - 1);
-        if (times<0) {
-            return '?';
+        if (times < 0) {
+            System.err.println("WARNING: Duration = " + duration);
+            times = 0;
         }
         return durationChars.charAt(times);
     }
+
     private static double computeAverageDuration(List<Note> noteSequence) {
-        double sum=0;
-        for(Note note:noteSequence) {
-            sum+= note.getDuration();
+        double sum = 0;
+        for (Note note : noteSequence) {
+            sum += note.getDurationInTicks();
         }
-        if (sum==0) {
-            for(Note note:noteSequence) {
+        if (sum == 0) {
+            for (Note note : noteSequence) {
                 System.out.println(note);
             }
             throw new IllegalStateException("0 sum");
         }
-        return sum/noteSequence.size();
+        return sum / noteSequence.size();
     }
 }
