@@ -78,6 +78,7 @@ public class MultiClassLogit {
     return irisDataSet;
   }
 
+  /* Note that applications can use datavec for this type of transform, especially with big datasets. */
   private static Function<String, DataSet> mapRowToDataSet = (String line) -> {
     //sepalLengthCm,sepalWidthCm,petalLengthCm,petalWidthCm,species
     double[] parsedRows = Arrays.stream(line.split(","))
@@ -172,7 +173,7 @@ public class MultiClassLogit {
    *
    * Computes the probability that one example is a certain type of flower.
    * Can compute a batch of examples at a time, i.e. a matrix with samples
-   * as rows and columns as features.
+   * as rows and columns as features (this is normally done by DL4J internals).
    *
    * @param x features
    * @param p parameters
