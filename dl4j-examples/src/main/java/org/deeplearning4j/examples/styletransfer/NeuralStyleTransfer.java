@@ -134,7 +134,7 @@ public class NeuralStyleTransfer {
 
             INDArray backPropAllValues = backPropContent.muli(ALPHA).addi(styleBackProb.muli(BETA));
 
-            adamUpdater.applyUpdater(backPropAllValues, iteration);
+            adamUpdater.applyUpdater(backPropAllValues, iteration, 0);
             combination.subi(backPropAllValues);
 
             log.info("Total Loss: " + totalLoss(activationsStyleMap, activationsCombMap, activationsContentMap));

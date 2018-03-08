@@ -18,6 +18,7 @@ import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.api.MultiDataSet;
 import org.nd4j.linalg.dataset.api.iterator.MultiDataSetIterator;
 import org.nd4j.linalg.factory.Nd4j;
+import org.nd4j.linalg.learning.config.Adam;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -140,15 +141,9 @@ public class MultiDigitNumberRecognition {
 
         ComputationGraphConfiguration config = new NeuralNetConfiguration.Builder()
             .seed(seed)
-            .iterations(1)
             .gradientNormalization(GradientNormalization.RenormalizeL2PerLayer)
-            .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
-            .regularization(true)
             .l2(1e-3)
-            .learningRate(1e-3)
-            .learningRateDecayPolicy(LearningRatePolicy.Score)
-            .lrPolicyDecayRate(1e-7)
-            .updater(Updater.ADAM)
+            .updater(new Adam(1e-3))
             .weightInit( WeightInit.XAVIER_UNIFORM)
             .graphBuilder()
             .addInputs("trainFeatures")
