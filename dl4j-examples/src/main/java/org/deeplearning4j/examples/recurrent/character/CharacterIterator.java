@@ -190,7 +190,7 @@ public class CharacterIterator implements DataSetIterator {
 	}
 
 	public int totalExamples() {
-		return (fileCharacters.length-1) / miniBatchSize - 2;
+		return (fileCharacters.length-1) / exampleLength - 2;
 	}
 
 	public int inputColumns() {
