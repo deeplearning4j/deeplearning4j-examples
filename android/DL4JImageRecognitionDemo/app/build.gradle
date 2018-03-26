@@ -1,0 +1,70 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 27
+
+    defaultConfig {
+        minSdkVersion 23
+        targetSdkVersion 23
+        versionCode 1
+        versionName "1.0"
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        multiDexEnabled true
+
+        javaCompileOptions {
+            annotationProcessorOptions {
+                includeCompileClasspath false
+            }
+        }
+        buildTypes {
+            release {
+                minifyEnabled true
+                proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            }
+        }
+        //some exclusions are needed
+        packagingOptions {
+            exclude 'META-INF/DEPENDENCIES'
+            exclude 'META-INF/DEPENDENCIES.txt'
+            exclude 'META-INF/LICENSE'
+            exclude 'META-INF/LICENSE.txt'
+            exclude 'META-INF/license.txt'
+            exclude 'META-INF/NOTICE'
+            exclude 'META-INF/NOTICE.txt'
+            exclude 'META-INF/notice.txt'
+            exclude 'META-INF/INDEX.LIST'
+
+            }
+    }
+
+    dependencies {
+        compile fileTree(dir: 'libs', include: ['*.jar'])
+        androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
+            exclude group: 'com.android.support', module: 'support-annotations'
+            exclude group: 'org.bytedeco.javacpp-presets', module: 'opencv-platform'
+        })
+        compile 'com.android.support:appcompat-v7:27.0.2'
+        compile 'com.android.support:design:27.0.2'
+        compile 'org.deeplearning4j:deeplearning4j-nn:0.9.1'
+        compile 'org.nd4j:nd4j-native:0.9.1'
+        compile 'org.nd4j:nd4j-native:0.9.1:android-x86'
+        compile 'org.nd4j:nd4j-native:0.9.1:android-arm'
+        compile 'org.bytedeco:javacpp:1.4'
+        compile 'org.bytedeco.javacpp-presets:openblas:0.2.19-1.3:android-x86'
+        compile 'org.bytedeco.javacpp-presets:openblas:0.2.19-1.3:android-arm'
+
+        testCompile 'junit:junit:4.12'
+
+        //Image loading dependencies
+        compile 'org.datavec:datavec-data-codec:0.9.1'
+
+        //This corrects for a junit version conflict.
+        configurations.all {
+            resolutionStrategy.force 'junit:junit:4.12'
+        }
+
+    }
+
+
+}
+
