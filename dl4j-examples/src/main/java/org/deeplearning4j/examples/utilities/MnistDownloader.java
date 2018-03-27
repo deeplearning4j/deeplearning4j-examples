@@ -18,8 +18,6 @@
 
 package org.deeplearning4j.examples.utilities;
 
-import lombok.Data;
-import lombok.NoArgsConstructor;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -31,8 +29,6 @@ import org.slf4j.LoggerFactory;
 import java.io.*;
 import java.net.URL;
 
-@Data
-@NoArgsConstructor
 public class MnistDownloader {
     private static final Logger log = LoggerFactory.getLogger(MnistFetcher.class);
 
