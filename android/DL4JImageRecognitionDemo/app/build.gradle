@@ -56,7 +56,11 @@ android {
         testCompile 'junit:junit:4.12'
 
         //Image loading dependencies
-        compile 'org.datavec:datavec-data-codec:0.9.1'
+        compile ('org.datavec:datavec-data-image:0.9.1'){
+            //Platform specific binaries can be excluded here to reduce the compile size
+            exclude group: 'org.bytedeco.javacpp-presets', module: 'leptonica-platform'
+            exclude group: 'org.bytedeco.javacpp-presets', module: 'hdf5-platform'
+        }
 
         //This corrects for a junit version conflict.
         configurations.all {
