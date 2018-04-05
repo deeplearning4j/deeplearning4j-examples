@@ -1,4 +1,4 @@
-package com.example.jmerwin.irisclassifier;
+package org.deeplearning4j.examples.iris_classifier;
 
 public class DataSet {
     //load the raw Iris data set into a java array.

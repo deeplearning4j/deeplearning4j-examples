@@ -1,4 +1,4 @@
-package com.example.jmerwin.dl4jimagerecognitiondemo;
+package org.deeplearning4j.examples.image_recognition_demo;
 
 import android.content.Context;
 import android.content.ContextWrapper;
@@ -10,7 +10,6 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageView;

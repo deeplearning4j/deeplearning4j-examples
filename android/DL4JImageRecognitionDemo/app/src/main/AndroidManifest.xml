@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.jmerwin.dl4jimagerecognitiondemo">
+    package="org.deeplearning4j.examples.image_recognition_demo">
 
     <application
         android:allowBackup="true"
@@ -10,7 +10,7 @@
         android:supportsRtl="true"
         android:largeHeap="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".MainActivity">
+        <activity android:name="org.deeplearning4j.examples.image_recognition_demo.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

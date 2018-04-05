@@ -1,4 +1,4 @@
-package com.example.jmerwin.dl4jimagerecognitiondemo;
+package org.deeplearning4j.examples.iris_classifier;
 
 import org.junit.Test;
 

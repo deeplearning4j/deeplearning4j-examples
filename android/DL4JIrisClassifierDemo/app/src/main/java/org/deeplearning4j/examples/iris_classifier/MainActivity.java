@@ -1,4 +1,4 @@
-package com.example.jmerwin.irisclassifier;
+package org.deeplearning4j.examples.iris_classifier;
 
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
@@ -15,19 +15,14 @@ import org.deeplearning4j.nn.conf.layers.DenseLayer;
 import org.deeplearning4j.nn.conf.layers.OutputLayer;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
-import org.deeplearning4j.util.ModelSerializer;
 import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.text.DecimalFormat;
 import java.util.Arrays;
-
-import com.example.jmerwin.irisclassifier.DataSet.*;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -109,7 +104,7 @@ public class MainActivity extends AppCompatActivity {
             for(int r=0; r<row; r++){
 
                 for( int c=0; c<col; c++){
-                    irisMatrix[r][c]=com.example.jmerwin.irisclassifier.DataSet.irisData[i++];
+                    irisMatrix[r][c]= org.deeplearning4j.examples.iris_classifier.DataSet.irisData[i++];
                 }
 
             }
@@ -126,7 +121,7 @@ public class MainActivity extends AppCompatActivity {
             for(int r=0; r<rowLabel; r++){
 
                 for( int c=0; c<colLabel; c++){
-                    twodimLabel[r][c]=com.example.jmerwin.irisclassifier.DataSet.labelData[ii++];
+                    twodimLabel[r][c]= org.deeplearning4j.examples.iris_classifier.DataSet.labelData[ii++];
                 }
 
             }

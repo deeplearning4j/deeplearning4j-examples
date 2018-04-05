@@ -41,8 +41,7 @@ android {
         compile fileTree(dir: 'libs', include: ['*.jar'])
         androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
             exclude group: 'com.android.support', module: 'support-annotations'
-            exclude group: 'org.bytedeco.javacpp-presets', module: 'opencv-platform'
-        })
+            })
         compile 'com.android.support:appcompat-v7:27.0.2'
         compile 'com.android.support:design:27.0.2'
         compile 'org.deeplearning4j:deeplearning4j-nn:0.9.1'
@@ -58,9 +57,21 @@ android {
         //Image loading dependencies
         compile ('org.datavec:datavec-data-image:0.9.1'){
             //Platform specific binaries can be excluded here to reduce the compile size
+<<<<<<< HEAD
+            exclude group: 'org.bytedeco.javacpp-presets', module: 'opencv-platform'
             exclude group: 'org.bytedeco.javacpp-presets', module: 'leptonica-platform'
             exclude group: 'org.bytedeco.javacpp-presets', module: 'hdf5-platform'
         }
+
+        //include Android specific binaries
+        compile 'org.bytedeco.javacpp-presets:opencv:3.2.0-1.3'
+        compile 'org.bytedeco.javacpp-presets:opencv:3.2.0-1.3:android-x86'
+        compile 'org.bytedeco.javacpp-presets:opencv:3.2.0-1.3:android-arm'
+=======
+            exclude group: 'org.bytedeco.javacpp-presets', module: 'leptonica-platform'
+            exclude group: 'org.bytedeco.javacpp-presets', module: 'hdf5-platform'
+        }
+>>>>>>> 7742ef60a4d127942ef346fa872bb3960b1c49ac
 
         //This corrects for a junit version conflict.
         configurations.all {
