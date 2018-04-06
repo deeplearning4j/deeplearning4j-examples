@@ -3,7 +3,6 @@ package org.deeplearning4j.examples.misc.centerloss;
 import org.deeplearning4j.datasets.iterator.impl.MnistDataSetIterator;
 import org.deeplearning4j.examples.unsupervised.variational.plot.PlotUtil;
 import org.deeplearning4j.examples.userInterface.util.GradientsAndParamsListener;
-import org.deeplearning4j.examples.utilities.MnistDownloader;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
 import org.deeplearning4j.nn.conf.inputs.InputType;
@@ -57,7 +56,6 @@ public class CenterLossLenetMnistExample {
         double alpha = 0.1;
 
         log.info("Load data....");
-        MnistDownloader.download(); //Workaround for download location change since 0.9.1 release
         DataSetIterator mnistTrain = new MnistDataSetIterator(batchSize, true, 12345);
         DataSetIterator mnistTest = new MnistDataSetIterator(10000, false, 12345);
 
