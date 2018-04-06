@@ -27,6 +27,7 @@ import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.dataset.api.DataSetPreProcessor;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.nd4j.linalg.factory.Nd4j;
+import org.nd4j.linalg.learning.config.AdaGrad;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 
 import java.io.File;
@@ -72,13 +73,10 @@ public class VideoClassificationExample {
         }
 
         //Set up network architecture:
-        Updater updater = Updater.ADAGRAD;
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
                 .seed(12345)
-                .regularization(true).l2(0.001) //l2 regularization on all layers
-                .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
-                .iterations(1)
-                .learningRate(0.04)
+                .l2(0.001) //l2 regularization on all layers
+                .updater(new AdaGrad.Builder().learningRate(0.04).build())
                 .list()
                 .layer(0, new ConvolutionLayer.Builder(10, 10)
                         .nIn(3) //3 channels: RGB
@@ -86,7 +84,6 @@ public class VideoClassificationExample {
                         .stride(4, 4)
                         .activation(Activation.RELU)
                         .weightInit(WeightInit.RELU)
-                        .updater(updater)
                         .build())   //Output: (130-10+0)/4+1 = 31 -> 31*31*30
                 .layer(1, new SubsamplingLayer.Builder(SubsamplingLayer.PoolingType.MAX)
                         .kernelSize(3, 3)
@@ -97,33 +94,29 @@ public class VideoClassificationExample {
                         .stride(2, 2)
                         .activation(Activation.RELU)
                         .weightInit(WeightInit.RELU)
-                        .updater(updater)
                         .build())   //Output: (15-3+0)/2+1 = 7 -> 7*7*10 = 490
                 .layer(3, new DenseLayer.Builder()
                         .activation(Activation.RELU)
                         .nIn(490)
                         .nOut(50)
                         .weightInit(WeightInit.RELU)
-                        .updater(updater)
+                        .updater(new AdaGrad.Builder().learningRate(0.01).build())
                         .gradientNormalization(GradientNormalization.ClipElementWiseAbsoluteValue)
                         .gradientNormalizationThreshold(10)
-                        .learningRate(0.01)
                         .build())
                 .layer(4, new GravesLSTM.Builder()
                         .activation(Activation.SOFTSIGN)
                         .nIn(50)
                         .nOut(50)
                         .weightInit(WeightInit.XAVIER)
-                        .updater(updater)
+                        .updater(new AdaGrad.Builder().learningRate(0.008).build())
                         .gradientNormalization(GradientNormalization.ClipElementWiseAbsoluteValue)
                         .gradientNormalizationThreshold(10)
-                        .learningRate(0.008)
                         .build())
                 .layer(5, new RnnOutputLayer.Builder(LossFunctions.LossFunction.MCXENT)
                         .activation(Activation.SOFTMAX)
                         .nIn(50)
                         .nOut(4)    //4 possible shapes: circle, square, arc, line
-                        .updater(updater)
                         .weightInit(WeightInit.XAVIER)
                         .gradientNormalization(GradientNormalization.ClipElementWiseAbsoluteValue)
                         .gradientNormalizationThreshold(10)

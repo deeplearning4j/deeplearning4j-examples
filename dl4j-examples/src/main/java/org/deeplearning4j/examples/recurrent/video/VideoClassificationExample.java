@@ -2,17 +2,17 @@ package org.deeplearning4j.examples.recurrent.video;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
-import org.datavec.api.conf.Configuration;
 import org.datavec.api.records.reader.SequenceRecordReader;
 import org.datavec.api.records.reader.impl.csv.CSVSequenceRecordReader;
 import org.datavec.api.split.InputSplit;
 import org.datavec.api.split.NumberedFileInputSplit;
-import org.datavec.codec.reader.CodecRecordReader;
 import org.deeplearning4j.datasets.datavec.SequenceRecordReaderDataSetIterator;
 import org.deeplearning4j.datasets.iterator.AsyncDataSetIterator;
 import org.deeplearning4j.eval.Evaluation;
-import org.deeplearning4j.nn.api.OptimizationAlgorithm;
-import org.deeplearning4j.nn.conf.*;
+import org.deeplearning4j.nn.conf.BackpropType;
+import org.deeplearning4j.nn.conf.GradientNormalization;
+import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
+import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
 import org.deeplearning4j.nn.conf.layers.*;
 import org.deeplearning4j.nn.conf.preprocessor.CnnToFeedForwardPreProcessor;
 import org.deeplearning4j.nn.conf.preprocessor.FeedForwardToRnnPreProcessor;
@@ -26,6 +26,7 @@ import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.dataset.api.DataSetPreProcessor;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.nd4j.linalg.factory.Nd4j;
+import org.nd4j.linalg.learning.config.AdaGrad;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 
 import java.io.File;
@@ -71,13 +72,10 @@ public class VideoClassificationExample {
         }
 
         //Set up network architecture:
-        Updater updater = Updater.ADAGRAD;
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
                 .seed(12345)
-                .regularization(true).l2(0.001) //l2 regularization on all layers
-                .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
-                .iterations(1)
-                .learningRate(0.04)
+                .l2(0.001) //l2 regularization on all layers
+                .updater(new AdaGrad(0.04))
                 .list()
                 .layer(0, new ConvolutionLayer.Builder(10, 10)
                         .nIn(3) //3 channels: RGB
@@ -85,7 +83,6 @@ public class VideoClassificationExample {
                         .stride(4, 4)
                         .activation(Activation.RELU)
                         .weightInit(WeightInit.RELU)
-                        .updater(updater)
                         .build())   //Output: (130-10+0)/4+1 = 31 -> 31*31*30
                 .layer(1, new SubsamplingLayer.Builder(SubsamplingLayer.PoolingType.MAX)
                         .kernelSize(3, 3)
@@ -96,33 +93,29 @@ public class VideoClassificationExample {
                         .stride(2, 2)
                         .activation(Activation.RELU)
                         .weightInit(WeightInit.RELU)
-                        .updater(updater)
                         .build())   //Output: (15-3+0)/2+1 = 7 -> 7*7*10 = 490
                 .layer(3, new DenseLayer.Builder()
                         .activation(Activation.RELU)
                         .nIn(490)
                         .nOut(50)
                         .weightInit(WeightInit.RELU)
-                        .updater(updater)
                         .gradientNormalization(GradientNormalization.ClipElementWiseAbsoluteValue)
                         .gradientNormalizationThreshold(10)
-                        .learningRate(0.01)
+                        .updater(new AdaGrad(0.01))
                         .build())
                 .layer(4, new GravesLSTM.Builder()
                         .activation(Activation.SOFTSIGN)
                         .nIn(50)
                         .nOut(50)
                         .weightInit(WeightInit.XAVIER)
-                        .updater(updater)
+                        .updater(new AdaGrad(0.008))
                         .gradientNormalization(GradientNormalization.ClipElementWiseAbsoluteValue)
                         .gradientNormalizationThreshold(10)
-                        .learningRate(0.008)
                         .build())
                 .layer(5, new RnnOutputLayer.Builder(LossFunctions.LossFunction.MCXENT)
                         .activation(Activation.SOFTMAX)
                         .nIn(50)
                         .nOut(4)    //4 possible shapes: circle, square, arc, line
-                        .updater(updater)
                         .weightInit(WeightInit.XAVIER)
                         .gradientNormalization(GradientNormalization.ClipElementWiseAbsoluteValue)
                         .gradientNormalizationThreshold(10)
@@ -220,15 +213,17 @@ public class VideoClassificationExample {
         //InputSplit is used here to define what the file paths look like
         InputSplit is = new NumberedFileInputSplit(path + "shapes_%d.mp4", startIdx, startIdx + num - 1);
 
-        Configuration conf = new Configuration();
-        conf.set(CodecRecordReader.RAVEL, "true");
-        conf.set(CodecRecordReader.START_FRAME, "0");
-        conf.set(CodecRecordReader.TOTAL_FRAMES, String.valueOf(V_NFRAMES));
-        conf.set(CodecRecordReader.ROWS, String.valueOf(V_WIDTH));
-        conf.set(CodecRecordReader.COLUMNS, String.valueOf(V_HEIGHT));
-        CodecRecordReader crr = new CodecRecordReader();
-        crr.initialize(conf, is);
-        return crr;
+//        Configuration conf = new Configuration();
+//        conf.set(CodecRecordReader.RAVEL, "true");
+//        conf.set(CodecRecordReader.START_FRAME, "0");
+//        conf.set(CodecRecordReader.TOTAL_FRAMES, String.valueOf(V_NFRAMES));
+//        conf.set(CodecRecordReader.ROWS, String.valueOf(V_WIDTH));
+//        conf.set(CodecRecordReader.COLUMNS, String.valueOf(V_HEIGHT));
+//        CodecRecordReader crr = new CodecRecordReader();
+//        crr.initialize(conf, is);
+//        return crr;
+
+        throw new UnsupportedOperationException("TODO");
     }
 
     private static SequenceRecordReader getLabelsReader(String path, int startIdx, int num) throws Exception {

@@ -15,6 +15,7 @@ import org.deeplearning4j.rl4j.network.dqn.DQNFactoryStdDense;
 import org.deeplearning4j.rl4j.network.dqn.IDQN;
 import org.deeplearning4j.rl4j.space.DiscreteSpace;
 import org.deeplearning4j.rl4j.util.DataManager;
+import org.nd4j.linalg.learning.config.Adam;
 
 /**
  * @author rubenfiszel (ruben.fiszel@epfl.ch) on 8/11/16.
@@ -62,7 +63,7 @@ public class Toy {
 
     public static DQNFactoryStdDense.Configuration TOY_NET =
              DQNFactoryStdDense.Configuration.builder()
-        .l2(0.01).learningRate(1e-2).numLayer(3).numHiddenNodes(16).build();
+        .l2(0.01).updater(new Adam(1e-2)).numLayer(3).numHiddenNodes(16).build();
 
     public static void main(String[] args) throws IOException {
         simpleToy();

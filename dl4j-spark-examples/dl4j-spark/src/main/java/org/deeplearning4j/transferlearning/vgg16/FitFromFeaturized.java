@@ -11,13 +11,11 @@ import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.api.java.function.Function;
 import org.apache.spark.input.PortableDataStream;
 import org.deeplearning4j.eval.Evaluation;
-import org.deeplearning4j.nn.api.OptimizationAlgorithm;
-import org.deeplearning4j.nn.conf.Updater;
 import org.deeplearning4j.nn.conf.distribution.NormalDistribution;
 import org.deeplearning4j.nn.conf.layers.OutputLayer;
 import org.deeplearning4j.nn.graph.ComputationGraph;
-import org.deeplearning4j.nn.modelimport.keras.InvalidKerasConfigurationException;
-import org.deeplearning4j.nn.modelimport.keras.UnsupportedKerasConfigurationException;
+import org.deeplearning4j.nn.modelimport.keras.exceptions.InvalidKerasConfigurationException;
+import org.deeplearning4j.nn.modelimport.keras.exceptions.UnsupportedKerasConfigurationException;
 import org.deeplearning4j.nn.transferlearning.FineTuneConfiguration;
 import org.deeplearning4j.nn.transferlearning.TransferLearning;
 import org.deeplearning4j.nn.transferlearning.TransferLearningHelper;
@@ -25,13 +23,14 @@ import org.deeplearning4j.nn.weights.WeightInit;
 import org.deeplearning4j.spark.api.TrainingMaster;
 import org.deeplearning4j.spark.impl.graph.SparkComputationGraph;
 import org.deeplearning4j.spark.impl.paramavg.ParameterAveragingTrainingMaster;
-import org.deeplearning4j.zoo.ZooModel;
-import org.deeplearning4j.zoo.model.VGG16;
 import org.deeplearning4j.transferlearning.vgg16.dataHelpers.FeaturizedPreSave;
 import org.deeplearning4j.transferlearning.vgg16.dataHelpers.FlowerDataSetIteratorFeaturized;
+import org.deeplearning4j.zoo.ZooModel;
+import org.deeplearning4j.zoo.model.VGG16;
 import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
+import org.nd4j.linalg.learning.config.Nesterovs;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 import org.slf4j.Logger;
 import scala.Tuple2;
@@ -102,9 +101,8 @@ public class FitFromFeaturized {
         //In cases where there already exists a setting the fine tune setting will
         //  override the setting for all layers that are not "frozen".
         FineTuneConfiguration fineTuneConf = new FineTuneConfiguration.Builder()
-            .learningRate(3e-5)
-            .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
-            .updater(Updater.NESTEROVS)
+
+            .updater(new Nesterovs(3e-5))
             .seed(seed)
             .build();
 

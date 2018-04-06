@@ -14,7 +14,6 @@ import org.deeplearning4j.api.storage.StatsStorage;
 import org.deeplearning4j.datasets.datavec.RecordReaderDataSetIterator;
 import org.deeplearning4j.datasets.iterator.MultipleEpochsIterator;
 import org.deeplearning4j.eval.Evaluation;
-import org.deeplearning4j.nn.api.OptimizationAlgorithm;
 import org.deeplearning4j.nn.conf.*;
 import org.deeplearning4j.nn.conf.distribution.Distribution;
 import org.deeplearning4j.nn.conf.distribution.GaussianDistribution;
@@ -37,6 +36,8 @@ import org.nd4j.linalg.dataset.api.preprocessor.DataNormalization;
 import org.nd4j.linalg.dataset.api.preprocessor.ImagePreProcessingScaler;
 import org.nd4j.linalg.learning.config.Nesterovs;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
+import org.nd4j.linalg.schedule.ScheduleType;
+import org.nd4j.linalg.schedule.StepSchedule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -73,7 +74,6 @@ public class AnimalsClassification {
 
     protected static long seed = 42;
     protected static Random rng = new Random(seed);
-    protected static int iterations = 1;
     protected static int epochs = 50;
     protected static double splitTrainTest = 0.8;
     protected static boolean save = false;
@@ -145,7 +145,7 @@ public class AnimalsClassification {
         UIServer uiServer = UIServer.getInstance();
         StatsStorage statsStorage = new InMemoryStatsStorage();
         uiServer.attach(statsStorage);
-        network.setListeners((IterationListener)new StatsListener( statsStorage),new ScoreIterationListener(iterations));
+        network.setListeners(new StatsListener( statsStorage),new ScoreIterationListener(1));
         /**
          * Data Setup -> define how to load data into net:
          *  - recordReader = the reader that loads and converts image data pass in inputSplit to initialize
@@ -230,13 +230,10 @@ public class AnimalsClassification {
          **/
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
             .seed(seed)
-            .iterations(iterations)
-            .regularization(false).l2(0.005) // tried 0.0001, 0.0005
+            .l2(0.005)
             .activation(Activation.RELU)
-            .learningRate(0.0001) // tried 0.00001, 0.00005, 0.000001
             .weightInit(WeightInit.XAVIER)
-            .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
-            .updater(new Nesterovs(0.9))
+            .updater(new Nesterovs(0.0001,0.9))
             .list()
             .layer(0, convInit("cnn1", channels, 50 ,  new int[]{5, 5}, new int[]{1, 1}, new int[]{0, 0}, 0))
             .layer(1, maxPool("maxpool1", new int[]{2,2}))
@@ -270,16 +267,9 @@ public class AnimalsClassification {
             .weightInit(WeightInit.DISTRIBUTION)
             .dist(new NormalDistribution(0.0, 0.01))
             .activation(Activation.RELU)
-            .updater(new Nesterovs(0.9))
-            .iterations(iterations)
+            .updater(new Nesterovs(new StepSchedule(ScheduleType.ITERATION, 1e-2, 0.1, 100000), 0.9))
+            .biasUpdater(new Nesterovs(new StepSchedule(ScheduleType.ITERATION, 2e-2, 0.1, 100000), 0.9))
             .gradientNormalization(GradientNormalization.RenormalizeL2PerLayer) // normalize to prevent vanishing or exploding gradients
-            .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
-            .learningRate(1e-2)
-            .biasLearningRate(1e-2*2)
-            .learningRateDecayPolicy(LearningRatePolicy.Step)
-            .lrPolicyDecayRate(0.1)
-            .lrPolicySteps(100000)
-            .regularization(true)
             .l2(5 * 1e-4)
             .list()
             .layer(0, convInit("cnn1", channels, 96, new int[]{11, 11}, new int[]{4, 4}, new int[]{3, 3}, 0))

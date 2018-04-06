@@ -23,6 +23,7 @@ import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.nd4j.linalg.factory.Nd4j;
+import org.nd4j.linalg.learning.config.Adam;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 
 import java.io.File;
@@ -71,10 +72,9 @@ public class CnnSentenceClassificationExample {
             .trainingWorkspaceMode(WorkspaceMode.SINGLE).inferenceWorkspaceMode(WorkspaceMode.SINGLE)
             .weightInit(WeightInit.RELU)
             .activation(Activation.LEAKYRELU)
-            .updater(Updater.ADAM)
+            .updater(new Adam(0.01))
             .convolutionMode(ConvolutionMode.Same)      //This is important so we can 'stack' the results later
-            .regularization(true).l2(0.0001)
-            .learningRate(0.01)
+            .l2(0.0001)
             .graphBuilder()
             .addInputs("input")
             .addLayer("cnn3", new ConvolutionLayer.Builder()

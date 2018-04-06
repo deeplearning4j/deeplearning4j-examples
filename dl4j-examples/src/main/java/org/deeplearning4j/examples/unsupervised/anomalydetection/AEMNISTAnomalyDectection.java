@@ -20,6 +20,7 @@ import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
+import org.nd4j.linalg.learning.config.Adam;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -129,12 +130,9 @@ public class AEMNISTAnomalyDectection {
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
             .seed(123456)
             .optimizationAlgo( OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
-            .iterations(1)
-            .updater(Updater.ADAM)
-            .regularization(true)
+            .updater(new Adam(2e-3))
             .l2(1e-5)
             .weightInit(WeightInit.XAVIER)
-            .learningRate(2e-3)
             .activation(Activation.RELU)
             .list()
             .layer(0, new GravesLSTM.Builder().name("encoder0").nIn(784).nOut(800).build())

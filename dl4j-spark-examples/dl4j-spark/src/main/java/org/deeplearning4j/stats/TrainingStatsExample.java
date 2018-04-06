@@ -22,6 +22,7 @@ import org.deeplearning4j.spark.stats.EventStats;
 import org.deeplearning4j.spark.stats.StatsUtils;
 import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.dataset.DataSet;
+import org.nd4j.linalg.learning.config.Nesterovs;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -152,11 +153,9 @@ public class TrainingStatsExample {
 
         //Set up network configuration:
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
-            .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT).iterations(1)
-            .learningRate(0.1)
-            .updater(Updater.RMSPROP)   //To configure: .updater(new RmsProp(0.95))
+            .updater(new Nesterovs(0.1))
             .seed(12345)
-            .regularization(true).l2(0.001)
+            .l2(0.001)
             .weightInit(WeightInit.XAVIER)
             .list()
             .layer(0, new GravesLSTM.Builder().nIn(nIn).nOut(lstmLayerSize).activation(Activation.TANH).build())

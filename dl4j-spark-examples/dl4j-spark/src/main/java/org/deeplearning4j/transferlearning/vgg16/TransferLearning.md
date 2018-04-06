@@ -31,7 +31,6 @@ ComputationGraph org.deeplearning4j.transferlearning.vgg16 = modelImportHelper.l
 ```
 FineTuneConfiguration fineTuneConf = new FineTuneConfiguration.Builder()
             .learningRate(5e-5)
-            .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
             .updater(Updater.NESTEROVS)
             .seed(seed)
             .build();
