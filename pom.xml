@@ -3,17 +3,16 @@
 
     <groupId>org.deeplearning4j</groupId>
     <artifactId>deeplearning4j-examples-parent</artifactId>
-    <version>0.9.1</version>
+    <version>1.0.0-alpha</version>
     <modelVersion>4.0.0</modelVersion>
     <packaging>pom</packaging>
 
     <name>DeepLearning4j Examples Parent</name>
     <description>Examples of training different data sets</description>
     <properties>
-        <!-- Change the nd4j.backend property to nd4j-cuda-7.5-platform or nd4j-cuda-8.0-platform to use CUDA GPUs -->
-        <!--<nd4j.backend>nd4j-native</nd4j.backend>-->
-        <!-- <nd4j.backend>nd4j-cuda-8.0</nd4j.backend> -->
-        <nd4j.backend>nd4j-cuda-9.1</nd4j.backend>
+        <!-- Change the nd4j.backend property to nd4j-cuda-8.0-platform, nd4j-cuda-9.0-platform or nd4j-cuda-9.1-platform to use CUDA GPUs -->
+        <nd4j.backend>nd4j-native</nd4j.backend>
+        <!--<nd4j.backend>nd4j-cuda-9.1</nd4j.backend>-->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <shadedClassifier>bin</shadedClassifier>
 
@@ -47,14 +46,6 @@
         <jackson.version>2.6.6</jackson.version>
         <scala.plugin.version>3.2.2</scala.plugin.version>
     </properties>
-
-    <repositories>
-        <repository>
-            <id>sonatype-nexus-staging</id>
-            <name>Sonatype Nexus Staging</name>
-            <url>https://oss.sonatype.org/content/repositories/orgnd4j-1181/</url>
-        </repository>
-    </repositories>
 
     <modules>
         <module>dl4j-examples</module>
