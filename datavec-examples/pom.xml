@@ -25,6 +25,12 @@
             <artifactId>datavec-spark_${scala.binary.version}</artifactId>
             <version>${datavec.spark.version}</version>
         </dependency>
+
+        <dependency>
+            <groupId>org.datavec</groupId>
+            <artifactId>datavec-local</artifactId>
+            <version>${datavec.version}</version>
+        </dependency>
     </dependencies>
 
 
