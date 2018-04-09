@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="digit_spacing">25sp</dimen>
+    <dimen name="digit_spacing_small">15sp</dimen>
+    <dimen name="text_size">20sp</dimen>
+    <dimen name="text_size_large">60sp</dimen>
+</resources>

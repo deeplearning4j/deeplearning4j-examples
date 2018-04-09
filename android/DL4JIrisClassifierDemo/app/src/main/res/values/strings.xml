@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">IrisClassifier</string>
+    <string name="classify_iris">CLASSIFY IRIS</string>
+    <string name="petal_length">Petal Length</string>
+    <string name="petal_width">Petal Width</string>
+    <string name="sepal_length">Sepal Length</string>
+    <string name="sepal_width">Sepal Width</string>
+    <string name="setosa">I. setosa</string>
+    <string name="versicolor">I. versicolor</string>
+    <string name="virginica">I. virginica</string>
+    <string name="OO">00</string>
+
+</resources>
