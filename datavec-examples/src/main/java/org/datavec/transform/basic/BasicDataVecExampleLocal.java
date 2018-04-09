@@ -132,37 +132,40 @@ public class BasicDataVecExampleLocal {
         //      Step 3: Load our data and execute the operations locally
         //=====================================================================
 
-        //We'll use Spark local to handle our data
+        //Define input and output paths:
+        File inputFile = new ClassPathResource("BasicDataVecExample/exampledata.csv").getFile();
+        File outputFile = new File("BasicDataVecExampleLocalOut.csv");
+        if(outputFile.exists()){
+            outputFile.delete();
+        }
+        outputFile.createNewFile();
 
+        //Define input reader and output writer:
         RecordReader rr = new CSVRecordReader(0, ',');
         File file = new ClassPathResource("BasicDataVecExample/exampledata.csv").getFile();
-        rr.initialize(new FileSplit(file));
+        rr.initialize(new FileSplit(inputFile));
 
+        RecordWriter rw = new CSVRecordWriter();
+        Partitioner p = new NumberOfRecordsPartitioner();
+        rw.initialize(new FileSplit(outputFile), p);
+
+        //Process the data:
         List<List<Writable>> originalData = new ArrayList<>();
         while(rr.hasNext()){
             originalData.add(rr.next());
         }
 
         List<List<Writable>> processedData = LocalTransformExecutor.execute(originalData, tp);
-
-        //Write back out to CSV format:
-        RecordWriter rw = new CSVRecordWriter();
-        File outputFile = new File("BasicDataVecExampleLocalOut.csv");
-        if(outputFile.exists()){
-            outputFile.delete();
-        }
-        outputFile.createNewFile();
-        Partitioner p = new NumberOfRecordsPartitioner();
-        rw.initialize(new FileSplit(outputFile), p);
         rw.writeBatch(processedData);
         rw.close();
 
 
-        System.out.println("\n\n---- Original Data ----");
+        //Print before + after:
+        System.out.println("\n\n---- Original Data File ----");
         String originalFileContents = FileUtils.readFileToString(file);
         System.out.println(originalFileContents);
 
-        System.out.println("\n\n---- Processed Data ----");
+        System.out.println("\n\n---- Processed Data File ----");
         String fileContents = FileUtils.readFileToString(outputFile);
         System.out.println(fileContents);
 
