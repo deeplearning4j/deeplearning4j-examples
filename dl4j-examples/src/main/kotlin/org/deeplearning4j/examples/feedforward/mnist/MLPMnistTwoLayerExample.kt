@@ -1,23 +1,17 @@
 package org.deeplearning4j.examples.feedforward.mnist
 
 
-import org.nd4j.linalg.activations.Activation
-import org.nd4j.linalg.dataset.api.iterator.DataSetIterator
 import org.deeplearning4j.datasets.iterator.impl.MnistDataSetIterator
 import org.deeplearning4j.eval.Evaluation
-import org.deeplearning4j.nn.api.OptimizationAlgorithm
-import org.deeplearning4j.nn.conf.MultiLayerConfiguration
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration
-import org.deeplearning4j.nn.conf.Updater
 import org.deeplearning4j.nn.conf.layers.DenseLayer
 import org.deeplearning4j.nn.conf.layers.OutputLayer
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork
 import org.deeplearning4j.nn.weights.WeightInit
 import org.deeplearning4j.optimize.listeners.ScoreIterationListener
-import org.nd4j.linalg.api.ndarray.INDArray
-import org.nd4j.linalg.dataset.DataSet
+import org.nd4j.linalg.activations.Activation
+import org.nd4j.linalg.learning.config.Nesterovs
 import org.nd4j.linalg.lossfunctions.LossFunctions.LossFunction
-import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
 
@@ -64,13 +58,15 @@ object MLPMnistTwoLayerExample {
 
         log.info("Build model....")
         val conf = NeuralNetConfiguration.Builder()
-                .seed(rngSeed) //include a random seed for reproducibility
+                .seed(rngSeed.toLong()) //include a random seed for reproducibility
                  // use stochastic gradient descent as an optimization algorithm
 
                 .activation(Activation.RELU)
                 .weightInit(WeightInit.XAVIER)
-                .learningRate(rate) //specify the learning rate
-                .updater(Updater.NESTEROVS).momentum(0.98) //specify the rate of change of the learning rate.
+                .updater(Nesterovs.builder()
+                        .learningRate(rate)
+                        .momentum(0.98) //specify the rate of change of the learning rate.
+                        .build())
                 .l2(rate * 0.005) // regularize learning model
                 .list()
                 .layer(0, DenseLayer.Builder() //create the first input layer.
