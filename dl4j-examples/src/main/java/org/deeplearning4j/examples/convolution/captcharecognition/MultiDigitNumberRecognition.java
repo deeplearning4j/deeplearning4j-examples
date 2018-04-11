@@ -62,7 +62,6 @@ public class MultiDigitNumberRecognition {
         boolean hasFile = modelFile.exists()?true:modelFile.createNewFile();
         log.info( modelFile.getPath() );
         
-        log.info( modelFile.getPath() );
         // ComputationGraph model = ModelSerializer.restoreComputationGraph(modelFile);
         ComputationGraph model =  createModel();
         UIServer uiServer = UIServer.getInstance();
