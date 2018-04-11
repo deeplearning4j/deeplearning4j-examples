@@ -44,16 +44,26 @@ public class MultiDigitNumberRecognition {
     private static int epochs = 50;
     private static int batchSize = 15;
     private static String rootPath = System.getProperty("user.dir");
-    private static String modelPath = rootPath.substring(0, rootPath.lastIndexOf(File.separatorChar)) + File.separatorChar + "out" + File.separatorChar + "models" + File.separatorChar + "validateCodeCheckModel.json";
+    
+    private static String modelDirPath = rootPath.substring(0, rootPath.lastIndexOf(File.separatorChar)) + File.separatorChar + "out" + File.separatorChar + "models";
+    private static String modelPath = modelDirPath + File.separatorChar + "validateCodeCheckModel.json";
 
 
     public static void main(String[] args) throws Exception {
         long startTime = System.currentTimeMillis();
         System.out.println(startTime);
+
+        File modelDir = new File(modelDirPath);
         File modelFile = new File(modelPath);
+
+//
+        // create dircetory
+        boolean hasDir = modelDir.exists() ? true : modelDir.mkdirs();
         boolean hasFile = modelFile.exists()?true:modelFile.createNewFile();
         log.info( modelFile.getPath() );
-       // ComputationGraph model = ModelSerializer.restoreComputationGraph(modelFile);
+        
+        log.info( modelFile.getPath() );
+        // ComputationGraph model = ModelSerializer.restoreComputationGraph(modelFile);
         ComputationGraph model =  createModel();
         UIServer uiServer = UIServer.getInstance();
         StatsStorage statsStorage = new InMemoryStatsStorage();
