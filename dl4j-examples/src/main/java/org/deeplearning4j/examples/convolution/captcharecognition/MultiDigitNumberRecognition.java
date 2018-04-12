@@ -16,6 +16,7 @@ import org.deeplearning4j.util.ModelSerializer;
 import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.api.MultiDataSet;
+import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.nd4j.linalg.dataset.api.iterator.MultiDataSetIterator;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.learning.config.Adam;
@@ -44,7 +45,7 @@ public class MultiDigitNumberRecognition {
     private static int epochs = 50;
     private static int batchSize = 15;
     private static String rootPath = System.getProperty("user.dir");
-    
+
     private static String modelDirPath = rootPath.substring(0, rootPath.lastIndexOf(File.separatorChar)) + File.separatorChar + "out" + File.separatorChar + "models";
     private static String modelPath = modelDirPath + File.separatorChar + "validateCodeCheckModel.json";
 
@@ -54,92 +55,37 @@ public class MultiDigitNumberRecognition {
         System.out.println(startTime);
 
         File modelDir = new File(modelDirPath);
+        File modelFile = new File(modelPath);
 
-        // create dircetory
-        boolean hasDir = modelDir.exists() ? true : modelDir.mkdirs();
-        log.info(modelPath);
+        // create directory
+        boolean hasDir = modelDir.exists() || modelDir.mkdirs();
+        log.info( modelFile.getPath() );
         //create model
         ComputationGraph model =  createModel();
-        // moniter the model score
+        //monitor the model score
         UIServer uiServer = UIServer.getInstance();
         StatsStorage statsStorage = new InMemoryStatsStorage();
         uiServer.attach(statsStorage);
         model.setListeners(new ScoreIterationListener(10), new StatsListener( statsStorage));
 
-
-        //ImageTransform showTransform = new ShowImageTransform("Display");
-        //ImageTransform multiTransform = new MultiImageTransform(showTransform);
-        //MultiDataSetIterator trainMulIterator = new MultiRecordDataSetIterator(batchSize, multiTransform, "train");
-
+        //construct the iterator
         MultiDataSetIterator trainMulIterator = new MultiRecordDataSetIterator(batchSize, "train");
-
         MultiDataSetIterator testMulIterator = new MultiRecordDataSetIterator(batchSize,"test");
         MultiDataSetIterator validateMulIterator = new MultiRecordDataSetIterator(batchSize,"validate");
+        //fit
         for ( int i = 0; i < epochs; i ++ ) {
             System.out.println("Epoch=====================" + i);
             model.fit(trainMulIterator);
         }
-        ModelSerializer.writeModel(model, modelPath, true);
+        ModelSerializer.writeModel(model, modelFile,true);
         long endTime = System.currentTimeMillis();
         System.out.println("=============run time=====================" + (endTime - startTime));
 
-
-        int tc = 0;
-        int tt = 0;
-        System.out.println("=====eval model===========test============");
-        while(testMulIterator.hasNext()) {
-            MultiDataSet mds = testMulIterator.next();
-            INDArray[]  output = model.output(mds.getFeatures());
-            INDArray[] labels = mds.getLabels();
-            int dataNum = batchSize > output[0].rows() ? output[0].rows() : batchSize;
-            for (int dataIndex = 0;  dataIndex < dataNum; dataIndex ++) {
-                String reLabel = "";
-                String peLabel = "";
-                INDArray preoutput = null;
-                INDArray realLabel = null;
-                for (int digit = 0; digit < 6; digit ++) {
-                    preoutput = output[digit].getRow(dataIndex);
-                    peLabel += Nd4j.argMax(preoutput, 1).getInt(0);
-                    realLabel = labels[digit].getRow(dataIndex);
-                    reLabel += Nd4j.argMax(realLabel, 1).getInt(0);
-
-                }
-                if (peLabel.equals(reLabel)) {
-                    tt ++;
-                }
-                tc ++;
-                log.info("real image {}  prediction {} status {}",  reLabel,peLabel, peLabel.equals(reLabel));
-            }
-        }
-        System.out.println("test result : sum count =" + tc + " correct count=" + tt );
+        System.out.println("=====eval model=====test==================");
+        modelPredict(model, testMulIterator);
 
         System.out.println("=====eval model=====validate==================");
-        int vc = 0;
-        int vt = 0;
-        while(validateMulIterator.hasNext()) {
-            MultiDataSet mds = validateMulIterator.next();
-            INDArray[]  output = model.output(mds.getFeatures());
-            INDArray[] labels = mds.getLabels();
-            int dataNum = batchSize > output[0].rows() ? output[0].rows() : batchSize;
-            for (int dataIndex = 0;  dataIndex < dataNum; dataIndex ++) {
-                String reLabel = "";
-                String peLabel = "";
-                INDArray preoutput = null;
-                INDArray realLabel = null;
-                for (int digit = 0; digit < 6; digit ++) {
-                    preoutput = output[digit].getRow(dataIndex);
-                    peLabel += Nd4j.argMax(preoutput, 1).getInt(0);
-                    realLabel = labels[digit].getRow(dataIndex);
-                    reLabel += Nd4j.argMax(realLabel, 1).getInt(0);
-                }
-                if (peLabel.equals(reLabel)) {
-                    vt ++;
-                }
-                vc ++;
-                log.info("real image {}  prediction {} status {}",  reLabel,peLabel, peLabel.equals(reLabel));
-            }
-        }
-        System.out.println("validate result : sum count =" + vc + " correct count=" + vt );
+        modelPredict(model, validateMulIterator);
 
     }
 
@@ -197,4 +143,34 @@ public class MultiDigitNumberRecognition {
         return model;
     }
 
+    public static void modelPredict(ComputationGraph model, MultiDataSetIterator iterator) {
+        int sumCount = 0;
+        int correctCount = 0;
+
+        while (iterator.hasNext()) {
+            MultiDataSet mds = iterator.next();
+            INDArray[]  output = model.output(mds.getFeatures());
+            INDArray[] labels = mds.getLabels();
+            int dataNum = batchSize > output[0].rows() ? output[0].rows() : batchSize;
+            for (int dataIndex = 0;  dataIndex < dataNum; dataIndex ++) {
+                String reLabel = "";
+                String peLabel = "";
+                INDArray preOutput = null;
+                INDArray realLabel = null;
+                for (int digit = 0; digit < 6; digit ++) {
+                    preOutput = output[digit].getRow(dataIndex);
+                    peLabel += Nd4j.argMax(preOutput, 1).getInt(0);
+                    realLabel = labels[digit].getRow(dataIndex);
+                    reLabel += Nd4j.argMax(realLabel, 1).getInt(0);
+                }
+                if (peLabel.equals(reLabel)) {
+                    correctCount ++;
+                }
+                sumCount ++;
+                log.info("real image {}  prediction {} status {}",  reLabel,peLabel, peLabel.equals(reLabel));
+            }
+        }
+        iterator.reset();
+        System.out.println("validate result : sum count =" + sumCount + " correct count=" + correctCount );
+    }
 }
