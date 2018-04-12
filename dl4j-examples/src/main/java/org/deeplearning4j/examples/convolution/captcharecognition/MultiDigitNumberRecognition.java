@@ -2,7 +2,6 @@ package org.deeplearning4j.examples.convolution.captcharecognition;
 
 
 import org.deeplearning4j.api.storage.StatsStorage;
-import org.deeplearning4j.nn.api.OptimizationAlgorithm;
 import org.deeplearning4j.nn.conf.*;
 import org.deeplearning4j.nn.conf.inputs.InputType;
 import org.deeplearning4j.nn.conf.layers.*;
@@ -16,7 +15,6 @@ import org.deeplearning4j.util.ModelSerializer;
 import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.api.MultiDataSet;
-import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.nd4j.linalg.dataset.api.iterator.MultiDataSetIterator;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.learning.config.Adam;
@@ -55,11 +53,10 @@ public class MultiDigitNumberRecognition {
         System.out.println(startTime);
 
         File modelDir = new File(modelDirPath);
-        File modelFile = new File(modelPath);
 
         // create directory
         boolean hasDir = modelDir.exists() || modelDir.mkdirs();
-        log.info( modelFile.getPath() );
+        log.info( modelPath );
         //create model
         ComputationGraph model =  createModel();
         //monitor the model score
@@ -77,7 +74,7 @@ public class MultiDigitNumberRecognition {
             System.out.println("Epoch=====================" + i);
             model.fit(trainMulIterator);
         }
-        ModelSerializer.writeModel(model, modelFile,true);
+        ModelSerializer.writeModel(model, modelPath, true);
         long endTime = System.currentTimeMillis();
         System.out.println("=============run time=====================" + (endTime - startTime));
 
