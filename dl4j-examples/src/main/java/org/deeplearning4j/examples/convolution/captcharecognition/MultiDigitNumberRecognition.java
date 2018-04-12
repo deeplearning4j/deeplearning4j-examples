@@ -54,12 +54,10 @@ public class MultiDigitNumberRecognition {
         System.out.println(startTime);
 
         File modelDir = new File(modelDirPath);
-        File modelFile = new File(modelPath);
 
-//
         // create dircetory
         boolean hasDir = modelDir.exists() ? true : modelDir.mkdirs();
-        log.info( modelFile.getPath() );
+        log.info(modelPath);
         //create model
         ComputationGraph model =  createModel();
         // moniter the model score
@@ -81,7 +79,7 @@ public class MultiDigitNumberRecognition {
             System.out.println("Epoch=====================" + i);
             model.fit(trainMulIterator);
         }
-        ModelSerializer.writeModel(model, modelFile,true);
+        ModelSerializer.writeModel(model, modelPath, true);
         long endTime = System.currentTimeMillis();
         System.out.println("=============run time=====================" + (endTime - startTime));
 
