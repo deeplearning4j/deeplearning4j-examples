@@ -59,11 +59,10 @@ public class MultiDigitNumberRecognition {
 //
         // create dircetory
         boolean hasDir = modelDir.exists() ? true : modelDir.mkdirs();
-        boolean hasFile = modelFile.exists()?true:modelFile.createNewFile();
         log.info( modelFile.getPath() );
-        
-        // ComputationGraph model = ModelSerializer.restoreComputationGraph(modelFile);
+        //create model
         ComputationGraph model =  createModel();
+        // moniter the model score
         UIServer uiServer = UIServer.getInstance();
         StatsStorage statsStorage = new InMemoryStatsStorage();
         uiServer.attach(statsStorage);
