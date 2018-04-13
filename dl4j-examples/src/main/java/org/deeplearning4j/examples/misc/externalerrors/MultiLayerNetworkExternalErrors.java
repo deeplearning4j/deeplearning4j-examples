@@ -53,7 +53,10 @@ public class MultiLayerNetworkExternalErrors {
         //Calculate gradient with respect to an external error
         int minibatch = 32;
         INDArray input = Nd4j.rand(minibatch, nIn);
-        INDArray output = model.output(input);          //Do forward pass. Normally: calculate the error based on this
+        model.setInput(input);
+        //Do forward pass, but don't clear the input activations in each layers - we need those set so we can calculate
+        // gradients based on them
+        model.feedForward(true, false);
 
         INDArray externalError = Nd4j.rand(minibatch, nOut);
         Pair<Gradient, INDArray> p = model.backpropGradient(externalError);  //Calculate backprop gradient based on error array
