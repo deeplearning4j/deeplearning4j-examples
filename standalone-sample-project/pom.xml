@@ -8,11 +8,13 @@
     <artifactId>deeplearning4j-examples</artifactId>
     <version>1.0.0-alpha</version>
 
+    <!-- Properties Section. Change versions here, if required -->
     <properties>
         <dl4j.version>1.0.0-alpha</dl4j.version>
         <nd4j.version>1.0.0-alpha</nd4j.version>
         <logback.version>1.2.3</logback.version>
         <java.version>1.8</java.version>
+        <maven-shade-plugin.version>2.4.3</maven-shade-plugin.version>
     </properties>
 
 
@@ -77,9 +79,11 @@
             <!--
             Maven shade plugin configuration: this is required so that if you build a single JAR file (an "uber-jar")
             it will contain all the required native libraries, and the backends will work correctly.
-            Used for example in:
+            Used for example when running the following commants
+
             mvn package
-            java -
+            cd target
+            java -cp deeplearning4j-examples-1.0.0-alpha-bin.jar org.deeplearning4j.LenetMnistExample
             -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
