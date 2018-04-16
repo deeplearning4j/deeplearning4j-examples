@@ -4,11 +4,12 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
+    <!-- Group-ID, artifact ID and version of the project. You can modify these as you want -->
     <groupId>org.deeplearning4j</groupId>
     <artifactId>deeplearning4j-examples</artifactId>
     <version>1.0.0-alpha</version>
 
-    <!-- Properties Section. Change versions here, if required -->
+    <!-- Properties Section. Change DL4J and ND4J versions here, if required -->
     <properties>
         <dl4j.version>1.0.0-alpha</dl4j.version>
         <nd4j.version>1.0.0-alpha</nd4j.version>
@@ -19,14 +20,17 @@
 
 
     <dependencies>
-        <!-- deeplearning4j-core: contains main neurnal networks -->
+        <!-- deeplearning4j-core: contains main functionality and neural networks -->
         <dependency>
             <groupId>org.deeplearning4j</groupId>
             <artifactId>deeplearning4j-core</artifactId>
             <version>${dl4j.version}</version>
         </dependency>
 
-        <!-- ND4J backend: "nd4j-native-platform" is for CPUs only, for running on all operating systems -->
+        <!--
+        ND4J backend: every project needs one of these. The backend defines the hardware on which network training
+        will occur. "nd4j-native-platform" is for CPUs only (for running on all operating systems).
+        -->
         <dependency>
             <groupId>org.nd4j</groupId>
             <artifactId>nd4j-native-platform</artifactId>
