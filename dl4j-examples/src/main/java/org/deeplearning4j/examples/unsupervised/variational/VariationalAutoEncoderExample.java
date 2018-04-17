@@ -9,6 +9,7 @@ import org.deeplearning4j.nn.conf.layers.variational.BernoulliReconstructionDist
 import org.deeplearning4j.nn.conf.layers.variational.VariationalAutoencoder;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
+import org.deeplearning4j.nn.workspace.LayerWorkspaceMgr;
 import org.deeplearning4j.optimize.api.IterationListener;
 import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.api.ndarray.INDArray;
@@ -89,7 +90,7 @@ public class VariationalAutoEncoderExample {
 
         //Lists to store data for later plotting
         List<INDArray> latentSpaceVsEpoch = new ArrayList<>(nEpochs + 1);
-        INDArray latentSpaceValues = vae.activate(testFeatures, false);                     //Collect and record the latent space values before training starts
+        INDArray latentSpaceValues = vae.activate(testFeatures, false, LayerWorkspaceMgr.noWorkspaces());                     //Collect and record the latent space values before training starts
         latentSpaceVsEpoch.add(latentSpaceValues);
         List<INDArray> digitsGrid = new ArrayList<>();
 
@@ -156,7 +157,7 @@ public class VariationalAutoEncoderExample {
             // (a) collect the test set latent space values for later plotting
             // (b) collect the reconstructions at each point in the grid
             if (iterationCount % plotEveryNMinibatches == 0) {
-                INDArray latentSpaceValues = vae.activate(testFeatures, false);
+                INDArray latentSpaceValues = vae.activate(testFeatures, false, LayerWorkspaceMgr.noWorkspaces());
                 latentSpaceVsEpoch.add(latentSpaceValues);
 
                 INDArray out = vae.generateAtMeanGivenZ(latentSpaceGrid);
