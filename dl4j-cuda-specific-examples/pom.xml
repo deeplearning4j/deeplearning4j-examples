@@ -13,7 +13,8 @@
 
     <name>DeepLearning4j CUDA special examples</name>
     <properties>
-      <nd4j.backend>nd4j-cuda-9.1-platform</nd4j.backend>
+      <!--<nd4j.backend>nd4j-cuda-9.1-platform</nd4j.backend>-->
+        <nd4j.backend>nd4j-cuda-9.1</nd4j.backend>
     </properties>
 
     <repositories>
@@ -57,6 +58,11 @@
             <dependency>
                 <groupId>org.nd4j</groupId>
                 <artifactId>nd4j-cuda-9.1-platform</artifactId>
+                <version>${nd4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.nd4j</groupId>
+                <artifactId>nd4j-cuda-9.1</artifactId>
                 <version>${nd4j.version}</version>
             </dependency>
       </dependencies>
