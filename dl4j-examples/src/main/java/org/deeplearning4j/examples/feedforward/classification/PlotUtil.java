@@ -88,7 +88,7 @@ public class PlotUtil {
         for( int i=0; i<nRows; i++ ){
             xValues[i] = backgroundIn.getDouble(i,0);
             yValues[i] = backgroundIn.getDouble(i,1);
-            zValues[i] = backgroundOut.getDouble(i);
+            zValues[i] = backgroundOut.getDouble(i, 0);
 
         }
 
