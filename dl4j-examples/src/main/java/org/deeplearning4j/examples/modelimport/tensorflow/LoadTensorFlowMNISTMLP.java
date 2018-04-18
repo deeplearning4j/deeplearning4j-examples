@@ -29,6 +29,8 @@ import java.util.Map;
  * TensorFlow graphs need to be "frozen" and saved to a protobuf before import.
  * "freezing" refers to the process of converting all variables in the graph to constant and pruning the graph of all nodes/ops not necessary for inference.
  * The TensorFlow documentation on freezing graphs: https://www.tensorflow.org/extend/tool_developers/#freezing
+ *
+ * @author susaneraly
  */
 public class LoadTensorFlowMNISTMLP {
 
