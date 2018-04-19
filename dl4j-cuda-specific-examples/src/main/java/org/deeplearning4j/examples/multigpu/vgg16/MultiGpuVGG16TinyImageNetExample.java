@@ -1,4 +1,4 @@
-VGG16package org.deeplearning4j.examples.multigpu.vgg16;
+package org.deeplearning4j.examples.multigpu.vgg16;
 
 import org.datavec.api.io.filters.RandomPathFilter;
 import org.datavec.api.io.labels.ParentPathLabelGenerator;
