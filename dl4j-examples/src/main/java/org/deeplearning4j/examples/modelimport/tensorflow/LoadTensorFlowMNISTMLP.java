@@ -17,10 +17,10 @@ import java.util.Map;
  * This example demonstrates how to loads a simple Tensorflow graph into SameDiff, nd4j's autodiff framework and execute it
  * SameDiff supports two styles of execution
  * 1) Libnd4j execution mode:
- *      Similar to Tensorflow. The graph representation is converted into flat buffers and pushed down to native code.
+ * Similar to Tensorflow. The graph representation is converted into flat buffers and pushed down to native code.
  * 2) SameDiff execution mode:
- *      Similar to Pytorch
- *
+ * Similar to Pytorch
+ * <p>
  * NOTES:
  * The tensorflow import feature is currently a technology preview and in alpha
  * For now *only* the CPU backend is supported with a focus being on running inference
@@ -53,18 +53,20 @@ public class LoadTensorFlowMNISTMLP {
         val executioner = new NativeGraphExecutioner();
         val results = executioner.executeGraph(graph); //returns an array of the outputs
         INDArray libnd4jPred = ((INDArray[]) results)[0];
-        System.out.println("LIBND4J exec prediction for input_a:\n"+libnd4jPred);
+        System.out.println("LIBND4J exec prediction for input_a:\n" + libnd4jPred);
         if (libnd4jPred.equals(inputsPredictions.get("prediction_a"))) {
             //this is true and therefore predictions are equal
             System.out.println("Predictions are equal to tensorflow");
+        } else {
+            throw new RuntimeException("Predictions don't match!");
         }
 
         //Now to run with the samediff executor, with input_b array expecting to get prediction_b
         val graphSD = TFGraphMapper.getInstance().importGraph(new File(FROZEN_MLP)); //Reimport graph here, necessary for the 1.0 alpha release
         graphSD.associateArrayWithVariable(inputsPredictions.get("input_b"), graph.variableMap().get("input"));
         INDArray samediffPred = graphSD.execAndEndResult();
-        System.out.println("SameDiff exec prediction for input_b:\n"+samediffPred);
-        if(samediffPred.equals(inputsPredictions.get("prediction_b"))) {
+        System.out.println("SameDiff exec prediction for input_b:\n" + samediffPred);
+        if (samediffPred.equals(inputsPredictions.get("prediction_b"))) {
             //this is true and therefore predictions are equal
             System.out.println("Predictions are equal to tensorflow");
         }
