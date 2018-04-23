@@ -37,7 +37,7 @@ public class LoadTensorFlowMNISTMLP {
     //Python code for this can be found in resources/import/tensorflow under generate_model.py and freeze_model_after.py
     //Input node/Placeholder in this graph is names "input"
     //Output node/op in this graph is names "output"
-    public final static String BASE_DIR = "import/tensorflow";
+    public final static String BASE_DIR = "modelimport/tensorflow";
 
     public static void main(String[] args) throws Exception {
         final String FROZEN_MLP = new ClassPathResource(BASE_DIR + "/frozen_model.pb").getFile().getPath();
