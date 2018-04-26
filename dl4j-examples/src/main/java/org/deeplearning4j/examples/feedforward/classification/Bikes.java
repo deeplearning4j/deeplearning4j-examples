@@ -43,7 +43,7 @@ public class Bikes {
         int nEpochs = 30;
 
         int numInputs = 2;
-        int numOutputs = 78;
+        int numOutputs = 2;
         int numHiddenNodes = 20;
 
         final String filenameTrain  = new ClassPathResource("/4555_Project/trip_TRAIN_2.csv").getFile().getPath();
@@ -53,12 +53,12 @@ public class Bikes {
         RecordReader rr = new CSVRecordReader();
 //        rr.initialize(new FileSplit(new File("src/main/resources/classification/linear_data_train.csv")));
         rr.initialize(new FileSplit(new File(filenameTrain)));
-        DataSetIterator trainIter = new RecordReaderDataSetIterator(rr,batchSize,0,78);
+        DataSetIterator trainIter = new RecordReaderDataSetIterator(rr,batchSize,0,2);
 
         //Load the test/evaluation data:
         RecordReader rrTest = new CSVRecordReader();
         rrTest.initialize(new FileSplit(new File(filenameTest)));
-        DataSetIterator testIter = new RecordReaderDataSetIterator(rrTest,batchSize,0,78);
+        DataSetIterator testIter = new RecordReaderDataSetIterator(rrTest,batchSize,0,2);
 
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
                 .seed(seed)
@@ -104,10 +104,11 @@ public class Bikes {
         //Training is complete. Code that follows is for plotting the data & predictions only
 
         //Plot the data:
-        double xMin = 60;
-        double xMax = 309479;
-        double yMin = 2;
-        double yMax = 77;
+        double xMin = 2;
+        double xMax = 77;
+        double yMin = 60;
+        double yMax = 309479;
+
 
         //Let's evaluate the predictions at every point in the x/y input space
         int nPointsPerAxis = 1000;
@@ -132,7 +133,7 @@ public class Bikes {
         rr.initialize(new FileSplit(new ClassPathResource("/4555_Project/trip_TRAIN_2.csv").getFile()));
         rr.reset();
         int nTrainPoints = 10000;
-        trainIter = new RecordReaderDataSetIterator(rr,nTrainPoints,0,78);
+        trainIter = new RecordReaderDataSetIterator(rr,nTrainPoints,0,2);
         DataSet ds = trainIter.next();
         PlotUtil.plotTrainingData(ds.getFeatures(), ds.getLabels(), allXYPoints, predictionsAtXYPoints, nPointsPerAxis);
 
@@ -141,7 +142,7 @@ public class Bikes {
         rrTest.initialize(new FileSplit(new ClassPathResource("/4555_Project/trip_TEST_2.csv").getFile()));
         rrTest.reset();
         int nTestPoints = 3000;
-        testIter = new RecordReaderDataSetIterator(rrTest,nTestPoints,0,78);
+        testIter = new RecordReaderDataSetIterator(rrTest,nTestPoints,0,2);
         ds = testIter.next();
         INDArray testPredicted = model.output(ds.getFeatures());
         PlotUtil.plotTestData(ds.getFeatures(), ds.getLabels(), testPredicted, allXYPoints, predictionsAtXYPoints, nPointsPerAxis);
