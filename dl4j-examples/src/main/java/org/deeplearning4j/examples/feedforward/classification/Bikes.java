@@ -39,8 +39,8 @@ public class Bikes {
     public static void main(String[] args) throws Exception {
         int seed = 123;
         double learningRate = 0.01;
-        int batchSize = 500;
-        int nEpochs = 30;
+        int batchSize = 50;
+        int nEpochs = 200;
 
         int numInputs = 2;
         int numOutputs = 2;
