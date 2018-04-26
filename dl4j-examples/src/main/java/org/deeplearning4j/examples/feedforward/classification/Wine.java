@@ -33,7 +33,7 @@ import java.io.File;
  * @author Alex Black (added plots)
  *
  */
-public class Bikes {
+public class Wine {
 
 
     public static void main(String[] args) throws Exception {
