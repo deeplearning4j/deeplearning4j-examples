@@ -33,32 +33,32 @@ import java.io.File;
  * @author Alex Black (added plots)
  *
  */
-public class Food {
+public class Bikes {
 
 
     public static void main(String[] args) throws Exception {
         int seed = 123;
         double learningRate = 0.01;
-        int batchSize = 50;
+        int batchSize = 500;
         int nEpochs = 30;
 
         int numInputs = 2;
         int numOutputs = 2;
         int numHiddenNodes = 20;
 
-        final String filenameTrain  = new ClassPathResource("/classification/Reduced_FAO.csv").getFile().getPath();
-        final String filenameTest  = new ClassPathResource("/classification/Reduced_FAO.csv").getFile().getPath();
+        final String filenameTrain  = new ClassPathResource("/4555_Project/trip_TRAIN_2.csv").getFile().getPath();
+        final String filenameTest  = new ClassPathResource("/4555_Project/trip_TEST_2.csv").getFile().getPath();
 
         //Load the training data:
         RecordReader rr = new CSVRecordReader();
 //        rr.initialize(new FileSplit(new File("src/main/resources/classification/linear_data_train.csv")));
         rr.initialize(new FileSplit(new File(filenameTrain)));
-        DataSetIterator trainIter = new RecordReaderDataSetIterator(rr,batchSize,0,2);
+        DataSetIterator trainIter = new RecordReaderDataSetIterator(rr,batchSize,0,66);
 
         //Load the test/evaluation data:
         RecordReader rrTest = new CSVRecordReader();
         rrTest.initialize(new FileSplit(new File(filenameTest)));
-        DataSetIterator testIter = new RecordReaderDataSetIterator(rrTest,batchSize,0,2);
+        DataSetIterator testIter = new RecordReaderDataSetIterator(rrTest,batchSize,0,66);
 
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
                 .seed(seed)
@@ -104,13 +104,13 @@ public class Food {
         //Training is complete. Code that follows is for plotting the data & predictions only
 
         //Plot the data:
-        double xMin = 0;
-        double xMax = 1.0;
-        double yMin = -0.2;
-        double yMax = 0.8;
+        double xMin = 60;
+        double xMax = 309479;
+        double yMin = 2;
+        double yMax = 77;
 
         //Let's evaluate the predictions at every point in the x/y input space
-        int nPointsPerAxis = 100;
+        int nPointsPerAxis = 1000;
         double[][] evalPoints = new double[nPointsPerAxis*nPointsPerAxis][2];
         int count = 0;
         for( int i=0; i<nPointsPerAxis; i++ ){
@@ -129,19 +129,19 @@ public class Food {
         INDArray predictionsAtXYPoints = model.output(allXYPoints);
 
         //Get all of the training data in a single array, and plot it:
-        rr.initialize(new FileSplit(new ClassPathResource("/classification/linear_data_train.csv").getFile()));
+        rr.initialize(new FileSplit(new ClassPathResource("/4555_Project/trip_TRAIN_2.csv").getFile()));
         rr.reset();
-        int nTrainPoints = 1000;
-        trainIter = new RecordReaderDataSetIterator(rr,nTrainPoints,0,2);
+        int nTrainPoints = 10000;
+        trainIter = new RecordReaderDataSetIterator(rr,nTrainPoints,0,66);
         DataSet ds = trainIter.next();
         PlotUtil.plotTrainingData(ds.getFeatures(), ds.getLabels(), allXYPoints, predictionsAtXYPoints, nPointsPerAxis);
 
 
         //Get test data, run the test data through the network to generate predictions, and plot those predictions:
-        rrTest.initialize(new FileSplit(new ClassPathResource("/classification/linear_data_eval.csv").getFile()));
+        rrTest.initialize(new FileSplit(new ClassPathResource("/4555_Project/trip_TEST_2.csv").getFile()));
         rrTest.reset();
-        int nTestPoints = 500;
-        testIter = new RecordReaderDataSetIterator(rrTest,nTestPoints,0,2);
+        int nTestPoints = 3000;
+        testIter = new RecordReaderDataSetIterator(rrTest,nTestPoints,0,66);
         ds = testIter.next();
         INDArray testPredicted = model.output(ds.getFeatures());
         PlotUtil.plotTestData(ds.getFeatures(), ds.getLabels(), testPredicted, allXYPoints, predictionsAtXYPoints, nPointsPerAxis);
