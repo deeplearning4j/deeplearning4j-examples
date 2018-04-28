@@ -39,16 +39,16 @@ public class Wine {
     public static void main(String[] args) throws Exception {
         //Nd4j.ENFORCE_NUMERICAL_STABILITY = true;
         int seed = 123;
-        double learningRate = 0.01;
-        int batchSize = 300;
-        int nEpochs = 200;
+        double learningRate = 0.005;
+        int batchSize = 2000;
+        int nEpochs = 50;
 
         int numInputs = 2;
         int numOutputs = 2;
-        int numHiddenNodes = 30;
+        int numHiddenNodes = 20;
 
-        final String filenameTrain  = new ClassPathResource("/4555_Project/trip_TRAIN_3.csv").getFile().getPath();
-        final String filenameTest  = new ClassPathResource("/4555_Project/trip_TRAIN_3.csv").getFile().getPath();
+        final String filenameTrain  = new ClassPathResource("/4555_Project/winemag-data-SET_1-TRAIN.csv").getFile().getPath();
+        final String filenameTest  = new ClassPathResource("/4555_Project/winemag-data-SET_1-TEST.csv").getFile().getPath();
 
         //Load the training data:
         RecordReader rr = new CSVRecordReader();
@@ -71,7 +71,7 @@ public class Wine {
                         .build())
                 .layer(1, new DenseLayer.Builder()
                         .weightInit(WeightInit.XAVIER)
-                        .activation(Activation.SOFTMAX)
+                        .activation(Activation.RELU)
                         .nIn(numHiddenNodes).nOut(numHiddenNodes).build())
             .layer(2, new DenseLayer.Builder()
                 .weightInit(WeightInit.XAVIER)
@@ -86,7 +86,7 @@ public class Wine {
 
         MultiLayerNetwork model = new MultiLayerNetwork(conf);
         model.init();
-        model.setListeners(new ScoreIterationListener(200));  //Print score every 10 parameter updates
+        model.setListeners(new ScoreIterationListener(50));  //Print score every 10 parameter updates
 
 
         for ( int n = 0; n < nEpochs; n++) {
@@ -113,10 +113,10 @@ public class Wine {
         //Training is complete. Code that follows is for plotting the data & predictions only
 
         //Plot the data:
-        double xMin = 2;
-        double xMax = 77;
-        double yMin = 2;
-        double yMax = 77;
+        double xMin = -1;
+        double xMax = 2;
+        double yMin = 4;
+        double yMax = 740;
 
 
         //Let's evaluate the predictions at every point in the x/y input space
@@ -139,18 +139,18 @@ public class Wine {
         INDArray predictionsAtXYPoints = model.output(allXYPoints);
 
         //Get all of the training data in a single array, and plot it:
-        rr.initialize(new FileSplit(new ClassPathResource("/4555_Project/trip_TRAIN_3.csv").getFile()));
+        rr.initialize(new FileSplit(new ClassPathResource("/4555_Project/winemag-data-SET_1-TRAIN.csv").getFile()));
         rr.reset();
         int nTrainPoints = 10000;
-        trainIter = new RecordReaderDataSetIterator(rr,nTrainPoints,0,2);
+        trainIter = new RecordReaderDataSetIterator(rr,nTrainPoints,0, 2);
         DataSet ds = trainIter.next();
         PlotUtil.plotTrainingData(ds.getFeatures(), ds.getLabels(), allXYPoints, predictionsAtXYPoints, nPointsPerAxis);
 
 
         //Get test data, run the test data through the network to generate predictions, and plot those predictions:
-        rrTest.initialize(new FileSplit(new ClassPathResource("/4555_Project/trip_TRAIN_3.csv").getFile()));
+        rrTest.initialize(new FileSplit(new ClassPathResource("/4555_Project/winemag-data-SET_1-TEST.csv").getFile()));
         rrTest.reset();
-        int nTestPoints = 3000;
+        int nTestPoints = 10000;
         testIter = new RecordReaderDataSetIterator(rrTest,nTestPoints,0,2);
         ds = testIter.next();
         INDArray testPredicted = model.output(ds.getFeatures());
