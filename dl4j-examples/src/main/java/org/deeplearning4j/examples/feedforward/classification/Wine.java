@@ -40,15 +40,15 @@ public class Wine {
         //Nd4j.ENFORCE_NUMERICAL_STABILITY = true;
         int seed = 123;
         double learningRate = 0.005;
-        int batchSize = 2000;
+        int batchSize = 1000;
         int nEpochs = 50;
 
         int numInputs = 2;
         int numOutputs = 2;
         int numHiddenNodes = 20;
 
-        final String filenameTrain  = new ClassPathResource("/4555_Project/winemag-data-SET_1-TRAIN.csv").getFile().getPath();
-        final String filenameTest  = new ClassPathResource("/4555_Project/winemag-data-SET_1-TEST.csv").getFile().getPath();
+        final String filenameTrain  = new ClassPathResource("/4555_Project/wine_3/winemag-data-SET_3-TRAIN.csv").getFile().getPath();
+        final String filenameTest  = new ClassPathResource("/4555_Project/wine_3/winemag-data-SET_3-TEST.csv").getFile().getPath();
 
         //Load the training data:
         RecordReader rr = new CSVRecordReader();
@@ -115,8 +115,8 @@ public class Wine {
         //Plot the data:
         double xMin = -1;
         double xMax = 2;
-        double yMin = 4;
-        double yMax = 740;
+        double yMin = 0;
+        double yMax = 400;
 
 
         //Let's evaluate the predictions at every point in the x/y input space
@@ -139,18 +139,18 @@ public class Wine {
         INDArray predictionsAtXYPoints = model.output(allXYPoints);
 
         //Get all of the training data in a single array, and plot it:
-        rr.initialize(new FileSplit(new ClassPathResource("/4555_Project/winemag-data-SET_1-TRAIN.csv").getFile()));
+        rr.initialize(new FileSplit(new ClassPathResource("/4555_Project/wine_3/winemag-data-SET_3-TRAIN.csv").getFile()));
         rr.reset();
-        int nTrainPoints = 10000;
+        int nTrainPoints = 20000;
         trainIter = new RecordReaderDataSetIterator(rr,nTrainPoints,0, 2);
         DataSet ds = trainIter.next();
         PlotUtil.plotTrainingData(ds.getFeatures(), ds.getLabels(), allXYPoints, predictionsAtXYPoints, nPointsPerAxis);
 
 
         //Get test data, run the test data through the network to generate predictions, and plot those predictions:
-        rrTest.initialize(new FileSplit(new ClassPathResource("/4555_Project/winemag-data-SET_1-TEST.csv").getFile()));
+        rrTest.initialize(new FileSplit(new ClassPathResource("/4555_Project/wine_3/winemag-data-SET_3-TEST.csv").getFile()));
         rrTest.reset();
-        int nTestPoints = 10000;
+        int nTestPoints = 4000;
         testIter = new RecordReaderDataSetIterator(rrTest,nTestPoints,0,2);
         ds = testIter.next();
         INDArray testPredicted = model.output(ds.getFeatures());
