@@ -36,7 +36,7 @@ public class PlayTicTacToe extends JFrame {
     public PlayTicTacToe() throws HeadlessException {
         String filePath = "";
         try {
-            filePath = new ClassPathResource("TicTacToe").getFile().getAbsolutePath() + File.separator + "AllMoveWithReward.txt";
+            filePath = new ClassPathResource("AllMoveWithReward.txt").getFile().getAbsolutePath();
         } catch (Exception e) {
             System.out.println("FilePathException" + e.toString());
         }
