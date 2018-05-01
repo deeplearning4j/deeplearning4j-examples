@@ -1,8 +1,8 @@
 package org.deeplearning4j.examples.modelimport.tensorflow;
 
-import lombok.val;
 import org.nd4j.autodiff.execution.NativeGraphExecutioner;
 import org.nd4j.autodiff.samediff.SDVariable;
+import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.imports.graphmapper.tf.TFGraphMapper;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
@@ -37,7 +37,7 @@ public class LoadTensorFlowMNISTMLP {
     //Python code for this can be found in resources/import/tensorflow under generate_model.py and freeze_model_after.py
     //Input node/Placeholder in this graph is names "input"
     //Output node/op in this graph is names "output"
-    public final static String BASE_DIR = "import/tensorflow";
+    public final static String BASE_DIR = "modelimport/tensorflow";
 
     public static void main(String[] args) throws Exception {
         final String FROZEN_MLP = new ClassPathResource(BASE_DIR + "/frozen_model.pb").getFile().getPath();
@@ -46,13 +46,13 @@ public class LoadTensorFlowMNISTMLP {
         Map<String, INDArray> inputsPredictions = readPlaceholdersAndPredictions();
 
         //Load the graph into samediff
-        val graph = TFGraphMapper.getInstance().importGraph(new File(FROZEN_MLP));
+        SameDiff graph = TFGraphMapper.getInstance().importGraph(new File(FROZEN_MLP));
         //libnd4j executor
         //running with input_a array expecting to get prediction_a
         graph.associateArrayWithVariable(inputsPredictions.get("input_a"), graph.variableMap().get("input"));
-        val executioner = new NativeGraphExecutioner();
-        val results = executioner.executeGraph(graph); //returns an array of the outputs
-        INDArray libnd4jPred = ((INDArray[]) results)[0];
+        NativeGraphExecutioner executioner = new NativeGraphExecutioner();
+        INDArray[] results = executioner.executeGraph(graph); //returns an array of the outputs
+        INDArray libnd4jPred = results[0];
         System.out.println("LIBND4J exec prediction for input_a:\n" + libnd4jPred);
         if (libnd4jPred.equals(inputsPredictions.get("prediction_a"))) {
             //this is true and therefore predictions are equal
@@ -62,7 +62,7 @@ public class LoadTensorFlowMNISTMLP {
         }
 
         //Now to run with the samediff executor, with input_b array expecting to get prediction_b
-        val graphSD = TFGraphMapper.getInstance().importGraph(new File(FROZEN_MLP)); //Reimport graph here, necessary for the 1.0 alpha release
+        SameDiff graphSD = TFGraphMapper.getInstance().importGraph(new File(FROZEN_MLP)); //Reimport graph here, necessary for the 1.0 alpha release
         graphSD.associateArrayWithVariable(inputsPredictions.get("input_b"), graph.variableMap().get("input"));
         INDArray samediffPred = graphSD.execAndEndResult();
         System.out.println("SameDiff exec prediction for input_b:\n" + samediffPred);
