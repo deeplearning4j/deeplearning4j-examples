@@ -128,7 +128,7 @@ public class VariationalAutoEncoderExample {
         return data;
     }
 
-    private static class PlottingListener implements IterationListener {
+    private static class PlottingListener extends IterationListener {
 
         private final int plotEveryNMinibatches;
         private final INDArray testFeatures;

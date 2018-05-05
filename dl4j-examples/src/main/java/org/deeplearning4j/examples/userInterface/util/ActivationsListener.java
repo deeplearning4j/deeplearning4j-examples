@@ -18,7 +18,7 @@ import java.util.Map;
  *
  * @author Donald A. Smith
  */
-public class ActivationsListener implements IterationListener {
+public class ActivationsListener extends IterationListener {
     private boolean invoked=false;
     private final MultiLayerNetwork network;
     private final int sampleSizePerLayer;
