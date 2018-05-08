@@ -70,7 +70,7 @@ To run the JavaFX examples from IntelliJ, you'll have to add the `jfxrt.jar` as 
 
 #### On Ubuntu
 
-If you are using OpenJDK, on Ubuntu 16, you can install OpenJFX with `sudo apt-get install libopenjfx-java`. A typical `JAVAFX_HOME` is then `/usr/share/java/openjfx/jre/lib/ext/`. If you are on Ubuntu 14, you can install OpenJFX with the following process:
+If you are using OpenJDK, on Ubuntu 16, you can install OpenJFX with `sudo apt-get install openjfx libopenjfx-java`. A typical `JAVAFX_HOME` is then `/usr/share/java/openjfx/jre/lib/ext/`. If you are on Ubuntu 14, you can install OpenJFX with the following process:
 
 - edit `/etc/apt/sources.list.d/openjdk-r-ppa-trusty.list` and uncomment the line for deb-src
 - `sudo apt-get update`
