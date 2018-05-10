@@ -53,7 +53,7 @@ public class EditAtBottleneckOthersFrozen {
         //  nor any training related configs (model from keras was imported with only weights and json)
         log.info("\n\nLoading org.deeplearning4j.transferlearning.vgg16...\n\n");
 
-        ZooModel zooModel = new VGG16();
+        ZooModel zooModel = VGG16.builder().build();
         ComputationGraph vgg16 = (ComputationGraph) zooModel.initPretrained();
         log.info(vgg16.summary());
 

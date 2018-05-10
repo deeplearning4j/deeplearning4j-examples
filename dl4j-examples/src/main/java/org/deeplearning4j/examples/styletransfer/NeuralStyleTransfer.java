@@ -387,7 +387,7 @@ public class NeuralStyleTransfer {
     }
 
     private ComputationGraph loadModel() throws IOException {
-        ZooModel zooModel = new VGG16();
+        ZooModel zooModel = VGG16.builder().build();
         ComputationGraph vgg16 = (ComputationGraph) zooModel.initPretrained(PretrainedType.IMAGENET);
         vgg16.initGradientsView();
         log.info(vgg16.summary());

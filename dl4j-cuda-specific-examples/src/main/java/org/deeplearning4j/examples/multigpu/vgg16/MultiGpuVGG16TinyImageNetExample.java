@@ -59,7 +59,10 @@ public class MultiGpuVGG16TinyImageNetExample {
         int seed = 123;
         Random rng = new Random(seed);
 
-        VGG16 zooModel = new VGG16(200, seed);
+        VGG16 zooModel = VGG16.builder()
+            .numClasses(200)
+            .seed(seed)
+            .build();
         int[] inputShape = zooModel.metaData().getInputShape()[0];
         MultiLayerNetwork vgg16 = zooModel.init();
         vgg16.setListeners(new PerformanceListener(1, true));
