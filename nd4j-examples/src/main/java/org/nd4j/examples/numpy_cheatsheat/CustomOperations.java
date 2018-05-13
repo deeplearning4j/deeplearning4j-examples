@@ -1,7 +1,6 @@
 package org.nd4j.examples.numpy_cheatsheat;
 
 import com.google.common.base.Function;
-import org.apache.commons.lang3.ArrayUtils;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.indexing.BooleanIndexing;
@@ -12,7 +11,6 @@ import org.nd4j.linalg.indexing.conditions.Conditions;
 import org.nd4j.linalg.ops.transforms.Transforms;
 import org.nd4j.linalg.util.ArrayUtil;
 
-import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -146,12 +144,12 @@ class CustomOperations {
         BooleanIndexing.applyWhere(dup, condition,
             new Function<Number, Number>() {
                 @Override
-                public Number apply(@Nullable Number number) {
+                public Number apply( Number number) {
                     return 1.0;
                 }
             }, new Function<Number, Number>() {
                 @Override
-                public Number apply(@Nullable Number number) {
+                public Number apply( Number number) {
                     return 0.0;
                 }
             });

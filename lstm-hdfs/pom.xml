@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.deeplearning4j</groupId>
         <artifactId>deeplearning4j-examples-parent</artifactId>
-        <version>0.9.1</version>
+        <version>1.0.0-alpha</version>
     </parent>
     <groupId>org.deeplearning4j.examples</groupId>
     <artifactId>lstm-hdfs</artifactId>
@@ -13,8 +13,8 @@
     <url>http://maven.apache.org</url>
 
     <properties>
-        <dl4j.version>0.9.1</dl4j.version>
-        <dl4j.spark.version>0.9.1_spark_2</dl4j.spark.version>
+        <dl4j.version>1.0.0-alpha</dl4j.version>
+        <dl4j.spark.version>1.0.0-alpha_spark_2</dl4j.spark.version>
     </properties>
 
     <build>
@@ -73,7 +73,7 @@
             </dependency>
             <dependency>
                 <groupId>org.nd4j</groupId>
-                <artifactId>nd4j-cuda-8.0-platform</artifactId>
+                <artifactId>nd4j-cuda-9.1-platform</artifactId>
                 <version>${nd4j.version}</version>
                 <scope>test</scope>
             </dependency>

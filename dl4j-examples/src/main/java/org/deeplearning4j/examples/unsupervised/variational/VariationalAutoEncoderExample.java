@@ -2,22 +2,21 @@ package org.deeplearning4j.examples.unsupervised.variational;
 
 import org.deeplearning4j.datasets.iterator.impl.MnistDataSetIterator;
 import org.deeplearning4j.examples.unsupervised.variational.plot.PlotUtil;
-import org.deeplearning4j.examples.utilities.MnistDownloader;
-import org.deeplearning4j.nn.api.OptimizationAlgorithm;
+import org.deeplearning4j.nn.api.Model;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
-import org.deeplearning4j.nn.conf.Updater;
 import org.deeplearning4j.nn.conf.layers.variational.BernoulliReconstructionDistribution;
 import org.deeplearning4j.nn.conf.layers.variational.VariationalAutoencoder;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
-import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
+import org.deeplearning4j.optimize.api.IterationListener;
 import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.api.DataSet;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.indexing.NDArrayIndex;
+import org.nd4j.linalg.learning.config.RmsProp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,17 +52,15 @@ public class VariationalAutoEncoderExample {
         int plotNumSteps = 16;              //Number of steps for reconstructions, between plotMin and plotMax
 
         //MNIST data for training
-        MnistDownloader.download(); //Workaround for download location change since 0.9.1 release
         DataSetIterator trainIter = new MnistDataSetIterator(minibatchSize, true, rngSeed);
 
         //Neural net configuration
         Nd4j.getRandom().setSeed(rngSeed);
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
             .seed(rngSeed)
-            .learningRate(1e-2)
-            .updater(Updater.RMSPROP)
+            .updater(new RmsProp(1e-2))
             .weightInit(WeightInit.XAVIER)
-            .regularization(true).l2(1e-4)
+            .l2(1e-4)
             .list()
             .layer(0, new VariationalAutoencoder.Builder()
                 .activation(Activation.LEAKYRELU)
@@ -96,27 +93,16 @@ public class VariationalAutoEncoderExample {
         latentSpaceVsEpoch.add(latentSpaceValues);
         List<INDArray> digitsGrid = new ArrayList<>();
 
+
+        //Add a listener to the network that, every N=100 minibatches:
+        // (a) collect the test set latent space values for later plotting
+        // (b) collect the reconstructions at each point in the grid
+        net.setListeners(new PlottingListener(100, testFeatures, latentSpaceGrid, latentSpaceVsEpoch, digitsGrid));
+
         //Perform training
-        int iterationCount = 0;
         for (int i = 0; i < nEpochs; i++) {
             log.info("Starting epoch {} of {}",(i+1),nEpochs);
-            while (trainIter.hasNext()) {
-                DataSet ds = trainIter.next();
-                net.fit(ds);
-
-                //Every N=100 minibatches:
-                // (a) collect the test set latent space values for later plotting
-                // (b) collect the reconstructions at each point in the grid
-                if (iterationCount++ % plotEveryNMinibatches == 0) {
-                    latentSpaceValues = vae.activate(testFeatures, false);
-                    latentSpaceVsEpoch.add(latentSpaceValues);
-
-                    INDArray out = vae.generateAtMeanGivenZ(latentSpaceGrid);
-                    digitsGrid.add(out);
-                }
-            }
-
-            trainIter.reset();
+            net.pretrain(trainIter);    //Note use of .pretrain(DataSetIterator) not fit(DataSetIterator) for unsupervised training
         }
 
         //Plot MNIST test set - latent space vs. iteration (every 100 minibatches by default)
@@ -139,5 +125,43 @@ public class VariationalAutoEncoderExample {
             data.get(NDArrayIndex.interval(yStart * plotSteps, (yStart + 1) * plotSteps), NDArrayIndex.point(1)).assign(linspaceRow.getDouble(i));
         }
         return data;
+    }
+
+    private static class PlottingListener implements IterationListener {
+
+        private final int plotEveryNMinibatches;
+        private final INDArray testFeatures;
+        private final INDArray latentSpaceGrid;
+        private final List<INDArray> latentSpaceVsEpoch;
+        private final List<INDArray> digitsGrid;
+        private PlottingListener(int plotEveryNMinibatches, INDArray testFeatures, INDArray latentSpaceGrid,
+                                 List<INDArray> latentSpaceVsEpoch, List<INDArray> digitsGrid){
+            this.plotEveryNMinibatches = plotEveryNMinibatches;
+            this.testFeatures = testFeatures;
+            this.latentSpaceGrid = latentSpaceGrid;
+            this.latentSpaceVsEpoch = latentSpaceVsEpoch;
+            this.digitsGrid = digitsGrid;
+        }
+
+        @Override
+        public void iterationDone(Model model, int iterationCount, int epoch) {
+            if(!(model instanceof org.deeplearning4j.nn.layers.variational.VariationalAutoencoder)){
+                return;
+            }
+
+            org.deeplearning4j.nn.layers.variational.VariationalAutoencoder vae
+                = (org.deeplearning4j.nn.layers.variational.VariationalAutoencoder)model;
+
+            //Every N=100 minibatches:
+            // (a) collect the test set latent space values for later plotting
+            // (b) collect the reconstructions at each point in the grid
+            if (iterationCount % plotEveryNMinibatches == 0) {
+                INDArray latentSpaceValues = vae.activate(testFeatures, false);
+                latentSpaceVsEpoch.add(latentSpaceValues);
+
+                INDArray out = vae.generateAtMeanGivenZ(latentSpaceGrid);
+                digitsGrid.add(out);
+            }
+        }
     }
 }

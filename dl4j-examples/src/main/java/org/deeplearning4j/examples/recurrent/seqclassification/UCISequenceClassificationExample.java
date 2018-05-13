@@ -2,6 +2,7 @@ package org.deeplearning4j.examples.recurrent.seqclassification;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.nd4j.linalg.learning.config.Nesterovs;
 import org.nd4j.linalg.primitives.Pair;
 import org.datavec.api.records.reader.SequenceRecordReader;
 import org.datavec.api.records.reader.impl.csv.CSVSequenceRecordReader;
@@ -123,10 +124,8 @@ public class UCISequenceClassificationExample {
         // ----- Configure the network -----
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
                 .seed(123)    //Random number generator seed for improved repeatability. Optional.
-                .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT).iterations(1)
                 .weightInit(WeightInit.XAVIER)
-                .updater(Updater.NESTEROVS)
-                .learningRate(0.005)
+                .updater(new Nesterovs(0.005))
                 .gradientNormalization(GradientNormalization.ClipElementWiseAbsoluteValue)  //Not always required, but helps with this data set
                 .gradientNormalizationThreshold(0.5)
                 .list()

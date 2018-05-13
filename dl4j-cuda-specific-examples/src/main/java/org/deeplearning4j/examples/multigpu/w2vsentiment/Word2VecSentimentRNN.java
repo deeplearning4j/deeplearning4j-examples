@@ -19,6 +19,7 @@ import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.dataset.ExistingMiniBatchDataSetIterator;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.nd4j.linalg.factory.Nd4j;
+import org.nd4j.linalg.learning.config.Adam;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 import org.slf4j.Logger;
 
@@ -73,11 +74,10 @@ public class Word2VecSentimentRNN {
 
         //Set up network configuration
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
-            .updater(Updater.ADAM)
-            .regularization(true).l2(1e-5)
+            .updater(new Adam.Builder().learningRate(2e-2).build())
+            .l2(1e-5)
             .weightInit(WeightInit.XAVIER)
             .gradientNormalization(GradientNormalization.ClipElementWiseAbsoluteValue).gradientNormalizationThreshold(1.0)
-            .learningRate(2e-2)
             .list()
             .layer(0, new GravesLSTM.Builder().nIn(vectorSize).nOut(256)
                 .activation(Activation.TANH).build())

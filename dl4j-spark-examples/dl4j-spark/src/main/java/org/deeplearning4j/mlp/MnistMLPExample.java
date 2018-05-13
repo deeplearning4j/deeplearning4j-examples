@@ -18,7 +18,6 @@ import org.deeplearning4j.nn.weights.WeightInit;
 import org.deeplearning4j.spark.api.TrainingMaster;
 import org.deeplearning4j.spark.impl.multilayer.SparkDl4jMultiLayer;
 import org.deeplearning4j.spark.impl.paramavg.ParameterAveragingTrainingMaster;
-import org.deeplearning4j.utilities.MnistDownloader;
 import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
@@ -84,7 +83,6 @@ public class MnistMLPExample {
 
         //Load the data into memory then parallelize
         //This isn't a good approach in general - but is simple to use for this example
-        MnistDownloader.download(); //Workaround for download location change since 0.9.1 release
         DataSetIterator iterTrain = new MnistDataSetIterator(batchSizePerWorker, true, 12345);
         DataSetIterator iterTest = new MnistDataSetIterator(batchSizePerWorker, true, 12345);
         List<DataSet> trainDataList = new ArrayList<>();
@@ -104,12 +102,10 @@ public class MnistMLPExample {
         //Create network configuration and conduct network training
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
             .seed(12345)
-            .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT).iterations(1)
             .activation(Activation.LEAKYRELU)
             .weightInit(WeightInit.XAVIER)
-            .learningRate(0.1)
-            .updater(Updater.NESTEROVS)// To configure: .updater(Nesterovs.builder().momentum(0.9).build())
-            .regularization(true).l2(1e-4)
+            .updater(new Nesterovs(0.1))// To configure: .updater(Nesterovs.builder().momentum(0.9).build())
+            .l2(1e-4)
             .list()
             .layer(0, new DenseLayer.Builder().nIn(28 * 28).nOut(500).build())
             .layer(1, new DenseLayer.Builder().nIn(500).nOut(100).build())

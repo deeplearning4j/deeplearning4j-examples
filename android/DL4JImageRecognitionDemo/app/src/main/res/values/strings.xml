@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">ImageRecognitionDemo</string>
+    <string name="banner">Draw number below (0 through 9)</string>
+    <string name="Predicted">Predicted</string>
+    <string name="Drawn">Drawn</string>
+    <string name="Confidence">Confidence</string>
+    <string name="value_0">0</string>
+    <string name="Processing...">Processing...</string>
+</resources>

@@ -1,42 +1,26 @@
 package org.deeplearning4j.examples
 
-import java.util.concurrent.TimeUnit
-
 import org.apache.commons.io.FilenameUtils
 import org.apache.spark.SparkContext
 import org.apache.spark.rdd.RDD
-import org.deeplearning4j.earlystopping.EarlyStoppingConfiguration
-import org.deeplearning4j.earlystopping.EarlyStoppingResult
+import org.deeplearning4j.earlystopping.{EarlyStoppingConfiguration, EarlyStoppingResult}
 import org.deeplearning4j.earlystopping.saver.LocalFileGraphSaver
 import org.deeplearning4j.earlystopping.scorecalc.DataSetLossCalculatorCG
 import org.deeplearning4j.earlystopping.termination.MaxEpochsTerminationCondition
-import org.deeplearning4j.earlystopping.termination.MaxTimeIterationTerminationCondition
 import org.deeplearning4j.earlystopping.trainer.EarlyStoppingGraphTrainer
-import org.deeplearning4j.util.ModelSerializer
-import org.deeplearning4j.nn.api.OptimizationAlgorithm
-import org.deeplearning4j.nn.conf.BackpropType
-import org.deeplearning4j.nn.conf.GradientNormalization
-import org.deeplearning4j.nn.conf.layers.GravesLSTM
-import org.deeplearning4j.nn.conf.layers.RnnOutputLayer
-import org.deeplearning4j.nn.conf.NeuralNetConfiguration
-import org.deeplearning4j.nn.conf.Updater
+import org.deeplearning4j.examples.utils.{LoggingEarlyStoppingListener, ReflectionsHelper}
+import org.deeplearning4j.nn.conf.{GradientNormalization, NeuralNetConfiguration, Updater}
+import org.deeplearning4j.nn.conf.layers.{GravesLSTM, RnnOutputLayer}
 import org.deeplearning4j.nn.graph.ComputationGraph
-import org.deeplearning4j.nn.multilayer.MultiLayerNetwork
 import org.deeplearning4j.nn.weights.WeightInit
 import org.deeplearning4j.spark.api.Repartition
-import org.deeplearning4j.spark.impl.paramavg.ParameterAveragingTrainingMaster
 import org.deeplearning4j.spark.impl.graph.SparkComputationGraph
-import org.deeplearning4j.spark.impl.multilayer.SparkDl4jMultiLayer
-import org.deeplearning4j.spark.util.MLLibUtil
-import org.nd4j.linalg.dataset.api.MultiDataSet
-import org.nd4j.linalg.dataset.DataSet
-import org.nd4j.linalg.lossfunctions.LossFunctions
+import org.deeplearning4j.spark.impl.paramavg.ParameterAveragingTrainingMaster
+import org.deeplearning4j.util.ModelSerializer
+import org.nd4j.linalg.activations.Activation
 import org.nd4j.linalg.factory.Nd4j
-
-import org.deeplearning4j.examples.utils.ReflectionsHelper
-import org.deeplearning4j.examples.utils.LoggingEarlyStoppingListener
-
-import com.typesafe.scalalogging._
+import org.nd4j.linalg.learning.config.AdaGrad
+import org.nd4j.linalg.lossfunctions.LossFunctions
 import org.slf4j.LoggerFactory
 
 /**
@@ -62,24 +46,20 @@ class Recommender(batchSize: Int = 50, featureSize: Int, nEpochs: Int, hiddenUni
   Nd4j.getRandom().setSeed(12345)
 
   val conf = new NeuralNetConfiguration.Builder()
-    .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
-    .learningRate(learningRate)
-    .regularization(true).l1(regularization)
+    .updater(new AdaGrad(learningRate))
+    .l1(regularization)
     .weightInit(WeightInit.XAVIER)
     .gradientNormalization(GradientNormalization.ClipElementWiseAbsoluteValue)
     .gradientNormalizationThreshold(20.0)
-    .momentum(0.3675)
     .dropOut(0.5)
-    .updater(Updater.ADAGRAD)
-    .iterations(1)
     .seed(12345)
     .graphBuilder()
     .addInputs("input")
     .addLayer("firstLayer", new GravesLSTM.Builder().nIn(featureSize).nOut(hiddenUnits)
-      .activation("relu").build(), "input")
+      .activation(Activation.RELU).build(), "input")
     .addLayer("secondLayer", new GravesLSTM.Builder().nIn(hiddenUnits).nOut(hiddenUnits)
-      .activation("relu").build(), "firstLayer")
-    .addLayer("outputLayer", new RnnOutputLayer.Builder().activation("softmax")
+      .activation(Activation.RELU).build(), "firstLayer")
+    .addLayer("outputLayer", new RnnOutputLayer.Builder().activation(Activation.SOFTMAX)
       .lossFunction(LossFunctions.LossFunction.MCXENT).nIn(hiddenUnits).nOut(labelSize).build(), "secondLayer")
     .setOutputs("outputLayer")
     .pretrain(false).backprop(true)

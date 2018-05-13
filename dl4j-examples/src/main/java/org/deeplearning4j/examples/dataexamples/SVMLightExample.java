@@ -34,7 +34,6 @@ public class SVMLightExample {
         int printIterationsNum = 20; // print score every 20 iterations
 
         int hiddenLayer1Num = 200;
-        int iterations = 1;
         long seed = 42;
         int nEpochs = 4;
 
@@ -55,12 +54,10 @@ public class SVMLightExample {
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
             .seed(seed)
             .trainingWorkspaceMode(WorkspaceMode.SEPARATE)
-            .iterations(iterations)
             .activation(Activation.RELU)
             .weightInit(WeightInit.XAVIER)
-            .learningRate(0.02)
-            .updater(Adam.builder().beta1(0.9).beta2(0.999).build())
-                .regularization(true).l2(1e-4)
+            .updater(Adam.builder().learningRate(0.02).beta1(0.9).beta2(0.999).build())
+            .l2(1e-4)
             .list()
             .layer(0, new DenseLayer.Builder().nIn(numOfFeatures).nOut(hiddenLayer1Num)
                 .build())

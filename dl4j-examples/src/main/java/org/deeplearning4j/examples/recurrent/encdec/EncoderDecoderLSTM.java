@@ -43,6 +43,7 @@ import org.deeplearning4j.util.ModelSerializer;
 import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
+import org.nd4j.linalg.learning.config.RmsProp;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 
 /**
@@ -241,11 +242,7 @@ public class EncoderDecoderLSTM {
      */
     private void createComputationGraph() {
         final NeuralNetConfiguration.Builder builder = new NeuralNetConfiguration.Builder()
-            .iterations(1)
-            .learningRate(LEARNING_RATE)
-            .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
-            .miniBatch(true)
-            .updater(Updater.RMSPROP)
+            .updater(new RmsProp(LEARNING_RATE))
             .weightInit(WeightInit.XAVIER)
             .gradientNormalization(GradientNormalization.RenormalizeL2PerLayer);
 
@@ -390,7 +387,7 @@ public class EncoderDecoderLSTM {
         double[] decodeArr = new double[dict.size()];
         decodeArr[2] = 1;
         INDArray decode = Nd4j.create(decodeArr, new int[] { 1, dict.size(), 1 });
-        net.feedForward(new INDArray[] { in, decode }, false);
+        net.feedForward(new INDArray[] { in, decode }, false, false);
         org.deeplearning4j.nn.layers.recurrent.GravesLSTM decoder = (org.deeplearning4j.nn.layers.recurrent.GravesLSTM) net
                 .getLayer("decoder");
         Layer output = net.getLayer("output");

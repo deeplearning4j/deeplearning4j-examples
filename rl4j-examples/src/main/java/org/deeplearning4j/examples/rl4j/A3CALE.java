@@ -24,6 +24,7 @@ import org.deeplearning4j.rl4j.learning.async.a3c.discrete.A3CDiscreteConv;
 import org.deeplearning4j.rl4j.mdp.ale.ALEMDP;
 import org.deeplearning4j.rl4j.network.ac.ActorCriticFactoryCompGraphStdConv;
 import org.deeplearning4j.rl4j.util.DataManager;
+import org.nd4j.linalg.learning.config.Adam;
 
 /**
  * @author saudet
@@ -60,9 +61,9 @@ public class A3CALE {
 
     public static final ActorCriticFactoryCompGraphStdConv.Configuration ALE_NET_A3C =
             new ActorCriticFactoryCompGraphStdConv.Configuration(
-                    0.00025, //learning rate
                     0.000,   //l2 regularization
-                    null, null, false
+                    new Adam(0.00025), //learning rate
+                    null, false
             );
 
     public static void main(String[] args) throws IOException {

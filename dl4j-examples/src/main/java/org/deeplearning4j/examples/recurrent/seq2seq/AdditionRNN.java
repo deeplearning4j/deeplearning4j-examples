@@ -1,9 +1,7 @@
 package org.deeplearning4j.examples.recurrent.seq2seq;
 
-import org.deeplearning4j.nn.api.OptimizationAlgorithm;
 import org.deeplearning4j.nn.conf.ComputationGraphConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
-import org.deeplearning4j.nn.conf.Updater;
 import org.deeplearning4j.nn.conf.graph.rnn.DuplicateToTimeSeriesVertex;
 import org.deeplearning4j.nn.conf.graph.rnn.LastTimeStepVertex;
 import org.deeplearning4j.nn.conf.inputs.InputType;
@@ -14,10 +12,10 @@ import org.deeplearning4j.nn.weights.WeightInit;
 import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
 import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.api.buffer.DataBuffer;
-import org.nd4j.linalg.api.buffer.util.DataTypeUtil;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.api.MultiDataSet;
 import org.nd4j.linalg.factory.Nd4j;
+import org.nd4j.linalg.learning.config.Adam;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 
 
@@ -72,7 +70,6 @@ public class AdditionRNN {
     public static int batchSize = 10;
     public static int totalBatches = 500;
     public static int nEpochs = 10;
-    public static int nIterations = 1;
 
     //Tweak the number of hidden nodes
     public static final int numHiddenNodes = 128;
@@ -90,9 +87,7 @@ public class AdditionRNN {
 
         ComputationGraphConfiguration configuration = new NeuralNetConfiguration.Builder()
                 .weightInit(WeightInit.XAVIER)
-                .learningRate(0.25)
-                .updater(Updater.ADAM)
-                .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT).iterations(nIterations)
+                .updater(new Adam(0.25))
                 .seed(seed)
                 .graphBuilder()
                 //These are the two inputs to the computation graph

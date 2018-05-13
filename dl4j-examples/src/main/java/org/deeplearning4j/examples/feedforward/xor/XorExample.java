@@ -17,6 +17,7 @@ import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.factory.Nd4j;
+import org.nd4j.linalg.learning.config.Sgd;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 
 /**
@@ -76,24 +77,12 @@ public class XorExample {
 
         // Set up network configuration
         NeuralNetConfiguration.Builder builder = new NeuralNetConfiguration.Builder();
-        // how often should the training set be run, we need something above
-        // 1000, or a higher learning-rate - found this values just by trial and
-        // error
-        builder.iterations(10000);
-        // learning rate
-        builder.learningRate(0.1);
+        // Updater and learning rate
+        builder.updater(new Sgd(0.1));
         // fixed seed for the random generator, so any run of this program
         // brings the same results - may not work if you do something like
         // ds.shuffle()
         builder.seed(123);
-        // not applicable, this network is to small - but for bigger networks it
-        // can help that the network will not only recite the training data
-        builder.useDropConnect(false);
-        // a standard algorithm for moving on the error-plane, this one works
-        // best for me, LINE_GRADIENT_DESCENT or CONJUGATE_GRADIENT can do the
-        // job, too - it's an empirical value which one matches best to
-        // your problem
-        builder.optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT);
         // init the bias with 0 - empirical value, too
         builder.biasInit(0);
         // from "http://deeplearning4j.org/architecture": The networks can
@@ -170,7 +159,9 @@ public class XorExample {
         System.out.println("Total number of network parameters: " + totalNumParams);
 
         // here the actual learning takes place
-        net.fit(ds);
+        for( int i=0; i<10000; i++ ) {
+            net.fit(ds);
+        }
 
         // create output for every training sample
         INDArray output = net.output(ds.getFeatureMatrix());

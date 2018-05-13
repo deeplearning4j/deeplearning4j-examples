@@ -9,6 +9,7 @@ import org.deeplearning4j.rl4j.mdp.gym.GymEnv;
 import org.deeplearning4j.rl4j.network.dqn.DQNFactoryStdDense;
 import org.deeplearning4j.rl4j.policy.DQNPolicy;
 import org.deeplearning4j.rl4j.util.DataManager;
+import org.nd4j.linalg.learning.config.Adam;
 
 /**
  * @author rubenfiszel (ruben.fiszel@epfl.ch) on 8/18/16.
@@ -37,7 +38,7 @@ public class AsyncNStepCartpole {
 
     public static DQNFactoryStdDense.Configuration CARTPOLE_NET_NSTEP =
         DQNFactoryStdDense.Configuration.builder()
-        .l2(0.001).learningRate(0.0005).numHiddenNodes(16).numLayer(3).build();
+        .l2(0.001).updater(new Adam(0.0005)).numHiddenNodes(16).numLayer(3).build();
 
 
     public static void main(String[] args) throws IOException {
