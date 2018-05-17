@@ -16,6 +16,7 @@
 
     <modules>
         <module>dl4j-spark</module>
+        <module>dl4j-spark-cluster</module>
     </modules>
 
     <dependencies>
