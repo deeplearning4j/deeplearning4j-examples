@@ -3,7 +3,7 @@
 
     <groupId>org.deeplearning4j</groupId>
     <artifactId>deeplearning4j-examples-parent</artifactId>
-    <version>1.0.0-alpha</version>
+    <version>1.0.0-beta</version>
     <modelVersion>4.0.0</modelVersion>
     <packaging>pom</packaging>
 
