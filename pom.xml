@@ -57,14 +57,6 @@
         <module>lstm-hdfs</module>
     </modules>
 
-    <repositories>
-        <repository>
-            <id>nexus-staging</id>
-            <name>Nexus Staging</name>
-            <url>https://oss.sonatype.org/content/repositories/orgnd4j-1185/</url>
-        </repository>
-    </repositories>
-
     <!-- Maven Enforcer: Ensures user has an up to date version of Maven before building -->
     <build>
         <plugins>
