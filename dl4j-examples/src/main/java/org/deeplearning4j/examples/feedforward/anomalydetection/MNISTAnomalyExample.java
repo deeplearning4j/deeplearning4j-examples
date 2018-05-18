@@ -61,7 +61,7 @@ public class MNISTAnomalyExample {
                 .build();
 
         MultiLayerNetwork net = new MultiLayerNetwork(conf);
-        net.setListeners(Collections.singletonList((IterationListener) new ScoreIterationListener(1)));
+        net.setListeners(Collections.singletonList(new ScoreIterationListener(1)));
 
         //Load data and split into training and testing sets. 40000 train, 10000 test
         DataSetIterator iter = new MnistDataSetIterator(100,50000,false);

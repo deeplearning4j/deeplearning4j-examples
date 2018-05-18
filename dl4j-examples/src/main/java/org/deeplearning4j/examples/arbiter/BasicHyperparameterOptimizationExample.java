@@ -152,7 +152,7 @@ public class BasicHyperparameterOptimizationExample {
         List<ResultReference> allResults = runner.getResults();
 
         OptimizationResult bestResult = allResults.get(indexOfBestResult).getResult();
-        MultiLayerNetwork bestModel = (MultiLayerNetwork)bestResult.getResult();
+        MultiLayerNetwork bestModel = (MultiLayerNetwork)bestResult.getResultReference().getResultModel();
 
         System.out.println("\n\nConfiguration of best model:\n");
         System.out.println(bestModel.getLayerWiseConfigurations().toJson());

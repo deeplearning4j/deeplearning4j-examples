@@ -1,5 +1,7 @@
 package org.deeplearning4j.examples.recurrent.character.melodl4j;
 
+import org.nd4j.util.ArchiveUtils;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -23,7 +25,6 @@ import javax.sound.midi.Sequence;
 import javax.sound.midi.ShortMessage;
 import javax.sound.midi.Track;
 
-import org.datavec.api.util.ArchiveUtils;
 
 /*
  *  MidiMusicExtractor processes MIDI files and outputs melodies as strings, for processing by LSTM Deep Learning of text. The strings model only monotonic melodies (no harmony) but not harmony, instruments, or volume.
