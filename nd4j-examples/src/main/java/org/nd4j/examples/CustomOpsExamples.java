@@ -8,7 +8,7 @@ import org.nd4j.linalg.factory.Nd4j;
 /**
  *
  * Custom ops are those defined in C++ (libnd4j) that haven't yet been mapped to have Java convenience methods,
- * as of the 1.0.0-alpha release.
+ * as of the 1.0.0-beta release.
  * Eventually all ops will be mapped to have Java convenience methods.
  * In the mean time, they can be accessed using the "DynamicCustomOp" approach shown below
  *

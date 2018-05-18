@@ -49,9 +49,9 @@ import java.util.List;
  * Tip: the pom.xml configuration ->For Spark examples: change the _1 to _2 to switch between Spark 1 and Spark 2
  * running ways:
  * one way: spark on yarn--->>>
- * export the module to jar,and then execute command:spark-submit --class org.deeplearning4j.AnimalModelByHdfsSparkCluster --master yarn --deploy-mode cluster /home/out/dl4j-spark-cluster-1.0.0-alpha-bin.jar
+ * export the module to jar,and then execute command:spark-submit --class org.deeplearning4j.AnimalModelByHdfsSparkCluster --master yarn --deploy-mode cluster /home/out/dl4j-spark-cluster-1.0.0-beta-bin.jar
  * second way: standalone--->>>
- * export the module to jar,and then execute command:spark-submit --class org.deeplearning4j.AnimalModelByHdfsSparkCluster --master spark://cluster1:7077 --deploy-mode cluster /home/out/dl4j-spark-cluster-1.0.0-alpha-bin.jar
+ * export the module to jar,and then execute command:spark-submit --class org.deeplearning4j.AnimalModelByHdfsSparkCluster --master spark://cluster1:7077 --deploy-mode cluster /home/out/dl4j-spark-cluster-1.0.0-beta-bin.jar
  * you may encounter some error:NTPTimeSource: Error querying NTP server, attempt 1 of 10, reference->https://deeplearning4j.org/spark#sparkstatsntp
  * @author wangfeng
  */
