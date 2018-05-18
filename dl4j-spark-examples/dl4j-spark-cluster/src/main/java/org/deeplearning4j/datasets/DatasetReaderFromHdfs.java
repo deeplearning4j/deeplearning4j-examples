@@ -5,6 +5,7 @@ import org.apache.hadoop.fs.*;
 import org.datavec.api.writable.Text;
 import org.datavec.api.writable.Writable;
 import org.datavec.image.loader.NativeImageLoader;
+import org.datavec.image.transform.ImageTransform;
 import org.deeplearning4j.utils.CommonUtils;
 import org.nd4j.linalg.api.concurrency.AffinityManager;
 import org.nd4j.linalg.api.ndarray.INDArray;
@@ -49,7 +50,7 @@ public class DatasetReaderFromHdfs extends NativeImageLoader implements Serializ
         this( height, width, channels, train, System.currentTimeMillis(), true );
     }
     public DatasetReaderFromHdfs(int height, int width, int channels,  boolean train, long seed, boolean shuffle) {
-        super(height, width, channels, null);
+        super(height, width, channels, (ImageTransform)null);
         this.height = height;
         this.width = width;
         this.channels = channels;

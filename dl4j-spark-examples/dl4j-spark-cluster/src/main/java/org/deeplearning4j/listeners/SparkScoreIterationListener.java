@@ -4,6 +4,7 @@ import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.ipc.RemoteException;
+import org.deeplearning4j.optimize.api.BaseTrainingListener;
 import org.deeplearning4j.utils.CommonUtils;
 import org.deeplearning4j.nn.api.Model;
 import org.deeplearning4j.optimize.api.IterationListener;
@@ -16,7 +17,7 @@ import org.slf4j.LoggerFactory;
  *  @author wangfeng
  */
 
-public class SparkScoreIterationListener implements IterationListener {
+public class SparkScoreIterationListener extends BaseTrainingListener {
 
     private int printIterations = 10;
     private static final Logger log = LoggerFactory.getLogger(ScoreIterationListener.class);

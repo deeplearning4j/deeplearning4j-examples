@@ -7,12 +7,12 @@
     <!-- Group-ID, artifact ID and version of the project. You can modify these as you want -->
     <groupId>org.deeplearning4j</groupId>
     <artifactId>deeplearning4j-examples</artifactId>
-    <version>1.0.0-alpha</version>
+    <version>1.0.0-beta</version>
 
     <!-- Properties Section. Change DL4J and ND4J versions here, if required -->
     <properties>
-        <dl4j.version>1.0.0-alpha</dl4j.version>
-        <nd4j.version>1.0.0-alpha</nd4j.version>
+        <dl4j.version>1.0.0-beta</dl4j.version>
+        <nd4j.version>1.0.0-beta</nd4j.version>
         <logback.version>1.2.3</logback.version>
         <java.version>1.8</java.version>
         <maven-shade-plugin.version>2.4.3</maven-shade-plugin.version>
@@ -87,7 +87,7 @@
 
             mvn package
             cd target
-            java -cp deeplearning4j-examples-1.0.0-alpha-bin.jar org.deeplearning4j.LenetMnistExample
+            java -cp deeplearning4j-examples-1.0.0-beta-bin.jar org.deeplearning4j.LenetMnistExample
             -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
