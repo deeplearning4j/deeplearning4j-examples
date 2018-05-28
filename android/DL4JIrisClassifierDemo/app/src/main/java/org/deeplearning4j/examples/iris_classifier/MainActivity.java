@@ -59,7 +59,7 @@ public class MainActivity extends AppCompatActivity {
                 bar.setVisibility(View.VISIBLE);
             }
         });
-        }
+    }
 
     private class AsyncTaskRunner extends AsyncTask<Double, Integer, String> {
 
@@ -75,19 +75,19 @@ public class MainActivity extends AppCompatActivity {
         // This is our main background thread for the neural net
         @Override
         protected String doInBackground(Double... params) {
-        //Get the doubles from params, which is an array so they will be 0,1,2,3
+            //Get the doubles from params, which is an array so they will be 0,1,2,3
             double pld = params[0];
             double pwd = params[1];
             double sld = params[2];
             double swd = params[3];
 
-        //Write them in the log
+            //Write them in the log
             Log.d("myNetwork Output ", "do in background string pl = " + pld);
             Log.d("myNetwork Output ", "do in background string pw = " + pwd);
             Log.d("myNetwork Output ", "do in background string sl = " + sld);
             Log.d("myNetwork Output ", "do in background string sw = " + swd);
 
-        //Create input
+            //Create input
             INDArray actualInput = Nd4j.zeros(1,4);
             actualInput.putScalar(new int[]{0,0}, pld);
             actualInput.putScalar(new int[]{0,1}, pwd);
@@ -104,15 +104,15 @@ public class MainActivity extends AppCompatActivity {
             for(int r=0; r<row; r++){
 
                 for( int c=0; c<col; c++){
-                    irisMatrix[r][c]= org.deeplearning4j.examples.iris_classifier.DataSet.irisData[i++];
+                    irisMatrix[r][c]= org.deeplearning.examples.iris_classifier.DataSet.irisData[i++];
                 }
 
             }
 
-        //Check the array by printing it in the log
+            //Check the array by printing it in the log
             System.out.println(Arrays.deepToString(irisMatrix).replace("], ", "]\n"));
 
-        //Now do the same for the label data
+            //Now do the same for the label data
             int rowLabel=150;
             int colLabel=3;
 
@@ -121,18 +121,18 @@ public class MainActivity extends AppCompatActivity {
             for(int r=0; r<rowLabel; r++){
 
                 for( int c=0; c<colLabel; c++){
-                    twodimLabel[r][c]= org.deeplearning4j.examples.iris_classifier.DataSet.labelData[ii++];
+                    twodimLabel[r][c]= org.deeplearning.examples.iris_classifier.DataSet.irisData[ii++];
                 }
 
             }
 
             System.out.println(Arrays.deepToString(twodimLabel).replace("], ", "]\n"));
 
-        //Convert the data matrices into training INDArrays
+            //Convert the data matrices into training INDArrays
             INDArray trainingIn = Nd4j.create(irisMatrix);
             INDArray trainingOut = Nd4j.create(twodimLabel);
 
-        //build the layers of the network
+            //build the layers of the network
             DenseLayer inputLayer = new DenseLayer.Builder()
                     .nIn(4)
                     .nOut(3)
@@ -156,11 +156,11 @@ public class MainActivity extends AppCompatActivity {
             NeuralNetConfiguration.Builder nncBuilder = new NeuralNetConfiguration.Builder();
             long seed = 6;
             nncBuilder.seed(seed);
-            nncBuilder.iterations(1000);
-            nncBuilder.learningRate(0.1);
+//            nncBuilder.iterations(1000);
+//            nncBuilder.learningRate(0.1);
             nncBuilder.activation(Activation.TANH);
             nncBuilder.weightInit(WeightInit.XAVIER);
-            nncBuilder.regularization(true).l2(1e-4);
+//            nncBuilder.regularization(true).l2(1e-4);
 
             NeuralNetConfiguration.ListBuilder listBuilder = nncBuilder.list();
             listBuilder.layer(0, inputLayer);
@@ -172,22 +172,24 @@ public class MainActivity extends AppCompatActivity {
             MultiLayerNetwork myNetwork = new MultiLayerNetwork(listBuilder.build());
             myNetwork.init();
 
-        //Create a data set from the INDArrays and train the network
+            //Create a data set from the INDArrays and train the network
             DataSet myData = new DataSet(trainingIn, trainingOut);
-            myNetwork.fit(myData);
 
+            for(int l=0; l<=1000; l++) {
+                myNetwork.fit(myData);
+            }
 
-        //Evaluate the input data against the model
+            //Evaluate the input data against the model
             INDArray actualOutput = myNetwork.output(actualInput);
             Log.d("myNetwork Output ", actualOutput.toString());
 
-        //Retrieve the three probabilities
+            //Retrieve the three probabilities
             first = actualOutput.getDouble(0,0);
             second = actualOutput.getDouble(0,1);
             third = actualOutput.getDouble(0,2);
 
-        //Since we used global variables to store the classification results, no need to return
-        //a results string. If the results were returned here they would be passed to onPostExecute.
+            //Since we used global variables to store the classification results, no need to return
+            //a results string. If the results were returned here they would be passed to onPostExecute.
             return "";
         }
 
@@ -203,16 +205,16 @@ public class MainActivity extends AppCompatActivity {
         protected void onPostExecute(String result) {
             super.onPostExecute(result);
 
-        //Hide the progress bar now that we are finished
+            //Hide the progress bar now that we are finished
             ProgressBar bar = (ProgressBar) findViewById(R.id.progressBar);
             bar.setVisibility(View.INVISIBLE);
 
-        //Update the UI with output
+            //Update the UI with output
             TextView setosa = (TextView) findViewById(R.id.textView11);
             TextView versicolor = (TextView) findViewById(R.id.textView12);
             TextView virginica = (TextView) findViewById(R.id.textView13);
 
-        //Limit the double to values to two decimals using DecimalFormat
+            //Limit the double to values to two decimals using DecimalFormat
             DecimalFormat df2 = new DecimalFormat(".##");
 
             setosa.setText(String.valueOf(df2.format(first)));
