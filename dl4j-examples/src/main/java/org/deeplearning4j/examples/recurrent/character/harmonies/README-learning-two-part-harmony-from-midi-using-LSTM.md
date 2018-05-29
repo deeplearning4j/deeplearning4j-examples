@@ -171,6 +171,14 @@ hard to figure out from MIDI files what track is what, although the instrument n
 -----
 ## Details about how to run the system:
 
+In short, you
+
+   * Download a zipfile of MIDI files (e.g., http://truthsite.org/music/bach-midi.zip)
+   * Unzip into a directory containing midi files
+   * Run MidiMusicExtractor on that directory (it will prompt you)
+   * Run GravesLSTMForTwoPartHarmonies on the harmonies file output by MidiMusicExtractor.
+   * Then play the resulting samples with PlayTwoPartHarmonies.
+
 MidiMusicExtractor.java prompts you for a path to a midi directory. It then produces, inside midi-learning/ in your
 home diectory, a subdirectory containing a harmonies file of extracted two-party harmony strings, a subdirectory
 containing png images, a melodies.txt file, and an analysis.txt file. For example, if the MIDI directory you choose has the
