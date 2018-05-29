@@ -18,6 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -91,7 +92,7 @@ public class ParagraphVectorsClassifierExample {
       paragraphVectors.fit();
     }
 
-    void checkUnlabeledData() throws FileNotFoundException {
+    void checkUnlabeledData() throws IOException {
       /*
       At this point we assume that we have model built and we can check
       which categories our unlabeled document falls into.

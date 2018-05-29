@@ -4,6 +4,7 @@ import org.datavec.api.util.ClassPathResource;
 import org.datavec.image.loader.NativeImageLoader;
 import org.deeplearning4j.nn.api.Layer;
 import org.deeplearning4j.nn.graph.ComputationGraph;
+import org.deeplearning4j.nn.workspace.LayerWorkspaceMgr;
 import org.deeplearning4j.zoo.PretrainedType;
 import org.deeplearning4j.zoo.ZooModel;
 import org.deeplearning4j.zoo.model.VGG16;
@@ -270,7 +271,7 @@ public class NeuralStyleTransfer {
 
         for (int i = startFrom; i > 0; i--) {
             Layer layer = vgg16FineTune.getLayer(ALL_LAYERS[i]);
-            dLdANext = layer.backpropGradient(dLdANext).getSecond();
+            dLdANext = layer.backpropGradient(dLdANext, LayerWorkspaceMgr.noWorkspaces()).getSecond();
         }
         return dLdANext;
     }
@@ -374,7 +375,7 @@ public class NeuralStyleTransfer {
     }
 
     private ComputationGraph loadModel() throws IOException {
-        ZooModel zooModel = new VGG16();
+        ZooModel zooModel = VGG16.builder().build();
         ComputationGraph vgg16 = (ComputationGraph) zooModel.initPretrained(PretrainedType.IMAGENET);
         vgg16.initGradientsView();
         log.info(vgg16.summary());

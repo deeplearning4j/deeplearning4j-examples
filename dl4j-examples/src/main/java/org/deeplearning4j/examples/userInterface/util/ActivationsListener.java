@@ -4,6 +4,7 @@ import javafx.application.Application;
 import org.deeplearning4j.nn.api.Layer;
 import org.deeplearning4j.nn.api.Model;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
+import org.deeplearning4j.nn.workspace.LayerWorkspaceMgr;
 import org.deeplearning4j.optimize.api.IterationListener;
 import org.deeplearning4j.optimize.api.TrainingListener;
 import org.nd4j.linalg.api.ndarray.INDArray;
@@ -17,7 +18,7 @@ import java.util.Map;
  *
  * @author Donald A. Smith
  */
-public class ActivationsListener implements IterationListener {
+public class ActivationsListener extends IterationListener {
     private boolean invoked=false;
     private final MultiLayerNetwork network;
     private final int sampleSizePerLayer;
@@ -74,7 +75,7 @@ public class ActivationsListener implements IterationListener {
         System.out.println("\nActivationsListener layers:");
         for(Layer layer:network.getLayers()) {
             INDArray input= layer.input();
-            INDArray activation = layer.activate();
+            INDArray activation = layer.activate(input, false, LayerWorkspaceMgr.noWorkspaces());
             //Gradient gradient=layer.gradient(); //null
             System.out.println(layer.getIndex() + ": " + layer.numParams() +
                     " params, input shape = " + toString(input.shape())

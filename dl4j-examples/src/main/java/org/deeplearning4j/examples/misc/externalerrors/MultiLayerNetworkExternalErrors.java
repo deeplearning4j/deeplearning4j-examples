@@ -1,5 +1,6 @@
 package org.deeplearning4j.examples.misc.externalerrors;
 
+import org.deeplearning4j.nn.workspace.LayerWorkspaceMgr;
 import org.nd4j.linalg.learning.config.Nesterovs;
 import org.nd4j.linalg.primitives.Pair;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
@@ -59,14 +60,14 @@ public class MultiLayerNetworkExternalErrors {
         model.feedForward(true, false);
 
         INDArray externalError = Nd4j.rand(minibatch, nOut);
-        Pair<Gradient, INDArray> p = model.backpropGradient(externalError);  //Calculate backprop gradient based on error array
+        Pair<Gradient, INDArray> p = model.backpropGradient(externalError, null);  //Calculate backprop gradient based on error array
 
         //Update the gradient: apply learning rate, momentum, etc
         //This modifies the Gradient object in-place
         Gradient gradient = p.getFirst();
         int iteration = 0;
         int epoch = 0;
-        model.getUpdater().update(model, gradient, iteration, epoch, minibatch);
+        model.getUpdater().update(model, gradient, iteration, epoch, minibatch, LayerWorkspaceMgr.noWorkspaces());
 
         //Get a row vector gradient array, and apply it to the parameters to update the model
         INDArray updateVector = gradient.gradient();

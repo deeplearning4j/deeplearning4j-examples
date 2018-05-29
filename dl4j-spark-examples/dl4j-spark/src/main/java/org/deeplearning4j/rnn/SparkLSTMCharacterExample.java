@@ -20,6 +20,7 @@ import org.deeplearning4j.nn.conf.layers.RnnOutputLayer;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
 import org.deeplearning4j.optimize.api.IterationListener;
+import org.deeplearning4j.optimize.api.TrainingListener;
 import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
 import org.deeplearning4j.spark.impl.multilayer.SparkDl4jMultiLayer;
 import org.deeplearning4j.spark.impl.paramavg.ParameterAveragingTrainingMaster;
@@ -147,7 +148,7 @@ public class SparkLSTMCharacterExample {
             .batchSizePerWorker(batchSizePerWorker)
             .build();
         SparkDl4jMultiLayer sparkNetwork = new SparkDl4jMultiLayer(sc, conf, tm);
-        sparkNetwork.setListeners(Collections.<IterationListener>singletonList(new ScoreIterationListener(1)));
+        sparkNetwork.setListeners(new ScoreIterationListener(1));
 
         //Do training, and then generate and print samples from network
         for (int i = 0; i < numEpochs; i++) {
