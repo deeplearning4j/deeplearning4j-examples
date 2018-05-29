@@ -1,5 +1,6 @@
 package org.deeplearning4j.examples.recurrent.character.harmonies;
 
+import org.deeplearning4j.examples.recurrent.character.melodl4j.Note;
 import org.deeplearning4j.examples.recurrent.character.melodl4j.PlayMelodyStrings;
 
 import java.io.BufferedReader;

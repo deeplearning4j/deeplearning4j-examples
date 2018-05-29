@@ -12,6 +12,8 @@ package org.deeplearning4j.examples.recurrent.character.harmonies;
  * By default this class plays only the first harmony line in the file.
  */
 
+import org.deeplearning4j.examples.recurrent.character.melodl4j.Note;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileFilter;
