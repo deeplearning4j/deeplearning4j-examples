@@ -182,10 +182,12 @@ name "BEATLES", your midi-learning/ directory will contain something like the fo
 
 If you want the files to be written to a different directory, you can change the default.
 
-PlayTwoPartHarmony.java prompts you for a file containing two-party harmony strings (such as "harmonies-BEATLES.txt),
-renders the first line as MIDI, plays it on your speakers, and outputs an mp3 file ("harmonies-BEATLES.mp3" above).
+The generated images are 2d:  the x axis encodes time, the y axis encodes harmonies.  Red encodes pitch, Blue encodes
+the instrument, Green encodes volume. It's configurable, and you can change it to use an HSB encoding.
 
-You need to install lame http://lame.sourceforge.net/ (on linux) ffmpeg (on Windows) https://www.ffmpeg.org/
+PlayTwoPartHarmony.java prompts you for a file containing two-party harmony strings (such as "harmonies-BEATLES.txt),
+renders the first line as MIDI and plays it on your speakers. It also outputs an mp3 file ("harmonies-BEATLES.mp3" above),
+provided you've installed lame http://lame.sourceforge.net/ (on linux) ffmpeg (on Windows) https://www.ffmpeg.org/,
 to convert WAV files to mp3 files.
 
 PlayTwoPartHarmony.java lets you can configure the tempo and a transpose (pitch offset to adjust each note). For the
@@ -211,9 +213,6 @@ you like to a separate file and render it with PlayTwoPartyHarmony.java.
 
  Note: You can download MIDI files from http://truthsite.org/music/bach-midi.zip , http://truthsite.org/music/pop-midi.zip,
  http://truthsite.org/music/classical-midi.zip, and the large collection at http://colinraffel.com/projects/lmd/ .
-
- I developed the project with Eclipse and Intellij. You'll need Java 8, including javafx.  You also need to install ffmpeg if you want
- to convert WAV files to MP3 (which are much smaller).
 
  Contact me if you have questions: ThinkerFeeler@gmail.com .
 
