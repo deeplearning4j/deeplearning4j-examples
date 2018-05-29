@@ -172,6 +172,7 @@ public class PlayMusic {
         "Gunshot"                  //127
     };
     private static final NumberFormat numberFormat = NumberFormat.getInstance();
+
     //----------------------------------
     public static int getInstrument(String name) {
         Integer instrument = instrumentsByName.get(name);
@@ -183,54 +184,55 @@ public class PlayMusic {
     }
 
     static {
-    	for(int instrumentNumber = 0; instrumentNumber< programs.length; instrumentNumber++) {
-    		instrumentsByName.put(programs[instrumentNumber], instrumentNumber);
-    	}
+        for (int instrumentNumber = 0; instrumentNumber < programs.length; instrumentNumber++) {
+            instrumentsByName.put(programs[instrumentNumber], instrumentNumber);
+        }
         numberFormat.setMaximumFractionDigits(1);
     }
 
 
-	private static boolean isLinux() {
-		return System.getProperty("os.name").contains("Linux");
-	}
-	/**
-	 *
-	 * @param absoluteDiskPathForWav
-	 * @param absoluteDiskPathForMp3
-	 * @return true if successful
-	 */
-	public static boolean convertWavToMp3(String absoluteDiskPathForWav, String absoluteDiskPathForMp3, StringBuilder errorMessage)  {
-		String commandPrefix = isLinux()? "/home/donalds/lame-3.99.5/frontend/lame -V 1": "ffmpeg -i";
-		String command = commandPrefix + " " + absoluteDiskPathForWav + " \"" + absoluteDiskPathForMp3 + "\"";
-		try {
-			System.err.println(command);
-			final Process process=Runtime.getRuntime().exec(command);
-			final InputStream errorInputStream=process.getErrorStream();
-			int rc=process.waitFor();
-			if (rc==0) {
-				if (!new File(absoluteDiskPathForWav).delete()) {
-					errorMessage.append("WARNING: unable to delete " + absoluteDiskPathForWav);
-				}
-				return true;
-			}
-			if (errorInputStream!=null) {
-				BufferedReader reader = new BufferedReader(new InputStreamReader(errorInputStream));
-				while (true) {
-					String line=reader.readLine();
-					if (line==null) {
-						break;
-					}
-					errorMessage.append("\nError from process:  " + line);
-				}
-				reader.close();
-			}
-			errorMessage.append("Unable to convert " + absoluteDiskPathForWav + " to " + absoluteDiskPathForMp3 + ",\n rc = " + rc);
-		} catch (Exception exc) {
-			errorMessage.append("Unable to convert " + absoluteDiskPathForWav + " to " + absoluteDiskPathForMp3 + " due to " + exc.getMessage());
-		}
-		return false;
-	}
- 	private static void sleep(long mls) {
+    private static boolean isLinux() {
+        return System.getProperty("os.name").contains("Linux");
+    }
+
+    /**
+     * @param absoluteDiskPathForWav
+     * @param absoluteDiskPathForMp3
+     * @return true if successful
+     */
+    public static boolean convertWavToMp3(String absoluteDiskPathForWav, String absoluteDiskPathForMp3, StringBuilder errorMessage) {
+        String commandPrefix = isLinux() ? "/home/donalds/lame-3.99.5/frontend/lame -V 1" : "ffmpeg -i";
+        String command = commandPrefix + " " + absoluteDiskPathForWav + " \"" + absoluteDiskPathForMp3 + "\"";
+        try {
+            System.err.println(command);
+            final Process process = Runtime.getRuntime().exec(command);
+            final InputStream errorInputStream = process.getErrorStream();
+            int rc = process.waitFor();
+            if (rc == 0) {
+                if (!new File(absoluteDiskPathForWav).delete()) {
+                    errorMessage.append("WARNING: unable to delete " + absoluteDiskPathForWav);
+                }
+                return true;
+            }
+            if (errorInputStream != null) {
+                BufferedReader reader = new BufferedReader(new InputStreamReader(errorInputStream));
+                while (true) {
+                    String line = reader.readLine();
+                    if (line == null) {
+                        break;
+                    }
+                    errorMessage.append("\nError from process:  " + line);
+                }
+                reader.close();
+            }
+            errorMessage.append("Unable to convert " + absoluteDiskPathForWav + " to " + absoluteDiskPathForMp3 + ",\n rc = " + rc);
+        } catch (Exception exc) {
+            errorMessage.append("Unable to convert " + absoluteDiskPathForWav + " to " + absoluteDiskPathForMp3 + " due to " + exc.getMessage());
+        }
+        return false;
+    }
+
+    private static void sleep(long mls) {
         try {
             Thread.sleep(mls);
         } catch (InterruptedException exc) {
@@ -240,68 +242,70 @@ public class PlayMusic {
     }
 
     public static void playMidiFile(String path, double tempoFactor) throws MidiUnavailableException, InvalidMidiDataException, IOException {
-    	Sequence sequence=MidiSystem.getSequence(new File(path));
-    	playSequence(sequence,tempoFactor);
+        Sequence sequence = MidiSystem.getSequence(new File(path));
+        playSequence(sequence, tempoFactor);
     }
 
     public static void playSequence(Sequence sequence, double tempoFactor) throws MidiUnavailableException, InvalidMidiDataException {
-    	playSequence(sequence,tempoFactor, 10000);
+        playSequence(sequence, tempoFactor, 10000);
     }
+
     public static void playSequence(Sequence sequence, double tempoFactor, int maxSeconds) throws MidiUnavailableException, InvalidMidiDataException {
-    	loadSoundBank();
-    	Sequencer sequencer = MidiSystem.getSequencer();
-    	sequencer.setSequence(sequence);
-    	sequencer.setTickPosition(0);
-    	sequencer.open();
-    	sequencer.setTempoFactor((float) tempoFactor);
-    	sequencer.start();
-    	long startTime= System.currentTimeMillis();
-    	long endTime=startTime + maxSeconds*1000L;
-    	long previousSeconds = 0;
-    	while (true) {
-    		sleep(1000);
-    		long now=System.currentTimeMillis();
-    		long milliseconds = now-startTime;
-    		long seconds = milliseconds/1000;
-    		if (seconds!=previousSeconds) {
-    			System.out.print(seconds + " ");
-    			previousSeconds=seconds;
-    			if (seconds==30) {
-    				System.out.println();
-    			}
-    		}
-    		if (sequencer.getMicrosecondPosition() >= sequence.getMicrosecondLength() || now>=endTime) {
-    			System.out.println("\nBreaking after " + seconds + " seconds");
-    			sequencer.stop();
-    			break;
-    		}
-    	}
+        loadSoundBank();
+        Sequencer sequencer = MidiSystem.getSequencer();
+        sequencer.setSequence(sequence);
+        sequencer.setTickPosition(0);
+        sequencer.open();
+        sequencer.setTempoFactor((float) tempoFactor);
+        sequencer.start();
+        long startTime = System.currentTimeMillis();
+        long endTime = startTime + maxSeconds * 1000L;
+        long previousSeconds = 0;
+        while (true) {
+            sleep(1000);
+            long now = System.currentTimeMillis();
+            long milliseconds = now - startTime;
+            long seconds = milliseconds / 1000;
+            if (seconds != previousSeconds) {
+                System.out.print(seconds + " ");
+                previousSeconds = seconds;
+                if (seconds == 30) {
+                    System.out.println();
+                }
+            }
+            if (sequencer.getMicrosecondPosition() >= sequence.getMicrosecondLength() || now >= endTime) {
+                System.out.println("\nBreaking after " + seconds + " seconds");
+                sequencer.stop();
+                break;
+            }
+        }
     }
 
     public static Sequence makeSequence(List<Note> ns, int instrumentNumber) throws InvalidMidiDataException {
-    	  Sequence sequence = new Sequence(Sequence.PPQ, 120 /*resolution*/);
-    	  Track track = sequence.createTrack();
-    	  int channel = ns.get(0).getChannel();
-    	  MidiMessage midiMessage = new ShortMessage(ShortMessage.PROGRAM_CHANGE,channel,instrumentNumber,0);
-    	  track.add(new MidiEvent(midiMessage, 0));
-    	  for(Note note:ns) {
-    		  //System.out.println(note);
-    		note.addMidiEvents(track);
-    	  }
-    	  return sequence;
-	}
+        Sequence sequence = new Sequence(Sequence.PPQ, 120 /*resolution*/);
+        Track track = sequence.createTrack();
+        int channel = ns.get(0).getChannel();
+        MidiMessage midiMessage = new ShortMessage(ShortMessage.PROGRAM_CHANGE, channel, instrumentNumber, 0);
+        track.add(new MidiEvent(midiMessage, 0));
+        for (Note note : ns) {
+            //System.out.println(note);
+            note.addMidiEvents(track);
+        }
+        return sequence;
+    }
 
-	//---------------------------------
-    private static boolean soundBackLoaded=false;
+    //---------------------------------
+    private static boolean soundBackLoaded = false;
+
     protected static void loadSoundBank() {// Download for higher quality MIDI
-    	if (soundBackLoaded) {
-    		return;
-    	}
-    	soundBackLoaded=true;
-    	long startTime=System.currentTimeMillis();
-    	final String filename = "GeneralUser_GS_SoftSynth.sf2";  // FreeFont.sf2   Airfont_340.dls
-    	final String soundBankLocation = PlayTwoPartHarmonies.ROOT_DIR_PATH+ File.separator + filename;
-    	File file= new File(soundBankLocation);
+        if (soundBackLoaded) {
+            return;
+        }
+        soundBackLoaded = true;
+        long startTime = System.currentTimeMillis();
+        final String filename = "GeneralUser_GS_SoftSynth.sf2";  // FreeFont.sf2   Airfont_340.dls
+        final String soundBankLocation = PlayTwoPartHarmonies.ROOT_DIR_PATH + File.separator + filename;
+        File file = new File(soundBankLocation);
         try {
             if (!file.exists()) {
                 System.out.println("Downloading soundbank (first time only!). This may take a while.");
@@ -312,7 +316,7 @@ public class PlayMusic {
             Soundbank deluxeSoundbank;
             deluxeSoundbank = MidiSystem.getSoundbank(file);
             synth.loadAllInstruments(deluxeSoundbank);
-            float seconds = 0.001f*(System.currentTimeMillis()-startTime);
+            float seconds = 0.001f * (System.currentTimeMillis() - startTime);
             System.out.println("Loaded soundbank from " + file.getAbsolutePath() + " in " + seconds + " seconds");
         } catch (Exception exc) {
             System.err.println("Unable to load soundbank " + file.getAbsolutePath() + " due to " + exc.getMessage()
@@ -320,34 +324,36 @@ public class PlayMusic {
         }
     }
 
-  	 public static void chooseMidiFileAndPlay() throws MidiUnavailableException, InvalidMidiDataException, IOException {
-	    	JFileChooser chooser = new JFileChooser(new File("D:/Music/MIDI/clean_midi"));
-	    	chooser.setFileFilter(new FileFilter(){
-				@Override
-				public boolean accept(File file) {
-					String name=file.getName().toLowerCase();
-					return file.isDirectory() || name.endsWith(".mid") || name.endsWith("midi");
-				}
+    public static void chooseMidiFileAndPlay() throws MidiUnavailableException, InvalidMidiDataException, IOException {
+        JFileChooser chooser = new JFileChooser(new File("D:/Music/MIDI/clean_midi"));
+        chooser.setFileFilter(new FileFilter() {
+            @Override
+            public boolean accept(File file) {
+                String name = file.getName().toLowerCase();
+                return file.isDirectory() || name.endsWith(".mid") || name.endsWith("midi");
+            }
 
-				@Override
-				public String getDescription() {
-					return "Midi files";
-				}});
-	    	if (chooser.showDialog(null, "Play")!=JFileChooser.APPROVE_OPTION) {
-	    		return;
-	    	}
+            @Override
+            public String getDescription() {
+                return "Midi files";
+            }
+        });
+        if (chooser.showDialog(null, "Play") != JFileChooser.APPROVE_OPTION) {
+            return;
+        }
 
-	    	File chosenFile = chooser.getSelectedFile();
-	    	if (chosenFile!=null) {
-	    		System.out.println("Playing " + chosenFile.getAbsolutePath());
-	    		playMidiFile(chosenFile.getAbsolutePath(), 1.0);
-	    	}
-	    }
-	  //-----------------------------------
+        File chosenFile = chooser.getSelectedFile();
+        if (chosenFile != null) {
+            System.out.println("Playing " + chosenFile.getAbsolutePath());
+            playMidiFile(chosenFile.getAbsolutePath(), 1.0);
+        }
+    }
+
+    //-----------------------------------
     public static void main(String[] args) {
-       // args = new String[] {  "d:/tmp/beatles-melodies-input.txt"};
+        // args = new String[] {  "d:/tmp/beatles-melodies-input.txt"};
         try {
-        	chooseMidiFileAndPlay();
+            chooseMidiFileAndPlay();
         } catch (Exception exc) {
             exc.printStackTrace();
             System.exit(1);
