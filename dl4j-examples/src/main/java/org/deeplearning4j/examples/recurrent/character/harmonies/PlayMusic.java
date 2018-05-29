@@ -201,7 +201,7 @@ public class PlayMusic {
      * @return true if successful
      */
     public static boolean convertWavToMp3(String absoluteDiskPathForWav, String absoluteDiskPathForMp3, StringBuilder errorMessage) {
-        String commandPrefix = isLinux() ? "/home/donalds/lame-3.99.5/frontend/lame -V 1" : "ffmpeg -i";
+        String commandPrefix = isLinux() ? "lame -V 1" : "ffmpeg -i";
         String command = commandPrefix + " " + absoluteDiskPathForWav + " \"" + absoluteDiskPathForMp3 + "\"";
         try {
             System.err.println(command);
@@ -222,6 +222,7 @@ public class PlayMusic {
                         break;
                     }
                     errorMessage.append("\nError from process:  " + line);
+                    errorMessage.append("\nDid you install ffmpeg?");
                 }
                 reader.close();
             }

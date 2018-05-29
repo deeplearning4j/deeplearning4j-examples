@@ -2,6 +2,8 @@ package org.deeplearning4j.examples.recurrent.character.harmonies;
 
 import org.apache.commons.io.FileUtils;
 import org.deeplearning4j.examples.recurrent.character.CharacterIterator;
+import org.deeplearning4j.examples.recurrent.character.CompGraphLSTMExample;
+import org.deeplearning4j.examples.recurrent.character.GravesLSTMCharModellingExample;
 import org.deeplearning4j.nn.api.Layer;
 import org.deeplearning4j.nn.conf.BackpropType;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
@@ -36,9 +38,9 @@ import javax.swing.*;
 import javax.swing.filechooser.FileFilter;
 
 /**
- * GravesLSTM Character modelling example
+ * GravesLSTM Character modelling example for learning two-part harmonies
  *
- * @author Alex Black, modified by Don Smith for learning music from symbolic harmony strings
+ * @author Don Smith, based on Alex Black's CompGraphLSTMExample
  * <p>
  * Example: Train a LSTM RNN to generates text, one character at a time.
  * This example is somewhat inspired by Andrej Karpathy's blog post,
@@ -238,7 +240,7 @@ public class GravesLSTMForTwoPartHarmonies {
                 double[] outputProbDistribution = new double[iter.totalOutcomes()];
                 for (int j = 0; j < outputProbDistribution.length; j++)
                     outputProbDistribution[j] = output.getDouble(s, j);
-                int sampledCharacterIdx = sampleFromDistribution(outputProbDistribution, rng);
+                int sampledCharacterIdx = GravesLSTMCharModellingExample.sampleFromDistribution(outputProbDistribution, rng);
 
                 nextInput.putScalar(new int[]{s, sampledCharacterIdx}, 1.0f);        //Prepare next time step input
                 sb[s].append(iter.convertIndexToCharacter(sampledCharacterIdx));    //Add sampled character to StringBuilder (human readable output)
@@ -250,28 +252,5 @@ public class GravesLSTMForTwoPartHarmonies {
         String[] out = new String[numSamples];
         for (int i = 0; i < numSamples; i++) out[i] = sb[i].toString();
         return out;
-    }
-
-    /**
-     * Given a probability distribution over discrete classes, sample from the distribution
-     * and return the generated class index.
-     *
-     * @param distribution Probability distribution over classes. Must sum to 1.0
-     */
-    public static int sampleFromDistribution(double[] distribution, Random rng) {
-        double d = 0.0;
-        double sum = 0.0;
-        for (int t = 0; t < 10; t++) {
-            d = rng.nextDouble();
-            sum = 0.0;
-            for (int i = 0; i < distribution.length; i++) {
-                sum += distribution[i];
-                if (d <= sum) return i;
-            }
-            //If we haven't found the right index yet, maybe the sum is slightly
-            //lower than 1 due to rounding error, so try again.
-        }
-        //Should be extremely unlikely to happen if distribution is a valid probability distribution
-        throw new IllegalArgumentException("Distribution is invalid? d=" + d + ", sum=" + sum);
     }
 }

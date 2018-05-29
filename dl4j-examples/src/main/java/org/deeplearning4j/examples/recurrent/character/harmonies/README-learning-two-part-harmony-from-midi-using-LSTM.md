@@ -185,7 +185,8 @@ If you want the files to be written to a different directory, you can change the
 PlayTwoPartHarmony.java prompts you for a file containing two-party harmony strings (such as "harmonies-BEATLES.txt),
 renders the first line as MIDI, plays it on your speakers, and outputs an mp3 file ("harmonies-BEATLES.mp3" above).
 
-You need to install ffmpeg to convert WAV files to mp3 files.
+You need to install lame http://lame.sourceforge.net/ (on linux) ffmpeg (on Windows) https://www.ffmpeg.org/
+to convert WAV files to mp3 files.
 
 PlayTwoPartHarmony.java lets you can configure the tempo and a transpose (pitch offset to adjust each note). For the
 samples at http://truthsite.org/music, I did not adjust the tempo, but in a few cases I adjusted the transpose.
@@ -194,7 +195,7 @@ MidiImageAndHarmonyUtility.java converts MIDI sequences to both pngs (for traini
 It also has methods for converting an image to a MIDI sequence.
 
 Midi2WavRenderer.java (modified from JFugue, which has an apache license), converts MIDI files to wav files. PlayMusic.java has methods
-for converting wav files to MP3 using ffmpeg (which you must install if you want to use it).
+for converting wav files to MP3 using lame or ffmpeg.
 
 If you set the variable MidiImageAndHarmonyUtility.writeInstrumentsToHarmonyStrings to true, the generated harmony strings will contain
 instrument numbers as described above. However, as stated above, learning did not result in useful results with this representation.
