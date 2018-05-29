@@ -175,9 +175,9 @@ In short, you
 
    * Download a zipfile of MIDI files (e.g., http://truthsite.org/music/bach-midi.zip)
    * Unzip into a directory containing midi files
-   * Run MidiMusicExtractor on that directory (it will prompt you)
-   * Run GravesLSTMForTwoPartHarmonies on the harmonies file output by MidiMusicExtractor.
-   * Then play the resulting samples with PlayTwoPartHarmonies.
+   * Run MidiMusicExtractor on that directory (it will prompt you and put output files in your home directory in midi-learning/)
+   * Run GravesLSTMForTwoPartHarmonies on the harmonies file output by MidiMusicExtractor (it will prompt you)
+   * Then play the resulting samples with PlayTwoPartHarmonies. (You'll need to copy-and-paste a sample to a file.)
 
 MidiMusicExtractor.java prompts you for a path to a midi directory. It then produces, inside midi-learning/ in your
 home diectory, a subdirectory containing a harmonies file of extracted two-party harmony strings, a subdirectory
