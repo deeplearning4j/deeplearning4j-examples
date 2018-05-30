@@ -33,7 +33,7 @@ An example of these are CustomLayer (the configuration class) and CustomLayerImp
 implementation class). Both of these classes have extensive comments regarding
 their methods.
 
-You'll note that in Deeplearning4j there are two DenseLayer clases, two GravesLSTM classes,
+You'll note that in Deeplearning4j there are two DenseLayer clases, two LSTM classes,
 etc: the reason is because one is for the configuration, one is for the implementation.
 We have not followed this "same name" pattern here to hopefully avoid confusion.
 

@@ -25,7 +25,7 @@ import org.nd4j.linalg.lossfunctions.LossFunctions;
  * @author Alex Black
  */
 public class RNNEmbedding {
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) {
 
         int nClassesIn = 10;
         int batchSize = 3;
@@ -47,7 +47,7 @@ public class RNNEmbedding {
             .activation(Activation.RELU)
             .list()
             .layer(0, new EmbeddingLayer.Builder().nIn(nClassesIn).nOut(5).build())
-            .layer(1, new GravesLSTM.Builder().nIn(5).nOut(7).activation(Activation.SOFTSIGN).build())
+            .layer(1, new LSTM.Builder().nIn(5).nOut(7).activation(Activation.SOFTSIGN).build())
             .layer(2, new RnnOutputLayer.Builder(LossFunctions.LossFunction.MCXENT).nIn(7).nOut(4).activation(Activation.SOFTMAX).build())
             .inputPreProcessor(0, new RnnToFeedForwardPreProcessor())
             .inputPreProcessor(1, new FeedForwardToRnnPreProcessor())
