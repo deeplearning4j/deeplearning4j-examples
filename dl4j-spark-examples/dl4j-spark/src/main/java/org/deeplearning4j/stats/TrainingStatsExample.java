@@ -6,12 +6,10 @@ import com.beust.jcommander.ParameterException;
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
-import org.deeplearning4j.nn.api.OptimizationAlgorithm;
 import org.deeplearning4j.nn.conf.BackpropType;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
-import org.deeplearning4j.nn.conf.Updater;
-import org.deeplearning4j.nn.conf.layers.GravesLSTM;
+import org.deeplearning4j.nn.conf.layers.LSTM;
 import org.deeplearning4j.nn.conf.layers.RnnOutputLayer;
 import org.deeplearning4j.nn.weights.WeightInit;
 import org.deeplearning4j.rnn.SparkLSTMCharacterExample;
@@ -144,7 +142,7 @@ public class TrainingStatsExample {
 
     //Configuration for the network we will be training
     private static MultiLayerConfiguration getConfiguration(){
-        int lstmLayerSize = 200;					//Number of units in each GravesLSTM layer
+        int lstmLayerSize = 200;					//Number of units in each LSTM layer
         int tbpttLength = 50;                       //Length for truncated backpropagation through time. i.e., do parameter updates ever 50 characters
 
         Map<Character, Integer> CHAR_TO_INT = SparkLSTMCharacterExample.getCharToInt();
@@ -158,8 +156,8 @@ public class TrainingStatsExample {
             .l2(0.001)
             .weightInit(WeightInit.XAVIER)
             .list()
-            .layer(0, new GravesLSTM.Builder().nIn(nIn).nOut(lstmLayerSize).activation(Activation.TANH).build())
-            .layer(1, new GravesLSTM.Builder().nIn(lstmLayerSize).nOut(lstmLayerSize).activation(Activation.TANH).build())
+            .layer(0, new LSTM.Builder().nIn(nIn).nOut(lstmLayerSize).activation(Activation.TANH).build())
+            .layer(1, new LSTM.Builder().nIn(lstmLayerSize).nOut(lstmLayerSize).activation(Activation.TANH).build())
             .layer(2, new RnnOutputLayer.Builder(LossFunctions.LossFunction.MCXENT).activation(Activation.SOFTMAX)        //MCXENT + softmax for classification
                 .nIn(lstmLayerSize).nOut(nOut).build())
             .backpropType(BackpropType.TruncatedBPTT).tBPTTForwardLength(tbpttLength).tBPTTBackwardLength(tbpttLength)

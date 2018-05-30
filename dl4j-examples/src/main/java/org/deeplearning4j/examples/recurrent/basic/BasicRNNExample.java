@@ -1,11 +1,9 @@
 package org.deeplearning4j.examples.recurrent.basic;
 
-import org.deeplearning4j.nn.api.OptimizationAlgorithm;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration.ListBuilder;
-import org.deeplearning4j.nn.conf.Updater;
-import org.deeplearning4j.nn.conf.layers.GravesLSTM;
+import org.deeplearning4j.nn.conf.layers.LSTM;
 import org.deeplearning4j.nn.conf.layers.RnnOutputLayer;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
@@ -61,12 +59,12 @@ public class BasicRNNExample {
 
 		ListBuilder listBuilder = builder.list();
 
-		// first difference, for rnns we need to use GravesLSTM.Builder
+		// first difference, for rnns we need to use LSTM.Builder
 		for (int i = 0; i < HIDDEN_LAYER_CONT; i++) {
-			GravesLSTM.Builder hiddenLayerBuilder = new GravesLSTM.Builder();
+			LSTM.Builder hiddenLayerBuilder = new LSTM.Builder();
 			hiddenLayerBuilder.nIn(i == 0 ? LEARNSTRING_CHARS.size() : HIDDEN_LAYER_WIDTH);
 			hiddenLayerBuilder.nOut(HIDDEN_LAYER_WIDTH);
-			// adopted activation function from GravesLSTMCharModellingExample
+			// adopted activation function from LSTMCharModellingExample
 			// seems to work well with RNNs
 			hiddenLayerBuilder.activation(Activation.TANH);
 			listBuilder.layer(i, hiddenLayerBuilder.build());
