@@ -3,7 +3,7 @@ package org.deeplearning4j.examples.recurrent.character.harmonies;
 /**
  * @author Don Smith (ThinkerFeeler@gmail.com)
  *
- * Extracts melodies, harmonies, and images from MIDI files, for use in Deep Learning of music.
+ * Extracts melodies and harmonies from MIDI files, for use in Deep Learning of music.
  */
 
 import org.deeplearning4j.examples.recurrent.character.melodl4j.MelodyStrings;
@@ -41,14 +41,11 @@ import javax.swing.filechooser.FileFilter;
  *
  *     2. Two-part harmonies as strings, for processing by LSTM Deep Learning.
  *
- *     3. Images that represent music and that can be processed by CNN Deep Learning. The images model harmony, instruments, and volume, as well as melody.
- *
- *  The main method of MidiMusicExtractor.java will convert a directory of MIDI files to a file containing symbolic melody strings,
- *  a file containing symbolic two-part harmony strings, and a directory of png images encoding the MIDI files.
+ *  The main method of MidiMusicExtractor.java will convert a directory of MIDI files to a file containing symbolic melody strings
+ *  and a file containing symbolic two-part harmony strings.
  *
  *  The program may print out many warning messages. These are due to bad data in MIDI files, such as an END_NOTE message with no corresponding
  *  START_NOTE message.
- *
  *
  */
 public class MidiMusicExtractor  {
@@ -56,7 +53,6 @@ public class MidiMusicExtractor  {
 	public static boolean skipBassesForMelody = true;
 	public static int minSizeInNotesOfMelody=8;
 	public static int minDistinctPitches=7;
-	public static int numberOfImageRowsPerVoice=1; // This must be 1 for making music images. Set to, say, 20 if you want to view the images.
 	public static boolean useStrictOverlap=true; // When false, notes overlap if they have the same startTick. When true, they overlap if they share ticks.
 	//  The loose interpretation seems to extract more melodies.
 
@@ -69,7 +65,7 @@ public class MidiMusicExtractor  {
 	// notes (sorted by start time) and a note overlaps the subsequent note by less than maximumProportionOfOverlapBeforeNotesAreConsideredInHarmony,
 	// we modify the end time of the first note to coincide with the start time of the subsequent note.
 
-	public static double minimumDurationInSecondsOfNoteToIncludeInImageOutput=0.02; // 1/50th of a second
+	public static double minimumDurationInSecondsOfNoteToIncludeInOutput =0.02; // 1/50th of a second
 	public static double maxProportionOfRepeatsOfPreviousNote=0.333;
 
 	//............
@@ -107,7 +103,7 @@ public class MidiMusicExtractor  {
 	private static int countMelodiesRejectedDueTooManyRepeatsOfPreviousNote=0;
 	private static int countOfNotesTruncatedDueToLooseOverlapping=0;
 	private static int countOfShortenedNotes=0;
-	private MidiImageAndHarmonyUtility midiImageUtility;
+	private MidiHarmonyUtility midiHarmonyUtility;
 	static {
 		numberFormat.setMaximumFractionDigits(2);
 	}
@@ -129,27 +125,13 @@ public class MidiMusicExtractor  {
 		countOfNoteInstancesPerTrack = new int[tracks.length];
 		countPolyphonyPerTrack = new int[tracks.length];
 		processTracks();
-		midiImageUtility= new MidiImageAndHarmonyUtility(perTrackMapFromChannelToInstrumentToListOfNotes);
+		midiHarmonyUtility = new MidiHarmonyUtility(perTrackMapFromChannelToInstrumentToListOfNotes);
 		shortenNotesThatOverlapTheSubsequentNoteLessThanMaximumProportionOfOverlapBeforeNotesAreConsideredInHarmony();
 	}
 
-	/**
-	 *
-	 * @param midiFilename
-	 * @param imageDirectoryFile
-	 * @param encoding
-	 * @return png image file we created
-	 * @throws IOException
-	 */
-	public File saveAsImage(String midiFilename, File imageDirectoryFile, MidiImageAndHarmonyUtility.Encoding encoding) throws IOException {
-		//MidiImageUtility midiImageUtility= new MidiImageUtility(perTrackMapFromChannelToInstrumentToListOfNotes);
+	public void printTwoPartHarmonies(String midiFilename, PrintWriter harmoniesWriter) throws IOException {
 		final double microsecondsPerTick= sequence.getMicrosecondLength()/sequence.getTickLength();
-		return midiImageUtility.saveAsImage(midiFilename,imageDirectoryFile, microsecondsPerTick, encoding); // Builds the image filename from midiFilename
-	}
-
-	public void printTwoPartHarmonies(String midiFilename, File imageDirectoryFile, PrintWriter harmoniesWriter) throws IOException {
-		final double microsecondsPerTick= sequence.getMicrosecondLength()/sequence.getTickLength();
-		midiImageUtility.printTwoPartHarmonies(midiFilename, microsecondsPerTick,harmoniesWriter);
+		midiHarmonyUtility.printTwoPartHarmonies(midiFilename, microsecondsPerTick,harmoniesWriter);
 	}
 	private void shortenNotesThatOverlapTheSubsequentNoteLessThanMaximumProportionOfOverlapBeforeNotesAreConsideredInHarmony() {
 		if (maximumProportionOfOverlapBeforeNotesAreConsideredInHarmony>0) {
@@ -611,10 +593,10 @@ public class MidiMusicExtractor  {
 	}
 
 	public static void processRecursively(File file, PrintStream analysisPrintStream,
-			PrintStream melodiesPrintStream,File imageDirectoryFile, MidiImageAndHarmonyUtility.Encoding encoding, PrintWriter harmoniesWriter) {
+			PrintStream melodiesPrintStream, PrintWriter harmoniesWriter) {
 		if (file.isDirectory()) {
 			for(File child:file.listFiles()) {
-				processRecursively(child,analysisPrintStream, melodiesPrintStream, imageDirectoryFile,encoding,harmoniesWriter);
+				processRecursively(child,analysisPrintStream, melodiesPrintStream, harmoniesWriter);
 			}
 		} else {
 			String nameLowerCase=file.getName().toLowerCase();
@@ -624,8 +606,7 @@ public class MidiMusicExtractor  {
 					melodiesPrintStream.println(MelodyStrings.COMMENT_STRING + file.getAbsolutePath());
 					midiFeatures.printAnalysis(analysisPrintStream);
 					midiFeatures.printMelodies(melodiesPrintStream);
-					midiFeatures.saveAsImage(file.getName(),imageDirectoryFile, encoding);
-					midiFeatures.printTwoPartHarmonies(file.getName(),imageDirectoryFile,harmoniesWriter);
+					midiFeatures.printTwoPartHarmonies(file.getName(),harmoniesWriter);
 					countMidiFiles++;
 				} catch (Throwable thr) {
 					System.err.println("For "+ file.getAbsolutePath() + ": " + thr);
@@ -639,8 +620,6 @@ public class MidiMusicExtractor  {
 			String inputDirectoryPathLocal,
 			String outputAnalysisFilePath,
 			String outputMelodiesFilePath,
-			File imageDirectoryFile,
-			MidiImageAndHarmonyUtility.Encoding encoding,
 			PrintWriter harmoniesWriter
 			) {
 		System.out.println("Processing " + inputDirectoryPathLocal);
@@ -648,7 +627,7 @@ public class MidiMusicExtractor  {
 		try {
 			PrintStream analysisPrintStream = new PrintStream(new FileOutputStream(outputAnalysisFilePath));
 			PrintStream melodiesPrintStream = new PrintStream(new FileOutputStream(outputMelodiesFilePath));
-			processRecursively(new File(inputDirectoryPathLocal), analysisPrintStream, melodiesPrintStream, imageDirectoryFile, encoding,harmoniesWriter);
+			processRecursively(new File(inputDirectoryPathLocal), analysisPrintStream, melodiesPrintStream, harmoniesWriter);
 			analysisPrintStream.close();
 			melodiesPrintStream.close();
 
@@ -709,12 +688,12 @@ public class MidiMusicExtractor  {
 	private static void restrictToBassAndGuitar() {
 		for(int i=0;i<PlayMusic.programs.length;i++) {
 			if (PlayMusic.programs[i].contains(" Bass")) {
-				MidiImageAndHarmonyUtility.instrument1RestrictionSet.add(i);
+				MidiHarmonyUtility.instrument1RestrictionSet.add(i);
 			}
 		}
 		for(int i=0;i<PlayMusic.programs.length;i++) {
 			if (PlayMusic.programs[i].contains("Electric Guitar") || PlayMusic.programs[i].contains("Acoustic Guitar")) {
-				MidiImageAndHarmonyUtility.instrument2RestrictionSet.add(i);
+				MidiHarmonyUtility.instrument2RestrictionSet.add(i);
 			}
 		}
 	}
@@ -727,19 +706,21 @@ public class MidiMusicExtractor  {
 			}
 			long startTime = System.currentTimeMillis();
 			String directoryName = inputDirectoryOfMidiFiles.getName();
-			MidiImageAndHarmonyUtility.Encoding encoding = MidiImageAndHarmonyUtility.Encoding.RGB;
 			//
 			String outputRootDirectoryPath = PlayTwoPartHarmonies.ROOT_DIR_PATH + File.separator + directoryName
 					+ File.separator;
-			File imageOutputDirectoryPath = new File(outputRootDirectoryPath + "midi-images-" + encoding);
-			if (!imageOutputDirectoryPath.exists()) {
-				imageOutputDirectoryPath.mkdirs();
-			}
-			String harmoniesOutputDirectoryPath = outputRootDirectoryPath + "harmonies-" + directoryName + ".txt";
+			File outputRootDirectoryFile = new File(outputRootDirectoryPath);
+			if (!outputRootDirectoryFile.exists()) {
+			    if (!outputRootDirectoryFile.mkdirs()) {
+			        System.err.println("Could not create " + outputRootDirectoryPath);
+			        System.exit(1);
+                }
+            }
+            String harmoniesOutputDirectoryPath = outputRootDirectoryPath + "harmonies-" + directoryName + ".txt";
 			PrintWriter harmoniesWriter = new PrintWriter(harmoniesOutputDirectoryPath);
 			processDirectoryAndWriteMelodyAndAnalysisFiles(inputDirectoryOfMidiFiles.getAbsolutePath(),
 					outputRootDirectoryPath + "/analysis.txt", outputRootDirectoryPath + "/melodies.txt",
-					imageOutputDirectoryPath, encoding, harmoniesWriter);
+					 harmoniesWriter);
 			// processDirectoryAndWriteMelodyAndAnalysisFiles("D:/Music/MIDI/pop/Beatles","d:/tmp/analysis-beatles.txt","d:/tmp/beatles-melodies-input.txt");
 			double seconds = 0.001 * (System.currentTimeMillis() - startTime);
 			System.out.println(seconds + " seconds");

@@ -69,7 +69,7 @@ when not modeling instruments are the following:
    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvw"
 
  In all, this covers four octaves.  If a note is outside that range I adjust it by one octave until it lies inside the range.
- See MidiImageAndHarmonyUtility.java.
+ See MidiHarmonyUtility.java.
 
 When not using instruments, in a symbolic two-part harmony string the even characters (at indexes 0, 2, 4, 6, ...) represent the
 first voice. The odd characters (at indexes 1, 3, 5, 7, ...) represent the second voice.
@@ -92,7 +92,7 @@ When converting from a symbolic two-part harmony string back to a MIDI sequences
 into a single Midi Note.
 
 If you assign MIDI instrument numbers to the public static variables instrument1Restriction and instrument2Restriction
-in MidiImageAndHarmonyUtility.java, you can limit notes to particular instruments (such as for bass guitar and guitar).
+in MidiHarmonyUtility.java, you can limit notes to particular instruments (such as for bass guitar and guitar).
 If you assign instrument numbers to the variables instrument0 and instrument1 in PlayTwoPartHarmonies.java, you can force
 the generated music to use the respective instruments.
 
@@ -119,11 +119,6 @@ The sample MP3s at http://truthsite.org/music involve only a minor amount of cur
 ------
 
 ## Ideas for future enhancement
-
-Representing music as images (such as the png files output by MidiImageAndHarmonyUtility) may be a general approach, since
-CNNs have been so successfully used in domains such as image and language recognition.  The conversion from MIDI to images
-and back is mostly lossless, so this approach would be modeling the entirety of the MIDI music. But CNNs seem to be able
-to do such tasks.
 
 If musical scores were digitized and converted into symbolic form, that would provide a higher quality source of training data.
 
@@ -155,8 +150,6 @@ There are 128 standard MIDI instruments, so we would have to go beyond the print
 Using a larger vocabulary of (non-ASCII) characters is another approach. In that way, a character could encode the pitch and
 the instrument, and possibly the volume.  That would make the search space much larger.
 
-I suspect that CNNs may figure it out better, from images.
-
 GravesLSTM lets you prime text generation with a prefix string.  It would be interesting to give the program a beginning fragment
 of a two-part harmony and let it complete the piece.
 
@@ -180,18 +173,15 @@ In short, you
    * Then play the resulting samples with PlayTwoPartHarmonies. (You'll need to copy-and-paste a sample to a file.)
 
 MidiMusicExtractor.java prompts you for a path to a midi directory. It then produces, inside midi-learning/ in your
-home diectory, a subdirectory containing a harmonies file of extracted two-party harmony strings, a subdirectory
-containing png images, a melodies.txt file, and an analysis.txt file. For example, if the MIDI directory you choose has the
-name "BEATLES", your midi-learning/ directory will contain something like the following:
+home diectory, a subdirectory containing a harmonies file of extracted two-party harmony strings, a melodies.txt file,
+and an analysis.txt file. For example, if the MIDI directory you choose has the name "BEATLES", your midi-learning/
+directory will contain something like the following:
 
   MINGW64 ~/midi-learning/BEATLES
   total 5188
-  20 analysis.txt  3708 harmonies-BEATLES.mp3  1392 harmonies-BEATLES.txt    60 melodies.txt     8 midi-images-RGB/
+  20 analysis.txt  3708 harmonies-BEATLES.mp3  1392 harmonies-BEATLES.txt    60 melodies.txt
 
 If you want the files to be written to a different directory, you can change the default.
-
-The generated images are 2d:  the x axis encodes time, the y axis encodes harmonies.  Red encodes pitch, Blue encodes
-the instrument, Green encodes volume. It's configurable, and you can change it to use an HSB encoding.
 
 PlayTwoPartHarmony.java prompts you for a file containing two-party harmony strings (such as "harmonies-BEATLES.txt),
 renders the first line as MIDI and plays it on your speakers. It also outputs an mp3 file ("harmonies-BEATLES.mp3" above),
@@ -201,13 +191,12 @@ to convert WAV files to mp3 files.
 PlayTwoPartHarmony.java lets you can configure the tempo and a transpose (pitch offset to adjust each note). For the
 samples at http://truthsite.org/music, I did not adjust the tempo, but in a few cases I adjusted the transpose.
 
-MidiImageAndHarmonyUtility.java converts MIDI sequences to both pngs (for training by a CNN) and to symbolic two-party harmony string files.
-It also has methods for converting an image to a MIDI sequence.
+MidiHarmonyUtility.java converts MIDI sequences to symbolic two-party harmony string files.
 
 Midi2WavRenderer.java (modified from JFugue, which has an apache license), converts MIDI files to wav files. PlayMusic.java has methods
 for converting wav files to MP3 using lame or ffmpeg.
 
-If you set the variable MidiImageAndHarmonyUtility.writeInstrumentsToHarmonyStrings to true, the generated harmony strings will contain
+If you set the variable MidiHarmonyUtility.writeInstrumentsToHarmonyStrings to true, the generated harmony strings will contain
 instrument numbers as described above. However, as stated above, learning did not result in useful results with this representation.
 
 GravesLSTMForTwoPartHarmonies.java prompts you for a harmony file (such as "harmonies-BEATLES.txt" above), trains an LSTM network,

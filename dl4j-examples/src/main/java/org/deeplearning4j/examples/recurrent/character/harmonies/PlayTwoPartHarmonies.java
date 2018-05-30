@@ -4,7 +4,7 @@ package org.deeplearning4j.examples.recurrent.character.harmonies;
 /**
  * @author Don Smith (ThinkerFeeler@gmail.com)
  *
- * This class prompts for and plays a file containing symbolic two-party harmony strings, in the syntax of MidiImageAndHarmonyUtility.java .
+ * This class prompts for and plays a file containing symbolic two-party harmony strings, in the syntax of MidiHarmonyUtility.java .
  * It also converts the music into a MP3 file.
  *
  * This class assumes the harmony strings do NOT contain instruments.
@@ -23,7 +23,6 @@ import java.util.Random;
 
 import javax.sound.midi.InvalidMidiDataException;
 import javax.sound.midi.MidiEvent;
-import javax.sound.midi.MidiMessage;
 import javax.sound.midi.MidiSystem;
 import javax.sound.midi.Sequence;
 import javax.sound.midi.ShortMessage;
@@ -52,12 +51,12 @@ public class PlayTwoPartHarmonies {
 		}
 	}
 	private static void addNoteForChar(char ch, Track track, int channel, long startTick, long endTick, int instrument) throws InvalidMidiDataException {
-		int index=MidiImageAndHarmonyUtility.PITCH_CHARACTERS_FOR_HARMONY.indexOf(ch);
+		int index= MidiHarmonyUtility.PITCH_CHARACTERS_FOR_HARMONY.indexOf(ch);
 		if (index<0) {
 			System.err.println("Couldn't find index for " + ch + " at tick " + startTick);
 			return;
 		}
-		int pitch=MidiImageAndHarmonyUtility.MIN_ALLOWED_PITCH+ index;
+		int pitch= MidiHarmonyUtility.MIN_ALLOWED_PITCH+ index;
 		Note note = new Note(pitch, startTick,instrument,channel,80);
 		note.setEndTick(endTick);
 		note.addMidiEvents(track);
@@ -76,17 +75,17 @@ public class PlayTwoPartHarmonies {
 		for(int i=0;i<part.length();i++) {
 			char ch = part.charAt(i);
 			if (ch!=previousChar) {
-				if (previousChar!=MidiImageAndHarmonyUtility.REST_CHAR && previousChar!= (char)0) {
+				if (previousChar!= MidiHarmonyUtility.REST_CHAR && previousChar!= (char)0) {
 						addNoteForChar(previousChar,track, channel,startTick,tick, instrument);
 				}
-				if (ch!= MidiImageAndHarmonyUtility.REST_CHAR) {
+				if (ch!= MidiHarmonyUtility.REST_CHAR) {
 					startTick=tick;
 				}
 			}
 			previousChar=ch;
 			tick+= tickIncrement;
 		}
-		if (previousChar!= MidiImageAndHarmonyUtility.REST_CHAR) {
+		if (previousChar!= MidiHarmonyUtility.REST_CHAR) {
 			addNoteForChar(previousChar,track,channel,startTick, tick, instrument);
 		}
 	}
@@ -289,7 +288,6 @@ public class PlayTwoPartHarmonies {
 			int seconds=60;
 			readFileAndPlayFirstHarmoniesLine(inputHarmoniesFile.getAbsolutePath(),mp3OutPath, midiOutPath, seconds,repeatLimit);
 			//playRandomHarmonyFile("d:/tmp/harmonies");
-			//readFileAndPlayHarmonies("c:/Users/Don Smith/AppData/Local/Temp/midi-images-RGB/LET_IT_B.harmonies");
 		} catch (Throwable thr) {
 			thr.printStackTrace();
 		}
