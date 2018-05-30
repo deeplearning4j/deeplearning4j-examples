@@ -7,7 +7,7 @@ Deep Learning can be used to compose interesting-sounding, musical pieces in the
 
 Listen to the motifs and variations in the first several pieces at the following site.
 
-        http://truthsite.org/music
+        http://deepmusic.info/
 
 Here I explain how to represent two-part harmonies extracted from MIDI files as character string, for learning with LSTM networks.
 
@@ -114,7 +114,7 @@ mini-batch size did seem to help it learn: the loss went down pretty monotonical
 I found that three LSTM layers usually worked better than four. Often if I tried to train with four layers, learning got
 stuck or oscillated wildly.
 
-The sample MP3s at http://truthsite.org/music involve only a minor amount of curating, except for the top group.
+The sample MP3s at http://deepmusic.info/ involve only a minor amount of curating, except for the top group.
 
 ------
 
@@ -158,7 +158,7 @@ Can we train a network to know how to end a piece?  The pieces I've made it comp
 Another challenge: given one voice, find an accompanying voice.
 
 Other ideas: Specialize learning on percussion tracks and accompanying melodies. I already tried making it learn a bass and
-lead guitar (see http://truthsite.org/music/). Learn rhythm guitar to accompany lead guitar.  A challenge is that it's often
+lead guitar (seeh ttp://deepmusic.info/ ). Learn rhythm guitar to accompany lead guitar.  A challenge is that it's often
 hard to figure out from MIDI files what track is what, although the instrument number is a strong hint.
 
 -----
@@ -166,7 +166,7 @@ hard to figure out from MIDI files what track is what, although the instrument n
 
 In short, you
 
-   * Download a zipfile of MIDI files (e.g., http://truthsite.org/music/bach-midi.zip)
+   * Download a zipfile of MIDI files (e.g., http://truthsite.org/music/bach-midi.zip  http://deepmusic.info/bach-midi.zip)
    * Unzip into a directory containing midi files
    * Run MidiMusicExtractor on that directory (it will prompt you and put output files in your home directory in midi-learning/)
    * Run GravesLSTMForTwoPartHarmonies on the harmonies file output by MidiMusicExtractor (it will prompt you)
@@ -189,7 +189,7 @@ provided you've installed lame http://lame.sourceforge.net/ (on linux) ffmpeg (o
 to convert WAV files to mp3 files.
 
 PlayTwoPartHarmony.java lets you can configure the tempo and a transpose (pitch offset to adjust each note). For the
-samples at http://truthsite.org/music, I did not adjust the tempo, but in a few cases I adjusted the transpose.
+samples at http://deepmusic.info/, I did not adjust the tempo, but in a few cases I adjusted the transpose.
 
 MidiHarmonyUtility.java converts MIDI sequences to symbolic two-party harmony string files.
 
@@ -208,8 +208,8 @@ in the same directory of the harmony file you chose.   During learning, after ev
 writes samples to the sample file. Generally, the samples near the end will sound better, and you should copy each one
 you like to a separate file and render it with PlayTwoPartyHarmony.java.
 
- Note: You can download MIDI files from http://truthsite.org/music/bach-midi.zip , http://truthsite.org/music/pop-midi.zip,
- http://truthsite.org/music/classical-midi.zip, and the large collection at http://colinraffel.com/projects/lmd/ .
+ Note: You can download MIDI files from http://deepmusic.info//music/bach-midi.zip , http://deepmusic.info/pop-midi.zip,
+ http://deepmusic.info/classical-midi.zip, and the large collection at http://colinraffel.com/projects/lmd/ .
 
  Contact me if you have questions: ThinkerFeeler@gmail.com .
 
