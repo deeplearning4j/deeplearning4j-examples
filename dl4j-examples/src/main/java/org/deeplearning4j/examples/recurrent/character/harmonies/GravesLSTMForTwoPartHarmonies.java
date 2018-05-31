@@ -3,7 +3,7 @@ package org.deeplearning4j.examples.recurrent.character.harmonies;
 import org.apache.commons.io.FileUtils;
 import org.deeplearning4j.examples.recurrent.character.CharacterIterator;
 import org.deeplearning4j.examples.recurrent.character.CompGraphLSTMExample;
-import org.deeplearning4j.examples.recurrent.character.GravesLSTMCharModellingExample;
+import org.deeplearning4j.examples.recurrent.character.LSTMCharModellingExample;
 import org.deeplearning4j.nn.api.Layer;
 import org.deeplearning4j.nn.conf.BackpropType;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
@@ -240,7 +240,7 @@ public class GravesLSTMForTwoPartHarmonies {
                 double[] outputProbDistribution = new double[iter.totalOutcomes()];
                 for (int j = 0; j < outputProbDistribution.length; j++)
                     outputProbDistribution[j] = output.getDouble(s, j);
-                int sampledCharacterIdx = GravesLSTMCharModellingExample.sampleFromDistribution(outputProbDistribution, rng);
+                int sampledCharacterIdx = LSTMCharModellingExample.sampleFromDistribution(outputProbDistribution, rng);
 
                 nextInput.putScalar(new int[]{s, sampledCharacterIdx}, 1.0f);        //Prepare next time step input
                 sb[s].append(iter.convertIndexToCharacter(sampledCharacterIdx));    //Add sampled character to StringBuilder (human readable output)
