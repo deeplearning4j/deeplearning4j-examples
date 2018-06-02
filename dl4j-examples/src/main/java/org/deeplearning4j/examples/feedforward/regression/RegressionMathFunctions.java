@@ -2,7 +2,13 @@ package org.deeplearning4j.examples.feedforward.regression;
 
 import org.deeplearning4j.datasets.iterator.impl.ListDataSetIterator;
 import org.deeplearning4j.examples.feedforward.regression.function.MathFunction;
+import org.deeplearning4j.examples.feedforward.regression.function.Mul2XMathFunction;
 import org.deeplearning4j.examples.feedforward.regression.function.SinXDivXMathFunction;
+import org.deeplearning4j.examples.feedforward.regression.function.TriangleWaveMathFunction;
+import org.nd4j.linalg.activations.Activation;
+import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
+import org.deeplearning4j.datasets.iterator.impl.ListDataSetIterator;
+import org.deeplearning4j.nn.api.OptimizationAlgorithm;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
 import org.deeplearning4j.nn.conf.layers.DenseLayer;
@@ -66,8 +72,8 @@ public class RegressionMathFunctions {
         final MultiLayerConfiguration conf = getDeepDenseLayerNetworkConfiguration();
 
         //Generate the training data
-        final INDArray x = Nd4j.linspace(-40, 40, nSamples).reshape(nSamples, 1);
-        final DataSetIterator iterator = getTrainingData(x, fn, batchSize, rng);
+        final INDArray x = Nd4j.linspace(-10,10,nSamples).reshape(nSamples, 1);
+        final DataSetIterator iterator = getTrainingData(x,fn,batchSize,rng);
 
         //Create the network
         final MultiLayerNetwork net = new MultiLayerNetwork(conf);
