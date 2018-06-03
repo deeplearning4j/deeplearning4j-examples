@@ -130,8 +130,6 @@ and http://wiki.ccarh.org/wiki/Guido_Music_Notation
 
 Further tuning of LSTM is worthwhile: more layers, different hyper parameters, perhaps learned via arbiter and transfer learning.
 
-I barely explored modeling instruments, and the current system's approach to modeling instruments seems inadequate.
-
 An advantage of the symbolic harmony representation without instruments is that it's very simple: the even-indexed
 characters are one voice, and the odd-indexed characters are the second voice. LSTM seemed to have no trouble learning it.
 When I tried adding instruments (so that the pitch of the first voice was followed by the instrument of the first voice,
@@ -139,8 +137,9 @@ then the pitch of the second voice, and finally the instrument of the second voi
 conventions:  instrument characters were misaligned in the generated compositions.
 
 Since instruments change rarely, I could intersperse the harmony strings with occasional instrument characters (which must
-be distinct from pitch characters).  But each voice can have a different instrument.  And this change would make the
-representation much less standardized and probably harder for the LSTM to model.
+be distinct from pitch characters).  But each voice can have a different instrument, and there are 128 distinct MIDI instruments,
+though most are rarely used.  Adding instruments would make the representation much less standardized and probably harder for
+the LSTM to model.
 
 Adding dynamics is an obvious enhancement.  To add volume, we could add a volume character after each voice character, as I
 did with instruments, but that would suffer from the same problems as our representation for instruments.
@@ -173,7 +172,7 @@ In short, you
    * Then play the resulting samples with PlayTwoPartHarmonies. (You'll need to copy-and-paste a sample to a file.)
 
 MidiMusicExtractor.java prompts you for a path to a midi directory. It then produces, inside midi-learning/ in your
-home diectory, a subdirectory containing a harmonies file of extracted two-party harmony strings, a melodies.txt file,
+home directory, a subdirectory containing a harmonies file of extracted two-party harmony strings, a melodies.txt file,
 and an analysis.txt file. For example, if the MIDI directory you choose has the name "BEATLES", your midi-learning/
 directory will contain something like the following:
 
@@ -191,18 +190,15 @@ to convert WAV files to mp3 files.
 PlayTwoPartHarmony.java lets you can configure the tempo and a transpose (pitch offset to adjust each note). For the
 samples at http://deepmusic.info/, I did not adjust the tempo, but in a few cases I adjusted the transpose.
 
-MidiHarmonyUtility.java converts MIDI sequences to symbolic two-party harmony string files.
+MidiHarmonyUtility.java converts MIDI sequence files to symbolic two-party harmony string files.
 
 Midi2WavRenderer.java (modified from JFugue, which has an apache license), converts MIDI files to wav files. PlayMusic.java has methods
 for converting wav files to MP3 using lame or ffmpeg.
 
-If you set the variable MidiHarmonyUtility.writeInstrumentsToHarmonyStrings to true, the generated harmony strings will contain
-instrument numbers as described above. However, as stated above, learning did not result in useful results with this representation.
-
 GravesLSTMForTwoPartHarmonies.java prompts you for a harmony file (such as "harmonies-BEATLES.txt" above), trains an LSTM network,
 and outputs composed symbolic two-party harmony strings to a file such as
 
-    samples-layerSize_250-tbpttLength_300-l2_0.0015-learningRate_0.05-updater_Adam-2018-05-27--21-37.txt
+    samples-layerCount_4-layerSize_200-tbpttLength_300-l2_0.0015-learningRate_0.05-updater_Adam-2018-06-03--09-55.txt
 
 in the same directory of the harmony file you chose.   During learning, after every 20 or so mini-batches (configurable), it
 writes samples to the sample file. Generally, the samples near the end will sound better, and you should copy each one

@@ -53,18 +53,17 @@ import javax.swing.filechooser.FileFilter;
  * http://deeplearning4j.org/recurrentnetwork
  */
 public class GravesLSTMForTwoPartHarmonies {
-    private static boolean useInstruments = false; // Set this to true if your samples include instrument characters.
-    private static String inputOutputDirectoryPath;
+     private static String inputOutputDirectoryPath;
 
     public static void main(String[] args) throws Exception {
-        int lstmLayerSize = 250;                    //Number of units in each GravesLSTM layer
+        int lstmLayerSize = 200;                    //Number of units in each GravesLSTM layer
         int miniBatchSize = 64;                        //Size of mini batch to use when  training
         int exampleLength = 2000;                    //Length of each training example sequence to use. This could certainly be increased
         int tbpttLength = 300;                       //Length for truncated backpropagation through time. i.e., do parameter updates ever 50 characters
         int numEpochs = 16;                            //Total number of training epochs
         int generateSamplesEveryNMinibatches = 5;  //How frequently to generate samples from the network? 1000 characters / 50 tbptt length: 20 parameter updates per minibatch
         int nSamplesToGenerate = 4;                    //Number of samples to generate after each training epoch
-        int nCharactersToSample = useInstruments ? 3600 : 1800;    //Length of each sample to generate
+        int nCharactersToSample = 3600;    //Length of each sample to generate
         double l2 = 0.0015;
         double learningRate = 0.05;
         IUpdater updater = new Adam(learningRate); // new RmsProp(0.1); //
@@ -121,7 +120,8 @@ public class GravesLSTMForTwoPartHarmonies {
         //Do training, and then generate and print samples from network
         int miniBatchNumber = 0;
         String identifier =
-            "layerSize_" + lstmLayerSize
+            "layerCount_" + net.getLayers().length +
+            "-layerSize_" + lstmLayerSize
                 + "-tbpttLength_" + tbpttLength
                 + "-l2_" + l2
                 + "-learningRate_" + learningRate
@@ -186,12 +186,11 @@ public class GravesLSTMForTwoPartHarmonies {
         int kilobytes = (int) Math.ceil(f.length() / 1024.0);
         System.out.println("Reading harmonies from " + f.getAbsolutePath() + ", length = " + kilobytes + "kb");
 
-        char validCharactersWithInstruments[] = new char[108 - 32 + 1];
-        for (int i = 0; i < 108 - 32 + 1; i++) {
-            validCharactersWithInstruments[i] = (char) (32 + i);
+        char[] validCharacters =new char[1+MidiHarmonyUtility.PITCH_CHARACTERS_FOR_HARMONY.length()];
+        validCharacters[0]=' ';
+        for(int i=0;i<MidiHarmonyUtility.PITCH_CHARACTERS_FOR_HARMONY.length();i++) {
+            validCharacters[i+1]= MidiHarmonyUtility.PITCH_CHARACTERS_FOR_HARMONY.charAt(i);
         }
-        char[] validCharactersWithoutInstruments = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvw ".toCharArray();
-        char[] validCharacters = useInstruments ? validCharactersWithInstruments : validCharactersWithoutInstruments;
         return new CharacterIterator(f.getAbsolutePath(), Charset.forName("UTF-8"),
             miniBatchSize, sequenceLength, validCharacters, new Random());
     }
