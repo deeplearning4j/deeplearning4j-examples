@@ -34,15 +34,6 @@ android {
             exclude 'META-INF/notice.txt'
             exclude 'META-INF/INDEX.LIST'
 
-            exclude 'org/bytedeco/javacpp/windows-x86/msvcp120.dll'
-            exclude 'org/bytedeco/javacpp/windows-x86_64/msvcp120.dll'
-            exclude 'org/bytedeco/javacpp/windows-x86/msvcr120.dll'
-            exclude 'org/bytedeco/javacpp/windows-x86_64/msvcr120.dll'
-
-            exclude'LICENSE-EPL-1.0.txt'
-            exclude'LICENSE-EDL-1.0.txt'
-
-
         }
     }
 
