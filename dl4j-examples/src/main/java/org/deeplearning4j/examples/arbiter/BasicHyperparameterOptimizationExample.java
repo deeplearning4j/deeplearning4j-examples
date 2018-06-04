@@ -2,6 +2,7 @@ package org.deeplearning4j.examples.arbiter;
 
 import org.deeplearning4j.api.storage.StatsStorage;
 import org.deeplearning4j.arbiter.MultiLayerSpace;
+import org.deeplearning4j.arbiter.conf.updater.SgdSpace;
 import org.deeplearning4j.arbiter.layers.DenseLayerSpace;
 import org.deeplearning4j.arbiter.layers.OutputLayerSpace;
 import org.deeplearning4j.arbiter.optimize.api.CandidateGenerator;
@@ -26,12 +27,10 @@ import org.deeplearning4j.arbiter.task.MultiLayerNetworkTaskCreator;
 import org.deeplearning4j.arbiter.ui.listener.ArbiterStatusListener;
 import org.deeplearning4j.datasets.iterator.MultipleEpochsIterator;
 import org.deeplearning4j.datasets.iterator.impl.MnistDataSetIterator;
-import org.deeplearning4j.examples.utilities.MnistDownloader;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
 import org.deeplearning4j.ui.api.UIServer;
 import org.deeplearning4j.ui.storage.FileStatsStorage;
-import org.deeplearning4j.ui.storage.sqlite.J7FileStatsStorage;
 import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
@@ -66,10 +65,10 @@ public class BasicHyperparameterOptimizationExample {
         MultiLayerSpace hyperparameterSpace = new MultiLayerSpace.Builder()
             //These next few options: fixed values for all models
             .weightInit(WeightInit.XAVIER)
-            .regularization(true)
+
             .l2(0.0001)
             //Learning rate hyperparameter: search over different values, applied to all models
-            .learningRate(learningRateHyperparam)
+            .updater(new SgdSpace(learningRateHyperparam))
             .addLayer( new DenseLayerSpace.Builder()
                     //Fixed values for this layer:
                     .nIn(784)  //Fixed input: 28x28=784 pixels for MNIST
@@ -153,7 +152,7 @@ public class BasicHyperparameterOptimizationExample {
         List<ResultReference> allResults = runner.getResults();
 
         OptimizationResult bestResult = allResults.get(indexOfBestResult).getResult();
-        MultiLayerNetwork bestModel = (MultiLayerNetwork)bestResult.getResult();
+        MultiLayerNetwork bestModel = (MultiLayerNetwork)bestResult.getResultReference().getResultModel();
 
         System.out.println("\n\nConfiguration of best model:\n");
         System.out.println(bestModel.getLayerWiseConfigurations().toJson());
@@ -172,7 +171,6 @@ public class BasicHyperparameterOptimizationExample {
         public ExampleDataProvider(@JsonProperty("numEpochs") int numEpochs, @JsonProperty("batchSize") int batchSize){
             this.numEpochs = numEpochs;
             this.batchSize = batchSize;
-            MnistDownloader.download(); //Workaround for download location change since 0.9.1 release
         }
 
         private ExampleDataProvider(){

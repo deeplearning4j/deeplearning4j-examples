@@ -12,6 +12,7 @@ import org.datavec.image.transform.PipelineImageTransform;
 import org.datavec.image.transform.ResizeImageTransform;
 import org.deeplearning4j.datasets.datavec.RecordReaderDataSetIterator;
 import org.deeplearning4j.eval.Evaluation;
+import org.deeplearning4j.nn.graph.ComputationGraph;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.optimize.listeners.PerformanceListener;
 import org.deeplearning4j.parallelism.ParallelWrapper;
@@ -56,13 +57,15 @@ public class MultiGpuVGG16TinyImageNetExample {
         // for GPU you usually want to have higher batchSize
         int batchSize = 16;
         int nEpochs = 10;
-        int iterations = 1;
         int seed = 123;
         Random rng = new Random(seed);
 
-        VGG16 zooModel = new VGG16(200, seed, 1);
+        VGG16 zooModel = VGG16.builder()
+            .numClasses(200)
+            .seed(seed)
+            .build();
         int[] inputShape = zooModel.metaData().getInputShape()[0];
-        MultiLayerNetwork vgg16 = zooModel.init();
+        ComputationGraph vgg16 = zooModel.init();
         vgg16.setListeners(new PerformanceListener(1, true));
 
         log.info("Load data....");

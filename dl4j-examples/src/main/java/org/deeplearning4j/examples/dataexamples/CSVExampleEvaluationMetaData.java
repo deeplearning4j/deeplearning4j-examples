@@ -23,6 +23,7 @@ import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.dataset.SplitTestAndTrain;
 import org.nd4j.linalg.dataset.api.preprocessor.DataNormalization;
 import org.nd4j.linalg.dataset.api.preprocessor.NormalizerStandardize;
+import org.nd4j.linalg.learning.config.Sgd;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 
 import java.util.ArrayList;
@@ -81,17 +82,15 @@ public class CSVExampleEvaluationMetaData {
         //Configure a simple model. We're not using an optimal configuration here, in order to show evaluation/errors, later
         final int numInputs = 4;
         int outputNum = 3;
-        int iterations = 50;
         long seed = 6;
 
         System.out.println("Build model....");
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
             .seed(seed)
-            .iterations(iterations)
             .activation(Activation.TANH)
             .weightInit(WeightInit.XAVIER)
-            .learningRate(0.1)
-            .regularization(true).l2(1e-4)
+            .updater(new Sgd(0.1))
+            .l2(1e-4)
             .list()
             .layer(0, new DenseLayer.Builder().nIn(numInputs).nOut(3).build())
             .layer(1, new OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD)
@@ -104,7 +103,9 @@ public class CSVExampleEvaluationMetaData {
         model.init();
         model.setListeners(new ScoreIterationListener(100));
 
-        model.fit(trainingData);
+        for( int i=0; i<50; i++ ) {
+            model.fit(trainingData);
+        }
 
         //Evaluate the model on the test set
         Evaluation eval = new Evaluation(3);

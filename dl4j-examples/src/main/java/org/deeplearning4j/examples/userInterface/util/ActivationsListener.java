@@ -4,6 +4,7 @@ import javafx.application.Application;
 import org.deeplearning4j.nn.api.Layer;
 import org.deeplearning4j.nn.api.Model;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
+import org.deeplearning4j.nn.workspace.LayerWorkspaceMgr;
 import org.deeplearning4j.optimize.api.IterationListener;
 import org.deeplearning4j.optimize.api.TrainingListener;
 import org.nd4j.linalg.api.ndarray.INDArray;
@@ -17,7 +18,7 @@ import java.util.Map;
  *
  * @author Donald A. Smith
  */
-public class ActivationsListener implements IterationListener {
+public class ActivationsListener extends IterationListener {
     private boolean invoked=false;
     private final MultiLayerNetwork network;
     private final int sampleSizePerLayer;
@@ -38,19 +39,7 @@ public class ActivationsListener implements IterationListener {
         System.out.println("ActivationsViewer started up after " + (count*sleepMls)/1000.0 + " seconds");
         viewer= ActivationsViewer.staticInstance;
     }
-    @Override
-    public boolean invoked() {
-        if (!invoked) {
-            System.out.println("Invoked");
-        }
-        return invoked;
-    }
 
-    @Override
-    public void invoke() {
-        System.out.println("invoke()");
-        invoked=true;
-    }
     public static String toString(int [] values) {
         StringBuilder sb = new StringBuilder();
         sb.append('[');
@@ -65,7 +54,7 @@ public class ActivationsListener implements IterationListener {
     }
 
     @Override
-    public void iterationDone(Model model, int iteration) {
+    public void iterationDone(Model model, int iteration, int epoch) {
         if (iteration==0) {
             initializeViewer();
             describeLayers();
@@ -86,7 +75,7 @@ public class ActivationsListener implements IterationListener {
         System.out.println("\nActivationsListener layers:");
         for(Layer layer:network.getLayers()) {
             INDArray input= layer.input();
-            INDArray activation = layer.activate();
+            INDArray activation = layer.activate(input, false, LayerWorkspaceMgr.noWorkspaces());
             //Gradient gradient=layer.gradient(); //null
             System.out.println(layer.getIndex() + ": " + layer.numParams() +
                     " params, input shape = " + toString(input.shape())

@@ -547,8 +547,9 @@ public class GradientsAndParamsViewer extends Application {
             makeLayerStage();
         }
         layerStage.setTitle(key + " (" + layer.type() + ")");
-        double learningRate = conf.getLearningRateByParam(param);
+        double learningRate = Double.NaN;   //TODOconf.getLearningRateByParam(param);
         learningRateTextField.setText(""+ learningRate);
+        //momentumTextField.setText("" + Double.NaN); //TODOconf.getMomentum());
         activationFunctionTextField.setText(conf.getActivationFn().toString());
         updaterTextField.setText(conf.getIUpdater().toString());
 

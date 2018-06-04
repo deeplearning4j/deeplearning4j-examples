@@ -34,6 +34,7 @@ android {
             exclude 'META-INF/notice.txt'
             exclude 'META-INF/INDEX.LIST'
 
+
         }
     }
 
@@ -52,6 +53,7 @@ android {
             exclude group: 'org.bytedeco.javacpp-presets', module: 'leptonica-platform'
             exclude group: 'org.bytedeco.javacpp-presets', module: 'hdf5-platform'
         }
+
         compile group: 'org.nd4j', name: 'nd4j-native', version: '1.0.0-beta'
         compile group: 'org.nd4j', name: 'nd4j-native', version: '1.0.0-beta', classifier: "android-arm"
         compile group: 'org.nd4j', name: 'nd4j-native', version: '1.0.0-beta', classifier: "android-arm64"
@@ -69,10 +71,12 @@ android {
         implementation 'com.google.code.gson:gson:2.8.2'
         annotationProcessor 'org.projectlombok:lombok:1.16.16'
 
+
         //This corrects for a junit version conflict.
         configurations.all {
             resolutionStrategy.force 'junit:junit:4.12'
         }
+
 
         compile 'com.google.code.findbugs:annotations:3.0.1', {
             exclude module: 'jsr305'
@@ -81,3 +85,4 @@ android {
     }
 
 }
+

@@ -1,13 +1,12 @@
 package org.deeplearning4j.examples.recurrent.character.melodl4j;
 
+import org.apache.commons.io.FileUtils;
 import org.deeplearning4j.examples.recurrent.character.CharacterIterator;
 import org.deeplearning4j.nn.api.Layer;
-import org.deeplearning4j.nn.api.OptimizationAlgorithm;
 import org.deeplearning4j.nn.conf.BackpropType;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
-import org.deeplearning4j.nn.conf.Updater;
-import org.deeplearning4j.nn.conf.layers.GravesLSTM;
+import org.deeplearning4j.nn.conf.layers.LSTM;
 import org.deeplearning4j.nn.conf.layers.RnnOutputLayer;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
@@ -17,8 +16,8 @@ import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.factory.Nd4j;
+import org.nd4j.linalg.learning.config.RmsProp;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
-import org.apache.commons.io.FileUtils;
 
 import java.io.*;
 import java.net.URL;
@@ -28,8 +27,8 @@ import java.util.List;
 import java.util.Random;
 
 /**
- * GravesLSTM  Symbolic melody modelling example, to compose music from symbolic melodies extracted from MIDI.
- * Based closely on GravesLSTMCharModellingExample.java.
+ * LSTM  Symbolic melody modelling example, to compose music from symbolic melodies extracted from MIDI.
+ * Based closely on LSTMCharModellingExample.java.
  * See the README file in this directory for documentation.
  *
  * @author Alex Black, Donald A. Smith.
@@ -55,7 +54,7 @@ public class MelodyModelingExample {
             generationInitialization = args[1];
         }
 
-        int lstmLayerSize = 200;                    //Number of units in each GravesLSTM layer
+        int lstmLayerSize = 200;                    //Number of units in each LSTM layer
         int miniBatchSize = 32;                     //Size of mini batch to use when training
         int exampleLength = 500; //1000; 		    //Length of each training example sequence to use.
         int tbpttLength = 50;                       //Length for truncated backpropagation through time. i.e., do parameter updates ever 50 characters
@@ -71,7 +70,7 @@ public class MelodyModelingExample {
 
         System.out.println("Using " + tmpDir + " as the temporary directory");
         //Get a DataSetIterator that handles vectorization of text into something we can use to train
-        // our GravesLSTM network.
+        // our LSTM network.
         CharacterIterator iter = getMidiIterator(miniBatchSize, exampleLength);
 
         if (loadNetworkPath != null) {
@@ -89,19 +88,16 @@ public class MelodyModelingExample {
 
         //Set up network configuration:
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
-            .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT).iterations(1)
-            .learningRate(0.1)
+            .updater(new RmsProp(0.1))
             .seed(12345)
-            .regularization(true)
             .l2(0.001)
             .weightInit(WeightInit.XAVIER)
-            .updater(Updater.RMSPROP)
             .list()
-            .layer(0, new GravesLSTM.Builder().nIn(iter.inputColumns()).nOut(lstmLayerSize)
+            .layer(0, new LSTM.Builder().nIn(iter.inputColumns()).nOut(lstmLayerSize)
                 .activation(Activation.TANH).build())
-            .layer(1, new GravesLSTM.Builder().nIn(lstmLayerSize).nOut(lstmLayerSize)
+            .layer(1, new LSTM.Builder().nIn(lstmLayerSize).nOut(lstmLayerSize)
                 .activation(Activation.TANH).build())
-//            .layer(2, new GravesLSTM.Builder().nIn(lstmLayerSize).nOut(lstmLayerSize)
+//            .layer(2, new LSTM.Builder().nIn(lstmLayerSize).nOut(lstmLayerSize)
 //                .activation(Activation.TANH).build())
             .layer(2, new RnnOutputLayer.Builder(LossFunctions.LossFunction.MCXENT).activation(Activation.SOFTMAX)        //MCXENT + softmax for classification
                 .nIn(lstmLayerSize).nOut(nOut).build())
@@ -225,7 +221,7 @@ public class MelodyModelingExample {
      *
      * @param initialization     String, may be null. If null, select a random character as initialization for all samples
      * @param charactersToSample Number of characters to sample from network (excluding initialization)
-     * @param net                MultiLayerNetwork with one or more GravesLSTM/RNN layers and a softmax output layer
+     * @param net                MultiLayerNetwork with one or more LSTM/RNN layers and a softmax output layer
      * @param iter               CharacterIterator. Used for going from indexes back to characters
      */
     public static String[] sampleCharactersFromNetwork(String initialization, MultiLayerNetwork net,

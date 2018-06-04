@@ -15,11 +15,12 @@ import org.deeplearning4j.nn.conf.BackpropType;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
 import org.deeplearning4j.nn.conf.Updater;
-import org.deeplearning4j.nn.conf.layers.GravesLSTM;
+import org.deeplearning4j.nn.conf.layers.LSTM;
 import org.deeplearning4j.nn.conf.layers.RnnOutputLayer;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
 import org.deeplearning4j.optimize.api.IterationListener;
+import org.deeplearning4j.optimize.api.TrainingListener;
 import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
 import org.deeplearning4j.spark.impl.multilayer.SparkDl4jMultiLayer;
 import org.deeplearning4j.spark.impl.paramavg.ParameterAveragingTrainingMaster;
@@ -40,11 +41,11 @@ import java.nio.file.Files;
 import java.util.*;
 
 /**
- * GravesLSTM + Spark character modelling example
+ * LSTM + Spark character modelling example
  * Example: Train a LSTM RNN to generates text, one character at a time.
  * Training here is done on Spark
  *
- * See dl4j-examples/src/main/java/org/deeplearning4j/examples/recurrent/character/GravesLSTMCharModellingExample.java
+ * See dl4j-examples/src/main/java/org/deeplearning4j/examples/recurrent/character/LSTMCharModellingExample.java
  * for the single-machine version of this example
  *
  * To run the example locally: Run the example as-is. The example is set up to use Spark local by default.
@@ -95,7 +96,7 @@ public class SparkLSTMCharacterExample {
         }
 
         Random rng = new Random(12345);
-        int lstmLayerSize = 200;                    //Number of units in each GravesLSTM layer
+        int lstmLayerSize = 200;                    //Number of units in each LSTM layer
         int tbpttLength = 50;                       //Length for truncated backpropagation through time. i.e., do parameter updates ever 50 characters
         int nSamplesToGenerate = 4;                    //Number of samples to generate after each training epoch
         int nCharactersToSample = 300;                //Length of each sample to generate
@@ -105,16 +106,13 @@ public class SparkLSTMCharacterExample {
 
         //Set up network configuration:
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
-            .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT).iterations(1)
-            .learningRate(0.1)
             .seed(12345)
-            .regularization(true)
             .l2(0.001)
             .weightInit(WeightInit.XAVIER)
-            .updater(Updater.RMSPROP)   //To configure: .updater(new RmsProp(0.95))
+            .updater(new RmsProp(0.1))
             .list()
-            .layer(0, new GravesLSTM.Builder().nIn(CHAR_TO_INT.size()).nOut(lstmLayerSize).activation(Activation.TANH).build())
-            .layer(1, new GravesLSTM.Builder().nIn(lstmLayerSize).nOut(lstmLayerSize).activation(Activation.TANH).build())
+            .layer(0, new LSTM.Builder().nIn(CHAR_TO_INT.size()).nOut(lstmLayerSize).activation(Activation.TANH).build())
+            .layer(1, new LSTM.Builder().nIn(lstmLayerSize).nOut(lstmLayerSize).activation(Activation.TANH).build())
             .layer(2, new RnnOutputLayer.Builder(LossFunction.MCXENT).activation(Activation.SOFTMAX)        //MCXENT + softmax for classification
                 .nIn(lstmLayerSize).nOut(nOut).build())
             .backpropType(BackpropType.TruncatedBPTT).tBPTTForwardLength(tbpttLength).tBPTTBackwardLength(tbpttLength)
@@ -150,7 +148,7 @@ public class SparkLSTMCharacterExample {
             .batchSizePerWorker(batchSizePerWorker)
             .build();
         SparkDl4jMultiLayer sparkNetwork = new SparkDl4jMultiLayer(sc, conf, tm);
-        sparkNetwork.setListeners(Collections.<IterationListener>singletonList(new ScoreIterationListener(1)));
+        sparkNetwork.setListeners(new ScoreIterationListener(1));
 
         //Do training, and then generate and print samples from network
         for (int i = 0; i < numEpochs; i++) {
@@ -277,7 +275,7 @@ public class SparkLSTMCharacterExample {
      *
      * @param initialization     String, may be null. If null, select a random character as initialization for all samples
      * @param charactersToSample Number of characters to sample from network (excluding initialization)
-     * @param net                MultiLayerNetwork with one or more GravesLSTM/RNN layers and a softmax output layer
+     * @param net                MultiLayerNetwork with one or more LSTM/RNN layers and a softmax output layer
      */
     private static String[] sampleCharactersFromNetwork(String initialization, MultiLayerNetwork net, Random rng,
                                                         Map<Integer, Character> intToChar, int charactersToSample, int numSamples) {

@@ -130,7 +130,7 @@ public class LogDataExample {
                 .sumColumns("replyBytes")           //Sum the values in the replyBytes column
                 .build())
 
-            .renameColumn("count", "numRequests")
+            .renameColumn("count(timestamp)", "numRequests")
 
             //Finally, let's filter out all hosts that requested less than 1 million bytes in total
             .filter(new ConditionFilter(new LongColumnCondition("sum(replyBytes)", ConditionOp.LessThan, 1000000)))

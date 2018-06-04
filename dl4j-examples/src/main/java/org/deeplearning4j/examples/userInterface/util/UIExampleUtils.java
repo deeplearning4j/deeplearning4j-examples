@@ -1,8 +1,6 @@
 package org.deeplearning4j.examples.userInterface.util;
 
 import org.deeplearning4j.datasets.iterator.impl.MnistDataSetIterator;
-import org.deeplearning4j.examples.utilities.MnistDownloader;
-import org.deeplearning4j.nn.api.OptimizationAlgorithm;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
 import org.deeplearning4j.nn.conf.inputs.InputType;
@@ -28,17 +26,13 @@ public class UIExampleUtils {
 
         int nChannels = 1; // Number of input channels
         int outputNum = 10; // The number of possible outcomes
-        int iterations = 1; // Number of training iterations
         int seed = 123; //
 
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
             .seed(seed)
-            .iterations(iterations) // Training iterations as above
-            .regularization(true).l2(0.0005)
-            .learningRate(0.01)
+            .l2(0.0005)
             .weightInit(WeightInit.XAVIER)
-            .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
-            .updater(new Nesterovs(0.9))
+            .updater(new Nesterovs(0.01, 0.9))
             .list()
             .layer(0, new ConvolutionLayer.Builder(5, 5)
                 //nIn and nOut specify depth. nIn here is the nChannels and nOut is the number of filters to be applied
@@ -78,7 +72,6 @@ public class UIExampleUtils {
 
     public static DataSetIterator getMnistData(){
         try{
-            MnistDownloader.download(); //Workaround for download location change since 0.9.1 release
             return new MnistDataSetIterator(64,true,12345);
         }catch (IOException e){
             throw new RuntimeException(e);

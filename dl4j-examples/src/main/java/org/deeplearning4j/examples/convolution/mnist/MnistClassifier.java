@@ -13,7 +13,6 @@ import org.deeplearning4j.datasets.datavec.RecordReaderDataSetIterator;
 import org.deeplearning4j.eval.Evaluation;
 import org.deeplearning4j.examples.utilities.DataUtilities;
 import org.deeplearning4j.nn.api.OptimizationAlgorithm;
-import org.deeplearning4j.nn.conf.LearningRatePolicy;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
 import org.deeplearning4j.nn.conf.Updater;
@@ -30,7 +29,10 @@ import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.nd4j.linalg.dataset.api.preprocessor.DataNormalization;
 import org.nd4j.linalg.dataset.api.preprocessor.ImagePreProcessingScaler;
+import org.nd4j.linalg.learning.config.Nesterovs;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
+import org.nd4j.linalg.schedule.MapSchedule;
+import org.nd4j.linalg.schedule.ScheduleType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -99,14 +101,9 @@ public class MnistClassifier {
 
     MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
         .seed(seed)
-        .iterations(iterations)
-        .regularization(true).l2(0.0005)
-        .learningRate(.01)
-        .learningRateDecayPolicy(LearningRatePolicy.Schedule)
-        .learningRateSchedule(lrSchedule) // overrides the rate set in learningRate
+        .l2(0.0005)
+        .updater(new Nesterovs(new MapSchedule(ScheduleType.ITERATION, lrSchedule)))
         .weightInit(WeightInit.XAVIER)
-        .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
-        .updater(Updater.NESTEROVS)
         .list()
         .layer(0, new ConvolutionLayer.Builder(5, 5)
             .nIn(channels)

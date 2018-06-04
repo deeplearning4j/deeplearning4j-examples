@@ -10,6 +10,7 @@ import org.deeplearning4j.nn.conf.memory.LayerMemoryReport;
 import org.deeplearning4j.nn.conf.memory.MemoryReport;
 import org.deeplearning4j.nn.params.DefaultParamInitializer;
 import org.deeplearning4j.optimize.api.IterationListener;
+import org.deeplearning4j.optimize.api.TrainingListener;
 import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.activations.IActivation;
 import org.nd4j.linalg.api.ndarray.INDArray;
@@ -48,7 +49,7 @@ public class CustomLayer extends FeedForwardLayer {
     }
 
     @Override
-    public Layer instantiate(NeuralNetConfiguration conf, Collection<IterationListener> iterationListeners,
+    public Layer instantiate(NeuralNetConfiguration conf, Collection<TrainingListener> iterationListeners,
                              int layerIndex, INDArray layerParamsView, boolean initializeParams) {
         //The instantiate method is how we go from the configuration class (i.e., this class) to the implementation class
         // (i.e., a CustomLayerImpl instance)
@@ -98,7 +99,7 @@ public class CustomLayer extends FeedForwardLayer {
 
         int trainSizeFixed = 0;
         int trainSizeVariable = 0;
-        if(getDropOut() > 0){
+        if(getIDropout() != null){
             //Assume we dup the input for dropout
             trainSizeVariable += inputType.arrayElementsPerExample();
         }

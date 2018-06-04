@@ -1,21 +1,21 @@
 package org.deeplearning4j.examples.feedforward.anomalydetection;
 
-import org.deeplearning4j.examples.utilities.MnistDownloader;
-import org.nd4j.linalg.primitives.Pair;
 import org.deeplearning4j.datasets.iterator.impl.MnistDataSetIterator;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
-import org.deeplearning4j.nn.conf.Updater;
 import org.deeplearning4j.nn.conf.layers.variational.BernoulliReconstructionDistribution;
 import org.deeplearning4j.nn.conf.layers.variational.VariationalAutoencoder;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
+import org.deeplearning4j.nn.workspace.LayerWorkspaceMgr;
 import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
 import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.api.DataSet;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.nd4j.linalg.factory.Nd4j;
+import org.nd4j.linalg.learning.config.Adam;
+import org.nd4j.linalg.primitives.Pair;
 
 import java.io.IOException;
 import java.util.*;
@@ -51,17 +51,15 @@ public class VaeMNISTAnomaly {
         int reconstructionNumSamples = 16;  //Reconstruction probabilities are estimated using Monte-Carlo techniques; see An & Cho for details
 
         //MNIST data for training
-        MnistDownloader.download(); //Workaround for download location change since 0.9.1 release
         DataSetIterator trainIter = new MnistDataSetIterator(minibatchSize, true, rngSeed);
 
         //Neural net configuration
         Nd4j.getRandom().setSeed(rngSeed);
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
             .seed(rngSeed)
-            .learningRate(0.05)
-            .updater(Updater.ADAM)  //To configure: .updater(Adam.builder().beta1(0.9).beta2(0.999).build())
+            .updater(new Adam(0.05))
             .weightInit(WeightInit.XAVIER)
-            .regularization(true).l2(1e-4)
+            .l2(1e-4)
             .list()
             .layer(0, new VariationalAutoencoder.Builder()
                 .activation(Activation.LEAKYRELU)
@@ -82,7 +80,7 @@ public class VaeMNISTAnomaly {
 
         //Fit the data (unsupervised training)
         for( int i=0; i<nEpochs; i++ ){
-            net.fit(trainIter);
+            net.pretrain(trainIter);        //Note use of .pretrain(DataSetIterator) not fit(DataSetIterator) for unsupervised training
             System.out.println("Finished epoch " + (i+1) + " of " + nEpochs);
         }
 
@@ -144,10 +142,13 @@ public class VaeMNISTAnomaly {
                 INDArray b = list.get(j).getSecond();
                 INDArray w = list.get(list.size()-j-1).getSecond();
 
-                INDArray pzxMeanBest = vae.preOutput(b);
+                LayerWorkspaceMgr mgr = LayerWorkspaceMgr.noWorkspaces();
+                vae.setInput(b, mgr);
+                INDArray pzxMeanBest = vae.preOutput(false, mgr);
                 INDArray reconstructionBest = vae.generateAtMeanGivenZ(pzxMeanBest);
 
-                INDArray pzxMeanWorst = vae.preOutput(w);
+                vae.setInput(w, mgr);
+                INDArray pzxMeanWorst = vae.preOutput(false, mgr);
                 INDArray reconstructionWorst = vae.generateAtMeanGivenZ(pzxMeanWorst);
 
                 best.add(b);

@@ -1,11 +1,9 @@
 package org.deeplearning4j.examples.recurrent.basic;
 
-import org.deeplearning4j.nn.api.OptimizationAlgorithm;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration.ListBuilder;
-import org.deeplearning4j.nn.conf.Updater;
-import org.deeplearning4j.nn.conf.layers.GravesLSTM;
+import org.deeplearning4j.nn.conf.layers.LSTM;
 import org.deeplearning4j.nn.conf.layers.RnnOutputLayer;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
@@ -15,6 +13,7 @@ import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.api.ops.impl.indexaccum.IMax;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.factory.Nd4j;
+import org.nd4j.linalg.learning.config.RmsProp;
 import org.nd4j.linalg.lossfunctions.LossFunctions.LossFunction;
 
 import java.util.ArrayList;
@@ -52,23 +51,20 @@ public class BasicRNNExample {
 
 		// some common parameters
 		NeuralNetConfiguration.Builder builder = new NeuralNetConfiguration.Builder();
-		builder.iterations(10);
-		builder.learningRate(0.001);
-		builder.optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT);
 		builder.seed(123);
 		builder.biasInit(0);
 		builder.miniBatch(false);
-		builder.updater(Updater.RMSPROP);
+		builder.updater(new RmsProp(0.001));
 		builder.weightInit(WeightInit.XAVIER);
 
 		ListBuilder listBuilder = builder.list();
 
-		// first difference, for rnns we need to use GravesLSTM.Builder
+		// first difference, for rnns we need to use LSTM.Builder
 		for (int i = 0; i < HIDDEN_LAYER_CONT; i++) {
-			GravesLSTM.Builder hiddenLayerBuilder = new GravesLSTM.Builder();
+			LSTM.Builder hiddenLayerBuilder = new LSTM.Builder();
 			hiddenLayerBuilder.nIn(i == 0 ? LEARNSTRING_CHARS.size() : HIDDEN_LAYER_WIDTH);
 			hiddenLayerBuilder.nOut(HIDDEN_LAYER_WIDTH);
-			// adopted activation function from GravesLSTMCharModellingExample
+			// adopted activation function from LSTMCharModellingExample
 			// seems to work well with RNNs
 			hiddenLayerBuilder.activation(Activation.TANH);
 			listBuilder.layer(i, hiddenLayerBuilder.build());

@@ -3,25 +3,20 @@ package org.deeplearning4j.examples.multigpu.rnn;
 import org.apache.commons.io.FileUtils;
 import org.deeplearning4j.nn.api.Layer;
 import org.deeplearning4j.nn.api.Model;
-import org.deeplearning4j.nn.api.OptimizationAlgorithm;
 import org.deeplearning4j.nn.conf.BackpropType;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
-import org.deeplearning4j.nn.conf.Updater;
-import org.deeplearning4j.nn.conf.layers.GravesLSTM;
+import org.deeplearning4j.nn.conf.layers.LSTM;
 import org.deeplearning4j.nn.conf.layers.RnnOutputLayer;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
 import org.deeplearning4j.optimize.api.IterationListener;
 import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
 import org.deeplearning4j.parallelism.ParallelWrapper;
-//import org.nd4j.jita.conf.CudaEnvironment;
 import org.nd4j.linalg.activations.Activation;
-import org.nd4j.linalg.api.buffer.DataBuffer;
-import org.nd4j.linalg.api.buffer.util.DataTypeUtil;
 import org.nd4j.linalg.api.ndarray.INDArray;
-import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.factory.Nd4j;
+import org.nd4j.linalg.learning.config.RmsProp;
 import org.nd4j.linalg.lossfunctions.LossFunctions.LossFunction;
 
 import java.io.File;
@@ -30,7 +25,9 @@ import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.Random;
 
-/**GravesLSTM Character modelling example
+//import org.nd4j.jita.conf.CudaEnvironment;
+
+/**LSTM Character modelling example
  * @author Alex Black
 
    Example: Train a LSTM RNN to generates text, one character at a time.
@@ -46,9 +43,9 @@ import java.util.Random;
     http://deeplearning4j.org/lstm
     http://deeplearning4j.org/recurrentnetwork
  */
-public class GravesLSTMCharModellingExample {
+public class LSTMCharModellingExample {
 	public static void main( String[] args ) throws Exception {
-		int lstmLayerSize = 200;					//Number of units in each GravesLSTM layer
+		int lstmLayerSize = 200;					//Number of units in each LSTM layer
 		int miniBatchSize = 32;						//Size of mini batch to use when  training
 		int exampleLength = 1000;					//Length of each training example sequence to use. This could certainly be increased
         int tbpttLength = 50;                       //Length for truncated backpropagation through time. i.e., do parameter updates ever 50 characters
@@ -76,23 +73,20 @@ public class GravesLSTMCharModellingExample {
 		Random rng = new Random(12345);
 
 		//Get a DataSetIterator that handles vectorization of text into something we can use to train
-		// our GravesLSTM network.
+		// our LSTM network.
 		CharacterIterator iter = getShakespeareIterator(miniBatchSize,exampleLength);
 		int nOut = iter.totalOutcomes();
 
 		//Set up network configuration:
 		MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
-			.optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT).iterations(1)
-			.learningRate(0.1)
 			.seed(12345)
-			.regularization(true)
 			.l2(0.001)
             .weightInit(WeightInit.XAVIER)
-            .updater(Updater.RMSPROP)
+            .updater(new RmsProp.Builder().learningRate(0.1).build())
 			.list()
-			.layer(0, new GravesLSTM.Builder().nIn(iter.inputColumns()).nOut(lstmLayerSize)
+			.layer(0, new LSTM.Builder().nIn(iter.inputColumns()).nOut(lstmLayerSize)
 					.activation(Activation.TANH).build())
-			.layer(1, new GravesLSTM.Builder().nIn(lstmLayerSize).nOut(lstmLayerSize)
+			.layer(1, new LSTM.Builder().nIn(lstmLayerSize).nOut(lstmLayerSize)
 					.activation(Activation.TANH).build())
 			.layer(2, new RnnOutputLayer.Builder(LossFunction.MCXENT).activation(Activation.SOFTMAX)        //MCXENT + softmax for classification
 					.nIn(lstmLayerSize).nOut(nOut).build())
@@ -104,17 +98,7 @@ public class GravesLSTMCharModellingExample {
 		net.init();
 		net.setListeners(new ScoreIterationListener(1), new IterationListener() {
             @Override
-            public boolean invoked() {
-                return true;
-            }
-
-            @Override
-            public void invoke() {
-
-            }
-
-            @Override
-            public void iterationDone(Model model, int iteration) {
+            public void iterationDone(Model model, int iteration, int epoch) {
                 System.out.println("--------------------");
                 System.out.println("Sampling characters from network given initialization \"" + (generationInitialization == null ? "" : generationInitialization) + "\"");
                 String[] samples = sampleCharactersFromNetwork(generationInitialization, (MultiLayerNetwork) model,iter,rng,nCharactersToSample,nSamplesToGenerate);
@@ -193,7 +177,7 @@ public class GravesLSTMCharModellingExample {
 	 * Note that the initalization is used for all samples
 	 * @param initialization String, may be null. If null, select a random character as initialization for all samples
 	 * @param charactersToSample Number of characters to sample from network (excluding initialization)
-	 * @param net MultiLayerNetwork with one or more GravesLSTM/RNN layers and a softmax output layer
+	 * @param net MultiLayerNetwork with one or more LSTM/RNN layers and a softmax output layer
 	 * @param iter CharacterIterator. Used for going from indexes back to characters
 	 */
 	private static String[] sampleCharactersFromNetwork(String initialization, MultiLayerNetwork net,

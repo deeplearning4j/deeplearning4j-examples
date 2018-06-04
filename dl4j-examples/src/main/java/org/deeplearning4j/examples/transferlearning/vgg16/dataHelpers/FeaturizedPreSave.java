@@ -1,8 +1,8 @@
 package org.deeplearning4j.examples.transferlearning.vgg16.dataHelpers;
 
 import org.deeplearning4j.nn.graph.ComputationGraph;
-import org.deeplearning4j.nn.modelimport.keras.InvalidKerasConfigurationException;
-import org.deeplearning4j.nn.modelimport.keras.UnsupportedKerasConfigurationException;
+import org.deeplearning4j.nn.modelimport.keras.exceptions.InvalidKerasConfigurationException;
+import org.deeplearning4j.nn.modelimport.keras.exceptions.UnsupportedKerasConfigurationException;
 import org.deeplearning4j.nn.transferlearning.TransferLearningHelper;
 import org.deeplearning4j.zoo.ZooModel;
 import org.deeplearning4j.zoo.model.VGG16;
@@ -30,7 +30,7 @@ public class FeaturizedPreSave {
 
         //import org.deeplearning4j.transferlearning.vgg16 and print summary
         log.info("\n\nLoading org.deeplearning4j.transferlearning.vgg16...\n\n");
-        ZooModel zooModel = new VGG16();
+        ZooModel zooModel = VGG16.builder().build();
         ComputationGraph vgg16 = (ComputationGraph) zooModel.initPretrained();
         log.info(vgg16.summary());
 

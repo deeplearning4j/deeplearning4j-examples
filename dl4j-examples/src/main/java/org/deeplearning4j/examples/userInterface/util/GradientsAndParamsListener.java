@@ -4,6 +4,7 @@ import javafx.application.Application;
 import org.deeplearning4j.nn.api.Layer;
 import org.deeplearning4j.nn.api.Model;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
+import org.deeplearning4j.nn.workspace.LayerWorkspaceMgr;
 import org.deeplearning4j.optimize.api.TrainingListener;
 import org.nd4j.linalg.api.ndarray.INDArray;
 
@@ -45,20 +46,6 @@ public class GradientsAndParamsListener implements TrainingListener {
         describeLayers();
     }
 
-    @Override
-    public boolean invoked() {
-        if (!invoked) {
-            System.out.println("Invoked");
-        }
-        return invoked;
-    }
-
-    @Override
-    public void invoke() {
-        System.out.println("invoke()");
-        invoked = true;
-    }
-
     public static String toString(int[] values) {
         StringBuilder sb = new StringBuilder();
         sb.append('[');
@@ -91,7 +78,7 @@ GradientsLister: describeLayers:  miniBatchSize = 32
         System.out.println("\nGradientsListener: describeLayers:  miniBatchSize = " + network.getInputMiniBatchSize());
         for (Layer layer : network.getLayers()) {
             INDArray input = layer.input();
-            INDArray activation = layer.activate();
+            INDArray activation = layer.activate(input, true, LayerWorkspaceMgr.noWorkspaces());
             System.out.println(layer.getIndex() + ": " + layer.numParams() +
                     " params, input shape = " + toString(input.shape())
                     + ", activation shape = " + toString(activation.shape()) // matches the input of the next layer
@@ -103,7 +90,7 @@ GradientsLister: describeLayers:  miniBatchSize = 32
     }
 
     @Override
-    public void iterationDone(Model model, int iteration) {
+    public void iterationDone(Model model, int iteration, int epoch) {
     }
 
     @Override

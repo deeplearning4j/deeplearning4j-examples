@@ -16,6 +16,7 @@ import org.deeplearning4j.nn.weights.WeightInit
 import org.deeplearning4j.optimize.listeners.ScoreIterationListener
 import org.nd4j.linalg.api.ndarray.INDArray
 import org.nd4j.linalg.dataset.DataSet
+import org.nd4j.linalg.learning.config.Nesterovs
 import org.nd4j.linalg.lossfunctions.LossFunctions.LossFunction
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -64,14 +65,13 @@ object MLPMnistTwoLayerExample {
 
         log.info("Build model....")
         val conf = NeuralNetConfiguration.Builder()
-                .seed(rngSeed) //include a random seed for reproducibility
-                .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT) // use stochastic gradient descent as an optimization algorithm
-                .iterations(1)
+                .seed(rngSeed.toLong()) //include a random seed for reproducibility
+                 // use stochastic gradient descent as an optimization algorithm
+
                 .activation(Activation.RELU)
                 .weightInit(WeightInit.XAVIER)
-                .learningRate(rate) //specify the learning rate
-                .updater(Updater.NESTEROVS).momentum(0.98) //specify the rate of change of the learning rate.
-                .regularization(true).l2(rate * 0.005) // regularize learning model
+                .updater(Nesterovs(rate, 0.98)) //specify the rate of change of the learning rate.
+                .l2(rate * 0.005) // regularize learning model
                 .list()
                 .layer(0, DenseLayer.Builder() //create the first input layer.
                         .nIn(numRows * numColumns)
@@ -104,13 +104,12 @@ object MLPMnistTwoLayerExample {
         val eval = Evaluation(outputNum) //create an evaluation object with 10 possible classes
         while (mnistTest.hasNext()) {
             val next = mnistTest.next()
-            val output = model.output(next.getFeatureMatrix()) //get the networks prediction
+            val output = model.output(next.features) //get the networks prediction
             eval.eval(next.getLabels(), output) //check the prediction against the true class
         }
 
         log.info(eval.stats())
         log.info("****************Example finished********************")
-
     }
 
 }

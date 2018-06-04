@@ -9,6 +9,7 @@ import org.deeplearning4j.nn.weights.WeightInit;
 import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
+import org.nd4j.linalg.learning.config.Sgd;
 import org.nd4j.linalg.lossfunctions.impl.LossMCXENT;
 
 /**
@@ -43,7 +44,7 @@ public class WeightedLossFunctionExample {
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
             .activation(Activation.RELU)
             .weightInit(WeightInit.XAVIER)
-            .learningRate(0.1)
+            .updater(new Sgd(0.1))
             .list()
             .layer(0, new DenseLayer.Builder().nIn(numInputs).nOut(5)
                 .build())

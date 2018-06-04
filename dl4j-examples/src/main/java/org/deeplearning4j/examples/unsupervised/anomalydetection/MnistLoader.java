@@ -2,6 +2,7 @@ package org.deeplearning4j.examples.unsupervised.anomalydetection;
 
 import org.apache.commons.io.FileUtils;
 import org.datavec.image.loader.NativeImageLoader;
+import org.datavec.image.transform.ImageTransform;
 import org.nd4j.linalg.api.concurrency.AffinityManager;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
@@ -46,7 +47,7 @@ public class MnistLoader extends NativeImageLoader implements Serializable {
     }
 
     public MnistLoader(int height, int width, int channels,  boolean train, File fullDir, long seed, boolean shuffle) {
-        super(height, width, channels, null);
+        super(height, width, channels, (ImageTransform)null);
         this.shuffle = true;
         this.fileNum = 0;
         this.height = height;

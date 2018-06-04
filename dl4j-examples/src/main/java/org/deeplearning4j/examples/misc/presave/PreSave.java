@@ -1,7 +1,6 @@
 package org.deeplearning4j.examples.misc.presave;
 
 import org.deeplearning4j.datasets.iterator.impl.MnistDataSetIterator;
-import org.deeplearning4j.examples.utilities.MnistDownloader;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,7 +40,6 @@ public class PreSave {
             Create an iterator using the batch size for one iteration
          */
         log.info("Load data....");
-        MnistDownloader.download(); //Workaround for download location change since 0.9.1 release
         DataSetIterator mnistTrain = new MnistDataSetIterator(batchSize,true,12345);
         DataSetIterator mnistTest = new MnistDataSetIterator(batchSize,false,12345);
         File trainFolder = new File("trainFolder");
