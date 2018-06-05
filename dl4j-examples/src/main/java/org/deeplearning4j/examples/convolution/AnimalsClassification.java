@@ -173,7 +173,7 @@ public class AnimalsClassification {
         scaler.fit(dataIter);
         dataIter.setPreProcessor(scaler);
    //     trainIter = new MultipleEpochsIterator(epochs, dataIter);
-        network.fit(trainIter,epochs);
+        network.fit(dataIter,epochs);
 
         // Train with transformations
         recordReader.initialize(trainData,transform);
