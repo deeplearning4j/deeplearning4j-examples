@@ -163,7 +163,7 @@ public class AnimalsClassification {
          **/
         ImageRecordReader recordReader = new ImageRecordReader(height, width, channels, labelMaker);
         DataSetIterator dataIter;
-//        MultipleEpochsIterator trainIter;
+//      MultipleEpochsIterator trainIter;
 
 
         log.info("Train model....");
@@ -172,7 +172,7 @@ public class AnimalsClassification {
         dataIter = new RecordReaderDataSetIterator(recordReader, batchSize, 1, numLabels);
         scaler.fit(dataIter);
         dataIter.setPreProcessor(scaler);
-   //     trainIter = new MultipleEpochsIterator(epochs, dataIter);
+   //   trainIter = new MultipleEpochsIterator(epochs, dataIter);
         network.fit(dataIter,epochs);
 
         // Train with transformations
