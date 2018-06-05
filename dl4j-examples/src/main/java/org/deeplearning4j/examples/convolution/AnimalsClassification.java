@@ -79,6 +79,7 @@ public class AnimalsClassification {
     protected static int epochs = 50;
     protected static double splitTrainTest = 0.8;
     protected static boolean save = false;
+    protected static int maxPathsPerLabel=15;
 
     protected static String modelType = "AlexNet"; // LeNet, AlexNet or Custom but you need to fill it out
     private int numLabels;
@@ -97,7 +98,7 @@ public class AnimalsClassification {
         FileSplit fileSplit = new FileSplit(mainPath, NativeImageLoader.ALLOWED_FORMATS, rng);
         int numExamples = toIntExact(fileSplit.length());
         numLabels = fileSplit.getRootDir().listFiles(File::isDirectory).length; //This only works if your root is clean: only label subdirs.
-        BalancedPathFilter pathFilter = new BalancedPathFilter(rng, labelMaker, numExamples, numLabels, batchSize);
+        BalancedPathFilter pathFilter = new BalancedPathFilter(rng, labelMaker, numExamples, numLabels, maxPathsPerLabel);
 
         /**
          * Data Setup -> train test split
