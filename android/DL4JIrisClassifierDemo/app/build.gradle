@@ -43,7 +43,7 @@ android {
         implementation fileTree(dir: 'libs', include: ['*.jar'])
         androidTestImplementation('com.android.support.test.espresso:espresso-core:2.2.2', {
             exclude group: 'com.android.support', module: 'support-annotations'
-            exclude group: 'org.bytedeco.javacpp-presets', module: 'opencv-platform'
+
         })
 
         implementation 'com.android.support:appcompat-v7:27.1.0'
