@@ -106,7 +106,7 @@ public class MainActivity extends AppCompatActivity {
             int i = 0;
             for(int r=0; r<row; r++){
                 for( int c=0; c<col; c++){
-                    irisMatrix[r][c]= org.deeplearning.examples.iris_classifier.DataSet.irisData[i++];
+                    irisMatrix[r][c]= org.deeplearning4j.examples.iris_classifier.DataSet.irisData[i++];
                 }
             }
 
@@ -122,7 +122,7 @@ public class MainActivity extends AppCompatActivity {
             int ii = 0;
             for(int r=0; r<rowLabel; r++){
                 for( int c=0; c<colLabel; c++){
-                    twodimLabel[r][c]= org.deeplearning.examples.iris_classifier.DataSet.irisData[ii++];
+                    twodimLabel[r][c]= org.deeplearning4j.examples.iris_classifier.DataSet.irisData[ii++];
                 }
             }
 
