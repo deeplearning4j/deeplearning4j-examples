@@ -44,7 +44,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.util.LinkedList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
@@ -115,13 +115,10 @@ public class AnimalsClassification {
         ImageTransform flipTransform1 = new FlipImageTransform(rng);
         ImageTransform flipTransform2 = new FlipImageTransform(new Random(123));
         ImageTransform warpTransform = new WarpImageTransform(rng, 42);
-//        ImageTransform colorTransform = new ColorConversionTransform(new Random(seed), COLOR_BGR2YCrCb);
-//        List<ImageTransform> transforms = Arrays.asList(new ImageTransform[]{flipTransform1, warpTransform, flipTransform2});
         boolean shuffle = false;
-        List<Pair<ImageTransform,Double>> pipeline = new LinkedList<>();
-        pipeline.add(new Pair<>(flipTransform1,0.9));
-        pipeline.add(new Pair<>(flipTransform2,0.8));
-        pipeline.add(new Pair<>(warpTransform,0.5));
+        List<Pair<ImageTransform,Double>> pipeline = Arrays.asList(new Pair<>(flipTransform1,0.9),
+                                                                   new Pair<>(flipTransform2,0.8),
+                                                                   new Pair<>(warpTransform,0.5));
 
         ImageTransform transform = new PipelineImageTransform(pipeline,shuffle);
         /**
@@ -163,7 +160,6 @@ public class AnimalsClassification {
          **/
         ImageRecordReader recordReader = new ImageRecordReader(height, width, channels, labelMaker);
         DataSetIterator dataIter;
-//      MultipleEpochsIterator trainIter;
 
 
         log.info("Train model....");
@@ -172,7 +168,6 @@ public class AnimalsClassification {
         dataIter = new RecordReaderDataSetIterator(recordReader, batchSize, 1, numLabels);
         scaler.fit(dataIter);
         dataIter.setPreProcessor(scaler);
-   //   trainIter = new MultipleEpochsIterator(epochs, dataIter);
         network.fit(dataIter,epochs);
 
         // Train with transformations
@@ -181,15 +176,6 @@ public class AnimalsClassification {
         scaler.fit(dataIter);
         dataIter.setPreProcessor(scaler);
         network.fit(dataIter,epochs);
-       /* for (ImageTransform transform : transforms) {
-            System.out.print("\nTraining on transformation: " + transform.getClass().toString() + "\n\n");
-            recordReader.initialize(trainData, transform);
-            dataIter = new RecordReaderDataSetIterator(recordReader, batchSize, 1, numLabels);
-            scaler.fit(dataIter);
-            dataIter.setPreProcessor(scaler);
-            trainIter = new MultipleEpochsIterator(epochs, dataIter);
-            network.fit(trainIter);
-        }*/
 
         log.info("Evaluate model....");
         recordReader.initialize(testData);
