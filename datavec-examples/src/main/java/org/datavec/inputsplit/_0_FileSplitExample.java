@@ -19,7 +19,7 @@ import java.util.Random;
  * {@link org.datavec.api.split.InputSplit}
  */
 
-public class _0_BasicFileExample {
+public class _0_FileSplitExample {
     public static void main(String[] args) throws Exception {
         // Receive the class path resource from the resource folder
         ClassPathResource classPathResource1 = new ClassPathResource("inputsplit/files/");
