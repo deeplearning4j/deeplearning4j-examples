@@ -19,7 +19,7 @@ import java.util.Random;
  * {@link org.datavec.api.split.InputSplit}
  */
 
-public class BasicFileExample {
+public class _0_BasicFileExample {
     public static void main(String[] args) throws Exception {
         // Receive the class path resource from the resource folder
         ClassPathResource classPathResource1 = new ClassPathResource("inputsplit/files/");
@@ -53,12 +53,12 @@ public class BasicFileExample {
 
         /*
           To load the files without the recursive search, you can specify 'false' for the recursive flag in the
-          FileSplit constructor
+          FileSplit's constructor
          */
         FileSplit fileSplit2 = new FileSplit(directoryToLook, null, false);
 
         /*
-          Now the loaded locations will just contain the files in the immediate directory that's been specified
+          Now the loaded locations will just contain the files in the immediate directory that was specified
          */
         System.out.println("--------------- Example 2: Loading non-recursively ---------------");
         URI[] fileSplit2Uris = fileSplit2.locations();
