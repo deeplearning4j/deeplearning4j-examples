@@ -9,17 +9,19 @@ import java.util.Iterator;
 import java.util.Random;
 
 /**
- * {@link org.datavec.api.split.InputSplit} and its implementation are utility classes for managing a catalog of
+ * {@link org.datavec.api.split.InputSplit} and its implementations are utility classes for defining and managing a catalog of
  * loadable locations (paths/files), in memory, that can later be exposed through an {{@link java.util.Iterator}}.
  * It also provides methods for exposing the locations through URIs. InputSplit also contains utilities for
  * opening up {@link java.io.InputStream} and {@link java.io.OutputStream}, given the location.
+ *
+ * In simple terms, they define where your data comes from or should be saved to, when building a data pipeline with DataVec
  *
  * In this example, we'll see the basic implementation and usages of the {@link org.datavec.api.split.FileSplit},
  * which is implemented from {@link org.datavec.api.split.BaseInputSplit}, which is further implemented from
  * {@link org.datavec.api.split.InputSplit}
  */
 
-public class _0_FileSplitExample {
+public class Ex01_FileSplitExample {
     public static void main(String[] args) throws Exception {
         // Receive the class path resource from the resource folder
         ClassPathResource classPathResource1 = new ClassPathResource("inputsplit/files/");
@@ -106,6 +108,28 @@ public class _0_FileSplitExample {
         Iterator<URI> fileSplit4UrisIterator = fileSplit4.locationsIterator();
         while (fileSplit4UrisIterator.hasNext()) {
             System.out.println(fileSplit4UrisIterator.next());
+        }
+        System.out.println("------------------------------------------------------------\n\n\n");
+
+        //=====================================================================
+        //                 Example 5: FileSplit with a single file
+        //=====================================================================
+
+        /*
+          This example will show that you can point a FileSplit to a single file and have
+          it do basically what you'd expect.
+         */
+        FileSplit fileSplit5 = new FileSplit(
+            new ClassPathResource("inputsplit/files/cats/alley_cat_s_000200.png").getFile()
+        );
+
+        /*
+          This will print the single file uri we've specified through the class path resource.
+         */
+        System.out.println("--------------- Example 5: FileSplit with a single file ---------------");
+        Iterator<URI> fileSplit5UrisIterator = fileSplit5.locationsIterator();
+        while (fileSplit5UrisIterator.hasNext()) {
+            System.out.println(fileSplit5UrisIterator.next());
         }
         System.out.println("------------------------------------------------------------\n\n\n");
     }

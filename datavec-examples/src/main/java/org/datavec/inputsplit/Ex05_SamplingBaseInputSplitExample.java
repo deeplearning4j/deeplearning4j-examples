@@ -33,7 +33,7 @@ import java.util.Random;
  *
  * Their usages are shown here.
  */
-public class _4_SamplingBaseInputSplitExample {
+public class Ex05_SamplingBaseInputSplitExample {
     public static void main(String[] args) throws Exception{
         FileSplit fileSplit = new FileSplit(new ClassPathResource("inputsplit/files").getFile());
 

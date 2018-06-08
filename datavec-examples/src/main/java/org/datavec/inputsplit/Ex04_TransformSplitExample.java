@@ -19,7 +19,7 @@ import static java.util.Arrays.asList;
  * given {@link org.datavec.api.split.TransformSplit.URITransform}
  */
 
-public class _3_TransformSplitExample {
+public class Ex04_TransformSplitExample {
     public static void main(String[] args) throws Exception {
         List<URI> inputFiles1 = asList(new URI("file:///foo/bar/../0.csv"), new URI("file:///foo/1.csv"));
 

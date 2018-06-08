@@ -13,7 +13,7 @@ import java.util.Iterator;
  * {@link org.datavec.api.split.InputSplit} that's useful when we want to create InputSplit from a list/collection of
  * URIs
  */
-public class _1_CollectionSplitExample {
+public class Ex02_CollectionSplitExample {
     public static void main(String[] args) throws Exception{
         // Receive the class path resource from the resource folder
         ClassPathResource classPathResource1 = new ClassPathResource("inputsplit/files/cats");
