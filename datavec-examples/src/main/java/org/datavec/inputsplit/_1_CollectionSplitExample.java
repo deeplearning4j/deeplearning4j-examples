@@ -6,10 +6,7 @@ import org.nd4j.linalg.io.ClassPathResource;
 
 import java.io.File;
 import java.net.URI;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.Iterator;
-import java.util.Random;
 
 /**
  * {@link org.datavec.api.split.CollectionInputSplit} is a basic implementation of
