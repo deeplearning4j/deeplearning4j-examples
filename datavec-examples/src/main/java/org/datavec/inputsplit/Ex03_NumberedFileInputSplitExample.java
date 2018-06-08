@@ -17,6 +17,9 @@ import java.net.URI;
  * {@code NumberedFileInputSplit numberedFileInputSplit = new NumberedFileInputSplit("file%d.txt",1,100);}.
  *
  * As you can see, both the indexes, starting/ending, in the constructor, are inclusive.
+ *
+ * Also, keep in mind that you can only specify the base string in "\%(0\d)?d" regex pattern. Since this will only
+ * generate file paths in a sequential format.
  */
 public class Ex03_NumberedFileInputSplitExample {
     public static void main(String[] args) {
