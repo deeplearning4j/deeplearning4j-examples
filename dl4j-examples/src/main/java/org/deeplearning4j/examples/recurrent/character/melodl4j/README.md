@@ -14,7 +14,7 @@ Listen: http://truthsite.org/music/melodies-like-pop.mp3, http://truthsite.org/m
 
 The neural network was trained on melodies extracted from midi files at http://truthsite.org/music/pop-midi.zip, http://truthsite.org/music/bach-midi.zip, and http://colinraffel.com/projects/lmd/.
 
-The LSTM neural network is based on the GravesLSTMCharModellingExample class by Alex Black in deeplearning4j.
+The LSTM neural network is based on the LSTMCharModellingExample class by Alex Black in deeplearning4j.
 
 The generated melodies are monophonic, meaning that only one note plays at a time: there are no chords or harmony.
 
@@ -45,7 +45,7 @@ See http://www.asimovinstitute.org/analyzing-deep-learning-tools-music/, and htt
 14.  The program quanticizes tempos into 32 possible durations: 1*d, 2*d, 3*d, .... 32*d, where d is 1/8th the duration of the average note. Assuming the average note is a quarter note, the smallest possible duration for notes and rests is typically a 1/32nd note.
 15.  The longest duration for a note or a rest is four times the duration of the average note. Typically, this means that notes longer than a whole note are truncated to be a whole note in length.
 16.  No attempt is made to learn the characteristics of different instruments (e.g. pianos versus violins).
-17.  <tt>MelodyModelingExample.java</tt> is the neural network code that composes melodies. It's closely based on GravesLSTMCharModellingExample.java by Alex Black.
+17.  <tt>MelodyModelingExample.java</tt> is the neural network code that composes melodies. It's closely based on LSTMCharModellingExample.java by Alex Black.
 18.  At the end of each learning epoch, <tt>MelodyModelingExample.java</tt> plays 15 seconds of the last melody generated. As learning progresses you can hear the compositions getting better.
 19.  Before exiting, <tt>MelodyModelingExample.java</tt> writes the generated melodies to a specified file (in reverse order, so that the highest quality melodies tend to be at the start of the file).
 20.  The melody strings composed by the neural network sometimes have invalid syntax (especially at the beginning of training). For example, in a valid melody string, each pitch character is followed by a duration character. PlayMelodyStrings.java will ignore invalid characters in melody strings.
@@ -62,7 +62,7 @@ See http://www.asimovinstitute.org/analyzing-deep-learning-tools-music/, and htt
 4.  Handle polyphonic music: chords and harmony.
 5.  Handle gradations of volume, as well as other effects such as vibrato and pitch bend.
 6.  Learn different melodies for different instruments.
-7.  Make an interactive app that lets you "prime" the neural network with a melody -- via a real or virtual (piano) keyboard -- similar to <tt>generationInitialization</tt> in <tt>GravesLSTMCharModellingExample</tt>.
+7.  Make an interactive app that lets you "prime" the neural network with a melody -- via a real or virtual (piano) keyboard -- similar to <tt>generationInitialization</tt> in <tt>LSTMCharModellingExample</tt>.
 8.  Enhance the MIDI parser and make a DataVec reader.
 9.  Add "Attention" as in [Generating Long-Term Structure in Songs and Stories](https://magenta.tensorflow.org/2016/07/15/lookback-rnn-attention-rnn/).
 

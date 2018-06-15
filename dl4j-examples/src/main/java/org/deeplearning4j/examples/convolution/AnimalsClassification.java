@@ -9,12 +9,14 @@ import org.datavec.image.loader.NativeImageLoader;
 import org.datavec.image.recordreader.ImageRecordReader;
 import org.datavec.image.transform.FlipImageTransform;
 import org.datavec.image.transform.ImageTransform;
+import org.datavec.image.transform.PipelineImageTransform;
 import org.datavec.image.transform.WarpImageTransform;
 import org.deeplearning4j.api.storage.StatsStorage;
 import org.deeplearning4j.datasets.datavec.RecordReaderDataSetIterator;
-import org.deeplearning4j.datasets.iterator.MultipleEpochsIterator;
 import org.deeplearning4j.eval.Evaluation;
-import org.deeplearning4j.nn.conf.*;
+import org.deeplearning4j.nn.conf.GradientNormalization;
+import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
+import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
 import org.deeplearning4j.nn.conf.distribution.Distribution;
 import org.deeplearning4j.nn.conf.distribution.GaussianDistribution;
 import org.deeplearning4j.nn.conf.distribution.NormalDistribution;
@@ -23,7 +25,6 @@ import org.deeplearning4j.nn.conf.inputs.InvalidInputTypeException;
 import org.deeplearning4j.nn.conf.layers.*;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
-import org.deeplearning4j.optimize.api.IterationListener;
 import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
 import org.deeplearning4j.ui.api.UIServer;
 import org.deeplearning4j.ui.stats.StatsListener;
@@ -36,6 +37,7 @@ import org.nd4j.linalg.dataset.api.preprocessor.DataNormalization;
 import org.nd4j.linalg.dataset.api.preprocessor.ImagePreProcessingScaler;
 import org.nd4j.linalg.learning.config.Nesterovs;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
+import org.nd4j.linalg.primitives.Pair;
 import org.nd4j.linalg.schedule.ScheduleType;
 import org.nd4j.linalg.schedule.StepSchedule;
 import org.slf4j.Logger;
@@ -77,6 +79,7 @@ public class AnimalsClassification {
     protected static int epochs = 50;
     protected static double splitTrainTest = 0.8;
     protected static boolean save = false;
+    protected static int maxPathsPerLabel=18;
 
     protected static String modelType = "AlexNet"; // LeNet, AlexNet or Custom but you need to fill it out
     private int numLabels;
@@ -95,7 +98,7 @@ public class AnimalsClassification {
         FileSplit fileSplit = new FileSplit(mainPath, NativeImageLoader.ALLOWED_FORMATS, rng);
         int numExamples = toIntExact(fileSplit.length());
         numLabels = fileSplit.getRootDir().listFiles(File::isDirectory).length; //This only works if your root is clean: only label subdirs.
-        BalancedPathFilter pathFilter = new BalancedPathFilter(rng, labelMaker, numExamples, numLabels, batchSize);
+        BalancedPathFilter pathFilter = new BalancedPathFilter(rng, labelMaker, numExamples, numLabels, maxPathsPerLabel);
 
         /**
          * Data Setup -> train test split
@@ -112,9 +115,12 @@ public class AnimalsClassification {
         ImageTransform flipTransform1 = new FlipImageTransform(rng);
         ImageTransform flipTransform2 = new FlipImageTransform(new Random(123));
         ImageTransform warpTransform = new WarpImageTransform(rng, 42);
-//        ImageTransform colorTransform = new ColorConversionTransform(new Random(seed), COLOR_BGR2YCrCb);
-        List<ImageTransform> transforms = Arrays.asList(new ImageTransform[]{flipTransform1, warpTransform, flipTransform2});
+        boolean shuffle = false;
+        List<Pair<ImageTransform,Double>> pipeline = Arrays.asList(new Pair<>(flipTransform1,0.9),
+                                                                   new Pair<>(flipTransform2,0.8),
+                                                                   new Pair<>(warpTransform,0.5));
 
+        ImageTransform transform = new PipelineImageTransform(pipeline,shuffle);
         /**
          * Data Setup -> normalization
          *  - how to normalize images and generate large dataset to train on
@@ -154,7 +160,6 @@ public class AnimalsClassification {
          **/
         ImageRecordReader recordReader = new ImageRecordReader(height, width, channels, labelMaker);
         DataSetIterator dataIter;
-        MultipleEpochsIterator trainIter;
 
 
         log.info("Train model....");
@@ -163,19 +168,14 @@ public class AnimalsClassification {
         dataIter = new RecordReaderDataSetIterator(recordReader, batchSize, 1, numLabels);
         scaler.fit(dataIter);
         dataIter.setPreProcessor(scaler);
-        trainIter = new MultipleEpochsIterator(epochs, dataIter);
-        network.fit(trainIter);
+        network.fit(dataIter,epochs);
 
         // Train with transformations
-        for (ImageTransform transform : transforms) {
-            System.out.print("\nTraining on transformation: " + transform.getClass().toString() + "\n\n");
-            recordReader.initialize(trainData, transform);
-            dataIter = new RecordReaderDataSetIterator(recordReader, batchSize, 1, numLabels);
-            scaler.fit(dataIter);
-            dataIter.setPreProcessor(scaler);
-            trainIter = new MultipleEpochsIterator(epochs, dataIter);
-            network.fit(trainIter);
-        }
+        recordReader.initialize(trainData,transform);
+        dataIter = new RecordReaderDataSetIterator(recordReader, batchSize, 1, numLabels);
+        scaler.fit(dataIter);
+        dataIter.setPreProcessor(scaler);
+        network.fit(dataIter,epochs);
 
         log.info("Evaluate model....");
         recordReader.initialize(testData);

@@ -10,7 +10,7 @@ import org.deeplearning4j.earlystopping.termination.MaxEpochsTerminationConditio
 import org.deeplearning4j.earlystopping.trainer.EarlyStoppingGraphTrainer
 import org.deeplearning4j.examples.utils.{LoggingEarlyStoppingListener, ReflectionsHelper}
 import org.deeplearning4j.nn.conf.{GradientNormalization, NeuralNetConfiguration, Updater}
-import org.deeplearning4j.nn.conf.layers.{GravesLSTM, RnnOutputLayer}
+import org.deeplearning4j.nn.conf.layers.{LSTM, RnnOutputLayer}
 import org.deeplearning4j.nn.graph.ComputationGraph
 import org.deeplearning4j.nn.weights.WeightInit
 import org.deeplearning4j.spark.api.Repartition
@@ -55,9 +55,9 @@ class Recommender(batchSize: Int = 50, featureSize: Int, nEpochs: Int, hiddenUni
     .seed(12345)
     .graphBuilder()
     .addInputs("input")
-    .addLayer("firstLayer", new GravesLSTM.Builder().nIn(featureSize).nOut(hiddenUnits)
+    .addLayer("firstLayer", new LSTM.Builder().nIn(featureSize).nOut(hiddenUnits)
       .activation(Activation.RELU).build(), "input")
-    .addLayer("secondLayer", new GravesLSTM.Builder().nIn(hiddenUnits).nOut(hiddenUnits)
+    .addLayer("secondLayer", new LSTM.Builder().nIn(hiddenUnits).nOut(hiddenUnits)
       .activation(Activation.RELU).build(), "firstLayer")
     .addLayer("outputLayer", new RnnOutputLayer.Builder().activation(Activation.SOFTMAX)
       .lossFunction(LossFunctions.LossFunction.MCXENT).nIn(hiddenUnits).nOut(labelSize).build(), "secondLayer")

@@ -103,7 +103,7 @@ public class VideoClassificationExample {
                         .gradientNormalizationThreshold(10)
                         .updater(new AdaGrad(0.01))
                         .build())
-                .layer(4, new GravesLSTM.Builder()
+                .layer(4, new LSTM.Builder()
                         .activation(Activation.SOFTSIGN)
                         .nIn(50)
                         .nOut(50)

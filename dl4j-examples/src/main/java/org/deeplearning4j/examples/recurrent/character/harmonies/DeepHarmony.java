@@ -18,7 +18,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.transform.Rotate;
 import javafx.stage.Stage;
 import org.deeplearning4j.examples.recurrent.character.CharacterIterator;
-import org.deeplearning4j.examples.recurrent.character.GravesLSTMCharModellingExample;
+import org.deeplearning4j.examples.recurrent.character.LSTMCharModellingExample;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.util.ModelSerializer;
 import org.nd4j.linalg.api.ndarray.INDArray;
@@ -328,7 +328,7 @@ public class DeepHarmony extends Application {
         double[] outputProbDistribution = new double[characterIterator.totalOutcomes()];
         for (int j = 0; j < outputProbDistribution.length; j++)
             outputProbDistribution[j] = nnOutput.getDouble(0, j);
-        int sampledCharacterIdx = GravesLSTMCharModellingExample.sampleFromDistribution(outputProbDistribution, random);
+        int sampledCharacterIdx = LSTMCharModellingExample.sampleFromDistribution(outputProbDistribution, random);
         char result= characterIterator.convertIndexToCharacter(sampledCharacterIdx);
         INDArray nextInput = Nd4j.zeros(1, characterIterator.inputColumns());
         nextInput.putScalar(new int[]{0, sampledCharacterIdx}, 1.0f);        //Prepare next time step input
@@ -346,7 +346,7 @@ public class DeepHarmony extends Application {
         double[] outputProbDistribution = new double[characterIterator.totalOutcomes()];
         for (int j = 0; j < outputProbDistribution.length; j++)
             outputProbDistribution[j] = nnOutput.getDouble(0, j);
-        int sampledCharacterIdx = GravesLSTMCharModellingExample.sampleFromDistribution(outputProbDistribution, random);
+        int sampledCharacterIdx = LSTMCharModellingExample.sampleFromDistribution(outputProbDistribution, random);
         char result = characterIterator.convertIndexToCharacter(sampledCharacterIdx);
         // Feed the sampled char back into the net
         nextInput.putScalar(new int[] {0,humanCharIdx}, 0.0f); // clear out old value

@@ -147,7 +147,7 @@ public class XorExample {
         // add an listener which outputs the error every 100 parameter updates
         net.setListeners(new ScoreIterationListener(100));
 
-        // C&P from GravesLSTMCharModellingExample
+        // C&P from LSTMCharModellingExample
         // Print the number of parameters in the network (and for each layer)
         Layer[] layers = net.getLayers();
         int totalNumParams = 0;

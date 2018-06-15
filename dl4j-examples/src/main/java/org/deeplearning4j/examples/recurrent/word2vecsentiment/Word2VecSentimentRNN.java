@@ -10,7 +10,7 @@ import org.deeplearning4j.nn.conf.GradientNormalization;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
 import org.deeplearning4j.nn.conf.WorkspaceMode;
-import org.deeplearning4j.nn.conf.layers.GravesLSTM;
+import org.deeplearning4j.nn.conf.layers.LSTM;
 import org.deeplearning4j.nn.conf.layers.RnnOutputLayer;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
@@ -83,7 +83,7 @@ public class Word2VecSentimentRNN {
             .gradientNormalization(GradientNormalization.ClipElementWiseAbsoluteValue).gradientNormalizationThreshold(1.0)
             .trainingWorkspaceMode(WorkspaceMode.SEPARATE).inferenceWorkspaceMode(WorkspaceMode.SEPARATE)   //https://deeplearning4j.org/workspaces
             .list()
-            .layer(0, new GravesLSTM.Builder().nIn(vectorSize).nOut(256)
+            .layer(0, new LSTM.Builder().nIn(vectorSize).nOut(256)
                 .activation(Activation.TANH).build())
             .layer(1, new RnnOutputLayer.Builder().activation(Activation.SOFTMAX)
                 .lossFunction(LossFunctions.LossFunction.MCXENT).nIn(256).nOut(2).build())
