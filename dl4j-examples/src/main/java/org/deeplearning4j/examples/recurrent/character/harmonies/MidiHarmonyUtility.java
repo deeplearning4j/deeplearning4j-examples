@@ -9,14 +9,12 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
-
 import javax.sound.midi.InvalidMidiDataException;
 import javax.sound.midi.MidiEvent;
 import javax.sound.midi.MidiMessage;
 import javax.sound.midi.Sequence;
 import javax.sound.midi.ShortMessage;
 import javax.sound.midi.Track;
-
 import org.deeplearning4j.examples.recurrent.character.melodl4j.Note;
 
 /**
@@ -58,7 +56,29 @@ public class MidiHarmonyUtility {
             || ch >= FIRST_VALID_PITCH_CHAR && ch <= LAST_VALID_PITCH_CHAR;
     }
 
+    public static char getCharForPitch(int pitch) {
+        if (pitch == 0) {
+            return REST_CHAR;
+        }
+        while (pitch < MIN_ALLOWED_PITCH) {
+            pitch+=12;
+        }
+        while (pitch>MAX_ALLOWED_PITCH) {
+            pitch-=12;
+        }
+        int offset = pitch - MIN_ALLOWED_PITCH;
+        return (char) (FIRST_VALID_PITCH_CHAR + offset);
+    }
+
+    /**
+     *
+     * @param ch symbolic melody string char
+     * @return corresponding pitch, or 0 if ch is the REST_CHAR
+     */
     public static int getPitchForChar(char ch) {
+        if (ch == REST_CHAR) {
+            return 0;
+        }
         return MIN_ALLOWED_PITCH + (ch - FIRST_VALID_PITCH_CHAR);
     }
     private static class GetNoteOrSilenceByTickFromNoteList {

@@ -171,6 +171,8 @@ In short, you
    * Run GravesLSTMForTwoPartHarmonies on the harmonies file output by MidiMusicExtractor (it will prompt you)
    * Then play the resulting samples with PlayTwoPartHarmonies. (You'll need to copy-and-paste a sample to a file.)
 
+You can also run DeepHarmony.java and harmonize with a serialized network zip file, which it prompts you for.
+
 MidiMusicExtractor.java prompts you for a path to a midi directory. It then produces, inside midi-learning/ in your
 home directory, a subdirectory containing a harmonies file of extracted two-party harmony strings, a melodies.txt file,
 and an analysis.txt file. For example, if the MIDI directory you choose has the name "BEATLES", your midi-learning/

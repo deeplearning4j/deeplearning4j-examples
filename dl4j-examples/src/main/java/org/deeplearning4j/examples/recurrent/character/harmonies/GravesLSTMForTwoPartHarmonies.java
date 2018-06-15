@@ -1,8 +1,6 @@
 package org.deeplearning4j.examples.recurrent.character.harmonies;
-
-import org.apache.commons.io.FileUtils;
+import org.deeplearning4j.api.storage.StatsStorage;
 import org.deeplearning4j.examples.recurrent.character.CharacterIterator;
-import org.deeplearning4j.examples.recurrent.character.CompGraphLSTMExample;
 import org.deeplearning4j.examples.recurrent.character.GravesLSTMCharModellingExample;
 import org.deeplearning4j.nn.api.Layer;
 import org.deeplearning4j.nn.conf.BackpropType;
@@ -13,19 +11,18 @@ import org.deeplearning4j.nn.conf.layers.RnnOutputLayer;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
 import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
+import org.deeplearning4j.ui.api.UIServer;
+import org.deeplearning4j.ui.stats.StatsListener;
+import org.deeplearning4j.ui.storage.InMemoryStatsStorage;
 import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.learning.config.Adam;
 import org.nd4j.linalg.learning.config.IUpdater;
-import org.nd4j.linalg.learning.config.RmsProp;
 import org.nd4j.linalg.lossfunctions.LossFunctions.LossFunction;
-
 import java.io.File;
-import java.io.IOException;
 import java.io.PrintWriter;
-import java.net.URL;
 import java.nio.charset.Charset;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -35,14 +32,13 @@ import java.util.Random;
 import org.deeplearning4j.util.ModelSerializer;
 
 import javax.swing.*;
-import javax.swing.filechooser.FileFilter;
 
 /**
- * GravesLSTM Character modelling example for learning two-part harmonies
+ * GravesLSTM Character modelling example for learning two-part harmonies. See the README file.
  *
  * @author Don Smith, based on Alex Black's CompGraphLSTMExample
  * <p>
- * Example: Train a LSTM RNN to generates text, one character at a time.
+ * Example: Train a LSTM RNN to generates harmony strings, one character at a time.
  * This example is somewhat inspired by Andrej Karpathy's blog post,
  * "The Unreasonable Effectiveness of Recurrent Neural Networks"
  * http://karpathy.github.io/2015/05/21/rnn-effectiveness/
@@ -56,11 +52,11 @@ public class GravesLSTMForTwoPartHarmonies {
      private static String inputOutputDirectoryPath;
 
     public static void main(String[] args) throws Exception {
-        int lstmLayerSize = 200;                    //Number of units in each GravesLSTM layer
-        int miniBatchSize = 64;                        //Size of mini batch to use when  training
-        int exampleLength = 2000;                    //Length of each training example sequence to use. This could certainly be increased
-        int tbpttLength = 300;                       //Length for truncated backpropagation through time. i.e., do parameter updates ever 50 characters
-        int numEpochs = 16;                            //Total number of training epochs
+        int lstmLayerSize = 100;                    //Number of units in each GravesLSTM layer
+        int miniBatchSize = 64;                     //Size of mini batch to use when  training
+        int exampleLength = 2000;                   //Length of each training example sequence to use. This could certainly be increased
+        int tbpttLength = 300;                      //Length for truncated backpropagation through time. i.e., do parameter updates ever 50 characters
+        int numEpochs = 16;                         //Total number of training epochs
         int generateSamplesEveryNMinibatches = 5;  //How frequently to generate samples from the network? 1000 characters / 50 tbptt length: 20 parameter updates per minibatch
         int nSamplesToGenerate = 4;                    //Number of samples to generate after each training epoch
         int nCharactersToSample = 3600;    //Length of each sample to generate
@@ -69,7 +65,7 @@ public class GravesLSTMForTwoPartHarmonies {
         IUpdater updater = new Adam(learningRate); // new RmsProp(0.1); //
         String generationInitialization = null;
         // Above is Used to 'prime' the LSTM with a character sequence to continue/complete.
-        // Initialization characters must all be in CharacterIterator.getMinimalCharacterSet() by default
+        // Initialization characters must all be in ' ' and MidiHarmonyUtility.PITCH_CHARACTERS_FOR_HARMONY
         Random rng = new Random();
 
         //Get a DataSetIterator that handles vectorization of text into something we can use to train
@@ -105,7 +101,8 @@ public class GravesLSTMForTwoPartHarmonies {
         } else {
             net.init();
         }
-        net.setListeners(new ScoreIterationListener(20));
+        ScoreIterationListener scoreIterationListener = new ScoreIterationListener(20);
+        net.addListeners(scoreIterationListener);
 
         //Print the  number of parameters in the network (and for each layer)
         Layer[] layers = net.getLayers();
@@ -126,12 +123,13 @@ public class GravesLSTMForTwoPartHarmonies {
                 + "-l2_" + l2
                 + "-learningRate_" + learningRate
                 + "-updater_" + updater.getClass().getSimpleName()
-                + "-" + dateFormat.format(new Date()) + ".txt";
+                + "-" + dateFormat.format(new Date());
         System.out.println(identifier);
-
-        PrintWriter sampleWriter = new PrintWriter(inputOutputDirectoryPath + File.separator + "samples-" + identifier);
+        enableUI(net);
+        PrintWriter sampleWriter = new PrintWriter(inputOutputDirectoryPath + File.separator + "samples-" + identifier + ".txt");
         long start = System.currentTimeMillis();
         for (int i = 0; i < numEpochs; i++) {
+            System.out.println("\nStarting epoch " + i);
             while (iter.hasNext()) {
                 DataSet ds = iter.next();
                 net.fit(ds);
@@ -152,15 +150,31 @@ public class GravesLSTMForTwoPartHarmonies {
             }
             iter.reset();    //Reset iterator for another epoch
 
-            // !!!!!! CHANGE THIS BELOW IF YOU WANT TO SAVE MODEL FILES (for transfer learning) !!!!!!
-            // To allow later learning set saveUpdater to true.
-            // ModelSerializer.writeModel(net, "d:/tmp/harmonies/model-" + i + "-" + System.currentTimeMillis() + ".zip", true);
+            // !!!!!! CHANGE THIS BELOW IF YOU WANT TO SAVE MODEL FILES (for playback or transfer learning).
+            if (true) {
+                boolean saveUpdater = false;   // To allow later learning set saveUpdater to true.
+                String savePath = inputOutputDirectoryPath + "-" + identifier + ".zip";
+                ModelSerializer.writeModel(net, savePath, saveUpdater);
+            }
         }
         sampleWriter.close();
 
         System.out.println("\n\nExample complete");
     }
 
+    private static void enableUI(MultiLayerNetwork net) {
+        //Initialize the user interface backend
+        UIServer uiServer = UIServer.getInstance();
+
+        //Configure where the network information (gradients, score vs. time etc) is to be stored. Here: store in memory.
+        StatsStorage statsStorage = new InMemoryStatsStorage();         //Alternative: new FileStatsStorage(File), for saving and loading later
+
+        //Attach the StatsStorage instance to the UI: this allows the contents of the StatsStorage to be visualized
+        uiServer.attach(statsStorage);
+
+        //Then add the StatsListener to collect this information from the network, as it trains
+        net.addListeners(new StatsListener(statsStorage));
+    }
     private static File chooseInputHarmoniesFile() {
         JFileChooser chooser = new JFileChooser(System.getProperty("user.home") + File.separator + "midi-learning");
         chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
@@ -169,6 +183,20 @@ public class GravesLSTMForTwoPartHarmonies {
         } else {
             return chooser.getSelectedFile();
         }
+    }
+
+    /**
+     * @return CharacterIterator for the purpose of getting its
+     * @throws Exception
+     */
+    public static CharacterIterator getCharacterIteratorForPlayBack() throws Exception {
+        File temp=File.createTempFile("dummie","iterator");
+        PrintWriter writer = new PrintWriter(temp);
+        for(int i=0;i<10;i++) {
+            writer.println(" " + MidiHarmonyUtility.PITCH_CHARACTERS_FOR_HARMONY);
+        }
+        writer.close();
+        return getHarmoniesIteratorFromFile(temp,64, 200);
     }
 
     /**
@@ -182,6 +210,9 @@ public class GravesLSTMForTwoPartHarmonies {
         if (f == null) {
             System.exit(1);
         }
+        return getHarmoniesIteratorFromFile(f,miniBatchSize,sequenceLength);
+    }
+    private static CharacterIterator getHarmoniesIteratorFromFile(File f, int miniBatchSize, int sequenceLength) throws Exception {
         inputOutputDirectoryPath = f.getParent();
         int kilobytes = (int) Math.ceil(f.length() / 1024.0);
         System.out.println("Reading harmonies from " + f.getAbsolutePath() + ", length = " + kilobytes + "kb");
@@ -205,7 +236,7 @@ public class GravesLSTMForTwoPartHarmonies {
      * @param net                MultiLayerNetwork with one or more GravesLSTM/RNN layers and a softmax output layer
      * @param iter               CharacterIterator. Used for going from indexes back to characters
      */
-    private static String[] sampleCharactersFromNetwork(String initialization, MultiLayerNetwork net,
+    public static String[] sampleCharactersFromNetwork(String initialization, MultiLayerNetwork net,
                                                         CharacterIterator iter, Random rng, int charactersToSample, int numSamples) {
         //Set up initialization. If no initialization: use a random character
         if (initialization == null) {

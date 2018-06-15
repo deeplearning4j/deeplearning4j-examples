@@ -32,8 +32,8 @@ import javax.swing.JFileChooser;
 public class PlayTwoPartHarmonies {
 	public static int tickIncrement = 150;
 	private static int transposeHalfSteps = 0;
-	public static int instrument0=PlayMusic.getInstrument("Acoustic Grand Piano");; // PlayMusic.getInstrument("Flute"); // PlayMusic.getInstrument("Acoustic Bass");
-	public static int instrument1=PlayMusic.getInstrument("Acoustic Guitar (steel)"); // PlayMusic.getInstrument("Acoustic Guitar (steel)");
+	public static int instrument0=0; // PlayMusic.getInstrument("Flute"); // PlayMusic.getInstrument("Acoustic Bass");
+	public static int instrument1=PlayMusic.getInstrument("Acoustic Guitar (nylon)"); // PlayMusic.getInstrument("Acoustic Guitar (steel)");
 	public static final String ROOT_DIR_PATH = System.getProperty("user.home") +File.separator  + "midi-learning"; // Change this if you want!!!!!!!!!!!!!!!!!
 	static {
 		makeOrCheckDirectory(ROOT_DIR_PATH);
@@ -286,7 +286,7 @@ public class PlayTwoPartHarmonies {
 			transposeHalfSteps = 0;
 			int repeatLimit=16;
 			int seconds=60;
-			double tempoFactor=2.3;
+			double tempoFactor=1.5;
 			readFileAndPlayFirstHarmoniesLine(inputHarmoniesFile.getAbsolutePath(),mp3OutPath, midiOutPath,
                 seconds,repeatLimit, tempoFactor);
 			//playRandomHarmonyFile("d:/tmp/harmonies");
