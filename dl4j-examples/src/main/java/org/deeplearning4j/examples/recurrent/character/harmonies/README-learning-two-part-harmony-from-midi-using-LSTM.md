@@ -172,6 +172,10 @@ In short, you
    * Then play the resulting samples with PlayTwoPartHarmonies. (You'll need to copy-and-paste a sample to a file.)
 
 You can also run DeepHarmony.java and harmonize with a serialized network zip file, which it prompts you for.
+You can download a saved network zip file, trained on Bach, from
+
+      http://deepmusic.info/BACH-layerCount_4-layerSize_100-tbpttLength_300-l2_0.0015-learningRate_0.05-updater_Adam-2018-06-16--10-44.zip
+      (Also at http://truthsite.org/music/BACH-layerCount_4-layerSize_100-tbpttLength_300-l2_0.0015-learningRate_0.05-updater_Adam-2018-06-16--10-44.zip )
 
 MidiMusicExtractor.java prompts you for a path to a midi directory. It then produces, inside midi-learning/ in your
 home directory, a subdirectory containing a harmonies file of extracted two-party harmony strings, a melodies.txt file,

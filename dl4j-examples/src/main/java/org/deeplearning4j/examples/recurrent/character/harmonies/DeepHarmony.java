@@ -27,8 +27,14 @@ import org.nd4j.linalg.factory.Nd4j;
 /**
  * Allows you to harmonize with a saved network, using a piano keyboard on the screen.
  * It prompts you for a saved network zip file and then displays two piano keyboards
- * on the screen.  You can play the upper piano keyboard, either by clicking with the
- * mouse or by pressing keys on your keyboard:
+ * on the screen.
+ *
+ *  You can download a saved network zip file, trained on Bach, from
+ *
+ *     http://deepmusic.info/BACH-layerCount_4-layerSize_100-tbpttLength_300-l2_0.0015-learningRate_0.05-updater_Adam-2018-06-16--10-44.zip
+ *     (Also at http://truthsite.org/music/BACH-layerCount_4-layerSize_100-tbpttLength_300-l2_0.0015-learningRate_0.05-updater_Adam-2018-06-16--10-44.zip )
+ *
+ * You can play the upper piano keyboard, either by clicking with the mouse or by pressing keys on your keyboard:
  *    'q' is C2
  *    'i' is C3
  *    'c' is C4
