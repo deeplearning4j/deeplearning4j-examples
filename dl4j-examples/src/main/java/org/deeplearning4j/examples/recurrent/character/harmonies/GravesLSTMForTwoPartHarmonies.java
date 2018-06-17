@@ -52,7 +52,7 @@ public class GravesLSTMForTwoPartHarmonies {
      private static String inputOutputDirectoryPath;
 
     public static void main(String[] args) throws Exception {
-        int lstmLayerSize = 100;                    //Number of units in each GravesLSTM layer
+        int lstmLayerSize = 100;     //Number of units in each GravesLSTM layer. Seems to learn better with 100 than with 200.
         int miniBatchSize = 32;                     //Size of mini batch to use when  training
         int exampleLength = 2000;                   //Length of each training example sequence to use. This could certainly be increased
         int tbpttLength = 300;                      //Length for truncated backpropagation through time. i.e., do parameter updates ever 50 characters

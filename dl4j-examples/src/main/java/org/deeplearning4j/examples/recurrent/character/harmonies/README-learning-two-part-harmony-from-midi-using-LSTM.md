@@ -114,6 +114,8 @@ mini-batch size did seem to help it learn: the loss went down pretty monotonical
 I found that three LSTM layers usually worked better than four. Often if I tried to train with four layers, learning got
 stuck or oscillated wildly.
 
+It seems to produce better harmonies with a layer size of 100 rather than 200
+
 The sample MP3s at http://deepmusic.info/ involve only a minor amount of curating, except for the top group.
 
 ------

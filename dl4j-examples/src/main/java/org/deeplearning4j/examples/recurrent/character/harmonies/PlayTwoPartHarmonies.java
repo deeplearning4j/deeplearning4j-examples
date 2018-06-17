@@ -114,7 +114,8 @@ public class PlayTwoPartHarmonies {
 		String oddPart = oddPart(harmonyString);
 		System.out.println(evenPart);
 		System.out.println(oddPart);
-		Sequence sequence = new Sequence(Sequence.PPQ, 360 /*resolution*/); // 120
+		int resolution = (int)(460*tempoFactor);
+		Sequence sequence = new Sequence(Sequence.PPQ, resolution); // higher resolution is faster
 		if (outMidiPath!=null) {
 			File outMidiFile = new File(outMidiPath);
 			outMidiFile.delete();
@@ -133,7 +134,7 @@ public class PlayTwoPartHarmonies {
 		if (outMp3Path!=null) {
 			Midi2WavRenderer.createMp3File(sequence, outMp3Path, transposeHalfSteps);
 		}
-		PlayMusic.playSequence(sequence, tempoFactor,seconds);
+		PlayMusic.playSequence(sequence, 1,seconds);  // We adjust tempo via the resolution above
 		return sequence;
 	}
 	public final static String removeSilences(String line, int count) {
