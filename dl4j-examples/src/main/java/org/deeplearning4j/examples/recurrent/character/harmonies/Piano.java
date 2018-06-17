@@ -2,11 +2,16 @@
 package org.deeplearning4j.examples.recurrent.character.harmonies;
 
 import javafx.animation.AnimationTimer;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.Group;
 import javafx.scene.control.ChoiceBox;
+import javafx.scene.control.Label;
+import javafx.scene.control.Slider;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.PhongMaterial;
 import javafx.scene.shape.Box;
@@ -37,6 +42,13 @@ public class Piano extends Group { // If I use VBox, the piano keys don't respon
     private final boolean isHuman;
     private MidiChannel theMidiChannel;
     private final DeepHarmony deepHarmony;
+    private final Slider volumeSlider = new Slider(0, 127, 80);
+    private final Slider pitchBendSlider = new Slider(0,127, 64); // It actually takes 0=min,  8192=off, 16383= max
+    private final Slider channelPressureSlider = new Slider(0, 127, 0);
+    //private final Slider polyPressureSlider = new Slider();
+    //theMidiChannel.setPitchBend(64); //  0=min,  8192=off, 16383= max
+    //theMidiChannel.setChannelPressure(int) // 0=min  127=max
+    int volume = 80;
 
     public Piano(DeepHarmony deepHarmony, double scale, double x, double y, double z, boolean isHuman, MidiChannel midiChannel) {
         this.deepHarmony=deepHarmony;
@@ -49,13 +61,59 @@ public class Piano extends Group { // If I use VBox, the piano keys don't respon
         this.setTranslateY(y);
         this.setTranslateZ(z);
         Group piano = makePiano();
+        piano.setTranslateX(10); // was -10
+
         configureInstrumentChoiceBox();
+        HBox controlHBox = new HBox(10);
         instrumentChoiceBox.setTranslateX(0.16*DeepHarmony.WIDTH);
         instrumentChoiceBox.setTranslateY(0.065*DeepHarmony.HEIGHT);
+        controlHBox.setTranslateX(5); // was 10
+        controlHBox.setTranslateY(40+0.065*DeepHarmony.HEIGHT);
         //instrumentChoiceBox.setTranslateZ(-30); // If I don't do this, the choice box doesn't work.
         //piano.setTranslateZ(-50);
-        this.getChildren().addAll(piano,  instrumentChoiceBox);
+        controlHBox.getChildren().addAll(sliderAndRegion("Volume",volumeSlider),
+            sliderAndRegion("Pressure",channelPressureSlider), sliderAndRegion("PitchBend",pitchBendSlider));
+        this.getChildren().addAll(piano, instrumentChoiceBox, controlHBox);
+        setUpSliders();
         animate();
+
+    }
+    private HBox sliderAndRegion(String name, Slider slider) {
+        slider.setShowTickMarks(true);
+        HBox hbox = new HBox(5);
+        hbox.getChildren().addAll(new Label(name), slider);
+        return hbox;
+    }
+    private void setUpSliders() {
+        volumeSlider.valueProperty().addListener(new ChangeListener<Number>() {
+            public void changed(ObservableValue<? extends Number> ov,
+                                Number old_val, Number new_val) {
+               // System.out.println("Setting volume to " + new_val.intValue());
+                volume = new_val.intValue();
+                if (isHuman) {
+                    deepHarmony.setVolumeForHuman(volume);
+                } else {
+                    deepHarmony.setVolumeForNeuralNetwork(volume);
+                }
+            }
+        });
+        channelPressureSlider.valueProperty().addListener(new ChangeListener<Number>() {
+            public void changed(ObservableValue<? extends Number> ov,
+                                Number old_val, Number new_val) { // 0 to 127
+               // System.out.println("Setting channel pressure to " + new_val.intValue());
+                theMidiChannel.setChannelPressure(new_val.intValue());
+            }
+        });
+        pitchBendSlider.valueProperty().addListener(new ChangeListener<Number>() {
+            public void changed(ObservableValue<? extends Number> ov,
+                                Number old_val, Number new_val) {
+                // The slider's range is 0 - > 127
+                //  0=min,  8192=off, 16383= max
+                //System.out.println("Setting pitch bend to " + new_val.intValue());
+                double pitchBend = (16383.0/127.0)* new_val.doubleValue();
+                theMidiChannel.setPitchBend((int) Math.round(pitchBend));
+            }
+        });
     }
     //----------------------
     private void configureInstrumentChoiceBox() {
@@ -147,7 +205,7 @@ public class Piano extends Group { // If I use VBox, the piano keys don't respon
     }
 
     public void startPlayingPitch(int pitch, long now) {
-        theMidiChannel.noteOn(pitch, 80);
+        theMidiChannel.noteOn(pitch, volume);
         if (this.isHuman) {
             deepHarmony.setCurrentPitchHumanIsPlaying(pitch);
         }

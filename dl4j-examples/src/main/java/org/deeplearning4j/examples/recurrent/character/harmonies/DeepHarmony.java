@@ -27,7 +27,7 @@ import org.nd4j.linalg.factory.Nd4j;
 /**
  * Allows you to harmonize with a saved network, using a piano keyboard on the screen.
  * It prompts you for a saved network zip file and then displays two piano keyboards
- * on the screen.  You can play the upper piano keybaord, either by clicking with the
+ * on the screen.  You can play the upper piano keyboard, either by clicking with the
  * mouse or by pressing keys on your keyboard:
  *    'q' is C2
  *    'i' is C3
@@ -38,6 +38,9 @@ import org.nd4j.linalg.factory.Nd4j;
  * Hitting the Escape key resets the system, so that it waits again for you to play.
  *
  * There are ChoiceBoxes that let you choose which instrument plays per voice, or to mute a voice.
+ *
+ * This program works by sampling both voices every 1/20th of a second and feeding the corresponding
+ * characters to the LSTM network by calling rnnTimeStep.
  *
  * Note: GravesLSTMForTwoPartHarmonies saves serialized network zip files at the end of epochs.
  *
@@ -64,7 +67,8 @@ public class DeepHarmony extends Application {
     private static final Random random = new Random();
     private volatile int currentPitchHumanIsPlaying = 0;
     private volatile int currentPlayingPitchForNeuralNetwork=0;
-
+    private int volumeForHuman=96; // default volume, out of 127
+    private int volumeForNeuralNetwork= 96;
     static {
         //final int pitchForShift=
         mapFromKeyCodeToPitch.put(KeyCode.SHIFT, 55); // G
@@ -161,6 +165,12 @@ public class DeepHarmony extends Application {
             return chooser.getSelectedFile();
         }
     }
+    protected void setVolumeForHuman(int v) {
+        this.volumeForHuman=v;
+    }
+    protected void setVolumeForNeuralNetwork(int v) {
+        this.volumeForNeuralNetwork=v;
+    }
     //----------
     public void setCurrentPitchHumanIsPlaying(int pitch) {
         this.currentPitchHumanIsPlaying=pitch;
@@ -200,7 +210,7 @@ public class DeepHarmony extends Application {
                         neuralNetworkPiano.showPianoKeyAsNotPressed(currentPlayingPitchForNeuralNetwork);
                     }
                     if (neuralNetworkPitch>0) {
-                        midiChannelForNeuralNetwork.noteOn(neuralNetworkPitch, 80);
+                        midiChannelForNeuralNetwork.noteOn(neuralNetworkPitch, volumeForNeuralNetwork);
                         neuralNetworkPiano.showPianoKeyAsPressed(neuralNetworkPitch);
                     }
                     currentPlayingPitchForNeuralNetwork=neuralNetworkPitch;
@@ -209,14 +219,14 @@ public class DeepHarmony extends Application {
         }
     }
 
-    private void startPlayingPitch(int pitch, long now) {
-        midiChannelForHuman.noteOn(pitch, 80);
+    private void startPlayingPitchForHuman(int pitch, long now) {
+        midiChannelForHuman.noteOn(pitch, volumeForHuman);
         mapFromPitchToTimeOfPress.put(pitch, now);
         humanPiano.showPianoKeyAsPressed(pitch);
         currentPitchHumanIsPlaying = pitch;
     }
 
-    private void stopPlayingPitch(int pitch) {
+    private void stopPlayingPitchForHuman(int pitch) {
         midiChannelForHuman.noteOff(pitch, NOTE_OFF_VELOCITY_DECAY);
         mapFromPitchToTimeOfPress.remove(pitch);
         humanPiano.showPianoKeyAsNotPressed(pitch);
@@ -249,7 +259,7 @@ public class DeepHarmony extends Application {
                             if (mapFromPitchToTimeOfPress.containsKey(pitch)) { // Still playing
                                 break;
                             }
-                            startPlayingPitch(pitch, now);
+                            startPlayingPitchForHuman(pitch, now);
                         }
                     }
                 }
@@ -264,7 +274,7 @@ public class DeepHarmony extends Application {
                             break;
                         }
                         mapFromPitchToTimeOfPress.remove(pitch);
-                        stopPlayingPitch(pitch);
+                        stopPlayingPitchForHuman(pitch);
                 }
         });
     }
