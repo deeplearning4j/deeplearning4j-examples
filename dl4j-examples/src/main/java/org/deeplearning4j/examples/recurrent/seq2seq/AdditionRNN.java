@@ -137,7 +137,7 @@ public class AdditionRNN {
 
     private static void encode_decode_eval(INDArray predictions, INDArray questions, INDArray answers) {
 
-        int nTests = predictions.size(0);
+        int nTests = (int)predictions.size(0);
         int wrong = 0;
         int correct = 0;
         String [] questionS = CustomSequenceIterator.oneHotDecode(questions);

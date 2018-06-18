@@ -78,8 +78,6 @@ public class AEMNISTAnomalyDectection {
             System.out.println("Epoch " + i + " complete");
         }
         List<Pair<Double,INDArray>> evalList = new ArrayList<>();
-        //the total num of the example is used for testing
-        int totalNum = iter.totalExamples();
         double totalScore = 0;
         for( int i = 0; i < featuresTest.size(); i ++ ){
             INDArray testData = featuresTest.get(i);

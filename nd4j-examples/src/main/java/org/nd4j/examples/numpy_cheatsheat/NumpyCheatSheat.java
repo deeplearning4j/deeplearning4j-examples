@@ -4,6 +4,7 @@ import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.indexing.NDArrayIndex;
 import org.nd4j.linalg.indexing.conditions.Conditions;
+import org.nd4j.linalg.util.ArrayUtil;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -95,10 +96,10 @@ public class NumpyCheatSheat {
 
         /* C. INSPECTING PROPERTIES */
         // 1. arr.size - Returns number of elements in arr
-        int size = fourByFiveRandomZeroToOne.length();
+        int size = (int)fourByFiveRandomZeroToOne.length();
         System.out.println("Array size: " + size);
         // 2. arr.shape - Returns dimensions of arr (rows, columns)
-        int [] shape = fourByFiveRandomZeroToOne.shape();
+        long[] shape = fourByFiveRandomZeroToOne.shape();
         System.out.println("Array shape: " + Arrays.toString(shape));
         // 3. arr.dtype - Returns type of elements in arr
         String type = CustomOperations.type(fourByFiveRandomZeroToOne);

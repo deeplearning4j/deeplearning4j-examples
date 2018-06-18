@@ -41,7 +41,7 @@ public class Nd4jEx8_ReshapeOperation {
 
         nd2 = Nd4j.create(new float[]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12}); //now we want a linear matrix, i.e. a row vector
 
-        ndv = nd2.broadcast(new int[]{6,12}); // broadcast takes a row vector and adds it to all the rows
+        ndv = nd2.broadcast(6,12); // broadcast takes a row vector and adds it to all the rows
         System.out.println(ndv);
 
 

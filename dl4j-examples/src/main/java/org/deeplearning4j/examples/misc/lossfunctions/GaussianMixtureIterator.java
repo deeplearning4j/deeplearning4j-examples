@@ -14,7 +14,7 @@ import org.nd4j.linalg.factory.Nd4j;
  * This is an iterator which creates a parameterized mixture of gaussians
  * for the purpose of verifying the convergence of a mixture-density
  * loss function and its corresponding gradient.
- * 
+ *
  * @author Jonathan Arney
  */
 public class GaussianMixtureIterator implements DataSetIterator {
@@ -25,12 +25,12 @@ public class GaussianMixtureIterator implements DataSetIterator {
     private int examplesSoFar = 0;
     private final Random mRNG;
     private final int mMixturesPerLabel;
-    
+
     public GaussianMixtureIterator(int nMixturesPerLabel) {
         mRNG = new Random();
         mMixturesPerLabel = nMixturesPerLabel;
     }
-    
+
     @Override
     public DataSet next() {
         return next(miniBatchSize);
@@ -55,9 +55,9 @@ public class GaussianMixtureIterator implements DataSetIterator {
             throw new RuntimeException(ex);
         }
     }
-    
+
     public DataSet nextThrows(int num) throws Exception {
-        
+
         INDArray input = Nd4j.zeros(num, inputColumns());
         INDArray output = Nd4j.zeros(num, totalOutcomes());
 
@@ -69,11 +69,11 @@ public class GaussianMixtureIterator implements DataSetIterator {
             // The first gaussian is fixed with a mean of (-0.5, -0.5).
             // The second gaussian has a mean that varies from -0.25 to 0.25.
             // The variance of both is 0.01 (std-deviation 0.1)
-            
+
             boolean mid = mRNG.nextBoolean();
             double meanFactor = mid ? -0.5 : 0.5*x;
             double sigma = mid ? 0.01 : 0.01;
-            
+
             MultivariateNormalDistribution mnd = new MultivariateNormalDistribution(
                     new double[] {1*meanFactor, 1*meanFactor},
                     new double[][] {
@@ -83,19 +83,14 @@ public class GaussianMixtureIterator implements DataSetIterator {
             );
 
             double[] samples = mnd.sample();
-            
+
             input.putScalar(new int[]{i, 0}, x*10);
             output.putScalar(new int[]{i, 0}, samples[0]);
             output.putScalar(new int[]{i, 1}, samples[1]);
         }
 
-        
-        return new DataSet(input, output);
-    }
 
-    @Override
-    public int totalExamples() {
-        return numExamplesToFetch;
+        return new DataSet(input, output);
     }
 
     @Override
@@ -129,16 +124,6 @@ public class GaussianMixtureIterator implements DataSetIterator {
     }
 
     @Override
-    public int cursor() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public int numExamples() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
     public void setPreProcessor(DataSetPreProcessor preProcessor) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
@@ -155,20 +140,20 @@ public class GaussianMixtureIterator implements DataSetIterator {
 
     public static void main(String[] args) {
         GaussianMixtureIterator it = new GaussianMixtureIterator(1);
-        
+
         int j = 0;
         while (it.hasNext()) {
             if (j == 8) break;
             DataSet next = it.next();
             INDArray features = next.getFeatures();
             INDArray labels = next.getLabels();
-            
+
             for (int i = 0; i < features.rows(); i++) {
                 System.out.println("" + features.getDouble(i) + "\t" + labels.getDouble(i, 0));
             }
             j++;
         }
     }
-    
-    
+
+
 }

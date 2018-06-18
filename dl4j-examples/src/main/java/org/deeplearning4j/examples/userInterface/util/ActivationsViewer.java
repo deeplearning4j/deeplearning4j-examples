@@ -12,6 +12,7 @@ import javafx.stage.Stage;
 import org.deeplearning4j.nn.api.Layer;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.nd4j.linalg.api.ndarray.INDArray;
+import org.nd4j.linalg.util.ArrayUtil;
 
 import java.text.NumberFormat;
 import java.util.ArrayList;
@@ -113,7 +114,7 @@ public class ActivationsViewer extends Application {
             sampleCoordinatesByLayer[layerIndex] = list;
             Layer layer = network.getLayer(layerIndex);
             INDArray input = layer.input();
-            int[] shape = input.shape();
+            int[] shape = ArrayUtil.toInts(input.shape());
             int repeats = 0; // used to avoid the (rare) case in which we try to add many duplicates.
             for (int r = 0; r < sampleSizePerLayer; r++) {
                 int[] sampleCoordinates = new int[shape.length];

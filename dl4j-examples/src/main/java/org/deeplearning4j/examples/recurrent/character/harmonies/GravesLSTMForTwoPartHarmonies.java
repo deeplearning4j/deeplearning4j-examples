@@ -230,7 +230,7 @@ public class GravesLSTMForTwoPartHarmonies {
         //Sampling is done in parallel here
         net.rnnClearPreviousState();
         INDArray output = net.rnnTimeStep(initializationInput);
-        output = output.tensorAlongDimension(output.size(2) - 1, 1, 0);    //Gets the last time step output
+        output = output.tensorAlongDimension((int)output.size(2) - 1, 1, 0);    //Gets the last time step output
 
         for (int i = 0; i < charactersToSample; i++) {
             //Set up next input (single time step) by sampling from previous output

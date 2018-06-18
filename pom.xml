@@ -11,18 +11,24 @@
     <description>Examples of training different data sets</description>
     <properties>
         <!-- Change the nd4j.backend property to nd4j-cuda-8.0-platform, nd4j-cuda-9.0-platform or nd4j-cuda-9.1-platform to use CUDA GPUs -->
-        <nd4j.backend>nd4j-native-platform</nd4j.backend>
+        <!--<nd4j.backend>nd4j-native-platform</nd4j.backend>-->
+        <nd4j.backend>nd4j-native</nd4j.backend>
         <!--<nd4j.backend>nd4j-cuda-9.1-platform</nd4j.backend>-->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <shadedClassifier>bin</shadedClassifier>
 
 
         <java.version>1.8</java.version>
-        <nd4j.version>1.0.0-beta</nd4j.version>
-        <dl4j.version>1.0.0-beta</dl4j.version>
-        <datavec.version>1.0.0-beta</datavec.version>
-        <arbiter.version>1.0.0-beta</arbiter.version>
-        <rl4j.version>1.0.0-beta</rl4j.version>
+        <!--<nd4j.version>1.0.0-beta</nd4j.version>-->
+        <!--<dl4j.version>1.0.0-beta</dl4j.version>-->
+        <!--<datavec.version>1.0.0-beta</datavec.version>-->
+        <!--<arbiter.version>1.0.0-beta</arbiter.version>-->
+        <!--<rl4j.version>1.0.0-beta</rl4j.version>-->
+        <nd4j.version>1.0.0-SNAPSHOT</nd4j.version>
+        <dl4j.version>1.0.0-SNAPSHOT</dl4j.version>
+        <datavec.version>1.0.0-SNAPSHOT</datavec.version>
+        <arbiter.version>1.0.0-SNAPSHOT</arbiter.version>
+        <rl4j.version>1.0.0-SNAPSHOT</rl4j.version>
 
         <!-- For Spark examples: change the _1 to _2 to switch between Spark 1 and Spark 2 -->
         <dl4j.spark.version>1.0.0-beta_spark_1</dl4j.spark.version>

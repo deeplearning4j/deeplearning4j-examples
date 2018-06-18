@@ -9,6 +9,7 @@ import org.deeplearning4j.optimize.api.IterationListener;
 import org.deeplearning4j.optimize.api.TrainingListener;
 import org.nd4j.linalg.api.ndarray.INDArray;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 //import javafx.
@@ -78,9 +79,9 @@ public class ActivationsListener extends IterationListener {
             INDArray activation = layer.activate(input, false, LayerWorkspaceMgr.noWorkspaces());
             //Gradient gradient=layer.gradient(); //null
             System.out.println(layer.getIndex() + ": " + layer.numParams() +
-                    " params, input shape = " + toString(input.shape())
+                    " params, input shape = " + Arrays.toString(input.shape())
                 //    + ", input rank = " + input.rank()  // You can infer this from the shape above
-                    + ", activation shape = " + toString(activation.shape()) // matches the input of the next layer
+                    + ", activation shape = " + Arrays.toString(activation.shape()) // matches the input of the next layer
                 // + ", input mini-batch size = " + network.getInputMiniBatchSize()
                 // + ", gradient  = " + gradient // toString(gradient.gradient().shape())
             );
