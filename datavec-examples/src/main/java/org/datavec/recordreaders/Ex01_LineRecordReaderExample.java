@@ -1,10 +1,7 @@
 package org.datavec.recordreaders;
 
-import org.datavec.api.records.Record;
 import org.datavec.api.records.listener.impl.LogRecordListener;
-import org.datavec.api.records.metadata.RecordMetaDataLine;
 import org.datavec.api.records.reader.impl.LineRecordReader;
-import org.datavec.api.records.reader.impl.csv.CSVRecordReader;
 import org.datavec.api.split.FileSplit;
 import org.datavec.api.split.InputStreamInputSplit;
 import org.nd4j.linalg.io.ClassPathResource;
