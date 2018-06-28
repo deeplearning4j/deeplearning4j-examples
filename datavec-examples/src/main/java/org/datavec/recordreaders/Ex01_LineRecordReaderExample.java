@@ -6,15 +6,23 @@ import org.datavec.api.records.metadata.RecordMetaData;
 import org.datavec.api.records.metadata.RecordMetaDataLine;
 import org.datavec.api.records.reader.impl.LineRecordReader;
 import org.datavec.api.split.FileSplit;
+import org.datavec.api.split.InputSplit;
 import org.datavec.api.split.InputStreamInputSplit;
 import org.nd4j.linalg.io.ClassPathResource;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * {@link LineRecordReader} in an implementation of {@link org.datavec.api.records.reader.BaseRecordReader}
+ * which is implemented from the interface {@link org.datavec.api.records.reader.RecordReader}. It
+ * read records line by line, given any type of file. {@link LineRecordReader} takes an
+ * implementation of {@link InputSplit} in its {@link LineRecordReader#initialize(InputSplit)}
+ * method to read from the data source. In case of multiple files/locations in an {@link InputSplit},
+ * {@link LineRecordReader} will go through each file/location one by one and read it line by line.
+ */
 public class Ex01_LineRecordReaderExample {
     public static void main(String[] args) throws Exception {
         //=====================================================================
@@ -142,5 +150,4 @@ public class Ex01_LineRecordReaderExample {
         }
         System.out.println("------------------------------------------------------------\n\n\n");
     }
-
 }
