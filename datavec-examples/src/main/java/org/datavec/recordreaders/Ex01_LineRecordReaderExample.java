@@ -1,6 +1,9 @@
 package org.datavec.recordreaders;
 
+import org.datavec.api.records.Record;
 import org.datavec.api.records.listener.impl.LogRecordListener;
+import org.datavec.api.records.metadata.RecordMetaData;
+import org.datavec.api.records.metadata.RecordMetaDataLine;
 import org.datavec.api.records.reader.impl.LineRecordReader;
 import org.datavec.api.split.FileSplit;
 import org.datavec.api.split.InputStreamInputSplit;
@@ -9,6 +12,8 @@ import org.nd4j.linalg.io.ClassPathResource;
 import java.io.File;
 import java.io.FileInputStream;
 import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Ex01_LineRecordReaderExample {
     public static void main(String[] args) throws Exception {
@@ -75,5 +80,67 @@ public class Ex01_LineRecordReaderExample {
             System.out.println(MessageFormat.format("Line {0}: {1}", i++, lineRecordReader3.next()));
         }
         System.out.println("------------------------------------------------------------\n\n\n");
+
+        //=====================================================================
+        //          Example 4: Reading records
+        //=====================================================================
+        /*
+          When you read Record from a RecordReader, it gives you the metadata along with the List of Writables.
+          The metadata contains the line number and file URI for the data source in the case of LineRecordReader
+         */
+
+        // This is for the next example when we'll load the Records from a list of RecordMetaData
+        List<RecordMetaData> recordMetaDataLineList = new ArrayList<>();
+
+        // Reset the iterators and other internal states for the LineRecordReader
+        if (lineRecordReader3.resetSupported()) {
+            lineRecordReader3.reset();
+        }
+
+        System.out.println("--------------- Example 4: Reading records ---------------");
+        i = 1;
+        String fileName = null;
+        while (lineRecordReader3.hasNext()) {
+            Record record = lineRecordReader3.nextRecord();
+            RecordMetaDataLine recordMetaData = (RecordMetaDataLine) record.getMetaData();
+
+            // This is for the next example when we'll load the Records from a list of RecordMetaData
+            recordMetaDataLineList.add(recordMetaData);
+
+            String path = recordMetaData.getURI().getPath();
+            if(fileName == null || !fileName.equals(path)) {
+                fileName = path;
+                System.out.println(MessageFormat.format("\nReading from file {0}\n----", fileName));
+            }
+            System.out.println(MessageFormat.format("Total Lines Read {0} - Line in file {1} | Record: {2}",
+                i++, recordMetaData.getLineNumber(), record.getRecord()));
+        }
+        System.out.println("------------------------------------------------------------\n\n\n");
+
+        //=====================================================================
+        //          Example 5: Read records from a list of RecordMetaData
+        //=====================================================================
+        /*
+          If you have a list of RecordMetaData (Preferably, RecordMetaDataLine in this case), then you can
+          load all the metadata records by feeding the list to LineRecordReader
+         */
+        List<Record> recordList = lineRecordReader3.loadFromMetaData(recordMetaDataLineList);
+
+        System.out.println("--------------- Example 5: Read records from a list of RecordMetaData ---------------");
+        i = 1;
+        fileName = null;
+        for (Record record : recordList) {
+            RecordMetaDataLine recordMetaData = (RecordMetaDataLine) record.getMetaData();
+
+            String path = recordMetaData.getURI().getPath();
+            if(fileName == null || !fileName.equals(path)) {
+                fileName = path;
+                System.out.println(MessageFormat.format("\nReading from file {0}\n----", fileName));
+            }
+            System.out.println(MessageFormat.format("Total Lines Read {0} - Line in file {1} | Record: {2}",
+                i++, recordMetaData.getLineNumber(), record.getRecord()));
+        }
+        System.out.println("------------------------------------------------------------\n\n\n");
     }
+
 }
