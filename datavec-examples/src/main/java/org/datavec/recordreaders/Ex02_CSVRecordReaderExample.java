@@ -6,6 +6,7 @@ import org.datavec.api.records.listener.impl.LogRecordListener;
 import org.datavec.api.records.metadata.RecordMetaData;
 import org.datavec.api.records.metadata.RecordMetaDataLine;
 import org.datavec.api.records.reader.impl.csv.CSVRecordReader;
+import org.datavec.api.records.reader.impl.csv.CSVRegexRecordReader;
 import org.datavec.api.split.FileSplit;
 import org.datavec.api.split.InputStreamInputSplit;
 import org.datavec.api.split.StringSplit;
@@ -15,6 +16,8 @@ import java.io.FileInputStream;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * {@link org.datavec.api.records.reader.impl.csv.CSVRecordReader} is an implementation of
@@ -140,7 +143,7 @@ public class Ex02_CSVRecordReaderExample {
             recordMetaDataLineList.add(recordMetaData);
 
             String path = recordMetaData.getURI().getPath();
-            if(fileName == null || !fileName.equals(path)) {
+            if (fileName == null || !fileName.equals(path)) {
                 fileName = path;
                 System.out.println(MessageFormat.format("\nReading from file {0}\n----", fileName));
             }
@@ -165,12 +168,55 @@ public class Ex02_CSVRecordReaderExample {
             RecordMetaDataLine recordMetaData = (RecordMetaDataLine) record.getMetaData();
 
             String path = recordMetaData.getURI().getPath();
-            if(fileName == null || !fileName.equals(path)) {
+            if (fileName == null || !fileName.equals(path)) {
                 fileName = path;
                 System.out.println(MessageFormat.format("\nReading from file {0}\n----", fileName));
             }
             System.out.println(MessageFormat.format("Total Lines Read {0} - Line in file {1} | Record: {2}",
                 i++, recordMetaData.getLineNumber(), record.getRecord()));
+        }
+        System.out.println("------------------------------------------------------------\n\n\n");
+
+        //=====================================================================
+        //          Example 6: Using CSVRegexRecordReader
+        //=====================================================================
+        /*
+          A CSVRecordReader that can split each column into additional columns using a RegEx pattern for each column.
+          A RegEx is a short form for a regular expression. A regular expression a sequence of characters that define
+          a search pattern. You can learn more about it here: https://en.wikipedia.org/wiki/Regular_expression.
+          Also, look at the javadocs for the Pattern class here:
+          https://docs.oracle.com/javase/7/docs/api/java/util/regex/Pattern.html
+
+          This could be useful for splitting data, such as date/time into their constituting elements.
+          For example: A date of pattern [yyyy-MM-dd HH:mm:ss.SSS] can be split apart into it's components from
+          [date] -> [year, month, day, hours, minutes, seconds, milliseconds]
+          with a regex that defines the group as (\d+)-(\d+)-(\d+)\s+(\d+):(\d+):(\d+)\.(\d+).
+          Where:
+          - '\d+' represents one or more digits
+          - '\s+' represents one or more space characters and
+          - '\.' defines a period (.)
+          - The parenthesis contains the part of the regex that we want to extract out of the matched string.
+
+          See the example below, in which the date (first column) is split apart into its components. The other
+          regex strings are null as they don't required to be split.
+         */
+
+        CSVRegexRecordReader csvRegexRecordReader = new CSVRegexRecordReader(
+            0, ",", "\"",
+            new String[]{
+                "(\\d+)-(\\d+)-(\\d+)\\s+(\\d+):(\\d+):(\\d+)\\.(\\d+)",
+                null, null, null, null, null, null}
+                );
+
+        csvRegexRecordReader.initialize(
+            new FileSplit(
+                new ClassPathResource("BasicDataVecExample/exampledata.csv").getFile()
+            )
+        );
+
+        System.out.println("--------------- Example 6: Using CSVRegexRecordReader ---------------");
+        while (csvRegexRecordReader.hasNext()) {
+            System.out.println(csvRegexRecordReader.next());
         }
         System.out.println("------------------------------------------------------------\n\n\n");
     }
