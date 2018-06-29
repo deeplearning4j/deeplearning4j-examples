@@ -129,7 +129,7 @@ public class Ex01_LineRecordReaderExample {
         //          Example 5: Read records from a list of RecordMetaData
         //=====================================================================
         /*
-          If you have a list of RecordMetaData (Preferably, RecordMetaDataLine in this case), then you can
+          If you have a list of RecordMetaData, then you can
           load all the metadata records by feeding the list to LineRecordReader
          */
         List<Record> recordList = lineRecordReader3.loadFromMetaData(recordMetaDataLineList);
