@@ -1,12 +1,19 @@
-package org.deeplearning4j.examples.samediff.ex1basic;
+package org.deeplearning4j.examples.samediff;
 
 import org.apache.commons.io.FileUtils;
 import org.deeplearning4j.datasets.iterator.impl.MnistDataSetIterator;
 import org.deeplearning4j.eval.Evaluation;
+import org.deeplearning4j.examples.samediff.layers.L2NormalizeLambdaLayer;
+import org.deeplearning4j.examples.samediff.layers.MinimalSameDiffDense;
 import org.deeplearning4j.gradientcheck.GradientCheckUtil;
+import org.deeplearning4j.nn.conf.ConvolutionMode;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
+import org.deeplearning4j.nn.conf.layers.ConvolutionLayer;
 import org.deeplearning4j.nn.conf.layers.OutputLayer;
+import org.deeplearning4j.nn.conf.layers.SubsamplingLayer;
+import org.deeplearning4j.nn.conf.preprocessor.CnnToFeedForwardPreProcessor;
+import org.deeplearning4j.nn.conf.preprocessor.FeedForwardToCnnPreProcessor;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
 import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
@@ -23,16 +30,14 @@ import java.io.File;
 
 /**
  *
- * This example: how to implement a custom DL4J layer using SameDiff.
+ * This example: how to implement a simple custom DL4J lambda layer using SameDiff.
  *
- * The layer itself is a standard dense (fully connected) layer with an activation function.
- *
- * The idea here
+ * The lambda layer (see L2NormalizeLamdaLayer) implements "out = in / l2Norm(in)" on a per-example basis.
  *
  *
  * @author Alex Black
  */
-public class Ex1BasicSameDiffLayerExample {
+public class Ex2LambdaLayer {
 
     public static void main(String[] args) throws Exception {
 
@@ -43,14 +48,22 @@ public class Ex1BasicSameDiffLayerExample {
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
             .updater(new Adam(1e-1))
             .seed(12345)
+            .activation(Activation.TANH)
+            .convolutionMode(ConvolutionMode.Same)
             .list()
-            //Add two custom layers:
-            .layer(new MinimalSameDiffDense(networkNumInputs, layerSize, Activation.TANH, WeightInit.XAVIER))
-            .layer(new MinimalSameDiffDense(layerSize, layerSize, Activation.TANH, WeightInit.XAVIER))
-            //Combine with a standard DL4J output layer
-            .layer(new OutputLayer.Builder().nIn(layerSize).nOut(networkNumOutputs).activation(Activation.SOFTMAX)
+            //Add some standard DL4J layers:
+            .layer(new ConvolutionLayer.Builder().nIn(1).nOut(16).kernelSize(2,2).stride(1,1).build())
+            .layer(new SubsamplingLayer.Builder().kernelSize(2,2).stride(2,2).build())
+            .layer(new ConvolutionLayer.Builder().nIn(16).nOut(8).kernelSize(2,2).stride(1,1).build())
+            .layer(new SubsamplingLayer.Builder().kernelSize(2,2).stride(2,2).build())
+            //Add custom SameDiff lambda layer:
+            .layer(new L2NormalizeLambdaLayer(1,2,3))
+            //Add standard DL4J output layer:
+            .layer(new OutputLayer.Builder().nIn(7*7*8).nOut(networkNumOutputs).activation(Activation.SOFTMAX)
                 .weightInit(WeightInit.XAVIER)
                 .lossFunction(LossFunctions.LossFunction.MCXENT).build())
+            .inputPreProcessor(0, new FeedForwardToCnnPreProcessor(28, 28, 1))
+            .inputPreProcessor(5, new CnnToFeedForwardPreProcessor(7,7,8))
             .build();
 
         MultiLayerNetwork net = new MultiLayerNetwork(conf);
@@ -72,6 +85,7 @@ public class Ex1BasicSameDiffLayerExample {
     }
 
     public static void validateLayer() throws Exception {
+
         /*
         When implementing a custom layer, it is a good idea to validate the implementation.
         Specifically:
@@ -86,31 +100,34 @@ public class Ex1BasicSameDiffLayerExample {
         Nd4j.setDataType(DataBuffer.Type.DOUBLE);
 
         //Define network: smaller than before, so gradient checks are quicker
-        int networkNumInputs = 4;
-        int layerSize = 5;
+        int[] inputShape = new int[]{1, 1, 5, 5};       //[minibatch, channels, height, width]
         int networkNumOutputs = 3;
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
-            .updater(new NoOp())    //Required for gradient checks
+            .updater(new NoOp())
             .seed(12345)
+            .activation(Activation.TANH)
+            .convolutionMode(ConvolutionMode.Same)
             .list()
-            //Add two custom layers:
-            .layer(new MinimalSameDiffDense(networkNumInputs, layerSize, Activation.TANH, WeightInit.XAVIER))
-            .layer(new MinimalSameDiffDense(layerSize, layerSize, Activation.TANH, WeightInit.XAVIER))
-            //Combine with a standard DL4J output layer
-            .layer(new OutputLayer.Builder().nIn(layerSize).nOut(networkNumOutputs).activation(Activation.SOFTMAX)
+            //Add a standard DL4J layer:
+            .layer(new ConvolutionLayer.Builder().nIn(1).nOut(4).kernelSize(2,2).stride(1,1).build())
+            //Add custom SameDiff lambda layer:
+            .layer(new L2NormalizeLambdaLayer(1,2,3))
+            //Add standard DL4J output layer:
+            .layer(new OutputLayer.Builder().nIn(5*5*4).nOut(networkNumOutputs).activation(Activation.SOFTMAX)
                 .weightInit(WeightInit.XAVIER)
                 .lossFunction(LossFunctions.LossFunction.MCXENT).build())
+            .inputPreProcessor(2, new CnnToFeedForwardPreProcessor(5, 5, 4))
             .build();
         MultiLayerNetwork net = new MultiLayerNetwork(conf);
         net.init();
 
         //Check model serialization:
-        File f = new File(FileUtils.getTempDirectory(), "SameDiffExample1Model.zip");
+        File f = new File(FileUtils.getTempDirectory(), "SameDiffExample2Model.zip");
         net.save(f);
         MultiLayerNetwork loaded = MultiLayerNetwork.load(f, true);
 
         Nd4j.getRandom().setSeed(12345);
-        INDArray testFeatures = Nd4j.rand(3, networkNumInputs);
+        INDArray testFeatures = Nd4j.rand(inputShape);
         INDArray fromOriginalNet = net.output(testFeatures);
         INDArray fromLoadedNet = loaded.output(testFeatures);
         if(!fromOriginalNet.equals(fromLoadedNet)){
