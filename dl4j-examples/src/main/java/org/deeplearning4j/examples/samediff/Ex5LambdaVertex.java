@@ -39,7 +39,7 @@ import java.io.File;
  *
  * @author Alex Black
  */
-public class Ex4LambdaVertex {
+public class Ex5LambdaVertex {
 
     public static void main(String[] args) throws Exception {
         int networkNumOutputs = 10;         //For MNIST - 10 classes
