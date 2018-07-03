@@ -15,12 +15,12 @@ import org.datavec.api.transform.condition.column.DoubleColumnCondition;
 import org.datavec.api.transform.filter.ConditionFilter;
 import org.datavec.api.transform.schema.Schema;
 import org.datavec.api.transform.transform.time.DeriveColumnsFromTimeTransform;
-import org.datavec.api.util.ClassPathResource;
 import org.datavec.api.writable.DoubleWritable;
 import org.datavec.api.writable.Writable;
 import org.datavec.local.transforms.LocalTransformExecutor;
 import org.joda.time.DateTimeFieldType;
 import org.joda.time.DateTimeZone;
+import org.nd4j.linalg.io.ClassPathResource;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -32,7 +32,7 @@ import java.util.List;
  * Basic DataVec example for preprocessing operations on some simple CSV data. If you just want to load CSV data
  * and pass it on for learning take a look at {@see org.deeplearning4j.examples.dataExample.CSVExample}.
  *
- * The premise here is that some data regarding transactions is available in CSV format, and we want to do some some
+ * The premise here is that some data regarding transactions is available in CSV format, and we want to do some
  * operations on this data, including:
  * 1. Removing some unnecessary columns
  * 2. Filtering examples to keep only examples with values "USA" or "CAN" for the "MerchantCountryCode" column
@@ -142,7 +142,6 @@ public class BasicDataVecExampleLocal {
 
         //Define input reader and output writer:
         RecordReader rr = new CSVRecordReader(0, ',');
-        File file = new ClassPathResource("BasicDataVecExample/exampledata.csv").getFile();
         rr.initialize(new FileSplit(inputFile));
 
         RecordWriter rw = new CSVRecordWriter();
@@ -162,7 +161,7 @@ public class BasicDataVecExampleLocal {
 
         //Print before + after:
         System.out.println("\n\n---- Original Data File ----");
-        String originalFileContents = FileUtils.readFileToString(file);
+        String originalFileContents = FileUtils.readFileToString(inputFile);
         System.out.println(originalFileContents);
 
         System.out.println("\n\n---- Processed Data File ----");

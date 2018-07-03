@@ -9,12 +9,12 @@ import org.datavec.api.transform.ReduceOp;
 import org.datavec.api.transform.TransformProcess;
 import org.datavec.api.transform.reduce.Reducer;
 import org.datavec.api.transform.schema.Schema;
-import org.datavec.api.util.ClassPathResource;
 import org.datavec.api.writable.Writable;
 import org.datavec.spark.transform.SparkTransformExecutor;
 import org.datavec.spark.transform.misc.StringToWritablesFunction;
 import org.datavec.spark.transform.misc.WritablesToStringFunction;
 import org.joda.time.DateTimeZone;
+import org.nd4j.linalg.io.ClassPathResource;
 
 import java.util.Arrays;
 import java.util.List;
@@ -119,10 +119,6 @@ public class PivotExample {
 
 
         System.out.println("\n\nDONE");
-
-
-
-
     }
 
 }
