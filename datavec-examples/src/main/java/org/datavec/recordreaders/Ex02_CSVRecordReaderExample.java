@@ -16,8 +16,6 @@ import java.io.FileInputStream;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * {@link org.datavec.api.records.reader.impl.csv.CSVRecordReader} is an implementation of
