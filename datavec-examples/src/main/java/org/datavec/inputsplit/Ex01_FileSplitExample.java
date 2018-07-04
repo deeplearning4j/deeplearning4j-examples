@@ -120,7 +120,7 @@ public class Ex01_FileSplitExample {
           it do basically what you'd expect.
          */
         FileSplit fileSplit5 = new FileSplit(
-            new ClassPathResource("inputsplit/files/cats/alley_cat_s_000200.png").getFile()
+            new ClassPathResource("inputsplit/files/cats/domestic_cat_s_001970.jpg").getFile()
         );
 
         /*
