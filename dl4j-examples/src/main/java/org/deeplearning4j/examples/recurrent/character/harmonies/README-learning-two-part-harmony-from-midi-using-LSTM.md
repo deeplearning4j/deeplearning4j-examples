@@ -21,8 +21,6 @@ learning in deeplearning4j to produce symbolic melody strings that mimicked the 
 In this new work, I follow a similar path, but I model two-party harmonies, which requires a change to the way music is encoded as strings.
 Even more than before, extracting music is nontrivial; I needed to use several configurable heuristics to obtain useful harmony strings.
 
-Options allow you to control whether to include instrument numbers in the harmony strings. But as of yet, training with instruments has
-not resulted in reasonable results, so I recommend against configuring the system to use instruments.
 
 ## How it works
 
@@ -68,24 +66,23 @@ when not modeling instruments are the following:
 
    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvw"
 
- In all, this covers four octaves.  If a note is outside that range I adjust it by one octave until it lies inside the range.
- See MidiHarmonyUtility.java.
+In all, this covers four octaves.  If a note is outside that range I adjust it by one octave until it lies inside the range.
+See MidiHarmonyUtility.java.
 
-When not using instruments, in a symbolic two-part harmony string the even characters (at indexes 0, 2, 4, 6, ...) represent the
+In a symbolic two-part harmony string the even characters (at indexes 0, 2, 4, 6, ...) represent the
 first voice. The odd characters (at indexes 1, 3, 5, 7, ...) represent the second voice.
 
-This process results in two-party harmony strings such as the following (from Mozart training, without instruments):
+This process results in two-party harmony strings such as the following (from Mozart training):
 
     ttttototttttvtltttqqqqqqqqqqqqqqqqolololololoa a a e e e f f f f e e e f f e e V V c c a a j j e e c c e e c c e e clclVlVlclclclclclclcococo h h h h h hJa a a m m t t t q q q u u mq qqqqqorrrrrrrrrrrrrrrvqtqtqtqtqtqtqtqtqtqtmtmtltltltflflhthteqeqeqeqaqXqXqaqaqYqXqXqhqhqhqhqhqhqeqeqeqeqeqeqeqeqeqcococococo l lclclclZmZmcmcmcmcmclclclelelelele e e gjgjgjgjhhhh h h h h h h h  VhVhV U U Vh hZhZhZhZhZhZ ZoZ ZhZhZhZhjjjjjhhhhffgegecgcgUhZhZhZhZhZhLeLeLeSeVeVeLeLeXeXe eZlZlZlZlXjXjVhVhVhVhCeCeCeCeLoLoL LcLcLcLcLcOc cg gj g g mQoQoQmJqJsJgJgJhJfJfJfJaJaJZOaNZNZNZJcJcJcJaCaCaCaCaOaCaBZBZBZBZBZBZBaBaBaBaCaCaCaGeGeGeEcEcEcEcEcEcEcEclcccccccchchchcaaaaaaZZZZ ZcaeJeJcJcJZJcJcJZJXJXJcJcJhOeOeOeOaOaOaOaOaOfOfOeOeOcOcOeOeOeOeOeOeOcJcJcOcOcOeOeOeOeJfJfJfJfJfJcJeJeJeJeJeJeJeJcJcJcJcJZJZJZJZJXLXLXLXBXBXBZBZBaCaCaLvLvAmAmLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLJVJVJVJVJVJVjVEVEVEVEhEhEoBlBlBlBoBoB BsBqBqBoJoJoZmZmclclcl lLlLlLlLlBlBlBhBhEoErGhGhJoEoD C B L L Q Q Q QrErErE E EqEqEoEoEmEmElJlJlJlJlJmJmJ CsCsCmCmCmCvCvCvCvClllmmJlJlJlJlMjNjNhNhNhNhNhNhNhNhNhLgLgLgLeJhJqJqJoJoJoJoJlJlJlJlJlJlJlJlJlJlJlZlhlhlhlOmOmOoOmOaararTrTrSqSqQrOqSqQsQsSvSvVlVlVlVhVhQhQhQhJVJVJVJVJVJVOJQJQJ JlJlJlJlJlJmJmJmJmJmJmJmJmJlJlJlJlJlJlJlJlOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOlOlOlOlOlOlOlOmOmOmOmOmOmOmOmOmOmOiOiOlOlOlOlOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmSmSmSmSmSmSmSmSmSmSmSmVmVmVmVm
 
 This representation of harmonies is quite different from that used in my previous melody-only work.  In that representation, each
-note had a pitch character and a duration character.  In the new representation, durations are implicit in the sampling.
+note had a pitch character (actually, a delta-pitch from the previous note) and a duration character.  In the new representation, 
+durations are implicit in the sampling.
 
-If you include the instrument, four characters are output for every time step: a character representing the first voice's pitch,
-a character representing the first voice's instrument, a character representing the second voice's pitch, and a character
-representing the second voice's instrument, in that order.  To avoid needing characters above ASCII 127, to limit the number
-possible characters, and to avoid infrequently used instruments, if the Note uses an instrument above MIDI instrument 75 (Pan Flute),
-I treat it as instrument 26 (Electric Guitar (clean)). Instrument characters go from from Ascii 33 to Ascii 108.
+If a melody is played in the key of C in one track and the same melody is played in the key of G in another track, their 
+representations in two-party harmony strings will be very different.  In my previous work, when I was modeling just monophonic
+melodies, the two strings would be identical.  But for harmonies, I need the potches to be synchronized between the two voices.
 
 I wrote utilities to convert two-part harmony strings back to MIDI sequences, and from MIDI sequences to wav and mp3 files.
 When converting from a symbolic two-part harmony string back to a MIDI sequences, adjacent notes of the same pitch are merged
@@ -123,6 +120,7 @@ The sample MP3s at http://deepmusic.info/ involve only a minor amount of curatin
 ## Ideas for future enhancement
 
 If musical scores were digitized and converted into symbolic form, that would provide a higher quality source of training data.
+Midi files are messy.
 
 JFugue has a language for representing music as strings, including instruments, chords and other features.  See
 http://www.jfugue.org/examples.html
