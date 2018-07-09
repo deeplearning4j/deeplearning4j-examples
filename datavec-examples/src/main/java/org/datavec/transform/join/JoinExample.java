@@ -7,11 +7,11 @@ import org.datavec.api.records.reader.RecordReader;
 import org.datavec.api.records.reader.impl.csv.CSVRecordReader;
 import org.datavec.api.transform.join.Join;
 import org.datavec.api.transform.schema.Schema;
-import org.datavec.api.util.ClassPathResource;
 import org.datavec.api.writable.Writable;
 import org.datavec.spark.transform.SparkTransformExecutor;
 import org.datavec.spark.transform.misc.StringToWritablesFunction;
 import org.joda.time.DateTimeZone;
+import org.nd4j.linalg.io.ClassPathResource;
 
 import java.util.Arrays;
 import java.util.List;
@@ -104,9 +104,6 @@ public class JoinExample {
         for(List<Writable> line : joinedDataList){
             System.out.println(line);
         }
-
-
-
     }
 
 }
