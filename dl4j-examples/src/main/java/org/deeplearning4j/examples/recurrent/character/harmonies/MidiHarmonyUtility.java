@@ -9,14 +9,12 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
-
 import javax.sound.midi.InvalidMidiDataException;
 import javax.sound.midi.MidiEvent;
 import javax.sound.midi.MidiMessage;
 import javax.sound.midi.Sequence;
 import javax.sound.midi.ShortMessage;
 import javax.sound.midi.Track;
-
 import org.deeplearning4j.examples.recurrent.character.melodl4j.Note;
 
 /**
@@ -28,12 +26,13 @@ import org.deeplearning4j.examples.recurrent.character.melodl4j.Note;
  * @author Don Smith (ThinkerFeeler@gmail.com)
  */
 public class MidiHarmonyUtility {
-    public static boolean writeInstrumentsToHarmonyStrings = false; // Puts an instrument characters after each pitch character. But this doesn't work well.
     public static Set<Integer> instrument1RestrictionSet = new TreeSet<>();
     ; // If you add numbers to this, the first voice must have one of the said instruments
     public static Set<Integer> instrument2RestrictionSet = new TreeSet<>(); // If you add numbers to this, the second voice must have one the said instrument s
     public static final char REST_CHAR = ' ';
-    public static final String PITCH_CHARACTERS_FOR_HARMONY = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvw";  // We only use up to w (49 chars)
+    public static final String PITCH_CHARACTERS_FOR_HARMONY = makePitchCharactersForHarmony();  // 49 chars. This does NOT include REST_CHAR.
+    public static final char FIRST_VALID_PITCH_CHAR= PITCH_CHARACTERS_FOR_HARMONY.charAt(0);
+    public static final char LAST_VALID_PITCH_CHAR = PITCH_CHARACTERS_FOR_HARMONY.charAt(PITCH_CHARACTERS_FOR_HARMONY.length()-1);
     public static final int MIN_ALLOWED_PITCH = 36;
     public static final int MAX_ALLOWED_PITCH = 84;
 
@@ -44,14 +43,44 @@ public class MidiHarmonyUtility {
     // Space represents a rest
     private static final Note REST_NOTE = new Note(0, -1, -1, -1, 0);
 
+    private static String makePitchCharactersForHarmony() {
+        StringBuilder sb = new StringBuilder();
+        for(int i=0;i<49;i++) { // 4 scales plus C of the next scale
+            sb.append((char)('A'+i));
+        }
+        return sb.toString();
+    }
+
     public static boolean isValidPitchCharacter(char ch) {
-        return ch == 0 || ch >= 'A' && ch <= 'Z' || ch >= 'a' && ch <= 'w';
+        return ch == ' '
+            || ch >= FIRST_VALID_PITCH_CHAR && ch <= LAST_VALID_PITCH_CHAR;
     }
 
-    public static boolean isValidInstrumentCharacter(char ch) {
-        return ch > ' ' && ((int) ch) <= 108;
+    public static char getCharForPitch(int pitch) {
+        if (pitch == 0) {
+            return REST_CHAR;
+        }
+        while (pitch < MIN_ALLOWED_PITCH) {
+            pitch+=12;
+        }
+        while (pitch>MAX_ALLOWED_PITCH) {
+            pitch-=12;
+        }
+        int offset = pitch - MIN_ALLOWED_PITCH;
+        return (char) (FIRST_VALID_PITCH_CHAR + offset);
     }
 
+    /**
+     *
+     * @param ch symbolic melody string char
+     * @return corresponding pitch, or 0 if ch is the REST_CHAR
+     */
+    public static int getPitchForChar(char ch) {
+        if (ch == REST_CHAR) {
+            return 0;
+        }
+        return MIN_ALLOWED_PITCH + (ch - FIRST_VALID_PITCH_CHAR);
+    }
     private static class GetNoteOrSilenceByTickFromNoteList {
         private final List<Note> notes;
         private long currentTick = 0;
@@ -62,7 +91,7 @@ public class MidiHarmonyUtility {
         }
 
         /**
-         * @return null if we're at the end, SILENCE if there's silence, otherwise the Note
+         * @return null if we're at the end, REST_NOTE if there's silence, otherwise the Note
          */
         public Note getCurrentNote() {
             if (currentIndex == notes.size()) {
@@ -139,25 +168,7 @@ public class MidiHarmonyUtility {
         }
         return longestGap;
     }
-
-    // Returns characters up to ASCII  33+75 = 108
-    private static char getInstrumentChar(Note note) {
-        if (note == REST_NOTE || note.getVelocity() == 0) {
-            return REST_CHAR;
-        }
-        int instr = note.getInstrument();
-        if (instr > 75) { // For instruments above Pan Flute, treat them as Electric Guitar (clean)
-            instr = 26; // Electric Guitar (clean)
-        }
-        instr += 33; // So that we omit control characters. Space is REST_CHAR.
-        return (char) instr;
-    }
-
-    public static int getInstrumentFrom(final char ch) {
-        return (ch - 33);
-    }
-
-    public void printTwoPartHarmonies(final String midiFileName, final double microsecondsPerTick, PrintWriter writer) throws IOException {
+      public void printTwoPartHarmonies(final String midiFileName, final double microsecondsPerTick, PrintWriter writer) throws IOException {
         // We want to numerically encode the fact that C4 and C5 have C in common, as well as the fact that E is close to F.
         // Representing notes by pitch alone (frequency or midi pitch) encodes the latter but not the former.
 
@@ -245,28 +256,19 @@ public class MidiHarmonyUtility {
                     int pitch2 = adjustPitch(note2.getPitch());
                     char ch1 = pitch1 == 0 ? REST_CHAR : PITCH_CHARACTERS_FOR_HARMONY.charAt(pitch1 - MIN_ALLOWED_PITCH);
                     char ch2 = pitch2 == 0 ? REST_CHAR : PITCH_CHARACTERS_FOR_HARMONY.charAt(pitch2 - MIN_ALLOWED_PITCH);
-                    if (writeInstrumentsToHarmonyStrings) {
-                        char instr1 = getInstrumentChar(note1);
-                        char instr2 = getInstrumentChar(note2);
-                        sb.append(ch1);
-                        sb.append(instr1);
-                        sb.append(ch2);
-                        sb.append(instr2);
-                    } else {
-                        sb.append(ch1);
-                        sb.append(ch2);
-                    }
+                    sb.append(ch1);
+                    sb.append(ch2);
                     selector1.advanceTicks(tickDelta);
                     selector2.advanceTicks(tickDelta);
                 }
                 String line = sb.toString();
                 // 	Remove spaces/silence
-                String line2 = PlayTwoPartHarmonies.removeSilences(line, writeInstrumentsToHarmonyStrings ? 32 : 16);
+                String line2 = PlayTwoPartHarmonies.removeSilences(line, 16);
                 if ((line.length() - line2.length()) % 2 != 0) {
                     throw new IllegalStateException();
                 }
                 line = line2;
-                if (line.length() >= (writeInstrumentsToHarmonyStrings ? MIN_ALLOWED_NUMBER_OF_NOTES * 2 : MIN_ALLOWED_NUMBER_OF_NOTES)) {
+                if (line.length() >= MIN_ALLOWED_NUMBER_OF_NOTES) {
                     writer.println(line);
                 }
             }

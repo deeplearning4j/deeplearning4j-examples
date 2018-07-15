@@ -3,7 +3,7 @@ package org.deeplearning4j.examples.recurrent.character.harmonies;
 /**
  * @author Don Smith (ThinkerFeeler@gmail.com)
  *
- * Extracts melodies and harmonies from MIDI files, for use in Deep Learning of music.
+ * Extracts harmonies as strings from MIDI files, for use in Deep Learning of music.
  */
 
 import org.deeplearning4j.examples.recurrent.character.melodl4j.MelodyStrings;
@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import java.util.regex.Pattern;
 import javax.sound.midi.InvalidMidiDataException;
 import javax.sound.midi.MidiEvent;
 import javax.sound.midi.MidiMessage;
@@ -35,11 +36,7 @@ import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileFilter;
 
 /*
- *  MidiMusicExtractor processes MIDI files and outputs
- *
- *     1. Melodies as strings, for processing by LSTM Deep Learning. These strings model only monotonic melodies (no harmony) but not harmony, instruments, or volume.
- *
- *     2. Two-part harmonies as strings, for processing by LSTM Deep Learning.
+ *  MidiMusicExtractor processes MIDI files and outputs two-part harmonies as strings, for processing by GravesLSTMForTwoPartHarmonies.
  *
  *  The main method of MidiMusicExtractor.java will convert a directory of MIDI files to a file containing symbolic melody strings
  *  and a file containing symbolic two-part harmony strings.
@@ -55,6 +52,10 @@ public class MidiMusicExtractor  {
 	public static int minDistinctPitches=7;
 	public static boolean useStrictOverlap=true; // When false, notes overlap if they have the same startTick. When true, they overlap if they share ticks.
 	//  The loose interpretation seems to extract more melodies.
+
+    // Whether to skip files like aaaaa.1.mid, aaaaa.2.mid (for clean_midi)
+    public static boolean skipOtherVersions = false;
+    public static Pattern patternForVersions = Pattern.compile("^.*\\.\\d+\\.mid");
 
 	//In many MIDI files, a sequence of notes is played with "legato" (smoothly), meaning that there is some temporal overlap between the notes.
 	//When extracting melodies we need to decide whether two successive notes are part of a monophonic melody or are in harmony (polyphony).
@@ -600,6 +601,9 @@ public class MidiMusicExtractor  {
 			}
 		} else {
 			String nameLowerCase=file.getName().toLowerCase();
+			if (skipOtherVersions && patternForVersions.matcher(nameLowerCase).matches()) {
+			        return;
+            }
 			if (nameLowerCase.endsWith(".mid") || nameLowerCase.endsWith(".midi")) {
 				try {
 					MidiMusicExtractor midiFeatures = new MidiMusicExtractor(file);

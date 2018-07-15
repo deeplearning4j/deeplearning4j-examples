@@ -21,8 +21,6 @@ learning in deeplearning4j to produce symbolic melody strings that mimicked the 
 In this new work, I follow a similar path, but I model two-party harmonies, which requires a change to the way music is encoded as strings.
 Even more than before, extracting music is nontrivial; I needed to use several configurable heuristics to obtain useful harmony strings.
 
-Options allow you to control whether to include instrument numbers in the harmony strings. But as of yet, training with instruments has
-not resulted in reasonable results, so I recommend against configuring the system to use instruments.
 
 ## How it works
 
@@ -68,24 +66,23 @@ when not modeling instruments are the following:
 
    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvw"
 
- In all, this covers four octaves.  If a note is outside that range I adjust it by one octave until it lies inside the range.
- See MidiHarmonyUtility.java.
+In all, this covers four octaves.  If a note is outside that range I adjust it by one octave until it lies inside the range.
+See MidiHarmonyUtility.java.
 
-When not using instruments, in a symbolic two-part harmony string the even characters (at indexes 0, 2, 4, 6, ...) represent the
+In a symbolic two-part harmony string the even characters (at indexes 0, 2, 4, 6, ...) represent the
 first voice. The odd characters (at indexes 1, 3, 5, 7, ...) represent the second voice.
 
-This process results in two-party harmony strings such as the following (from Mozart training, without instruments):
+This process results in two-party harmony strings such as the following (from Mozart training):
 
     ttttototttttvtltttqqqqqqqqqqqqqqqqolololololoa a a e e e f f f f e e e f f e e V V c c a a j j e e c c e e c c e e clclVlVlclclclclclclcococo h h h h h hJa a a m m t t t q q q u u mq qqqqqorrrrrrrrrrrrrrrvqtqtqtqtqtqtqtqtqtqtmtmtltltltflflhthteqeqeqeqaqXqXqaqaqYqXqXqhqhqhqhqhqhqeqeqeqeqeqeqeqeqeqcococococo l lclclclZmZmcmcmcmcmclclclelelelele e e gjgjgjgjhhhh h h h h h h h  VhVhV U U Vh hZhZhZhZhZhZ ZoZ ZhZhZhZhjjjjjhhhhffgegecgcgUhZhZhZhZhZhLeLeLeSeVeVeLeLeXeXe eZlZlZlZlXjXjVhVhVhVhCeCeCeCeLoLoL LcLcLcLcLcOc cg gj g g mQoQoQmJqJsJgJgJhJfJfJfJaJaJZOaNZNZNZJcJcJcJaCaCaCaCaOaCaBZBZBZBZBZBZBaBaBaBaCaCaCaGeGeGeEcEcEcEcEcEcEcEclcccccccchchchcaaaaaaZZZZ ZcaeJeJcJcJZJcJcJZJXJXJcJcJhOeOeOeOaOaOaOaOaOfOfOeOeOcOcOeOeOeOeOeOeOcJcJcOcOcOeOeOeOeJfJfJfJfJfJcJeJeJeJeJeJeJeJcJcJcJcJZJZJZJZJXLXLXLXBXBXBZBZBaCaCaLvLvAmAmLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLJVJVJVJVJVJVjVEVEVEVEhEhEoBlBlBlBoBoB BsBqBqBoJoJoZmZmclclcl lLlLlLlLlBlBlBhBhEoErGhGhJoEoD C B L L Q Q Q QrErErE E EqEqEoEoEmEmElJlJlJlJlJmJmJ CsCsCmCmCmCvCvCvCvClllmmJlJlJlJlMjNjNhNhNhNhNhNhNhNhNhLgLgLgLeJhJqJqJoJoJoJoJlJlJlJlJlJlJlJlJlJlJlZlhlhlhlOmOmOoOmOaararTrTrSqSqQrOqSqQsQsSvSvVlVlVlVhVhQhQhQhJVJVJVJVJVJVOJQJQJ JlJlJlJlJlJmJmJmJmJmJmJmJmJlJlJlJlJlJlJlJlOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOlOlOlOlOlOlOlOmOmOmOmOmOmOmOmOmOmOiOiOlOlOlOlOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmOmSmSmSmSmSmSmSmSmSmSmSmVmVmVmVm
 
 This representation of harmonies is quite different from that used in my previous melody-only work.  In that representation, each
-note had a pitch character and a duration character.  In the new representation, durations are implicit in the sampling.
+note had a pitch character (actually, a delta-pitch from the previous note) and a duration character.  In the new representation, 
+durations are implicit in the sampling.
 
-If you include the instrument, four characters are output for every time step: a character representing the first voice's pitch,
-a character representing the first voice's instrument, a character representing the second voice's pitch, and a character
-representing the second voice's instrument, in that order.  To avoid needing characters above ASCII 127, to limit the number
-possible characters, and to avoid infrequently used instruments, if the Note uses an instrument above MIDI instrument 75 (Pan Flute),
-I treat it as instrument 26 (Electric Guitar (clean)). Instrument characters go from from Ascii 33 to Ascii 108.
+If a melody is played in the key of C in one track and the same melody is played in the key of G in another track, their 
+representations in two-party harmony strings will be very different.  In my previous work, when I was modeling just monophonic
+melodies, the two strings would be identical.  But for harmonies, I need the potches to be synchronized between the two voices.
 
 I wrote utilities to convert two-part harmony strings back to MIDI sequences, and from MIDI sequences to wav and mp3 files.
 When converting from a symbolic two-part harmony string back to a MIDI sequences, adjacent notes of the same pitch are merged
@@ -114,6 +111,8 @@ mini-batch size did seem to help it learn: the loss went down pretty monotonical
 I found that three LSTM layers usually worked better than four. Often if I tried to train with four layers, learning got
 stuck or oscillated wildly.
 
+It seems to produce better harmonies with a layer size of 100 rather than 200
+
 The sample MP3s at http://deepmusic.info/ involve only a minor amount of curating, except for the top group.
 
 ------
@@ -121,6 +120,7 @@ The sample MP3s at http://deepmusic.info/ involve only a minor amount of curatin
 ## Ideas for future enhancement
 
 If musical scores were digitized and converted into symbolic form, that would provide a higher quality source of training data.
+Midi files are messy.
 
 JFugue has a language for representing music as strings, including instruments, chords and other features.  See
 http://www.jfugue.org/examples.html
@@ -130,8 +130,6 @@ and http://wiki.ccarh.org/wiki/Guido_Music_Notation
 
 Further tuning of LSTM is worthwhile: more layers, different hyper parameters, perhaps learned via arbiter and transfer learning.
 
-I barely explored modeling instruments, and the current system's approach to modeling instruments seems inadequate.
-
 An advantage of the symbolic harmony representation without instruments is that it's very simple: the even-indexed
 characters are one voice, and the odd-indexed characters are the second voice. LSTM seemed to have no trouble learning it.
 When I tried adding instruments (so that the pitch of the first voice was followed by the instrument of the first voice,
@@ -139,8 +137,9 @@ then the pitch of the second voice, and finally the instrument of the second voi
 conventions:  instrument characters were misaligned in the generated compositions.
 
 Since instruments change rarely, I could intersperse the harmony strings with occasional instrument characters (which must
-be distinct from pitch characters).  But each voice can have a different instrument.  And this change would make the
-representation much less standardized and probably harder for the LSTM to model.
+be distinct from pitch characters).  But each voice can have a different instrument, and there are 128 distinct MIDI instruments,
+though most are rarely used.  Adding instruments would make the representation much less standardized and probably harder for
+the LSTM to model.
 
 Adding dynamics is an obvious enhancement.  To add volume, we could add a volume character after each voice character, as I
 did with instruments, but that would suffer from the same problems as our representation for instruments.
@@ -172,8 +171,14 @@ In short, you
    * Run GravesLSTMForTwoPartHarmonies on the harmonies file output by MidiMusicExtractor (it will prompt you)
    * Then play the resulting samples with PlayTwoPartHarmonies. (You'll need to copy-and-paste a sample to a file.)
 
+You can also run DeepHarmony.java and harmonize with a serialized network zip file, which it prompts you for.
+You can download a saved network zip file, trained on Bach, from
+
+      http://deepmusic.info/BACH-layerCount_4-layerSize_100-tbpttLength_300-l2_0.0015-learningRate_0.05-updater_Adam-2018-06-16--10-44.zip
+      (Also at http://truthsite.org/music/BACH-layerCount_4-layerSize_100-tbpttLength_300-l2_0.0015-learningRate_0.05-updater_Adam-2018-06-16--10-44.zip )
+
 MidiMusicExtractor.java prompts you for a path to a midi directory. It then produces, inside midi-learning/ in your
-home diectory, a subdirectory containing a harmonies file of extracted two-party harmony strings, a melodies.txt file,
+home directory, a subdirectory containing a harmonies file of extracted two-party harmony strings, a melodies.txt file,
 and an analysis.txt file. For example, if the MIDI directory you choose has the name "BEATLES", your midi-learning/
 directory will contain something like the following:
 
@@ -191,18 +196,15 @@ to convert WAV files to mp3 files.
 PlayTwoPartHarmony.java lets you can configure the tempo and a transpose (pitch offset to adjust each note). For the
 samples at http://deepmusic.info/, I did not adjust the tempo, but in a few cases I adjusted the transpose.
 
-MidiHarmonyUtility.java converts MIDI sequences to symbolic two-party harmony string files.
+MidiHarmonyUtility.java converts MIDI sequence files to symbolic two-party harmony string files.
 
 Midi2WavRenderer.java (modified from JFugue, which has an apache license), converts MIDI files to wav files. PlayMusic.java has methods
 for converting wav files to MP3 using lame or ffmpeg.
 
-If you set the variable MidiHarmonyUtility.writeInstrumentsToHarmonyStrings to true, the generated harmony strings will contain
-instrument numbers as described above. However, as stated above, learning did not result in useful results with this representation.
-
 GravesLSTMForTwoPartHarmonies.java prompts you for a harmony file (such as "harmonies-BEATLES.txt" above), trains an LSTM network,
 and outputs composed symbolic two-party harmony strings to a file such as
 
-    samples-layerSize_250-tbpttLength_300-l2_0.0015-learningRate_0.05-updater_Adam-2018-05-27--21-37.txt
+    samples-layerCount_4-layerSize_200-tbpttLength_300-l2_0.0015-learningRate_0.05-updater_Adam-2018-06-03--09-55.txt
 
 in the same directory of the harmony file you chose.   During learning, after every 20 or so mini-batches (configurable), it
 writes samples to the sample file. Generally, the samples near the end will sound better, and you should copy each one

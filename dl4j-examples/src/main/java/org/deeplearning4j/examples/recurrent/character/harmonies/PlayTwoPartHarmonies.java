@@ -32,8 +32,8 @@ import javax.swing.JFileChooser;
 public class PlayTwoPartHarmonies {
 	public static int tickIncrement = 150;
 	private static int transposeHalfSteps = 0;
-	public static int instrument0=0; // PlayMusic.getInstrument("Acoustic Bass");
-	public static int instrument1=0; // PlayMusic.getInstrument("Acoustic Guitar (nylon)");
+	public static int instrument0=0; // PlayMusic.getInstrument("Flute"); // PlayMusic.getInstrument("Acoustic Bass");
+	public static int instrument1=PlayMusic.getInstrument("Acoustic Guitar (nylon)"); // PlayMusic.getInstrument("Acoustic Guitar (steel)");
 	public static final String ROOT_DIR_PATH = System.getProperty("user.home") +File.separator  + "midi-learning"; // Change this if you want!!!!!!!!!!!!!!!!!
 	static {
 		makeOrCheckDirectory(ROOT_DIR_PATH);
@@ -51,12 +51,11 @@ public class PlayTwoPartHarmonies {
 		}
 	}
 	private static void addNoteForChar(char ch, Track track, int channel, long startTick, long endTick, int instrument) throws InvalidMidiDataException {
-		int index= MidiHarmonyUtility.PITCH_CHARACTERS_FOR_HARMONY.indexOf(ch);
-		if (index<0) {
-			System.err.println("Couldn't find index for " + ch + " at tick " + startTick);
+		int pitch= MidiHarmonyUtility.getPitchForChar(ch);
+		if (pitch< MidiHarmonyUtility.MIN_ALLOWED_PITCH) {
+			System.err.println("Got pitch " + pitch + " for " + ch + " at tick " + startTick);
 			return;
 		}
-		int pitch= MidiHarmonyUtility.MIN_ALLOWED_PITCH+ index;
 		Note note = new Note(pitch, startTick,instrument,channel,80);
 		note.setEndTick(endTick);
 		note.addMidiEvents(track);
@@ -110,12 +109,13 @@ public class PlayTwoPartHarmonies {
 		ShortMessage midiMessage = new ShortMessage(ShortMessage.PROGRAM_CHANGE,channel,instrument,0);
     	track.add(new MidiEvent(midiMessage, 0));
 	}
-	public static Sequence playTwoPartHarmony(String harmonyString, String outMp3Path, String outMidiPath, int seconds) throws Exception {
+	public static Sequence playTwoPartHarmony(String harmonyString, String outMp3Path, String outMidiPath, int seconds, double tempoFactor) throws Exception {
 		String evenPart = evenPart(harmonyString);
 		String oddPart = oddPart(harmonyString);
 		System.out.println(evenPart);
 		System.out.println(oddPart);
-		Sequence sequence = new Sequence(Sequence.PPQ, 360 /*resolution*/); // 120
+		int resolution = (int)(460*tempoFactor);
+		Sequence sequence = new Sequence(Sequence.PPQ, resolution); // higher resolution is faster
 		if (outMidiPath!=null) {
 			File outMidiFile = new File(outMidiPath);
 			outMidiFile.delete();
@@ -131,11 +131,10 @@ public class PlayTwoPartHarmonies {
 		Track oddTrack = sequence.createTrack();
 		addInstrument(oddTrack, 1, instrument1);
 		populateTrack(oddPart, oddTrack,1, instrument1);
-		double tempoFactor=2.0;
 		if (outMp3Path!=null) {
 			Midi2WavRenderer.createMp3File(sequence, outMp3Path, transposeHalfSteps);
 		}
-		PlayMusic.playSequence(sequence, tempoFactor,seconds);
+		PlayMusic.playSequence(sequence, 1,seconds);  // We adjust tempo via the resolution above
 		return sequence;
 	}
 	public final static String removeSilences(String line, int count) {
@@ -215,7 +214,8 @@ public class PlayTwoPartHarmonies {
 		}
 		return sb.toString();
 	}
-	public static void readFileAndPlayFirstHarmoniesLine(String path, String outMp3Path, String outMidiPath, int seconds, int repeatLimit) throws Exception {
+	public static void readFileAndPlayFirstHarmoniesLine(String path, String outMp3Path, String outMidiPath,
+             int seconds, int repeatLimit, double tempoFactor) throws Exception {
 		if (outMp3Path!=null && !outMp3Path.endsWith(".mp3")) {
 			outMp3Path = outMp3Path + ".mp3";
 		}
@@ -241,13 +241,13 @@ public class PlayTwoPartHarmonies {
 			if (!line.isEmpty()) {
 				//validateOrdered(line);
 				line=removeLongRepeats(line, repeatLimit);
-				playTwoPartHarmony(line,outMp3Path, outMidiPath, seconds);
+				playTwoPartHarmony(line,outMp3Path, outMidiPath, seconds, tempoFactor);
 				break; // NOTE: This causes it to play just the first line of the file.
 			}
 		}
 		reader.close();
 	}
-	private static void playRandomHarmonyFile(String directoryPath, int repeatLimit) throws Exception {
+	private static void playRandomHarmonyFile(String directoryPath, int repeatLimit, double tempoFactor) throws Exception {
 		File directory = new File(directoryPath);
 		File [] files = directory.listFiles(new FileFilter(){
 			@Override
@@ -256,7 +256,8 @@ public class PlayTwoPartHarmonies {
 			}});
 		Random random = new Random();
 		File file = files[random.nextInt(files.length)];
-		readFileAndPlayFirstHarmoniesLine(file.getAbsolutePath(), null,null, 60, repeatLimit);
+		readFileAndPlayFirstHarmoniesLine(file.getAbsolutePath(), null,null, 60, repeatLimit,
+            tempoFactor);
 	}
 	public static String removeSuffix(String name) {
 		int index=name.lastIndexOf('.');
@@ -286,7 +287,9 @@ public class PlayTwoPartHarmonies {
 			transposeHalfSteps = 0;
 			int repeatLimit=16;
 			int seconds=60;
-			readFileAndPlayFirstHarmoniesLine(inputHarmoniesFile.getAbsolutePath(),mp3OutPath, midiOutPath, seconds,repeatLimit);
+			double tempoFactor=1.5;
+			readFileAndPlayFirstHarmoniesLine(inputHarmoniesFile.getAbsolutePath(),mp3OutPath, midiOutPath,
+                seconds,repeatLimit, tempoFactor);
 			//playRandomHarmonyFile("d:/tmp/harmonies");
 		} catch (Throwable thr) {
 			thr.printStackTrace();
