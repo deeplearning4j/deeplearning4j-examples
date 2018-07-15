@@ -85,7 +85,7 @@ public class MnistMLPDistributedExample {
         //Load the data into memory then parallelize
         //This isn't a good approach in general - but is simple to use for this example
         DataSetIterator iterTrain = new MnistDataSetIterator(batchSizePerWorker, true, 12345);
-        DataSetIterator iterTest = new MnistDataSetIterator(batchSizePerWorker, true, 12345);
+        DataSetIterator iterTest = new MnistDataSetIterator(batchSizePerWorker, false, 12345);
         List<DataSet> trainDataList = new ArrayList<>();
         List<DataSet> testDataList = new ArrayList<>();
         while (iterTrain.hasNext()) {
