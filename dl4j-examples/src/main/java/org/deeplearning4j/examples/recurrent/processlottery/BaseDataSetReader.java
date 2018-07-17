@@ -9,6 +9,9 @@ import java.nio.file.Path;
 import java.util.Iterator;
 import java.util.List;
 
+/**
+ * @author WangFeng
+ */
 public abstract class BaseDataSetReader implements Serializable {
 
     protected Iterator<String> iter;

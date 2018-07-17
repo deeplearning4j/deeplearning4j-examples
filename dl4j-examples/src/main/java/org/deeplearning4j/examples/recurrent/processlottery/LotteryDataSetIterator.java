@@ -9,7 +9,7 @@ import java.io.File;
 import java.util.*;
 
 /**
- * @Author WangFeng
+ * @author WangFeng
  */
 public class LotteryDataSetIterator implements DataSetIterator {
 

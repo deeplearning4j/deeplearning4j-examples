@@ -26,12 +26,11 @@ public class LotteryCombinationDataSetReader extends BaseDataSetReader  {
         INDArray features = Nd4j.create(new int[]{num-1, lotteryLength, 10});
         INDArray labels = Nd4j.create(new int[]{num-1, lotteryLength, 10});
         for (int i =0; i < num - 1  && iter.hasNext(); i ++) {
-            String featureStr;
             if ("".equals(currentValStr)) {
                 currentValStr = iter.next();
                 currentCursor ++;
             }
-            featureStr = currentValStr;
+            String featureStr = currentValStr;
 
             featureStr = featureStr.split(",")[2];
             String[] featureAry = featureStr.split("");
@@ -55,6 +54,7 @@ public class LotteryCombinationDataSetReader extends BaseDataSetReader  {
     }
 
     //based on the lottery rule,here will the openning lottery date and term switch to the long integer
+    //if anyone need extend this model, maybe you can use the method
     private String decorateRecordData(String line) {
         if (line == null && line.isEmpty()) {
             return null;
@@ -66,8 +66,8 @@ public class LotteryCombinationDataSetReader extends BaseDataSetReader  {
             openDateStr = openDateStr.substring(0, 4) + "-" + openDateStr.substring(4, 6) + "-" + openDateStr.substring(6, 8);
             String issueNumStr = strArr[0].substring(strArr[0].length() - 3);
             int issueNum = Integer.parseInt(issueNumStr);
-            int minutes = 0;
-            int hours = 0;
+            int minutes;
+            int hours;
             if (issueNum >= 24 && issueNum < 96) {
                 int temp = (issueNum - 24) * 10;
                 minutes = temp % 60;
