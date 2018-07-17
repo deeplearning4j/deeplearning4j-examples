@@ -14,93 +14,51 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
- * @Description lottery value -> lottery value
- * @Author WangFeng
+ * lottery numbers -> lottery numbers
+ * @author WangFeng
  */
 
-public class LotteryCombinationDataSetReader implements BaseDataSetReader  {
-    private static final Logger log = LoggerFactory.getLogger(LotteryCombinationDataSetReader.class);
+public class LotteryCombinationDataSetReader extends BaseDataSetReader  {
 
-    private Iterator<String> iter;
-    private Path filePath;
-    private int lotteryLength = 5;
 
-    private int totalExamples;
-    private int currentCursor;
-
-    public LotteryCombinationDataSetReader() {}
     public LotteryCombinationDataSetReader(File file) {
         filePath = file.toPath();
         doInitialize();
     }
 
-    public void doInitialize(){
-        List<String> dataLines;
-        try {
-            dataLines = Files.readAllLines(filePath, Charset.forName("UTF-8"));
-        } catch (Exception e) {
-            throw new RuntimeException("loading data failed");
+    public DataSet next(int num) {
+        int lotteryLength = 5;
+        String currentValStr = "";
+        INDArray features = Nd4j.create(new int[]{num-1, lotteryLength, 10});
+        INDArray labels = Nd4j.create(new int[]{num-1, lotteryLength, 10});
+        for (int i =0; i < num - 1  && iter.hasNext(); i ++) {
+            String featureStr;
+            if ("".equals(currentValStr)) {
+                currentValStr = iter.next();
+                currentCursor ++;
+            }
+            featureStr = currentValStr;
+
+            featureStr = featureStr.split(",")[2];
+            String[] featureAry = featureStr.split("");
+            for (int j = 0; j < lotteryLength; j ++) {
+                int l = Integer.parseInt(featureAry[j]);
+                features.putScalar(new int[]{i, j, l}, 1);
+            }
+
+            String labelStr = iter.next();
+            currentCursor ++;
+            currentValStr = labelStr;
+            labelStr = labelStr.split(",")[2];
+            String[] labelAry = labelStr.split("");
+            for (int j = 0; j < lotteryLength; j ++) {
+                int l = Integer.parseInt(labelAry[j]);
+                labels.putScalar(new int[]{i, j, l}, 1);
+            }
+
         }
-        iter = dataLines.iterator();
-        totalExamples = dataLines.size();
-        currentCursor = 0;
+        return new DataSet(features, labels);
     }
-
-  public DataSet next(int num) {
-      String currentValStr = "";
-      INDArray features = Nd4j.create(new int[]{num-1, lotteryLength, 10});
-      INDArray labels = Nd4j.create(new int[]{num-1, lotteryLength, 10});
-      for (int i =0; i < num - 1  && iter.hasNext(); i ++) {
-          String featureStr = "";
-          if (null == currentValStr || "".equals(currentValStr)) {
-              currentValStr = iter.next();
-              currentCursor ++;
-          }
-          featureStr = currentValStr;
-
-          featureStr = featureStr.split(",")[2];
-          String[] featureAry = featureStr.split("");
-          for (int j = 0; j < lotteryLength; j ++) {
-              int l = Integer.parseInt(featureAry[j]);
-              features.putScalar(new int[]{i, j, l}, 1);
-          }
-
-          String labelStr = iter.next();
-          currentCursor ++;
-          currentValStr = labelStr;
-          labelStr = labelStr.split(",")[2];
-          String[] labelAry = labelStr.split("");
-          for (int j = 0; j < lotteryLength; j ++) {
-              int l = Integer.parseInt(labelAry[j]);
-              labels.putScalar(new int[]{i, j, l}, 1);
-          }
-
-      }
-      DataSet result = new DataSet(features, labels);
-      return result;
-  }
-
-    public boolean hasNext() {
-        if (iter != null && iter.hasNext() ) {
-            return true;
-        }
-        return false;
-    }
-
-    public List<String> getLabels() {
-        return null;
-    }
-
-    public void reset() {
-        doInitialize();
-    }
-    public int totalExamples() {
-        return totalExamples;
-    }
-    public int cursor() {
-        return currentCursor;
-    }
-
 
     //based on the lottery rule,here will the openning lottery date and term switch to the long integer
     private String decorateRecordData(String line) {
@@ -131,10 +89,8 @@ public class LotteryCombinationDataSetReader implements BaseDataSetReader  {
                 minutes = temp % 60;
                 hours = temp / 60;
             }
-
             openDateStr = openDateStr + " " + hours + ":" + (minutes == 0 ? "00" : minutes) + ":00";
             long openDateStrNum = 0;
-
             try {
                 SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");//yyyy-MM-dd HH:mm:ss
                 Date midDate = formatter.parse(openDateStr);
@@ -149,7 +105,6 @@ public class LotteryCombinationDataSetReader implements BaseDataSetReader  {
         }
         return line;
     }
-
 
 
 }

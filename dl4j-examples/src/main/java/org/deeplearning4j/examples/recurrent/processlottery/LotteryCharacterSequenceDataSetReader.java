@@ -13,34 +13,14 @@ import java.nio.file.Path;
 import java.util.*;
 
 /**
- * @Description  a->b b->c c->d ....
- * @Author WangFeng
+ * a->b b->c c->d ....
+ * @author WangFeng
  */
-public class LotteryCharacterSequenceDataSetReader implements BaseDataSetReader {
+public class LotteryCharacterSequenceDataSetReader extends BaseDataSetReader {
 
-    private Iterator<String> iter;
-    private Path filePath;
-
-    private int totalExamples;
-    private int currentCursor;
-
-
-    public LotteryCharacterSequenceDataSetReader() {}
     public LotteryCharacterSequenceDataSetReader(File file) {
         filePath = file.toPath();
         doInitialize();
-    }
-
-    public void doInitialize(){
-        List<String> dataLines;
-        try {
-            dataLines = Files.readAllLines(filePath, Charset.forName("UTF-8"));
-        } catch (Exception e) {
-            throw new RuntimeException("loading data failed");
-        }
-        iter = dataLines.iterator();
-        totalExamples = dataLines.size();
-        currentCursor = 0;
     }
 
     public DataSet next(int num) {
@@ -63,33 +43,8 @@ public class LotteryCharacterSequenceDataSetReader implements BaseDataSetReader 
                 labels.putScalar(new int[]{i, label, j}, 1.0);
             }
         }
-        DataSet result = new DataSet(features, labels, featuresMask, labelsMask);
-        return result;
-
+        return new DataSet(features, labels, featuresMask, labelsMask);
     }
-
-    public boolean hasNext() {
-        if (iter != null && iter.hasNext()) {
-            return true;
-        }
-        return false;
-    }
-
-    public List<String> getLabels() {
-        return null;
-    }
-
-    public void reset() {
-        doInitialize();
-    }
-    public int totalExamples() {
-        return totalExamples;
-    }
-    public int cursor() {
-        return currentCursor;
-    }
-
-
 
 }
 

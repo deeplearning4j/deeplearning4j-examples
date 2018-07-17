@@ -32,7 +32,7 @@ import org.deeplearning4j.api.storage.StatsStorage;
   * lottery number rule: its length is 5 bit, every bit choose one from 0-9 digit
   * this example only try to get the lottery algorithm by an unidentified structure underlying the data,maybe the inputting features still is less,
   * although the model don't seem to get the original lottery algorithm, but this example can still be used as a reference for processing sequence data.
-  * Created by wangfeng.
+  * @author wangfeng.
   */
 public class TrainLotteryModel {
     private static Logger log = LoggerFactory.getLogger(TrainLotteryModel.class);
@@ -40,22 +40,16 @@ public class TrainLotteryModel {
 
     private static int batchSize = 64;
     private static long seed = 123;
-    private static int numEpochs = 1;
-    private static String baseRootPath = System.getProperty("user.dir");
-    private static String rootPath = baseRootPath.substring(0,baseRootPath.lastIndexOf(File.separatorChar)) + File.separatorChar + "out";
-    private static String modelPath = rootPath + File.separatorChar + "models" + File.separatorChar + "lotteryPredictModel.json";
-
+    private static int numEpochs = 3;
     private static boolean modelType = true;
-	public static void main(String[] args) throws Exception{
-        long startTime = System.currentTimeMillis();
-        System.out.println(startTime);
-        File modelFile = new File(modelPath);
-        boolean hasFile = modelFile.exists()?true:modelFile.createNewFile();
-        log.info( modelFile.getPath() );
 
-        DataSetIterator trainIterator = new LotteryDataSetIterator(new ClassPathResource("/lottery/cqssc_train.csv").getFile().getPath(), batchSize, modelType);
-        DataSetIterator testIterator = new LotteryDataSetIterator(new ClassPathResource("/lottery/cqssc_test.csv").getFile().getPath(), 2 , modelType);
-        DataSetIterator validateIterator = new LotteryDataSetIterator(new ClassPathResource("/lottery/cqssc_validate.csv").getFile().getPath(), 2 , modelType);
+	public static void main(String[] args) throws Exception{
+
+        String dataPath = new ClassPathResource("/lottery").getFile().getPath();
+        File modelFile = new File(dataPath + File.separatorChar + "lotteryPredictModel.json");
+        DataSetIterator trainIterator = new LotteryDataSetIterator(dataPath + File.separatorChar + "cqssc_train.csv", batchSize, modelType);
+        DataSetIterator testIterator = new LotteryDataSetIterator(dataPath + File.separatorChar + "cqssc_test.csv" , 2 , modelType);
+        DataSetIterator validateIterator = new LotteryDataSetIterator(dataPath + File.separatorChar + "cqssc_validate.csv", 2 , modelType);
 
         MultiLayerNetwork model = getNetModel(trainIterator.inputColumns(), trainIterator.totalOutcomes());
         UIServer uiServer = UIServer.getInstance();
@@ -72,6 +66,7 @@ public class TrainLotteryModel {
         }
         System.out.println("Total number of network parameters: " + totalNumParams);
 
+        long startTime = System.currentTimeMillis();
         for (int i = 0;i < numEpochs; i ++) {
             System.out.println("=============numEpochs==========================" + i);
             model.fit(trainIterator);
@@ -86,17 +81,16 @@ public class TrainLotteryModel {
                 DataSet ds = testIterator.next();
                 //predictions all at once
                 INDArray output = model.output(ds.getFeatures());
-
                 INDArray label = ds.getLabels();
                 INDArray preOutput = Nd4j.argMax(output.getRow(0), new int[]{1});
                 INDArray realLabel = Nd4j.argMax(label.getRow(0), new int[]{1});
-                String peLabel = "";
-                String reLabel = "";
+                StringBuilder peLabel = new StringBuilder();
+                StringBuilder reLabel = new StringBuilder();
                 for (int dataIndex = 0; dataIndex < 5; dataIndex ++) {
-                    peLabel += preOutput.getRow(dataIndex).getInt(0);
-                    reLabel += realLabel.getRow(dataIndex).getInt(0);
+                    peLabel.append(preOutput.getRow(dataIndex).getInt(0));
+                    reLabel.append(realLabel.getRow(dataIndex).getInt(0));
                 }
-                log.info("test-->real lottery {}  prediction {} status {}",  reLabel,peLabel, peLabel.equals(reLabel));
+                log.info("test-->real lottery {}  prediction {} status {}",  reLabel.toString(), peLabel.toString(), peLabel.equals(reLabel));
             }
             while (validateIterator.hasNext()) {
                 DataSet ds = validateIterator.next();
@@ -105,13 +99,13 @@ public class TrainLotteryModel {
                 INDArray label = ds.getLabels();
                 INDArray preOutput = Nd4j.argMax(output.getRow(0), new int[]{1});
                 INDArray realLabel = Nd4j.argMax(label.getRow(0), new int[]{1});
-                String peLabel = "";
-                String reLabel = "";
+                StringBuilder peLabel = new StringBuilder();
+                StringBuilder reLabel = new StringBuilder();
                 for (int dataIndex = 0; dataIndex < 5; dataIndex ++) {
-                    peLabel += preOutput.getRow(dataIndex).getInt(0);
-                    reLabel += realLabel.getRow(dataIndex).getInt(0);
+                    peLabel.append(preOutput.getRow(dataIndex).getInt(0));
+                    reLabel.append(realLabel.getRow(dataIndex).getInt(0));
                 }
-                log.info("validate-->real lottery {}  prediction {} status {}",  reLabel,peLabel, peLabel.equals(reLabel));
+                log.info("validate-->real lottery {}  prediction {} status {}",  reLabel.toString(), peLabel.toString(), peLabel.equals(reLabel));
             }
 
             String currentLottery = "27578";
@@ -121,17 +115,15 @@ public class TrainLotteryModel {
                 int p = Integer.parseInt(featureAry[j]);
                 initCondition.putScalar(new int[]{0, j, p}, 1);
             }
-            INDArray output1 = model.output(initCondition);
-            INDArray preOutput1 = Nd4j.argMax(output1.getRow(0), new int[]{1});
-            String latestLottery = "";
+            INDArray output = model.output(initCondition);
+            INDArray preOutput = Nd4j.argMax(output.getRow(0), new int[]{1});
+            StringBuilder latestLottery = new StringBuilder();
             for (int dataIndex = 0; dataIndex < 5; dataIndex ++) {
-                latestLottery += preOutput1.getRow(dataIndex).getInt(0);
+                latestLottery.append(preOutput.getRow(dataIndex).getInt(0));
             }
-            System.out.println("==prediction====result===" +  latestLottery);
+            System.out.println("current lottery numbers==" + currentLottery + "==prediction===next lottery numbers==" +  latestLottery.toString());
 
         } else {
-
-
             int predictCount = 2;
             String predictDateNum = "20180716100";//20180716,100
             //Create input for initialization
@@ -169,7 +161,6 @@ public class TrainLotteryModel {
                     double sum = 0.0;
                     int luckyNum = 0;
                     double d = random.nextDouble();
-
                     for( int j = 0; j < outputProbDistribution.length; j++ ){
                         sum += outputProbDistribution[j];
                         if( d <= sum ) luckyNum = i;
@@ -188,7 +179,7 @@ public class TrainLotteryModel {
     }
 
     //create the neural network
-	public static MultiLayerNetwork getNetModel(int inputNum, int outputNum) {
+	private static MultiLayerNetwork getNetModel(int inputNum, int outputNum) {
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
                 .trainingWorkspaceMode(WorkspaceMode.ENABLED).inferenceWorkspaceMode(WorkspaceMode.ENABLED)
                 .seed(seed)

@@ -15,7 +15,7 @@ import java.util.*;
 public class LotteryDataSetIterator implements DataSetIterator {
 
     private BaseDataSetReader recordReader;
-    private int batchSize = 0;
+    private int batchSize;
     private DataSet last;
     private boolean useCurrent;
 
@@ -107,10 +107,7 @@ public class LotteryDataSetIterator implements DataSetIterator {
 
     @Override
     public boolean hasNext() {
-        if ( recordReader.hasNext()) {
-            return true;
-        }
-        return false;
+        return recordReader.hasNext();
     }
 
     @Override
