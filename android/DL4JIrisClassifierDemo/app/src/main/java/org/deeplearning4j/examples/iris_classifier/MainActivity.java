@@ -122,7 +122,7 @@ public class MainActivity extends AppCompatActivity {
             int ii = 0;
             for(int r=0; r<rowLabel; r++){
                 for( int c=0; c<colLabel; c++){
-                    twodimLabel[r][c]= org.deeplearning4j.examples.iris_classifier.DataSet.irisData[ii++];
+                    twodimLabel[r][c]= org.deeplearning4j.examples.iris_classifier.DataSet.labelData[ii++];
                 }
             }
 
