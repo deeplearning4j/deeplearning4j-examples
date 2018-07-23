@@ -336,6 +336,7 @@ public class PlayMelodyStrings {
         }
         index = MelodyStrings.noteGapCharsNegative.indexOf(ch);
         if (index < 0) {
+            System.err.println("WARNING: invalid pitch char: " + ch);
             return -1;
         }
         return -(index + 1);
@@ -370,7 +371,6 @@ public class PlayMelodyStrings {
         // Next: are  restDuration, pitch, noteDuration
         int channel = 0;
         int velocity = 95;
-        int track = 2;
         final int resolution = 480;
         final int resolutionDelta = resolution / 16;
         int index = 0; //getIndexOfFirstPitchDuration(line);
@@ -387,6 +387,7 @@ public class PlayMelodyStrings {
         }
         int noteDurationInTicks = 0;
 
+        // index should point at a pitch char
         while (index < melody.length() - 1) {
             char ch = melody.charAt(index);
             if (ch == MelodyStrings.REST_CHAR) {
@@ -396,26 +397,26 @@ public class PlayMelodyStrings {
                     tick += getDurationInTicks(ch, resolutionDelta);
                     index++;
                 } else {
-                    System.out.print(MelodyStrings.REST_CHAR); // Badly formed melody string
+                    System.err.println(ch + " is invalid as a duration char"); // Badly formed melody string
                 }
-            } else if (MelodyStrings.isDurationChar(ch)) {
+            } else if (MelodyStrings.isPitchChar(ch)) {
                 index++;
                 int pitchDelta = getPitchDelta(ch);
                 lastRawNote += pitchDelta;
                 while (lastRawNote < 30) {
                     System.out.print('<');
-                    lastRawNote += 12; // This is a hack to prevent melodies from becoming inaudible
+                    lastRawNote += 12; // This prevents pitches from becoming too low
                 }
                 while (lastRawNote >= 80) {
                     System.out.print('>');
-                    lastRawNote -= 12; // This is a hack to prevent melodies from becoming inaudible
+                    lastRawNote -= 12; // This prevents pitches from becoming too high
                 }
                 ch = melody.charAt(index);
                 if (MelodyStrings.isDurationChar(ch)) {
                     noteDurationInTicks = getDurationInTicks(ch, resolutionDelta);
                     index++;
                 } else {
-                    System.out.print('D'); // Badly formed melody string
+                    System.err.println("Expected duration char, got " + ch); // Badly formed melody string
                     noteDurationInTicks = 4 * resolutionDelta;
                 }
                 //                 Note(int pitch, long startTick, int instrument, int channel, int velocity)
@@ -424,7 +425,7 @@ public class PlayMelodyStrings {
                 ns.add(note);
                 tick += noteDurationInTicks;
             } else {
-                System.out.print(ch);
+                System.err.println("Error char: " + ch);
                 index++;
             }
         }
@@ -551,6 +552,7 @@ public class PlayMelodyStrings {
     public static void main(String[] args) {
 //        String filename="beatles-melodies-input.txt";
 //        MelodyModelingExample.makeSureFileIsInTmpDir(filename);
+        args = new String[] {"c:/users/Don Smith/AppData/Local/Temp/bach-midi-melodies.txt"};
         try {
             String pathToMelodiesFile = args.length == 0 ? getPathToExampleMelodiesFile() : args[0];
             playMelodies(pathToMelodiesFile, 30); /// Note: by default it plays 30 seconds of each melody

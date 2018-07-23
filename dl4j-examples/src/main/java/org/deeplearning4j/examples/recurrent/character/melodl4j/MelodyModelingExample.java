@@ -31,10 +31,11 @@ import java.util.Random;
  * Based closely on LSTMCharModellingExample.java.
  * See the README file in this directory for documentation.
  *
- * @author Alex Black, Donald A. Smith.
+ * @author Donald A. Smith, Alex Black.
  */
 public class MelodyModelingExample {
-    final static String inputSymbolicMelodiesFilename = "bach-melodies-input.txt";
+    final static String inputSymbolicMelodiesFilename = "bach-midi-melodies.txt"; // Same as default for
+    // MidiMelodyExtractor.java
     // Examples:  bach-melodies-input.txt, beatles-melodies-input.txt ,  pop-melodies-input.txt (large)
 
     final static String tmpDir = System.getProperty("java.io.tmpdir");
