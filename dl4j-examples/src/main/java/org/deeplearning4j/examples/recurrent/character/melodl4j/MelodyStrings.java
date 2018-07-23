@@ -11,12 +11,12 @@ public class MelodyStrings {
     public static final String COMMENT_STRING = "//";
     // The following strings are used to build the symbolic representation of a melody
     // The next two strings contain chars used to indicate pitch deltas.
-    public static final String noteGapCharsPositive = "0123456789abc"; // A pitch delta of "0" indicates delta=0.
-    public static final String noteGapCharsNegative = "ABCDEFGHIJKLM"; // A pitch delta of "A" indicates delta=-1.
+    // We use this ordering of characters so that
+    public static final String noteGapCharsNegative = "MLKJIHGFEDCBA"; // "M" indicates delta=-1. "L" indicates -2,...
+    public static final String noteGapCharsPositive = "NOPQRSTUVWXYZ"; // "N" indicates delta=0. "O" indicates 1, ...
     // R is used to indicate the beginning of a rest
-    public static int durationDeltaParts = 8;
-    public static final String durationChars = "defghijkmnopqrstuvwzyz!@#$%^&*-_"; // 32 divisions.  We omit lower-case L to avoid confusion with one.
-    //                                          12345678901234567890123456789012
+    public static int durationDeltaParts = 8; //12345678901234567890123456789012
+    public static final String durationChars = "]^_`abcdefghijklmnopqrstuvwzyz{|"; // 32 divisions, in ASCII order
     public static final String allValidCharacters = getValidCharacters();
     // 13+13+1+32 = 59 possible characters.
     // 'd' indicates the smallest pitch duration allowed (typically a 1/32 note or so).
