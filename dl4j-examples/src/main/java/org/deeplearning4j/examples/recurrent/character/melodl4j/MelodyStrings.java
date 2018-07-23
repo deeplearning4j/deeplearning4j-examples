@@ -14,16 +14,16 @@ public class MelodyStrings {
     // We use this ordering of characters so that
     public static final String noteGapCharsNegative = "MLKJIHGFEDCBA"; // "M" indicates delta=-1. "L" indicates -2,...
     public static final String noteGapCharsPositive = "NOPQRSTUVWXYZ"; // "N" indicates delta=0. "O" indicates 1, ...
-    // R is used to indicate the beginning of a rest
+    // ' ' is used to indicate the beginning of a rest
     public static int durationDeltaParts = 8; //12345678901234567890123456789012
     public static final String durationChars = "]^_`abcdefghijklmnopqrstuvwzyz{|"; // 32 divisions, in ASCII order
     public static final String allValidCharacters = getValidCharacters();
     // 13+13+1+32 = 59 possible characters.
-    // 'd' indicates the smallest pitch duration allowed (typically a 1/32 note or so).
-    // 'e' is a duration twice that of 'd'
-    // 'f' is a duration three times that of 'd', etc.
-    // If there is a rest between notes, we append 'R' followed by a char for the duration of the rest.
-    public static final char restChar = 'R';
+    // ']' indicates the smallest pitch duration allowed (typically a 1/32 note or so).
+    // '^' is a duration twice that of ']'
+    // '_' is a duration three times that of ']', etc.
+    // If there is a rest between notes, we append ' ' followed by a char for the duration of the rest.
+    public static final char REST_CHAR = ' ';
 
     /**
      * @return characters that may occur in a valid melody string
@@ -33,10 +33,15 @@ public class MelodyStrings {
         sb.append(noteGapCharsPositive);
         sb.append(noteGapCharsNegative);
         sb.append(durationChars);
-        sb.append('R');
+        sb.append(REST_CHAR);
         return sb.toString();
     }
-
+    public static boolean isDurationChar(char ch) {
+        return ch>=']' && ch <= '|';
+    }
+    public static boolean isPitchChar(char ch) {
+        return ch >= 'A' && ch <= 'Z';
+    }
     public static String convertToMelodyString(List<Note> noteSequence) {
         double averageNoteDuration = computeAverageDuration(noteSequence);
         double durationDelta = averageNoteDuration / durationDeltaParts;
@@ -51,7 +56,7 @@ public class MelodyStrings {
                 long restDuration = note.getStartTick() - previousNote.getEndTick();
                 if (restDuration > 0) {
                     char restDurationChar = computeDurationChar(restDuration, durationDelta);
-                    sb.append(restChar);
+                    sb.append(REST_CHAR);
                     sb.append(restDurationChar);
                 }
                 int pitchGap = note.getPitch() - previousNote.getPitch();

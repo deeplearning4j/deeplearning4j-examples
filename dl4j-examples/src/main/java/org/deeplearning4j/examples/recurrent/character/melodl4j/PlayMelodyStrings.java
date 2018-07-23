@@ -1,5 +1,7 @@
 package org.deeplearning4j.examples.recurrent.character.melodl4j;
 
+import play.Play;
+
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.File;
@@ -199,6 +201,24 @@ public class PlayMelodyStrings {
         numberFormat.setMaximumFractionDigits(1);
     }
 
+    //-------------
+    private static String makeAllDurationsToBe(String line, char newDuration) {
+        StringBuilder sb = new StringBuilder();
+        int i=0;
+        while (i< line.length()) {
+            char ch=line.charAt(i);
+            if (MelodyStrings.isDurationChar(ch)) {
+                sb.append(newDuration);
+                i++;
+//            } else if (ch == MelodyStrings.REST_CHAR) {
+//                i+=2;
+            } else {
+                sb.append(ch);
+                i++;
+            }
+        }
+        return sb.toString();
+    }
     //-----------------------------------------------
     public static void playMelodies(String inFilepath, double secondsToPlay) throws IOException, MidiUnavailableException, InvalidMidiDataException {
         playMelodies(inFilepath, 0, secondsToPlay);
@@ -224,6 +244,7 @@ public class PlayMelodyStrings {
             if (line.equals("")) {
                 continue;
             }
+
             if (line.startsWith(MelodyStrings.COMMENT_STRING)) {
                 System.out.println(line);
                 instrumentNumber = getInstrumentNumberFromLine(line, instrumentNumber);
@@ -231,6 +252,7 @@ public class PlayMelodyStrings {
                 System.out.println("Using instrument " + programs[instrumentNumber] + " and startNote " + startNote);
                 continue;
             }
+            //line = makeAllDurationsToBe(line, MelodyStrings.durationChars.charAt(10));
             System.out.println("\nPlaying " + lineNumber + " : " + line);
             playMelody(line, startNote, instrumentNumber, secondsToPlay);
             sleep(2000); // so there's a noticeable gap between melodies
@@ -319,14 +341,6 @@ public class PlayMelodyStrings {
         return -(index + 1);
     }
 
-    private static boolean isDurationChar(char ch) {
-        return ch != 'R' && MelodyStrings.durationChars.indexOf(ch) >= 0;
-    }
-
-    private static boolean isPitchChar(char ch) {
-        return ch != 'R' && !isDurationChar(ch);
-    }
-
     /*
      * If the melody string contains a tab, the instrument used and start pitch will be obtained from the header before the tab.
      * Otherwise, it will use startPitch 55 and Acoustic Grand Piano (instrument number 0)
@@ -362,7 +376,7 @@ public class PlayMelodyStrings {
         int index = 0; //getIndexOfFirstPitchDuration(line);
         List<Note> ns = new ArrayList<>();
         long tick = 0;
-        if (isDurationChar(melody.charAt(index))) {
+        if (MelodyStrings.isDurationChar(melody.charAt(index))) {
             //  Note(int pitch, long startTick, int instrument, int channel, int velocity)
             Note note = new Note(startNote, tick, instrumentNumber, channel, velocity);
             long duration = getDurationInTicks(melody.charAt(index), resolutionDelta);
@@ -375,16 +389,16 @@ public class PlayMelodyStrings {
 
         while (index < melody.length() - 1) {
             char ch = melody.charAt(index);
-            if (ch == 'R') {
+            if (ch == MelodyStrings.REST_CHAR) {
                 index++;
                 ch = melody.charAt(index);
-                if (isDurationChar(ch)) {
+                if (MelodyStrings.isDurationChar(ch)) {
                     tick += getDurationInTicks(ch, resolutionDelta);
                     index++;
                 } else {
-                    System.out.print('R'); // Badly formed melody string
+                    System.out.print(MelodyStrings.REST_CHAR); // Badly formed melody string
                 }
-            } else if (isPitchChar(ch)) {
+            } else if (MelodyStrings.isDurationChar(ch)) {
                 index++;
                 int pitchDelta = getPitchDelta(ch);
                 lastRawNote += pitchDelta;
@@ -397,7 +411,7 @@ public class PlayMelodyStrings {
                     lastRawNote -= 12; // This is a hack to prevent melodies from becoming inaudible
                 }
                 ch = melody.charAt(index);
-                if (isDurationChar(ch)) {
+                if (MelodyStrings.isDurationChar(ch)) {
                     noteDurationInTicks = getDurationInTicks(ch, resolutionDelta);
                     index++;
                 } else {
@@ -537,7 +551,6 @@ public class PlayMelodyStrings {
     public static void main(String[] args) {
 //        String filename="beatles-melodies-input.txt";
 //        MelodyModelingExample.makeSureFileIsInTmpDir(filename);
-//        args = new String[] {MelodyModelingExample.tmpDir + "/" + filename};
         try {
             String pathToMelodiesFile = args.length == 0 ? getPathToExampleMelodiesFile() : args[0];
             playMelodies(pathToMelodiesFile, 30); /// Note: by default it plays 30 seconds of each melody
