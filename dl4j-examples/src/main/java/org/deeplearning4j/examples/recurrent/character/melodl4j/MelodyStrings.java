@@ -11,7 +11,7 @@ public class MelodyStrings {
     public static final String COMMENT_STRING = "//";
     // The following strings are used to build the symbolic representation of a melody
     // The next two strings contain chars used to indicate pitch deltas.
-    // We use this ordering of characters so that
+    // We use this ordering of characters so that the pitch gap order is the same as the ASCII order.
     public static final String noteGapCharsNegative = "MLKJIHGFEDCBA"; // "M" indicates delta=-1. "L" indicates -2,...
     public static final String noteGapCharsPositive = "NOPQRSTUVWXYZ"; // "N" indicates delta=0. "O" indicates 1, ...
     // ' ' is used to indicate the beginning of a rest
