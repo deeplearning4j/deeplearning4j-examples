@@ -1,13 +1,10 @@
 package org.deeplearning4j.examples.recurrent.character.melodl4j;
 
-import org.nd4j.util.ArchiveUtils;
-
 import java.io.*;
 import java.net.URL;
 import java.text.NumberFormat;
 import java.util.*;
 import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
 import javax.sound.midi.InvalidMidiDataException;
 import javax.sound.midi.MidiEvent;
@@ -690,8 +687,8 @@ public class MidiMelodyExtractor {
         }
         bos.close();
     }
-    private static void unzip(File file, String outputDirectory) throws IOException {
-        ZipInputStream zipIn = new ZipInputStream(new FileInputStream(file));
+    private static void unzip(File zipFile, String outputDirectory) throws IOException {
+        ZipInputStream zipIn = new ZipInputStream(new FileInputStream(zipFile));
         ZipEntry zipEntry = zipIn.getNextEntry();
         while (zipEntry != null) {
             String filePath = outputDirectory + File.separator + zipEntry.getName();
@@ -724,9 +721,9 @@ public class MidiMelodyExtractor {
             String zipFileName = lastName + ".zip";
             String urlPath = "http://truthsite.org/music/" + zipFileName;
             String outputZipFilePath = tmpDirPathEndingInSlash + zipFileName;
-            File midiFile = new File(outputZipFilePath);
+            File zipFile = new File(outputZipFilePath);
             try {
-                PlayMelodyStrings.copyURLContentsToFile(new URL(urlPath), midiFile);
+                PlayMelodyStrings.copyURLContentsToFile(new URL(urlPath), zipFile);
             } catch (Exception e) {
                 System.err.println("Unable to download zip file from " + urlPath + " into " + tmpDirPathEndingInSlash);
                 System.exit(1);
@@ -738,7 +735,7 @@ public class MidiMelodyExtractor {
                 System.exit(1);
             }
             try {
-               unzip(midiFile, outputDirectoryPath);
+               unzip(zipFile, outputDirectoryPath);
             } catch (Exception e) {
 //                directory.delete();
                 System.err.println("Unable to unzip file from " + outputZipFilePath + " into " + outputDirectoryPath + " due to " + e.getMessage());
