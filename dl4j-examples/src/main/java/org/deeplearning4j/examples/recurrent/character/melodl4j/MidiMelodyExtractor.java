@@ -1,5 +1,7 @@
 package org.deeplearning4j.examples.recurrent.character.melodl4j;
 
+import org.nd4j.util.ArchiveUtils;
+
 import java.io.*;
 import java.net.URL;
 import java.text.NumberFormat;
@@ -720,10 +722,15 @@ public class MidiMelodyExtractor {
             String lastName = outputDirectory.getName();
             String zipFileName = lastName + ".zip";
             String urlPath = "http://truthsite.org/music/" + zipFileName;
-            String outputZipFilePath = tmpDirPathEndingInSlash + zipFileName;
-            File zipFile = new File(outputZipFilePath);
+            String zipFilePath = tmpDirPathEndingInSlash + zipFileName;
+            File zipFile = new File(zipFilePath);
             try {
-                PlayMelodyStrings.copyURLContentsToFile(new URL(urlPath), zipFile);
+                if (zipFile.exists()) {
+                    System.out.println("Using existing " + zipFilePath);
+                } else {
+                    System.out.println("Downloading zipfile from " + urlPath + " to " + zipFilePath);
+                    PlayMelodyStrings.copyURLContentsToFile(new URL(urlPath), zipFile);
+                }
             } catch (Exception e) {
                 System.err.println("Unable to download zip file from " + urlPath + " into " + tmpDirPathEndingInSlash);
                 System.exit(1);
@@ -736,9 +743,10 @@ public class MidiMelodyExtractor {
             }
             try {
                unzip(zipFile, outputDirectoryPath);
+                //ArchiveUtils.unzipFileTo(zipFile.getAbsolutePath(), outputDirectoryPath);
             } catch (Exception e) {
 //                directory.delete();
-                System.err.println("Unable to unzip file from " + outputZipFilePath + " into " + outputDirectoryPath + " due to " + e.getMessage());
+                System.err.println("Unable to unzip file from " + zipFilePath + " into " + outputDirectoryPath + " due to " + e.getMessage());
                 e.printStackTrace();
                 System.exit(1);
             }
