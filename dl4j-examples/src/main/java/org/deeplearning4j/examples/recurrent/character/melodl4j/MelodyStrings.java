@@ -12,8 +12,12 @@ public class MelodyStrings {
     // The following strings are used to build the symbolic representation of a melody
     // The next two strings contain chars used to indicate pitch deltas.
     // We use this ordering of characters so that the pitch gap order is the same as the ASCII order.
-    public static final String noteGapCharsNegative = "MLKJIHGFEDCBA"; // "M" indicates delta=-1. "L" indicates -2,...
-    public static final String noteGapCharsPositive = "NOPQRSTUVWXYZ"; // "N" indicates delta=0. "O" indicates 1, ...
+    public static final char lowestPitchGapChar = 'A';
+    public static final char REST_CHAR = ' ';
+    public static final String pitchGapCharsNegative = "MLKJIHGFEDCBA"; // "M" indicates delta=-1. "L" indicates -2,...
+    public static final String pitchGapCharsPositive = "NOPQRSTUVWXYZ"; // "N" indicates delta=0. "O" indicates 1, ...
+    public static final int numberOfPitchGapCharsIncludingRest =  1+ pitchGapCharsNegative.length() + pitchGapCharsPositive.length();
+    public static String allPitchGapCharsIncludingRest = REST_CHAR + pitchGapCharsNegative + pitchGapCharsPositive;
     // ' ' is used to indicate the beginning of a rest
     public static int durationDeltaParts = 8; //12345678901234567890123456789012
     public static final String durationChars = "]^_`abcdefghijklmnopqrstuvwzyz{|"; // 32 divisions, in ASCII order
@@ -23,24 +27,38 @@ public class MelodyStrings {
     // '^' is a duration twice that of ']'
     // '_' is a duration three times that of ']', etc.
     // If there is a rest between notes, we append ' ' followed by a char for the duration of the rest.
-    public static final char REST_CHAR = ' ';
+
 
     /**
      * @return characters that may occur in a valid melody string
      */
     private static String getValidCharacters() {
         StringBuilder sb = new StringBuilder();
-        sb.append(noteGapCharsPositive);
-        sb.append(noteGapCharsNegative);
+        sb.append(pitchGapCharsPositive);
+        sb.append(pitchGapCharsNegative);
         sb.append(durationChars);
         sb.append(REST_CHAR);
         return sb.toString();
     }
+    public static boolean isValidMelodyString(String string) {
+        for(int i=0;i<string.length();i++) {
+            if (i%2==0) {
+                if (!isDurationChar(string.charAt(i))) {
+                    return false;
+                }
+            } else {
+                if (!isPitchCharOrRest(string.charAt(i))) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
     public static boolean isDurationChar(char ch) {
         return ch>=']' && ch <= '|';
     }
-    public static boolean isPitchChar(char ch) {
-        return ch >= 'A' && ch <= 'Z';
+    public static boolean isPitchCharOrRest(char ch) {
+        return ch == REST_CHAR || ch >= 'A' && ch <= 'Z';
     }
     public static String convertToMelodyString(List<Note> noteSequence) {
         double averageNoteDuration = computeAverageDuration(noteSequence);
@@ -60,11 +78,11 @@ public class MelodyStrings {
                     sb.append(restDurationChar);
                 }
                 int pitchGap = note.getPitch() - previousNote.getPitch();
-                while (pitchGap >= noteGapCharsPositive.length()) {
-                    pitchGap -= noteGapCharsPositive.length();
+                while (pitchGap >= pitchGapCharsPositive.length()) {
+                    pitchGap -= pitchGapCharsPositive.length();
                 }
-                while (pitchGap < -noteGapCharsNegative.length()) {
-                    pitchGap += noteGapCharsNegative.length();
+                while (pitchGap < -pitchGapCharsNegative.length()) {
+                    pitchGap += pitchGapCharsNegative.length();
                 }
                 sb.append(getCharForPitchGap(pitchGap));
                 long noteDuration = note.getDurationInTicks();
@@ -73,11 +91,19 @@ public class MelodyStrings {
             }
             previousNote = note;
         }
-        return sb.toString();
+        String result= sb.toString();
+        if (!isValidMelodyString(result)) {
+            System.err.println("Invalid melody string: " + result);
+        }
+        return result;
     }
 
     private static char getCharForPitchGap(int pitchGap) {
-        return pitchGap >= 0 ? noteGapCharsPositive.charAt(pitchGap) : noteGapCharsNegative.charAt(-1 - pitchGap);
+        char ch= pitchGap >= 0 ? pitchGapCharsPositive.charAt(pitchGap) : pitchGapCharsNegative.charAt(-1 - pitchGap);
+        if (!isPitchCharOrRest(ch)) {
+            throw new IllegalStateException("Got char " + ch + " for pitchGap " + pitchGap);
+        }
+        return ch;
     }
 
     private static char computeDurationChar(long duration, double durationDelta) {
@@ -86,7 +112,11 @@ public class MelodyStrings {
             System.err.println("WARNING: Duration = " + duration);
             times = 0;
         }
-        return durationChars.charAt(times);
+        char ch = durationChars.charAt(times);
+        if (!isDurationChar(ch)) {
+            throw new IllegalStateException("Invalid duration char " + ch + " for duration " + duration + ", " + durationDelta);
+        }
+        return ch;
     }
 
     private static double computeAverageDuration(List<Note> noteSequence) {

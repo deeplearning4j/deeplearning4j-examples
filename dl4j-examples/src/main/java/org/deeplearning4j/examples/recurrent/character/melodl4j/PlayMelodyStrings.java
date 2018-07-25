@@ -1,7 +1,5 @@
 package org.deeplearning4j.examples.recurrent.character.melodl4j;
 
-import play.Play;
-
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.File;
@@ -330,11 +328,11 @@ public class PlayMelodyStrings {
 
     // return -1 if it's not a pitch
     private static int getPitchDelta(char ch) {
-        int index = MelodyStrings.noteGapCharsPositive.indexOf(ch);
+        int index = MelodyStrings.pitchGapCharsPositive.indexOf(ch);
         if (index >= 0) {
             return index;
         }
-        index = MelodyStrings.noteGapCharsNegative.indexOf(ch);
+        index = MelodyStrings.pitchGapCharsNegative.indexOf(ch);
         if (index < 0) {
             System.err.println("WARNING: invalid pitch char: " + ch);
             return -1;
@@ -399,7 +397,7 @@ public class PlayMelodyStrings {
                 } else {
                     System.err.println(ch + " is invalid as a duration char"); // Badly formed melody string
                 }
-            } else if (MelodyStrings.isPitchChar(ch)) {
+            } else if (MelodyStrings.isPitchCharOrRest(ch)) {
                 index++;
                 int pitchDelta = getPitchDelta(ch);
                 lastRawNote += pitchDelta;
