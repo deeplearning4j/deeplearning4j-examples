@@ -20,7 +20,7 @@ public class MelodyStrings {
     public static String allPitchGapCharsIncludingRest = REST_CHAR + pitchGapCharsNegative + pitchGapCharsPositive;
     // ' ' is used to indicate the beginning of a rest
     public static int durationDeltaParts = 8; //12345678901234567890123456789012
-    public static final String durationChars = "]^_`abcdefghijklmnopqrstuvwzyz{|"; // 32 divisions, in ASCII order
+    public static final String durationChars = "]^_`abcdefghijklmnopqrstuvwxyz{|"; // 32 divisions, in ASCII order
     public static final String allValidCharacters = getValidCharacters();
     // 13+13+1+32 = 59 possible characters.
     // ']' indicates the smallest pitch duration allowed (typically a 1/32 note or so).
