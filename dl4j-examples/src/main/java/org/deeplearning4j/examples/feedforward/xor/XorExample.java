@@ -164,7 +164,7 @@ public class XorExample {
         }
 
         // create output for every training sample
-        INDArray output = net.output(ds.getFeatureMatrix());
+        INDArray output = net.output(ds.getFeatures());
         System.out.println(output);
 
         // let Evaluation prints stats how often the right output had the

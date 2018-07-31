@@ -91,7 +91,7 @@ public class Cifar {
         Evaluation eval = new Evaluation(cifarEval.getLabels());
         while(cifarEval.hasNext()) {
             DataSet testDS = cifarEval.next(batchSize);
-            INDArray output = model.output(testDS.getFeatureMatrix());
+            INDArray output = model.output(testDS.getFeatures());
             eval.eval(testDS.getLabels(), output);
         }
         System.out.println(eval.stats());

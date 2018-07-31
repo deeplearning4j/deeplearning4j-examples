@@ -94,7 +94,7 @@ public class CSVExample {
 
         //evaluate the model on the test set
         Evaluation eval = new Evaluation(3);
-        INDArray output = model.output(testData.getFeatureMatrix());
+        INDArray output = model.output(testData.getFeatures());
         eval.eval(testData.getLabels(), output);
         log.info(eval.stats());
     }

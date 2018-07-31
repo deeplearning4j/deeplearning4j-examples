@@ -91,7 +91,7 @@ public class MLPClassifierSaturn {
         Evaluation eval = new Evaluation(numOutputs);
         while(testIter.hasNext()){
             DataSet t = testIter.next();
-            INDArray features = t.getFeatureMatrix();
+            INDArray features = t.getFeatures();
             INDArray lables = t.getLabels();
             INDArray predicted = model.output(features,false);
 

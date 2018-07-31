@@ -62,12 +62,12 @@ public class AEMNISTAnomalyDectection {
         DataSetIterator iter = new MnistIterator(100,true);
         while(iter.hasNext()){
             DataSet ds = iter.next();
-            featuresTrain.add(ds.getFeatureMatrix());
+            featuresTrain.add(ds.getFeatures());
         }
         iter = new MnistIterator(100,false);
         while(iter.hasNext()){
             DataSet ds = iter.next();
-            featuresTest.add(ds.getFeatureMatrix());
+            featuresTest.add(ds.getFeatures());
         }
         //Train model
         int nEpochs = 35;
