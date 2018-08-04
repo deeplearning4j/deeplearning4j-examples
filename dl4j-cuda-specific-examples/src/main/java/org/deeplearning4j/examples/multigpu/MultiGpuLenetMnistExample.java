@@ -143,7 +143,7 @@ public class MultiGpuLenetMnistExample {
         Evaluation eval = new Evaluation(outputNum);
         while(mnistTest.hasNext()){
             DataSet ds = mnistTest.next();
-            INDArray output = model.output(ds.getFeatureMatrix(), false);
+            INDArray output = model.output(ds.getFeatures(), false);
             eval.eval(ds.getLabels(), output);
         }
         log.info(eval.stats());

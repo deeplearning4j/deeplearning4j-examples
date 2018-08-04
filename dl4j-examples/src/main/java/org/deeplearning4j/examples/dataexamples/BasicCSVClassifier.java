@@ -111,7 +111,7 @@ public class BasicCSVClassifier {
 
             //evaluate the model on the test set
             Evaluation eval = new Evaluation(3);
-            INDArray output = model.output(testData.getFeatureMatrix());
+            INDArray output = model.output(testData.getFeatures());
 
             eval.eval(testData.getLabels(), output);
             log.info(eval.stats());
@@ -188,7 +188,7 @@ public class BasicCSVClassifier {
     public static Map<Integer,Map<String,Object>> makeAnimalsForTesting(DataSet testData){
         Map<Integer,Map<String,Object>> animals = new HashMap<>();
 
-        INDArray features = testData.getFeatureMatrix();
+        INDArray features = testData.getFeatures();
         for (int i = 0; i < features.rows() ; i++) {
             INDArray slice = features.slice(i);
             Map<String,Object> animal = new HashMap();
