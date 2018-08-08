@@ -222,7 +222,7 @@ public class MultiClassLogit {
   private static INDArray training(INDArray x, INDArray y, long maxIterations, double learningRate,
       double minLearningRate) {
     Nd4j.getRandom().setSeed(1234);
-    INDArray params = Nd4j.rand(x.size(1), 1); //random guess
+    INDArray params = Nd4j.rand((int)x.size(1), 1); //random guess
 
     INDArray newParams = params.dup();
     INDArray optimalParams = params.dup();
