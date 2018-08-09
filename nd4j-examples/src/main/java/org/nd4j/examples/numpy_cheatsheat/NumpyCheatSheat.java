@@ -4,6 +4,7 @@ import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.indexing.NDArrayIndex;
 import org.nd4j.linalg.indexing.conditions.Conditions;
+import org.nd4j.linalg.util.ArrayUtil;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -37,24 +38,6 @@ public class NumpyCheatSheat {
         try {
             readFromCSV = Nd4j.readNumpy(makeResourcePath("/numpy_cheatsheet/file.csv"), ",");
             print("Read from csv", readFromCSV);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        // 3. np.savetxt('file.txt',arr,delimiter=' ') - Writes to a text file
-        try {
-            if (readFromText != null) {
-                Nd4j.writeNumpy(readFromText, makeResourcePath("/numpy_cheatsheet/saveFile.txt"), " "); //This method is deprecated but it's the closest to the numpy one
-                System.out.println("Printed array into a text file");
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        // 4. np.savetxt('file.csv',arr,delimiter=',') - Writes to a CSV file
-        try {
-            if (readFromCSV != null) {
-                Nd4j.writeNumpy(readFromCSV, makeResourcePath("/numpy_cheatsheet/saveFile.csv"), ","); //This method is deprecated but it's the closest to the numpy one
-                System.out.println("Printed array into a csv file");
-            }
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -95,10 +78,10 @@ public class NumpyCheatSheat {
 
         /* C. INSPECTING PROPERTIES */
         // 1. arr.size - Returns number of elements in arr
-        int size = fourByFiveRandomZeroToOne.length();
+        int size = (int)fourByFiveRandomZeroToOne.length();
         System.out.println("Array size: " + size);
         // 2. arr.shape - Returns dimensions of arr (rows, columns)
-        int [] shape = fourByFiveRandomZeroToOne.shape();
+        long[] shape = fourByFiveRandomZeroToOne.shape();
         System.out.println("Array shape: " + Arrays.toString(shape));
         // 3. arr.dtype - Returns type of elements in arr
         String type = CustomOperations.type(fourByFiveRandomZeroToOne);

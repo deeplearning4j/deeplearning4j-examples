@@ -22,7 +22,7 @@ public class Nd4jEx12_INDArrayFromCSCMatrix {
         int[] shapeCSC = {5, 4};
         INDArray matrix = createFromCSC(dataCSC, rowIndices, columnPointers, shapeCSC);
         System.out.println("nd array is: \n" + matrix);
-        int[] matrixCSCShape = matrix.shape();
+        long[] matrixCSCShape = matrix.shape();
         System.out.println("Its shape is [" + matrixCSCShape[0] +","+ matrixCSCShape[1]+"]");
 
         System.out.println("-------- CSC with empty column to INDArray -------");
@@ -32,7 +32,7 @@ public class Nd4jEx12_INDArrayFromCSCMatrix {
         int[] shapeCSC2 = {4, 3};
         INDArray matrix2 = createFromCSC(dataCSC2, rowIndices2, columnPointers2, shapeCSC2);
         System.out.println("nd array is: \n" + matrix2);
-        int[] matrixCSCShape2 = matrix2.shape();
+        long[] matrixCSCShape2 = matrix2.shape();
         System.out.println("Its shape is [" + matrixCSCShape2[0] +","+ matrixCSCShape2[1]+"]");
     }
 

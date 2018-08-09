@@ -88,7 +88,7 @@ public class MLPClassifierMoon {
         Evaluation eval = new Evaluation(numOutputs);
         while(testIter.hasNext()){
             DataSet t = testIter.next();
-            INDArray features = t.getFeatureMatrix();
+            INDArray features = t.getFeatures();
             INDArray labels = t.getLabels();
             INDArray predicted = model.output(features,false);
 

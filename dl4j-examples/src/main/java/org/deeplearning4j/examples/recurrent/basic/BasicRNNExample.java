@@ -5,6 +5,7 @@ import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration.ListBuilder;
 import org.deeplearning4j.nn.conf.layers.LSTM;
 import org.deeplearning4j.nn.conf.layers.RnnOutputLayer;
+import org.deeplearning4j.nn.conf.layers.recurrent.SimpleRnn;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
 import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
@@ -13,6 +14,7 @@ import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.api.ops.impl.indexaccum.IMax;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.factory.Nd4j;
+import org.nd4j.linalg.learning.config.AMSGrad;
 import org.nd4j.linalg.learning.config.RmsProp;
 import org.nd4j.linalg.lossfunctions.LossFunctions.LossFunction;
 
@@ -122,7 +124,7 @@ public class BasicRNNExample {
 			net.rnnClearPreviousState();
 
 			// put the first character into the rrn as an initialisation
-			INDArray testInit = Nd4j.zeros(LEARNSTRING_CHARS_LIST.size());
+			INDArray testInit = Nd4j.zeros(1,LEARNSTRING_CHARS_LIST.size(), 1);
 			testInit.putScalar(LEARNSTRING_CHARS_LIST.indexOf(LEARNSTRING[0]), 1);
 
 			// run one step -> IMPORTANT: rnnTimeStep() must be called, not
@@ -142,7 +144,7 @@ public class BasicRNNExample {
                 System.out.print(LEARNSTRING_CHARS_LIST.get(sampledCharacterIdx));
 
                 // use the last output as input
-                INDArray nextInput = Nd4j.zeros(LEARNSTRING_CHARS_LIST.size());
+                INDArray nextInput = Nd4j.zeros(1, LEARNSTRING_CHARS_LIST.size(), 1);
                 nextInput.putScalar(sampledCharacterIdx, 1);
                 output = net.rnnTimeStep(nextInput);
 

@@ -185,7 +185,7 @@ public class VideoClassificationExample {
         DataSetIterator testData = getDataSetIterator(outputDirectory, testStartIdx, nExamples, 10);
         while(testData.hasNext()) {
             DataSet dsTest = testData.next();
-            INDArray predicted = net.output(dsTest.getFeatureMatrix(), false);
+            INDArray predicted = net.output(dsTest.getFeatures(), false);
             INDArray actual = dsTest.getLabels();
             evaluation.evalTimeSeries(actual, predicted);
         }

@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.deeplearning4j</groupId>
         <artifactId>deeplearning4j-examples-parent</artifactId>
-        <version>1.0.0-beta</version>
+        <version>1.0.0-beta2</version>
     </parent>
     <groupId>org.deeplearning4j.examples</groupId>
     <artifactId>lstm-hdfs</artifactId>
@@ -73,7 +73,7 @@
             </dependency>
             <dependency>
                 <groupId>org.nd4j</groupId>
-                <artifactId>nd4j-cuda-9.1-platform</artifactId>
+                <artifactId>nd4j-cuda-9.2-platform</artifactId>
                 <version>${nd4j.version}</version>
                 <scope>test</scope>
             </dependency>
