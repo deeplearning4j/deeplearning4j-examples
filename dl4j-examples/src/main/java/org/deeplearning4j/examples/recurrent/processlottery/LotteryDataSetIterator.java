@@ -28,7 +28,6 @@ public class LotteryDataSetIterator implements DataSetIterator {
         return recordReader.next(i);
     }
 
-    @Override
     public int totalExamples() {
         return recordReader.totalExamples();
     }
@@ -77,16 +76,6 @@ public class LotteryDataSetIterator implements DataSetIterator {
     @Override
     public int batch() {
         return batchSize;
-    }
-
-    @Override
-    public int cursor() {
-        return recordReader.cursor();
-    }
-
-    @Override
-    public int numExamples() {
-        return 0;
     }
 
     @Override

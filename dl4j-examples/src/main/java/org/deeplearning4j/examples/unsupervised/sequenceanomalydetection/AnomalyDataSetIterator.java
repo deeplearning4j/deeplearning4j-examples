@@ -32,7 +32,6 @@ public class AnomalyDataSetIterator implements DataSetIterator {
         return ds;
     }
 
-    @Override
     public int totalExamples() {
         return recordReader.totalExamples();
     }
@@ -81,16 +80,6 @@ public class AnomalyDataSetIterator implements DataSetIterator {
     @Override
     public int batch() {
         return batchSize;
-    }
-
-    @Override
-    public int cursor() {
-        return 0;
-    }
-
-    @Override
-    public int numExamples() {
-        return 0;
     }
 
     @Override

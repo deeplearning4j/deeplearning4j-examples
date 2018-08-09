@@ -69,7 +69,6 @@ public class CnnSentenceClassificationExample {
         Nd4j.getMemoryManager().setAutoGcWindow(5000);
 
         ComputationGraphConfiguration config = new NeuralNetConfiguration.Builder()
-            .trainingWorkspaceMode(WorkspaceMode.SINGLE).inferenceWorkspaceMode(WorkspaceMode.SINGLE)
             .weightInit(WeightInit.RELU)
             .activation(Activation.LEAKYRELU)
             .updater(new Adam(0.01))
