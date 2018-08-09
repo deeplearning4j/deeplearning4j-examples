@@ -41,24 +41,6 @@ public class NumpyCheatSheat {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        // 3. np.savetxt('file.txt',arr,delimiter=' ') - Writes to a text file
-        try {
-            if (readFromText != null) {
-                Nd4j.writeNumpy(readFromText, makeResourcePath("/numpy_cheatsheet/saveFile.txt"), " "); //This method is deprecated but it's the closest to the numpy one
-                System.out.println("Printed array into a text file");
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        // 4. np.savetxt('file.csv',arr,delimiter=',') - Writes to a CSV file
-        try {
-            if (readFromCSV != null) {
-                Nd4j.writeNumpy(readFromCSV, makeResourcePath("/numpy_cheatsheet/saveFile.csv"), ","); //This method is deprecated but it's the closest to the numpy one
-                System.out.println("Printed array into a csv file");
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
         /* B. CREATING ARRAYS */
         // 1. np.array([1,2,3]) - One dimensional array
         INDArray oneDArray = Nd4j.create(new float[]{1,2,3,4,5,6} , new int[]{6});
