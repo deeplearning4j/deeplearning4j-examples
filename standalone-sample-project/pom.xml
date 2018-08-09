@@ -42,7 +42,7 @@
         <!--
         <dependency>
             <groupId>org.nd4j</groupId>
-            <artifactId>nd4j-cuda-9.1-platform</artifactId>
+            <artifactId>nd4j-cuda-9.2-platform</artifactId>
             <version>${nd4j.version}</version>
         </dependency>
         -->
@@ -52,7 +52,7 @@
         <!--
         <dependency>
             <groupId>org.deeplearning4j</groupId>
-            <artifactId>deeplearning4j-cuda-9.1</artifactId>
+            <artifactId>deeplearning4j-cuda-9.2</artifactId>
             <version>${dl4j.version}</version>
         </dependency>
         -->
