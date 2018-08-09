@@ -43,7 +43,7 @@ public class CnnSentenceClassificationExample {
     /** Location to save and extract the training/testing data */
     public static final String DATA_PATH = FilenameUtils.concat(System.getProperty("java.io.tmpdir"), "dl4j_w2vSentiment/");
     /** Location (local file system) for the Google News vectors. Set this manually. */
-    public static final String WORD_VECTORS_PATH = "/PATH/TO/YOUR/VECTORS/GoogleNews-vectors-negative300.bin.gz";
+    public static final String WORD_VECTORS_PATH = "C:/Data/GoogleNews-vectors-negative300.bin.gz";
 
     public static void main(String[] args) throws Exception {
         if(WORD_VECTORS_PATH.startsWith("/PATH/TO/YOUR/VECTORS/")){
@@ -66,7 +66,7 @@ public class CnnSentenceClassificationExample {
         //Set up the network configuration. Note that we have multiple convolution layers, each wih filter
         //widths of 3, 4 and 5 as per Kim (2014) paper.
 
-        Nd4j.getMemoryManager().setAutoGcWindow(5000);
+        Nd4j.getMemoryManager().setAutoGcWindow(15000);
 
         ComputationGraphConfiguration config = new NeuralNetConfiguration.Builder()
             .trainingWorkspaceMode(WorkspaceMode.SINGLE).inferenceWorkspaceMode(WorkspaceMode.SINGLE)

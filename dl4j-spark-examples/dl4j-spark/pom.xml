@@ -32,10 +32,21 @@
     			<artifactId>jackson-module-scala_2.11</artifactId>
     			<version>${jackson.version}</version>
     		</dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.module</groupId>
+                <artifactId>jackson-module-scala_${scala.binary.version}</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
     	</dependencies>
     </dependencyManagement>
 
     <dependencies>
+
+        <dependency>
+            <groupId>org.apache.spark</groupId>
+            <artifactId>spark-core_${scala.binary.version}</artifactId>
+            <version>1.6.3</version>
+        </dependency>
 
         <dependency>
             <groupId>org.nd4j</groupId>

@@ -136,7 +136,7 @@
         </dependency>
         <dependency>
             <groupId>org.deeplearning4j</groupId>
-            <artifactId>arbiter-ui_2.11</artifactId>
+            <artifactId>arbiter-ui_${scala.binary.version}</artifactId>
             <version>${arbiter.version}</version>
         </dependency>
 
