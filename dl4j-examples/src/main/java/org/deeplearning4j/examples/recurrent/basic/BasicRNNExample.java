@@ -56,16 +56,14 @@ public class BasicRNNExample {
 		builder.seed(123);
 		builder.biasInit(0);
 		builder.miniBatch(false);
-//		builder.updater(new RmsProp(0.001));
-        builder.updater(new AMSGrad(0.01));
+		builder.updater(new RmsProp(0.001));
 		builder.weightInit(WeightInit.XAVIER);
 
 		ListBuilder listBuilder = builder.list();
 
 		// first difference, for rnns we need to use LSTM.Builder
 		for (int i = 0; i < HIDDEN_LAYER_CONT; i++) {
-//			LSTM.Builder hiddenLayerBuilder = new LSTM.Builder();
-            SimpleRnn.Builder hiddenLayerBuilder = new SimpleRnn.Builder();
+			LSTM.Builder hiddenLayerBuilder = new LSTM.Builder();
 			hiddenLayerBuilder.nIn(i == 0 ? LEARNSTRING_CHARS.size() : HIDDEN_LAYER_WIDTH);
 			hiddenLayerBuilder.nOut(HIDDEN_LAYER_WIDTH);
 			// adopted activation function from LSTMCharModellingExample
