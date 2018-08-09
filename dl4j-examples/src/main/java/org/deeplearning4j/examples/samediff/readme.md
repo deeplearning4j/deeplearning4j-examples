@@ -3,7 +3,7 @@
 The examples in this directory show how to implement Deeplearning4j layers using SameDiff.
 
 SameDiff is an automatic differentiation package build on top of ND4J. It can be considered analogous to 
-libraries such as TensorFlow and PyTorch, in that a user can define a set of tensor operations, and   
+libraries such as TensorFlow and PyTorch, in that a user can define a set of tensor operations, and SameDiff can automatically differentiate it to calculate gradients required for neural network training.
 
 DL4J has supported custom layers for a long time - however, using SameDiff layers has some advantages:
 1. Only the forward pass has to be defined: i.e., you don't need to manually work out gradient calculation
