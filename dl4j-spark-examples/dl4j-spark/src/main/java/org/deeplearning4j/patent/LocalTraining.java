@@ -1,19 +1,18 @@
 package org.deeplearning4j.patent;
 
 import com.beust.jcommander.Parameter;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.deeplearning4j.datasets.iterator.EarlyTerminationDataSetIterator;
 import org.deeplearning4j.datasets.iterator.loader.DataSetLoaderIterator;
-import org.deeplearning4j.distributed.preprocessing.PatentLabelGenerator;
-import org.deeplearning4j.distributed.utils.JCommanderUtils;
-import org.deeplearning4j.distributed.utils.data.LoadDataSetsFunction;
 import org.deeplearning4j.eval.Evaluation;
 import org.deeplearning4j.eval.IEvaluation;
 import org.deeplearning4j.eval.ROCMultiClass;
 import org.deeplearning4j.nn.graph.ComputationGraph;
 import org.deeplearning4j.optimize.listeners.PerformanceListener;
+import org.deeplearning4j.patent.preprocessing.PatentLabelGenerator;
+import org.deeplearning4j.patent.utils.JCommanderUtils;
+import org.deeplearning4j.patent.utils.data.LoadDataSetsFunction;
 import org.deeplearning4j.util.ModelSerializer;
 import org.nd4j.api.loader.Loader;
 import org.nd4j.api.loader.LocalFileSourceFactory;
@@ -22,6 +21,8 @@ import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.util.MathUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.nio.charset.Charset;
@@ -42,8 +43,8 @@ import java.util.Random;
  *
  * @author Alex Black
  */
-@Slf4j
 public class LocalTraining {
+    private static final Logger log = LoggerFactory.getLogger(LocalTraining.class);
     public static final int MILLISEC_PER_SEC = 1000;
 
     @Parameter(names = {"--outputPath"}, description = "Local output path/directory to write results to", required = true)
