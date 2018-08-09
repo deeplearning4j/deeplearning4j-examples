@@ -31,6 +31,7 @@ import org.deeplearning4j.nn.conf.layers.BaseLayer;
 import org.deeplearning4j.nn.gradient.Gradient;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.nd4j.linalg.api.ndarray.INDArray;
+import org.nd4j.linalg.util.ArrayUtil;
 
 import javax.imageio.ImageIO;
 import java.awt.Robot;
@@ -460,7 +461,7 @@ public class GradientsAndParamsViewer extends Application {
         System.out.println("Entering chooseSampleCoordinates with map.size() = " + map.size() + " and sampleSizePerLayer= " + sampleSizePerLayer);
         for (String key : map.keySet()) {
             INDArray array = map.get(key);
-            int[] shape = array.shape();
+            int[] shape = ArrayUtil.toInts(array.shape());
             System.out.println("  Gradient map shape for " + key + " is " + GradientsAndParamsListener.toString(shape));
 
             int sampleLengthWeWillUse = Math.min(sampleSizePerLayer, product(shape));

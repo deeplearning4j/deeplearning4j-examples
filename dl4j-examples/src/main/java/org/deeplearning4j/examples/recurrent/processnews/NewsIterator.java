@@ -103,7 +103,7 @@ public class NewsIterator implements DataSetIterator {
         List<String> news = new ArrayList<>(num);
         int[] category = new int[num];
 
-        for (int i = 0; i < num && cursor < totalExamples(); i++) {
+        for (int i = 0; i < num && cursor < this.totalNews; i++) {
             if (currCategory < categoryData.size()) {
                 news.add(this.categoryData.get(currCategory).getValue().get(newsPosition));
                 category[i] = Integer.parseInt(this.categoryData.get(currCategory).getKey().split(",")[0]);
@@ -239,12 +239,6 @@ public class NewsIterator implements DataSetIterator {
         }
     }
 
-
-    @Override
-    public int totalExamples() {
-        return this.totalNews;
-    }
-
     @Override
     public int inputColumns() {
         return vectorSize;
@@ -277,16 +271,6 @@ public class NewsIterator implements DataSetIterator {
     }
 
     @Override
-    public int cursor() {
-        return cursor;
-    }
-
-    @Override
-    public int numExamples() {
-        return totalExamples();
-    }
-
-    @Override
     public void setPreProcessor(DataSetPreProcessor preProcessor) {
         throw new UnsupportedOperationException();
     }
@@ -298,7 +282,7 @@ public class NewsIterator implements DataSetIterator {
 
     @Override
     public boolean hasNext() {
-        return cursor < numExamples();
+        return cursor < this.totalNews;
     }
 
     @Override

@@ -74,9 +74,9 @@ public class MNISTAnomalyExample {
         while(iter.hasNext()){
             DataSet ds = iter.next();
             SplitTestAndTrain split = ds.splitTestAndTrain(80, r);  //80/20 split (from miniBatch = 100)
-            featuresTrain.add(split.getTrain().getFeatureMatrix());
+            featuresTrain.add(split.getTrain().getFeatures());
             DataSet dsTest = split.getTest();
-            featuresTest.add(dsTest.getFeatureMatrix());
+            featuresTest.add(dsTest.getFeatures());
             INDArray indexes = Nd4j.argMax(dsTest.getLabels(),1); //Convert from one-hot representation -> index
             labelsTest.add(indexes);
         }

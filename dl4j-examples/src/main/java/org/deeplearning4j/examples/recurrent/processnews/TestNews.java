@@ -125,9 +125,9 @@ public class TestNews extends javax.swing.JFrame {
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {
         DataSet testNews = prepareTestData(jTextArea1.getText());
-        INDArray fet = testNews.getFeatureMatrix();
+        INDArray fet = testNews.getFeatures();
         INDArray predicted = net.output(fet, false);
-        int arrsiz[] = predicted.shape();
+        long[] arrsiz = predicted.shape();
         double crimeTotal = 0;
         double politicsTotal = 0;
         double bollywoodTotal = 0;

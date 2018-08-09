@@ -94,7 +94,7 @@ public class CustomLayer extends FeedForwardLayer {
         //This implementation: based on DenseLayer implementation
         InputType outputType = getOutputType(-1, inputType);
 
-        int numParams = initializer().numParams(this);
+        long numParams = initializer().numParams(this);
         int updaterStateSize = (int)getIUpdater().stateSize(numParams);
 
         int trainSizeFixed = 0;

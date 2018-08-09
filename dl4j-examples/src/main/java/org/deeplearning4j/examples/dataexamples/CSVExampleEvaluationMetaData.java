@@ -109,7 +109,7 @@ public class CSVExampleEvaluationMetaData {
 
         //Evaluate the model on the test set
         Evaluation eval = new Evaluation(3);
-        INDArray output = model.output(testData.getFeatureMatrix());
+        INDArray output = model.output(testData.getFeatures());
         eval.eval(testData.getLabels(), output, testMetaData);          //Note we are passing in the test set metadata here
         System.out.println(eval.stats());
 

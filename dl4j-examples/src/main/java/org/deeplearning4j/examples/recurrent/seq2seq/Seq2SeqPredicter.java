@@ -46,7 +46,7 @@ public class Seq2SeqPredicter {
         decoderInputTemplate = testSet.getFeatures()[1].dup();
 
         int currentStepThrough = 0;
-        int stepThroughs = correctOutput.size(2)-1;
+        int stepThroughs = (int)correctOutput.size(2)-1;
 
         while (currentStepThrough < stepThroughs) {
             if (print) {

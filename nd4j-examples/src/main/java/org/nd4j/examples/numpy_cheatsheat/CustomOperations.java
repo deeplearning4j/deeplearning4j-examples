@@ -125,7 +125,7 @@ class CustomOperations {
     static INDArray [] split(INDArray arr1, int numOfSplits, int dimension) {
         dimension = dimension == -1 ? 0 : dimension;
         INDArray [] splits = new INDArray[numOfSplits];
-        int intervalLength = arr1.shape()[dimension] / numOfSplits;
+        long intervalLength = arr1.shape()[dimension] / numOfSplits;
 
         for (int i = 0; i < numOfSplits; i++) {
             splits[i] = arr1.get(createIntervalOnDimension(dimension,
@@ -188,13 +188,13 @@ class CustomOperations {
         return result;
     }
 
-    static INDArrayIndex [] createIntervalOnDimension(int dimension, boolean inclusive, int... interval) {
+    static INDArrayIndex[] createIntervalOnDimension(int dimension, boolean inclusive, long... interval) {
         INDArrayIndex [] indexInterval = new INDArrayIndex[dimension + 1];
 
         for(int i = 0; i <= dimension; i++) {
             indexInterval[i] = i != dimension ?
                 NDArrayIndex.all() :
-                NDArrayIndex.interval(interval[0], interval[1], inclusive);
+                NDArrayIndex.interval((int)interval[0], (int)interval[1], inclusive);
         }
 
         return indexInterval;

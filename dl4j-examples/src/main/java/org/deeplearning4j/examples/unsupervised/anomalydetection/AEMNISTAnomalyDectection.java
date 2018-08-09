@@ -62,12 +62,12 @@ public class AEMNISTAnomalyDectection {
         DataSetIterator iter = new MnistIterator(100,true);
         while(iter.hasNext()){
             DataSet ds = iter.next();
-            featuresTrain.add(ds.getFeatureMatrix());
+            featuresTrain.add(ds.getFeatures());
         }
         iter = new MnistIterator(100,false);
         while(iter.hasNext()){
             DataSet ds = iter.next();
-            featuresTest.add(ds.getFeatureMatrix());
+            featuresTest.add(ds.getFeatures());
         }
         //Train model
         int nEpochs = 35;
@@ -78,8 +78,6 @@ public class AEMNISTAnomalyDectection {
             System.out.println("Epoch " + i + " complete");
         }
         List<Pair<Double,INDArray>> evalList = new ArrayList<>();
-        //the total num of the example is used for testing
-        int totalNum = iter.totalExamples();
         double totalScore = 0;
         for( int i = 0; i < featuresTest.size(); i ++ ){
             INDArray testData = featuresTest.get(i);

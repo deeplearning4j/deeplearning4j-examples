@@ -247,7 +247,7 @@ public class CustomSequenceIterator implements MultiDataSetIterator {
      */
     public static String[] oneHotDecode(INDArray toInterpret) {
 
-        String[] decodedString = new String[toInterpret.size(0)];
+        String[] decodedString = new String[(int)toInterpret.size(0)];
         INDArray oneHotIndices = Nd4j.argMax(toInterpret, 1); //drops a dimension, so now a two dim array of shape batchSize x time_steps
         for (int i = 0; i < oneHotIndices.size(0); i++) {
             int[] currentSlice = oneHotIndices.slice(i).dup().data().asInt(); //each slice is a batch

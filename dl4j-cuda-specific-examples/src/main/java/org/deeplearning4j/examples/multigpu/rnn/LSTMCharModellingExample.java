@@ -99,13 +99,15 @@ public class LSTMCharModellingExample {
 		net.setListeners(new ScoreIterationListener(1), new IterationListener() {
             @Override
             public void iterationDone(Model model, int iteration, int epoch) {
-                System.out.println("--------------------");
-                System.out.println("Sampling characters from network given initialization \"" + (generationInitialization == null ? "" : generationInitialization) + "\"");
-                String[] samples = sampleCharactersFromNetwork(generationInitialization, (MultiLayerNetwork) model,iter,rng,nCharactersToSample,nSamplesToGenerate);
-                for( int j = 0; j<samples.length; j++) {
-                    System.out.println("----- Sample " + j + " -----");
-                    System.out.println(samples[j]);
-                    System.out.println();
+                if (iteration % 20 == 0) {
+                    System.out.println("--------------------");
+                    System.out.println("Sampling characters from network given initialization \"" + (generationInitialization == null ? "" : generationInitialization) + "\"");
+                    String[] samples = sampleCharactersFromNetwork(generationInitialization, (MultiLayerNetwork) model, iter, rng, nCharactersToSample, nSamplesToGenerate);
+                    for (int j = 0; j < samples.length; j++) {
+                        System.out.println("----- Sample " + j + " -----");
+                        System.out.println(samples[j]);
+                        System.out.println();
+                    }
                 }
             }
         });
@@ -204,7 +206,7 @@ public class LSTMCharModellingExample {
 		//Sampling is done in parallel here
 		net.rnnClearPreviousState();
 		INDArray output = net.rnnTimeStep(initializationInput);
-		output = output.tensorAlongDimension(output.size(2)-1,1,0);	//Gets the last time step output
+		output = output.tensorAlongDimension((int)output.size(2)-1,1,0);	//Gets the last time step output
 
 		for( int i=0; i<charactersToSample; i++ ){
 			//Set up next input (single time step) by sampling from previous output

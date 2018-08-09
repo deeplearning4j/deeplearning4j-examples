@@ -37,11 +37,6 @@ public class MnistIterator implements DataSetIterator {
     }
 
     @Override
-    public int totalExamples() {
-        return numExample;
-    }
-
-    @Override
     public int inputColumns() {
         return 0;
     }
@@ -68,17 +63,7 @@ public class MnistIterator implements DataSetIterator {
     }
     @Override
     public int batch() {
-        return 0;
-    }
-
-    @Override
-    public int cursor() {
-        return 0;
-    }
-
-    @Override
-    public int numExamples() {
-        return 0;
+        return batchSize;
     }
 
     @Override

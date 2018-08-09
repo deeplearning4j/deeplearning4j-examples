@@ -115,7 +115,7 @@ public class Word2VecSentimentRNN {
 
         INDArray features = test.loadFeaturesFromString(firstPositiveReview, truncateReviewsToLength);
         INDArray networkOutput = net.output(features);
-        int timeSeriesLength = networkOutput.size(2);
+        long timeSeriesLength = networkOutput.size(2);
         INDArray probabilitiesAtLastWord = networkOutput.get(NDArrayIndex.point(0), NDArrayIndex.all(), NDArrayIndex.point(timeSeriesLength - 1));
 
         System.out.println("\n\n-------------------------------");

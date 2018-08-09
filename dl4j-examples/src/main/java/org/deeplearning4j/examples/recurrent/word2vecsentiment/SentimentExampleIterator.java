@@ -153,7 +153,6 @@ public class SentimentExampleIterator implements DataSetIterator {
         return new DataSet(features,labels,featuresMask,labelsMask);
     }
 
-    @Override
     public int totalExamples() {
         return positiveFiles.length + negativeFiles.length;
     }
@@ -188,16 +187,6 @@ public class SentimentExampleIterator implements DataSetIterator {
     }
 
     @Override
-    public int cursor() {
-        return cursor;
-    }
-
-    @Override
-    public int numExamples() {
-        return totalExamples();
-    }
-
-    @Override
     public void setPreProcessor(DataSetPreProcessor preProcessor) {
         throw new UnsupportedOperationException();
     }
@@ -209,7 +198,7 @@ public class SentimentExampleIterator implements DataSetIterator {
 
     @Override
     public boolean hasNext() {
-        return cursor < numExamples();
+        return cursor < totalExamples();
     }
 
     @Override

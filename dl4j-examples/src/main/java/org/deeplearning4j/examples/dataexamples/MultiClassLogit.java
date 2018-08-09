@@ -26,7 +26,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Multiclass logistic regression.
  * To successfully apply this algorithm the classes must be linearly separable.
- * Unlike Naive Bayes it doesn't assume strong independence on features. 
+ * Unlike Naive Bayes it doesn't assume strong independence on features.
  *
  * This example can be useful to introduce machine learning.
  * Neural nets can be seen as a non-linear extension of this model.
@@ -129,7 +129,7 @@ public class MultiClassLogit {
     INDArray testLabels = testDataSet.getLabels();
     INDArray predictedLabels = predictLabels(testFeatures, params);
 
-    int numOfSamples = testLabels.size(0);
+    long numOfSamples = testLabels.size(0);
     double correctSamples = countCorrectPred(testLabels, predictedLabels);
     double accuracy = correctSamples / numOfSamples;
     log.info("Correct samples: {}/{}", (int) correctSamples, numOfSamples);
@@ -196,7 +196,7 @@ public class MultiClassLogit {
    * @return paramters gradients
    */
   private static INDArray gradient(INDArray x, INDArray y, INDArray p) {
-    int m = x.size(0); //number of examples
+    long m = x.size(0); //number of examples
     INDArray pred = predict(x, p);
     INDArray diff = pred.dup().sub(y); //diff between predicted and actual class
     return x.dup()
@@ -222,7 +222,7 @@ public class MultiClassLogit {
   private static INDArray training(INDArray x, INDArray y, long maxIterations, double learningRate,
       double minLearningRate) {
     Nd4j.getRandom().setSeed(1234);
-    INDArray params = Nd4j.rand(x.size(1), 1); //random guess
+    INDArray params = Nd4j.rand((int)x.size(1), 1); //random guess
 
     INDArray newParams = params.dup();
     INDArray optimalParams = params.dup();
