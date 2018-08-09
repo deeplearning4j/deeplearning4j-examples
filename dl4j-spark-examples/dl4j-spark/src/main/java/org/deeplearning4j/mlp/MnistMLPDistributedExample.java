@@ -51,7 +51,7 @@ public class MnistMLPDistributedExample {
     private static final Logger log = LoggerFactory.getLogger(MnistMLPDistributedExample.class);
 
     @Parameter(names = "-useSparkLocal", description = "Use spark local (helper for testing/running without spark submit)", arity = 1)
-    private boolean useSparkLocal = true;
+    private boolean useSparkLocal = false;
 
     @Parameter(names = "-batchSizePerWorker", description = "Number of examples to fit each worker with")
     private int batchSizePerWorker = 16;
@@ -127,7 +127,7 @@ public class MnistMLPDistributedExample {
             /**
              * if you're running this example on Hadoop/YARN, please provide proper netmask for out-of-spark comms
              */
-            .networkMask("192.168.2.0/16")
+            .networkMask("10.0.0.0/16")
 
             /**
              * However, if you're running this example on Spark standalone cluster, you can rely on Spark internal addressing via $SPARK_PUBLIC_DNS env variables announced on each node
@@ -142,7 +142,7 @@ public class MnistMLPDistributedExample {
             .batchSizePerWorker(batchSizePerWorker)
 
             // this option will enforce exactly 4 workers for each Spark node
-            .workersPerNode(2)
+            .workersPerNode(4)
             .build();
 
         //Create the Spark network
