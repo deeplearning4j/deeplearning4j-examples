@@ -34,16 +34,19 @@ import java.io.File;
  *
  * The lambda layer (see L2NormalizeLamdaLayer) implements "out = in / l2Norm(in)" on a per-example basis.
  *
+ * Lamda layers are those that do not have any parameters, but require only the implementation of a single method
+ * to define the forward pass. However, lambda layers have a number of optional methods, that may be implemented
+ * for additional functionality, including:
+ * - getOutputType(int layerIndex, InputType inputType)
+ * - applyGlobalConfigToLayer(NeuralNetConfiguration.Builder globalConfig)
+ *
  *
  * @author Alex Black
  */
 public class Ex2LambdaLayer {
 
     public static void main(String[] args) throws Exception {
-
-        int networkNumInputs = 28*28;       //For MNIST - 28x28 pixels
         int networkNumOutputs = 10;         //For MNIST - 10 classes
-        int layerSize = 128;                //128 units for the SameDiff layers
 
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
             .updater(new Adam(1e-1))
@@ -100,8 +103,8 @@ public class Ex2LambdaLayer {
         Nd4j.setDataType(DataBuffer.Type.DOUBLE);
 
         //Define network: smaller than before, so gradient checks are quicker
-        int[] inputShape = new int[]{1, 1, 5, 5};       //[minibatch, channels, height, width]
-        int networkNumOutputs = 3;
+        int[] inputShape = new int[]{3, 1, 5, 5};       //[minibatch, channels, height, width]
+        int networkNOut = 3;
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
             .updater(new NoOp())
             .seed(12345)
@@ -113,7 +116,7 @@ public class Ex2LambdaLayer {
             //Add custom SameDiff lambda layer:
             .layer(new L2NormalizeLambdaLayer(1,2,3))
             //Add standard DL4J output layer:
-            .layer(new OutputLayer.Builder().nIn(5*5*4).nOut(networkNumOutputs).activation(Activation.SOFTMAX)
+            .layer(new OutputLayer.Builder().nIn(5*5*4).nOut(networkNOut).activation(Activation.SOFTMAX)
                 .weightInit(WeightInit.XAVIER)
                 .lossFunction(LossFunctions.LossFunction.MCXENT).build())
             .inputPreProcessor(2, new CnnToFeedForwardPreProcessor(5, 5, 4))

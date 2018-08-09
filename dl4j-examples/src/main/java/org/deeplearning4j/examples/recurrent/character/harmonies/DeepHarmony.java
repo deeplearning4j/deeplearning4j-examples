@@ -338,7 +338,7 @@ public class DeepHarmony extends Application {
         initializationInput.putScalar(new int[]{0, idx, 0}, 1.0f);
         net.rnnClearPreviousState();
         INDArray nnOutput = net.rnnTimeStep(initializationInput);
-        nnOutput = nnOutput.tensorAlongDimension(nnOutput.size(2) - 1, 1, 0);    //Gets the last time step nnOutput
+        nnOutput = nnOutput.tensorAlongDimension((int)nnOutput.size(2) - 1, 1, 0);    //Gets the last time step nnOutput
 
         //Output is a probability distribution. Sample from this.
         double[] outputProbDistribution = new double[characterIterator.totalOutcomes()];

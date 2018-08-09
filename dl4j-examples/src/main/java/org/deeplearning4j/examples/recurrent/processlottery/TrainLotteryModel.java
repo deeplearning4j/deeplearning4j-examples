@@ -147,7 +147,7 @@ public class TrainLotteryModel {
             INDArray output = model.rnnTimeStep(initCondition);
             //output.size(x) will get the size along a specified dimension,
             //output.tensorAlongDimension(...) will get the vector along a particular dimension
-            output = output.tensorAlongDimension(output.size(2)-1,1,0);	//Gets the last time step output
+            output = output.tensorAlongDimension((int)output.size(2)-1,1,0);	//Gets the last time step output
             Random random = new Random(12345);
             for( int i=0; i < luckySize; i++ ){
                 //Set up next input (single time step) by sampling from previous output

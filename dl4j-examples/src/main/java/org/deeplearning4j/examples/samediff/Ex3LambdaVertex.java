@@ -36,10 +36,13 @@ import java.io.File;
  *
  * The lambda layer (see L2NormalizeLamdaLayer) implements "out = in / l2Norm(in)" on a per-example basis.
  *
+ * Lamda vertices are graph vertices that do not have any parameters, but require only the implementation of a single method
+ * to define the forward pass.
+ *
  *
  * @author Alex Black
  */
-public class Ex5LambdaVertex {
+public class Ex3LambdaVertex {
 
     public static void main(String[] args) throws Exception {
         int networkNumOutputs = 10;         //For MNIST - 10 classes

@@ -28,8 +28,6 @@ import java.io.File;
  *
  * The layer itself is a standard dense (fully connected) layer with an activation function.
  *
- * The idea here
- *
  *
  * @author Alex Black
  */
@@ -119,7 +117,7 @@ public class Ex1BasicSameDiffLayerExample {
         }
 
         //Create some random labels for gradient checks:
-        INDArray testLabels = Nd4j.eye(3);  //3x3, with 1s along the dimension. Here, minibatch size 3, networkNumOutputs = 3
+        INDArray testLabels = Nd4j.eye(3);  //3x3, with 1s along the diagonal. Here, minibatch size 3, networkNumOutputs = 3
 
 
         //Check gradients
@@ -127,7 +125,7 @@ public class Ex1BasicSameDiffLayerExample {
         boolean return_on_first_failure = false;                                                //If true: terminate test on first failure
         double gradient_check_epsilon = 1e-6;                                                   //Epsilon value used for gradient checks
         double max_relative_error = 1e-5;                                                       //Maximum relative error allowable for each parameter
-        double min_absolute_error = 1e-8;                                                      //Minimum absolute error, to avoid failures on 0 vs 1e-30, for example.
+        double min_absolute_error = 1e-8;                                                       //Minimum absolute error, to avoid failures on 0 vs 1e-30, for example.
 
         boolean gradOk = GradientCheckUtil.checkGradients(net, gradient_check_epsilon, max_relative_error, min_absolute_error, print,
             return_on_first_failure, testFeatures, testLabels);
