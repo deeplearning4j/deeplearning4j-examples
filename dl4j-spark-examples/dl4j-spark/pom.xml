@@ -15,6 +15,7 @@
         <jcommander.version>1.27</jcommander.version>
         <azure.hadoop.version>2.7.4</azure.hadoop.version>
         <azure.storage.version>2.0.0</azure.storage.version>
+        <spark.version>1.6.3</spark.version>
     </properties>
 
     <dependencyManagement>
@@ -47,7 +48,7 @@
         <dependency>
             <groupId>org.apache.spark</groupId>
             <artifactId>spark-core_${scala.binary.version}</artifactId>
-            <version>1.6.3</version>
+            <version>${spark.version}</version>
         </dependency>
 
         <dependency>
