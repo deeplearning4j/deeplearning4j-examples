@@ -64,6 +64,9 @@ public class TrainPatentClassifier {
     @Parameter(names = {"--networkMask"}, description = "Network mask for Spark communication. For example, 10.0.0.0/16", required = true)
     private String networkMask;
 
+    @Parameter(names = {"--numNodes"}, description = "Number of Spark nodes (machines)", required = true)
+    private int numNodes;
+
     /* --- Optional Arguments -- */
 
     @Parameter(names = {"--azureContainerPreproc"}, description = "Name of the container in the specified storage account for the serialized training DataSet files")
@@ -75,14 +78,12 @@ public class TrainPatentClassifier {
     @Parameter(names = {"--numEpochs"}, description = "Number of epochs for training")
     private int numEpochs = 1;
 
-    @Parameter(names = {"--minibatch"}, description = "Minibatch size (of preprocessed minibatches)")
+    @Parameter(names = {"--minibatch"}, description = "Minibatch size (of preprocessed minibatches). Also number of" +
+        "minibatches per worker when fitting")
     private int minibatch = 32;
 
     @Parameter(names = {"--maxSequenceLength"}, description = "Maximum number of words in the sequences for generated DataSets")
     private int maxSequenceLength = 1000;
-
-    @Parameter(names = {"--numNodes"}, description = "Number of Spark nodes")
-    private int numNodes = 4;
 
     @Parameter(names = {"--numWorkersPerNode"}, description = "Number of workers per Spark node")
     private int numWorkersPerNode = 1;
@@ -96,8 +97,9 @@ public class TrainPatentClassifier {
     @Parameter(names = {"--port"}, description = "Port number for Spark nodes. This can be any free port (port must be free on all nodes)")
     private int port = 40123;
 
-    @Parameter(names = {"--totalExamplesTest"}, description = "Total number of examples for testing. Set to -1 to use all")
-    private int totalExamplesTest = 20000;
+    @Parameter(names = {"--totalExamplesTest"}, description = "Total number of examples for testing. Set to -1 to use all; otherwise a" +
+        " (consist between runs) random subset is used. Note that the full set can take a long time to evaluate!")
+    private int totalExamplesTest = 10000;
 
     @Parameter(names = {"--wordVectorsPath"}, description = "Word vectors path")
     private String wordVectorsPath = "wasbs://resources@deeplearning4jblob.blob.core.windows.net/wordvectors/GoogleNews-vectors-negative300.bin.gz";
@@ -105,14 +107,15 @@ public class TrainPatentClassifier {
     @Parameter(names = {"--saveFrequencySec"}, description = "How often (in seconds) to save a copy of the parameters for later evaluation")
     private int saveFreqSec = 180;
 
-    @Parameter(names = {"--evalOnly"}, description = "If set, only evaluation will be performed on ALL parameter snapshots found", arity = 1)
+    @Parameter(names = {"--evalOnly"}, description = "If set, only evaluation will be performed on all parameter snapshots found;" +
+        "no training will occur when this is set", arity = 1)
     private boolean evalOnly = false;
 
     @Parameter(names = {"--continueTraining"}, description = "If true, training will continue from the last saved checkpoint", arity = 1)
     private boolean continueTraining = false;
 
     @Parameter(names = {"--maxRuntimeSec"}, description = "Maximum runtime in seconds (training will terminate after completing a subset " +
-            "if this is exceeded . Set -1 for no maximum")
+            "if this is exceeded). Set -1 for no maximum - in which case the full numEpochs epochs will be trained")
     private long maxRuntimeSec = -1;
 
     @Parameter(names = {"--batchesBtwCheckpoints"}, description = "Number of minibatches between saving model checkpoints." +
