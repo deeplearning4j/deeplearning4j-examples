@@ -49,6 +49,12 @@ public class WordVectorProvider {
         } catch (URISyntaxException e){
             throw new RuntimeException(e);
         }
+
+        String scheme = u.getScheme();
+        if(scheme == null || scheme.length() <= 1){
+            throw new IllegalStateException("Could not determine URI scheme for path \"" + path + "\". For file paths, prefix path with \"file:///\"," +
+                " for Azure prefix with wasbs://");
+        }
         FileSystem fs = FileSystem.get(u, config);
 
         try {

@@ -98,7 +98,7 @@ public class TrainPatentClassifier {
     private int port = 40123;
 
     @Parameter(names = {"--totalExamplesTest"}, description = "Total number of examples for testing. Set to -1 to use all; otherwise a" +
-        " (consist between runs) random subset is used. Note that the full set can take a long time to evaluate!")
+        " (consistent between runs) random subset is used. Note that the full test set can take a long time to evaluate!")
     private int totalExamplesTest = 10000;
 
     @Parameter(names = {"--wordVectorsPath"}, description = "Word vectors path")

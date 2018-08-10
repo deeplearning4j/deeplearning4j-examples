@@ -66,7 +66,7 @@ public class LocalTraining {
     private int totalExamplesTrain = -1;
 
     @Parameter(names = {"--totalExamplesTest"}, description = "Total number of examples for testing")
-    private int totalExamplesTest = -1;
+    private int totalExamplesTest = 5000;
 
     @Parameter(names = {"--saveConvergenceNets"}, description = "If true, save networks at each evaluation point during training")
     private boolean saveConvergenceNets = true;
@@ -226,6 +226,9 @@ public class LocalTraining {
         File root = new File(dataRootDir, train ? "train" : "test");
         List<String> all = new ArrayList<>();
         File[] files = root.listFiles();
+        if(files == null || files.length == 0){
+            throw new IllegalStateException("Did not find files in directory " + root.getAbsolutePath());
+        }
         for(File f : files){
             all.add(f.getAbsolutePath());
         }
