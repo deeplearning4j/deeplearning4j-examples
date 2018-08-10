@@ -7,6 +7,7 @@ AZURE_STORAGE_ACCT=...                          #Azure storage account name. 3-2
 AZURE_STORAGE_ACCT_KEY=...                      #Azure storage account key. Should be approx 88 characters, usually ends with "=="
 AZURE_CONTAINER_PREPROC=patentpreproc           #Name of the container for preprocessed data. Should match value set in scripts/patentExamplePreproc.sh
 LOCAL_SAVE_DIR=...                              #Local address for writing results
+NUM_NODES=...                                   #Number of nodes in the cluster
 
 
 #Optional argumenst: Set these only if the defaults aren't suitable
@@ -37,6 +38,7 @@ CMD="${SPARKSUBMIT}
     --deploy-mode client
     --executor-memory ${JAVA_HEAP_MEM}
     ${JARFILE}
+    --numNodes ${NUM_NODES}
     --azureStorageAcct ${AZURE_STORAGE_ACCT}
     --azureContainerPreproc ${AZURE_CONTAINER_PREPROC}
     --outputPath ${LOCAL_SAVE_DIR}

@@ -56,15 +56,15 @@ with access to spark-submit.
 ```
 #If required: clone project
 cd /your/project/dir
-git clone <...>
-cd dl4j-examples
+git clone https://github.com/deeplearning4j/dl4j-examples.git
+cd dl4j-examples/dl4j-spark-examples/dl4j-spark
 mvn package -DskipTests
 ```
 
 ### Stage 2: Run Data Download and Preprocessing
 
 **First**: modify the launch scripts.
-Open ```/scripts/patentExampleProproc.sh```` and edit the following lines:
+Open ```dl4j-examples/dl4j-spark-examples/dl4j-spark/scripts/patentExampleProproc.sh```` and edit the following lines:
 
 ```
 MASTER_IP=...

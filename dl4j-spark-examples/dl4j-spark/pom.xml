@@ -13,6 +13,8 @@
 
     <properties>
         <jcommander.version>1.27</jcommander.version>
+        <azure.hadoop.version>2.7.4</azure.hadoop.version>
+        <azure.storage.version>2.0.0</azure.storage.version>
     </properties>
 
     <dependencyManagement>
@@ -84,6 +86,20 @@
             <groupId>org.deeplearning4j</groupId>
             <artifactId>deeplearning4j-nlp</artifactId>
             <version>${dl4j.version}</version>
+        </dependency>
+
+        <!-- Used for patent classification example -->
+        <dependency>
+            <groupId>org.apache.hadoop</groupId>
+            <artifactId>hadoop-azure</artifactId>
+            <version>${azure.hadoop.version}</version>
+        </dependency>
+
+        <!-- Used for patent classification example -->
+        <dependency>
+            <groupId>com.microsoft.azure</groupId>
+            <artifactId>azure-storage</artifactId>
+            <version>${azure.storage.version}</version>
         </dependency>
 
 		<dependency>
