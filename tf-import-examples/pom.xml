@@ -24,6 +24,11 @@
         </plugins>
     </build>
 
+    <properties>
+        <javacpp.version>1.4.2</javacpp.version>
+        <tensorflow.version>1.9.0</tensorflow.version>
+    </properties>
+
     <dependencies>
 
         <!-- ND4J backend. You need one in every DL4J project. Normally define artifactId as either "nd4j-native-platform" or "nd4j-cuda-7.5-platform" -->
@@ -31,6 +36,17 @@
             <groupId>org.nd4j</groupId>
             <artifactId>${nd4j.backend}</artifactId>
             <version>${nd4j.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.nd4j</groupId>
+            <artifactId>nd4j-tensorflow</artifactId>
+            <version>${nd4j.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.bytedeco.javacpp-presets</groupId>
+            <artifactId>tensorflow-platform</artifactId>
+            <version>${tensorflow.version}-${javacpp.version}</version>
         </dependency>
 
         <!-- Copy this into your own projects (without the comment block around it), for CPU operations-->
@@ -55,6 +71,11 @@
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
             <version>${logback.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.deeplearning4j</groupId>
+            <artifactId>deeplearning4j-datasets</artifactId>
+            <version>RELEASE</version>
         </dependency>
 
 

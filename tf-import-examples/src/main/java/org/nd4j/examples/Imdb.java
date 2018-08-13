@@ -13,7 +13,11 @@ import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.Map;
 
-
+/**
+ * Tensorflow import for IMDB.
+ *
+ * @author Fariz Rahman
+ */
 public class Imdb {
 
     private static SameDiff sd;
@@ -40,7 +44,7 @@ public class Imdb {
         String[] words = text.split(" ");
         double arr[] = new double[maxlen];
         int pads = 256 - words.length;
-        for(int i=0; i<pads; i++){
+        for(int i = 0; i<pads; i++){
             arr[i] = (double)wordIndex.get("<PAD>");
         }
         for(int i=0; i<words.length; i++){
