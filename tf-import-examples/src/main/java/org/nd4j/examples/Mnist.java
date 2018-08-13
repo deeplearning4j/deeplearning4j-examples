@@ -14,8 +14,16 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 
-
-public class Mnist{
+/**
+ * Shows tensorflow import using mnist.
+ * For the trained graph, please look at the python files under
+ * Mnist/
+ *
+ * mnist_tf.py was used to train the graph
+ *
+ * @author Fariz Rahman
+ */
+public class Mnist {
     private static SameDiff sd;
 
     public static void loadModel(String filepath) throws Exception{
@@ -23,8 +31,10 @@ public class Mnist{
         if (!file.exists()){
             file = new ClassPathResource(filepath).getFile();
         }
+
         sd = TFGraphMapper.getInstance().importGraph(file);
-        if (sd == null){
+
+        if (sd == null) {
             throw new Exception("Error loading model : " + file);
         }
     }
@@ -46,6 +56,7 @@ public class Mnist{
         if (!file.exists()){
             file = new ClassPathResource(filepath).getFile();
         }
+
         BufferedImage img = ImageIO.read(file);
         double data[] = new double[28 * 28];
         for(int i = 0; i < 28; i++){
@@ -59,6 +70,7 @@ public class Mnist{
                 data[i * 28 + j] = greyScale;
             }
         }
+
         INDArray arr = Nd4j.create(data).reshape(1, 28, 28);
         arr = Nd4j.pile(arr, arr);
         sd.associateArrayWithVariable(arr, sd.variables().get(0));
