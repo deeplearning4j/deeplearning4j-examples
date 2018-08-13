@@ -15,7 +15,7 @@ import java.io.IOException;
 import java.util.Arrays;
 
 
-public class Mnist{
+public class Mnist {
     private static SameDiff sd;
 
     public static void loadModel(String filepath) throws Exception{
@@ -59,6 +59,7 @@ public class Mnist{
                 data[i * 28 + j] = greyScale;
             }
         }
+
         INDArray arr = Nd4j.create(data).reshape(1, 28, 28);
         arr = Nd4j.pile(arr, arr);
         sd.associateArrayWithVariable(arr, sd.variables().get(0));
