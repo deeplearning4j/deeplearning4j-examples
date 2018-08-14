@@ -1,21 +1,20 @@
 package org.deeplearning4j.examples.tictactoe;
 
-import java.io.BufferedWriter;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
+
+import java.io.BufferedWriter;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 /**
  * This program generates basic data to be used in Training Program.
@@ -41,38 +40,34 @@ public class TicTacToeData {
      */
     public static void main(String[] args) throws Exception {
     	long start = System.nanoTime();
-        TicTacToeData data = new TicTacToeData();
+    	try {
+            TicTacToeData data = new TicTacToeData();
+            log.info("Data Processing Started");
+            final String allMoves = data.generatePossibleGames();
+            log.info("All possible game state sequence generated, Finished");
 
-        log.debug("Data Processing Started");
-        final List<String> strings = data.generatePossibleGames();
-        log.debug("All possible game state sequence generated, Finished");
-
-        String path = ClassLoader.getSystemClassLoader().getResource("AllMoveWithReward.txt").getPath();
-        try (BufferedWriter writer = Files.newBufferedWriter(Paths.get(path))) {
-            Set<String> uniqueValues = new HashSet<>();
-            for (String string : strings) {
-                if (uniqueValues.add(string)) {
-                    writer.write(string + "\r\n");
-                }
+            final Path dataFile = Paths.get(System.getProperty("user.home") + "/AllMoveWithReward.txt");
+            Files.deleteIfExists(dataFile);
+            final Path dataFilePath = Files.createFile(dataFile);
+            try (BufferedWriter writer = Files.newBufferedWriter(dataFilePath)) {
+                writer.write(allMoves);
             }
+        } catch (Exception e) {
+            log.error(e);
         }
-        log.debug("Total time = " + (System.nanoTime() - start)/1_000_000);
+        log.info("Total time = " + (System.nanoTime() - start)/1_000_000);
     }
 
     /**
      * Initiate generating all possible game states. Refer ReadMe.txt for detailed explanation.
      */
-    private List<String> generatePossibleGames() {
+    private String generatePossibleGames() throws Exception {
         List<String> values = new ArrayList<>();
-        try {
-            List<INDArray> moveSequenceList = new ArrayList<>();
-            for (int index = 1; index <= 9; index++) {
-                generateStateBasedOnMoveNumber(index, moveSequenceList, values);
-            }
-        } catch (Exception e) {
-            log.error("ERROR in generation", e);
+        List<INDArray> moveSequenceList = new ArrayList<>();
+        for (int index = 1; index <= 9; index++) {
+            generateStateBasedOnMoveNumber(index, moveSequenceList, values);
         }
-        return values;
+        return values.stream().distinct().collect(Collectors.joining("\r\n"));
     }
 
     /**
