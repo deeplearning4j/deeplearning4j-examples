@@ -1,14 +1,20 @@
 package org.deeplearning4j.examples.tictactoe;
 
-import org.datavec.api.util.ClassPathResource;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
 
-import java.io.File;
-import java.io.FileWriter;
+import java.io.BufferedWriter;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 /**
  * This program generates basic data to be used in Training Program.
@@ -27,87 +33,48 @@ import java.util.List;
 
 public class TicTacToeData {
 
-
-    //All these private variables are not meant to be used from outside of the class. So, no getter/setter methods are provided.
-    private List<INDArray> moveSequenceList = new ArrayList<>();
-    private List<INDArray> oddPlayerWiningList = new ArrayList<>();
-    private List<INDArray> evenPlayerWiningList = new ArrayList<>();
-
-    private List<INDArray> middleList = new ArrayList<>();
-    private List<INDArray> finalOutputArrayList = new ArrayList<>();
-    private List<Double> finalProbabilityValueList = new ArrayList<>();
-
-    private int previousMoveNumber = 0;
+	private static Log log = LogFactory.getLog(TicTacToeData.class);
 
     /**
      * Main function that calls all major functions one-by-one to generate training data to be used in training program.
      */
     public static void main(String[] args) throws Exception {
+    	long start = System.nanoTime();
+    	try {
+            TicTacToeData data = new TicTacToeData();
+            log.info("Data Processing Started");
+            final String allMoves = data.generatePossibleGames();
+            log.info("All possible game state sequence generated, Finished");
 
-        String filePath = new ClassPathResource("AllMoveWithReward.txt").getFile().getAbsolutePath();
-        
-        TicTacToeData data = new TicTacToeData();
-
-
-        System.out.println("Data Processing Started : " + (new Date()).toString());
-        data.generatePossibleGames();
-        System.out.println("All possible game state sequence generated, Finished At : " + (new Date()).toString());
-
-        data.rewardGameState();
-        System.out.println("Reward calculation finished : " + (new Date()).toString());
-
-        data.writeFinalData(filePath);
-        System.out.println("File generation completed : " + (new Date()).toString());
+            final Path dataFile = Paths.get(System.getProperty("user.home") + "/AllMoveWithReward.txt");
+            Files.deleteIfExists(dataFile);
+            final Path dataFilePath = Files.createFile(dataFile);
+            try (BufferedWriter writer = Files.newBufferedWriter(dataFilePath)) {
+                writer.write(allMoves);
+            }
+        } catch (Exception e) {
+            log.error(e);
+        }
+        log.info("Total time = " + (System.nanoTime() - start)/1_000_000);
     }
 
     /**
      * Initiate generating all possible game states. Refer ReadMe.txt for detailed explanation.
      */
-    public void generatePossibleGames() {
-        try {
-            for (int index = 1; index <= 9; index++) {
-                generateStateBasedOnMoveNumber(index);
-            }
-        } catch (Exception e) {
-            System.out.println(e.toString());
+    private String generatePossibleGames() throws Exception {
+        List<String> values = new ArrayList<>();
+        List<INDArray> moveSequenceList = new ArrayList<>();
+        for (int index = 1; index <= 9; index++) {
+            generateStateBasedOnMoveNumber(index, moveSequenceList, values);
         }
-
-        /*Here  process odd and Draw using odd list*/
-        oddPlayerWiningList.addAll(moveSequenceList);
-    }
-
-    /**
-     * This function allocates reward points to each state of the game based on the winning state.
-     * For all elements in oddPlayerWiningList, evenPlayerWiningList and middleList (which contains intermediate entries before winning or draw).
-     * Refer ReadMe.txt for detailed explanation.
-     */
-    public void rewardGameState() {
-        for (INDArray a : oddPlayerWiningList) {
-            generateGameStatesAndRewardToIt(a, 0);//0 odd for position  and 1 for even Position
-        }
-        for (INDArray a : evenPlayerWiningList) {
-            generateGameStatesAndRewardToIt(a, 1);
-        }
-        for (INDArray element : middleList) {
-            addToFinalOutputList(element, 0.5);
-        }
+        return values.stream().distinct().collect(Collectors.joining("\r\n"));
     }
 
     /**
      * This function called by generatePossibleGames. It is the main function that generates all possible game states.
      * Refer ReadMe.txt for detailed explanation.
      */
-    private void generateStateBasedOnMoveNumber(int moveNumber) throws Exception {
-
-        int newMoveNumber = previousMoveNumber + 1;
-
-        if (newMoveNumber != moveNumber) {
-            throw new Exception("Missing one or more moves between 1 to 9");
-        } else if (moveNumber > 9 || moveNumber < 1) {
-            throw new Exception("Invalid move number");
-        }
-
-        previousMoveNumber = newMoveNumber;
+    private void generateStateBasedOnMoveNumber(int moveNumber, List<INDArray> moveSequenceList, List<String> values) throws Exception {
 
         List<INDArray> tempMoveSequenceList = new ArrayList<>();
         tempMoveSequenceList.addAll(moveSequenceList);
@@ -120,33 +87,30 @@ public class TicTacToeData {
                 moveSequenceList.add(temp2);
             }
         } else {
-            boolean isOddMoveNumber = ((moveNumber % 2) != 0) ? true : false;
             int lengthOfTempMoveSequenceList = tempMoveSequenceList.size();
 
-            for (int i = 0; i < lengthOfTempMoveSequenceList; i++) {
-                INDArray moveArraySequence = tempMoveSequenceList.get(i);
-                for (int j = 0; j < 9; j++) {
+            for (INDArray moveArraySequence : tempMoveSequenceList)
+                IntStream.range(0, 9).filter(j -> moveArraySequence.getInt(j) == 0).forEach(j -> {
                     INDArray temp1 = Nd4j.zeros(1, 9);
                     Nd4j.copy(moveArraySequence, temp1);
-                    if (moveArraySequence.getInt(j) == 0) {
-                        temp1.putScalar(new int[]{0, j}, moveNumber);
-                        if (moveNumber > 4) {
-                            if (checkWin(temp1, isOddMoveNumber)) {
-                                if (isOddMoveNumber == true) {
-                                    oddPlayerWiningList.add(temp1);
-                                } else {
-                                    evenPlayerWiningList.add(temp1);
-                                }
-                            } else {
-                                moveSequenceList.add(temp1);
-                            }
-
+                    temp1.putScalar(new int[]{0, j}, moveNumber);
+                    if (moveNumber > 4) {
+                        boolean isOddMoveNumber = (moveNumber % 2) != 0;
+                        if (checkWin(temp1, isOddMoveNumber)) {
+                            values.addAll(generateGameStatesAndRewardToIt(temp1, isOddMoveNumber ? 0 : 1));
                         } else {
                             moveSequenceList.add(temp1);
                         }
+
+                    } else {
+                        moveSequenceList.add(temp1);
                     }
-                }
-            }
+                });
+        }
+        if (moveNumber == 9) {
+            values.addAll(moveSequenceList.stream()
+                            .flatMap(temp1 -> generateGameStatesAndRewardToIt(temp1, 0).stream())
+                            .collect(Collectors.toList()));
         }
     }
 
@@ -156,6 +120,7 @@ public class TicTacToeData {
      */
     private boolean checkWin(INDArray sequence, boolean isOdd) {
         double boardPosition1 = sequence.getDouble(0);
+        boolean boardIsOdd = boardPosition1 % 2.0 != 0;
         double boardPosition2 = sequence.getDouble(1);
         double boardPosition3 = sequence.getDouble(2);
         double boardPosition4 = sequence.getDouble(3);
@@ -165,7 +130,7 @@ public class TicTacToeData {
         double boardPosition8 = sequence.getDouble(7);
         double boardPosition9 = sequence.getDouble(8);
 
-        boolean position1 = isOdd ? (sequence.getDouble(0) % 2.0 != 0) : (sequence.getDouble(0) % 2.0 == 0);
+        boolean position1 = isOdd && boardIsOdd;
         boolean position2 = isOdd ? (sequence.getDouble(1) % 2.0 != 0) : (sequence.getDouble(1) % 2.0 == 0);
         boolean position3 = isOdd ? (sequence.getDouble(2) % 2.0 != 0) : (sequence.getDouble(2) % 2.0 == 0);
         boolean position4 = isOdd ? (sequence.getDouble(3) % 2.0 != 0) : (sequence.getDouble(3) % 2.0 == 0);
@@ -195,8 +160,8 @@ public class TicTacToeData {
      * and pass it to calculateReward function to calculate probability of all states of winning game.
      * Refer ReadMe.txt for detailed explanation.
      */
-    private void generateGameStatesAndRewardToIt(INDArray output, int moveType) {
-
+    private List<String> generateGameStatesAndRewardToIt(INDArray output, int moveType) {
+    	Map<INDArray, Double> valueMap = new HashMap<>();
         INDArray maxArray = Nd4j.max(output);
         double maxNumber = maxArray.getDouble(0);
 
@@ -214,7 +179,7 @@ public class TicTacToeData {
                 sequenceList.add(newTempArray);
             } else {
                 Nd4j.copy(sequenceArray, newTempArray);
-                middleList.add(newTempArray);
+                valueMap.put(newTempArray, 0.5);
             }
             sequenceArray.putScalar(new int[]{0, positionOfDigit}, move);
             move = move * (-1);
@@ -225,7 +190,12 @@ public class TicTacToeData {
         sequenceArray.putScalar(new int[]{0, positionOfDigit}, move);
         Nd4j.copy(sequenceArray, newTempArray2);
         sequenceList.add(newTempArray2);
-        calculateReward(sequenceList);
+        calculateReward(sequenceList, valueMap);
+        return valueMap.entrySet()
+                .parallelStream()
+                .map(entry -> generateStringList(entry.getKey(), entry.getValue()))
+                .distinct()
+                .collect(Collectors.toList());
     }
 
     /**
@@ -245,7 +215,7 @@ public class TicTacToeData {
     /**
      * Function to calculate Temporal Difference. Refer ReadMe.txt for detailed explanation.
      */
-    private void calculateReward(List<INDArray> arrayList) {
+    private void calculateReward(List<INDArray> arrayList, Map<INDArray, Double> valueMap) {
 
         double probabilityValue = 0;
         for (int p = (arrayList.size() - 1); p >= 0; p--) {
@@ -255,64 +225,22 @@ public class TicTacToeData {
                 probabilityValue = 0.5 + 0.1 * (probabilityValue - 0.5);
             }
             INDArray stateAsINDArray = arrayList.get(p);
-            addToFinalOutputList(stateAsINDArray, probabilityValue);
+            valueMap.merge(stateAsINDArray, probabilityValue, (oldValue, newValue) -> oldValue > newValue ? oldValue : newValue);
         }
     }
 
-    /**
-     * This function adds game states to final list after calculating reward for each state of a winning game.
-     */
-    private void addToFinalOutputList(INDArray inputLabelArray, double inputRewardValue) {
-        int indexPosition = finalOutputArrayList.indexOf(inputLabelArray);
-
-        if (indexPosition != -1) {
-            double rewardValue = finalProbabilityValueList.get(indexPosition);
-            double newUpdatedRewardValue = (rewardValue > inputRewardValue) ? rewardValue : inputRewardValue;
-            finalProbabilityValueList.set(indexPosition, newUpdatedRewardValue);
-        } else {
-            finalOutputArrayList.add(inputLabelArray);
-            finalProbabilityValueList.add(inputRewardValue);
-        }
-    }
-
-    /**
-     * This function writes all states of all games into file along with their probability values.
-     */
-    public void writeFinalData(String saveFilePath) {
-
-        try (FileWriter writer = new FileWriter(saveFilePath)) {
-
-            List<String> finalStringListForFile = new ArrayList<>();
-            for (int index = 0; index < finalOutputArrayList.size(); index++) {
-                INDArray arrayFromInputList = finalOutputArrayList.get(index);
-                double rewardValue = finalProbabilityValueList.get(index);
-
-                String tempString = arrayFromInputList.toString().replace('[', ' ').replace(']', ' ').replace(',', ':').replaceAll("\\s", "");
-                String tempString2 = tempString;
-                tempString = tempString.replaceAll("-1", "2");
-                String output = tempString + " " + String.valueOf(rewardValue);
-
-                int indexInList1 = finalStringListForFile.indexOf(output);
-                if (indexInList1 == -1) {
-                    finalStringListForFile.add(output);
-                }
-                tempString2 = tempString2.replaceAll("1", "2").replaceAll("-2", "1");
-                String output2 = tempString2 + " " + String.valueOf(rewardValue);
-                int indexInList2 = finalStringListForFile.indexOf(output2);
-
-                if (indexInList2 == -1) {
-                    finalStringListForFile.add(output2);
-                }
-            }
-            for (String s : finalStringListForFile) {
-                writer.append(s);
-                writer.append('\r');
-                writer.append('\n');
-                writer.flush();
-            }
-
-        } catch (Exception i) {
-            System.out.println(i.toString());
-        }
-    }
+	private String generateStringList(INDArray arrayFromInputList,
+			double rewardValue) {
+		List<String> strings = new ArrayList<>();
+		StringBuilder stringBuilder = new StringBuilder();
+		String tempString = arrayFromInputList.toString().replace('[', ' ').replace(']', ' ').replace(',', ':').replaceAll("\\s", "");
+		stringBuilder.append(tempString.replaceAll("-1", "2"));
+        stringBuilder.append(" ");
+        stringBuilder.append(rewardValue);
+        stringBuilder.append("\r\n");
+        stringBuilder.append(tempString.replaceAll("1", "2").replaceAll("-2", "1"));
+        stringBuilder.append(" ");
+        stringBuilder.append(rewardValue);
+		return stringBuilder.toString();
+	}
 }

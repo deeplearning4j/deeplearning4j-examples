@@ -1,6 +1,5 @@
 package org.deeplearning4j.examples.tictactoe;
 
-import org.datavec.api.util.ClassPathResource;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
 
@@ -8,7 +7,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.File;
 
 /**
  * <b>Developed by KIT Solutions Pvt. Ltd.</b> (www.kitsol.com) on 24-Aug-16
@@ -34,14 +32,8 @@ public class PlayTicTacToe extends JFrame {
      * Also, initializes the GUI and display it.
      */
     public PlayTicTacToe() throws HeadlessException {
-        String filePath = "";
-        try {
-            filePath = new ClassPathResource("AllMoveWithReward.txt").getFile().getAbsolutePath();
-        } catch (Exception e) {
-            System.out.println("FilePathException" + e.toString());
-        }
         ticTacToePlayer = new TicTacToePlayer();
-        ticTacToePlayer.setFilePath(filePath);
+        ticTacToePlayer.setFilePath(System.getProperty("user.home") + "/AllMoveWithReward.txt");
         aiLoad = new Thread(ticTacToePlayer);
         aiLoad.start();
         ticTacToePlayer.setUpdateLimit(10);
