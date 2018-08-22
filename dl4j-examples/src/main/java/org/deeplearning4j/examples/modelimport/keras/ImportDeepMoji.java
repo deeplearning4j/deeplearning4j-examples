@@ -22,7 +22,6 @@ import static java.io.File.createTempFile;
 public class ImportDeepMoji {
 
     public static void main(String[] args) throws Exception {
-
         // First, register the Keras layer wrapped around our custom SameDiff attention layer
         KerasLayer.registerCustomLayer("AttentionWeightedAverage", KerasDeepMojiAttention.class);
 
