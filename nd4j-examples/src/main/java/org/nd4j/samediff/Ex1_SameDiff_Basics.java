@@ -80,6 +80,8 @@ public class Ex1_SameDiff_Basics {
         System.out.println("'plusOne' values:\n" + plusOneArr);
         System.out.println("'mulTen' values:\n" + mulTenArr);
 
+
+
         //That's it - see the next example for calculating gradients
     }
 
