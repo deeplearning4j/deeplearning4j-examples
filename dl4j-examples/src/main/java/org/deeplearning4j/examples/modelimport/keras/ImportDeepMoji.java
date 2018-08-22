@@ -48,7 +48,9 @@ public class ImportDeepMoji {
 
         // Finally, import the model and test on artificial input data.
         ComputationGraph graph = KerasModelImport.importKerasModelAndWeights(cachedKerasFile.getAbsolutePath());;
+        System.out.println(graph.summary());
         INDArray input = Nd4j.create(new int[] {10, 30});
         graph.output(input);
+        System.out.println("Example completed.");
     }
 }
