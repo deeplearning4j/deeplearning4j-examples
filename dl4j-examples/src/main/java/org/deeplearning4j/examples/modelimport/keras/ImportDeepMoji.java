@@ -22,11 +22,13 @@ import static java.io.File.createTempFile;
 public class ImportDeepMoji {
 
     public static void main(String[] args) throws Exception {
-        //KerasLayer.registerCustomLayer("AttentionWeightedAverage", KerasDeepMojiAttention.class);
 
+        // First, register the Keras layer wrapped around our custom SameDiff attention layer
+        KerasLayer.registerCustomLayer("AttentionWeightedAverage", KerasDeepMojiAttention.class);
+
+        // Then, download the model from azure (check if it's cached)
         String modelUrl = "http://blob.deeplearning4j.org/models/deepmoji.h5";
         File cachedKerasFile = createTempFile("deepmoji", ".h5");
-
 
         if (!cachedKerasFile.exists()) {
             log.info("Downloading model to " + cachedKerasFile.toString());
@@ -34,8 +36,8 @@ public class ImportDeepMoji {
             cachedKerasFile.deleteOnExit();
         }
 
+        // Finally, import the model and test on artificial inputs.
         ComputationGraph graph = KerasModelImport.importKerasModelAndWeights(cachedKerasFile.getAbsolutePath());;
-
         INDArray input = Nd4j.create(new int[] {10, 30});
         graph.output(input);
     }

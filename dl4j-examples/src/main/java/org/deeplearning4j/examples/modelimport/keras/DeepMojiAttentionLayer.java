@@ -1,16 +1,17 @@
-package org.deeplearning4j.nn.conf.layers.samediff;
+package org.deeplearning4j.examples.modelimport.keras;
 
 import lombok.Data;
 import org.deeplearning4j.nn.conf.inputs.InputType;
+import org.deeplearning4j.nn.conf.layers.samediff.BaseSameDiffLayer;
 import org.deeplearning4j.nn.conf.layers.samediff.SDLayerParams;
-import org.deeplearning4j.nn.layers.samediff.SameDiffLayer;
 import org.deeplearning4j.nn.params.DefaultParamInitializer;
 import org.deeplearning4j.nn.weights.WeightInit;
 import org.nd4j.autodiff.samediff.SDVariable;
 import org.nd4j.autodiff.samediff.SameDiff;
-import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.api.ndarray.INDArray;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 
@@ -22,7 +23,7 @@ import java.util.Map;
  * @author  Max Pumperla
  */
 @Data
-public class DeepMojiAttentionLayer extends SameDiffLayer {
+public class DeepMojiAttentionLayer extends BaseSameDiffLayer {
 
     private int timeSteps;
     private long nIn;
@@ -67,7 +68,7 @@ public class DeepMojiAttentionLayer extends SameDiffLayer {
      * @return layer output
      */
     @Override
-    public SDVariable defineLayer(SameDiff sd, SDVariable layerInput, Map<String, SDVariable> paramTable) {
+    public List<SDVariable> defineLayer(SameDiff sd, SDVariable layerInput, Map<String, SDVariable> paramTable) {
         SDVariable weights = paramTable.get(DefaultParamInitializer.WEIGHT_KEY);
 
         SDVariable logits = sd.tensorMmul(layerInput, weights, new int[][] { {2}, {0}});
@@ -78,18 +79,18 @@ public class DeepMojiAttentionLayer extends SameDiffLayer {
         SDVariable attentionWeights = ai.div(aiSumEps);
         SDVariable weightedInput = layerInput.mul(sd.expandDims(attentionWeights, 2));
 
-        return sd.sum(weightedInput, 2);
+        return Collections.singletonList(sd.sum(weightedInput, 2));
     }
 
 
     @Override
-    public InputType getOutputType(int layerIndex, InputType inputType) {   
+    public InputType getOutputType(int layerIndex, InputType inputType) {
         if (inputType == null || inputType.getType() != InputType.Type.RNN) {
             throw new IllegalStateException("Invalid input for DeepMoji attention layer (layer name=\"" + getLayerName()
                 + "\"): Expected RNN input, got " + inputType);
         }
         InputType.InputTypeRecurrent rnnType = (InputType.InputTypeRecurrent) inputType;
-        long size = rnnType.getSize();
+        int size = rnnType.getSize();
 
         // Layer will "average out" time-step dimension
         return InputType.feedForward(size);
@@ -97,7 +98,7 @@ public class DeepMojiAttentionLayer extends SameDiffLayer {
 
     @Override
     public void defineParameters(SDLayerParams params) {
-        params.addWeightParam(DefaultParamInitializer.WEIGHT_KEY, nIn, 1L);
+        params.addWeightParam(DefaultParamInitializer.WEIGHT_KEY, (int) nIn, 1);
     }
 
     @Override
@@ -105,11 +106,18 @@ public class DeepMojiAttentionLayer extends SameDiffLayer {
         initWeights( (int) nIn, 1, weightInit,  params.get(DefaultParamInitializer.WEIGHT_KEY));
     }
 
-    public static class Builder extends SameDiffLayer.Builder<Builder> {
+    public static class Builder extends BaseSameDiffLayer.Builder<Builder> {
 
         private int nIn;
         private int nOut;
         private int timeSteps;
+        private WeightInit weightInit;
+
+        @Override
+        public Builder weightInit(WeightInit weightInit) {
+            this.weightInit = weightInit;
+            return this;
+        }
 
         public Builder nIn(int nIn){
             this.nIn = nIn;
