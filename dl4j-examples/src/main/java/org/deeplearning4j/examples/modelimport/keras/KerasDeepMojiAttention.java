@@ -6,6 +6,7 @@ import org.deeplearning4j.nn.modelimport.keras.exceptions.InvalidKerasConfigurat
 import org.deeplearning4j.nn.modelimport.keras.exceptions.UnsupportedKerasConfigurationException;
 import org.deeplearning4j.nn.modelimport.keras.utils.KerasLayerUtils;
 import org.deeplearning4j.nn.params.DefaultParamInitializer;
+import org.deeplearning4j.nn.weights.WeightInit;
 import org.nd4j.linalg.api.ndarray.INDArray;
 
 import java.util.HashMap;
@@ -47,7 +48,7 @@ public class KerasDeepMojiAttention extends KerasLayer {
         Map<String, Object> attentionParams = KerasLayerUtils.getInnerLayerConfigFromConfig(layerConfig, conf);
 
         // NOTE: this is hard-coded for the DeepMoji application we show here
-        DeepMojiAttentionLayer layer = new DeepMojiAttentionLayer.Builder()
+        DeepMojiAttentionLayer layer = new DeepMojiAttentionLayer.Builder().weightInit(WeightInit.LECUN_NORMAL)
             .timeSteps(2304).nIn(30).nOut(64).build();
         this.layer = layer;
     }
