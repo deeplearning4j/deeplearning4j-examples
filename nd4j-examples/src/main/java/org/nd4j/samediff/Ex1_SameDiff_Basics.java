@@ -9,21 +9,30 @@ import org.nd4j.linalg.factory.Nd4j;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * This is a simple example introducing the basic concepts of SameDiff:
+ * - The SameDiff class
+ * - Variables
+ * - Functions
+ * - Getting arrays
+ * - Executing forward pass
+ *
+ * @author Alex Black
+ */
 public class Ex1_SameDiff_Basics {
 
     public static void main(String[] args) {
 
 
-        //The starting point for using SameDiff is creating a SameDiff instance via the create method:
+        //The starting point for using SameDiff is creating a SameDiff instance via the create method.
+        //The SameDiff class has many methods for creating variables and functions
         SameDiff sd = SameDiff.create();
 
         /*
         Variables can be added to a graph in a number of ways.
         You can think of variables as "holders" of an n-dimensional array - specifically, an ND4J INDArray
+        First, let's create a variable based on a specified array, with the name "myVariable"
         */
-
-
-        //First, let's create a variable based on a specified array, with the name "myVariable"
         INDArray values = Nd4j.ones(3,4);
         SDVariable variable = sd.var("myVariable", values);
 
@@ -33,7 +42,7 @@ public class Ex1_SameDiff_Basics {
         //Note that most operations have method overloads with and without a user-specified name - i.e., add(double) vs. add(String,double)
 
         //Let's inspect the graph. We currently have 3 variables, with names "myVariable", "add", and "mulTen",
-        // and two functions - out "add 1.0" and our "multiply by 10" functions.
+        // and two functions - our "add 1.0" and our "multiply by 10" functions. These are shown in the summary:
         System.out.println(sd.summary());
         System.out.println("===================================");
 
@@ -41,11 +50,12 @@ public class Ex1_SameDiff_Basics {
         List<SDVariable> allVariables = sd.variables();
         System.out.println("Variables: " + allVariables);
         for(SDVariable var : allVariables){
-            System.out.println(var.getVarName() + " - shape " + Arrays.toString(var.getShape()));
+            long[] varShape = var.getShape();
+            System.out.println(var.getVarName() + " - shape " + Arrays.toString(varShape));
         }
 
         /*
-        And inspect the individual functions.
+        We can also inspect the individual functions.
         You can think of functions as operations that map input variables (arrays) to new variables (arrays)
         Functions have 0 or more inputs (usually 1 or more) and 1 or more outputs
          */
