@@ -1,6 +1,5 @@
 package org.deeplearning4j.examples.modelimport.keras;
 
-import lombok.extern.slf4j.Slf4j;
 import org.deeplearning4j.nn.conf.inputs.InputType;
 import org.deeplearning4j.nn.modelimport.keras.KerasLayer;
 import org.deeplearning4j.nn.modelimport.keras.exceptions.InvalidKerasConfigurationException;
@@ -19,7 +18,6 @@ import java.util.Set;
  *
  * @author Max Pumperla
  */
-@Slf4j
 public class KerasDeepMojiAttention extends KerasLayer {
 
     /**
@@ -97,7 +95,7 @@ public class KerasDeepMojiAttention extends KerasLayer {
             Set<String> paramNames = weights.keySet();
             paramNames.remove(conf.getKERAS_PARAM_NAME_W());
             String unknownParamNames = paramNames.toString();
-            log.warn("Attemping to set weights for unknown parameters: "
+            System.out.println("Attemping to set weights for unknown parameters: "
                 + unknownParamNames.substring(1, unknownParamNames.length() - 1));
         }
     }

@@ -1,6 +1,5 @@
 package org.deeplearning4j.examples.modelimport.keras;
 
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.deeplearning4j.nn.graph.ComputationGraph;
 import org.deeplearning4j.nn.modelimport.keras.KerasLayer;
@@ -18,7 +17,6 @@ import static java.io.File.createTempFile;
  *
  * @author Max Pumperla
  */
-@Slf4j
 public class ImportDeepMoji {
 
     public static void main(String[] args) throws Exception {
@@ -30,7 +28,7 @@ public class ImportDeepMoji {
         File cachedKerasFile = createTempFile("deepmoji", ".h5");
 
         if (!cachedKerasFile.exists()) {
-            log.info("Downloading model to " + cachedKerasFile.toString());
+            System.out.println("Downloading model to " + cachedKerasFile.toString());
             FileUtils.copyURLToFile(new URL(modelUrl), cachedKerasFile);
             cachedKerasFile.deleteOnExit();
         }
