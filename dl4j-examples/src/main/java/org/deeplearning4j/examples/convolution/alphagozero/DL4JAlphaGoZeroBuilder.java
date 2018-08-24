@@ -13,7 +13,8 @@ import org.deeplearning4j.nn.weights.WeightInit;
 import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.learning.config.Sgd;
 
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 
 /**
@@ -43,6 +44,10 @@ class DL4JAlphaGoZeroBuilder {
 
     public ComputationGraphConfiguration buildAndReturn() { return conf.build(); }
 
+
+    /**Building block for AGZ residual blocks.
+     * conv2d -> batch norm -> ReLU
+     */
     public String addConvBatchNormBlock(String blockName, String inName,int nIn,
                               boolean useActivation, int[] kernelSize,
     int[] strides, ConvolutionMode convolutionMode) {
@@ -61,106 +66,95 @@ class DL4JAlphaGoZeroBuilder {
             return bnName;
     }
 
-    def addResidualBlock(blockNumber: Int,
-                         inName: String,
-                         kernelSize: List[Int] = List(3, 3),
-    strides: List[Int] = List(1, 1),
-    convolutionMode: ConvolutionMode = ConvolutionMode.Same): String = {
-        val firstBlock = "residual_1_" + blockNumber
-        val firstOut = "relu_residual_1_" + blockNumber
-        val secondBlock = "residual_2_" + blockNumber
-        val mergeBlock = "add_" + blockNumber
-        val actBlock = "relu_" + blockNumber
+    /**Residual block for AGZ. Takes two conv-bn-relu blocks
+     * and adds them to the original input.
+     */
+    public String addResidualBlock(int blockNumber,String inName, int[] kernelSize,
+                                   int[] strides, ConvolutionMode convolutionMode) {
+        String firstBlock = "residual_1_" + blockNumber;
+        String firstOut = "relu_residual_1_" + blockNumber;
+        String secondBlock = "residual_2_" + blockNumber;
+        String mergeBlock = "add_" + blockNumber;
+        String actBlock = "relu_" + blockNumber;
 
-        val firstBnOut =
-            addConvBatchNormBlock(firstBlock, inName, 256, useActivation = true, kernelSize, strides, convolutionMode)
-        val secondBnOut =
-            addConvBatchNormBlock(secondBlock, firstOut, 256, useActivation = false, kernelSize, strides, convolutionMode)
-        conf.addVertex(mergeBlock, new ElementWiseVertex(Op.Add), firstBnOut, secondBnOut)
-        conf.addLayer(actBlock, new ActivationLayer.Builder().activation(Activation.RELU).build(), mergeBlock)
-        actBlock
+        String firstBnOut =
+            addConvBatchNormBlock(firstBlock, inName, 256, true, kernelSize, strides, convolutionMode);
+        String secondBnOut =
+            addConvBatchNormBlock(secondBlock, firstOut, 256, false, kernelSize, strides, convolutionMode);
+        conf.addVertex(mergeBlock, new ElementWiseVertex(Op.Add), firstBnOut, secondBnOut);
+        conf.addLayer(actBlock, new ActivationLayer.Builder().activation(Activation.RELU).build(), mergeBlock);
+        return actBlock;
     }
 
-    def addResidualTower(numBlocks: Int,
-                         inName: String,
-                         kernelSize: List[Int] = List(3, 3),
-    strides: List[Int] = List(1, 1),
-    convolutionMode: ConvolutionMode = ConvolutionMode.Same): String = {
-        var name = inName
-        for (i <- 0 until numBlocks)
-        name = addResidualBlock(i, name, kernelSize, strides, convolutionMode)
-        name
+    /**
+     * Building a tower of residual blocks.
+     */
+    public String addResidualTower(int numBlocks, String inName, int[] kernelSize,
+                                   int[] strides, ConvolutionMode convolutionMode) {
+        String name = inName;
+        for (int i = 0; i < numBlocks; i++) {
+            name = addResidualBlock(i, name, kernelSize, strides, convolutionMode);
+        }
+        return name;
     }
 
-    def addConvolutionalTower(numBlocks: Int,
-                              inName: String,
-                              kernelSize: List[Int] = List(3, 3),
-    strides: List[Int] = List(1, 1),
-    convolutionMode: ConvolutionMode = ConvolutionMode.Same): Unit = {
-        var name = inName
-        for (i <- 0 until numBlocks)
-        name = addConvBatchNormBlock(i.toString, name, 256, useActivation = true, kernelSize, strides, convolutionMode)
+    /**
+     * Building a tower of convolutional blocks.
+     */
+    public String addConvolutionalTower(int numBlocks, String inName, int[] kernelSize,
+                                        int[] strides, ConvolutionMode convolutionMode) {
+        String name = inName;
+        for (int i = 0; i < numBlocks; i++) {
+            name = addConvBatchNormBlock(String.valueOf(i), name, 256, true, kernelSize, strides, convolutionMode);
+        }
+        return name;
     }
 
-    def addPolicyHead(inName: String,
-                      useActivation: Boolean = true,
-                      kernelSize: List[Int] = List(3, 3),
-    strides: List[Int] = List(1, 1),
-    convolutionMode: ConvolutionMode = ConvolutionMode.Same): String = {
-        val convName = "policy_head_conv_"
-        val bnName = "policy_head_batch_norm_"
-        val actName = "policy_head_relu_"
-        val denseName = "policy_head_output_"
+    /**
+     * Policy head, predicts next moves (including passing), so
+     * outputs a vector of 19*19 + 1 = 362 values.
+     */
+    public String addPolicyHead(String inName, boolean useActivation, int[] kernelSize,
+                                int[] strides, ConvolutionMode convolutionMode) {
+        String convName = "policy_head_conv_";
+        String bnName = "policy_head_batch_norm_";
+        String actName = "policy_head_relu_";
+        String denseName = "policy_head_output_";
 
-        conf.addLayer(
-            convName,
-            new ConvolutionLayer.Builder()
-                .kernelSize(kernelSize: _*)
-        .stride(strides: _*)
-        .convolutionMode(convolutionMode)
-            .nOut(2)
-            .nIn(256)
-            .build(),
-            inName
-    )
-        conf.addLayer(bnName, new BatchNormalization.Builder().nOut(2).build(), convName)
-        conf.addLayer(actName, new ActivationLayer.Builder().activation(Activation.RELU).build(), bnName)
-        conf.addLayer(denseName, new OutputLayer.Builder().nIn(2 * 19 * 19).nOut(19 * 19 + 1).build(), actName)
-        conf.setInputPreProcessors(
-            Map[String, InputPreProcessor](denseName -> new CnnToFeedForwardPreProcessor(19, 19, 2))
-    )
-        denseName
+        conf.addLayer(convName, new ConvolutionLayer.Builder().kernelSize(kernelSize).stride(strides)
+        .convolutionMode(convolutionMode).nOut(2).nIn(256).build(), inName);
+        conf.addLayer(bnName, new BatchNormalization.Builder().nOut(2).build(), convName);
+        conf.addLayer(actName, new ActivationLayer.Builder().activation(Activation.RELU).build(), bnName);
+        conf.addLayer(denseName, new OutputLayer.Builder().nIn(2 * 19 * 19).nOut(19 * 19 + 1).build(), actName);
+
+        Map<String, InputPreProcessor> preProcessorMap = new HashMap<String, InputPreProcessor>();
+        preProcessorMap.put(denseName, new CnnToFeedForwardPreProcessor(19, 19, 2));
+        conf.setInputPreProcessors(preProcessorMap);
+        return denseName;
     }
-    def addValueHead(inName: String,
-                     useActivation: Boolean = true,
-                     kernelSize: List[Int] = List(1, 1),
-    strides: List[Int] = List(1, 1),
-    convolutionMode: ConvolutionMode = ConvolutionMode.Same): String = {
-        val convName = "value_head_conv_"
-        val bnName = "value_head_batch_norm_"
-        val actName = "value_head_relu_"
-        val denseName = "value_head_dense_"
-        val outputName = "value_head_output_"
 
-        conf.addLayer(
-            convName,
-            new ConvolutionLayer.Builder()
-                .kernelSize(kernelSize: _*)
-        .stride(strides: _*)
-        .convolutionMode(convolutionMode)
-            .nOut(1)
-            .nIn(256)
-            .build(),
-            inName
-    )
-        conf.addLayer(bnName, new BatchNormalization.Builder().nOut(1).build(), convName)
-        conf.addLayer(actName, new ActivationLayer.Builder().activation(Activation.RELU).build(), bnName)
-        conf.addLayer(denseName, new DenseLayer.Builder().nIn(19 * 19).nOut(256).build(), actName)
-        conf.setInputPreProcessors(
-            Map[String, InputPreProcessor](denseName -> new CnnToFeedForwardPreProcessor(19, 19, 1))
-    )
-        conf.addLayer(outputName, new OutputLayer.Builder().nIn(256).nOut(1).build(), denseName)
-        outputName
+    /**
+     * Value head, estimates how valuable the current
+     * board position is.
+     */
+    public String addValueHead(String inName, boolean useActivation,
+                     int[] kernelSize, int[] strides, ConvolutionMode convolutionMode) {
+        String convName = "value_head_conv_";
+        String bnName = "value_head_batch_norm_";
+        String actName = "value_head_relu_";
+        String denseName = "value_head_dense_";
+        String outputName = "value_head_output_";
+
+        conf.addLayer(convName, new ConvolutionLayer.Builder().kernelSize(kernelSize).stride(strides)
+        .convolutionMode(convolutionMode).nOut(1).nIn(256).build(), inName);
+        conf.addLayer(bnName, new BatchNormalization.Builder().nOut(1).build(), convName);
+        conf.addLayer(actName, new ActivationLayer.Builder().activation(Activation.RELU).build(), bnName);
+        conf.addLayer(denseName, new DenseLayer.Builder().nIn(19 * 19).nOut(256).build(), actName);
+        Map<String, InputPreProcessor> preProcessorMap = new HashMap<String, InputPreProcessor>();
+        preProcessorMap.put(denseName, new CnnToFeedForwardPreProcessor(19, 19, 1));
+        conf.setInputPreProcessors(preProcessorMap);
+        conf.addLayer(outputName, new OutputLayer.Builder().nIn(256).nOut(1).build(), denseName);
+        return outputName;
     }
 
 }
