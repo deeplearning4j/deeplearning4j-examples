@@ -26,12 +26,24 @@ import java.util.Map;
 class DL4JAlphaGoZeroBuilder {
 
     private ComputationGraphConfiguration.GraphBuilder conf;
+    private int[] strides;
+    private int[] kernelSize;
+    private ConvolutionMode convolutionMode;
 
-    public DL4JAlphaGoZeroBuilder() {
+    public DL4JAlphaGoZeroBuilder(int[] kernel, int[] strides, ConvolutionMode mode) {
+
+        this.kernelSize = kernel;
+        this.strides = strides;
+        this.convolutionMode = mode;
+
         this.conf =  new NeuralNetConfiguration.Builder()
             .updater(new Sgd())
             .weightInit(WeightInit.LECUN_NORMAL)
             .graphBuilder().setInputTypes(InputType.convolutional(19, 19, 11));
+    }
+
+    public DL4JAlphaGoZeroBuilder() {
+        this(new int[] {3, 3},  new int[] {1, 1}, ConvolutionMode.Same);
     }
 
     public void addInputs(String name) {
@@ -49,8 +61,7 @@ class DL4JAlphaGoZeroBuilder {
      * conv2d -> batch norm -> ReLU
      */
     public String addConvBatchNormBlock(String blockName, String inName,int nIn,
-                              boolean useActivation, int[] kernelSize,
-    int[] strides, ConvolutionMode convolutionMode) {
+                              boolean useActivation) {
         String convName = "conv_" + blockName;
         String bnName = "batch_norm_" + blockName;
         String actName = "relu_" + blockName;
@@ -69,8 +80,7 @@ class DL4JAlphaGoZeroBuilder {
     /**Residual block for AGZ. Takes two conv-bn-relu blocks
      * and adds them to the original input.
      */
-    public String addResidualBlock(int blockNumber,String inName, int[] kernelSize,
-                                   int[] strides, ConvolutionMode convolutionMode) {
+    public String addResidualBlock(int blockNumber,String inName) {
         String firstBlock = "residual_1_" + blockNumber;
         String firstOut = "relu_residual_1_" + blockNumber;
         String secondBlock = "residual_2_" + blockNumber;
@@ -78,9 +88,9 @@ class DL4JAlphaGoZeroBuilder {
         String actBlock = "relu_" + blockNumber;
 
         String firstBnOut =
-            addConvBatchNormBlock(firstBlock, inName, 256, true, kernelSize, strides, convolutionMode);
+            addConvBatchNormBlock(firstBlock, inName, 256, true);
         String secondBnOut =
-            addConvBatchNormBlock(secondBlock, firstOut, 256, false, kernelSize, strides, convolutionMode);
+            addConvBatchNormBlock(secondBlock, firstOut, 256, false);
         conf.addVertex(mergeBlock, new ElementWiseVertex(Op.Add), firstBnOut, secondBnOut);
         conf.addLayer(actBlock, new ActivationLayer.Builder().activation(Activation.RELU).build(), mergeBlock);
         return actBlock;
@@ -89,11 +99,10 @@ class DL4JAlphaGoZeroBuilder {
     /**
      * Building a tower of residual blocks.
      */
-    public String addResidualTower(int numBlocks, String inName, int[] kernelSize,
-                                   int[] strides, ConvolutionMode convolutionMode) {
+    public String addResidualTower(int numBlocks, String inName) {
         String name = inName;
         for (int i = 0; i < numBlocks; i++) {
-            name = addResidualBlock(i, name, kernelSize, strides, convolutionMode);
+            name = addResidualBlock(i, name);
         }
         return name;
     }
@@ -101,11 +110,10 @@ class DL4JAlphaGoZeroBuilder {
     /**
      * Building a tower of convolutional blocks.
      */
-    public String addConvolutionalTower(int numBlocks, String inName, int[] kernelSize,
-                                        int[] strides, ConvolutionMode convolutionMode) {
+    public String addConvolutionalTower(int numBlocks, String inName) {
         String name = inName;
         for (int i = 0; i < numBlocks; i++) {
-            name = addConvBatchNormBlock(String.valueOf(i), name, 256, true, kernelSize, strides, convolutionMode);
+            name = addConvBatchNormBlock(String.valueOf(i), name, 256, true);
         }
         return name;
     }
@@ -114,8 +122,7 @@ class DL4JAlphaGoZeroBuilder {
      * Policy head, predicts next moves (including passing), so
      * outputs a vector of 19*19 + 1 = 362 values.
      */
-    public String addPolicyHead(String inName, boolean useActivation, int[] kernelSize,
-                                int[] strides, ConvolutionMode convolutionMode) {
+    public String addPolicyHead(String inName, boolean useActivation) {
         String convName = "policy_head_conv_";
         String bnName = "policy_head_batch_norm_";
         String actName = "policy_head_relu_";
@@ -137,8 +144,7 @@ class DL4JAlphaGoZeroBuilder {
      * Value head, estimates how valuable the current
      * board position is.
      */
-    public String addValueHead(String inName, boolean useActivation,
-                     int[] kernelSize, int[] strides, ConvolutionMode convolutionMode) {
+    public String addValueHead(String inName, boolean useActivation) {
         String convName = "value_head_conv_";
         String bnName = "value_head_batch_norm_";
         String actName = "value_head_relu_";
