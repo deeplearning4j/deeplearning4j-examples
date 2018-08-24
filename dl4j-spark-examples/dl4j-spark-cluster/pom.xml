@@ -12,11 +12,11 @@
     <artifactId>dl4j-spark-cluster</artifactId>
     <properties>
         <!-- For Spark examples: change the _1 to _2 to switch between Spark 1 and Spark 2 -->
-        <dl4j.spark.version>1.0.0-beta2_spark_2</dl4j.spark.version>
-        <datavec.spark.version>1.0.0-beta2_spark_2</datavec.spark.version>
+        <dl4j.spark.version>1.0.0_spark_2-SNAPSHOT</dl4j.spark.version>
+        <datavec.spark.version>1.0.0_spark_2-SNAPSHOT</datavec.spark.version>
 
         <!-- Scala binary version: DL4J's Spark and UI functionality are released with both Scala 2.10 and 2.11 support -->
-        <scala.binary.version>2.11</scala.binary.version>
+        <scala.binary.version>2.10</scala.binary.version>
     </properties>
 
     <dependencies>
