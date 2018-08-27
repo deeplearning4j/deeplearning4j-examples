@@ -16,7 +16,7 @@
         <datavec.spark.version>1.0.0_spark_2-SNAPSHOT</datavec.spark.version>
 
         <!-- Scala binary version: DL4J's Spark and UI functionality are released with both Scala 2.10 and 2.11 support -->
-        <scala.binary.version>2.10</scala.binary.version>
+        <scala.binary.version>2.11</scala.binary.version>
     </properties>
 
     <dependencies>
