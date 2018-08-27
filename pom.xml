@@ -89,14 +89,16 @@
                 <configuration>
                     <configFile>${session.executionRootDirectory}/contrib/formatter.xml</configFile>
                     <directories>
-                        <directory>dl4j-examples</directory>
                         <directory>dl4j-spark-examples</directory>
+                        <!--
+                        <directory>dl4j-examples</directory>
                         <directory>datavec-examples</directory>
                         <directory>dl4j-cuda-specific-examples</directory>
                         <directory>nd4j-examples</directory>
                         <directory>rl4j-examples</directory>
                         <directory>arbiter-examples</directory>
                         <directory>lstm-hdfs</directory>
+                        -->
                     </directories>
                 </configuration>
             </plugin>
