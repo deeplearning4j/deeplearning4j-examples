@@ -136,7 +136,7 @@ public class MnistMLPDistributedExample {
             .controllerAddress(useSparkLocal ? "127.0.0.1" : null)
 
             // trying plain mode
-            .meshBuildMode(MeshBuildMode.PLAIN)
+            .meshBuildMode(MeshBuildMode.MESH)
             .build();
 
         TrainingMaster tm = new SharedTrainingMaster.Builder(voidConfiguration, batchSizePerWorker)
