@@ -14,6 +14,7 @@ import org.deeplearning4j.api.loader.DataSetLoader;
 import org.deeplearning4j.eval.Evaluation;
 import org.deeplearning4j.eval.IEvaluation;
 import org.deeplearning4j.nn.graph.ComputationGraph;
+import org.deeplearning4j.optimize.listeners.FailureTestingListener;
 import org.deeplearning4j.optimize.listeners.PerformanceListener;
 import org.deeplearning4j.patent.preprocessing.PatentLabelGenerator;
 import org.deeplearning4j.patent.utils.JCommanderUtils;
@@ -219,7 +220,18 @@ public class TrainPatentClassifier {
         sparkNet.setCollectTrainingStats(tm.getIsCollectTrainingStats());
 
         // Add listeners
-        sparkNet.setListeners(new PerformanceListener(listenerFrequency, true));
+        sparkNet.setListeners(new PerformanceListener(listenerFrequency, true),
+            new FailureTestingListener(FailureTestingListener.FailureMode.SYSTEM_EXIT_1,
+                new FailureTestingListener.Or(
+                    //Spark node 2 fails at iteration 50
+                    new FailureTestingListener.And(
+                        new FailureTestingListener.HostNameTrigger("spark-node-2"),
+                        new FailureTestingListener.IterationEpochTrigger(false, 50)),
+                    //Spark node 3 fails at iteration 100
+                    new FailureTestingListener.And(
+                        new FailureTestingListener.HostNameTrigger("spark-node-3"),
+                        new FailureTestingListener.IterationEpochTrigger(false, 100))))
+        );
 
         // Time setup
         long endTimeMs = System.currentTimeMillis();
