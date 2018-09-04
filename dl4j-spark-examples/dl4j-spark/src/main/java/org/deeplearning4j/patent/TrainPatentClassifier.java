@@ -226,11 +226,11 @@ public class TrainPatentClassifier {
                     //Spark node 2 fails at iteration 50
                     new FailureTestingListener.And(
                         new FailureTestingListener.HostNameTrigger("spark-node-2"),
-                        new FailureTestingListener.IterationEpochTrigger(false, 50)),
+                        new FailureTestingListener.IterationEpochTrigger(false, 200)),
                     //Spark node 3 fails at iteration 100
                     new FailureTestingListener.And(
                         new FailureTestingListener.HostNameTrigger("spark-node-3"),
-                        new FailureTestingListener.IterationEpochTrigger(false, 100))))
+                        new FailureTestingListener.IterationEpochTrigger(false, 600))))
         );
 
         // Time setup
