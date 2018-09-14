@@ -3,6 +3,7 @@ package org.deeplearning4j.patent;
 import com.beust.jcommander.Parameter;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import org.apache.commons.io.FileUtils;
 import org.bytedeco.javacpp.annotation.Allocator;
 import org.deeplearning4j.patent.utils.JCommanderUtils;
 import org.nd4j.linalg.api.ndarray.INDArray;
@@ -13,8 +14,10 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.text.DecimalFormat;
 import java.util.*;
 
 public class AnalyzeSnapshots {
@@ -44,7 +47,7 @@ public class AnalyzeSnapshots {
             .filter(Files::isRegularFile)
             .forEach(p -> {
                 File f = p.toFile();
-                if(!f.isDirectory()){
+                if(!f.isDirectory() && f.getPath().endsWith(".bin")){
                     allSnapshots.add(parseFileName(f));
                 }
             });
@@ -64,6 +67,10 @@ public class AnalyzeSnapshots {
         Collections.sort(allTimes);
 
         log.info("***** {} unique timestamps *****", allTimes.size());
+
+        String format = "%10s";  //Longest possible string: x.yze-abc -> 9 characters
+
+        File outFile = new File(rootDir, "analysis_" + System.currentTimeMillis() + ".txt");
 
         for(Long t : allTimes){
             Map<String,Snapshot> snapshotsForTime = groupedByTime.get(t);
@@ -109,15 +116,86 @@ public class AnalyzeSnapshots {
                             INDArray absDiff = Transforms.abs(i1.sub(i2), false);
                             diffMax[i][j] = absDiff.maxNumber().doubleValue();
                             diffMean[i][j] = absDiff.meanNumber().doubleValue();
-//                            diffP95[i][j] = Double.NaN;
-//                            diffP99[i][j] = Double.NaN;
-//                            diffP999[i][j] = Double.NaN;
+                            diffP95[i][j] = absDiff.percentileNumber(0.95).doubleValue();
+                            diffP99[i][j] = absDiff.percentileNumber(0.99).doubleValue();
+                            diffP999[i][j] = absDiff.percentileNumber(0.999).doubleValue();
                         }
                     }
                 }
             }
+
+            StringBuilder sbMax = new StringBuilder();
+            StringBuilder sbMean = new StringBuilder();
+            StringBuilder sbP95 = new StringBuilder();
+            StringBuilder sbP99 = new StringBuilder();
+            StringBuilder sbP999 = new StringBuilder();
+            StringBuilder[] sbs = new StringBuilder[]{sbMax, sbMean, sbP95, sbP99, sbP999};
+
+            //Add header:
+            add(String.format(format,""), sbs); //Header column
+            for( int i=0; i<8; i++ ){
+                String h = String.format(format, "." + (i+5));
+                add(h, sbs);
+            }
+            add("\n", sbs);
+
+            for(int i=0; i<8; i++ ) {
+                //Header column
+                add(String.format(format, "." + (i+5)), sbs);
+                //Content
+                for (int j = 0; j < 8; j++) {
+                    String sMax;
+                    String sMean;
+                    String sP95;
+                    String sP99;
+                    String sP999;
+                    if(i > j){
+                        //Don't repeat lower diagonal again
+                        sMax = sMean = sP95 = sP99 = sP999 = "";
+                    } else {
+                        sMax = s(diffMax[i][j]);
+                        sMean = s(diffMean[i][j]);
+                        sP95 = s(diffP95[i][j]);
+                        sP99 = s(diffP99[i][j]);
+                        sP999 = s(diffP999[i][j]);
+                    }
+                    sbMax.append(String.format(format,sMax));
+                    sbMean.append(String.format(format,sMean));
+                    sbP95.append(String.format(format,sP95));
+                    sbP99.append(String.format(format,sP99));
+                    sbP999.append(String.format(format,sP999));
+                }
+                add("\n", sbs);
+            }
+
+            StringBuilder sbFinal = new StringBuilder();
+            sbFinal.append("========================================================================\n");
+            sbFinal.append("Time: ").append(t).append("\n");
+            for( int i=0; i<8; i++ ){
+                String s = "10.0.2." + (i+5);
+                sbFinal.append(s).append(": ").append(snapshotsForTime.get(s)).append("\n");
+            }
+
+            sbFinal.append("\n\n")
+                .append("--- Max ---\n")
+                .append(sbMax)
+                .append("--- Mean ---\n")
+                .append(sbMean)
+                .append("--- P95 ---\n")
+                .append(sbP95)
+                .append("--- P99 ---\n")
+                .append(sbP99)
+                .append("--- P999 ---\n")
+                .append(sbP999)
+                .append("\n\n\n");
+
+            String s = sbFinal.toString();
+            FileUtils.write(outFile, s, StandardCharsets.UTF_8, true);  //Append
+
+            log.info("Complete: {}", t);
         }
 
+        log.info("///// Analysis Complete /////");
     }
 
     private static Snapshot parseFileName(File file){
@@ -133,6 +211,17 @@ public class AnalyzeSnapshots {
         long actTime = Long.parseLong(nameSplit[3].substring(5));
 
         return new Snapshot(file, host, jvmuid, saveTime, actTime);
+    }
+
+    private static void add(String s, StringBuilder... sbs){
+        for(StringBuilder sb : sbs){
+            sb.append(s);
+        }
+    }
+
+    private static final DecimalFormat df = new DecimalFormat("0.00e000");
+    private static String s(double d){
+        return Double.isNaN(d) ? "-" : df.format(d);
     }
 
     @AllArgsConstructor
