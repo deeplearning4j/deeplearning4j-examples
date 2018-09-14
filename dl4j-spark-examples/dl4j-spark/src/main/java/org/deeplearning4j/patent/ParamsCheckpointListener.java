@@ -11,8 +11,9 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.Serializable;
 
-public class ParamsCheckpointListener extends BaseTrainingListener {
+public class ParamsCheckpointListener extends BaseTrainingListener implements Serializable {
     private static final Logger log = LoggerFactory.getLogger(ParamsCheckpointListener.class);
 
     private final File localDir;
