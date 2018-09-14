@@ -24,6 +24,8 @@ import org.deeplearning4j.patent.utils.evaluation.ToEval;
 import org.deeplearning4j.spark.api.TrainingMaster;
 import org.deeplearning4j.spark.impl.graph.SparkComputationGraph;
 import org.deeplearning4j.spark.parameterserver.training.SharedTrainingMaster;
+import org.deeplearning4j.spark.time.TimeSource;
+import org.deeplearning4j.spark.time.TimeSourceProvider;
 import org.deeplearning4j.spark.util.SparkUtils;
 import org.deeplearning4j.util.ModelSerializer;
 import org.nd4j.linalg.api.ndarray.INDArray;
@@ -38,6 +40,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.charset.Charset;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -220,18 +223,31 @@ public class TrainPatentClassifier {
         sparkNet.setCollectTrainingStats(tm.getIsCollectTrainingStats());
 
         // Add listeners
+
+            //Params checkpoint dir - same on ALL machines
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd_hh.mm.ss");
+        long time = TimeSourceProvider.getInstance().currentTimeMillis();
+        String dir = sdf.format(new Date(time)) + "_" + time;
+        File localCheckpointFile = new File("/mnt/resource/spark_testing/" + dir);
+        long paramsCheckpointSaveFreq = 30000L; //Every 30 seconds
+
         sparkNet.setListeners(new PerformanceListener(listenerFrequency, true),
+            //Trigger failure(s) on node 2 (10.0.2.5)
             new FailureTestingListener(FailureTestingListener.FailureMode.SYSTEM_EXIT_1,
-                new FailureTestingListener.Or(
-                    //Spark node 2 fails at iteration 50
-                    new FailureTestingListener.And(
-                        new FailureTestingListener.HostNameTrigger("spark-node-2"),
-                        new FailureTestingListener.IterationEpochTrigger(false, 200)),
-                    //Spark node 3 fails at iteration 100
-                    new FailureTestingListener.And(
-                        new FailureTestingListener.HostNameTrigger("spark-node-3"),
-                        new FailureTestingListener.IterationEpochTrigger(false, 600))))
-        );
+                new FailureTestingListener.And(new FailureTestingListener.HostNameTrigger("spark-node-2"),new FailureTestingListener.IterationEpochTrigger(false, 200))),
+            //On all nodes: save parameters every 30 seconds for later review/comparison
+            new ParamsCheckpointListener(localCheckpointFile, paramsCheckpointSaveFreq));
+
+//                new FailureTestingListener.Or(
+//                    Spark node 2 fails at iteration 200
+//                    new FailureTestingListener.And(
+//                        new FailureTestingListener.HostNameTrigger("spark-node-2"),
+//                        new FailureTestingListener.IterationEpochTrigger(false, 200))
+//                    //Spark node 3 fails at iteration 600
+//                    new FailureTestingListener.And(
+//                        new FailureTestingListener.HostNameTrigger("spark-node-3"),
+//                        new FailureTestingListener.IterationEpochTrigger(false, 600))))
+//        );
 
         // Time setup
         long endTimeMs = System.currentTimeMillis();
