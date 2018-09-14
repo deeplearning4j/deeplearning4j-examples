@@ -29,7 +29,7 @@ public class ParamsCheckpointListener extends BaseTrainingListener {
         long currTime = TimeSourceProvider.getInstance().currentTimeMillis();       //NTP time source by default, should be closely synced on each machine
 
         long lastSaveShouldBe = currTime - currTime % saveFreqMS;       //round down to nearest even multiple of saveFreqMS
-        if(lastSaveTime < lastSaveShouldBe){
+        if(lastSaveTime <= lastSaveShouldBe){
             //Save parameters
             String uid = UIDProvider.getJVMUID().substring(0,6);
             String fileName = "params_jvm-" + uid + "_time-" + lastSaveShouldBe + "_actTime-" + currTime + "_epoch-" + epoch + "_iter-" + iteration + ".bin";
@@ -44,6 +44,7 @@ public class ParamsCheckpointListener extends BaseTrainingListener {
                 throw new RuntimeException(e);
             }
             log.info("Saved parameters to file: {}", f.getAbsolutePath());
+            lastSaveTime = currTime;
         }
 
     }
