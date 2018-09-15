@@ -200,7 +200,8 @@ public class AnalyzeSnapshots {
 
     private static Snapshot parseFileName(File file){
         //snapshotsDir/10.0.2.5/params_jvm-<UID>_time-1536891502000_actTime-1536891502134_epoch-0_iter-313.bin
-        String path = file.getAbsolutePath().replaceAll("\\\\", "/");
+        String path = file.getAbsolutePath().replaceAll("\\\\", "/")
+            .replaceAll("--","-");  //Sometimes repeated -- due to UID
         String[] split = path.split("/");
         String host = split[split.length-2];
         String filename = split[split.length-1];
