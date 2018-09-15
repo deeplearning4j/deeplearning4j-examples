@@ -203,7 +203,13 @@ public class AnalyzeSnapshots {
         String path = file.getAbsolutePath().replaceAll("\\\\", "/")
             .replaceAll("--","-");  //Sometimes repeated -- due to UID
         String[] split = path.split("/");
-        String host = split[split.length-2];
+        String host;
+        if(split[split.length-2].startsWith("10.0")){
+            host = split[split.length-2];
+        } else {
+            host = split[split.length-3];
+        }
+
         String filename = split[split.length-1];
 
         String[] nameSplit = filename.split("_");
