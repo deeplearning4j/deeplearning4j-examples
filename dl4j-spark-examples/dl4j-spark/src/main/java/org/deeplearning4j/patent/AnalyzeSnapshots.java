@@ -226,9 +226,9 @@ public class AnalyzeSnapshots {
         }
     }
 
-    private static final DecimalFormat df = new DecimalFormat("0.00e000");
+    private static final DecimalFormat df = new DecimalFormat("0.00E000");
     private static String s(double d){
-        return Double.isNaN(d) ? "-" : df.format(d);
+        return Double.isNaN(d) ? "-" : df.format(d).replaceAll("E","e");
     }
 
     @AllArgsConstructor
