@@ -40,6 +40,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.charset.Charset;
+import java.nio.file.Files;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -191,6 +192,7 @@ public class TrainPatentClassifier {
                 .unicastPort(port)                          // Should be open for IN/OUT communications on all Spark nodes
                 .networkMask(networkMask)                   // Local network mask
                 .controllerAddress(masterIP)
+                .meshBuildMode(org.nd4j.parameterserver.distributed.v2.enums.MeshBuildMode.PLAIN)
                 .build();
         TrainingMaster tm = new SharedTrainingMaster.Builder(voidConfiguration, numWorkers, this.gradientThreshold, minibatch)
                 .rngSeed(12345)
@@ -215,6 +217,25 @@ public class TrainPatentClassifier {
         //Setup saving of parameter snapshots. This is so we can calculate accuracy vs. time
         final AtomicBoolean isTraining = new AtomicBoolean(false);
         final File baseParamSaveDir = new File(outputPath, "paramSnapshots");
+
+        if (!continueTraining) {
+            if (baseParamSaveDir.exists()) {
+                Files.walk(baseParamSaveDir.toPath())
+                    .filter(Files::isRegularFile)
+                    .forEach(p -> {
+                        File f = p.toFile();
+                        if (!f.isDirectory() && f.getPath().endsWith(".bin")) {
+                            f.delete();
+                        }
+                    });
+            }
+            String resultsFile = FilenameUtils.concat(outputPath, "results.txt");
+            File f = new File(resultsFile);
+            if(f.exists()){
+                f.delete();
+            }
+        }
+
         if (!baseParamSaveDir.exists())
             baseParamSaveDir.mkdirs();
 
@@ -233,8 +254,8 @@ public class TrainPatentClassifier {
 
         sparkNet.setListeners(new PerformanceListener(listenerFrequency, true),
             //Trigger failure(s) on node 2 (10.0.2.5)
-            new FailureTestingListener(FailureTestingListener.FailureMode.SYSTEM_EXIT_1,
-                new FailureTestingListener.And(new FailureTestingListener.HostNameTrigger("spark-node-2"),new FailureTestingListener.IterationEpochTrigger(false, 200))),
+//            new FailureTestingListener(FailureTestingListener.FailureMode.SYSTEM_EXIT_1,
+//                new FailureTestingListener.And(new FailureTestingListener.HostNameTrigger("spark-node-2"),new FailureTestingListener.IterationEpochTrigger(false, 200))),
             //On all nodes: save parameters every 30 seconds for later review/comparison
             new ParamsCheckpointListener(localCheckpointFile, paramsCheckpointSaveFreq));
 
