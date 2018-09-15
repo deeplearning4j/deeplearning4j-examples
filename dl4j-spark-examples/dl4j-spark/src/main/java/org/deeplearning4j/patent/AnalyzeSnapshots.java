@@ -209,7 +209,7 @@ public class AnalyzeSnapshots {
         String[] nameSplit = filename.split("_");
         String jvmuid = nameSplit[1].substring(4);
         long saveTime = Long.parseLong(nameSplit[2].substring(5));
-        long actTime = Long.parseLong(nameSplit[3].substring(5));
+        long actTime = Long.parseLong(nameSplit[3].substring(7));
 
         return new Snapshot(file, host, jvmuid, saveTime, actTime);
     }
