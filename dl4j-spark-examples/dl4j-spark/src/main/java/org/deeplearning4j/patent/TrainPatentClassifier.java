@@ -128,6 +128,9 @@ public class TrainPatentClassifier {
             " Set to <= 0 for fitting on all data")
     private int batchesBtwCheckpoints = 5000;
 
+    @Parameter(names = {"--evalFinalOnly"}, description = "If true: evaluate the final network after training returns for the first time, then exit")
+    private boolean evalFinalOnly = false;
+
     public static void main(String[] args) throws Exception {
         new TrainPatentClassifier().entryPoint(args);
     }
@@ -305,6 +308,7 @@ public class TrainPatentClassifier {
 
         boolean firstSave = true;
         long startTrain = System.currentTimeMillis();
+        File finalNet = null;
         for (int epoch = 0; epoch < numEpochs; epoch++) {
             for (int i = firstSubsetIdx; i < trainSubsets.length; i++) {
                 currentSubset.set(i);
@@ -325,6 +329,12 @@ public class TrainPatentClassifier {
                 }
                 ModelSerializer.writeModel(sparkNet.getNetwork(), f, true);
                 log.info("Saved network checkpoint to {}", outpath);
+
+                if(evalFinalOnly){
+                    finalNet = f;
+                    epoch = numEpochs;
+                    break;
+                }
 
                 //Now, evaluate the saved checkpoint files
                 List<ToEval> toEval = new ArrayList<>();
@@ -364,6 +374,25 @@ public class TrainPatentClassifier {
                 }
             }
             firstSubsetIdx = 0;
+        }
+
+        if(evalFinalOnly){
+            ComputationGraph cgForEval = ComputationGraph.load(finalNet, false);
+            SparkComputationGraph scgForEval = new SparkComputationGraph(sc, cgForEval, null);
+
+            long startEval = System.currentTimeMillis();
+            IEvaluation[] evals = scgForEval.doEvaluation(testDataPaths, 4, minibatch, datasetLoader, new Evaluation());
+            long endEval = System.currentTimeMillis();
+
+            StringBuilder sb = new StringBuilder();
+            Evaluation e = (Evaluation) evals[0];
+            sb.append("=== Final Network ===\n")
+                .append(" evalMS ").append(endEval - startEval)
+                .append(" accuracy ").append(e.accuracy()).append(" f1 ").append(e.f1()).append("\n");
+
+            FileUtils.writeStringToFile(new File(resultsFile), sb.toString(), Charset.forName("UTF-8"), true);    //Append new output to file
+            saveEvaluation(false, evals, sc);
+            log.info("Evaluation: {}", sb.toString());
         }
 
         log.info("----- Example Complete -----");
