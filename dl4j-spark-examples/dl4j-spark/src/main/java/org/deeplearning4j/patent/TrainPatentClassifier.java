@@ -258,7 +258,11 @@ public class TrainPatentClassifier {
         sparkNet.setListeners(new PerformanceListener(listenerFrequency, true),
             //Trigger failure(s) on node 2 (10.0.2.5)
             new FailureTestingListener(FailureTestingListener.FailureMode.SYSTEM_EXIT_1,
-                new FailureTestingListener.And(new FailureTestingListener.HostNameTrigger("spark-node-2"),new FailureTestingListener.IterationEpochTrigger(false, 200)))
+                new FailureTestingListener.Or(
+                    new FailureTestingListener.And(new FailureTestingListener.HostNameTrigger("spark-node-2"),new FailureTestingListener.IterationEpochTrigger(false, 250)),
+                    new FailureTestingListener.And(new FailureTestingListener.HostNameTrigger("spark-node-2"),new FailureTestingListener.IterationEpochTrigger(false, 500)),
+                    new FailureTestingListener.And(new FailureTestingListener.HostNameTrigger("spark-node-2"),new FailureTestingListener.IterationEpochTrigger(false, 750))))
+
             //On all nodes: save parameters every 30 seconds for later review/comparison
 //            new ParamsCheckpointListener(localCheckpointFile, paramsCheckpointSaveFreq));
 
