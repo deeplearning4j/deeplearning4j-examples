@@ -87,7 +87,7 @@ public class ImagePipelineExample {
         int batchSize = 10; // Minibatch size. Here: The number of images to fetch for each call to dataIter.next().
         int labelIndex = 1; // Index of the label Writable (usually an IntWritable), as obtained by recordReader.next()
         // List<Writable> lw = recordReader.next();
-        // then lw[0] =  NDArray shaped [1,3,50,50] (1, heightm width, channels)
+        // then lw[0] =  NDArray shaped [1,3,50,50] (1, channels, height, width)
         //      lw[0] =  label as integer.
 
         DataSetIterator dataIter = new RecordReaderDataSetIterator(recordReader, batchSize, labelIndex, outputNum);
