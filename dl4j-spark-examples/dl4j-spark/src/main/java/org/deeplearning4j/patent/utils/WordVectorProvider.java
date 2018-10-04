@@ -35,13 +35,7 @@ public class WordVectorProvider {
         if (wordVectors != null) {
             return wordVectors;
         }
-
         Nd4j.getMemoryManager().setAutoGcWindow(30000);
-
-        //Assume file in azure, copy to local before loading
-        String baseName = FilenameUtils.getBaseName(path);
-        String ext = FilenameUtils.getExtension(path);
-        File tempFile = Files.createTempFile(baseName, "." + ext).toFile();
 
         URI u;
         try{
@@ -57,21 +51,37 @@ public class WordVectorProvider {
         }
         FileSystem fs = FileSystem.get(u, config);
 
+        File localFile = new File(System.getProperty("user.home"), ".deeplearning4j/GoogleNews-vectors-negative300.bin.gz");
+
+        if(localFile.exists() && localFile.length() > 0){
+            try{
+                log.info("Loading word vectors from saved file: {}", localFile.getAbsolutePath());
+                long start = System.currentTimeMillis();
+                wordVectors = WordVectorSerializer.loadStaticModel(localFile);
+                log.info("Finished loading word vectors - duration {} sec", (System.currentTimeMillis()-start)/1000);
+                return wordVectors;
+            } catch (Exception e){
+                localFile.delete();
+                log.error("Error loading existing word vectors");
+            }
+        }
+
         try {
             log.info("Copying word vectors");
             long start = System.currentTimeMillis();
-            try (InputStream in = new BufferedInputStream(fs.open(new Path(u))); OutputStream os = new BufferedOutputStream(new FileOutputStream(tempFile))) {
+            try (InputStream in = new BufferedInputStream(fs.open(new Path(u))); OutputStream os = new BufferedOutputStream(new FileOutputStream(localFile))) {
                 IOUtils.copy(in, os);
             }
             log.info("Finished copying word vectors - duration {} sec", (System.currentTimeMillis()-start)/1000);
 
             log.info("Loading word vectors");
             start = System.currentTimeMillis();
-            wordVectors = WordVectorSerializer.loadStaticModel(tempFile);
+            wordVectors = WordVectorSerializer.loadStaticModel(localFile);
             log.info("Finished loading word vectors - duration {} sec", (System.currentTimeMillis()-start)/1000);
             return wordVectors;
-        } finally {
-            tempFile.delete();
+        } catch (Exception e){
+            localFile.delete();
+            throw e;
         }
     }
 

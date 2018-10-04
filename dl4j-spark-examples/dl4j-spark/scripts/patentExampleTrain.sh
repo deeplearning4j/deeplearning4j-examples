@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 
 #REQUIRED arguments: Set these before running
-MASTER_IP=...                                   #IP address of master node
-NETWORK_MASK=...                                #Network maske For example, 10.0.0.0/16
+MASTER_IP=10.0.2.4                              #IP address of master node
+NETWORK_MASK=10.0.0.0/16                        #Network maske For example, 10.0.0.0/16
 AZURE_STORAGE_ACCT=...                          #Azure storage account name. 3-24 chars, lowercase alphanumeric only
 AZURE_STORAGE_ACCT_KEY=...                      #Azure storage account key. Should be approx 88 characters, usually ends with "=="
 AZURE_CONTAINER_PREPROC=patentpreproc           #Name of the container for preprocessed data. Should match value set in scripts/patentExamplePreproc.sh
-LOCAL_SAVE_DIR=...                              #Local address for writing results
-NUM_NODES=...                                   #Number of nodes in the cluster
+LOCAL_SAVE_DIR=/mnt/resource/fault_tests/fault1_jvmexit_single_snapshots                              #Local address for writing results
+NUM_NODES=8                                  #Number of nodes in the cluster
 
 
 #Optional argumenst: Set these only if the defaults aren't suitable
@@ -45,6 +45,9 @@ CMD="${SPARKSUBMIT}
     --masterIP ${MASTER_IP}
     --networkMask ${NETWORK_MASK}
     --minibatch ${MINIBATCH}
+    --totalExamplesTest 2000
+    --saveFreqSec 90
+    --batchesBtwCheckpoints 8000
     "
 
 eval $CMD

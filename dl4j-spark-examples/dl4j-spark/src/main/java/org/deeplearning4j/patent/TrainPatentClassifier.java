@@ -14,6 +14,7 @@ import org.deeplearning4j.api.loader.DataSetLoader;
 import org.deeplearning4j.eval.Evaluation;
 import org.deeplearning4j.eval.IEvaluation;
 import org.deeplearning4j.nn.graph.ComputationGraph;
+import org.deeplearning4j.optimize.listeners.FailureTestingListener;
 import org.deeplearning4j.optimize.listeners.PerformanceListener;
 import org.deeplearning4j.patent.preprocessing.PatentLabelGenerator;
 import org.deeplearning4j.patent.utils.JCommanderUtils;
@@ -23,6 +24,8 @@ import org.deeplearning4j.patent.utils.evaluation.ToEval;
 import org.deeplearning4j.spark.api.TrainingMaster;
 import org.deeplearning4j.spark.impl.graph.SparkComputationGraph;
 import org.deeplearning4j.spark.parameterserver.training.SharedTrainingMaster;
+import org.deeplearning4j.spark.time.TimeSource;
+import org.deeplearning4j.spark.time.TimeSourceProvider;
 import org.deeplearning4j.spark.util.SparkUtils;
 import org.deeplearning4j.util.ModelSerializer;
 import org.nd4j.linalg.api.ndarray.INDArray;
@@ -37,6 +40,8 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -123,6 +128,9 @@ public class TrainPatentClassifier {
             " Set to <= 0 for fitting on all data")
     private int batchesBtwCheckpoints = 5000;
 
+    @Parameter(names = {"--evalFinalOnly"}, description = "If true: evaluate the final network after training returns for the first time, then exit")
+    private boolean evalFinalOnly = false;
+
     public static void main(String[] args) throws Exception {
         new TrainPatentClassifier().entryPoint(args);
     }
@@ -187,6 +195,7 @@ public class TrainPatentClassifier {
                 .unicastPort(port)                          // Should be open for IN/OUT communications on all Spark nodes
                 .networkMask(networkMask)                   // Local network mask
                 .controllerAddress(masterIP)
+                .meshBuildMode(org.nd4j.parameterserver.distributed.v2.enums.MeshBuildMode.PLAIN)
                 .build();
         TrainingMaster tm = new SharedTrainingMaster.Builder(voidConfiguration, numWorkers, this.gradientThreshold, minibatch)
                 .rngSeed(12345)
@@ -211,6 +220,25 @@ public class TrainPatentClassifier {
         //Setup saving of parameter snapshots. This is so we can calculate accuracy vs. time
         final AtomicBoolean isTraining = new AtomicBoolean(false);
         final File baseParamSaveDir = new File(outputPath, "paramSnapshots");
+
+        if (!continueTraining) {
+            if (baseParamSaveDir.exists()) {
+                Files.walk(baseParamSaveDir.toPath())
+                    .filter(Files::isRegularFile)
+                    .forEach(p -> {
+                        File f = p.toFile();
+                        if (!f.isDirectory() && f.getPath().endsWith(".bin")) {
+                            f.delete();
+                        }
+                    });
+            }
+            String resultsFile = FilenameUtils.concat(outputPath, "results.txt");
+            File f = new File(resultsFile);
+            if(f.exists()){
+                f.delete();
+            }
+        }
+
         if (!baseParamSaveDir.exists())
             baseParamSaveDir.mkdirs();
 
@@ -219,7 +247,35 @@ public class TrainPatentClassifier {
         sparkNet.setCollectTrainingStats(tm.getIsCollectTrainingStats());
 
         // Add listeners
-        sparkNet.setListeners(new PerformanceListener(listenerFrequency, true));
+
+            //Params checkpoint dir - same on ALL machines
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd_hh.mm.ss");
+        long time = TimeSourceProvider.getInstance().currentTimeMillis();
+        String dir = sdf.format(new Date(time)) + "_" + time;
+        File localCheckpointFile = new File("/mnt/resource/spark_testing/" + dir);
+        long paramsCheckpointSaveFreq = 30000L; //Every 30 seconds
+
+        sparkNet.setListeners(new PerformanceListener(listenerFrequency, true),
+            //Trigger failure(s) on node 2 (10.0.2.5)
+            new FailureTestingListener(FailureTestingListener.FailureMode.SYSTEM_EXIT_1,
+                new FailureTestingListener.Or(
+                    new FailureTestingListener.And(new FailureTestingListener.HostNameTrigger("spark-node-2"),new FailureTestingListener.IterationEpochTrigger(false, 250)),
+                    new FailureTestingListener.And(new FailureTestingListener.HostNameTrigger("spark-node-2"),new FailureTestingListener.IterationEpochTrigger(false, 500)),
+                    new FailureTestingListener.And(new FailureTestingListener.HostNameTrigger("spark-node-2"),new FailureTestingListener.IterationEpochTrigger(false, 750))))
+
+            //On all nodes: save parameters every 30 seconds for later review/comparison
+//            new ParamsCheckpointListener(localCheckpointFile, paramsCheckpointSaveFreq));
+
+//                new FailureTestingListener.Or(
+//                    Spark node 2 fails at iteration 200
+//                    new FailureTestingListener.And(
+//                        new FailureTestingListener.HostNameTrigger("spark-node-2"),
+//                        new FailureTestingListener.IterationEpochTrigger(false, 200))
+//                    //Spark node 3 fails at iteration 600
+//                    new FailureTestingListener.And(
+//                        new FailureTestingListener.HostNameTrigger("spark-node-3"),
+//                        new FailureTestingListener.IterationEpochTrigger(false, 600))))
+        );
 
         // Time setup
         long endTimeMs = System.currentTimeMillis();
@@ -256,6 +312,7 @@ public class TrainPatentClassifier {
 
         boolean firstSave = true;
         long startTrain = System.currentTimeMillis();
+        File finalNet = null;
         for (int epoch = 0; epoch < numEpochs; epoch++) {
             for (int i = firstSubsetIdx; i < trainSubsets.length; i++) {
                 currentSubset.set(i);
@@ -276,6 +333,12 @@ public class TrainPatentClassifier {
                 }
                 ModelSerializer.writeModel(sparkNet.getNetwork(), f, true);
                 log.info("Saved network checkpoint to {}", outpath);
+
+                if(evalFinalOnly){
+                    finalNet = f;
+                    epoch = numEpochs;
+                    break;
+                }
 
                 //Now, evaluate the saved checkpoint files
                 List<ToEval> toEval = new ArrayList<>();
@@ -315,6 +378,25 @@ public class TrainPatentClassifier {
                 }
             }
             firstSubsetIdx = 0;
+        }
+
+        if(evalFinalOnly){
+            ComputationGraph cgForEval = ComputationGraph.load(finalNet, false);
+            SparkComputationGraph scgForEval = new SparkComputationGraph(sc, cgForEval, null);
+
+            long startEval = System.currentTimeMillis();
+            IEvaluation[] evals = scgForEval.doEvaluation(testDataPaths, 4, minibatch, datasetLoader, new Evaluation());
+            long endEval = System.currentTimeMillis();
+
+            StringBuilder sb = new StringBuilder();
+            Evaluation e = (Evaluation) evals[0];
+            sb.append("=== Final Network ===\n")
+                .append(" evalMS ").append(endEval - startEval)
+                .append(" accuracy ").append(e.accuracy()).append(" f1 ").append(e.f1()).append("\n");
+
+            FileUtils.writeStringToFile(new File(resultsFile), sb.toString(), Charset.forName("UTF-8"), true);    //Append new output to file
+            saveEvaluation(false, evals, sc);
+            log.info("Evaluation: {}", sb.toString());
         }
 
         log.info("----- Example Complete -----");
