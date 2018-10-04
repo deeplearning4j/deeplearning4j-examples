@@ -134,7 +134,7 @@ public class MnistMLPDMulticastExample {
             /**
              * However, if you're running this example on Spark standalone cluster, you can rely on Spark internal addressing via $SPARK_PUBLIC_DNS env variables announced on each node
              */
-            .controllerAddress(useSparkLocal ? "127.0.0.1" : null)
+            .controllerAddress(useSparkLocal ? "127.0.0.1" : "192.168.0.211")
 
             .multicastPort(40124)
 
