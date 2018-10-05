@@ -129,7 +129,9 @@ public class MnistMLPDMulticastExample {
             /**
              * if you're running this example on Hadoop/YARN, please provide proper netmask for out-of-spark comms
              */
-            .networkMask("192.168.0.0/16")
+            .networkMask("192.168.0.0/24")
+
+            .multicastInterface("192.168.0.0/24")
 
             /**
              * However, if you're running this example on Spark standalone cluster, you can rely on Spark internal addressing via $SPARK_PUBLIC_DNS env variables announced on each node
