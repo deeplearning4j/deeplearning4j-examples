@@ -138,16 +138,29 @@ public class MnistMLPDMulticastExample {
              */
             .controllerAddress(useSparkLocal ? "127.0.0.1" : "192.168.0.211")
 
+            /**
+             * UDP port used for comms
+             */
             .multicastPort(40124)
 
+            /**
+             * Using UDP multicast for comms
+             */
             .transportType(TransportType.MULTICAST)
 
+            /**
+             * Multicast network used for comms
+             */
             .multicastNetwork("224.0.5.7")
 
+            /**
+             * Don't set this that high unless you need that
+             */
             .ttl(64)
 
-            // trying plain mode
+            // Multicast transport assumes plain mode
             .meshBuildMode(MeshBuildMode.PLAIN)
+
             .build();
 
         TrainingMaster tm = new SharedTrainingMaster.Builder(voidConfiguration, batchSizePerWorker)
