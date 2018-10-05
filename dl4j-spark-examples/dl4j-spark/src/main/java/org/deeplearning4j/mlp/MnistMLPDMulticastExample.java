@@ -142,7 +142,9 @@ public class MnistMLPDMulticastExample {
 
             .transportType(TransportType.MULTICAST)
 
-            .multicastNetwork("224.0.1.1")
+            .multicastNetwork("224.0.5.7")
+
+            .ttl(64)
 
             // trying plain mode
             .meshBuildMode(MeshBuildMode.PLAIN)
