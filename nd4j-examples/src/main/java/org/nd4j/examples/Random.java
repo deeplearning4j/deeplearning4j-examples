@@ -13,7 +13,7 @@ public class Random {
                 long[] shape = new long[] {shapeR, shapeC};
 
                 System.out.println("Trying N: {" + shapeR + ", " + shapeC + "}");
-                INDArray arrayN = Nd4j.rand(shape);
+                INDArray arrayN = Nd4j.randn(shape);
 
                 Nd4j.getExecutioner().commit();
 
