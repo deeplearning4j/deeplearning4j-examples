@@ -21,6 +21,9 @@ public class Random {
                 INDArray arrayU = Nd4j.rand(shape);
 
                 Nd4j.getExecutioner().commit();
+                System.gc();
+                Thread.sleep(1000);
+                System.gc();
             }
         }
     }
