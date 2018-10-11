@@ -6,7 +6,7 @@ import org.nd4j.linalg.factory.Nd4j;
 public class Random {
 
     public static void main(String[] args) throws Exception {
-        int[] shapes = new int[] {16, 32, 48, 64, 96, 128, 256, 512, 1024};
+        int[] shapes = new int[] {16, 32, 48, 64, 96, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32768, 65536};
 
         for (int shapeR: shapes) {
             for (int shapeC: shapes) {
