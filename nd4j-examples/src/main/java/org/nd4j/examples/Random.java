@@ -6,7 +6,9 @@ import org.nd4j.linalg.api.memory.conf.WorkspaceConfiguration;
 import org.nd4j.linalg.api.memory.enums.AllocationPolicy;
 import org.nd4j.linalg.api.memory.enums.ResetPolicy;
 import org.nd4j.linalg.api.ndarray.INDArray;
+import org.nd4j.linalg.api.ops.random.impl.LogNormalDistribution;
 import org.nd4j.linalg.factory.Nd4j;
+import org.nd4j.linalg.ops.transforms.Transforms;
 
 public class Random {
 
@@ -26,6 +28,8 @@ public class Random {
                 try (MemoryWorkspace ws = Nd4j.getWorkspaceManager().getAndActivateWorkspace(conf, "id")) {
                     System.out.println("Trying N: {" + shapeR + ", " + shapeC + "}");
                     INDArray arrayN = Nd4j.randn(shape);
+                    System.out.println("Mean: " + arrayN.meanNumber() + ", stdev: " + arrayN.stdNumber());
+
 
                     Nd4j.getExecutioner().commit();
                 }
@@ -33,6 +37,17 @@ public class Random {
                 try (MemoryWorkspace ws = Nd4j.getWorkspaceManager().getAndActivateWorkspace(conf, "id")) {
                     System.out.println("Trying U: {" + shapeR + ", " + shapeC + "}");
                     INDArray arrayU = Nd4j.rand(shape);
+                    System.out.println("Mean: " + arrayU.meanNumber() + ", stdev: " + arrayU.stdNumber());
+
+                    Nd4j.getExecutioner().commit();
+                }
+
+                try (MemoryWorkspace ws = Nd4j.getWorkspaceManager().getAndActivateWorkspace(conf, "id")) {
+                    System.out.println("Trying LN: {" + shapeR + ", " + shapeC + "}");
+                    INDArray arrayLN = Nd4j.getExecutioner().exec(new LogNormalDistribution(Nd4j.createUninitialized(shape)));
+                    System.out.println("Mean: " + arrayLN.meanNumber() + ", stdev: " + arrayLN.stdNumber());
+                    Transforms.log(arrayLN);
+                    System.out.println("Mean (logx): " + arrayLN.meanNumber() + ", stdev (logx): " + arrayLN.stdNumber());
 
                     Nd4j.getExecutioner().commit();
                 }
@@ -46,15 +61,28 @@ public class Random {
             long[] shape = new long[]{shapeR, shapeC};
 
             try (MemoryWorkspace ws = Nd4j.getWorkspaceManager().getAndActivateWorkspace(conf, "id")) {
-                System.out.println("Trying N: {" + shapeR + ", " + shapeC + "}");
+                System.out.println(e + " - Trying N: {" + shapeR + ", " + shapeC + "}");
                 INDArray arrayN = Nd4j.randn(shape);
+                System.out.println("Mean: " + arrayN.meanNumber() + ", stdev: " + arrayN.stdNumber());
 
                 Nd4j.getExecutioner().commit();
             }
 
             try (MemoryWorkspace ws = Nd4j.getWorkspaceManager().getAndActivateWorkspace(conf, "id")) {
-                System.out.println("Trying U: {" + shapeR + ", " + shapeC + "}");
+                System.out.println(e + " - Trying U: {" + shapeR + ", " + shapeC + "}");
                 INDArray arrayU = Nd4j.rand(shape);
+                System.out.println("Mean: " + arrayU.meanNumber() + ", stdev: " + arrayU.stdNumber());
+
+
+                Nd4j.getExecutioner().commit();
+            }
+
+            try (MemoryWorkspace ws = Nd4j.getWorkspaceManager().getAndActivateWorkspace(conf, "id")) {
+                System.out.println(e + " - Trying LN: {" + shapeR + ", " + shapeC + "}");
+                INDArray arrayLN = Nd4j.getExecutioner().exec(new LogNormalDistribution(Nd4j.createUninitialized(shape)));
+                System.out.println("Mean: " + arrayLN.meanNumber() + ", stdev: " + arrayLN.stdNumber());
+                Transforms.log(arrayLN);
+                System.out.println("Mean (logx): " + arrayLN.meanNumber() + ", stdev (logx): " + arrayLN.stdNumber());
 
                 Nd4j.getExecutioner().commit();
             }
