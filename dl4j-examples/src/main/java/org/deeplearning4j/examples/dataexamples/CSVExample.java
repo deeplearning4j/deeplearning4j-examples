@@ -20,6 +20,7 @@ import org.nd4j.linalg.dataset.SplitTestAndTrain;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.nd4j.linalg.dataset.api.preprocessor.DataNormalization;
 import org.nd4j.linalg.dataset.api.preprocessor.NormalizerStandardize;
+import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.learning.config.Sgd;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 import org.slf4j.Logger;
@@ -33,6 +34,7 @@ public class CSVExample {
     private static Logger log = LoggerFactory.getLogger(CSVExample.class);
 
     public static void main(String[] args) throws  Exception {
+        Nd4j.getExecutioner().enableDebugMode(true);
 
         //First: get the dataset using the record reader. CSVRecordReader handles loading/parsing
         int numLinesToSkip = 0;
