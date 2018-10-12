@@ -49,9 +49,9 @@
 
     <modules>
         <module>nd4j-examples</module>
+        <module>dl4j-examples</module>
         <!--
         <module>dl4j-spark-examples</module>
-        <module>dl4j-examples</module>
         <module>datavec-examples</module>
         <module>dl4j-cuda-specific-examples</module>
         <module>rl4j-examples</module>
