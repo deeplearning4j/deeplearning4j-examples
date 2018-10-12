@@ -46,7 +46,7 @@ public class Random {
                     System.out.println("Trying LN: {" + shapeR + ", " + shapeC + "}");
                     INDArray arrayLN = Nd4j.getExecutioner().exec(new LogNormalDistribution(Nd4j.createUninitialized(shape)));
                     System.out.println("Mean: " + arrayLN.meanNumber() + ", stdev: " + arrayLN.stdNumber());
-                    Transforms.log(arrayLN);
+                    arrayLN = Transforms.log(arrayLN);
                     System.out.println("Mean (logx): " + arrayLN.meanNumber() + ", stdev (logx): " + arrayLN.stdNumber());
 
                     Nd4j.getExecutioner().commit();
@@ -81,7 +81,7 @@ public class Random {
                 System.out.println(e + " - Trying LN: {" + shapeR + ", " + shapeC + "}");
                 INDArray arrayLN = Nd4j.getExecutioner().exec(new LogNormalDistribution(Nd4j.createUninitialized(shape)));
                 System.out.println("Mean: " + arrayLN.meanNumber() + ", stdev: " + arrayLN.stdNumber());
-                Transforms.log(arrayLN);
+                arrayLN = Transforms.log(arrayLN);
                 System.out.println("Mean (logx): " + arrayLN.meanNumber() + ", stdev (logx): " + arrayLN.stdNumber());
 
                 Nd4j.getExecutioner().commit();
