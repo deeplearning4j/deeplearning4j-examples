@@ -23,7 +23,7 @@ public class ConcatVstackHstackPad {
         the different ways to create INDArrays, and more operations we can do on them.
          */
 
-        //Let's start by creating a basic 2d array: a matrix with 3 rows and 5 columns. All elements are 0.0
+        //Let's start by creating a basic 2d array: a matrix with 2 rows and 2 columns. All elements are 0.0
         int nRows = 2;
         int nColumns = 2;
         INDArray zeros = Nd4j.zeros(nRows, nColumns);
