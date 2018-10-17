@@ -18,15 +18,20 @@
 
 
         <java.version>1.8</java.version>
-        <nd4j.version>1.0.0-beta2</nd4j.version>
-        <dl4j.version>1.0.0-beta2</dl4j.version>
-        <datavec.version>1.0.0-beta2</datavec.version>
-        <arbiter.version>1.0.0-beta2</arbiter.version>
-        <rl4j.version>1.0.0-beta2</rl4j.version>
+        <!--<nd4j.version>1.0.0-beta2</nd4j.version>-->
+        <!--<dl4j.version>1.0.0-beta2</dl4j.version>-->
+        <!--<datavec.version>1.0.0-beta2</datavec.version>-->
+        <!--<arbiter.version>1.0.0-beta2</arbiter.version>-->
+        <!--<rl4j.version>1.0.0-beta2</rl4j.version>-->
+        <nd4j.version>1.0.0-SNAPSHOT</nd4j.version>
+        <dl4j.version>1.0.0-SNAPSHOT</dl4j.version>
+        <datavec.version>1.0.0-SNAPSHOT</datavec.version>
+        <arbiter.version>1.0.0-SNAPSHOT</arbiter.version>
+        <rl4j.version>1.0.0-SNAPSHOT</rl4j.version>
 
         <!-- For Spark examples: change the _1 to _2 to switch between Spark 1 and Spark 2 -->
-        <dl4j.spark.version>1.0.0-beta2_spark_1</dl4j.spark.version>
-        <datavec.spark.version>1.0.0-beta2_spark_1</datavec.spark.version>
+        <dl4j.spark.version>1.0.0_spark_2-SNAPSHOT</dl4j.spark.version>
+        <datavec.spark.version>1.0.0_spark_2-SNAPSHOT</datavec.spark.version>
 
         <!-- Scala binary version: DL4J's Spark and UI functionality are released with both Scala 2.10 and 2.11 support -->
         <scala.binary.version>2.11</scala.binary.version>
