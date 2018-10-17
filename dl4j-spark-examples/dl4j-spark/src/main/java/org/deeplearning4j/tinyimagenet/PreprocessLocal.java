@@ -30,13 +30,13 @@ public class PreprocessLocal {
         f.downloadAndExtract();
         File baseDirTrain = DL4JResources.getDirectory(ResourceType.DATASET, f.localCacheName() + "/train");
         File saveDirTrain = new File(localSaveDir, "train");
-        FileUtils.forceDelete(saveDirTrain); //delete directory
+        if (saveDirTrain.exists()) FileUtils.forceDelete(saveDirTrain); //delete directory
         FileUtils.forceMkdir(saveDirTrain); //create directory
         SparkDataUtils.createFileBatchesLocal(baseDirTrain, true, saveDirTrain, batchSize);
 
         File baseDirTest = DL4JResources.getDirectory(ResourceType.DATASET, f.localCacheName() + "/test");
         File saveDirTest = new File(localSaveDir, "test");
-        FileUtils.forceDelete(saveDirTest); //delete directory
+        if (saveDirTest.exists()) FileUtils.forceDelete(saveDirTest); //delete directory
         FileUtils.forceMkdir(saveDirTest); //create directory
         SparkDataUtils.createFileBatchesLocal(baseDirTest, true, saveDirTest, batchSize);
 
