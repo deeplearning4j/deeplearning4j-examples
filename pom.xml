@@ -11,7 +11,7 @@
     <description>Examples of training different data sets</description>
     <properties>
         <!-- Change the nd4j.backend property to nd4j-cuda-8.0-platform, nd4j-cuda-9.0-platform or nd4j-cuda-9.2-platform to use CUDA GPUs -->
-        <nd4j.backend>nd4j-native-platform</nd4j.backend>
+        <nd4j.backend>nd4j-native</nd4j.backend>
         <!--<nd4j.backend>nd4j-cuda-9.2-platform</nd4j.backend>-->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <shadedClassifier>bin</shadedClassifier>
@@ -51,6 +51,23 @@
         <jackson.version>2.5.1</jackson.version>
         <scala.plugin.version>3.2.2</scala.plugin.version>
     </properties>
+
+    <!-- Modified for using SNAPSHOT versions - added repositories section -->
+    <repositories>
+        <repository>
+            <id>snapshots-repo</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+                <updatePolicy>daily</updatePolicy>  <!-- Optional, update daily -->
+            </snapshots>
+        </repository>
+    </repositories>
+
+
 
     <modules>
         <module>dl4j-examples</module>
