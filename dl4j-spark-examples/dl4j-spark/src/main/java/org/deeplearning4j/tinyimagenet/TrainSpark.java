@@ -110,11 +110,14 @@ public class TrainSpark {
     }
 
     protected void entryPoint(String[] args) throws Exception {
-        JCommanderUtils.parseArgs(this, args);
+//        JCommanderUtils.parseArgs(this, args);
 
         SparkConf conf = new SparkConf();
         conf.setAppName(sparkAppName);
+        System.out.println(conf.toDebugString());
         JavaSparkContext sc = new JavaSparkContext(conf);
+
+
 
         //Set up TrainingMaster for gradient sharing training
         VoidConfiguration voidConfiguration = VoidConfiguration.builder()
