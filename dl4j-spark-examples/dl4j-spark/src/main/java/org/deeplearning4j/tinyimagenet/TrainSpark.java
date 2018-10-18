@@ -4,12 +4,12 @@ import com.beust.jcommander.Parameter;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
 import org.datavec.api.io.labels.ParentPathLabelGenerator;
 import org.datavec.api.io.labels.PathLabelGenerator;
 import org.datavec.image.recordreader.ImageRecordReader;
-import org.deeplearning4j.api.loader.DataSetLoader;
 import org.deeplearning4j.datasets.fetchers.TinyImageNetFetcher;
 import org.deeplearning4j.datasets.iterator.impl.TinyImageNetDataSetIterator;
 import org.deeplearning4j.eval.Evaluation;
@@ -31,14 +31,37 @@ import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.dataset.api.preprocessor.ImagePreProcessingScaler;
 import org.nd4j.linalg.learning.config.AMSGrad;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
+import org.nd4j.linalg.schedule.ISchedule;
+import org.nd4j.linalg.schedule.MapSchedule;
+import org.nd4j.linalg.schedule.ScheduleType;
 import org.nd4j.parameterserver.distributed.conf.VoidConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.BufferedOutputStream;
 
-public class TrainTinyImageNetSpark {
-    public static final Logger log = LoggerFactory.getLogger(TrainTinyImageNetSpark.class);
+/**
+ * This example trains a convolutional neural network image classifier on the Tiny ImageNet dataset.
+ * The Tiny ImageNet dataset is an image dataset of size 64x64 images, with 200 classes, and 500 images per class,
+ * for a total of 100,000 images.
+ *
+ * Before running this example, you should do ONE of the following to prepare the data for training:
+ * 1. Run PreprocessLocal, and copy the output files to remote storage for your cluster (HDFS, S3, Azure storage, etc), OR
+ * 2. Run PreprocessSpark,
+ *
+ * The CNN classifier trained here is trained from scratch without any pretraining. It is a custom network architecture
+ * with 1,077,160 based loosely on the VGG/DarkNet architectures. Improved accuracy is likely possible
+ *
+ * For furter details on DL4J's Spark implementation, see the "Distributed Deep Learning" pages at:
+ * https://deeplearning4j.org/docs/latest/
+ *
+ * A local (single machine) version of this example is available in TrainLocal
+ *
+ *
+ * @author Alex Black
+ */
+public class TrainSpark {
+    public static final Logger log = LoggerFactory.getLogger(TrainSpark.class);
 
     /* --- Required Arguments -- */
 
@@ -67,29 +90,31 @@ public class TrainTinyImageNetSpark {
     private String sparkAppName = "DL4JTinyImageNetExample";
 
     @Parameter(names = {"--numEpochs"}, description = "Number of epochs for training")
-    private int numEpochs = 1;
+    private int numEpochs = 3;
 
     @Parameter(names = {"--minibatch"}, description = "Minibatch size (of preprocessed minibatches). Also number of" +
         "minibatches per worker when fitting")
     private int minibatch = 32;
 
-    @Parameter(names = {"--numWorkersPerNode"}, description = "Number of workers per Spark node")
+    @Parameter(names = {"--numWorkersPerNode"}, description = "Number of workers per Spark node. Usually use 1 per GPU, or 1 for CPU-only workers")
     private int numWorkersPerNode = 1;
 
-    @Parameter(names = {"--gradientThreshold"}, description = "Gradient threshold")
+    @Parameter(names = {"--gradientThreshold"}, description = "Gradient threshold. See ")
     private double gradientThreshold = 1E-4;
 
     @Parameter(names = {"--port"}, description = "Port number for Spark nodes. This can be any free port (port must be free on all nodes)")
     private int port = 40123;
 
     public static void main(String[] args) throws Exception {
-        new TrainTinyImageNetSpark().entryPoint(args);
+        new TrainSpark().entryPoint(args);
     }
 
     protected void entryPoint(String[] args) throws Exception {
         JCommanderUtils.parseArgs(this, args);
 
-        JavaSparkContext sc = new JavaSparkContext();
+        SparkConf conf = new SparkConf();
+        conf.setAppName(sparkAppName);
+        JavaSparkContext sc = new JavaSparkContext(conf);
 
         //Set up TrainingMaster for gradient sharing training
         VoidConfiguration voidConfiguration = VoidConfiguration.builder()
@@ -128,7 +153,9 @@ public class TrainTinyImageNetSpark {
         }
 
         //Perform evaluation
-        Evaluation evaluation = sparkNet.evaluate(dataPath + "/test", loader);
+        JavaRDD<String> pathsTest = SparkUtils.listPaths(sc, dataPath + "/test");
+        Evaluation evaluation = new Evaluation(TinyImageNetDataSetIterator.getLabels(false), 5); //Set up for top 5 accuracy
+        evaluation = (Evaluation) sparkNet.doEvaluation(pathsTest, loader, evaluation)[0];
         log.info("Evaluation statistics: {}", evaluation.stats());
 
         if (saveDirectory != null && saveDirectory.isEmpty()) {
@@ -151,14 +178,21 @@ public class TrainTinyImageNetSpark {
     }
 
     public static ComputationGraph getNetwork() {
-
         //This network: created for the purposes of this example. It is a simple CNN loosely inspired by the DarkNet
         // architecture, which was in turn inspired by the VGG16/19 networks
+        //The performance of this network can likely be improved
+
+        ISchedule lrSchedule = new MapSchedule.Builder(ScheduleType.EPOCH)
+            .add(0, 8e-3)
+            .add(1, 6e-3)
+            .add(3, 3e-3)
+            .add(5, 1e-3)
+            .add(7, 5e-4).build();
 
         ComputationGraphConfiguration.GraphBuilder b = new NeuralNetConfiguration.Builder()
             .convolutionMode(ConvolutionMode.Same)
             .l2(1e-4)
-            .updater(new AMSGrad(1e-3))
+            .updater(new AMSGrad(lrSchedule))
             .weightInit(WeightInit.RELU)
             .graphBuilder()
             .addInputs("input")
@@ -172,12 +206,12 @@ public class TrainTinyImageNetSpark {
         DarknetHelper.addLayers(b, 5, 2, 256, 512, 2);   //8x8 out
 
         b.addLayer("convolution2d_6", new ConvolutionLayer.Builder(1, 1)
-                .nIn(512)
-                .nOut(TinyImageNetFetcher.NUM_LABELS)
-                .weightInit(WeightInit.XAVIER)
-                .stride(1, 1)
-                .activation(Activation.IDENTITY)
-                .build(), "maxpooling2d_5")
+            .nIn(512)
+            .nOut(TinyImageNetFetcher.NUM_LABELS)
+            .weightInit(WeightInit.XAVIER)
+            .stride(1, 1)
+            .activation(Activation.IDENTITY)
+            .build(), "maxpooling2d_5")
             .addLayer("globalpooling", new GlobalPoolingLayer.Builder(PoolingType.AVG).build(), "convolution2d_6")
             .addLayer("loss", new LossLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD).activation(Activation.SOFTMAX).build(), "globalpooling")
             .setOutputs("loss");
