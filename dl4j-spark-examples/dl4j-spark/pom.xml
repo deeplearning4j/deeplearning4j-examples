@@ -48,11 +48,6 @@
                 <version>${jackson.spark.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.fasterxml.jackson.core</groupId>
-                <artifactId>jackson-annotations</artifactId>
-                <version>${jackson.spark.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>com.fasterxml.jackson.datatype</groupId>
                 <artifactId>jackson-datatype-jdk8</artifactId>
                 <version>${jackson.spark.version}</version>
@@ -67,16 +62,21 @@
 
     <dependencies>
 
+        <!-- ND4J Backend + deeplearning4j-cuda for CuDNN -->
+        <dependency>
+            <groupId>org.nd4j</groupId>
+            <artifactId>nd4j-cuda-9.2</artifactId>
+            <version>${nd4j.version}</version>
+        </dependency>
+
+
+
+
         <dependency>
             <groupId>org.apache.spark</groupId>
             <artifactId>spark-core_${scala.binary.version}</artifactId>
             <version>${spark.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.nd4j</groupId>
-            <artifactId>${nd4j.backend}</artifactId>
-            <version>${nd4j.version}</version>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
