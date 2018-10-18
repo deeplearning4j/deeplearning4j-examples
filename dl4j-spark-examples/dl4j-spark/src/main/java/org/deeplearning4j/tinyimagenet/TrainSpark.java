@@ -149,7 +149,7 @@ public class TrainSpark {
 
 
         //Fit the network
-        String trainPath = FilenameUtils.concat(dataPath, "train");
+        String trainPath = dataPath + (dataPath.endsWith("/") ? "" : "/") + "train";
         JavaRDD<String> pathsTrain = SparkUtils.listPaths(sc, trainPath);
         for (int i = 0; i < numEpochs; i++) {
             log.info("--- Starting Training: Epoch {} of {} ---", (i + 1), numEpochs);
@@ -157,7 +157,7 @@ public class TrainSpark {
         }
 
         //Perform evaluation
-        String testPath = FilenameUtils.concat(dataPath, "test");
+        String testPath = dataPath + (dataPath.endsWith("/") ? "" : "/") + "test";
         JavaRDD<String> pathsTest = SparkUtils.listPaths(sc, testPath);
         Evaluation evaluation = new Evaluation(TinyImageNetDataSetIterator.getLabels(false), 5); //Set up for top 5 accuracy
         evaluation = (Evaluation) sparkNet.doEvaluation(pathsTest, loader, evaluation)[0];
