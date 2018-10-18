@@ -28,6 +28,7 @@ import org.deeplearning4j.util.ModelSerializer;
 import org.deeplearning4j.api.loader.impl.RecordReaderFileBatchLoader;
 import org.deeplearning4j.zoo.model.helper.DarknetHelper;
 import org.nd4j.linalg.activations.Activation;
+import org.nd4j.linalg.dataset.api.preprocessor.ImagePreProcessingScaler;
 import org.nd4j.linalg.learning.config.AMSGrad;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 import org.nd4j.parameterserver.distributed.conf.VoidConfiguration;
@@ -115,7 +116,9 @@ public class TrainTinyImageNetSpark {
         ImageRecordReader rr = new ImageRecordReader(imageHeightWidth, imageHeightWidth, imageChannels, labelMaker);
         rr.setLabels(new TinyImageNetDataSetIterator(1).getLabels());
         int numClasses = TinyImageNetFetcher.NUM_LABELS;
-        DataSetLoader loader = new RecordReaderFileBatchLoader(rr, minibatch, 1, numClasses);
+        RecordReaderFileBatchLoader loader = new RecordReaderFileBatchLoader(rr, minibatch, 1, numClasses);
+        loader.setPreProcessor(new ImagePreProcessingScaler());   //Scale 0-255 valued pixels to 0-1 range
+
 
         //Fit the network
         JavaRDD<String> pathsTrain = SparkUtils.listPaths(sc, dataPath + "/train");
@@ -169,12 +172,12 @@ public class TrainTinyImageNetSpark {
         DarknetHelper.addLayers(b, 5, 2, 256, 512, 2);   //8x8 out
 
         b.addLayer("convolution2d_6", new ConvolutionLayer.Builder(1, 1)
-            .nIn(1024)
-            .nOut(TinyImageNetFetcher.NUM_LABELS)
-            .weightInit(WeightInit.XAVIER)
-            .stride(1, 1)
-            .activation(Activation.IDENTITY)
-            .build())
+                .nIn(512)
+                .nOut(TinyImageNetFetcher.NUM_LABELS)
+                .weightInit(WeightInit.XAVIER)
+                .stride(1, 1)
+                .activation(Activation.IDENTITY)
+                .build(), "maxpooling2d_5")
             .addLayer("globalpooling", new GlobalPoolingLayer.Builder(PoolingType.AVG).build(), "convolution2d_6")
             .addLayer("loss", new LossLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD).activation(Activation.SOFTMAX).build(), "globalpooling")
             .setOutputs("loss");

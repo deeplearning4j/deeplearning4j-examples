@@ -195,7 +195,6 @@ public class TrainPatentClassifier {
                 .updatesThreshold(this.gradientThreshold)   // Encoding threshold (see docs for details)
                 .workersPerNode(numWorkersPerNode)          // Workers per node
                 .build();
-        tm.setCollectTrainingStats(false);
 
         //If continueTraining==true and checkpoints are available available: Load checkpoint to continue training
         int firstSubsetIdx = 0;

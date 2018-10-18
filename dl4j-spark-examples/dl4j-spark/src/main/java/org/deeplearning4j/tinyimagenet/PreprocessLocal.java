@@ -1,12 +1,12 @@
 package org.deeplearning4j.tinyimagenet;
 
 import com.beust.jcommander.Parameter;
+import org.datavec.image.loader.NativeImageLoader;
 import org.deeplearning4j.common.resources.DL4JResources;
 import org.deeplearning4j.common.resources.ResourceType;
 import org.deeplearning4j.datasets.fetchers.TinyImageNetFetcher;
 import org.deeplearning4j.patent.utils.JCommanderUtils;
 import org.deeplearning4j.spark.util.SparkDataUtils;
-import org.apache.commons.io.FileUtils;
 
 import java.io.File;
 
@@ -28,17 +28,20 @@ public class PreprocessLocal {
         //First, ensure we have the required data:
         TinyImageNetFetcher f = new TinyImageNetFetcher();
         f.downloadAndExtract();
+
+        //Preprocess the training set
         File baseDirTrain = DL4JResources.getDirectory(ResourceType.DATASET, f.localCacheName() + "/train");
         File saveDirTrain = new File(localSaveDir, "train");
-        if (saveDirTrain.exists()) FileUtils.forceDelete(saveDirTrain); //delete directory
-        FileUtils.forceMkdir(saveDirTrain); //create directory
-        SparkDataUtils.createFileBatchesLocal(baseDirTrain, true, saveDirTrain, batchSize);
+        if(!saveDirTrain.exists())
+            saveDirTrain.mkdirs();
+        SparkDataUtils.createFileBatchesLocal(baseDirTrain, NativeImageLoader.ALLOWED_FORMATS, true, saveDirTrain, batchSize);
 
+        //Preprocess the test set
         File baseDirTest = DL4JResources.getDirectory(ResourceType.DATASET, f.localCacheName() + "/test");
         File saveDirTest = new File(localSaveDir, "test");
-        if (saveDirTest.exists()) FileUtils.forceDelete(saveDirTest); //delete directory
-        FileUtils.forceMkdir(saveDirTest); //create directory
-        SparkDataUtils.createFileBatchesLocal(baseDirTest, true, saveDirTest, batchSize);
+        if(!saveDirTest.exists())
+            saveDirTest.mkdirs();
+        SparkDataUtils.createFileBatchesLocal(baseDirTest, NativeImageLoader.ALLOWED_FORMATS, true, saveDirTest, batchSize);
 
         System.out.println("----- Data Preprocessing Complete -----");
     }
