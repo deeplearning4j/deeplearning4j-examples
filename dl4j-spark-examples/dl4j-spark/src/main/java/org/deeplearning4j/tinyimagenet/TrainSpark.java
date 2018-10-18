@@ -110,7 +110,7 @@ public class TrainSpark {
     }
 
     protected void entryPoint(String[] args) throws Exception {
-//        JCommanderUtils.parseArgs(this, args);
+        JCommanderUtils.parseArgs(this, args);
 
         SparkConf conf = new SparkConf();
         conf.setAppName(sparkAppName);
