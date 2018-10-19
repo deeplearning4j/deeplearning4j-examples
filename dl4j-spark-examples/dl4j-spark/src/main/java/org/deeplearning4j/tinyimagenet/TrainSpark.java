@@ -153,7 +153,8 @@ public class TrainSpark {
 
 
         //Fit the network
-        String trainPath = dataPath + (dataPath.endsWith("/") ? "" : "/") + "train";
+//        String trainPath = dataPath + (dataPath.endsWith("/") ? "" : "/") + "train";
+        String trainPath = dataPath + (dataPath.endsWith("/") ? "" : "/") + "test";         //TEMPORARY FOR FASTER DEBUGGING
         JavaRDD<String> pathsTrain = SparkUtils.listPaths(sc, trainPath);
         for (int i = 0; i < numEpochs; i++) {
             log.info("--- Starting Training: Epoch {} of {} ---", (i + 1), numEpochs);
