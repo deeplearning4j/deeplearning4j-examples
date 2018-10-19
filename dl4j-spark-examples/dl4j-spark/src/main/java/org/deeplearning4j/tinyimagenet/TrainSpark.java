@@ -162,6 +162,8 @@ public class TrainSpark {
         }
 
         //Perform evaluation
+        log.info("SKIPPING EVALUATION FOR DEBUGGING PURPOSES");
+        /*
         String testPath = dataPath + (dataPath.endsWith("/") ? "" : "/") + "test";
         JavaRDD<String> pathsTest = SparkUtils.listPaths(sc, testPath);
         Evaluation evaluation = new Evaluation(TinyImageNetDataSetIterator.getLabels(false), 5); //Set up for top 5 accuracy
@@ -182,6 +184,7 @@ public class TrainSpark {
             String evalPath = FilenameUtils.concat(saveDirectory, "evaluation.txt");
             SparkUtils.writeStringToFile(evalPath, evaluation.stats(), sc);
         }
+        */
 
 
         log.info("----- Example Complete -----");
