@@ -19,6 +19,7 @@ import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
 import org.deeplearning4j.nn.conf.layers.*;
 import org.deeplearning4j.nn.graph.ComputationGraph;
 import org.deeplearning4j.nn.weights.WeightInit;
+import org.deeplearning4j.optimize.listeners.PerformanceListener;
 import org.deeplearning4j.patent.utils.JCommanderUtils;
 import org.deeplearning4j.spark.api.TrainingMaster;
 import org.deeplearning4j.spark.impl.graph.SparkComputationGraph;
@@ -35,6 +36,7 @@ import org.nd4j.linalg.schedule.ISchedule;
 import org.nd4j.linalg.schedule.MapSchedule;
 import org.nd4j.linalg.schedule.ScheduleType;
 import org.nd4j.parameterserver.distributed.conf.VoidConfiguration;
+import org.nd4j.parameterserver.distributed.v2.enums.MeshBuildMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -124,6 +126,7 @@ public class TrainSpark {
             .unicastPort(port)                          // Should be open for IN/OUT communications on all Spark nodes
             .networkMask(networkMask)                   // Local network mask - for example, 10.0.0.0/16 - see https://deeplearning4j.org/docs/latest/deeplearning4j-scaleout-parameter-server
             .controllerAddress(masterIP)                // IP address of the master/driver node
+            .meshBuildMode(MeshBuildMode.PLAIN)
             .build();
         TrainingMaster tm = new SharedTrainingMaster.Builder(voidConfiguration, numWorkersPerNode, this.gradientThreshold, minibatch)
             .rngSeed(12345)
@@ -136,6 +139,7 @@ public class TrainSpark {
 
         ComputationGraph net = getNetwork();
         SparkComputationGraph sparkNet = new SparkComputationGraph(sc, net, tm);
+        sparkNet.setListeners(new PerformanceListener(10, true));
 
         //Create data loader
         int imageHeightWidth = 64;      //64x64 pixel input
