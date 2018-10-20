@@ -37,6 +37,7 @@ import org.nd4j.linalg.schedule.MapSchedule;
 import org.nd4j.linalg.schedule.ScheduleType;
 import org.nd4j.parameterserver.distributed.conf.VoidConfiguration;
 import org.nd4j.parameterserver.distributed.v2.enums.MeshBuildMode;
+import org.nd4j.parameterserver.distributed.v2.transport.impl.EnvironmentVarPortSupplier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -123,7 +124,8 @@ public class TrainSpark {
 
         //Set up TrainingMaster for gradient sharing training
         VoidConfiguration voidConfiguration = VoidConfiguration.builder()
-            .unicastPort(port)                          // Should be open for IN/OUT communications on all Spark nodes
+            .portSupplier(new EnvironmentVarPortSupplier("DL4J_GRADSHARING_PORT"))
+            //.unicastPort(port)                          // Should be open for IN/OUT communications on all Spark nodes
             .networkMask(networkMask)                   // Local network mask - for example, 10.0.0.0/16 - see https://deeplearning4j.org/docs/latest/deeplearning4j-scaleout-parameter-server
             .controllerAddress(masterIP)                // IP address of the master/driver node
             .meshBuildMode(MeshBuildMode.PLAIN)
