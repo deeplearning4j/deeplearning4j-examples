@@ -48,7 +48,7 @@ public class EndlessEncoder {
                                     params.putScalar(position, tau + Nd4j.EPS_THRESHOLD);
                                 }
 
-                                log.info("[Thread {}]: paramsLength: [{}]; updates: [{}]; tau: [{}]", Thread.currentThread().getId(), paramsLength, limit, tau);
+                                log.info("[Thread {}]: device: [{}]; paramsLength: [{}]; updates: [{}]; tau: [{}]", Thread.currentThread().getId(), Nd4j.getAffinityManager().getDeviceForCurrentThread(), paramsLength, limit, tau);
 
                                 val encoded = Nd4j.getExecutioner().thresholdEncode(params, tau, null);
 
