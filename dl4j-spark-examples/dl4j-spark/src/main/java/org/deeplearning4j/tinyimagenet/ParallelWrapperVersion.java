@@ -24,8 +24,7 @@ public class ParallelWrapperVersion {
         ParallelWrapper wrapper = new ParallelWrapper.Builder(net)
             .prefetchBuffer(4)
             .workers(2)
-            .averagingFrequency(1)
-            .reportScoreAfterAveraging(true)
+            .trainingMode(ParallelWrapper.TrainingMode.SHARED_GRADIENTS)
             .build();
 
         wrapper.setListeners(new PerformanceListener(1, true));
