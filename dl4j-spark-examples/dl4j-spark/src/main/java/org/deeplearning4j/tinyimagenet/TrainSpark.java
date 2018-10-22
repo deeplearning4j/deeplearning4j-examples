@@ -124,7 +124,7 @@ public class TrainSpark {
 
         //Set up TrainingMaster for gradient sharing training
         VoidConfiguration voidConfiguration = VoidConfiguration.builder()
-            .portSupplier(new EnvironmentVarPortSupplier("DL4J_GRADSHARING_PORT"))
+            //.portSupplier(new EnvironmentVarPortSupplier("DL4J_GRADSHARING_PORT"))
             //.unicastPort(port)                          // Should be open for IN/OUT communications on all Spark nodes
             .networkMask(networkMask)                   // Local network mask - for example, 10.0.0.0/16 - see https://deeplearning4j.org/docs/latest/deeplearning4j-scaleout-parameter-server
             .controllerAddress(masterIP)                // IP address of the master/driver node
