@@ -102,6 +102,24 @@ public class EndlessEncoderV2 {
                                     }
                                     perturbStr = "nans[" + perturbCount + "]";
                                     break;
+                                case 6:
+                                    //All zeros
+                                    params.assign(0);
+                                    perturbStr = "allZero";
+                                    break;
+                                case 7:
+                                    //All inf
+                                    params.assign(Double.POSITIVE_INFINITY);
+                                    perturbStr = "allInf";
+                                    break;
+                                case 8:
+                                    params.assign(Double.NEGATIVE_INFINITY);
+                                    perturbStr = "allNegativeInf";
+                                    break;
+                                case 9:
+                                    params.assign(Double.NaN);
+                                    perturbStr = "allNaN";
+                                    break;
                                 default:
                                     perturbStr = "none";
                             }
