@@ -65,7 +65,7 @@
         <!-- ND4J Backend + deeplearning4j-cuda for CuDNN -->
         <dependency>
             <groupId>org.nd4j</groupId>
-            <artifactId>nd4j-cuda-10.0</artifactId>
+            <artifactId>nd4j-cuda-9.2</artifactId>
             <version>${nd4j.version}</version>
         </dependency>
 <!--
