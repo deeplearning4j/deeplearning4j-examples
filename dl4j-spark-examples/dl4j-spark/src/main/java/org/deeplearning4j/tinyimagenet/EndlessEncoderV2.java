@@ -68,7 +68,7 @@ public class EndlessEncoderV2 {
                                     break;
                                 case 1:
                                     //A few tiny values
-                                    double powSmall = -RandomUtils.nextInt(100, 0);
+                                    double powSmall = -RandomUtils.nextInt(0, 100);
                                     for( int i=0; i<perturbCount; i++ ){
                                         params.putScalar(RandomUtils.nextInt(0, paramsLength-1), RandomUtils.nextDouble() * Math.pow(10, powSmall));
                                     }
