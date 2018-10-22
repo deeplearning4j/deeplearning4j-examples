@@ -125,7 +125,7 @@ public class EndlessEncoderV2 {
                             }
 
 
-                            log.info("[Thread {}]: device: [{}]; paramsLength: [{}]; updates: [{}]; tau: [{}]; perturbation [{}]", Thread.currentThread().getId(), Nd4j.getAffinityManager().getDeviceForCurrentThread(), paramsLength, limit, tau, perturb);
+                            log.info("[Thread {}]: device: [{}]; paramsLength: [{}]; updates: [{}]; tau: [{}]; perturbation [{}]", Thread.currentThread().getId(), Nd4j.getAffinityManager().getDeviceForCurrentThread(), paramsLength, limit, tau, perturbStr);
 
                             val encoded = Nd4j.getExecutioner().thresholdEncode(params, tau, null);
 
