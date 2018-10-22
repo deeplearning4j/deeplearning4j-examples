@@ -134,7 +134,7 @@ public class TrainSpark {
             .batchSizePerWorker(minibatch)              // Minibatch size for each worker
             .updatesThreshold(this.gradientThreshold)   // Encoding threshold (see docs for details)
             .workersPerNode(numWorkersPerNode)          // Workers per node
-            .encodingDebugMode(true)
+            //.encodingDebugMode(true)
             .build();
 
 
