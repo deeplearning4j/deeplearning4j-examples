@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+#This script assumes a very small spark standalone cluster, 3 machines with 2 GPUs each. 
+#Different settings may be required for different cluster managers (YARN, Mesos, etc)
+
 SPARKSUBMIT=/opt/spark/bin/spark-submit
 EXECUTOR_MEMORY=12G
 MASTER_PORT=7077                                # Port for the spark master. Default is 7077
