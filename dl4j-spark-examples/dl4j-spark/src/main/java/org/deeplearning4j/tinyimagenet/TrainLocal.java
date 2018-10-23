@@ -21,7 +21,8 @@ import java.nio.charset.StandardCharsets;
  * This is a local (single-machine) version of the Tiny ImageNet image classifier from TrainSpark.
  * See that example for details.
  *
- * Note that this local (single machine) version does not require the preprocessing scripts to be run
+ * Note that unlike the Spark training version, this local (single machine) version does not require the preprocessing
+ * scripts to be run.
  *
  * @author Alex Black
  */

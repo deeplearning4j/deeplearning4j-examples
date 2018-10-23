@@ -10,6 +10,15 @@ import org.deeplearning4j.spark.util.SparkDataUtils;
 
 import java.io.File;
 
+/**
+ * This file is for preparing the training data for the tiny imagenet CNN example.
+ * Either this class OR PreprocessSpark (but not both) must be run before training can be run on a cluster via TrainSpark.
+ *
+ * After running PreprocessLocal, you will need to copy the data from the output directory that you specify ("localSaveDir"
+ * argument) to your distributed file system, such as HDFS, Azure blob storage, or S3.
+ *
+ * @author Alex Black
+ */
 public class PreprocessLocal {
 
     @Parameter(names = {"--localSaveDir"}, description = "Directory to save the preprocessed data files on your local drive", required = true)

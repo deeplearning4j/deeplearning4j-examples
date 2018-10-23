@@ -43,16 +43,18 @@ import org.slf4j.LoggerFactory;
 import java.io.BufferedOutputStream;
 
 /**
- * This example trains a convolutional neural network image classifier on the Tiny ImageNet dataset.
+ * This example trains a convolutional neural network image classifier on the Tiny ImageNet dataset using Apache Spark
+ *
  * The Tiny ImageNet dataset is an image dataset of size 64x64 images, with 200 classes, and 500 images per class,
  * for a total of 100,000 images.
  *
- * Before running this example, you should do ONE of the following to prepare the data for training:
+ * Before running this example, you should do ONE (either) of the following to prepare the data for training:
  * 1. Run PreprocessLocal, and copy the output files to remote storage for your cluster (HDFS, S3, Azure storage, etc), OR
- * 2. Run PreprocessSpark,
+ * 2. Run PreprocessSpark on the tiny imagenet source files
  *
  * The CNN classifier trained here is trained from scratch without any pretraining. It is a custom network architecture
- * with 1,077,160 based loosely on the VGG/DarkNet architectures. Improved accuracy is likely possible
+ * with 1,077,160 parameters based loosely on the VGG/DarkNet architectures. Improved accuracy is likely possible with
+ * a larger network, better section of hyperparameters, or more epochs.
  *
  * For furter details on DL4J's Spark implementation, see the "Distributed Deep Learning" pages at:
  * https://deeplearning4j.org/docs/latest/
@@ -67,10 +69,8 @@ public class TrainSpark {
 
     /* --- Required Arguments -- */
 
-    @Parameter(names = {"--outputPath"}, description = "Local output path/directory to write results to", required = true)
-    private String outputPath = null;
-
-    @Parameter(names = {"--dataPath"}, description = "Path (on HDFS or similar) of data preprocessed by preprocessing script", required = true)
+    @Parameter(names = {"--dataPath"}, description = "Path (on HDFS or similar) of data preprocessed by preprocessing script." +
+        " See PreprocessLocal or PreprocessSpark", required = true)
     private String dataPath;
 
     @Parameter(names = {"--masterIP"}, description = "Controller/master IP address - required. For example, 10.0.2.4", required = true)
@@ -92,7 +92,7 @@ public class TrainSpark {
     private String sparkAppName = "DL4JTinyImageNetExample";
 
     @Parameter(names = {"--numEpochs"}, description = "Number of epochs for training")
-    private int numEpochs = 3;
+    private int numEpochs = 10;
 
     @Parameter(names = {"--minibatch"}, description = "Minibatch size (of preprocessed minibatches). Also number of" +
         "minibatches per worker when fitting")
@@ -102,7 +102,7 @@ public class TrainSpark {
     private int numWorkersPerNode = 1;
 
     @Parameter(names = {"--gradientThreshold"}, description = "Gradient threshold. See ")
-    private double gradientThreshold = 1E-4;
+    private double gradientThreshold = 1E-3;
 
     @Parameter(names = {"--port"}, description = "Port number for Spark nodes. This can be any free port (port must be free on all nodes)")
     private int port = 40123;

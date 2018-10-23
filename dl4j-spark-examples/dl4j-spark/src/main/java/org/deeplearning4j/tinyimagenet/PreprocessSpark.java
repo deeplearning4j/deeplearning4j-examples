@@ -5,17 +5,33 @@ import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
 import org.datavec.image.loader.NativeImageLoader;
-import org.deeplearning4j.common.resources.DL4JResources;
-import org.deeplearning4j.common.resources.ResourceType;
-import org.deeplearning4j.datasets.fetchers.TinyImageNetFetcher;
 import org.deeplearning4j.patent.utils.JCommanderUtils;
 import org.deeplearning4j.spark.util.SparkDataUtils;
 import org.deeplearning4j.spark.util.SparkUtils;
 
-import java.io.File;
-
 /**
- * Preprocess tiny im
+ * This file is for preparing the training data for the tiny imagenet CNN example.
+ * Either this class OR PreprocessLocal (but not both) must be run before training can be run on a cluster via TrainSpark.
+ *
+ * PreprocessSpark requires that the tiny imagenet source image files (.jpg format) available on network storage that
+ * Spark can access, such as HDFS, Azure blob storage, S3 etc.
+ *
+ * To get these image files, you have two options:
+ *
+ * Option 1: Direct download
+ * Step 1: Download https://deeplearning4jblob.blob.core.windows.net/datasets/tinyimagenet_200_dl4j.v1.zip
+ * Step 2: Extract files locally
+ * Step 3: Copy contents (in their existing train/test subdirectories) to remote storage (for example, using Hadoop FS utils or similar)
+ *
+ * Option 2: Use TinyImageNetFetcher to download
+ * Step 1: Run {@code new TinyImageNetFetcher().downloadAndExtract()} to download the files
+ * Step 2: Copy the contents of the following directory to remote storage (for example, using Hadoop FS utils or similar)
+ *     Windows:  C:\Users\<username>\.deeplearning4j\data\TINYIMAGENET_200
+ *     Linux:    ~/.deeplearning4j/data/TINYIMAGENET_200
+ *
+ * After completing the steps of option 1 or option 2, then run this script to preprocess the data.
+ *
+ * @author Alex Black
  */
 public class PreprocessSpark {
 
@@ -37,7 +53,6 @@ public class PreprocessSpark {
 
         SparkConf conf = new SparkConf();
         conf.setAppName("DL4JTinyImageNetSparkPreproc");
-        conf.setMaster("local[*]");   //Uncomment for local Spark execution
         JavaSparkContext sc = new JavaSparkContext(conf);
 
         //Create training set

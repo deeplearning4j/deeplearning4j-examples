@@ -18,11 +18,6 @@
 
 
         <java.version>1.8</java.version>
-        <!--<nd4j.version>1.0.0-beta2</nd4j.version>-->
-        <!--<dl4j.version>1.0.0-beta2</dl4j.version>-->
-        <!--<datavec.version>1.0.0-beta2</datavec.version>-->
-        <!--<arbiter.version>1.0.0-beta2</arbiter.version>-->
-        <!--<rl4j.version>1.0.0-beta2</rl4j.version>-->
         <nd4j.version>1.0.0-SNAPSHOT</nd4j.version>
         <dl4j.version>1.0.0-SNAPSHOT</dl4j.version>
         <datavec.version>1.0.0-SNAPSHOT</datavec.version>
