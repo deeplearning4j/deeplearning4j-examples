@@ -13,7 +13,7 @@
 
     <properties>
         <jcommander.version>1.27</jcommander.version>
-        <azure.hadoop.version>2.7.4</azure.hadoop.version>
+        <azure.hadoop.version>2.8.5</azure.hadoop.version>
         <azure.storage.version>2.0.0</azure.storage.version>
         <spark.version>2.1.0</spark.version>
         <jackson.spark.version>2.6.5</jackson.spark.version>    <!-- Use 2.6.5 for Spark 2, 2.5.1 for Spark 1 -->
