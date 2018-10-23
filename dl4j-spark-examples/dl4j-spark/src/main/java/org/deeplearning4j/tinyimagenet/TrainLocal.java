@@ -29,7 +29,7 @@ public class TrainLocal {
     public static Logger log = LoggerFactory.getLogger(TrainLocal.class);
 
     @Parameter(names = {"--numEpochs"}, description = "Number of epochs for training")
-    private int numEpochs = 3;
+    private int numEpochs = 10;
 
     @Parameter(names = {"--saveDir"}, description = "If set, the directory to save the trained network")
     private String saveDir;
@@ -59,7 +59,7 @@ public class TrainLocal {
 
         //Evaluate the network on test set data
         DataSetIterator test = new TinyImageNetDataSetIterator(batchSize, DataSetType.TEST);
-        iter.setPreProcessor(new ImagePreProcessingScaler());   //Scale 0-255 valued pixels to 0-1 range
+        test.setPreProcessor(new ImagePreProcessingScaler());   //Scale 0-255 valued pixels to 0-1 range
         Evaluation e = new Evaluation(TinyImageNetDataSetIterator.getLabels(false), 5); //Set up for top 5 accuracy
         net.doEvaluation(test, e);
 
