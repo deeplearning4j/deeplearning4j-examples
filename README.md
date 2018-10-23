@@ -1,6 +1,11 @@
 Deeplearning4J Examples
 =========================
 
+# This branch of the repo is meant to run **only** the examples in:
+  * dl4j-spark-examples/dl4j-spark/src/main/java/org/deeplearning4j/tinyimagenet
+  * dl4j-spark-examples/dl4j-spark/src/main/java/org/deeplearning4j/patent 
+Other examples have not been tested or verified on snapshots
+ 
 ## NOTE: HOW to interpret these examples
 
 ## Data Loading
