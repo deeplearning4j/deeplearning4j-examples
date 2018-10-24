@@ -137,7 +137,6 @@ public class TrainSpark {
             .collectTrainingStats(false)
             .batchSizePerWorker(minibatch)              // Minibatch size for each worker
             .workersPerNode(numWorkersPerNode)          // Workers per node
-            .encodingDebugMode(true)
             .build();
 
 
