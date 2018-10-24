@@ -20,6 +20,8 @@ import org.deeplearning4j.nn.conf.layers.*;
 import org.deeplearning4j.nn.graph.ComputationGraph;
 import org.deeplearning4j.nn.weights.WeightInit;
 import org.deeplearning4j.optimize.listeners.PerformanceListener;
+import org.deeplearning4j.optimize.solvers.accumulation.encoding.ThresholdAlgorithm;
+import org.deeplearning4j.optimize.solvers.accumulation.encoding.threshold.AdaptiveThresholdAlgorithm;
 import org.deeplearning4j.patent.utils.JCommanderUtils;
 import org.deeplearning4j.spark.api.TrainingMaster;
 import org.deeplearning4j.spark.impl.graph.SparkComputationGraph;
@@ -128,13 +130,14 @@ public class TrainSpark {
             .controllerAddress(masterIP)                // IP address of the master/driver node
             .meshBuildMode(MeshBuildMode.PLAIN)
             .build();
-        TrainingMaster tm = new SharedTrainingMaster.Builder(voidConfiguration, numWorkersPerNode, this.gradientThreshold, minibatch)
+
+        ThresholdAlgorithm ta = new AdaptiveThresholdAlgorithm(gradientThreshold);
+        TrainingMaster tm = new SharedTrainingMaster.Builder(voidConfiguration, numWorkersPerNode, ta, minibatch)
             .rngSeed(12345)
             .collectTrainingStats(false)
             .batchSizePerWorker(minibatch)              // Minibatch size for each worker
-            .updatesThreshold(this.gradientThreshold)   // Encoding threshold (see docs for details)
             .workersPerNode(numWorkersPerNode)          // Workers per node
-            //.encodingDebugMode(true)
+            .encodingDebugMode(true)
             .build();
 
 
