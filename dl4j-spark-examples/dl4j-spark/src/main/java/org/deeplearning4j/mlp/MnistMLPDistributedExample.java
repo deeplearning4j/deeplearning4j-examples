@@ -137,7 +137,7 @@ public class MnistMLPDistributedExample {
 
         TrainingMaster tm = new SharedTrainingMaster.Builder(voidConfiguration, batchSizePerWorker)
             // encoding threshold. Please check https://deeplearning4j.org/distributed for details
-            .updatesThreshold(1e-3)
+//            .updatesThreshold(1e-3)
             .rddTrainingApproach(RDDTrainingApproach.Direct)
             .batchSizePerWorker(batchSizePerWorker)
 
