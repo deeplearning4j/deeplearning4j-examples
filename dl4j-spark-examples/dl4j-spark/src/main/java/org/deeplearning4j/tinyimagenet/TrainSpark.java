@@ -131,8 +131,9 @@ public class TrainSpark {
             .meshBuildMode(MeshBuildMode.PLAIN)
             .build();
 
-        ThresholdAlgorithm ta = new AdaptiveThresholdAlgorithm(gradientThreshold);
-        TrainingMaster tm = new SharedTrainingMaster.Builder(voidConfiguration, numWorkersPerNode, ta, minibatch)
+        //ThresholdAlgorithm ta = new AdaptiveThresholdAlgorithm(gradientThreshold);
+//        TrainingMaster tm = new SharedTrainingMaster.Builder(voidConfiguration, numWorkersPerNode, ta, minibatch)
+        TrainingMaster tm = new SharedTrainingMaster.Builder(voidConfiguration, numWorkersPerNode, gradientThreshold, minibatch)
             .rngSeed(12345)
             .collectTrainingStats(false)
             .batchSizePerWorker(minibatch)              // Minibatch size for each worker
