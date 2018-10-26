@@ -123,7 +123,7 @@ public class GradientsSharingLenetMnistExample {
 
             .trainingMode(ParallelWrapper.TrainingMode.CUSTOM)
 
-            .gradientsAccumulator(new EncodedGradientsAccumulator(2, 1e-3))
+            .gradientsAccumulator(new EncodedGradientsAccumulator(2, 1e-3, false))
 
             .build();
 
