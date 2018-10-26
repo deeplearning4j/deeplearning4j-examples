@@ -40,6 +40,9 @@ import org.nd4j.parameterserver.distributed.v2.enums.MeshBuildMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.deeplearning4j.optimize.solvers.accumulation.encoding.ThresholdAlgorithm;
+import org.deeplearning4j.optimize.solvers.accumulation.encoding.threshold.AdaptiveThresholdAlgorithm;
+
 import java.io.BufferedOutputStream;
 
 /**
@@ -107,6 +110,12 @@ public class TrainSpark {
     @Parameter(names = {"--port"}, description = "Port number for Spark nodes. This can be any free port (port must be free on all nodes)")
     private int port = 40123;
 
+    @Parameter(names = "--minTargetSparsity", description = "Min target threshold")
+    private double minTargetSparsity = 1e-4;
+
+    @Parameter(names = "--maxTargetSparsity", description = "Min target threshold")
+    private double maxTargetSparsity = 1e-2;
+
     public static void main(String[] args) throws Exception {
         new TrainSpark().entryPoint(args);
     }
@@ -129,9 +138,10 @@ public class TrainSpark {
             .meshBuildMode(MeshBuildMode.PLAIN)
             .build();
 
-        //ThresholdAlgorithm ta = new AdaptiveThresholdAlgorithm(gradientThreshold);
-//        TrainingMaster tm = new SharedTrainingMaster.Builder(voidConfiguration, numWorkersPerNode, ta, minibatch)
-        TrainingMaster tm = new SharedTrainingMaster.Builder(voidConfiguration, numWorkersPerNode, gradientThreshold, minibatch)
+//        ThresholdAlgorithm ta = new AdaptiveThresholdAlgorithm(gradientThreshold);
+        ThresholdAlgorithm ta = new AdaptiveThresholdAlgorithm(gradientThreshold, minTargetSparsity, maxTargetSparsity, AdaptiveThresholdAlgorithm.DEFAULT_DECAY_RATE);
+        TrainingMaster tm = new SharedTrainingMaster.Builder(voidConfiguration, numWorkersPerNode, ta, minibatch)
+//        TrainingMaster tm = new SharedTrainingMaster.Builder(voidConfiguration, numWorkersPerNode, gradientThreshold, minibatch)
             .rngSeed(12345)
             .collectTrainingStats(false)
             .batchSizePerWorker(minibatch)              // Minibatch size for each worker
