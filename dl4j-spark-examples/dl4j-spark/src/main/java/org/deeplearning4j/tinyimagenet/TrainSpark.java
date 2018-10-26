@@ -139,7 +139,7 @@ public class TrainSpark {
             .build();
 
 //        ThresholdAlgorithm ta = new AdaptiveThresholdAlgorithm(gradientThreshold);
-        ThresholdAlgorithm ta = new AdaptiveThresholdAlgorithm(gradientThreshold, minTargetSparsity, maxTargetSparsity, AdaptiveThresholdAlgorithm.DEFAULT_DECAY_RATE);
+        ThresholdAlgorithm ta = new AdaptiveThresholdAlgorithm(gradientThreshold, minTargetSparsity, maxTargetSparsity);
         TrainingMaster tm = new SharedTrainingMaster.Builder(voidConfiguration, numWorkersPerNode, ta, minibatch)
 //        TrainingMaster tm = new SharedTrainingMaster.Builder(voidConfiguration, numWorkersPerNode, gradientThreshold, minibatch)
             .rngSeed(12345)
