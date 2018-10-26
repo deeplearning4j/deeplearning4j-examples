@@ -127,13 +127,23 @@ public class EndlessEncoderV2 {
 
                             log.info("[Thread {}]: device: [{}]; paramsLength: [{}]; updates: [{}]; tau: [{}]; perturbation [{}]", Thread.currentThread().getId(), Nd4j.getAffinityManager().getDeviceForCurrentThread(), paramsLength, limit, tau, perturbStr);
 
+                            INDArray target = Nd4j.create(params.shape());
+                            log.info("About to threshold encode");
                             val encoded = Nd4j.getExecutioner().thresholdEncode(params, tau, null);
+                            log.info("About to bitmap encode");
+                            val encoded2 = Nd4j.getExecutioner().bitmapEncode(params, tau);
+                            log.info("About to threshold decode");
+                            val decoded = Nd4j.getExecutioner().thresholdDecode(encoded, target);
+                            log.info("About to bitmap decode");
+                            val decoded2 = Nd4j.getExecutioner().bitmapDecode(encoded, target);
+                            log.info("Complete");
 
                             Nd4j.getExecutioner().commit();
 
                             if (encoded == null) {
                                 log.error("[Thread {}]: got null", Thread.currentThread().getId());
                             }
+                            log.info("===============================================================");
                         }
                     }
                 }
