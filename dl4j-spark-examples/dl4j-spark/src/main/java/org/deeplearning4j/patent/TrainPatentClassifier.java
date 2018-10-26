@@ -15,7 +15,6 @@ import org.deeplearning4j.eval.Evaluation;
 import org.deeplearning4j.eval.IEvaluation;
 import org.deeplearning4j.nn.graph.ComputationGraph;
 import org.deeplearning4j.optimize.listeners.PerformanceListener;
-import org.deeplearning4j.optimize.solvers.accumulation.encoding.threshold.AdaptiveThresholdAlgorithm;
 import org.deeplearning4j.patent.preprocessing.PatentLabelGenerator;
 import org.deeplearning4j.patent.utils.JCommanderUtils;
 import org.deeplearning4j.patent.utils.data.LoadDataSetsFunction;
@@ -189,7 +188,8 @@ public class TrainPatentClassifier {
                 .networkMask(networkMask)                   // Local network mask
                 .controllerAddress(masterIP)
                 .build();
-        TrainingMaster tm = new SharedTrainingMaster.Builder(voidConfiguration, numWorkers, new AdaptiveThresholdAlgorithm(gradientThreshold), minibatch)
+//        TrainingMaster tm = new SharedTrainingMaster.Builder(voidConfiguration, numWorkers, new AdaptiveThresholdAlgorithm(gradientThreshold), minibatch)
+        TrainingMaster tm = new SharedTrainingMaster.Builder(voidConfiguration, numWorkers, gradientThreshold, minibatch)
                 .rngSeed(12345)
                 .collectTrainingStats(false)
                 .batchSizePerWorker(minibatch)              // Minibatch size for each worker
