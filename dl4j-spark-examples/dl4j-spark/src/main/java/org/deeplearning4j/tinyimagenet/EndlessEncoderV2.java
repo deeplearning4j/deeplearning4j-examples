@@ -132,10 +132,14 @@ public class EndlessEncoderV2 {
                             val encoded = Nd4j.getExecutioner().thresholdEncode(params, tau, null);
                             log.info("About to bitmap encode");
                             val encoded2 = Nd4j.getExecutioner().bitmapEncode(params, tau);
-                            log.info("About to threshold decode");
-                            val decoded = Nd4j.getExecutioner().thresholdDecode(encoded, target);
+                            if(encoded != null) {
+                                log.info("About to threshold decode");
+                                val decoded = Nd4j.getExecutioner().thresholdDecode(encoded, target);
+                            } else {
+                                log.info("Skipping threshold decode (null encoded array)");
+                            }
                             log.info("About to bitmap decode");
-                            val decoded2 = Nd4j.getExecutioner().bitmapDecode(encoded, target);
+                            val decoded2 = Nd4j.getExecutioner().bitmapDecode(encoded2, target);
                             log.info("Complete");
 
                             Nd4j.getExecutioner().commit();
