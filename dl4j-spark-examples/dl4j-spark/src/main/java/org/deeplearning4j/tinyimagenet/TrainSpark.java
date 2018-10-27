@@ -42,6 +42,7 @@ import org.slf4j.LoggerFactory;
 
 import org.deeplearning4j.optimize.solvers.accumulation.encoding.ThresholdAlgorithm;
 import org.deeplearning4j.optimize.solvers.accumulation.encoding.threshold.AdaptiveThresholdAlgorithm;
+import org.deeplearning4j.optimize.solvers.accumulation.encoding.threshold.TargetSparsityThresholdAlgorithm;
 
 import java.io.BufferedOutputStream;
 
@@ -139,7 +140,8 @@ public class TrainSpark {
             .build();
 
 //        ThresholdAlgorithm ta = new AdaptiveThresholdAlgorithm(gradientThreshold);
-        ThresholdAlgorithm ta = new AdaptiveThresholdAlgorithm(gradientThreshold, minTargetSparsity, maxTargetSparsity, AdaptiveThresholdAlgorithm.DEFAULT_DECAY_RATE);
+//        ThresholdAlgorithm ta = new AdaptiveThresholdAlgorithm(gradientThreshold, minTargetSparsity, maxTargetSparsity, AdaptiveThresholdAlgorithm.DEFAULT_DECAY_RATE);
+        ThresholdAlgorithm ta = new TargetSparsityThresholdAlgorithm(gradientThreshold, minTargetSparsity, TargetSparsityThresholdAlgorithm.DEFAULT_DECAY_RATE);
         TrainingMaster tm = new SharedTrainingMaster.Builder(voidConfiguration, numWorkersPerNode, ta, minibatch)
 //        TrainingMaster tm = new SharedTrainingMaster.Builder(voidConfiguration, numWorkersPerNode, gradientThreshold, minibatch)
             .rngSeed(12345)
