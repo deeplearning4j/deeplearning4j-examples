@@ -131,6 +131,7 @@ public class TrainSpark {
             .meshBuildMode(MeshBuildMode.PLAIN)
             .build();
         TrainingMaster tm = new SharedTrainingMaster.Builder(voidConfiguration, numWorkersPerNode, this.gradientThreshold, minibatch)
+            .workerPeriodicGCFrequency(5000)
             .rngSeed(12345)
             .collectTrainingStats(false)
             .batchSizePerWorker(minibatch)              // Minibatch size for each worker
