@@ -58,9 +58,9 @@ public class TrainLotteryModel {
         model.setListeners(new StatsListener(statsStorage),new ScoreIterationListener(10));
 
         Layer[] layers = model.getLayers();
-        int totalNumParams = 0;
+        long totalNumParams = 0;
         for( int i=0; i<layers.length; i++ ){
-            int nParams = layers[i].numParams();
+            long nParams = layers[i].numParams();
             System.out.println("Number of parameters in layer " + i + ": " + nParams);
             totalNumParams += nParams;
         }

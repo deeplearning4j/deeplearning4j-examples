@@ -79,9 +79,9 @@ public class CompGraphLSTMExample {
         net.setListeners(new ScoreIterationListener(1));
 
         //Print the  number of parameters in the network (and for each layer)
-        int totalNumParams = 0;
+        long totalNumParams = 0;
         for( int i=0; i<net.getNumLayers(); i++ ){
-            int nParams = net.getLayer(i).numParams();
+            long nParams = net.getLayer(i).numParams();
             System.out.println("Number of parameters in layer " + i + ": " + nParams);
             totalNumParams += nParams;
         }
