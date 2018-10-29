@@ -11,10 +11,9 @@ import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
 import org.deeplearning4j.api.loader.DataSetLoader;
-import org.deeplearning4j.eval.Evaluation;
-import org.deeplearning4j.eval.IEvaluation;
 import org.deeplearning4j.nn.graph.ComputationGraph;
 import org.deeplearning4j.optimize.listeners.PerformanceListener;
+import org.deeplearning4j.optimize.solvers.accumulation.encoding.threshold.AdaptiveThresholdAlgorithm;
 import org.deeplearning4j.patent.preprocessing.PatentLabelGenerator;
 import org.deeplearning4j.patent.utils.JCommanderUtils;
 import org.deeplearning4j.patent.utils.data.LoadDataSetsFunction;
@@ -25,6 +24,8 @@ import org.deeplearning4j.spark.impl.graph.SparkComputationGraph;
 import org.deeplearning4j.spark.parameterserver.training.SharedTrainingMaster;
 import org.deeplearning4j.spark.util.SparkUtils;
 import org.deeplearning4j.util.ModelSerializer;
+import org.nd4j.evaluation.IEvaluation;
+import org.nd4j.evaluation.classification.Evaluation;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.primitives.Pair;
@@ -188,12 +189,12 @@ public class TrainPatentClassifier {
                 .networkMask(networkMask)                   // Local network mask
                 .controllerAddress(masterIP)
                 .build();
-        TrainingMaster tm = new SharedTrainingMaster.Builder(voidConfiguration, numWorkers, this.gradientThreshold, minibatch)
+        TrainingMaster tm = new SharedTrainingMaster.Builder(voidConfiguration, minibatch)
                 .rngSeed(12345)
                 .collectTrainingStats(false)
                 .batchSizePerWorker(minibatch)              // Minibatch size for each worker
-                .updatesThreshold(this.gradientThreshold)   // Encoding threshold (see docs for details)
                 .workersPerNode(numWorkersPerNode)          // Workers per node
+                .thresholdAlgorithm(new AdaptiveThresholdAlgorithm(gradientThreshold))
                 .build();
         tm.setCollectTrainingStats(false);
 
