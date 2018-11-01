@@ -77,11 +77,10 @@ public class Word2VecSentimentRNN {
         //Set up network configuration
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
             .seed(seed)
-            .updater(new Adam(2e-2))
+            .updater(new Adam(5e-3))
             .l2(1e-5)
             .weightInit(WeightInit.XAVIER)
             .gradientNormalization(GradientNormalization.ClipElementWiseAbsoluteValue).gradientNormalizationThreshold(1.0)
-            .trainingWorkspaceMode(WorkspaceMode.SEPARATE).inferenceWorkspaceMode(WorkspaceMode.SEPARATE)   //https://deeplearning4j.org/workspaces
             .list()
             .layer(0, new LSTM.Builder().nIn(vectorSize).nOut(256)
                 .activation(Activation.TANH).build())
