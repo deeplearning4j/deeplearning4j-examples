@@ -102,7 +102,7 @@ public class RegressionMathFunctions {
                 .layer(2, new OutputLayer.Builder(LossFunctions.LossFunction.MSE)
                         .activation(Activation.IDENTITY)
                         .nIn(numHiddenNodes).nOut(numOutputs).build())
-                .pretrain(false).backprop(true).build();
+                .build();
     }
 
     /** Create a DataSetIterator for training

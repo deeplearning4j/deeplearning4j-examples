@@ -139,7 +139,6 @@ public class AEMNISTAnomalyDectection {
             .layer(4, new LSTM.Builder().name("decoder2").nIn(250).nOut(800).build())
             .layer(5, new RnnOutputLayer.Builder().name("output").nIn(800).nOut(784)
                 .activation(Activation.IDENTITY).lossFunction(LossFunctions.LossFunction.MSE).build())
-            .pretrain(false).backprop(true)
             .build();
         MultiLayerNetwork net = new MultiLayerNetwork(conf);
         net.init();

@@ -81,7 +81,6 @@ public class MLPMnistTwoLayerExample {
                     .nIn(100)
                     .nOut(outputNum)
                     .build())
-            .pretrain(false).backprop(true) //use backpropagation to adjust weights
             .build();
 
         MultiLayerNetwork model = new MultiLayerNetwork(conf);

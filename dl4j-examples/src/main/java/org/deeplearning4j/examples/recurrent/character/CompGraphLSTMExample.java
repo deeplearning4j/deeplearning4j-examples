@@ -71,7 +71,6 @@ public class CompGraphLSTMExample {
                 .nIn(2*lstmLayerSize).nOut(nOut).build(),"first","second")
             .setOutputs("outputLayer")  //List the output. For a ComputationGraph with multiple outputs, this also defines the input array orders
             .backpropType(BackpropType.TruncatedBPTT).tBPTTForwardLength(tbpttLength).tBPTTBackwardLength(tbpttLength)
-            .pretrain(false).backprop(true)
             .build();
 
         ComputationGraph net = new ComputationGraph(conf);

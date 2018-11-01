@@ -194,7 +194,6 @@ public class TrainLotteryModel {
                 .layer(2, new RnnOutputLayer.Builder().name("output")
                         .activation(Activation.SOFTMAX).nOut(outputNum).lossFunction(LossFunctions.LossFunction.MSE)
                         .build())
-                .pretrain(false).backprop(true)
                 .build();
 
         MultiLayerNetwork net = new MultiLayerNetwork(conf);

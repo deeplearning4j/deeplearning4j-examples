@@ -106,7 +106,6 @@ public class AdditionRNN {
                 .addLayer("decoder", new LSTM.Builder().nIn(FEATURE_VEC_SIZE+numHiddenNodes).nOut(numHiddenNodes).activation(Activation.SOFTSIGN).build(), "sumOut","duplicateTimeStep")
                 .addLayer("output", new RnnOutputLayer.Builder().nIn(numHiddenNodes).nOut(FEATURE_VEC_SIZE).activation(Activation.SOFTMAX).lossFunction(LossFunctions.LossFunction.MCXENT).build(), "decoder")
                 .setOutputs("output")
-                .pretrain(false).backprop(true)
                 .build();
 
         ComputationGraph net = new ComputationGraph(configuration);

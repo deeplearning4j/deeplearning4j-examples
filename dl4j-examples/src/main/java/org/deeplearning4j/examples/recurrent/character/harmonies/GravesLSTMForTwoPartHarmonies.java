@@ -93,7 +93,6 @@ public class GravesLSTMForTwoPartHarmonies {
                 .activation(Activation.SOFTMAX)  //MCXENT + softmax for classification
                 .nIn(lstmLayerSize).nOut(nOut).build())
             .backpropType(BackpropType.TruncatedBPTT).tBPTTForwardLength(tbpttLength).tBPTTBackwardLength(tbpttLength)
-            .pretrain(false).backprop(true)
             .build();
         MultiLayerNetwork net = new MultiLayerNetwork(conf);
         if (false) {

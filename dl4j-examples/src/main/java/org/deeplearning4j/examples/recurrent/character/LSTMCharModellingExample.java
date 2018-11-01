@@ -14,7 +14,7 @@ import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.factory.Nd4j;
-import org.nd4j.linalg.learning.config.RmsProp;
+import org.nd4j.linalg.learning.config.Adam;
 import org.nd4j.linalg.lossfunctions.LossFunctions.LossFunction;
 
 import java.io.File;
@@ -64,7 +64,7 @@ public class LSTMCharModellingExample {
 			.seed(12345)
 			.l2(0.001)
             .weightInit(WeightInit.XAVIER)
-            .updater(new RmsProp(0.1))
+            .updater(new Adam(0.01))
 			.list()
 			.layer(0, new LSTM.Builder().nIn(iter.inputColumns()).nOut(lstmLayerSize)
 					.activation(Activation.TANH).build())
@@ -73,7 +73,6 @@ public class LSTMCharModellingExample {
 			.layer(2, new RnnOutputLayer.Builder(LossFunction.MCXENT).activation(Activation.SOFTMAX)        //MCXENT + softmax for classification
 					.nIn(lstmLayerSize).nOut(nOut).build())
             .backpropType(BackpropType.TruncatedBPTT).tBPTTForwardLength(tbpttLength).tBPTTBackwardLength(tbpttLength)
-			.pretrain(false).backprop(true)
 			.build();
 
 		MultiLayerNetwork net = new MultiLayerNetwork(conf);

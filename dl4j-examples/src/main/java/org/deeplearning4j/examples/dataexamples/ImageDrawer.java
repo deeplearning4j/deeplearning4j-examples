@@ -165,7 +165,7 @@ public class ImageDrawer extends Application {
             .layer(5, new OutputLayer.Builder(LossFunctions.LossFunction.L2)
                 .activation(Activation.IDENTITY)
                 .nIn(numHiddenNodes).nOut(numOutputs).build())
-            .pretrain(false).backprop(true).build();
+            .build();
 
         MultiLayerNetwork net = new MultiLayerNetwork(conf);
         net.init();

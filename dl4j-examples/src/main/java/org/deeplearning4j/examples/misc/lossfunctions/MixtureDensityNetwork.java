@@ -81,7 +81,6 @@ public class MixtureDensityNetwork {
                         .activation(Activation.IDENTITY)
                         .lossFunction(loss)
                         .build())
-                .pretrain(false).backprop(true)
                 .build();
         MultiLayerNetwork net = new MultiLayerNetwork(conf);
         net.init();

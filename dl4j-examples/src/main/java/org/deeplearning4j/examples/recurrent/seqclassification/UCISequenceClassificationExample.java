@@ -130,7 +130,7 @@ public class UCISequenceClassificationExample {
                 .layer(0, new LSTM.Builder().activation(Activation.TANH).nIn(1).nOut(10).build())
                 .layer(1, new RnnOutputLayer.Builder(LossFunctions.LossFunction.MCXENT)
                         .activation(Activation.SOFTMAX).nIn(10).nOut(numLabelClasses).build())
-                .pretrain(false).backprop(true).build();
+                .build();
 
         MultiLayerNetwork net = new MultiLayerNetwork(conf);
         net.init();

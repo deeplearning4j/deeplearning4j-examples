@@ -123,7 +123,6 @@ public class VideoClassificationExample {
                 .inputPreProcessor(0, new RnnToCnnPreProcessor(V_HEIGHT, V_WIDTH, 3))
                 .inputPreProcessor(3, new CnnToFeedForwardPreProcessor(7, 7, 10))
                 .inputPreProcessor(4, new FeedForwardToRnnPreProcessor())
-                .pretrain(false).backprop(true)
                 .backpropType(BackpropType.TruncatedBPTT)
                 .tBPTTForwardLength(V_NFRAMES / 5)
                 .tBPTTBackwardLength(V_NFRAMES / 5)

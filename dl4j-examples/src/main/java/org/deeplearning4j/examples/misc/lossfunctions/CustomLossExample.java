@@ -71,7 +71,7 @@ public class CustomLossExample {
             .layer(1, new OutputLayer.Builder(new CustomLossL1L2())
                 .activation(Activation.IDENTITY)
                 .nIn(nHidden).nOut(numOutputs).build())
-            .pretrain(false).backprop(true).build()
+            .build()
         );
         net.init();
         net.setListeners(new ScoreIterationListener(100));
