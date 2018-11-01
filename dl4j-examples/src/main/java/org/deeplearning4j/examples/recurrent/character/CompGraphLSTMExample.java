@@ -54,7 +54,7 @@ public class CompGraphLSTMExample {
         //Set up network configuration:
         ComputationGraphConfiguration conf = new NeuralNetConfiguration.Builder()
             .seed(12345)
-            .l2(0.001)
+            .l2(0.0001)
             .weightInit(WeightInit.XAVIER)
             .updater(new Adam(0.005))
             .graphBuilder()

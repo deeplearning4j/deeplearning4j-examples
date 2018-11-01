@@ -138,6 +138,7 @@ public class HouseNumberDetection {
             model = new TransferLearning.GraphBuilder(pretrained)
                     .fineTuneConfiguration(fineTuneConf)
                     .removeVertexKeepConnections("conv2d_9")
+                    .removeVertexKeepConnections("outputs")
                     .addLayer("convolution2d_9",
                             new ConvolutionLayer.Builder(1,1)
                                     .nIn(1024)
@@ -157,7 +158,6 @@ public class HouseNumberDetection {
                             "convolution2d_9")
                     .setOutputs("outputs")
                     .build();
-
             System.out.println(model.summary(InputType.convolutional(height, width, nChannels)));
 
 

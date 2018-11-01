@@ -258,10 +258,15 @@ public class SentimentExampleIterator implements DataSetIterator {
 
         INDArray features = Nd4j.create(1, vectorSize, outputLength);
 
-        for( int j=0; j<tokens.size() && j<maxLength; j++ ){
+        int count = 0;
+        for( int j=0; j<tokens.size() && count<maxLength; j++ ){
             String token = tokens.get(j);
             INDArray vector = wordVectors.getWordVectorMatrix(token);
+            if(vector == null){
+                continue;   //Word not in word vectors
+            }
             features.put(new INDArrayIndex[]{NDArrayIndex.point(0), NDArrayIndex.all(), NDArrayIndex.point(j)}, vector);
+            count++;
         }
 
         return features;
