@@ -62,9 +62,9 @@ public class LSTMCharModellingExample {
 		//Set up network configuration:
 		MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
 			.seed(12345)
-			.l2(0.001)
+			.l2(0.0001)
             .weightInit(WeightInit.XAVIER)
-            .updater(new Adam(0.01))
+            .updater(new Adam(0.005))
 			.list()
 			.layer(0, new LSTM.Builder().nIn(iter.inputColumns()).nOut(lstmLayerSize)
 					.activation(Activation.TANH).build())

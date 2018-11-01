@@ -12,7 +12,7 @@ import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.factory.Nd4j;
-import org.nd4j.linalg.learning.config.RmsProp;
+import org.nd4j.linalg.learning.config.Adam;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 
 import java.util.Random;
@@ -56,7 +56,7 @@ public class CompGraphLSTMExample {
             .seed(12345)
             .l2(0.001)
             .weightInit(WeightInit.XAVIER)
-            .updater(new RmsProp(0.1))
+            .updater(new Adam(0.005))
             .graphBuilder()
             .addInputs("input") //Give the input a name. For a ComputationGraph with multiple inputs, this also defines the input array orders
             //First layer: name "first", with inputs from the input called "input"
