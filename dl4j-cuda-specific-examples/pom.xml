@@ -67,7 +67,7 @@
         <!-- Dependency for parallel wrapper (for multi-GPU parameter averaging -->
         <dependency>
             <groupId>org.deeplearning4j</groupId>
-            <artifactId>deeplearning4j-parallel-wrapper_${scala.binary.version}</artifactId>
+            <artifactId>deeplearning4j-parallel-wrapper</artifactId>
             <version>${dl4j.version}</version>
         </dependency>
 
