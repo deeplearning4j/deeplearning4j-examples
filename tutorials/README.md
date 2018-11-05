@@ -28,7 +28,7 @@ Native binaries are also available for Zeppelin which can be downloaded here: ht
 
 If your installation of Zeppelin is not already set up for Deeplearning4j, you will need to add DL4J to the classpath. The easiest solution is to add the appropriate Maven dependencies to the included Spark Interpreter.
 
-See this Zeppelin documentation for accessing the interpreter settings: https://zeppelin.apache.org/docs/latest/manual/dependencymanagement.html.
+See this Zeppelin documentation for accessing the interpreter settings: https://zeppelin.apache.org/docs/latest/usage/interpreter/dependency_management.html.
 
 Once you have located the Spark Interpreter, you will need to add the following Maven library references:
 
