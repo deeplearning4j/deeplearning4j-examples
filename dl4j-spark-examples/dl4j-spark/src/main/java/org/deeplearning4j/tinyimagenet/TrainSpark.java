@@ -36,6 +36,7 @@ import org.nd4j.linalg.schedule.ISchedule;
 import org.nd4j.linalg.schedule.MapSchedule;
 import org.nd4j.linalg.schedule.ScheduleType;
 import org.nd4j.parameterserver.distributed.conf.VoidConfiguration;
+import org.nd4j.parameterserver.distributed.enums.TransportType;
 import org.nd4j.parameterserver.distributed.v2.enums.MeshBuildMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -137,6 +138,10 @@ public class TrainSpark {
             .networkMask(networkMask)                   // Local network mask - for example, 10.0.0.0/16 - see https://deeplearning4j.org/docs/latest/deeplearning4j-scaleout-parameter-server
             .controllerAddress(masterIP)                // IP address of the master/driver node
             .meshBuildMode(MeshBuildMode.PLAIN)
+            .transportType(TransportType.MULTICAST)
+            .multicastInterface(networkMask)
+            .multicastNetwork("123.123.123.123")
+            .multicastPort(12345)
             .build();
 
 //        ThresholdAlgorithm ta = new AdaptiveThresholdAlgorithm(gradientThreshold);
