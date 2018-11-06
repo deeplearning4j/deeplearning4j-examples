@@ -140,7 +140,7 @@ public class TrainSpark {
             .meshBuildMode(MeshBuildMode.PLAIN)
             .transportType(TransportType.MULTICAST)
             .multicastInterface(networkMask)
-            .multicastNetwork("123.123.123.123")
+            .multicastNetwork("224.0.5.7")
             .multicastPort(12345)
             .build();
 
