@@ -61,7 +61,7 @@
         <repository>
             <id>sonatype-nexus-staging</id>
             <name>Sonatype Nexus Staging</name>
-            <url>https://oss.sonatype.org/content/repositories/orgnd4j-1192/</url>
+            <url>https://oss.sonatype.org/content/repositories/orgnd4j-1193/</url>
         </repository>
     </repositories>
 
