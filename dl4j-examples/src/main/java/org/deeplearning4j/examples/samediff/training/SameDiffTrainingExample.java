@@ -95,7 +95,7 @@ public class SameDiffTrainingExample {
         System.out.println("-----------------------");
         System.out.println(example.reshape(28, 28));
         System.out.println("Output probabilities: " + output);
-        System.out.println("Predicted class: " + output.argMax());
+        System.out.println("Predicted class: " + output.argMax().getInt(0));
     }
 
 }
