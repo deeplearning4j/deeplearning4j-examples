@@ -1,4 +1,4 @@
-package org.deeplearning4j.transferlearning.vgg16.dataHelpers;
+package org.deeplearning4j.legacyExamples.vgg16.dataHelpers;
 
 import org.apache.commons.io.FileUtils;
 import org.datavec.api.io.filters.BalancedPathFilter;

@@ -1,4 +1,4 @@
-package org.deeplearning4j.stats;
+package org.deeplearning4j.legacyExamples;
 
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
@@ -12,7 +12,7 @@ import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
 import org.deeplearning4j.nn.conf.layers.LSTM;
 import org.deeplearning4j.nn.conf.layers.RnnOutputLayer;
 import org.deeplearning4j.nn.weights.WeightInit;
-import org.deeplearning4j.rnn.SparkLSTMCharacterExample;
+import org.deeplearning4j.legacyExamples.rnn.SparkLSTMCharacterExample;
 import org.deeplearning4j.spark.api.stats.SparkTrainingStats;
 import org.deeplearning4j.spark.impl.multilayer.SparkDl4jMultiLayer;
 import org.deeplearning4j.spark.impl.paramavg.ParameterAveragingTrainingMaster;

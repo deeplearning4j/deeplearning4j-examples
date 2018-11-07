@@ -1,4 +1,4 @@
-package org.deeplearning4j.transferlearning.vgg16;
+package org.deeplearning4j.legacyExamples.vgg16;
 
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
@@ -11,6 +11,8 @@ import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.api.java.function.Function;
 import org.apache.spark.input.PortableDataStream;
 import org.deeplearning4j.eval.Evaluation;
+import org.deeplearning4j.legacyExamples.vgg16.dataHelpers.FeaturizedPreSave;
+import org.deeplearning4j.legacyExamples.vgg16.dataHelpers.FlowerDataSetIteratorFeaturized;
 import org.deeplearning4j.nn.conf.distribution.NormalDistribution;
 import org.deeplearning4j.nn.conf.layers.OutputLayer;
 import org.deeplearning4j.nn.graph.ComputationGraph;
@@ -23,8 +25,6 @@ import org.deeplearning4j.nn.weights.WeightInit;
 import org.deeplearning4j.spark.api.TrainingMaster;
 import org.deeplearning4j.spark.impl.graph.SparkComputationGraph;
 import org.deeplearning4j.spark.impl.paramavg.ParameterAveragingTrainingMaster;
-import org.deeplearning4j.transferlearning.vgg16.dataHelpers.FeaturizedPreSave;
-import org.deeplearning4j.transferlearning.vgg16.dataHelpers.FlowerDataSetIteratorFeaturized;
 import org.deeplearning4j.zoo.ZooModel;
 import org.deeplearning4j.zoo.model.VGG16;
 import org.nd4j.linalg.activations.Activation;
