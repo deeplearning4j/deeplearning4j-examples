@@ -1,4 +1,4 @@
-package org.deeplearning4j.examples.samediff.layers;
+package org.deeplearning4j.examples.samediff.dl4j.layers;
 
 import org.deeplearning4j.nn.conf.layers.samediff.SameDiffLambdaLayer;
 import org.nd4j.autodiff.samediff.SDVariable;

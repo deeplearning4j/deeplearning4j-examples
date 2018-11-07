@@ -1,9 +1,9 @@
-package org.deeplearning4j.examples.samediff;
+package org.deeplearning4j.examples.samediff.dl4j;
 
 import org.apache.commons.io.FileUtils;
 import org.deeplearning4j.datasets.iterator.impl.MnistDataSetIterator;
 import org.deeplearning4j.eval.Evaluation;
-import org.deeplearning4j.examples.samediff.layers.MinimalSameDiffDense;
+import org.deeplearning4j.examples.samediff.dl4j.layers.MinimalSameDiffDense;
 import org.deeplearning4j.gradientcheck.GradientCheckUtil;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
