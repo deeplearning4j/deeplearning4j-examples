@@ -138,11 +138,11 @@ public class TrainSpark {
             .networkMask(networkMask)                   // Local network mask - for example, 10.0.0.0/16 - see https://deeplearning4j.org/docs/latest/deeplearning4j-scaleout-parameter-server
             .controllerAddress(masterIP)                // IP address of the master/driver node
             .meshBuildMode(MeshBuildMode.PLAIN)
-            .transportType(TransportType.ROUTED_UDP)
-//            .transportType(TransportType.MULTICAST)
-//            .multicastInterface(networkMask)
-//            .multicastNetwork("224.0.5.7")
-//            .multicastPort(12345)
+//            .transportType(TransportType.ROUTED_UDP)
+            .transportType(TransportType.MULTICAST)
+            .multicastInterface(networkMask)
+            .multicastNetwork("224.0.5.7")
+            .multicastPort(12345)
             .build();
 
 //        ThresholdAlgorithm ta = new AdaptiveThresholdAlgorithm(gradientThreshold);
