@@ -5,9 +5,12 @@ import org.nd4j.autodiff.samediff.SDVariable;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.autodiff.samediff.TrainingConfig;
 import org.nd4j.evaluation.classification.Evaluation;
+import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.nd4j.linalg.learning.config.Adam;
 import org.nd4j.weightinit.impl.XavierInitScheme;
+
+import java.io.File;
 
 /**
  * SameDiff training example.
@@ -77,6 +80,22 @@ public class SameDiffTrainingExample {
 
         //Print evaluation statistics:
         System.out.println(evaluation.stats());
+
+        //Save the trained network for inference - FlatBuffers format
+        File saveFileForInference = new File("sameDiffExampleInference.fb");
+        sd.asFlatFile(saveFileForInference);
+
+        SameDiff loadedForInference = SameDiff.fromFlatFile(saveFileForInference);
+
+        //Perform inference on restored network
+        INDArray example = new MnistDataSetIterator(1, false, 12345).next().getFeatures();
+        loadedForInference.getVariable("input").setArray(example);
+        INDArray output = loadedForInference.getVariable("softmax").eval();
+
+        System.out.println("-----------------------");
+        System.out.println(example.reshape(28, 28));
+        System.out.println("Output probabilities: " + output);
+        System.out.println("Predicted class: " + output.argMax());
     }
 
 }
