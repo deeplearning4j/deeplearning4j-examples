@@ -123,7 +123,6 @@ public class MnistImagePipelineExampleAddNeuralNet {
             .activation(Activation.SOFTMAX)
             .weightInit(WeightInit.XAVIER)
             .build())
-        .pretrain(false).backprop(true)
         .setInputType(InputType.convolutional(height, width, channels))
         .build();
 

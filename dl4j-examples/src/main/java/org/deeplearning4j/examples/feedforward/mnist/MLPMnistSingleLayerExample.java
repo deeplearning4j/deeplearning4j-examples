@@ -73,7 +73,6 @@ public class MLPMnistSingleLayerExample {
                         .activation(Activation.SOFTMAX)
                         .weightInit(WeightInit.XAVIER)
                         .build())
-                .pretrain(false).backprop(true) //use backpropagation to adjust weights
                 .build();
 
         MultiLayerNetwork model = new MultiLayerNetwork(conf);

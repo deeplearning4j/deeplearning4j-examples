@@ -63,7 +63,7 @@ public class RegressionSum {
                 .layer(1, new OutputLayer.Builder(LossFunctions.LossFunction.MSE)
                         .activation(Activation.IDENTITY)
                         .nIn(nHidden).nOut(numOutputs).build())
-                .pretrain(false).backprop(true).build()
+                .build()
         );
         net.init();
         net.setListeners(new ScoreIterationListener(1));

@@ -117,7 +117,7 @@ public class TrainNews {
                 .activation(Activation.SOFTSIGN).build())
             .layer(1, new RnnOutputLayer.Builder().activation(Activation.SOFTMAX)
                 .lossFunction(LossFunctions.LossFunction.MCXENT).nIn(200).nOut(outputs).build())
-            .pretrain(false).backprop(true).build();
+            .build();
 
         MultiLayerNetwork net = new MultiLayerNetwork(conf);
         net.init();

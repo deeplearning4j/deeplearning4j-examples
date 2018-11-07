@@ -130,7 +130,6 @@ public class MultiDigitNumberRecognition {
                 .nOut(10).activation(Activation.SOFTMAX).build(), "ffn1")
             .addLayer("out6", new OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD)
                 .nOut(10).activation(Activation.SOFTMAX).build(), "ffn1")
-            .pretrain(false).backprop(true)
             .build();
 
         // Construct and initialize model

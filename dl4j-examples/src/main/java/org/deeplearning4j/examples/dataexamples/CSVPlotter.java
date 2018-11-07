@@ -92,7 +92,7 @@ public class CSVPlotter {
                 .layer(1, new OutputLayer.Builder(LossFunctions.LossFunction.MSE)
                         .activation(Activation.IDENTITY)
                         .nIn(numOutputs).nOut(numOutputs).build())
-                .pretrain(false).backprop(true).build();
+                .build();
 
 		MultiLayerNetwork net = new MultiLayerNetwork(conf);
 		net.init();

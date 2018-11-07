@@ -150,9 +150,9 @@ public class XorExample {
         // C&P from LSTMCharModellingExample
         // Print the number of parameters in the network (and for each layer)
         Layer[] layers = net.getLayers();
-        int totalNumParams = 0;
+        long totalNumParams = 0;
         for (int i = 0; i < layers.length; i++) {
-            int nParams = layers[i].numParams();
+            long nParams = layers[i].numParams();
             System.out.println("Number of parameters in layer " + i + ": " + nParams);
             totalNumParams += nParams;
         }

@@ -14,7 +14,7 @@ import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.factory.Nd4j;
-import org.nd4j.linalg.learning.config.RmsProp;
+import org.nd4j.linalg.learning.config.Adam;
 import org.nd4j.linalg.lossfunctions.LossFunctions.LossFunction;
 
 import java.io.File;
@@ -62,9 +62,9 @@ public class LSTMCharModellingExample {
 		//Set up network configuration:
 		MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
 			.seed(12345)
-			.l2(0.001)
+			.l2(0.0001)
             .weightInit(WeightInit.XAVIER)
-            .updater(new RmsProp(0.1))
+            .updater(new Adam(0.005))
 			.list()
 			.layer(0, new LSTM.Builder().nIn(iter.inputColumns()).nOut(lstmLayerSize)
 					.activation(Activation.TANH).build())
@@ -73,7 +73,6 @@ public class LSTMCharModellingExample {
 			.layer(2, new RnnOutputLayer.Builder(LossFunction.MCXENT).activation(Activation.SOFTMAX)        //MCXENT + softmax for classification
 					.nIn(lstmLayerSize).nOut(nOut).build())
             .backpropType(BackpropType.TruncatedBPTT).tBPTTForwardLength(tbpttLength).tBPTTBackwardLength(tbpttLength)
-			.pretrain(false).backprop(true)
 			.build();
 
 		MultiLayerNetwork net = new MultiLayerNetwork(conf);
@@ -82,9 +81,9 @@ public class LSTMCharModellingExample {
 
 		//Print the  number of parameters in the network (and for each layer)
 		Layer[] layers = net.getLayers();
-		int totalNumParams = 0;
+		long totalNumParams = 0;
 		for( int i=0; i<layers.length; i++ ){
-			int nParams = layers[i].numParams();
+			long nParams = layers[i].numParams();
 			System.out.println("Number of parameters in layer " + i + ": " + nParams);
 			totalNumParams += nParams;
 		}

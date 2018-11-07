@@ -113,7 +113,6 @@ public class SequenceAnomalyDetection {
                 .layer(4, new LSTM.Builder().name("decoder2").nOut(100).build())
                 .layer(5, new RnnOutputLayer.Builder().name("output").nOut(outputNum)
                         .activation(Activation.IDENTITY).lossFunction(LossFunctions.LossFunction.MSE).build())
-                .pretrain(false).backprop(true)
                 .build();
         MultiLayerNetwork net = new MultiLayerNetwork(conf);
         net.init();

@@ -12,7 +12,7 @@ import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.factory.Nd4j;
-import org.nd4j.linalg.learning.config.RmsProp;
+import org.nd4j.linalg.learning.config.Adam;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 
 import java.util.Random;
@@ -54,9 +54,9 @@ public class CompGraphLSTMExample {
         //Set up network configuration:
         ComputationGraphConfiguration conf = new NeuralNetConfiguration.Builder()
             .seed(12345)
-            .l2(0.001)
+            .l2(0.0001)
             .weightInit(WeightInit.XAVIER)
-            .updater(new RmsProp(0.1))
+            .updater(new Adam(0.005))
             .graphBuilder()
             .addInputs("input") //Give the input a name. For a ComputationGraph with multiple inputs, this also defines the input array orders
             //First layer: name "first", with inputs from the input called "input"
@@ -71,7 +71,6 @@ public class CompGraphLSTMExample {
                 .nIn(2*lstmLayerSize).nOut(nOut).build(),"first","second")
             .setOutputs("outputLayer")  //List the output. For a ComputationGraph with multiple outputs, this also defines the input array orders
             .backpropType(BackpropType.TruncatedBPTT).tBPTTForwardLength(tbpttLength).tBPTTBackwardLength(tbpttLength)
-            .pretrain(false).backprop(true)
             .build();
 
         ComputationGraph net = new ComputationGraph(conf);
@@ -79,9 +78,9 @@ public class CompGraphLSTMExample {
         net.setListeners(new ScoreIterationListener(1));
 
         //Print the  number of parameters in the network (and for each layer)
-        int totalNumParams = 0;
+        long totalNumParams = 0;
         for( int i=0; i<net.getNumLayers(); i++ ){
-            int nParams = net.getLayer(i).numParams();
+            long nParams = net.getLayer(i).numParams();
             System.out.println("Number of parameters in layer " + i + ": " + nParams);
             totalNumParams += nParams;
         }

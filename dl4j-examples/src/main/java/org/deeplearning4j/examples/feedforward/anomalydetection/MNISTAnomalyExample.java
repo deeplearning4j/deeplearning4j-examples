@@ -57,7 +57,6 @@ public class MNISTAnomalyExample {
                 .layer(3, new OutputLayer.Builder().nIn(250).nOut(784)
                         .lossFunction(LossFunctions.LossFunction.MSE)
                         .build())
-                .pretrain(false).backprop(true)
                 .build();
 
         MultiLayerNetwork net = new MultiLayerNetwork(conf);
