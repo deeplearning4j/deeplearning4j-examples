@@ -1,4 +1,4 @@
-package org.deeplearning4j.transferlearning.vgg16.dataHelpers;
+package org.deeplearning4j.legacyExamples.vgg16.dataHelpers;
 
 import org.deeplearning4j.nn.graph.ComputationGraph;
 import org.deeplearning4j.nn.modelimport.keras.exceptions.InvalidKerasConfigurationException;

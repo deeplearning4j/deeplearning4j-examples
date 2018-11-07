@@ -1,4 +1,4 @@
-package org.deeplearning4j.mlp;
+package org.deeplearning4j.legacyExamples.mlp;
 
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
