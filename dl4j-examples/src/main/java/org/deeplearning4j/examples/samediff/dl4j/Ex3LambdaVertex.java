@@ -1,20 +1,16 @@
-package org.deeplearning4j.examples.samediff;
+package org.deeplearning4j.examples.samediff.dl4j;
 
 import org.apache.commons.io.FileUtils;
 import org.deeplearning4j.datasets.iterator.impl.MnistDataSetIterator;
 import org.deeplearning4j.eval.Evaluation;
-import org.deeplearning4j.examples.samediff.layers.L2NormalizeLambdaLayer;
-import org.deeplearning4j.examples.samediff.layers.MinimalSameDiffDense;
+import org.deeplearning4j.examples.samediff.dl4j.layers.MergeLambdaVertex;
 import org.deeplearning4j.gradientcheck.GradientCheckUtil;
 import org.deeplearning4j.nn.conf.ConvolutionMode;
-import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
+import org.deeplearning4j.nn.conf.ComputationGraphConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
-import org.deeplearning4j.nn.conf.layers.ConvolutionLayer;
+import org.deeplearning4j.nn.conf.layers.DenseLayer;
 import org.deeplearning4j.nn.conf.layers.OutputLayer;
-import org.deeplearning4j.nn.conf.layers.SubsamplingLayer;
-import org.deeplearning4j.nn.conf.preprocessor.CnnToFeedForwardPreProcessor;
-import org.deeplearning4j.nn.conf.preprocessor.FeedForwardToCnnPreProcessor;
-import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
+import org.deeplearning4j.nn.graph.ComputationGraph;
 import org.deeplearning4j.nn.weights.WeightInit;
 import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
 import org.nd4j.linalg.activations.Activation;
@@ -34,42 +30,38 @@ import java.io.File;
  *
  * The lambda layer (see L2NormalizeLamdaLayer) implements "out = in / l2Norm(in)" on a per-example basis.
  *
- * Lamda layers are those that do not have any parameters, but require only the implementation of a single method
- * to define the forward pass. However, lambda layers have a number of optional methods, that may be implemented
- * for additional functionality, including:
- * - getOutputType(int layerIndex, InputType inputType)
- * - applyGlobalConfigToLayer(NeuralNetConfiguration.Builder globalConfig)
+ * Lamda vertices are graph vertices that do not have any parameters, but require only the implementation of a single method
+ * to define the forward pass.
  *
  *
  * @author Alex Black
  */
-public class Ex2LambdaLayer {
+public class Ex3LambdaVertex {
 
     public static void main(String[] args) throws Exception {
         int networkNumOutputs = 10;         //For MNIST - 10 classes
 
-        MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
+        ComputationGraphConfiguration conf = new NeuralNetConfiguration.Builder()
             .updater(new Adam(1e-1))
             .seed(12345)
             .activation(Activation.TANH)
             .convolutionMode(ConvolutionMode.Same)
-            .list()
+            .graphBuilder()
+            .addInputs("in")
             //Add some standard DL4J layers:
-            .layer(new ConvolutionLayer.Builder().nIn(1).nOut(16).kernelSize(2,2).stride(1,1).build())
-            .layer(new SubsamplingLayer.Builder().kernelSize(2,2).stride(2,2).build())
-            .layer(new ConvolutionLayer.Builder().nIn(16).nOut(8).kernelSize(2,2).stride(1,1).build())
-            .layer(new SubsamplingLayer.Builder().kernelSize(2,2).stride(2,2).build())
-            //Add custom SameDiff lambda layer:
-            .layer(new L2NormalizeLambdaLayer(1,2,3))
+            .addLayer("0", new DenseLayer.Builder().nIn(784).nOut(128).activation(Activation.TANH).build(), "in")
+            .addLayer("1", new DenseLayer.Builder().nIn(784).nOut(128).activation(Activation.TANH).build(), "in")
+            //Add custom lambda merge vertex:
+            //Note that the vertex definition expects 2 inputs - and we are providing 2 inputs here
+            .addVertex("merge", new MergeLambdaVertex(), "0", "1")
             //Add standard DL4J output layer:
-            .layer(new OutputLayer.Builder().nIn(7*7*8).nOut(networkNumOutputs).activation(Activation.SOFTMAX)
+            .addLayer("out", new OutputLayer.Builder().nIn(128).nOut(networkNumOutputs).activation(Activation.SOFTMAX)
                 .weightInit(WeightInit.XAVIER)
-                .lossFunction(LossFunctions.LossFunction.MCXENT).build())
-            .inputPreProcessor(0, new FeedForwardToCnnPreProcessor(28, 28, 1))
-            .inputPreProcessor(5, new CnnToFeedForwardPreProcessor(7,7,8))
+                .lossFunction(LossFunctions.LossFunction.MCXENT).build(), "merge")
+            .setOutputs("out")
             .build();
 
-        MultiLayerNetwork net = new MultiLayerNetwork(conf);
+        ComputationGraph net = new ComputationGraph(conf);
         net.init();
         net.setListeners(new ScoreIterationListener(50));
 
@@ -103,42 +95,46 @@ public class Ex2LambdaLayer {
         Nd4j.setDataType(DataBuffer.Type.DOUBLE);
 
         //Define network: smaller than before, so gradient checks are quicker
-        int[] inputShape = new int[]{3, 1, 5, 5};       //[minibatch, channels, height, width]
-        int networkNOut = 3;
-        MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
-            .updater(new NoOp())
+        int networkNumOutputs = 3;
+
+        ComputationGraphConfiguration conf = new NeuralNetConfiguration.Builder()
+            .updater(new NoOp())    //Required for gradient checks
             .seed(12345)
             .activation(Activation.TANH)
             .convolutionMode(ConvolutionMode.Same)
-            .list()
-            //Add a standard DL4J layer:
-            .layer(new ConvolutionLayer.Builder().nIn(1).nOut(4).kernelSize(2,2).stride(1,1).build())
-            //Add custom SameDiff lambda layer:
-            .layer(new L2NormalizeLambdaLayer(1,2,3))
+            .graphBuilder()
+            .addInputs("in")
+            //Add some standard DL4J layers:
+            .addLayer("0", new DenseLayer.Builder().nIn(5).nOut(4).activation(Activation.TANH).build(), "in")
+            .addLayer("1", new DenseLayer.Builder().nIn(5).nOut(4).activation(Activation.TANH).build(), "in")
+            //Add custom lambda merge vertex:
+            //Note that the vertex definition expects 2 inputs - and we are providing 2 inputs here
+            .addVertex("merge", new MergeLambdaVertex(), "0", "1")
             //Add standard DL4J output layer:
-            .layer(new OutputLayer.Builder().nIn(5*5*4).nOut(networkNOut).activation(Activation.SOFTMAX)
+            .addLayer("out", new OutputLayer.Builder().nIn(4).nOut(networkNumOutputs).activation(Activation.SOFTMAX)
                 .weightInit(WeightInit.XAVIER)
-                .lossFunction(LossFunctions.LossFunction.MCXENT).build())
-            .inputPreProcessor(2, new CnnToFeedForwardPreProcessor(5, 5, 4))
+                .lossFunction(LossFunctions.LossFunction.MCXENT).build(), "merge")
+            .setOutputs("out")
             .build();
-        MultiLayerNetwork net = new MultiLayerNetwork(conf);
+
+        ComputationGraph net = new ComputationGraph(conf);
         net.init();
 
         //Check model serialization:
         File f = new File(FileUtils.getTempDirectory(), "SameDiffExample2Model.zip");
         net.save(f);
-        MultiLayerNetwork loaded = MultiLayerNetwork.load(f, true);
+        ComputationGraph loaded = ComputationGraph.load(f, true);
 
         Nd4j.getRandom().setSeed(12345);
-        INDArray testFeatures = Nd4j.rand(inputShape);
-        INDArray fromOriginalNet = net.output(testFeatures);
-        INDArray fromLoadedNet = loaded.output(testFeatures);
+        INDArray testFeatures = Nd4j.rand(2,5);   //2 examples, with nIn size 5 for dense layers
+        INDArray fromOriginalNet = net.outputSingle(testFeatures);
+        INDArray fromLoadedNet = loaded.outputSingle(testFeatures);
         if(!fromOriginalNet.equals(fromLoadedNet)){
             throw new IllegalStateException("Saved and loaded nets should have equal outputs!");
         }
 
         //Create some random labels for gradient checks:
-        INDArray testLabels = Nd4j.eye(3);  //3x3, with 1s along the dimension. Here, minibatch size 3, networkNumOutputs = 3
+        INDArray testLabels = Nd4j.create(new double[][]{{1,0,0},{0,1,0}}); //Random one-hot values for gradient check
 
 
         //Check gradients
@@ -149,7 +145,7 @@ public class Ex2LambdaLayer {
         double min_absolute_error = 1e-8;                                                      //Minimum absolute error, to avoid failures on 0 vs 1e-30, for example.
 
         boolean gradOk = GradientCheckUtil.checkGradients(net, gradient_check_epsilon, max_relative_error, min_absolute_error, print,
-            return_on_first_failure, testFeatures, testLabels);
+            return_on_first_failure, new INDArray[]{testFeatures}, new INDArray[]{testLabels});
         if(!gradOk){
             throw new IllegalStateException("Gradient check failed");
         }

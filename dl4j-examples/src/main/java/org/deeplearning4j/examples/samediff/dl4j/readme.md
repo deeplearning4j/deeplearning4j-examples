@@ -1,4 +1,4 @@
-# SameDiff - Custom Layers
+# Deeplearning4j Custom Layers using SameDiff
 
 The examples in this directory show how to implement Deeplearning4j layers using SameDiff.
 
