@@ -1,6 +1,10 @@
 package org.deeplearning4j.resnet50Benchmark;
 
 import com.beust.jcommander.Parameter;
+import org.datavec.api.io.labels.ParentPathLabelGenerator;
+import org.datavec.api.records.reader.RecordReader;
+import org.datavec.image.recordreader.ImageRecordReader;
+import org.deeplearning4j.datasets.datavec.RecordReaderDataSetIterator;
 import org.deeplearning4j.datasets.iterator.EarlyTerminationDataSetIterator;
 import org.deeplearning4j.nn.conf.CacheMode;
 import org.deeplearning4j.nn.conf.WorkspaceMode;
@@ -54,7 +58,9 @@ public class BenchmarkLocal {
         Nd4j.getMemoryManager().togglePeriodicGc(false);
 
         //Prepare training data
-        DataSetIterator trainData = null;
+        ParentPathLabelGenerator labelMaker = new ParentPathLabelGenerator(); // parent path as the image label
+        RecordReader rr = new ImageRecordReader(224,224,3, labelMaker);
+        DataSetIterator trainData = new RecordReaderDataSetIterator(rr, batchSize, 1, 1000);
 
         //First: perform a short warmup
         DataSetIterator subsetIter = new EarlyTerminationDataSetIterator(trainData, 50);    //50 iterations warmup

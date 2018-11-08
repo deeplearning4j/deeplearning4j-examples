@@ -42,9 +42,6 @@ public class PreprocessLocal {
     @Parameter(names = {"--localSaveDir"}, description = "Directory to save the preprocessed data files on your local drive", required = true)
     private String localSaveDir = null;
 
-//    @Parameter(names = {"--tempDir"}, description = "Temporary directory to use for extracting the raw image files")
-//    private String tempDir = new File(System.getProperty("java.io.tmpdir"), "imagenet_temp").getAbsolutePath();
-
     @Parameter(names = {"--batchSize"}, description = "Batch size for saving the data", required = false)
     private int batchSize = 128;
 

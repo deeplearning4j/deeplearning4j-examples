@@ -120,7 +120,6 @@ public class TrainSpark {
 
         SparkConf conf = new SparkConf();
         conf.setAppName(sparkAppName);
-        System.out.println(conf.toDebugString());
         JavaSparkContext sc = new JavaSparkContext(conf);
 
 
