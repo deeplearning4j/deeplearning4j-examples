@@ -20,6 +20,7 @@ import org.deeplearning4j.nn.conf.CacheMode;
 import org.deeplearning4j.nn.conf.WorkspaceMode;
 import org.deeplearning4j.nn.conf.layers.ConvolutionLayer;
 import org.deeplearning4j.nn.graph.ComputationGraph;
+import org.deeplearning4j.optimize.listeners.PerformanceListener;
 import org.deeplearning4j.patent.utils.JCommanderUtils;
 import org.deeplearning4j.spark.api.TrainingMaster;
 import org.deeplearning4j.spark.impl.graph.SparkComputationGraph;
@@ -111,6 +112,7 @@ public class BenchmarkSpark {
             .build().init();
 
         SparkComputationGraph sparkNet = new SparkComputationGraph(sc, net, tm);
+        sparkNet.setListeners(new PerformanceListener(1));
 
         //Create data loader
         int imageHeightWidth = 224;     //224x224 pixel input to network
