@@ -1,6 +1,7 @@
 package org.deeplearning4j.resnet50Benchmark;
 
 import com.beust.jcommander.Parameter;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
@@ -35,8 +36,11 @@ import org.nd4j.parameterserver.distributed.v2.enums.MeshBuildMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URI;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
 import java.util.*;
 
@@ -114,7 +118,7 @@ public class BenchmarkSpark {
         int imageChannels = 3;          //RGB
         PathLabelGenerator labelMaker = new ParentPathLabelGenerator();
         ImageRecordReader rr = new ImageRecordReader(imageHeightWidth, imageHeightWidth, imageChannels, labelMaker);
-        rr.setLabels(null); //TODO
+        rr.setLabels(getLabels());
         int numClasses = 1000;
         RecordReaderFileBatchLoader loader = new RecordReaderFileBatchLoader(rr, minibatch, 1, numClasses);
         loader.setPreProcessor(new ImagePreProcessingScaler());   //Scale 0-255 valued pixels to 0-1 range
@@ -179,6 +183,23 @@ public class BenchmarkSpark {
             out.add(in.get(order[i]));
         }
         return out;
+    }
+
+
+    private List<String> getLabels() throws IOException {
+        File validationLabelsFile = new File(System.getProperty("java.io.tmpdir"), PreprocessLocal.VALIDATION_LABEL_MAPPING_FILENAME);
+        if(!validationLabelsFile.exists()){
+            FileUtils.copyURLToFile(new URL(PreprocessLocal.VALIDATION_LABEL_MAPPING_FILE), validationLabelsFile);
+        }
+
+        //Get unique set of labels, then sort alphabetically:
+        List<String> labels = new ArrayList<>(new HashSet<>(FileUtils.readLines(validationLabelsFile, StandardCharsets.UTF_8)));
+        Collections.sort(labels);
+
+        if (labels.size() != 1000) {
+            throw new IllegalStateException("Expected exactly 1000 labels, got " + labels.size());
+        }
+        return labels;
     }
 
 }
