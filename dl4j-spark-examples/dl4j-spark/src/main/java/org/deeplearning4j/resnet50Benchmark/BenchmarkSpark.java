@@ -16,8 +16,6 @@ import org.datavec.api.io.labels.PathLabelGenerator;
 import org.datavec.image.loader.NativeImageLoader;
 import org.datavec.image.recordreader.ImageRecordReader;
 import org.deeplearning4j.api.loader.impl.RecordReaderFileBatchLoader;
-import org.deeplearning4j.datasets.fetchers.TinyImageNetFetcher;
-import org.deeplearning4j.datasets.iterator.impl.TinyImageNetDataSetIterator;
 import org.deeplearning4j.nn.conf.CacheMode;
 import org.deeplearning4j.nn.conf.WorkspaceMode;
 import org.deeplearning4j.nn.conf.layers.ConvolutionLayer;
@@ -153,17 +151,12 @@ public class BenchmarkSpark {
 
 
     public static List<String> listPaths(String path, Configuration config) throws IOException {
-        Set<String> allowedExtensions = new HashSet<>(Arrays.asList(NativeImageLoader.ALLOWED_FORMATS));
         FileSystem hdfs = FileSystem.get(URI.create(path), config);
         RemoteIterator fileIter = hdfs.listFiles(new Path(path), true);
-
         List<String> outPaths = new ArrayList<>();
         while (fileIter.hasNext()) {
             String filePath = ((LocatedFileStatus) fileIter.next()).getPath().toString();
-            String ext = FilenameUtils.getExtension(path);
-            if (allowedExtensions.contains(ext)) {
-                outPaths.add(filePath);
-            }
+            outPaths.add(filePath);
         }
         return outPaths;
     }
