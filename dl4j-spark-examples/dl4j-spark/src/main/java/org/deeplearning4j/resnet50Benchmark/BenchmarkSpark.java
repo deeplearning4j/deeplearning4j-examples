@@ -134,9 +134,12 @@ public class BenchmarkSpark {
 
         //Perform benchmark on a subset of the data, specified number of minibatches
         List<String> trainPaths = randomSample(allPaths, numBatches, 12345);
-        JavaRDD<String> trainPathsRdd = sc.parallelize(warmupPaths);
+        if(trainPaths.size() != numBatches){
+            throw new IllegalStateException("Expected " + numBatches + " batches, got " + trainPaths.size());
+        }
+        JavaRDD<String> trainPathsRdd = sc.parallelize(trainPaths);
         long timeBefore = System.currentTimeMillis();
-        sparkNet.fitPaths(warmupPathsRdd, loader);
+        sparkNet.fitPaths(trainPathsRdd, loader);
         long timeAfter = System.currentTimeMillis();
 
         long totalTimeMillisec = (timeAfter - timeBefore);
