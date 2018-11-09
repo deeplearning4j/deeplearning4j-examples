@@ -67,7 +67,8 @@ public class BenchmarkLocal {
         net.setListeners(new PerformanceListener(5));
 
         //Disable periodic GC - should not be required with workspaces enabled. See: https://deeplearning4j.org/docs/latest/deeplearning4j-config-workspaces#garbage-collector
-        Nd4j.getMemoryManager().togglePeriodicGc(false);
+//        Nd4j.getMemoryManager().togglePeriodicGc(false);
+        Nd4j.getMemoryManager().setOccasionalGcFrequency(5000);
 
         //Prepare training data
         ParentPathLabelGenerator labelMaker = new ParentPathLabelGenerator(); // parent path as the image label

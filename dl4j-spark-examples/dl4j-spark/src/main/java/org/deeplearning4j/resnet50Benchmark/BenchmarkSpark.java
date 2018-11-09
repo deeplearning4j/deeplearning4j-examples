@@ -100,7 +100,8 @@ public class BenchmarkSpark {
         TrainingMaster tm = new SharedTrainingMaster.Builder(voidConfiguration, minibatch)
             .batchSizePerWorker(minibatch)              // Minibatch size for each worker
             .workersPerNode(numWorkersPerNode)          // Workers per node
-            .workerTogglePeriodicGC(false)
+//            .workerTogglePeriodicGC(false)
+            .workerPeriodicGCFrequency(5000)
             .build();
 
         ComputationGraph net = ResNet50.builder()
