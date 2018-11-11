@@ -31,7 +31,7 @@
 
     <dependencies>
 
-        <!-- ND4J backend. You need one in every DL4J project. Normally define artifactId as either "nd4j-native-platform" or "nd4j-cuda-7.5-platform" -->
+        <!-- ND4J backend. You need one in every DL4J project. Normally define artifactId as either "nd4j-native" or "nd4j-cuda-7.5" -->
         <dependency>
             <groupId>org.nd4j</groupId>
             <artifactId>${nd4j.backend}</artifactId>
@@ -45,7 +45,7 @@
         </dependency>
         <dependency>
             <groupId>org.bytedeco.javacpp-presets</groupId>
-            <artifactId>tensorflow-platform</artifactId>
+            <artifactId>tensorflow</artifactId>
             <version>${tensorflow.version}-${javacpp.version}</version>
         </dependency>
 
@@ -53,7 +53,7 @@
         <!--
         <dependency>
             <groupId>org.nd4j</groupId>
-            <artifactId>nd4j-native-platform</artifactId>
+            <artifactId>nd4j-native</artifactId>
             <version>${nd4j.version}</version>
         </dependency>
         -->
@@ -62,7 +62,7 @@
         <!--
         <dependency>
             <groupId>org.nd4j</groupId>
-            <artifactId>nd4j-cuda-9.2-platform</artifactId>
+            <artifactId>nd4j-cuda-9.2</artifactId>
             <version>${nd4j.version}</version>
         </dependency>
         -->

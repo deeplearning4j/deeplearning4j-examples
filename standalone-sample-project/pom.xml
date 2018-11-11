@@ -29,20 +29,20 @@
 
         <!--
         ND4J backend: every project needs one of these. The backend defines the hardware on which network training
-        will occur. "nd4j-native-platform" is for CPUs only (for running on all operating systems).
+        will occur. "nd4j-native" is for CPUs only (for running on all operating systems).
         -->
         <dependency>
             <groupId>org.nd4j</groupId>
-            <artifactId>nd4j-native-platform</artifactId>
+            <artifactId>nd4j-native</artifactId>
             <version>${nd4j.version}</version>
         </dependency>
 
-        <!-- CUDA: to use GPU for training (CUDA) instead of CPU, uncomment this, and remove nd4j-native-platform -->
+        <!-- CUDA: to use GPU for training (CUDA) instead of CPU, uncomment this, and remove nd4j-native -->
         <!-- Requires CUDA to be installed to use. Change the version (8.0, 9.0, 9.1) to change the CUDA version -->
         <!--
         <dependency>
             <groupId>org.nd4j</groupId>
-            <artifactId>nd4j-cuda-9.2-platform</artifactId>
+            <artifactId>nd4j-cuda-9.2</artifactId>
             <version>${nd4j.version}</version>
         </dependency>
         -->
