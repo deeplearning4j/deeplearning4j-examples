@@ -95,12 +95,14 @@ public class BenchmarkSpark {
             .networkMask(networkMask)                   // Local network mask - for example, 10.0.0.0/16 - see https://deeplearning4j.org/docs/latest/deeplearning4j-scaleout-parameter-server
             .controllerAddress(masterIP)                // IP address of the master/driver node
             .meshBuildMode(MeshBuildMode.PLAIN)
+//            .maxChunkSize(1024*1024)
+//            .chunksBufferSize(3L*1024*1024*1024)
             .build();
         TrainingMaster tm = new SharedTrainingMaster.Builder(voidConfiguration, minibatch)
             .batchSizePerWorker(minibatch)              // Minibatch size for each worker
             .workersPerNode(numWorkersPerNode)          // Workers per node
 //            .workerTogglePeriodicGC(false)
-            .workerPeriodicGCFrequency(5000)
+            .workerPeriodicGCFrequency(10000)
             .build();
 
         ComputationGraph net = ResNet50.builder()
@@ -167,8 +169,12 @@ public class BenchmarkSpark {
     }
 
     public static <T> List<T> randomSample(List<T> in, int count, long rngSeed){
+        if(in.isEmpty()){
+            throw new IllegalStateException("Cannot sample from empty list");
+        }
         if(count > in.size()){
-            throw new IllegalStateException("Cannot sample " + count + " values from a list of size " + in.size());
+            //Duplicate when count > amount of data
+            log.warn("Sampling {} values from size {} list - values will be repeated", count, in.size());
         }
 
         int[] order = new int[in.size()];

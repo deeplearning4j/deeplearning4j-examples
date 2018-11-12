@@ -182,8 +182,7 @@ public class BenchmarkSparkFaultTesting {
             throw new IllegalStateException("Cannot sample from empty list");
         }
         if(count > in.size()){
-//            throw new IllegalStateException("Cannot sample " + count + " values from a list of size " + in.size());
-            //Duplicate instead of
+            //Duplicate when count > amount of data
             log.warn("Sampling {} values from size {} list - values will be repeated", count, in.size());
         }
 
