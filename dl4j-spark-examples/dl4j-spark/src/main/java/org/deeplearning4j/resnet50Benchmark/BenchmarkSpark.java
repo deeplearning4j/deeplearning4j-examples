@@ -183,9 +183,10 @@ public class BenchmarkSpark {
         }
         MathUtils.shuffleArray(order, rngSeed);
 
+
         List<T> out = new ArrayList<>();
         for(int i=0; i<count; i++ ){
-            out.add(in.get(order[i]));
+            out.add(in.get(order[i%order.length]));
         }
         return out;
     }
