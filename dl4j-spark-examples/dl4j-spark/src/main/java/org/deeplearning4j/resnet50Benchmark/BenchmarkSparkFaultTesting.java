@@ -25,6 +25,7 @@ import org.deeplearning4j.spark.api.TrainingMaster;
 import org.deeplearning4j.spark.impl.graph.SparkComputationGraph;
 import org.deeplearning4j.spark.parameterserver.training.SharedTrainingMaster;
 import org.deeplearning4j.tinyimagenet.TrainSpark;
+import org.deeplearning4j.util.UIDProvider;
 import org.deeplearning4j.zoo.model.ResNet50;
 import org.nd4j.linalg.dataset.api.preprocessor.ImagePreProcessingScaler;
 import org.nd4j.linalg.util.MathUtils;
@@ -231,21 +232,30 @@ public class BenchmarkSparkFaultTesting {
         public int getPort() {
             //First: determine if
             File f = new File(System.getProperty("java.io.tmpdir"), jobId + "_ports.txt");
+            String jvmUUID = UIDProvider.getJVMUID();
             if(!f.exists()){
                 try {
-                    FileUtils.writeStringToFile(f, String.valueOf(initialPort), StandardCharsets.UTF_8);
+                    FileUtils.writeStringToFile(f, jvmUUID + "\t" + String.valueOf(initialPort), StandardCharsets.UTF_8);
                 } catch (IOException e){
                     throw new RuntimeException(e);
                 }
                 log.info("TESTING PORT SUPPLIER: returning initial port {}", initialPort);
                 return initialPort;
             } else {
-                //Exists, read and increment port
+                //Exists, read and increment port if necessary
                 try {
                     List<String> lines = FileUtils.readLines(f, StandardCharsets.UTF_8);
-                    int lastPort = Integer.parseInt(lines.get(lines.size()-1));
+                    String lastLine = lines.get(lines.size()-1);
+                    String[] split = lastLine.split("\t");
+                    if(jvmUUID.equals(split[0])){
+                        int ret = Integer.parseInt(split[1]);
+                        log.info("TESTING PORT SUPPLIER: Restart detected, but already slept, returning new port {}", ret);
+                        return ret;
+                    }
+
+                    int lastPort = Integer.parseInt(split[1]);
                     int newPort = lastPort+1;
-                    FileUtils.write(f, "\n" + newPort, StandardCharsets.UTF_8, true );      //Append new port
+                    FileUtils.write(f, "\n" + jvmUUID + "\t" + newPort, StandardCharsets.UTF_8, true );      //Append new JVM UUID + port
                     log.info("TESTING PORT SUPPLIER: Restart detected - sleeping 1 minute then returning new port {}", newPort);
                     Thread.sleep(60000L);
                     log.info("TESTING PORT SUPPLIER: finished sleeping, returning new port {}", newPort);
