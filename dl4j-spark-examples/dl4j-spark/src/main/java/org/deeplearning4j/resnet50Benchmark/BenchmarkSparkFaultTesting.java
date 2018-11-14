@@ -42,10 +42,7 @@ import java.net.URI;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 
 public class BenchmarkSparkFaultTesting {
     public static final Logger log = LoggerFactory.getLogger(TrainSpark.class);
@@ -247,19 +244,29 @@ public class BenchmarkSparkFaultTesting {
             } else {
                 //Exists, read and increment port if necessary
                 try {
+                    Set<String> jvmUIDs = new HashSet<>();
                     List<String> lines = FileUtils.readLines(f, StandardCharsets.UTF_8);
+                    for(String line : lines){
+                        String[] split = line.split("\t");
+                        jvmUIDs.add(split[0]);
+                    }
+
                     String lastLine = lines.get(lines.size()-1);
                     String[] split = lastLine.split("\t");
                     if(jvmUUID.equals(split[0])){
                         int ret = Integer.parseInt(split[1]);
-                        log.info("TESTING PORT SUPPLIER: Restart detected, but already slept, returning new port {}", ret);
+                        if(jvmUIDs.size() == 1){
+                            log.info("TESTING PORT SUPPLIER: Initial JVM detected (not restart), returning port {}", ret);
+                        } else {
+                            log.info("TESTING PORT SUPPLIER: Restart detected, but already slept, returning new port {}", ret);
+                        }
                         return ret;
                     }
 
                     int lastPort = Integer.parseInt(split[1]);
                     int newPort = lastPort+1;
                     FileUtils.write(f, "\n" + jvmUUID + "\t" + newPort, StandardCharsets.UTF_8, true );      //Append new JVM UUID + port
-                    log.info("TESTING PORT SUPPLIER: Restart detected - sleeping 1 minute then returning new port {}", newPort);
+                    log.info("TESTING PORT SUPPLIER: Restart detected ({} total JVMs so far) - sleeping 1 minute then returning new port {}", jvmUIDs.size(), newPort);
                     Thread.sleep(60000L);
                     log.info("TESTING PORT SUPPLIER: finished sleeping, returning new port {}", newPort);
                     return newPort;
