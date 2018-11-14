@@ -127,7 +127,7 @@ public class BenchmarkSparkFaultTesting {
 //                    new FailureTestingListener.HostNameTrigger("spark-node-101"),
 //                    new FailureTestingListener.TimeSinceInitializedTrigger(90))
 //                )
-            );
+            ));
 
         //Create data loader
         int imageHeightWidth = 224;     //224x224 pixel input to network
