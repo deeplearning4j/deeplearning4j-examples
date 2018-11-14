@@ -2,7 +2,6 @@ package org.deeplearning4j.examples.cifar;
 
 import org.apache.commons.io.IOUtils;
 import org.datavec.image.loader.CifarLoader;
-import org.jetbrains.annotations.NotNull;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
 import org.slf4j.Logger;
@@ -76,7 +75,6 @@ public class NearestNeighbor {
         log.info("Average time = " + timeTaken/numberOfEpochs);
     }
 
-    @NotNull
     private static Map<INDArray, Byte> readTrainingData() throws IOException {
         log.info("Reading training data.");
         Map<INDArray, Byte> trainingMap = new HashMap<>();
