@@ -30,7 +30,7 @@ public class NetworkConfiguration {
     public static ComputationGraphConfiguration getConf() {
         ComputationGraphConfiguration.GraphBuilder builder = new NeuralNetConfiguration.Builder()
                 .seed(12345)
-                .updater(new Adam(0.01))
+                .updater(new Adam(0.005))
                 .weightInit(WeightInit.RELU)
                 .graphBuilder()
                 .addInputs("in");
