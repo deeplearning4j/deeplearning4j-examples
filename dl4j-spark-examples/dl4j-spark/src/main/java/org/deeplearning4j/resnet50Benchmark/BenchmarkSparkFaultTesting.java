@@ -116,8 +116,14 @@ public class BenchmarkSparkFaultTesting {
         SparkComputationGraph sparkNet = new SparkComputationGraph(sc, net, tm);
         sparkNet.setListeners(new PerformanceListener(1),
             new FailureTestingListener(FailureTestingListener.FailureMode.SYSTEM_EXIT_1,
-                   //Any node exits with 1% probability on each iteration
-                new FailureTestingListener.RandomProb(FailureTestingListener.CallType.ITER_DONE, 0.001)
+//                   Any node exits with 1% probability on each iteration
+//                new FailureTestingListener.RandomProb(FailureTestingListener.CallType.ITER_DONE, 0.01)
+
+                //spark-node-101 exits with 0.5% probability on each iteration
+                new FailureTestingListener.And(
+                    new FailureTestingListener.HostNameTrigger("spark-node-101"),
+                    new FailureTestingListener.RandomProb(FailureTestingListener.CallType.ITER_DONE, 0.005)
+                )
 
 //                //spark-node-101 exits 90 seconds after initalized with System.exit(1)
 //                new FailureTestingListener.And(
