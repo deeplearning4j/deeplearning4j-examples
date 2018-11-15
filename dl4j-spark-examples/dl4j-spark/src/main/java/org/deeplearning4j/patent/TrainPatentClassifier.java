@@ -190,6 +190,7 @@ public class TrainPatentClassifier {
                 .controllerAddress(masterIP)
                 .build();
         TrainingMaster tm = new SharedTrainingMaster.Builder(voidConfiguration, minibatch)
+                .workerPeriodicGCFrequency(30000)
                 .rngSeed(12345)
                 .collectTrainingStats(false)
                 .batchSizePerWorker(minibatch)              // Minibatch size for each worker
