@@ -32,6 +32,7 @@ import org.nd4j.linalg.util.MathUtils;
 import org.nd4j.parameterserver.distributed.conf.VoidConfiguration;
 import org.nd4j.parameterserver.distributed.v2.enums.MeshBuildMode;
 import org.nd4j.parameterserver.distributed.v2.transport.PortSupplier;
+import org.nd4j.parameterserver.distributed.v2.transport.impl.StaticPortSupplier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -96,7 +97,8 @@ public class BenchmarkSparkFaultTesting {
             .networkMask(networkMask)                   // Local network mask - for example, 10.0.0.0/16 - see https://deeplearning4j.org/docs/latest/deeplearning4j-scaleout-parameter-server
             .controllerAddress(masterIP)                // IP address of the master/driver node
             .meshBuildMode(MeshBuildMode.PLAIN)
-            .portSupplier(new TestingPortSupplier(sc.sc().applicationId(), port))
+//            .portSupplier(new TestingPortSupplier(sc.sc().applicationId(), port))
+            .portSupplier(new StaticPortSupplier(40123))
             .build();
         TrainingMaster tm = new SharedTrainingMaster.Builder(voidConfiguration, minibatch)
             .batchSizePerWorker(minibatch)              // Minibatch size for each worker
