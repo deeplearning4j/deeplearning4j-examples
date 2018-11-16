@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * This is a DataSetLoader that loads the integer format of data written in DownloadParsePatents.PatentsToIndexFilesFunction
@@ -39,7 +40,7 @@ public class LoadDataSetsFunction implements DataSetLoader {
 
     @Override
     public DataSet load(Source source) throws IOException {
-        WordVectors wv = WordVectorProvider.getWordVectors(conf, wordVectorsPath);
+//        WordVectors wv = WordVectorProvider.getWordVectors(conf, wordVectorsPath);
 
         IntArrayList content = new IntArrayList();
         List<int[]> examples = new ArrayList<>();
@@ -68,21 +69,27 @@ public class LoadDataSetsFunction implements DataSetLoader {
         INDArray l = Nd4j.create(examples.size(), numClasses);
         INDArray fm = (needsFM ? Nd4j.create(examples.size(), maxLength) : null);
 
-        AbstractStorage<Integer> storage;
-        try {
-            StaticWord2Vec sw2v = (StaticWord2Vec) wv;
-            Field field = StaticWord2Vec.class.getDeclaredField("storage");
-            field.setAccessible(true);
-            storage = (AbstractStorage<Integer>)field.get(sw2v);
-        } catch (Throwable t){
-            throw new RuntimeException(t);
-        }
+//        AbstractStorage<Integer> storage;
+//        try {
+//            StaticWord2Vec sw2v = (StaticWord2Vec) wv;
+//            Field field = StaticWord2Vec.class.getDeclaredField("storage");
+//            field.setAccessible(true);
+//            storage = (AbstractStorage<Integer>)field.get(sw2v);
+//        } catch (Throwable t){
+//            throw new RuntimeException(t);
+//        }
 
+        Map<Integer,INDArray> map;
+        try {
+            map = WordVectorProvider.getLookupMap(conf, wordVectorsPath);
+        } catch (Exception e){
+            throw new RuntimeException(e);
+        }
         for( int i=0; i<examples.size(); i++ ){
             int[] idxs = examples.get(i);
 
             for( int j=0; j<idxs.length; j++ ){
-                INDArray w = Transforms.unitVec(storage.get(idxs[j]).dup());
+                INDArray w = Transforms.unitVec(map.get(idxs[j]));
                 f.get(NDArrayIndex.point(i), NDArrayIndex.all(), NDArrayIndex.point(j)).assign(w);
             }
 
