@@ -177,7 +177,7 @@ public class TrainSpark {
                 sbEval.append("----- Epoch ").append(i+1).append(" of ").append(numEpochs).append(" -----\n")
                     .append(evalStats)
                     .append("\n\n");
-                SparkUtils.writeStringToFile(evalPath, evaluation.stats(), sc);
+                SparkUtils.writeStringToFile(evalPath, sbEval.toString(), sc);
             }
         }
 
