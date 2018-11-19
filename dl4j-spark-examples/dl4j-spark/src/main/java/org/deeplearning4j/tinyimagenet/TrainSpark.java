@@ -158,17 +158,30 @@ public class TrainSpark {
         //Fit the network
         String trainPath = dataPath + (dataPath.endsWith("/") ? "" : "/") + "train";
         JavaRDD<String> pathsTrain = SparkUtils.listPaths(sc, trainPath);
+        StringBuilder sbEval = new StringBuilder();
         for (int i = 0; i < numEpochs; i++) {
             log.info("--- Starting Training: Epoch {} of {} ---", (i + 1), numEpochs);
             sparkNet.fitPaths(pathsTrain, loader);
+
+            //Perform evaluation
+            String testPath = dataPath + (dataPath.endsWith("/") ? "" : "/") + "test";
+            JavaRDD<String> pathsTest = SparkUtils.listPaths(sc, testPath);
+            Evaluation evaluation = new Evaluation(TinyImageNetDataSetIterator.getLabels(false), 5); //Set up for top 5 accuracy
+            evaluation = (Evaluation) sparkNet.doEvaluation(pathsTest, loader, evaluation)[0];
+            String evalStats = evaluation.stats();
+            log.info("Evaluation statistics: {}", evalStats);
+
+            if(saveDirectory != null){
+                // Save evaluation
+                String evalPath = FilenameUtils.concat(saveDirectory, "evaluation.txt");
+                sbEval.append("----- Epoch ").append(i+1).append(" of ").append(numEpochs).append(" -----\n")
+                    .append(evalStats)
+                    .append("\n\n");
+                SparkUtils.writeStringToFile(evalPath, evaluation.stats(), sc);
+            }
         }
 
-        //Perform evaluation
-        String testPath = dataPath + (dataPath.endsWith("/") ? "" : "/") + "test";
-        JavaRDD<String> pathsTest = SparkUtils.listPaths(sc, testPath);
-        Evaluation evaluation = new Evaluation(TinyImageNetDataSetIterator.getLabels(false), 5); //Set up for top 5 accuracy
-        evaluation = (Evaluation) sparkNet.doEvaluation(pathsTest, loader, evaluation)[0];
-        log.info("Evaluation statistics: {}", evaluation.stats());
+
 
         if (saveDirectory != null && saveDirectory.isEmpty()) {
             log.info("Saving the network and evaluation to directory: {}", saveDirectory);
@@ -179,10 +192,6 @@ public class TrainSpark {
             try (BufferedOutputStream os = new BufferedOutputStream(fileSystem.create(new Path(networkPath)))) {
                 ModelSerializer.writeModel(sparkNet.getNetwork(), os, true);
             }
-
-            // Save evaluation
-            String evalPath = FilenameUtils.concat(saveDirectory, "evaluation.txt");
-            SparkUtils.writeStringToFile(evalPath, evaluation.stats(), sc);
         }
 
 
