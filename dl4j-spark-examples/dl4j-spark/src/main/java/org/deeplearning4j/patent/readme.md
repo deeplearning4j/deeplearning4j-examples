@@ -59,7 +59,7 @@ cd /your/project/dir
 git clone https://github.com/deeplearning4j/dl4j-examples.git
 cd dl4j-examples/dl4j-spark-examples/dl4j-spark
 mvn package -DskipTests
-#Or, if required: mvn clean package -Dspark.version=2.1.0 -Ddl4j.spark.version=1.0.0-beta2_spark_2 -Ddatavec.spark.version=1.0.0-beta2_spark_2
+#Or, if required: mvn clean package -Dspark.version=2.1.0 -Ddl4j.spark.version=1.0.0-beta3_spark_2 -Ddatavec.spark.version=1.0.0-beta3_spark_2
 ```
 
 ### Stage 2: Run Data Download and Preprocessing
