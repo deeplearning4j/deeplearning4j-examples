@@ -45,6 +45,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.BufferedOutputStream;
+import java.io.File;
 
 /**
  * This example trains a convolutional neural network image classifier on the Tiny ImageNet dataset using Apache Spark
@@ -178,6 +179,9 @@ public class TrainSpark {
                     .append(evalStats)
                     .append("\n\n");
                 SparkUtils.writeStringToFile(evalPath, sbEval.toString(), sc);
+
+                File f = new File(saveDirectory, "net_epoch" + i + ".zip");
+                sparkNet.getNetwork().save(f);
             }
         }
 
