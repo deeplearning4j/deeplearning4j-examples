@@ -12,8 +12,8 @@
     <properties>
         <!-- Change the nd4j.backend property to nd4j-cuda-9.0 nd4j-cuda-9.2 or nd4j-cuda-10.0 to use CUDA GPUs -->
         <nd4j.backend>nd4j-native</nd4j.backend>
-        <!--<nd4j.backend>nd4j-cuda-9.2</nd4j.backend>-->
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <nd4j.backend>nd4j-cuda-9.2</nd4j.backend>
+        <!--<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>-->
         <shadedClassifier>bin</shadedClassifier>
 
 

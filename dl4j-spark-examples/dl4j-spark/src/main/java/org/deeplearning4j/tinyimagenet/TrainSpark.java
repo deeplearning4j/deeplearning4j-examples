@@ -208,11 +208,11 @@ public class TrainSpark {
         //The performance of this network can likely be improved
 
         ISchedule lrSchedule = new MapSchedule.Builder(ScheduleType.EPOCH)
-            .add(0, 8e-3)
-            .add(1, 6e-3)
-            .add(3, 3e-3)
-            .add(5, 1e-3)
-            .add(7, 5e-4).build();
+            .add(0, 3e-4)
+            .add(1, 2e-4)
+            .add(3, 1e-4)
+            .add(5, 5e-5)
+            .add(7, 2e-5).build();
 
         ComputationGraphConfiguration.GraphBuilder b = new NeuralNetConfiguration.Builder()
             .convolutionMode(ConvolutionMode.Same)
