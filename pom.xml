@@ -110,8 +110,9 @@
                     <onlyRunRules>
                         <rule>DuplicateDep</rule>
                         <rule>RedundantPluginVersion</rule>
+                        <!-- Rules incompatible with Java 9
                         <rule>VersionProp</rule>
-                        <rule>DotVersionProperty</rule>
+                        <rule>DotVersionProperty</rule> -->
                     </onlyRunRules>
                 </configuration>
                 <executions>
@@ -161,6 +162,25 @@
     </build>
 
     <profiles>
+        <profile>
+            <id>OpenJFX-11</id>
+            <activation>
+                <jdk>11</jdk>
+            </activation>
+            <dependencies>
+                <dependency>
+                    <groupId>org.openjfx</groupId>
+                    <artifactId>javafx-controls</artifactId>
+                    <version>11</version>
+                </dependency>
+                <dependency>
+                    <groupId>org.openjfx</groupId>
+                    <artifactId>javafx-swing</artifactId>
+                    <version>11</version>
+                </dependency>
+            </dependencies>
+        </profile>
+
         <profile>
             <id>OpenJFX</id>
             <activation>
