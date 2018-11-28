@@ -147,7 +147,7 @@ public class TrainSparkFault {
         sparkNet.setListeners(new PerformanceListener(10, true),
             new FailureTestingListener(FailureTestingListener.FailureMode.SYSTEM_EXIT_1,
                 new FailureTestingListener.And(
-                    new FailureTestingListener.HostNameTrigger("spark-node-2"),
+                    new FailureTestingListener.HostNameTrigger("spark-node-101"),
                     new FailureTestingListener.RandomProb(FailureTestingListener.CallType.ITER_DONE, 1.0))
                 ));
 
