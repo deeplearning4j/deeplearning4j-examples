@@ -148,7 +148,7 @@ public class TrainSparkFault {
             new FailureTestingListener(FailureTestingListener.FailureMode.SYSTEM_EXIT_1,
                 new FailureTestingListener.And(
                     new FailureTestingListener.HostNameTrigger("spark-node-101"),
-                    new FailureTestingListener.RandomProb(FailureTestingListener.CallType.ITER_DONE, 1.0))
+                    new FailureTestingListener.RandomProb(FailureTestingListener.CallType.ITER_DONE, 1.0/400))
                 ));
 
         //Create data loader
