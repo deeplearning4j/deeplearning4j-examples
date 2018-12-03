@@ -64,7 +64,6 @@ public class SVMLightExample {
             .layer(1, new OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD)
                 .activation(Activation.SOFTMAX)
                 .nIn(hiddenLayer1Num).nOut(numOfClasses).build())
-            .backprop(true).pretrain(false)
             .build();
 
         //run the model

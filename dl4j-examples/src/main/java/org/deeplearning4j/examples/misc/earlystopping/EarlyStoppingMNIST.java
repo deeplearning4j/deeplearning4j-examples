@@ -71,7 +71,7 @@ public class EarlyStoppingMNIST {
                 .activation(Activation.SOFTMAX)
                 .build())
             .setInputType(InputType.convolutionalFlat(28, 28, 1)) //See note in LenetMnistExample
-            .backprop(true).pretrain(false).build();
+            .build();
 
         //Get data:
         DataSetIterator mnistTrain1024 = new MnistDataSetIterator(batchSize,1024,false,true,true,12345);

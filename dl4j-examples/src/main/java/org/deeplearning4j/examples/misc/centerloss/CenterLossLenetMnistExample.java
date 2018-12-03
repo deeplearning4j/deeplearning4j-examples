@@ -85,7 +85,7 @@ public class CenterLossLenetMnistExample {
                 .alpha(alpha).lambda(lambda)
                 .build())
             .setInputType(InputType.convolutionalFlat(28, 28, 1))
-            .backprop(true).pretrain(false).build();
+            .build();
 
         MultiLayerNetwork model = new MultiLayerNetwork(conf);
         model.init();

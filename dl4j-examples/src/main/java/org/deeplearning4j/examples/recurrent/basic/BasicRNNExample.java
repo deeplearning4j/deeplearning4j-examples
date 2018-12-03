@@ -81,10 +81,6 @@ public class BasicRNNExample {
 		outputLayerBuilder.nOut(LEARNSTRING_CHARS.size());
 		listBuilder.layer(HIDDEN_LAYER_CONT, outputLayerBuilder.build());
 
-		// finish builder
-		listBuilder.pretrain(false);
-		listBuilder.backprop(true);
-
 		// create network
 		MultiLayerConfiguration conf = listBuilder.build();
 		MultiLayerNetwork net = new MultiLayerNetwork(conf);

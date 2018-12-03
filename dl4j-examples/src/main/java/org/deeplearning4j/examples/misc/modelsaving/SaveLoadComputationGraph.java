@@ -33,7 +33,7 @@ public class SaveLoadComputationGraph {
             .addLayer("layer0", new DenseLayer.Builder().nIn(4).nOut(3).activation(Activation.TANH).build(), "in")
             .addLayer("layer1", new OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD).activation(Activation.SOFTMAX).nIn(3).nOut(3).build(), "layer0")
             .setOutputs("layer1")
-            .backprop(true).pretrain(false).build();
+            .build();
 
         ComputationGraph net = new ComputationGraph(conf);
         net.init();

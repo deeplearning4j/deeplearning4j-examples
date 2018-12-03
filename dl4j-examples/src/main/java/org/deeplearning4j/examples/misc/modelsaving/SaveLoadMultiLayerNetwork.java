@@ -29,7 +29,7 @@ public class SaveLoadMultiLayerNetwork {
             .list()
             .layer(0, new DenseLayer.Builder().nIn(4).nOut(3).activation(Activation.TANH).build())
             .layer(1, new OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD).activation(Activation.SOFTMAX).nIn(3).nOut(3).build())
-            .backprop(true).pretrain(false).build();
+            .build();
 
         MultiLayerNetwork net = new MultiLayerNetwork(conf);
         net.init();

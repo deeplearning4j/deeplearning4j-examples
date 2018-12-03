@@ -80,7 +80,6 @@ public class CSVExample {
             .layer(2, new OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD)
                 .activation(Activation.SOFTMAX)
                 .nIn(3).nOut(outputNum).build())
-            .backprop(true).pretrain(false)
             .build();
 
         //run the model

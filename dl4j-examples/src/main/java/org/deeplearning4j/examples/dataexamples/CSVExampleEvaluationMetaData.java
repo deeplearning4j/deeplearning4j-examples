@@ -95,7 +95,6 @@ public class CSVExampleEvaluationMetaData {
             .layer(0, new DenseLayer.Builder().nIn(numInputs).nOut(3).build())
             .layer(1, new OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD)
                 .activation(Activation.SOFTMAX).nIn(3).nOut(outputNum).build())
-            .backprop(true).pretrain(false)
             .build();
 
         //Fit the model

@@ -61,7 +61,7 @@ public class UIExampleUtils {
                 .activation(Activation.SOFTMAX)
                 .build())
             .setInputType(InputType.convolutionalFlat(28,28,1))
-            .backprop(true).pretrain(false).build();
+            .build();
 
 
         MultiLayerNetwork net = new MultiLayerNetwork(conf);

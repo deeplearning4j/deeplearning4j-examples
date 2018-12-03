@@ -235,8 +235,6 @@ public class EncoderDecoderLSTM {
             .gradientNormalization(GradientNormalization.RenormalizeL2PerLayer);
 
         final GraphBuilder graphBuilder = builder.graphBuilder()
-            .pretrain(false)
-            .backprop(true)
             .backpropType(BackpropType.Standard)
             .tBPTTBackwardLength(TBPTT_SIZE)
             .tBPTTForwardLength(TBPTT_SIZE)
