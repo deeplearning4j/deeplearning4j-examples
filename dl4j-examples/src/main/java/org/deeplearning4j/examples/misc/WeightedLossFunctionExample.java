@@ -54,7 +54,6 @@ public class WeightedLossFunctionExample {
                 .lossFunction(new LossMCXENT(weightsArray))     // *** Weighted loss function configured here ***
                 .activation(Activation.SOFTMAX)
                 .nIn(5).nOut(numClasses).build())
-            .backprop(true).pretrain(false)
             .build();
 
         //Initialize and use the model as before

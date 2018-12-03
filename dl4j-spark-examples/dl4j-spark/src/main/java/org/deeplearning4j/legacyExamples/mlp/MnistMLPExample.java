@@ -109,7 +109,6 @@ public class MnistMLPExample {
             .layer(1, new DenseLayer.Builder().nIn(500).nOut(100).build())
             .layer(2, new OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD)
                 .activation(Activation.SOFTMAX).nIn(100).nOut(10).build())
-            .pretrain(false).backprop(true)
             .build();
 
         //Configuration for Spark training: see http://deeplearning4j.org/spark for explanation of these configuration options

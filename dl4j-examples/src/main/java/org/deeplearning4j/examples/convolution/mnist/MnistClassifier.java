@@ -129,7 +129,7 @@ public class MnistClassifier {
             .activation(Activation.SOFTMAX)
             .build())
         .setInputType(InputType.convolutionalFlat(28, 28, 1)) // InputType.convolutional for normal image
-        .backprop(true).pretrain(false).build();
+        .build();
 
     MultiLayerNetwork net = new MultiLayerNetwork(conf);
     net.init();

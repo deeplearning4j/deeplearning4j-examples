@@ -66,7 +66,6 @@ public class Cifar {
 
     public static void main(String[] args) throws Exception {
         // CudaEnvironment.getInstance().getConfiguration().;
-        Nd4j.setDataType(DataBuffer.Type.FLOAT);
         Cifar cf = new Cifar();
         //train model and eval model
         MultiLayerNetwork model = cf.trainModelByCifarWithNet();//ignore
@@ -151,8 +150,6 @@ public class Cifar {
                 .nOut(numLabels)
                 .activation(Activation.SOFTMAX)
                 .build())
-            .backprop(true)
-            .pretrain(false)
             .setInputType(InputType.convolutional(height, width, channels))
             .build();
 

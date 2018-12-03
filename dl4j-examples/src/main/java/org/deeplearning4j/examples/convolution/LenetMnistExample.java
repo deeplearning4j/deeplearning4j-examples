@@ -84,7 +84,7 @@ public class LenetMnistExample {
                         .activation(Activation.SOFTMAX)
                         .build())
                 .setInputType(InputType.convolutionalFlat(28,28,1)) //See note below
-                .backprop(true).pretrain(false).build();
+                .build();
 
         /*
         Regarding the .setInputType(InputType.convolutionalFlat(28,28,1)) line: This does a few things.

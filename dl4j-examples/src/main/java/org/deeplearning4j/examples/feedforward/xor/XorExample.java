@@ -127,16 +127,6 @@ public class XorExample {
         outputLayerBuilder.dist(new UniformDistribution(0, 1));
         listBuilder.layer(1, outputLayerBuilder.build());
 
-        // no pretrain phase for this network
-        listBuilder.pretrain(false);
-
-        // seems to be mandatory
-        // according to agibsonccc: You typically only use that with
-        // pretrain(true) when you want to do pretrain/finetune without changing
-        // the previous layers finetuned weights that's for autoencoders and
-        // rbms
-        listBuilder.backprop(true);
-
         // build and init the network, will check if everything is configured
         // correct
         MultiLayerConfiguration conf = listBuilder.build();

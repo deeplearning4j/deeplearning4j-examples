@@ -72,7 +72,7 @@ public class VariationalAutoEncoderExample {
                 .nIn(28 * 28)                       //Input size: 28x28
                 .nOut(2)                            //Size of the latent variable space: p(z|x). 2 dimensions here for plotting, use more in general
                 .build())
-            .pretrain(true).backprop(false).build();
+            .build();
 
         MultiLayerNetwork net = new MultiLayerNetwork(conf);
         net.init();

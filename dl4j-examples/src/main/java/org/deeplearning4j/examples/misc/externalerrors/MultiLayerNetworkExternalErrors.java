@@ -43,7 +43,6 @@ public class MultiLayerNetworkExternalErrors {
             .list()
             .layer(0, new DenseLayer.Builder().nIn(nIn).nOut(3).build())
             .layer(1, new DenseLayer.Builder().nIn(3).nOut(3).build())
-            .backprop(true).pretrain(false)
             .build();
 
         MultiLayerNetwork model = new MultiLayerNetwork(conf);

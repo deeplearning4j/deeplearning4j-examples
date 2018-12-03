@@ -121,7 +121,6 @@ public class AnimalModelByHdfsCluster {
                         .nOut(4)
                         .activation(Activation.SOFTMAX)
                         .build())
-                .backprop(true).pretrain(false)
                 .setInputType(InputType.convolutional(height, width, channels))
                 .build();
 
