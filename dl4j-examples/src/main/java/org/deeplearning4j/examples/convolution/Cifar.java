@@ -1,11 +1,10 @@
 package org.deeplearning4j.examples.convolution;
 
-import org.apache.commons.io.FilenameUtils;
 import org.datavec.image.loader.CifarLoader;
 import org.datavec.image.loader.NativeImageLoader;
 import org.deeplearning4j.api.storage.StatsStorage;
 import org.deeplearning4j.datasets.iterator.impl.CifarDataSetIterator;
-import org.deeplearning4j.eval.Evaluation;
+import org.nd4j.evaluation.classification.Evaluation;
 import org.deeplearning4j.nn.api.OptimizationAlgorithm;
 import org.deeplearning4j.nn.conf.*;
 import org.deeplearning4j.nn.conf.inputs.InputType;
@@ -49,7 +48,7 @@ import java.util.Arrays;
 
 //@Slf4j
 public class Cifar {
-    private static final String DATA_PATH = FilenameUtils.concat(System.getProperty("user.dir"), "/");
+    private static final File DATA_PATH = new File(System.getProperty("user.dir"));
     protected static final Logger log = LoggerFactory.getLogger(Cifar.class);
 
 
@@ -164,10 +163,11 @@ public class Cifar {
 
 
     public MultiLayerNetwork saveModel(MultiLayerNetwork model, String fileName) {
-        File locationModelFile = new File(DATA_PATH + fileName);
+        File locationModelFile = new File(DATA_PATH, fileName);
         boolean saveUpdater = false;
         try {
-            ModelSerializer.writeModel(model,locationModelFile,saveUpdater);
+            ModelSerializer.writeModel(model, locationModelFile, saveUpdater);
+            log.info("trained model was saved to {}", locationModelFile);
         } catch (Exception e) {
             log.error("Saving model is not success !",e);
         }
