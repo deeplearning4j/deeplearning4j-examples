@@ -43,18 +43,6 @@ public class GradientsSharingLenetMnistExample {
         // PLEASE NOTE: For CUDA FP16 precision support is available
         Nd4j.setDataType(DataBuffer.Type.HALF);
 
-        // temp workaround for backend initialization
-
-        CudaEnvironment.getInstance().getConfiguration()
-            // key option enabled
-            .allowMultiGPU(true)
-
-            // we're allowing larger memory caches
-            .setMaximumDeviceCache(2L * 1024L * 1024L * 1024L)
-
-            // cross-device access is used for faster model averaging over pcie
-            .allowCrossDeviceAccess(true);
-
         int nChannels = 1;
         int outputNum = 10;
 
@@ -75,39 +63,37 @@ public class GradientsSharingLenetMnistExample {
             .updater(new Nesterovs.Builder().learningRate(.01).build())
             .biasUpdater(new Nesterovs.Builder().learningRate(0.02).build())
             .list()
-            .layer(0, new ConvolutionLayer.Builder(5, 5)
+            .layer(new ConvolutionLayer.Builder(5, 5)
                 //nIn and nOut specify depth. nIn here is the nChannels and nOut is the number of filters to be applied
                 .nIn(nChannels)
                 .stride(1, 1)
                 .nOut(20)
                 .activation(Activation.IDENTITY)
                 .build())
-            .layer(1, new SubsamplingLayer.Builder(SubsamplingLayer.PoolingType.MAX)
+            .layer(new SubsamplingLayer.Builder(SubsamplingLayer.PoolingType.MAX)
                 .kernelSize(2,2)
                 .stride(2,2)
                 .build())
-            .layer(2, new ConvolutionLayer.Builder(5, 5)
+            .layer(new ConvolutionLayer.Builder(5, 5)
                 //Note that nIn need not be specified in later layers
                 .stride(1, 1)
                 .nOut(50)
                 .activation(Activation.IDENTITY)
                 .build())
-            .layer(3, new SubsamplingLayer.Builder(SubsamplingLayer.PoolingType.MAX)
+            .layer(new SubsamplingLayer.Builder(SubsamplingLayer.PoolingType.MAX)
                 .kernelSize(2,2)
                 .stride(2,2)
                 .build())
-            .layer(4, new DenseLayer.Builder().activation(Activation.RELU)
+            .layer(new DenseLayer.Builder().activation(Activation.RELU)
                 .nOut(500).build())
-            .layer(5, new OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD)
+            .layer(new OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD)
                 .nOut(outputNum)
                 .activation(Activation.SOFTMAX)
                 .build())
             .setInputType(InputType.convolutionalFlat(28,28,1)) //See note below
-            .backprop(true).pretrain(false).build();
+            .build();
         MultiLayerNetwork model = new MultiLayerNetwork(conf);
         model.init();
-
-        model.setListeners(new ScoreIterationListener(100));
 
         // ParallelWrapper will take care of load balancing between GPUs.
         ParallelWrapper wrapper = new ParallelWrapper.Builder(model)
@@ -116,9 +102,6 @@ public class GradientsSharingLenetMnistExample {
 
             // set number of workers equal to number of available devices. x1-x2 are good values to start with
             .workers(2)
-
-            // rare averaging improves performance, but might reduce model accuracy
-            .workspaceMode(WorkspaceMode.SINGLE)
 
             .trainerFactory(new SymmetricTrainerContext())
 
@@ -129,6 +112,7 @@ public class GradientsSharingLenetMnistExample {
             .build();
 
         log.info("Train model....");
+        model.setListeners(new ScoreIterationListener(100));
 
         long timeX = System.currentTimeMillis();
 
@@ -150,14 +134,8 @@ public class GradientsSharingLenetMnistExample {
         log.info("*** Training complete, time: {} ***", (timeY - timeX));
 
         log.info("Evaluate model....");
-        Evaluation eval = new Evaluation(outputNum);
-        while(mnistTest.hasNext()){
-            DataSet ds = mnistTest.next();
-            INDArray output = model.output(ds.getFeatures(), false);
-            eval.eval(ds.getLabels(), output);
-        }
+        Evaluation eval = model.evaluate(mnistTest);
         log.info(eval.stats());
-        mnistTest.reset();
 
         log.info("****************Example finished********************");
     }

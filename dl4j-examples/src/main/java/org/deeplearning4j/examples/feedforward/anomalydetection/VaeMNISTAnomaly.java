@@ -15,6 +15,7 @@ import org.nd4j.linalg.dataset.api.DataSet;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.learning.config.Adam;
+import org.nd4j.linalg.learning.config.Nadam;
 import org.nd4j.linalg.primitives.Pair;
 
 import java.io.IOException;
@@ -57,12 +58,11 @@ public class VaeMNISTAnomaly {
         Nd4j.getRandom().setSeed(rngSeed);
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
             .seed(rngSeed)
-//            .updater(new Adam(0.05))
-            .updater(new Adam(1e-3))
+            .updater(new Nadam())
             .weightInit(WeightInit.XAVIER)
             .l2(1e-4)
             .list()
-            .layer(0, new VariationalAutoencoder.Builder()
+            .layer(new VariationalAutoencoder.Builder()
                 .activation(Activation.LEAKYRELU)
                 .encoderLayerSizes(256, 256)                    //2 encoder layers, each of size 256
                 .decoderLayerSizes(256, 256)                    //2 decoder layers, each of size 256
@@ -72,7 +72,7 @@ public class VaeMNISTAnomaly {
                 .nIn(28 * 28)                                   //Input size: 28x28
                 .nOut(32)                                       //Size of the latent variable space: p(z|x) - 32 values
                 .build())
-            .pretrain(true).backprop(false).build();
+            .build();
 
         MultiLayerNetwork net = new MultiLayerNetwork(conf);
         net.init();

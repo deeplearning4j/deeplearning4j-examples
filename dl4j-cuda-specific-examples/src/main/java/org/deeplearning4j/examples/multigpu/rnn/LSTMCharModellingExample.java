@@ -45,32 +45,18 @@ import java.util.Random;
  */
 public class LSTMCharModellingExample {
 	public static void main( String[] args ) throws Exception {
+	    int seed =  12345;
 		int lstmLayerSize = 200;					//Number of units in each LSTM layer
 		int miniBatchSize = 32;						//Size of mini batch to use when  training
 		int exampleLength = 1000;					//Length of each training example sequence to use. This could certainly be increased
         int tbpttLength = 50;                       //Length for truncated backpropagation through time. i.e., do parameter updates ever 50 characters
-		int numEpochs = 1;							//Total number of training epochs
-        int generateSamplesEveryNMinibatches = 10;  //How frequently to generate samples from the network? 1000 characters / 50 tbptt length: 20 parameter updates per minibatch
 		int nSamplesToGenerate = 4;					//Number of samples to generate after each training epoch
 		int nCharactersToSample = 300;				//Length of each sample to generate
 		String generationInitialization = null;		//Optional character initialization; a random character is used if null
-		// Above is Used to 'prime' the LSTM with a character sequence to continue/complete.
+
+        // Above is Used to 'prime' the LSTM with a character sequence to continue/complete.
 		// Initialization characters must all be in CharacterIterator.getMinimalCharacterSet() by default
-
-        // temp workaround for backend initialization
-/*
-        CudaEnvironment.getInstance().getConfiguration()
-            // key option enabled
-            .allowMultiGPU(true)
-
-            // we're allowing larger memory caches
-            .setMaximumDeviceCache(2L * 1024L * 1024L * 1024L)
-
-            // cross-device access is used for faster model averaging over pcie
-            .allowCrossDeviceAccess(true);
-*/
-
-		Random rng = new Random(12345);
+		Random rng = new Random(seed);
 
 		//Get a DataSetIterator that handles vectorization of text into something we can use to train
 		// our LSTM network.
@@ -79,19 +65,18 @@ public class LSTMCharModellingExample {
 
 		//Set up network configuration:
 		MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
-			.seed(12345)
+			.seed(seed)
 			.l2(0.001)
             .weightInit(WeightInit.XAVIER)
             .updater(new RmsProp.Builder().learningRate(0.1).build())
 			.list()
-			.layer(0, new LSTM.Builder().nIn(iter.inputColumns()).nOut(lstmLayerSize)
+			.layer(new LSTM.Builder().nIn(iter.inputColumns()).nOut(lstmLayerSize)
 					.activation(Activation.TANH).build())
-			.layer(1, new LSTM.Builder().nIn(lstmLayerSize).nOut(lstmLayerSize)
+			.layer(new LSTM.Builder().nIn(lstmLayerSize).nOut(lstmLayerSize)
 					.activation(Activation.TANH).build())
-			.layer(2, new RnnOutputLayer.Builder(LossFunction.MCXENT).activation(Activation.SOFTMAX)        //MCXENT + softmax for classification
+			.layer(new RnnOutputLayer.Builder(LossFunction.MCXENT).activation(Activation.SOFTMAX)        //MCXENT + softmax for classification
 					.nIn(lstmLayerSize).nOut(nOut).build())
             .backpropType(BackpropType.TruncatedBPTT).tBPTTForwardLength(tbpttLength).tBPTTBackwardLength(tbpttLength)
-			.pretrain(false).backprop(true)
 			.build();
 
 		MultiLayerNetwork net = new MultiLayerNetwork(conf);
@@ -131,13 +116,7 @@ public class LSTMCharModellingExample {
             .prefetchBuffer(24)
 
             // set number of workers equal to number of available devices. x1-x2 are good values to start with
-            .workers(4)
-
-            // rare averaging improves performance, but might reduce model accuracy
-            .averagingFrequency(3)
-
-            // if set to TRUE, on every averaging model score will be reported
-            .reportScoreAfterAveraging(true)
+            .workers(2)
 
             .build();
 

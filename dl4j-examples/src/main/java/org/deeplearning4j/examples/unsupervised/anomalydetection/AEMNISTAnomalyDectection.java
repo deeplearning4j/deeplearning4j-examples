@@ -20,6 +20,7 @@ import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.nd4j.linalg.learning.config.Adam;
+import org.nd4j.linalg.learning.config.Nadam;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -127,17 +128,17 @@ public class AEMNISTAnomalyDectection {
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
             .seed(123456)
             .optimizationAlgo( OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
-            .updater(new Adam(2e-3))
+            .updater(new Nadam())
             .l2(1e-5)
             .weightInit(WeightInit.XAVIER)
             .activation(Activation.RELU)
             .list()
-            .layer(0, new LSTM.Builder().name("encoder0").nIn(784).nOut(800).build())
-            .layer(1, new LSTM.Builder().name("encoder1").nIn(800).nOut(250).build())
-            .layer(2, new LSTM.Builder().name("encoder2").nIn(250).nOut(10).build())
-            .layer(3, new LSTM.Builder().name("decoder1").nIn(10).nOut(250).build())
-            .layer(4, new LSTM.Builder().name("decoder2").nIn(250).nOut(800).build())
-            .layer(5, new RnnOutputLayer.Builder().name("output").nIn(800).nOut(784)
+            .layer(new LSTM.Builder().name("encoder0").nIn(784).nOut(800).build())
+            .layer(new LSTM.Builder().name("encoder1").nOut(250).build())
+            .layer(new LSTM.Builder().name("encoder2").nOut(10).build())
+            .layer(new LSTM.Builder().name("decoder1").nOut(250).build())
+            .layer(new LSTM.Builder().name("decoder2").nOut(800).build())
+            .layer(new RnnOutputLayer.Builder().name("output").nOut(784)
                 .activation(Activation.IDENTITY).lossFunction(LossFunctions.LossFunction.MSE).build())
             .build();
         MultiLayerNetwork net = new MultiLayerNetwork(conf);

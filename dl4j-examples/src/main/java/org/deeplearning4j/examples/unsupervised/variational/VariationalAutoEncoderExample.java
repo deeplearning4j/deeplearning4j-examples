@@ -63,7 +63,7 @@ public class VariationalAutoEncoderExample {
             .weightInit(WeightInit.XAVIER)
             .l2(1e-4)
             .list()
-            .layer(0, new VariationalAutoencoder.Builder()
+            .layer(new VariationalAutoencoder.Builder()
                 .activation(Activation.LEAKYRELU)
                 .encoderLayerSizes(256, 256)        //2 encoder layers, each of size 256
                 .decoderLayerSizes(256, 256)        //2 decoder layers, each of size 256
@@ -72,7 +72,7 @@ public class VariationalAutoEncoderExample {
                 .nIn(28 * 28)                       //Input size: 28x28
                 .nOut(2)                            //Size of the latent variable space: p(z|x). 2 dimensions here for plotting, use more in general
                 .build())
-            .pretrain(true).backprop(false).build();
+            .build();
 
         MultiLayerNetwork net = new MultiLayerNetwork(conf);
         net.init();

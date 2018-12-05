@@ -50,8 +50,6 @@ public class SequenceAnomalyDetection {
         UIServer uiServer = UIServer.getInstance();
         StatsStorage statsStorage = new InMemoryStatsStorage();
         uiServer.attach(statsStorage);
-        net.setListeners(new StatsListener(statsStorage),new ScoreIterationListener(10));
-
 
         DataNormalization normalizer = new NormalizerStandardize();
         normalizer.fit(trainIterator);              //Collect training data statistics
@@ -60,11 +58,11 @@ public class SequenceAnomalyDetection {
         testIterator.setPreProcessor(normalizer);	//Note: using training normalization statistics
         NormalizerSerializer.getDefault().write(normalizer, dataPath + File.separatorChar + "anomalyDetectionNormlizer.ty");
 
+        // training
+        net.setListeners(new StatsListener(statsStorage), new ScoreIterationListener(10));
+        net.fit(trainIterator, numEpochs);
 
-        for( int i = 0; i < numEpochs; i ++ ) {
-            System.out.println("=============numEpochs==========================" + i);
-            net.fit(trainIterator);
-        }
+        // save model to disk
         ModelSerializer.writeModel(net, modelFile,true);
 
         List<Pair<Double,String>> evalList = new ArrayList<>();
@@ -106,12 +104,12 @@ public class SequenceAnomalyDetection {
                 .weightInit(WeightInit.XAVIER)
                 .activation(Activation.TANH)
                 .list()
-                .layer(0, new LSTM.Builder().name("encoder0").nIn(inputNum).nOut(100).build())
-                .layer(1, new LSTM.Builder().name("encoder1").nOut(80).build())
-                .layer(2, new LSTM.Builder().name("encoder2").nOut(5).build())
-                .layer(3, new LSTM.Builder().name("decoder1").nOut(80).build())
-                .layer(4, new LSTM.Builder().name("decoder2").nOut(100).build())
-                .layer(5, new RnnOutputLayer.Builder().name("output").nOut(outputNum)
+                .layer(new LSTM.Builder().name("encoder0").nIn(inputNum).nOut(100).build())
+                .layer(new LSTM.Builder().name("encoder1").nOut(80).build())
+                .layer(new LSTM.Builder().name("encoder2").nOut(5).build())
+                .layer(new LSTM.Builder().name("decoder1").nOut(80).build())
+                .layer(new LSTM.Builder().name("decoder2").nOut(100).build())
+                .layer(new RnnOutputLayer.Builder().name("output").nOut(outputNum)
                         .activation(Activation.IDENTITY).lossFunction(LossFunctions.LossFunction.MSE).build())
                 .build();
         MultiLayerNetwork net = new MultiLayerNetwork(conf);

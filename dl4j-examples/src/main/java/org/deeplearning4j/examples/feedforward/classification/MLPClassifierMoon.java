@@ -65,11 +65,11 @@ public class MLPClassifierMoon {
                 .seed(seed)
                 .updater(new Nesterovs(learningRate, 0.9))
                 .list()
-                .layer(0, new DenseLayer.Builder().nIn(numInputs).nOut(numHiddenNodes)
+                .layer(new DenseLayer.Builder().nIn(numInputs).nOut(numHiddenNodes)
                         .weightInit(WeightInit.XAVIER)
                         .activation(Activation.RELU)
                         .build())
-                .layer(1, new OutputLayer.Builder(LossFunction.NEGATIVELOGLIKELIHOOD)
+                .layer(new OutputLayer.Builder(LossFunction.NEGATIVELOGLIKELIHOOD)
                         .weightInit(WeightInit.XAVIER)
                         .activation(Activation.SOFTMAX)
                         .nIn(numHiddenNodes).nOut(numOutputs).build())
@@ -80,20 +80,10 @@ public class MLPClassifierMoon {
         model.init();
         model.setListeners(new ScoreIterationListener(100));    //Print score every 100 parameter updates
 
-        for ( int n = 0; n < nEpochs; n++) {
-            model.fit( trainIter );
-        }
+        model.fit( trainIter, nEpochs );
 
         System.out.println("Evaluate model....");
-        Evaluation eval = new Evaluation(numOutputs);
-        while(testIter.hasNext()){
-            DataSet t = testIter.next();
-            INDArray features = t.getFeatures();
-            INDArray labels = t.getLabels();
-            INDArray predicted = model.output(features,false);
-
-            eval.eval(labels, predicted);
-        }
+        Evaluation eval = model.evaluate(testIter);
 
         //Print the evaluation statistics
         System.out.println(eval.stats());
