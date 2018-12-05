@@ -138,17 +138,11 @@ public class XorExample {
 
         // C&P from LSTMCharModellingExample
         // Print the number of parameters in the network (and for each layer)
-        Layer[] layers = net.getLayers();
-        long totalNumParams = 0;
-        for (int i = 0; i < layers.length; i++) {
-            long nParams = layers[i].numParams();
-            System.out.println("Number of parameters in layer " + i + ": " + nParams);
-            totalNumParams += nParams;
-        }
-        System.out.println("Total number of network parameters: " + totalNumParams);
+        System.out.println(net.summary());
 
         // here the actual learning takes place
-        for( int i=0; i<10000; i++ ) {
+        int numEpochs = 10000;
+        for( int i=0; i<numEpochs; i++ ) {
             net.fit(ds);
         }
 

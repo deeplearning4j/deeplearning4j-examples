@@ -55,24 +55,19 @@ public class TrainLotteryModel {
         UIServer uiServer = UIServer.getInstance();
         StatsStorage statsStorage = new InMemoryStatsStorage();
         uiServer.attach(statsStorage);
-        model.setListeners(new StatsListener(statsStorage),new ScoreIterationListener(10));
 
-        Layer[] layers = model.getLayers();
-        long totalNumParams = 0;
-        for( int i=0; i<layers.length; i++ ){
-            long nParams = layers[i].numParams();
-            System.out.println("Number of parameters in layer " + i + ": " + nParams);
-            totalNumParams += nParams;
-        }
-        System.out.println("Total number of network parameters: " + totalNumParams);
+        // print layers and parameters
+        System.out.println(model.summary());
+
+        // training
+        model.setListeners(new StatsListener(statsStorage), new ScoreIterationListener(10));
 
         long startTime = System.currentTimeMillis();
-        for (int i = 0;i < numEpochs; i ++) {
-            System.out.println("=============numEpochs==========================" + i);
-            model.fit(trainIterator);
-        }
+        model.fit(trainIterator, numEpochs);
         long endTime = System.currentTimeMillis();
         System.out.println("=============run time=====================" + (endTime - startTime));
+
+        // save model to disk
         ModelSerializer.writeModel(model, modelFile, true);
 
         int luckySize = 5;
@@ -187,11 +182,11 @@ public class TrainLotteryModel {
                 .weightInit(WeightInit.XAVIER)
                 .updater(new RmsProp.Builder().rmsDecay(0.95).learningRate(1e-2).build())
                 .list()
-                .layer(0, new GravesLSTM.Builder().name("lstm1")
+                .layer(new LSTM.Builder().name("lstm1")
                         .activation(Activation.TANH).nIn(inputNum).nOut(100).build())
-                .layer(1, new GravesLSTM.Builder().name("lstm2")
+                .layer(new LSTM.Builder().name("lstm2")
                         .activation(Activation.TANH).nOut(80).build())
-                .layer(2, new RnnOutputLayer.Builder().name("output")
+                .layer(new RnnOutputLayer.Builder().name("output")
                         .activation(Activation.SOFTMAX).nOut(outputNum).lossFunction(LossFunctions.LossFunction.MSE)
                         .build())
                 .build();

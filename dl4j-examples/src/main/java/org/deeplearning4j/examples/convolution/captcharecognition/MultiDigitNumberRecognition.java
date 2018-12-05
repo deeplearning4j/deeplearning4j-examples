@@ -69,11 +69,10 @@ public class MultiDigitNumberRecognition {
         MultiDataSetIterator trainMulIterator = new MultiRecordDataSetIterator(batchSize, "train");
         MultiDataSetIterator testMulIterator = new MultiRecordDataSetIterator(batchSize,"test");
         MultiDataSetIterator validateMulIterator = new MultiRecordDataSetIterator(batchSize,"validate");
+
         //fit
-        for ( int i = 0; i < epochs; i ++ ) {
-            System.out.println("Epoch=====================" + i);
-            model.fit(trainMulIterator);
-        }
+        model.fit(trainMulIterator, epochs);
+
         ModelSerializer.writeModel(model, modelPath, true);
         long endTime = System.currentTimeMillis();
         System.out.println("=============run time=====================" + (endTime - startTime));

@@ -63,7 +63,7 @@ public class VariationalAutoEncoderExample {
             .weightInit(WeightInit.XAVIER)
             .l2(1e-4)
             .list()
-            .layer(0, new VariationalAutoencoder.Builder()
+            .layer(new VariationalAutoencoder.Builder()
                 .activation(Activation.LEAKYRELU)
                 .encoderLayerSizes(256, 256)        //2 encoder layers, each of size 256
                 .decoderLayerSizes(256, 256)        //2 decoder layers, each of size 256

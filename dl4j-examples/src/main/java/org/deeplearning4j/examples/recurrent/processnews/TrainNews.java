@@ -46,6 +46,7 @@ import org.deeplearning4j.nn.conf.layers.LSTM;
 import org.deeplearning4j.nn.conf.layers.RnnOutputLayer;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
+import org.deeplearning4j.optimize.listeners.EvaluativeListener;
 import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
 import org.deeplearning4j.text.tokenization.tokenizer.preprocessor.CommonPreprocessor;
 import org.deeplearning4j.text.tokenization.tokenizerfactory.DefaultTokenizerFactory;
@@ -113,27 +114,22 @@ public class TrainNews {
             .weightInit(WeightInit.XAVIER)
             .gradientNormalization(GradientNormalization.ClipElementWiseAbsoluteValue).gradientNormalizationThreshold(1.0)
             .list()
-            .layer(0, new LSTM.Builder().nIn(inputNeurons).nOut(200)
+            .layer( new LSTM.Builder().nIn(inputNeurons).nOut(200)
                 .activation(Activation.SOFTSIGN).build())
-            .layer(1, new RnnOutputLayer.Builder().activation(Activation.SOFTMAX)
+            .layer(new RnnOutputLayer.Builder().activation(Activation.SOFTMAX)
                 .lossFunction(LossFunctions.LossFunction.MCXENT).nIn(200).nOut(outputs).build())
             .build();
 
         MultiLayerNetwork net = new MultiLayerNetwork(conf);
         net.init();
-        net.setListeners(new ScoreIterationListener(1));
 
-        System.out.println("Starting training");
-        for (int i = 0; i < nEpochs; i++) {
-            net.fit(iTrain);
-            iTrain.reset();
-            System.out.println("Epoch " + i + " complete. Starting evaluation:");
+        System.out.println("Starting training...");
+        net.setListeners(new ScoreIterationListener(1), new EvaluativeListener(iTest, 1000));
+        net.fit(iTrain, nEpochs);
 
-            //Run evaluation. This is on 25k reviews, so can take some time
-            Evaluation evaluation = net.evaluate(iTest);
-
-            System.out.println(evaluation.stats());
-        }
+        System.out.println("Evaluating...");
+        Evaluation eval = net.evaluate(iTest);
+        System.out.println(eval.stats());
 
         ModelSerializer.writeModel(net, userDirectory + "NewsModel.net", true);
         System.out.println("----- Example complete -----");

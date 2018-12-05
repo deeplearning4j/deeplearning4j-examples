@@ -9,6 +9,7 @@ import org.deeplearning4j.earlystopping.saver.LocalFileModelSaver;
 import org.deeplearning4j.earlystopping.scorecalc.DataSetLossCalculator;
 import org.deeplearning4j.earlystopping.termination.MaxEpochsTerminationCondition;
 import org.deeplearning4j.earlystopping.termination.MaxTimeIterationTerminationCondition;
+import org.deeplearning4j.earlystopping.termination.ScoreImprovementEpochTerminationCondition;
 import org.deeplearning4j.earlystopping.trainer.EarlyStoppingTrainer;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
@@ -55,18 +56,18 @@ public class EarlyStoppingMNIST {
             .activation(Activation.RELU)
             .updater(new Nesterovs(0.02, 0.9))
             .list()
-            .layer(0, new ConvolutionLayer.Builder(5, 5)
+            .layer(new ConvolutionLayer.Builder(5, 5)
                 .nIn(nChannels)
                 .stride(1, 1)
                 .nOut(20).dropOut(0.5)
                 .build())
-            .layer(1, new SubsamplingLayer.Builder(SubsamplingLayer.PoolingType.MAX)
+            .layer(new SubsamplingLayer.Builder(SubsamplingLayer.PoolingType.MAX)
                 .kernelSize(2, 2)
                 .stride(2, 2)
                 .build())
-            .layer(2, new DenseLayer.Builder()
+            .layer(new DenseLayer.Builder()
                 .nOut(500).build())
-            .layer(3, new OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD)
+            .layer(new OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD)
                 .nOut(outputNum)
                 .activation(Activation.SOFTMAX)
                 .build())
@@ -83,7 +84,7 @@ public class EarlyStoppingMNIST {
         dirFile.mkdir(); // If mkdir fails, it is probably because the directory already exists. Which is fine.
         EarlyStoppingModelSaver saver = new LocalFileModelSaver(exampleDirectory);
         EarlyStoppingConfiguration esConf = new EarlyStoppingConfiguration.Builder()
-                .epochTerminationConditions(new MaxEpochsTerminationCondition(50)) //Max of 50 epochs
+                .epochTerminationConditions(new MaxEpochsTerminationCondition(100), new ScoreImprovementEpochTerminationCondition(8)) //Max of 50 epochs
                 .evaluateEveryNEpochs(1)
                 .iterationTerminationConditions(new MaxTimeIterationTerminationCondition(20, TimeUnit.MINUTES)) //Max of 20 minutes
                 .scoreCalculator(new DataSetLossCalculator(mnistTest512, true))     //Calculate test set score

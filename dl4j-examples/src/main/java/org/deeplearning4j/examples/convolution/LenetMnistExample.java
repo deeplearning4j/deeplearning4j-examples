@@ -8,6 +8,7 @@ import org.deeplearning4j.nn.conf.inputs.InputType;
 import org.deeplearning4j.nn.conf.layers.*;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
+import org.deeplearning4j.optimize.listeners.EvaluativeListener;
 import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
 import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
@@ -56,30 +57,30 @@ public class LenetMnistExample {
                 .weightInit(WeightInit.XAVIER)
                 .updater(new Nesterovs(0.01, 0.9))
                 .list()
-                .layer(0, new ConvolutionLayer.Builder(5, 5)
+                .layer(new ConvolutionLayer.Builder(5, 5)
                         //nIn and nOut specify depth. nIn here is the nChannels and nOut is the number of filters to be applied
                         .nIn(nChannels)
-                        .stride(1, 1)
+                        .stride(1,1)
                         .nOut(20)
                         .activation(Activation.IDENTITY)
                         .build())
-                .layer(1, new SubsamplingLayer.Builder(PoolingType.MAX)
+                .layer(new SubsamplingLayer.Builder(PoolingType.MAX)
                         .kernelSize(2,2)
                         .stride(2,2)
                         .build())
-                .layer(2, new ConvolutionLayer.Builder(5, 5)
+                .layer(new ConvolutionLayer.Builder(5, 5)
                         //Note that nIn need not be specified in later layers
-                        .stride(1, 1)
+                        .stride(1,1)
                         .nOut(50)
                         .activation(Activation.IDENTITY)
                         .build())
-                .layer(3, new SubsamplingLayer.Builder(PoolingType.MAX)
+                .layer(new SubsamplingLayer.Builder(PoolingType.MAX)
                         .kernelSize(2,2)
                         .stride(2,2)
                         .build())
-                .layer(4, new DenseLayer.Builder().activation(Activation.RELU)
+                .layer(new DenseLayer.Builder().activation(Activation.RELU)
                         .nOut(500).build())
-                .layer(5, new OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD)
+                .layer(new OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD)
                         .nOut(outputNum)
                         .activation(Activation.SOFTMAX)
                         .build())
@@ -103,18 +104,10 @@ public class LenetMnistExample {
         MultiLayerNetwork model = new MultiLayerNetwork(conf);
         model.init();
 
+        log.info("Train model...");
+        model.setListeners(new ScoreIterationListener(10), new EvaluativeListener(mnistTest, 300)); //Print score every 10 iterations
+        model.fit(mnistTrain, nEpochs);
 
-        log.info("Train model....");
-        model.setListeners(new ScoreIterationListener(10)); //Print score every 10 iterations
-        for( int i=0; i<nEpochs; i++ ) {
-            model.fit(mnistTrain);
-            log.info("*** Completed epoch {} ***", i);
-
-            log.info("Evaluate model....");
-            Evaluation eval = model.evaluate(mnistTest);
-            log.info(eval.stats());
-            mnistTest.reset();
-        }
         log.info("****************Example finished********************");
     }
 }

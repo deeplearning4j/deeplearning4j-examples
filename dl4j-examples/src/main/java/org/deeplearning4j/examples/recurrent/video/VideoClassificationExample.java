@@ -77,24 +77,24 @@ public class VideoClassificationExample {
                 .l2(0.001) //l2 regularization on all layers
                 .updater(new AdaGrad(0.04))
                 .list()
-                .layer(0, new ConvolutionLayer.Builder(10, 10)
+                .layer(new ConvolutionLayer.Builder(10, 10)
                         .nIn(3) //3 channels: RGB
                         .nOut(30)
                         .stride(4, 4)
                         .activation(Activation.RELU)
                         .weightInit(WeightInit.RELU)
                         .build())   //Output: (130-10+0)/4+1 = 31 -> 31*31*30
-                .layer(1, new SubsamplingLayer.Builder(SubsamplingLayer.PoolingType.MAX)
+                .layer(new SubsamplingLayer.Builder(SubsamplingLayer.PoolingType.MAX)
                         .kernelSize(3, 3)
                         .stride(2, 2).build())   //(31-3+0)/2+1 = 15
-                .layer(2, new ConvolutionLayer.Builder(3, 3)
+                .layer(new ConvolutionLayer.Builder(3, 3)
                         .nIn(30)
                         .nOut(10)
                         .stride(2, 2)
                         .activation(Activation.RELU)
                         .weightInit(WeightInit.RELU)
                         .build())   //Output: (15-3+0)/2+1 = 7 -> 7*7*10 = 490
-                .layer(3, new DenseLayer.Builder()
+                .layer(new DenseLayer.Builder()
                         .activation(Activation.RELU)
                         .nIn(490)
                         .nOut(50)
@@ -103,7 +103,7 @@ public class VideoClassificationExample {
                         .gradientNormalizationThreshold(10)
                         .updater(new AdaGrad(0.01))
                         .build())
-                .layer(4, new LSTM.Builder()
+                .layer(new LSTM.Builder()
                         .activation(Activation.SOFTSIGN)
                         .nIn(50)
                         .nOut(50)
@@ -112,7 +112,7 @@ public class VideoClassificationExample {
                         .gradientNormalization(GradientNormalization.ClipElementWiseAbsoluteValue)
                         .gradientNormalizationThreshold(10)
                         .build())
-                .layer(5, new RnnOutputLayer.Builder(LossFunctions.LossFunction.MCXENT)
+                .layer(new RnnOutputLayer.Builder(LossFunctions.LossFunction.MCXENT)
                         .activation(Activation.SOFTMAX)
                         .nIn(50)
                         .nOut(4)    //4 possible shapes: circle, square, arc, line
@@ -130,18 +130,17 @@ public class VideoClassificationExample {
 
         MultiLayerNetwork net = new MultiLayerNetwork(conf);
         net.init();
-        net.setListeners(new ScoreIterationListener(1));
 
-        System.out.println("Number of parameters in network: " + net.numParams());
-        for( int i=0; i<net.getnLayers(); i++ ){
-            System.out.println("Layer " + i + " nParams = " + net.getLayer(i).numParams());
-        }
+        // summary of layer and parameters
+        System.out.println(net.summary());
 
         int testStartIdx = (int) (0.9 * N_VIDEOS_TO_GENERATE);  //90% in train, 10% in test
         int nTest = N_VIDEOS_TO_GENERATE - testStartIdx;
 
         //Conduct learning
         System.out.println("Starting training...");
+        net.setListeners(new ScoreIterationListener(1));
+
         int nTrainEpochs = 15;
         for (int i = 0; i < nTrainEpochs; i++) {
             DataSetIterator trainData = getDataSetIterator(dataDirectory, 0, testStartIdx - 1, miniBatchSize);

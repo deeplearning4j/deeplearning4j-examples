@@ -19,6 +19,7 @@ import org.deeplearning4j.nn.conf.layers.OutputLayer;
 import org.deeplearning4j.nn.conf.layers.PoolingType;
 import org.deeplearning4j.nn.graph.ComputationGraph;
 import org.deeplearning4j.nn.weights.WeightInit;
+import org.deeplearning4j.optimize.listeners.EvaluativeListener;
 import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
 import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.api.ndarray.INDArray;
@@ -124,16 +125,8 @@ public class CnnSentenceClassificationExample {
         DataSetIterator testIter = getDataSetIterator(false, wordVectors, batchSize, truncateReviewsToLength, rng);
 
         System.out.println("Starting training");
-        net.setListeners(new ScoreIterationListener(100));
-        for (int i = 0; i < nEpochs; i++) {
-            net.fit(trainIter);
-            System.out.println("Epoch " + i + " complete. Starting evaluation:");
-
-            //Run evaluation. This is on 25k reviews, so can take some time
-            Evaluation evaluation = net.evaluate(testIter);
-
-            System.out.println(evaluation.stats());
-        }
+        net.setListeners(new ScoreIterationListener(100), new EvaluativeListener(testIter, 1000));
+        net.fit(trainIter, nEpochs);
 
 
         //After training: load a single sentence and generate a prediction

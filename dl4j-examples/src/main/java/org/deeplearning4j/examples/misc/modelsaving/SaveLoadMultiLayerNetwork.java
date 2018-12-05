@@ -26,8 +26,8 @@ public class SaveLoadMultiLayerNetwork {
             .weightInit(WeightInit.XAVIER)
             .updater(new Nesterovs(0.1, 0.9))
             .list()
-            .layer(0, new DenseLayer.Builder().nIn(4).nOut(3).activation(Activation.TANH).build())
-            .layer(1, new OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD).activation(Activation.SOFTMAX).nIn(3).nOut(3).build())
+            .layer(new DenseLayer.Builder().nIn(4).nOut(3).activation(Activation.TANH).build())
+            .layer(new OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD).activation(Activation.SOFTMAX).nIn(3).nOut(3).build())
             .build();
 
         MultiLayerNetwork net = new MultiLayerNetwork(conf);
@@ -41,7 +41,6 @@ public class SaveLoadMultiLayerNetwork {
 
         //Load the model
         MultiLayerNetwork restored = ModelSerializer.restoreMultiLayerNetwork(locationToSave);
-
 
         System.out.println("Saved and loaded parameters are equal:      " + net.params().equals(restored.params()));
         System.out.println("Saved and loaded configurations are equal:  " + net.getLayerWiseConfigurations().equals(restored.getLayerWiseConfigurations()));

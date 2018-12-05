@@ -14,11 +14,13 @@ import org.deeplearning4j.nn.conf.layers.LSTM;
 import org.deeplearning4j.nn.conf.layers.RnnOutputLayer;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
+import org.deeplearning4j.optimize.listeners.EvaluativeListener;
 import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
 import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.nd4j.linalg.dataset.api.preprocessor.DataNormalization;
 import org.nd4j.linalg.dataset.api.preprocessor.NormalizerStandardize;
+import org.nd4j.linalg.learning.config.Nadam;
 import org.nd4j.linalg.learning.config.Nesterovs;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 import org.nd4j.linalg.primitives.Pair;
@@ -123,34 +125,27 @@ public class UCISequenceClassificationExample {
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
                 .seed(123)    //Random number generator seed for improved repeatability. Optional.
                 .weightInit(WeightInit.XAVIER)
-                .updater(new Nesterovs(0.005))
+                .updater(new Nadam())
                 .gradientNormalization(GradientNormalization.ClipElementWiseAbsoluteValue)  //Not always required, but helps with this data set
                 .gradientNormalizationThreshold(0.5)
                 .list()
-                .layer(0, new LSTM.Builder().activation(Activation.TANH).nIn(1).nOut(10).build())
-                .layer(1, new RnnOutputLayer.Builder(LossFunctions.LossFunction.MCXENT)
+                .layer(new LSTM.Builder().activation(Activation.TANH).nIn(1).nOut(10).build())
+                .layer(new RnnOutputLayer.Builder(LossFunctions.LossFunction.MCXENT)
                         .activation(Activation.SOFTMAX).nIn(10).nOut(numLabelClasses).build())
                 .build();
 
         MultiLayerNetwork net = new MultiLayerNetwork(conf);
         net.init();
 
-        net.setListeners(new ScoreIterationListener(20));   //Print the score (loss function value) every 20 iterations
+        log.info("Starting training...");
+        net.setListeners(new ScoreIterationListener(20), new EvaluativeListener(testData, 300));   //Print the score (loss function value) every 20 iterations
 
-
-        // ----- Train the network, evaluating the test set performance at each epoch -----
         int nEpochs = 40;
-        String str = "Test set evaluation at epoch %d: Accuracy = %.2f, F1 = %.2f";
-        for (int i = 0; i < nEpochs; i++) {
-            net.fit(trainData);
+        net.fit(trainData, nEpochs);
 
-            //Evaluate on the test set:
-            Evaluation evaluation = net.evaluate(testData);
-            log.info(String.format(str, i, evaluation.accuracy(), evaluation.f1()));
-
-            testData.reset();
-            trainData.reset();
-        }
+        log.info("Evaluating...");
+        Evaluation eval = net.evaluate(testData);
+        log.info(eval.stats());
 
         log.info("----- Example Complete -----");
     }

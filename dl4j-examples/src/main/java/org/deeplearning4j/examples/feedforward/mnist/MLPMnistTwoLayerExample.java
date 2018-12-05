@@ -14,6 +14,7 @@ import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
+import org.nd4j.linalg.learning.config.Nadam;
 import org.nd4j.linalg.learning.config.Nesterovs;
 import org.nd4j.linalg.lossfunctions.LossFunctions.LossFunction;
 import org.slf4j.Logger;
@@ -65,17 +66,18 @@ public class MLPMnistTwoLayerExample {
             .seed(rngSeed) //include a random seed for reproducibility
             .activation(Activation.RELU)
             .weightInit(WeightInit.XAVIER)
-            .updater(new Nesterovs(rate, 0.98))
+            .updater(new Nadam())
             .l2(rate * 0.005) // regularize learning model
             .list()
-            .layer( new DenseLayer.Builder() //create the first input layer.
+            .layer(new DenseLayer.Builder() //create the first input layer.
                     .nIn(numRows * numColumns)
                     .nOut(500)
                     .build())
-            .layer(new DenseLayer.Builder() //create the second input layer.
+            .layer(new DenseLayer.Builder() //create the second input layer
+                    .nIn(500)
                     .nOut(100)
                     .build())
-            .layer( new OutputLayer.Builder(LossFunction.NEGATIVELOGLIKELIHOOD) //create hidden layer
+            .layer(new OutputLayer.Builder(LossFunction.NEGATIVELOGLIKELIHOOD) //create hidden layer
                     .activation(Activation.SOFTMAX)
                     .nOut(outputNum)
                     .build())
@@ -86,19 +88,10 @@ public class MLPMnistTwoLayerExample {
         model.setListeners(new ScoreIterationListener(5));  //print the score with every iteration
 
         log.info("Train model....");
-        for( int i=0; i<numEpochs; i++ ){
-        	log.info("Epoch " + i);
-            model.fit(mnistTrain);
-        }
-
+        model.fit(mnistTrain, numEpochs);
 
         log.info("Evaluate model....");
-        Evaluation eval = new Evaluation(outputNum); //create an evaluation object with 10 possible classes
-        while(mnistTest.hasNext()){
-            DataSet next = mnistTest.next();
-            INDArray output = model.output(next.getFeatures()); //get the networks prediction
-            eval.eval(next.getLabels(), output); //check the prediction against the true class
-        }
+        Evaluation eval = model.evaluate(mnistTest);
 
         log.info(eval.stats());
         log.info("****************Example finished********************");

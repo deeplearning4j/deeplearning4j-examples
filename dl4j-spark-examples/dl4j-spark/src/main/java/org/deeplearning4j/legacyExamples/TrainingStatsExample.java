@@ -20,6 +20,7 @@ import org.deeplearning4j.spark.stats.EventStats;
 import org.deeplearning4j.spark.stats.StatsUtils;
 import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.dataset.DataSet;
+import org.nd4j.linalg.learning.config.Nadam;
 import org.nd4j.linalg.learning.config.Nesterovs;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 import org.slf4j.Logger;
@@ -151,15 +152,15 @@ public class TrainingStatsExample {
 
         //Set up network configuration:
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
-            .updater(new Nesterovs(0.1))
+            .updater(new Nadam())
             .seed(12345)
             .l2(0.001)
             .weightInit(WeightInit.XAVIER)
             .list()
-            .layer(0, new LSTM.Builder().nIn(nIn).nOut(lstmLayerSize).activation(Activation.TANH).build())
-            .layer(1, new LSTM.Builder().nIn(lstmLayerSize).nOut(lstmLayerSize).activation(Activation.TANH).build())
-            .layer(2, new RnnOutputLayer.Builder(LossFunctions.LossFunction.MCXENT).activation(Activation.SOFTMAX)        //MCXENT + softmax for classification
-                .nIn(lstmLayerSize).nOut(nOut).build())
+            .layer(new LSTM.Builder().nIn(nIn).nOut(lstmLayerSize).activation(Activation.TANH).build())
+            .layer(new LSTM.Builder().nOut(lstmLayerSize).activation(Activation.TANH).build())
+            .layer(new RnnOutputLayer.Builder(LossFunctions.LossFunction.MCXENT).activation(Activation.SOFTMAX)        //MCXENT + softmax for classification
+                .nOut(nOut).build())
             .backpropType(BackpropType.TruncatedBPTT).tBPTTForwardLength(tbpttLength).tBPTTBackwardLength(tbpttLength)
             .build();
 

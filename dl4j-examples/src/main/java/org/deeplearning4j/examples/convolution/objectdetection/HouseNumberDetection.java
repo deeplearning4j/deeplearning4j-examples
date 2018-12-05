@@ -163,13 +163,9 @@ public class HouseNumberDetection {
             log.info("Train model...");
 
             model.setListeners(new ScoreIterationListener(1));
-            for (int i = 0; i < nEpochs; i++) {
-                train.reset();
-                while (train.hasNext()) {
-                    model.fit(train.next());
-                }
-                log.info("*** Completed epoch {} ***", i);
-            }
+            model.fit(train, nEpochs);
+
+            log.info("Save model...");
             ModelSerializer.writeModel(model, modelFilename, true);
         }
 
