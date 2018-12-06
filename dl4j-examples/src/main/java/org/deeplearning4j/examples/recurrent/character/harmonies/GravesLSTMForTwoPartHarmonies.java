@@ -1,4 +1,5 @@
 package org.deeplearning4j.examples.recurrent.character.harmonies;
+
 import org.deeplearning4j.api.storage.StatsStorage;
 import org.deeplearning4j.examples.recurrent.character.CharacterIterator;
 import org.deeplearning4j.examples.recurrent.character.LSTMCharModellingExample;
@@ -14,6 +15,7 @@ import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
 import org.deeplearning4j.ui.api.UIServer;
 import org.deeplearning4j.ui.stats.StatsListener;
 import org.deeplearning4j.ui.storage.InMemoryStatsStorage;
+import org.deeplearning4j.util.ModelSerializer;
 import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
@@ -21,6 +23,8 @@ import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.learning.config.Adam;
 import org.nd4j.linalg.learning.config.IUpdater;
 import org.nd4j.linalg.lossfunctions.LossFunctions.LossFunction;
+
+import javax.swing.*;
 import java.io.File;
 import java.io.PrintWriter;
 import java.nio.charset.Charset;
@@ -28,10 +32,6 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Random;
-
-import org.deeplearning4j.util.ModelSerializer;
-
-import javax.swing.*;
 
 /**
  * GravesLSTM Character modelling example for learning two-part harmonies. See the README file.
@@ -96,7 +96,7 @@ public class GravesLSTMForTwoPartHarmonies {
             .build();
         MultiLayerNetwork net = new MultiLayerNetwork(conf);
         if (false) {
-            ModelSerializer.restoreMultiLayerNetwork(new File("xxxxx.zip"));
+            net = MultiLayerNetwork.load(new File("xxxxx.zip"), true);
         } else {
             net.init();
         }

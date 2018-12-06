@@ -2,20 +2,16 @@ package org.deeplearning4j.examples.misc.customlayers;
 
 import org.deeplearning4j.examples.misc.customlayers.layer.CustomLayer;
 import org.deeplearning4j.gradientcheck.GradientCheckUtil;
-import org.deeplearning4j.nn.api.OptimizationAlgorithm;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
-import org.deeplearning4j.nn.conf.Updater;
 import org.deeplearning4j.nn.conf.distribution.NormalDistribution;
 import org.deeplearning4j.nn.conf.layers.BaseLayer;
 import org.deeplearning4j.nn.conf.layers.DenseLayer;
 import org.deeplearning4j.nn.conf.layers.OutputLayer;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
-import org.deeplearning4j.util.ModelSerializer;
 import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.api.buffer.DataBuffer;
-import org.nd4j.linalg.api.buffer.util.DataTypeUtil;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.factory.Nd4j;
@@ -117,8 +113,8 @@ public class CustomLayerExample {
 
 
         //Finally, let's check the model serialization process, using ModelSerializer:
-        ModelSerializer.writeModel(net, new File("CustomLayerModel.zip"), true);
-        MultiLayerNetwork restored = ModelSerializer.restoreMultiLayerNetwork(new File("CustomLayerModel.zip"));
+        net.save(new File("CustomLayerModel.zip"), true);
+        MultiLayerNetwork restored = MultiLayerNetwork.load(new File("CustomLayerModel.zip"), true);
 
         System.out.println();
         System.out.println("Original and restored networks: configs are equal: " + net.getLayerWiseConfigurations().equals(restored.getLayerWiseConfigurations()));

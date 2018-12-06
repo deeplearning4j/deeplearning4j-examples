@@ -8,7 +8,6 @@ import org.deeplearning4j.nn.graph.ComputationGraph;
 import org.deeplearning4j.nn.transferlearning.FineTuneConfiguration;
 import org.deeplearning4j.nn.transferlearning.TransferLearning;
 import org.deeplearning4j.nn.weights.WeightInit;
-import org.deeplearning4j.util.ModelSerializer;
 import org.deeplearning4j.zoo.ZooModel;
 import org.deeplearning4j.zoo.model.VGG16;
 import org.nd4j.linalg.activations.Activation;
@@ -124,7 +123,7 @@ public class EditAtBottleneckOthersFrozen {
         //The saved model can be "fine-tuned" further as in the class "FitFromFeaturized"
         File locationToSave = new File("MyComputationGraph.zip");
         boolean saveUpdater = false;
-        ModelSerializer.writeModel(vgg16Transfer, locationToSave, saveUpdater);
+        vgg16Transfer.save(locationToSave, saveUpdater);
 
         log.info("Model saved");
     }

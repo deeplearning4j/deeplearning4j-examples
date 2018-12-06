@@ -1,8 +1,5 @@
 package org.deeplearning4j.examples.convolution.objectdetection;
 
-import java.io.File;
-import java.util.List;
-import java.util.Random;
 import org.bytedeco.javacv.CanvasFrame;
 import org.bytedeco.javacv.OpenCVFrameConverter;
 import org.datavec.api.records.metadata.RecordMetaDataImageURI;
@@ -33,9 +30,12 @@ import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.api.preprocessor.ImagePreProcessingScaler;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.learning.config.Adam;
-import org.nd4j.linalg.learning.config.Nesterovs;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.util.List;
+import java.util.Random;
 
 import static org.bytedeco.javacpp.opencv_core.*;
 import static org.bytedeco.javacpp.opencv_imgproc.*;
@@ -115,7 +115,7 @@ public class HouseNumberDetection {
         if (new File(modelFilename).exists()) {
             log.info("Load model...");
 
-            model = ModelSerializer.restoreComputationGraph(modelFilename);
+            model = ComputationGraph.load(new File(modelFilename), true);
         } else {
             log.info("Build model...");
 

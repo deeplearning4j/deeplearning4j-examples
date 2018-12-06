@@ -1,14 +1,15 @@
 package org.deeplearning4j.examples.misc.lossfunctions;
 
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Random;
 import org.apache.commons.math3.distribution.MultivariateNormalDistribution;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.dataset.api.DataSetPreProcessor;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.nd4j.linalg.factory.Nd4j;
+
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Random;
 
 /**
  * This is an iterator which creates a parameterized mixture of gaussians

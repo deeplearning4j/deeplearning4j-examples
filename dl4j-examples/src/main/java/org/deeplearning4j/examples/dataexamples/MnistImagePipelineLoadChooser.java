@@ -3,7 +3,6 @@ package org.deeplearning4j.examples.dataexamples;
 import org.apache.commons.io.FilenameUtils;
 import org.datavec.image.loader.NativeImageLoader;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
-import org.deeplearning4j.util.ModelSerializer;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.api.preprocessor.DataNormalization;
 import org.nd4j.linalg.dataset.api.preprocessor.ImagePreProcessingScaler;
@@ -30,14 +29,14 @@ import java.util.List;
  * This examples builds on the MnistImagePipelineExample
  * by giving the user a file chooser to test an image of their choice
  * against the Nueral Net, will the network think this cat is an 8 or a 1
- * 
- * Seriously you can test anything, but obviously the network was trained 
- * on handwritten images 0-9 white digit, black background, so it will work 
+ *
+ * Seriously you can test anything, but obviously the network was trained
+ * on handwritten images 0-9 white digit, black background, so it will work
  * better with stuff closer to what it was designed for
  */
 public class MnistImagePipelineLoadChooser {
   private static Logger log = LoggerFactory.getLogger(MnistImagePipelineLoadChooser.class);
-  
+
   /** Location to save and extract the training/testing data */
   public static final String DATA_PATH = FilenameUtils.concat(System.getProperty("java.io.tmpdir"), "dl4j_Mnist/");
 
@@ -86,7 +85,7 @@ public class MnistImagePipelineLoadChooser {
       System.exit(0);
     }
 
-    MultiLayerNetwork model = ModelSerializer.restoreMultiLayerNetwork(locationToSave);
+    MultiLayerNetwork model = MultiLayerNetwork.load(locationToSave, true);
 
     log.info("TEST YOUR IMAGE AGAINST SAVED NETWORK");
     // FileChose is a string we will need a file
@@ -102,7 +101,7 @@ public class MnistImagePipelineLoadChooser {
     // 0-1
     DataNormalization scaler = new ImagePreProcessingScaler(0, 1);
     scaler.transform(image);
-    
+
     // Pass through to neural Net
     INDArray output = model.output(image);
 

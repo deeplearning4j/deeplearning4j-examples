@@ -4,6 +4,15 @@ package org.deeplearning4j.examples.feedforward.classification.detectgender;
  * Created by KIT Solutions (www.kitsol.com) on 11/7/2016.
  */
 
+import org.datavec.api.conf.Configuration;
+import org.datavec.api.records.reader.impl.LineRecordReader;
+import org.datavec.api.split.FileSplit;
+import org.datavec.api.split.InputSplit;
+import org.datavec.api.split.InputStreamInputSplit;
+import org.datavec.api.writable.DoubleWritable;
+import org.datavec.api.writable.Writable;
+import org.nd4j.linalg.primitives.Pair;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
@@ -12,15 +21,6 @@ import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import org.datavec.api.conf.Configuration;
-import org.datavec.api.writable.DoubleWritable;
-import org.datavec.api.records.reader.impl.LineRecordReader;
-import org.datavec.api.split.FileSplit;
-import org.datavec.api.split.InputSplit;
-import org.datavec.api.split.InputStreamInputSplit;
-import org.datavec.api.writable.Writable;
-import org.nd4j.linalg.primitives.Pair;
 
 
 /**

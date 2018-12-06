@@ -3,33 +3,16 @@ package org.deeplearning4j.examples.recurrent.character.harmonies;
 import org.deeplearning4j.examples.recurrent.character.melodl4j.Note;
 import org.deeplearning4j.examples.recurrent.character.melodl4j.PlayMelodyStrings;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import javax.sound.midi.*;
+import javax.swing.*;
+import javax.swing.filechooser.FileFilter;
+import java.io.*;
 import java.net.URL;
 import java.text.NumberFormat;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
-import java.util.regex.Pattern;
-
-import javax.sound.midi.InvalidMidiDataException;
-import javax.sound.midi.MidiEvent;
-import javax.sound.midi.MidiMessage;
-import javax.sound.midi.MidiSystem;
-import javax.sound.midi.MidiUnavailableException;
-import javax.sound.midi.Sequence;
-import javax.sound.midi.Sequencer;
-import javax.sound.midi.ShortMessage;
-import javax.sound.midi.Soundbank;
-import javax.sound.midi.Synthesizer;
-import javax.sound.midi.Track;
-import javax.swing.JFileChooser;
-import javax.swing.filechooser.FileFilter;
 
 /*
  *  This plays melody strings and MIDI sequences using your operating system's software synthesizer.

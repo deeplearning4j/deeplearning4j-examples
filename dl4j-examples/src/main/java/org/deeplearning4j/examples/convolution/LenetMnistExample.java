@@ -1,13 +1,14 @@
 package org.deeplearning4j.examples.convolution;
 
+import org.apache.commons.io.FilenameUtils;
 import org.deeplearning4j.datasets.iterator.impl.MnistDataSetIterator;
-import org.deeplearning4j.eval.Evaluation;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
 import org.deeplearning4j.nn.conf.inputs.InputType;
 import org.deeplearning4j.nn.conf.layers.*;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
+import org.deeplearning4j.optimize.api.InvocationType;
 import org.deeplearning4j.optimize.listeners.EvaluativeListener;
 import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
 import org.nd4j.linalg.activations.Activation;
@@ -17,6 +18,7 @@ import org.nd4j.linalg.lossfunctions.LossFunctions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -105,8 +107,12 @@ public class LenetMnistExample {
         model.init();
 
         log.info("Train model...");
-        model.setListeners(new ScoreIterationListener(10), new EvaluativeListener(mnistTest, 300)); //Print score every 10 iterations
+        model.setListeners(new ScoreIterationListener(10), new EvaluativeListener(mnistTest, 1, InvocationType.EPOCH_END)); //Print score every 10 iterations and evaluate on test set every epoch
         model.fit(mnistTrain, nEpochs);
+
+        log.info("Saving model to temp directory...");
+        String basePath = FilenameUtils.concat(System.getProperty("user.dir"), "src/main/resources/");
+        model.save(new File(basePath + "model.bin"));
 
         log.info("****************Example finished********************");
     }

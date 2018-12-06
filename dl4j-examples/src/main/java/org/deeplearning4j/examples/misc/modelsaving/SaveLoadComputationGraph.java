@@ -1,15 +1,11 @@
 package org.deeplearning4j.examples.misc.modelsaving;
 
 import org.deeplearning4j.nn.conf.ComputationGraphConfiguration;
-import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
-import org.deeplearning4j.nn.conf.Updater;
 import org.deeplearning4j.nn.conf.layers.DenseLayer;
 import org.deeplearning4j.nn.conf.layers.OutputLayer;
 import org.deeplearning4j.nn.graph.ComputationGraph;
-import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
-import org.deeplearning4j.util.ModelSerializer;
 import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.learning.config.Nesterovs;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
@@ -42,10 +38,10 @@ public class SaveLoadComputationGraph {
         //Save the model
         File locationToSave = new File("MyComputationGraph.zip");       //Where to save the network. Note: the file is in .zip format - can be opened externally
         boolean saveUpdater = true;                                             //Updater: i.e., the state for Momentum, RMSProp, Adagrad etc. Save this if you want to train your network more in the future
-        ModelSerializer.writeModel(net, locationToSave, saveUpdater);
+        net.save(locationToSave, saveUpdater);
 
         //Load the model
-        ComputationGraph restored = ModelSerializer.restoreComputationGraph(locationToSave);
+        ComputationGraph restored = ComputationGraph.load(locationToSave, saveUpdater);
 
 
         System.out.println("Saved and loaded parameters are equal:      " + net.params().equals(restored.params()));

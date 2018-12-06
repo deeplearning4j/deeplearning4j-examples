@@ -4,10 +4,7 @@ import org.deeplearning4j.api.storage.StatsStorage;
 import org.deeplearning4j.examples.userInterface.util.UIExampleUtils;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
-import org.deeplearning4j.ui.api.UIServer;
 import org.deeplearning4j.ui.stats.J7StatsListener;
-import org.deeplearning4j.ui.stats.StatsListener;
-import org.deeplearning4j.ui.storage.FileStatsStorage;
 import org.deeplearning4j.ui.storage.sqlite.J7FileStatsStorage;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 

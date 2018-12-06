@@ -1,17 +1,5 @@
 package org.deeplearning4j.examples.convolution.mnist;
 
-import java.awt.Graphics;
-import java.awt.Image;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
-
-import org.datavec.image.loader.NativeImageLoader;
-import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
-import org.deeplearning4j.util.ModelSerializer;
-import org.nd4j.linalg.api.ndarray.INDArray;
-import org.nd4j.linalg.dataset.api.preprocessor.ImagePreProcessingScaler;
-
 import javafx.application.Application;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.geometry.Pos;
@@ -28,6 +16,15 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.StrokeLineCap;
 import javafx.stage.Stage;
+import org.datavec.image.loader.NativeImageLoader;
+import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
+import org.nd4j.linalg.api.ndarray.INDArray;
+import org.nd4j.linalg.dataset.api.preprocessor.ImagePreProcessingScaler;
+
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 
 /**
  * Test UI for MNIST classifier.
@@ -48,7 +45,7 @@ public class MnistClassifierUI extends Application {
     File model = new File(basePath + "/minist-model.zip");
     if (!model.exists())
       throw new IOException("Can't find the model");
-    net = ModelSerializer.restoreMultiLayerNetwork(model);
+    net = MultiLayerNetwork.load(model, true);
   }
 
   public static void main(String[] args) throws Exception {

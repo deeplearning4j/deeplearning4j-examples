@@ -15,7 +15,6 @@ import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.text.tokenization.tokenizer.preprocessor.CommonPreprocessor;
 import org.deeplearning4j.text.tokenization.tokenizerfactory.DefaultTokenizerFactory;
 import org.deeplearning4j.text.tokenization.tokenizerfactory.TokenizerFactory;
-import org.deeplearning4j.util.ModelSerializer;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.factory.Nd4j;
@@ -27,8 +26,8 @@ import java.io.File;
 import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Logger;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 public class TestNews extends javax.swing.JFrame {
@@ -184,7 +183,7 @@ public class TestNews extends javax.swing.JFrame {
             WORD_VECTORS_PATH = userDirectory + "NewsWordVector.txt";
             tokenizerFactory = new DefaultTokenizerFactory();
             tokenizerFactory.setTokenPreProcessor(new CommonPreprocessor());
-            net = ModelSerializer.restoreMultiLayerNetwork(userDirectory + "NewsModel.net");
+            net = MultiLayerNetwork.load(new File(userDirectory + "NewsModel.net"), true);
             wordVectors = WordVectorSerializer.readWord2VecModel(new File(WORD_VECTORS_PATH));
         } catch (Exception e) {
 

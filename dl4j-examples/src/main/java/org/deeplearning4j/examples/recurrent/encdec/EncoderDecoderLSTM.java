@@ -203,7 +203,7 @@ public class EncoderDecoderLSTM {
         int offset = 0;
         if (networkFile.exists()) {
             System.out.println("Loading the existing network...");
-            net = ModelSerializer.restoreComputationGraph(networkFile);
+            net = ComputationGraph.load(networkFile, true);
             System.out.print("Enter d to start dialog or a number to continue training from that minibatch: ");
             String input;
             try (Scanner scanner = new Scanner(System.in)) {

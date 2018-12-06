@@ -15,7 +15,6 @@ import org.deeplearning4j.nn.conf.layers.OutputLayer;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
 import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
-import org.deeplearning4j.util.ModelSerializer;
 import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.nd4j.linalg.dataset.api.preprocessor.DataNormalization;
@@ -25,7 +24,7 @@ import org.nd4j.linalg.lossfunctions.LossFunctions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
+import java.io.File;
 import java.util.Random;
 
 /**
@@ -139,7 +138,7 @@ public class MnistImagePipelineExampleSave {
     boolean saveUpdater = false;
 
     // ModelSerializer needs modelname, saveUpdater, Location
-    ModelSerializer.writeModel(model, locationToSave, saveUpdater);
+    model.save(locationToSave, saveUpdater);
   }
 
 }
