@@ -49,7 +49,7 @@ public class RNNEmbedding {
             .activation(Activation.RELU)
             .list()
             .layer(new EmbeddingLayer.Builder().nIn(nClassesIn).nOut(5).build())
-            .layer(new LSTM.Builder().nIn(5).nOut(7).activation(Activation.SOFTSIGN).build())
+            .layer(new LSTM.Builder().nIn(5).nOut(7).activation(Activation.TANH).build())
             .layer(new RnnOutputLayer.Builder(LossFunctions.LossFunction.MCXENT).nIn(7).nOut(4).activation(Activation.SOFTMAX).build())
             .inputPreProcessor(0, new RnnToFeedForwardPreProcessor())
             .inputPreProcessor(1, new FeedForwardToRnnPreProcessor())

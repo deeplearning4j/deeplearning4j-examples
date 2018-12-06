@@ -12,7 +12,7 @@ import org.deeplearning4j.nn.weights.WeightInit;
 import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
 import org.deeplearning4j.ui.api.UIServer;
 import org.deeplearning4j.ui.stats.StatsListener;
-import org.deeplearning4j.ui.storage.InMemoryStatsStorage;
+import org.deeplearning4j.ui.storage.FileStatsStorage;
 import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.api.MultiDataSet;
@@ -62,7 +62,7 @@ public class MultiDigitNumberRecognition {
         ComputationGraph model =  createModel();
         //monitor the model score
         UIServer uiServer = UIServer.getInstance();
-        StatsStorage statsStorage = new InMemoryStatsStorage();
+        StatsStorage statsStorage = new FileStatsStorage(new File("java.io.tmpdir"));
         uiServer.attach(statsStorage);
         model.setListeners(new ScoreIterationListener(10), new StatsListener( statsStorage));
 

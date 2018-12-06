@@ -115,7 +115,7 @@ public class TrainNews {
             .gradientNormalization(GradientNormalization.ClipElementWiseAbsoluteValue).gradientNormalizationThreshold(1.0)
             .list()
             .layer( new LSTM.Builder().nIn(inputNeurons).nOut(200)
-                .activation(Activation.SOFTSIGN).build())
+                .activation(Activation.TANH).build())
             .layer(new RnnOutputLayer.Builder().activation(Activation.SOFTMAX)
                 .lossFunction(LossFunctions.LossFunction.MCXENT).nIn(200).nOut(outputs).build())
             .build();

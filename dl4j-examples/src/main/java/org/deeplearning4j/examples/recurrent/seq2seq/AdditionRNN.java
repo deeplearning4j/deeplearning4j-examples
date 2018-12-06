@@ -96,7 +96,7 @@ public class AdditionRNN {
                 .setInputTypes(InputType.recurrent(FEATURE_VEC_SIZE), InputType.recurrent(FEATURE_VEC_SIZE))
                 //The inputs to the encoder will have size = minibatch x featuresize x timesteps
                 //Note that the network only knows of the feature vector size. It does not know how many time steps unless it sees an instance of the data
-                .addLayer("encoder", new LSTM.Builder().nIn(FEATURE_VEC_SIZE).nOut(numHiddenNodes).activation(Activation.SOFTSIGN).build(),"additionIn")
+                .addLayer("encoder", new LSTM.Builder().nIn(FEATURE_VEC_SIZE).nOut(numHiddenNodes).activation(Activation.TANH).build(),"additionIn")
                 //Create a vertex indicating the very last time step of the encoder layer needs to be directed to other places in the comp graph
                 .addVertex("lastTimeStep", new LastTimeStepVertex("additionIn"), "encoder")
                 //Create a vertex that allows the duplication of 2d input to a 3d input
