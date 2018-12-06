@@ -16,7 +16,7 @@ import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
 import org.deeplearning4j.ui.api.UIServer;
 import org.deeplearning4j.ui.stats.StatsListener;
-import org.deeplearning4j.ui.storage.InMemoryStatsStorage;
+import org.deeplearning4j.ui.storage.FileStatsStorage;
 import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
@@ -24,6 +24,7 @@ import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.learning.config.Nesterovs;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 
+import java.io.File;
 import java.util.Random;
 
 /**
@@ -71,7 +72,7 @@ public class ImageDrawer extends Application {
         boolean fUseUI = false; // set to false if you do not want the web ui to track learning progress.
         if(fUseUI) {
             UIServer uiServer = UIServer.getInstance();
-            StatsStorage statsStorage = new InMemoryStatsStorage();
+            StatsStorage statsStorage = new FileStatsStorage(new File("java.io.tmpdir"));
             uiServer.attach(statsStorage);
             nn.setListeners(new StatsListener(statsStorage));
         }

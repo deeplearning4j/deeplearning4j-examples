@@ -5,8 +5,10 @@ import org.deeplearning4j.examples.userInterface.util.UIExampleUtils;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.ui.api.UIServer;
 import org.deeplearning4j.ui.stats.StatsListener;
-import org.deeplearning4j.ui.storage.InMemoryStatsStorage;
+import org.deeplearning4j.ui.storage.FileStatsStorage;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
+
+import java.io.File;
 
 /**
  * A simple example of how to attach Deeplearning4j's training UI to a network
@@ -28,7 +30,7 @@ public class UIExample {
 
         //Configure where the network information (gradients, activations, score vs. time etc) is to be stored
         //Then add the StatsListener to collect this information from the network, as it trains
-        StatsStorage statsStorage = new InMemoryStatsStorage();             //Alternative: new FileStatsStorage(File) - see UIStorageExample
+        StatsStorage statsStorage = new FileStatsStorage(new File("java.io.tmpdir"));             //Alternative: new InMemoryStatsStorage(File) - see UIStorageExample
         int listenerFrequency = 1;
         net.setListeners(new StatsListener(statsStorage, listenerFrequency));
 

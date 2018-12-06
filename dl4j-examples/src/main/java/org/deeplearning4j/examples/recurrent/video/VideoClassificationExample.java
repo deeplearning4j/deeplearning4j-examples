@@ -104,7 +104,7 @@ public class VideoClassificationExample {
                         .updater(new AdaGrad(0.01))
                         .build())
                 .layer(new LSTM.Builder()
-                        .activation(Activation.SOFTSIGN)
+                        .activation(Activation.TANH)
                         .nIn(50)
                         .nOut(50)
                         .weightInit(WeightInit.XAVIER)
