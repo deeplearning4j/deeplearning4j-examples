@@ -11,11 +11,10 @@ import org.deeplearning4j.nn.conf.layers.OutputLayer;
 import org.deeplearning4j.nn.conf.layers.SubsamplingLayer;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
+import org.deeplearning4j.optimize.api.InvocationType;
 import org.deeplearning4j.optimize.listeners.EvaluativeListener;
 import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
 import org.nd4j.linalg.activations.Activation;
-import org.nd4j.linalg.api.ndarray.INDArray;
-import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.dataset.ExistingMiniBatchDataSetIterator;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.nd4j.linalg.learning.config.Nesterovs;
@@ -149,7 +148,7 @@ public class LoadPreSavedLenetMnistExample {
 
 
         log.info("Train model....");
-        model.setListeners(new ScoreIterationListener(1), new EvaluativeListener(mnistTest, 300));
+        model.setListeners(new ScoreIterationListener(1), new EvaluativeListener(mnistTest, 1, InvocationType.EPOCH_END));
         model.fit(mnistTrain, nEpochs);
 
         log.info("Evaluate model....");

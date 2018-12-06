@@ -4,23 +4,25 @@ import org.datavec.image.loader.CifarLoader;
 import org.datavec.image.loader.NativeImageLoader;
 import org.deeplearning4j.api.storage.StatsStorage;
 import org.deeplearning4j.datasets.iterator.impl.CifarDataSetIterator;
-import org.deeplearning4j.optimize.listeners.EvaluativeListener;
-import org.nd4j.evaluation.classification.Evaluation;
 import org.deeplearning4j.nn.api.OptimizationAlgorithm;
-import org.deeplearning4j.nn.conf.*;
+import org.deeplearning4j.nn.conf.ConvolutionMode;
+import org.deeplearning4j.nn.conf.GradientNormalization;
+import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
+import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
 import org.deeplearning4j.nn.conf.inputs.InputType;
 import org.deeplearning4j.nn.conf.layers.*;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
+import org.deeplearning4j.optimize.api.InvocationType;
+import org.deeplearning4j.optimize.listeners.EvaluativeListener;
 import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
 import org.deeplearning4j.ui.api.UIServer;
 import org.deeplearning4j.ui.stats.StatsListener;
-import org.deeplearning4j.ui.storage.InMemoryStatsStorage;
+import org.deeplearning4j.ui.storage.FileStatsStorage;
 import org.deeplearning4j.util.ModelSerializer;
 import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.api.buffer.DataBuffer;
 import org.nd4j.linalg.api.ndarray.INDArray;
-import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.learning.config.Adam;
 import org.nd4j.linalg.learning.config.Nadam;
@@ -78,9 +80,9 @@ public class Cifar {
         //train model and eval model
         MultiLayerNetwork model = cf.trainModelByCifarWithNet();//ignore
         UIServer uiServer = UIServer.getInstance();
-        StatsStorage statsStorage = new InMemoryStatsStorage();
+        StatsStorage statsStorage = new FileStatsStorage(new File("java.io.tmpdir"));
         uiServer.attach(statsStorage);
-        model.setListeners(new StatsListener( statsStorage), new ScoreIterationListener(freIterations), new EvaluativeListener(cifarEval, 1000));
+        model.setListeners(new StatsListener( statsStorage), new ScoreIterationListener(freIterations), new EvaluativeListener(cifarEval, 1, InvocationType.EPOCH_END));
 
         labelStr = String.join(",", cifar.getLabels().toArray(new String[cifar.getLabels().size()]));
         model.fit(cifar, epochs);
@@ -94,9 +96,7 @@ public class Cifar {
         log.info("this is Net for the cifar");
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
             .seed(seed)
-            .cacheMode(CacheMode.DEVICE)
             .updater(new Nadam())
-            .biasUpdater(new Nadam())
             .gradientNormalization(GradientNormalization.RenormalizeL2PerLayer) // normalize to prevent vanishing or exploding gradients
             .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
             .l1(1e-4)

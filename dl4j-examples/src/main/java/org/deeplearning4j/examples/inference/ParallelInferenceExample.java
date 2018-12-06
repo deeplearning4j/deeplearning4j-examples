@@ -1,9 +1,8 @@
 package org.deeplearning4j.examples.inference;
 
-import org.deeplearning4j.nn.api.Model;
+import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.parallelism.ParallelInference;
 import org.deeplearning4j.parallelism.inference.InferenceMode;
-import org.deeplearning4j.util.ModelSerializer;
 import org.nd4j.linalg.api.ndarray.INDArray;
 
 /**
@@ -16,7 +15,7 @@ public class ParallelInferenceExample {
     public static void main(String[] args) throws Exception {
 
         // use path to your model here, or just instantiate it anywhere
-        Model model = ModelSerializer.restoreComputationGraph("PATH_TO_YOUR_MODEL_FILE", false);
+        MultiLayerNetwork model =MultiLayerNetwork.load(new File("PATH_TO_YOUR_MODEL_FILE"), false);
 
         ParallelInference pi = new ParallelInference.Builder(model)
             // BATCHED mode is kind of optimization: if number of incoming requests is too high - PI will be batching individual queries into single batch. If number of requests will be low - queries will be processed without batching

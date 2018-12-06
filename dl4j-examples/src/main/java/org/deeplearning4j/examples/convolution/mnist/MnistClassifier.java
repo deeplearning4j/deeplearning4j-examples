@@ -1,16 +1,11 @@
 package org.deeplearning4j.examples.convolution.mnist;
 
-import java.io.File;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Random;
-
+import org.apache.commons.io.FilenameUtils;
 import org.datavec.api.io.labels.ParentPathLabelGenerator;
 import org.datavec.api.split.FileSplit;
 import org.datavec.image.loader.NativeImageLoader;
 import org.datavec.image.recordreader.ImageRecordReader;
 import org.deeplearning4j.datasets.datavec.RecordReaderDataSetIterator;
-import org.deeplearning4j.eval.Evaluation;
 import org.deeplearning4j.examples.utilities.DataUtilities;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
@@ -21,9 +16,9 @@ import org.deeplearning4j.nn.conf.layers.OutputLayer;
 import org.deeplearning4j.nn.conf.layers.SubsamplingLayer;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
+import org.deeplearning4j.optimize.api.InvocationType;
 import org.deeplearning4j.optimize.listeners.EvaluativeListener;
 import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
-import org.deeplearning4j.util.ModelSerializer;
 import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.nd4j.linalg.dataset.api.preprocessor.DataNormalization;
@@ -34,6 +29,11 @@ import org.nd4j.linalg.schedule.MapSchedule;
 import org.nd4j.linalg.schedule.ScheduleType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Random;
 
 /**
  * Handwritten digits image classification on MNIST dataset (99% accuracy).
@@ -134,13 +134,14 @@ public class MnistClassifier {
 
     MultiLayerNetwork net = new MultiLayerNetwork(conf);
     net.init();
-    net.setListeners(new ScoreIterationListener(10), new EvaluativeListener(testIter, 300));
+    net.setListeners(new ScoreIterationListener(10), new EvaluativeListener(testIter, 1, InvocationType.EPOCH_END));
     log.debug("Total num of params: {}", net.numParams());
 
     // evaluation while training (the score should go down)
     net.fit(trainIter, nEpochs);
 
-    ModelSerializer.writeModel(net, new File(basePath + "/minist-model.zip"), true);
+    String basePath = FilenameUtils.concat(System.getProperty("user.dir"), "src/main/resources/");
+    net.save(new File(basePath + "mnist-model.bin"));
   }
 
 }

@@ -10,7 +10,6 @@ import org.deeplearning4j.nn.conf.layers.DenseLayer;
 import org.deeplearning4j.nn.conf.layers.OutputLayer;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
-import org.deeplearning4j.util.ModelSerializer;
 import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.api.buffer.DataType;
 import org.nd4j.linalg.api.ndarray.INDArray;
@@ -114,8 +113,8 @@ public class CustomLayerExample {
 
 
         //Finally, let's check the model serialization process, using ModelSerializer:
-        ModelSerializer.writeModel(net, new File("CustomLayerModel.zip"), true);
-        MultiLayerNetwork restored = ModelSerializer.restoreMultiLayerNetwork(new File("CustomLayerModel.zip"));
+        net.save(new File("CustomLayerModel.zip"), true);
+        MultiLayerNetwork restored = MultiLayerNetwork.load(new File("CustomLayerModel.zip"), true);
 
         System.out.println();
         System.out.println("Original and restored networks: configs are equal: " + net.getLayerWiseConfigurations().equals(restored.getLayerWiseConfigurations()));

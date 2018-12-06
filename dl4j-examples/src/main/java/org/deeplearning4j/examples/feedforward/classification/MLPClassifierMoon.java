@@ -1,7 +1,5 @@
 package org.deeplearning4j.examples.feedforward.classification;
 
-import java.io.File;
-
 import org.datavec.api.records.reader.RecordReader;
 import org.datavec.api.records.reader.impl.csv.CSVRecordReader;
 import org.datavec.api.split.FileSplit;
@@ -22,6 +20,8 @@ import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.io.ClassPathResource;
 import org.nd4j.linalg.learning.config.Nesterovs;
 import org.nd4j.linalg.lossfunctions.LossFunctions.LossFunction;
+
+import java.io.File;
 
 /**
  * "Moon" Data Classification Example

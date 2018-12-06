@@ -26,6 +26,7 @@ import org.nd4j.linalg.dataset.api.preprocessor.serializer.NormalizerSerializer;
 import org.nd4j.linalg.io.ClassPathResource;
 import org.nd4j.linalg.learning.config.RmsProp;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
+
 import java.io.File;
 import java.util.*;
 
@@ -46,7 +47,7 @@ public class SequenceAnomalyDetection {
         DataSetIterator trainIterator = new AnomalyDataSetIterator(dataPath + File.separatorChar + "ads.csv", trainBatchSize);
         DataSetIterator testIterator = new AnomalyDataSetIterator(dataPath + File.separatorChar + "test.csv", testBatchSize);
 
-        MultiLayerNetwork net = true ? createModel(trainIterator.inputColumns(), trainIterator.totalOutcomes()) : ModelSerializer.restoreMultiLayerNetwork(modelFile);
+        MultiLayerNetwork net = true ? createModel(trainIterator.inputColumns(), trainIterator.totalOutcomes()) : MultiLayerNetwork.load(modelFile, true);
         UIServer uiServer = UIServer.getInstance();
         StatsStorage statsStorage = new InMemoryStatsStorage();
         uiServer.attach(statsStorage);

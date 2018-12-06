@@ -58,7 +58,6 @@ public class MultiGpuLenetMnistExample {
             .l2(0.0005)
             .weightInit(WeightInit.XAVIER)
             .updater(new Nadam())
-            .biasUpdater(new Nadam())
             .list()
             .layer(new ConvolutionLayer.Builder(5, 5)
                 //nIn and nOut specify depth. nIn here is the nChannels and nOut is the number of filters to be applied

@@ -1,19 +1,8 @@
 package org.deeplearning4j.examples.recurrent.encdec;
 
-import java.io.BufferedReader;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.LinkedList;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class CorpusProcessor {
     public static final String SPECIALS = "!\"#$;%^:?*()[]{}<>«»,.–—=+…";
@@ -42,7 +31,7 @@ public class CorpusProcessor {
             while ((line = br.readLine()) != null) {
                 String[] lineSplit = line.toLowerCase().split(" \\+\\+\\+\\$\\+\\+\\+ ", 5);
                 if (lineSplit.length > 4) {
-                    // join consecuitive lines from the same speaker 
+                    // join consecuitive lines from the same speaker
                     if (lineSplit[1].equals(lastName)) {
                         if (!lastLine.isEmpty()) {
                             // if the previous line doesn't end with a special symbol, append a comma and the current line

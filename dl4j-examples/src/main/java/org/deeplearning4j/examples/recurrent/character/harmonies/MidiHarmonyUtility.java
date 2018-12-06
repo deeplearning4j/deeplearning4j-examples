@@ -1,21 +1,12 @@
 package org.deeplearning4j.examples.recurrent.character.harmonies;
 
+import org.deeplearning4j.examples.recurrent.character.melodl4j.Note;
+
+import javax.sound.midi.*;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Set;
-import java.util.TreeMap;
-import java.util.TreeSet;
-import javax.sound.midi.InvalidMidiDataException;
-import javax.sound.midi.MidiEvent;
-import javax.sound.midi.MidiMessage;
-import javax.sound.midi.Sequence;
-import javax.sound.midi.ShortMessage;
-import javax.sound.midi.Track;
-import org.deeplearning4j.examples.recurrent.character.melodl4j.Note;
+import java.util.*;
 
 /**
  * This class converts Midi to two-party harmony string, saving them in a file (See printTwoPartHarmonies).

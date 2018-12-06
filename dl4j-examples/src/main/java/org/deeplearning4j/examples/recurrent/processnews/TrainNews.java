@@ -46,12 +46,12 @@ import org.deeplearning4j.nn.conf.layers.LSTM;
 import org.deeplearning4j.nn.conf.layers.RnnOutputLayer;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
+import org.deeplearning4j.optimize.api.InvocationType;
 import org.deeplearning4j.optimize.listeners.EvaluativeListener;
 import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
 import org.deeplearning4j.text.tokenization.tokenizer.preprocessor.CommonPreprocessor;
 import org.deeplearning4j.text.tokenization.tokenizerfactory.DefaultTokenizerFactory;
 import org.deeplearning4j.text.tokenization.tokenizerfactory.TokenizerFactory;
-import org.deeplearning4j.util.ModelSerializer;
 import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.learning.config.RmsProp;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
@@ -124,14 +124,14 @@ public class TrainNews {
         net.init();
 
         System.out.println("Starting training...");
-        net.setListeners(new ScoreIterationListener(1), new EvaluativeListener(iTest, 1000));
+        net.setListeners(new ScoreIterationListener(1), new EvaluativeListener(iTest, 1, InvocationType.EPOCH_END));
         net.fit(iTrain, nEpochs);
 
         System.out.println("Evaluating...");
         Evaluation eval = net.evaluate(iTest);
         System.out.println(eval.stats());
 
-        ModelSerializer.writeModel(net, userDirectory + "NewsModel.net", true);
+        net.save(new File(userDirectory + "NewsModel.net"), true);
         System.out.println("----- Example complete -----");
     }
 
