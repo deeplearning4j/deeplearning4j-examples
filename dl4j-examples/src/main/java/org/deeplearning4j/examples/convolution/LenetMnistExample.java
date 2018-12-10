@@ -13,6 +13,7 @@ import org.deeplearning4j.optimize.listeners.EvaluativeListener;
 import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
 import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
+import org.nd4j.linalg.learning.config.Nadam;
 import org.nd4j.linalg.learning.config.Nesterovs;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 import org.slf4j.Logger;
@@ -57,7 +58,7 @@ public class LenetMnistExample {
                 .seed(seed)
                 .l2(0.0005)
                 .weightInit(WeightInit.XAVIER)
-                .updater(new Nesterovs(0.01, 0.9))
+                .updater(new Nadam(0.001))
                 .list()
                 .layer(new ConvolutionLayer.Builder(5, 5)
                         //nIn and nOut specify depth. nIn here is the nChannels and nOut is the number of filters to be applied
@@ -110,9 +111,10 @@ public class LenetMnistExample {
         model.setListeners(new ScoreIterationListener(10), new EvaluativeListener(mnistTest, 1, InvocationType.EPOCH_END)); //Print score every 10 iterations and evaluate on test set every epoch
         model.fit(mnistTrain, nEpochs);
 
-        log.info("Saving model to temp directory...");
-        String basePath = FilenameUtils.concat(System.getProperty("user.dir"), "src/main/resources/");
-        model.save(new File(basePath + "model.bin"));
+        String path = FilenameUtils.concat(System.getProperty("java.io.tmpdir"), "lenetmnist.zip");
+
+        log.info("Saving model to tmp folder: "+path);
+        model.save(new File(path), true);
 
         log.info("****************Example finished********************");
     }
