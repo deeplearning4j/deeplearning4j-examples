@@ -25,6 +25,8 @@ import org.deeplearning4j.nn.conf.inputs.InvalidInputTypeException;
 import org.deeplearning4j.nn.conf.layers.*;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
+import org.deeplearning4j.optimize.api.InvocationType;
+import org.deeplearning4j.optimize.listeners.EvaluativeListener;
 import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
 import org.deeplearning4j.ui.api.UIServer;
 import org.deeplearning4j.ui.stats.StatsListener;
@@ -34,6 +36,8 @@ import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.nd4j.linalg.dataset.api.preprocessor.DataNormalization;
 import org.nd4j.linalg.dataset.api.preprocessor.ImagePreProcessingScaler;
+import org.nd4j.linalg.learning.config.AdaDelta;
+import org.nd4j.linalg.learning.config.Nadam;
 import org.nd4j.linalg.learning.config.Nesterovs;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 import org.nd4j.linalg.primitives.Pair;
@@ -75,12 +79,12 @@ public class AnimalsClassification {
 
     protected static long seed = 42;
     protected static Random rng = new Random(seed);
-    protected static int epochs = 50;
+    protected static int epochs = 100;
     protected static double splitTrainTest = 0.8;
     protected static boolean save = false;
     protected static int maxPathsPerLabel=18;
 
-    protected static String modelType = "AlexNet"; // LeNet, AlexNet or Custom but you need to fill it out
+    protected static String modelType = "LeNet"; // LeNet, AlexNet or Custom but you need to fill it out
     private int numLabels;
 
     public void run(String[] args) throws Exception {
@@ -150,44 +154,45 @@ public class AnimalsClassification {
         UIServer uiServer = UIServer.getInstance();
         StatsStorage statsStorage = new FileStatsStorage(new File("java.io.tmpdir"));
         uiServer.attach(statsStorage);
-        network.setListeners(new StatsListener( statsStorage),new ScoreIterationListener(1));
         /**
          * Data Setup -> define how to load data into net:
          *  - recordReader = the reader that loads and converts image data pass in inputSplit to initialize
          *  - dataIter = a generator that only loads one batch at a time into memory to save memory
          *  - trainIter = uses MultipleEpochsIterator to ensure model runs through the data for all epochs
          **/
-        ImageRecordReader recordReader = new ImageRecordReader(height, width, channels, labelMaker);
-        DataSetIterator dataIter;
+        ImageRecordReader trainRR = new ImageRecordReader(height, width, channels, labelMaker);
+        DataSetIterator trainIter;
 
 
         log.info("Train model....");
+        // test iterator
+        ImageRecordReader testRR = new ImageRecordReader(height, width, channels, labelMaker);
+        testRR.initialize(testData);
+        DataSetIterator testIter = new RecordReaderDataSetIterator(testRR, batchSize, 1, numLabels);
+        scaler.fit(testIter);
+        testIter.setPreProcessor(scaler);
+
+        // listeners
+        network.setListeners(new StatsListener( statsStorage), new ScoreIterationListener(1), new EvaluativeListener(testIter, 1, InvocationType.EPOCH_END));
+
         // Train without transformations
-        recordReader.initialize(trainData, null);
-        dataIter = new RecordReaderDataSetIterator(recordReader, batchSize, 1, numLabels);
-        scaler.fit(dataIter);
-        dataIter.setPreProcessor(scaler);
-        network.fit(dataIter,epochs);
+        trainRR.initialize(trainData, null);
+        trainIter = new RecordReaderDataSetIterator(trainRR, batchSize, 1, numLabels);
+        scaler.fit(trainIter);
+        trainIter.setPreProcessor(scaler);
+        network.fit(trainIter, epochs);
 
         // Train with transformations
-        recordReader.initialize(trainData,transform);
-        dataIter = new RecordReaderDataSetIterator(recordReader, batchSize, 1, numLabels);
-        scaler.fit(dataIter);
-        dataIter.setPreProcessor(scaler);
-        network.fit(dataIter,epochs);
-
-        log.info("Evaluate model....");
-        recordReader.initialize(testData);
-        dataIter = new RecordReaderDataSetIterator(recordReader, batchSize, 1, numLabels);
-        scaler.fit(dataIter);
-        dataIter.setPreProcessor(scaler);
-        Evaluation eval = network.evaluate(dataIter);
-        log.info(eval.stats(true));
+        trainRR.initialize(trainData, transform);
+        trainIter = new RecordReaderDataSetIterator(trainRR, batchSize, 1, numLabels);
+        scaler.fit(trainIter);
+        trainIter.setPreProcessor(scaler);
+        network.fit(trainIter, epochs);
 
         // Example on how to get predict results with trained model. Result for first example in minibatch is printed
-        dataIter.reset();
-        DataSet testDataSet = dataIter.next();
-        List<String> allClassLabels = recordReader.getLabels();
+        trainIter.reset();
+        DataSet testDataSet = trainIter.next();
+        List<String> allClassLabels = trainRR.getLabels();
         int labelIndex = testDataSet.getLabels().argMax(1).getInt(0);
         int[] predictedClasses = network.predict(testDataSet.getFeatures());
         String expectedResult = allClassLabels.get(labelIndex);
@@ -232,7 +237,8 @@ public class AnimalsClassification {
             .l2(0.005)
             .activation(Activation.RELU)
             .weightInit(WeightInit.XAVIER)
-            .updater(new Nesterovs(0.0001,0.9))
+//            .updater(new Nadam(1e-4))
+            .updater(new AdaDelta())
             .list()
             .layer(0, convInit("cnn1", channels, 50 ,  new int[]{5, 5}, new int[]{1, 1}, new int[]{0, 0}, 0))
             .layer(1, maxPool("maxpool1", new int[]{2,2}))
@@ -265,8 +271,7 @@ public class AnimalsClassification {
             .weightInit(WeightInit.DISTRIBUTION)
             .dist(new NormalDistribution(0.0, 0.01))
             .activation(Activation.RELU)
-            .updater(new Nesterovs(new StepSchedule(ScheduleType.ITERATION, 1e-2, 0.1, 100000), 0.9))
-            .biasUpdater(new Nesterovs(new StepSchedule(ScheduleType.ITERATION, 2e-2, 0.1, 100000), 0.9))
+            .updater(new AdaDelta())
             .gradientNormalization(GradientNormalization.RenormalizeL2PerLayer) // normalize to prevent vanishing or exploding gradients
             .l2(5 * 1e-4)
             .list()
