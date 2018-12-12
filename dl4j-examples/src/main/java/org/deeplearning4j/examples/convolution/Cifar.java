@@ -65,7 +65,6 @@ public class Cifar {
     private static int epochs = 50;
 
     public static void main(String[] args) throws Exception {
-//        Nd4j.setDataType(DataBuffer.Type.FLOAT);
         Cifar cf = new Cifar();
 
         Cifar10DataSetIterator cifar = new Cifar10DataSetIterator(batchSize, new int[]{height, width, channels}, DataSetType.TRAIN, null, seed);

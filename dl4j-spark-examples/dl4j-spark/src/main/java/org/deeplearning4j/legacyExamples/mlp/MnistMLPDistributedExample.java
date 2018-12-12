@@ -110,10 +110,17 @@ public class MnistMLPDistributedExample {
             .updater(new Nadam())// To configure: .updater(Nesterovs.builder().momentum(0.9).build())
             .l2(1e-4)
             .list()
+<<<<<<< HEAD
             .layer(new DenseLayer.Builder().nIn(28 * 28).nOut(500).build())
             .layer(new DenseLayer.Builder().nOut(100).build())
             .layer(new OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD)
                 .activation(Activation.SOFTMAX).nOut(10).build())
+=======
+            .layer(0, new DenseLayer.Builder().nIn(28 * 28).nOut(500).build())
+            .layer(1, new DenseLayer.Builder().nIn(500).nOut(100).build())
+            .layer(2, new OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD)
+                .activation(Activation.SOFTMAX).nIn(100).nOut(10).build())
+>>>>>>> 0a901441a1170a9bb5ee6a9a5681f1ad59c50219
             .build();
 
         //Configuration for Spark training: see https://deeplearning4j.org/distributed for explanation of these configuration options

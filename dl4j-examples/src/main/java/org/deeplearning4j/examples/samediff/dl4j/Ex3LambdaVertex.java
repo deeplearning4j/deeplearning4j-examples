@@ -15,6 +15,7 @@ import org.deeplearning4j.nn.weights.WeightInit;
 import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
 import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.api.buffer.DataBuffer;
+import org.nd4j.linalg.api.buffer.DataType;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.nd4j.linalg.factory.Nd4j;
@@ -92,7 +93,7 @@ public class Ex3LambdaVertex {
          */
 
         System.out.println("===== Starting Layer Validation =====");
-        Nd4j.setDataType(DataBuffer.Type.DOUBLE);
+        Nd4j.setDefaultDataTypes(DataType.DOUBLE, DataType.DOUBLE);
 
         //Define network: smaller than before, so gradient checks are quicker
         int networkNumOutputs = 3;

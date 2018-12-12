@@ -11,7 +11,11 @@ import org.deeplearning4j.nn.conf.layers.OutputLayer;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
 import org.nd4j.linalg.activations.Activation;
+<<<<<<< HEAD
 import org.nd4j.linalg.api.buffer.DataBuffer;
+=======
+import org.nd4j.linalg.api.buffer.DataType;
+>>>>>>> 0a901441a1170a9bb5ee6a9a5681f1ad59c50219
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.factory.Nd4j;
@@ -36,7 +40,7 @@ public class CustomLayerExample {
     static{
         //Double precision for the gradient checks. See comments in the doGradientCheck() method
         // See also http://nd4j.org/userguide.html#miscdatatype
-        Nd4j.setDataType(DataBuffer.Type.DOUBLE);
+        Nd4j.setDefaultDataTypes(DataType.DOUBLE, DataType.DOUBLE);
     }
 
     public static void main(String[] args) throws IOException {
