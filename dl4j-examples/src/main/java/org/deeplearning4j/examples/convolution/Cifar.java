@@ -67,8 +67,8 @@ public class Cifar {
     public static void main(String[] args) throws Exception {
         Cifar cf = new Cifar();
 
-        Cifar10DataSetIterator cifar = new Cifar10DataSetIterator(batchSize, new int[]{height, width, channels}, DataSetType.TRAIN, null, seed);
-        Cifar10DataSetIterator cifarEval = new Cifar10DataSetIterator(batchSize, new int[]{height, width, channels}, DataSetType.TEST, null, seed);
+        Cifar10DataSetIterator cifar = new Cifar10DataSetIterator(batchSize, new int[]{height, width}, DataSetType.TRAIN, null, seed);
+        Cifar10DataSetIterator cifarEval = new Cifar10DataSetIterator(batchSize, new int[]{height, width}, DataSetType.TEST, null, seed);
 
         //train model and eval model
         MultiLayerNetwork model = cf.trainModelByCifarWithNet();//ignore
