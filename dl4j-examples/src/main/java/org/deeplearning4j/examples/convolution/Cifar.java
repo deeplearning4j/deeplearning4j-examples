@@ -3,14 +3,16 @@ package org.deeplearning4j.examples.convolution;
 import org.datavec.image.loader.CifarLoader;
 import org.datavec.image.loader.NativeImageLoader;
 import org.deeplearning4j.api.storage.StatsStorage;
-import org.deeplearning4j.datasets.iterator.impl.CifarDataSetIterator;
+import org.deeplearning4j.datasets.fetchers.DataSetType;
+import org.deeplearning4j.datasets.iterator.impl.Cifar10DataSetIterator;
 import org.deeplearning4j.nn.api.OptimizationAlgorithm;
-import org.deeplearning4j.nn.conf.ConvolutionMode;
-import org.deeplearning4j.nn.conf.GradientNormalization;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
 import org.deeplearning4j.nn.conf.inputs.InputType;
-import org.deeplearning4j.nn.conf.layers.*;
+import org.deeplearning4j.nn.conf.layers.BatchNormalization;
+import org.deeplearning4j.nn.conf.layers.ConvolutionLayer;
+import org.deeplearning4j.nn.conf.layers.OutputLayer;
+import org.deeplearning4j.nn.conf.layers.SubsamplingLayer;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
 import org.deeplearning4j.optimize.api.InvocationType;
@@ -21,11 +23,8 @@ import org.deeplearning4j.ui.stats.StatsListener;
 import org.deeplearning4j.ui.storage.FileStatsStorage;
 import org.deeplearning4j.util.ModelSerializer;
 import org.nd4j.linalg.activations.Activation;
-import org.nd4j.linalg.api.buffer.DataBuffer;
 import org.nd4j.linalg.api.ndarray.INDArray;
-import org.nd4j.linalg.factory.Nd4j;
-import org.nd4j.linalg.learning.config.Adam;
-import org.nd4j.linalg.learning.config.Nadam;
+import org.nd4j.linalg.learning.config.AdaDelta;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 import org.nd4j.util.StringUtils;
 import org.slf4j.Logger;
@@ -61,29 +60,23 @@ public class Cifar {
     private static int width = 32;
     private static int channels = 3;
     private static int numLabels = CifarLoader.NUM_LABELS;
-    private static int numSamples = 50000;
-    private static int batchSize = 100;
-    private static int freIterations = 50;
-    private static int seed = 123;
-    private static boolean preProcessCifar = false;//use Zagoruyko's preprocess for Cifar
+    private static int batchSize = 96;
+    private static long seed = 123L;
     private static int epochs = 50;
 
     public static void main(String[] args) throws Exception {
-        // CudaEnvironment.getInstance().getConfiguration().;
-        Nd4j.setDataType(DataBuffer.Type.FLOAT);
+//        Nd4j.setDataType(DataBuffer.Type.FLOAT);
         Cifar cf = new Cifar();
 
-        CifarDataSetIterator cifar = new CifarDataSetIterator(batchSize, numSamples,
-            new int[] {height, width, channels}, preProcessCifar, true);
-        CifarDataSetIterator cifarEval = new CifarDataSetIterator(batchSize, 10000,
-            new int[] {height, width, channels}, preProcessCifar, false);
+        Cifar10DataSetIterator cifar = new Cifar10DataSetIterator(batchSize, new int[]{height, width, channels}, DataSetType.TRAIN, null, seed);
+        Cifar10DataSetIterator cifarEval = new Cifar10DataSetIterator(batchSize, new int[]{height, width, channels}, DataSetType.TEST, null, seed);
 
         //train model and eval model
         MultiLayerNetwork model = cf.trainModelByCifarWithNet();//ignore
         UIServer uiServer = UIServer.getInstance();
         StatsStorage statsStorage = new FileStatsStorage(new File("java.io.tmpdir"));
         uiServer.attach(statsStorage);
-        model.setListeners(new StatsListener( statsStorage), new ScoreIterationListener(freIterations), new EvaluativeListener(cifarEval, 1, InvocationType.EPOCH_END));
+        model.setListeners(new StatsListener( statsStorage), new ScoreIterationListener(50), new EvaluativeListener(cifarEval, 1, InvocationType.EPOCH_END));
 
         labelStr = String.join(",", cifar.getLabels().toArray(new String[cifar.getLabels().size()]));
         model.fit(cifar, epochs);
@@ -97,49 +90,30 @@ public class Cifar {
         log.info("this is Net for the cifar");
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
             .seed(seed)
-            .updater(new Nadam())
-            .gradientNormalization(GradientNormalization.RenormalizeL2PerLayer) // normalize to prevent vanishing or exploding gradients
+            .updater(new AdaDelta())
             .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
+            .weightInit(WeightInit.XAVIER)
             .l1(1e-4)
-            .l2(5 * 1e-4)
             .list()
-            .layer(new ConvolutionLayer.Builder(new int[]{4, 4}, new int[]{1, 1}, new int[]{0, 0}).name("cnn1").convolutionMode(ConvolutionMode.Same)
-                .nIn(3).nOut(64).weightInit(WeightInit.XAVIER_UNIFORM).activation(Activation.RELU) //.learningRateDecayPolicy(LearningRatePolicy.Step)
-                .biasInit(1e-2).build())
-            .layer(new ConvolutionLayer.Builder(new int[]{4,4}, new int[] {1,1}, new int[] {0,0}).name("cnn2").convolutionMode(ConvolutionMode.Same)
-                .nOut(64).weightInit(WeightInit.XAVIER_UNIFORM).activation(Activation.RELU)
-                .biasInit(1e-2).build())
-            .layer(new SubsamplingLayer.Builder(PoolingType.MAX, new int[]{2,2}).name("maxpool2").build())
+            .layer(new ConvolutionLayer.Builder().kernelSize(5,5).stride(1,1).padding(2,2).activation(Activation.RELU)
+                .nIn(channels).nOut(16).build())
+            .layer(new BatchNormalization())
+            .layer(new SubsamplingLayer.Builder().kernelSize(2,2).stride(2,2).build())
 
-            .layer(new ConvolutionLayer.Builder(new int[]{4,4}, new int[] {1,1}, new int[] {0,0}).name("cnn3").convolutionMode(ConvolutionMode.Same)
-                .nOut(96).weightInit(WeightInit.XAVIER_UNIFORM).activation(Activation.RELU)
-                .biasInit(1e-2).build())
-            .layer(new ConvolutionLayer.Builder(new int[]{4,4}, new int[] {1,1}, new int[] {0,0}).name("cnn4").convolutionMode(ConvolutionMode.Same)
-                .nOut(96).weightInit(WeightInit.XAVIER_UNIFORM).activation(Activation.RELU)
-                .biasInit(1e-2).build())
+            .layer(new ConvolutionLayer.Builder().kernelSize(5,5).stride(1,1).padding(2,2).activation(Activation.RELU)
+                .nOut(20).build())
+            .layer(new BatchNormalization())
+            .layer(new SubsamplingLayer.Builder().kernelSize(2,2).stride(2,2).build())
 
-            .layer(new ConvolutionLayer.Builder(new int[]{3,3}, new int[] {1,1}, new int[] {0,0}).name("cnn5").convolutionMode(ConvolutionMode.Same)
-                .nOut(128).weightInit(WeightInit.XAVIER_UNIFORM).activation(Activation.RELU)
-                .biasInit(1e-2).build())
-            .layer(new ConvolutionLayer.Builder(new int[]{3,3}, new int[] {1,1}, new int[] {0,0}).name("cnn6").convolutionMode(ConvolutionMode.Same)
-                .nOut(128).weightInit(WeightInit.XAVIER_UNIFORM).activation(Activation.RELU)
-                .biasInit(1e-2).build())
+            .layer(new ConvolutionLayer.Builder().kernelSize(5,5).stride(1,1).padding(2,2).activation(Activation.RELU)
+                .nOut(20).build())
+            .layer(new BatchNormalization())
+            .layer(new SubsamplingLayer.Builder().kernelSize(5,5).stride(2,2).build())
 
-            .layer(new ConvolutionLayer.Builder(new int[]{2,2}, new int[] {1,1}, new int[] {0,0}).name("cnn7").convolutionMode(ConvolutionMode.Same)
-                .nOut(256).weightInit(WeightInit.XAVIER_UNIFORM).activation(Activation.RELU)
-                .biasInit(1e-2).build())
-            .layer(new ConvolutionLayer.Builder(new int[]{2,2}, new int[] {1,1}, new int[] {0,0}).name("cnn8").convolutionMode(ConvolutionMode.Same)
-                .nOut(256).weightInit(WeightInit.XAVIER_UNIFORM).activation(Activation.RELU)
-                .biasInit(1e-2).build())
-            .layer(new SubsamplingLayer.Builder(PoolingType.MAX, new int[]{2,2}).name("maxpool8").build())
-
-            .layer(new DenseLayer.Builder().name("ffn1").nOut(1024).updater(new Adam(1e-3)).biasInit(1e-3).biasUpdater(new Adam(1e-3*2)).build())
-            .layer(new DropoutLayer.Builder().name("dropout1").dropOut(0.2).build())
-            .layer(new DenseLayer.Builder().name("ffn2").nOut(1024).biasInit(1e-2).build())
-            .layer(new DropoutLayer.Builder().name("dropout2").dropOut(0.2).build())
             .layer(new OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD)
                 .name("output")
                 .nOut(numLabels)
+                .dropOut(0.8)
                 .activation(Activation.SOFTMAX)
                 .build())
             .setInputType(InputType.convolutional(height, width, channels))
