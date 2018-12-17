@@ -80,7 +80,7 @@ public class Word2VecSentimentRNN {
                 .activation(Activation.TANH).build())
             .layer(1, new RnnOutputLayer.Builder().activation(Activation.SOFTMAX)
                 .lossFunction(LossFunctions.LossFunction.MCXENT).nIn(256).nOut(2).build())
-            .pretrain(false).backprop(true).build();
+            .build();
 
         MultiLayerNetwork net = new MultiLayerNetwork(conf);
         net.init();

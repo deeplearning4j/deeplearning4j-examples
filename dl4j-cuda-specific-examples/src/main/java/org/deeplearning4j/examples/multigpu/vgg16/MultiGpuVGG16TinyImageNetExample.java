@@ -11,15 +11,20 @@ import org.datavec.image.transform.ImageTransform;
 import org.datavec.image.transform.PipelineImageTransform;
 import org.datavec.image.transform.ResizeImageTransform;
 import org.deeplearning4j.datasets.datavec.RecordReaderDataSetIterator;
+import org.deeplearning4j.datasets.fetchers.DataSetType;
+import org.deeplearning4j.datasets.fetchers.TinyImageNetFetcher;
+import org.deeplearning4j.datasets.iterator.impl.TinyImageNetDataSetIterator;
 import org.deeplearning4j.eval.Evaluation;
 import org.deeplearning4j.nn.graph.ComputationGraph;
 import org.deeplearning4j.optimize.listeners.PerformanceListener;
+import org.deeplearning4j.optimize.solvers.accumulation.encoding.threshold.AdaptiveThresholdAlgorithm;
 import org.deeplearning4j.parallelism.ParallelWrapper;
 import org.deeplearning4j.zoo.model.VGG16;
 import org.nd4j.jita.conf.CudaEnvironment;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.nd4j.linalg.dataset.api.preprocessor.ImagePreProcessingScaler;
 import org.nd4j.linalg.factory.Nd4j;
+import org.nd4j.linalg.learning.config.AdaDelta;
 import org.nd4j.linalg.primitives.Pair;
 import org.slf4j.Logger;
 
@@ -40,78 +45,25 @@ import java.util.Random;
 public class MultiGpuVGG16TinyImageNetExample {
     private static final Logger log = org.slf4j.LoggerFactory.getLogger(MultiGpuVGG16TinyImageNetExample.class);
 
+    // for GPU you usually want to have higher batchSize
+    public static int batchSize = 16;
+    public static int nEpochs = 10;
+    public static int seed = 123;
+
     public static void main(String[] args) throws Exception {
-        // temp workaround for backend initialization
-        CudaEnvironment.getInstance().getConfiguration()
-            // key option enabled
-            .allowMultiGPU(true)
-            // we're allowing larger memory caches
-            .setMaximumDeviceCache(2L * 1024L * 1024L * 1024L)
-            // cross-device access is used for faster model averaging over pcie
-            .allowCrossDeviceAccess(true);
-
-        int nChannels = 1;
-        int outputNum = 10;
-
-        // for GPU you usually want to have higher batchSize
-        int batchSize = 16;
-        int nEpochs = 10;
-        int seed = 123;
-        Random rng = new Random(seed);
 
         VGG16 zooModel = VGG16.builder()
-            .numClasses(200)
+            .numClasses(TinyImageNetFetcher.NUM_LABELS)
             .seed(seed)
+            .inputShape(new int[]{TinyImageNetFetcher.INPUT_CHANNELS, 224, 224})
+            .updater(new AdaDelta())
             .build();
-        int[] inputShape = zooModel.metaData().getInputShape()[0];
         ComputationGraph vgg16 = zooModel.init();
         vgg16.setListeners(new PerformanceListener(1, true));
 
-        log.info("Load data....");
-        String dataPath = "/home/justin/Datasets/tiny-imagenet-200/train/";
-        ParentPathLabelGenerator labelMaker = new ParentPathLabelGenerator();
-        FileSplit fileSplit = new FileSplit(new File(dataPath), NativeImageLoader.ALLOWED_FORMATS, rng);
-        RandomPathFilter randomFilter = new RandomPathFilter(rng, NativeImageLoader.ALLOWED_FORMATS);
-
-      /*
-       * Data Setup -> train test split
-       */
-        log.info("Splitting data for production....");
-        InputSplit[] split = fileSplit.sample(randomFilter, 0.8, 0.2);
-        InputSplit trainData = split[0];
-        InputSplit testData = split[1];
-        log.info("Total training images is " + trainData.length());
-        log.info("Total test images is " + testData.length());
-
-        log.info("Calculating labels...");
-        File file = new File(dataPath);
-        String[] directories = file.list(new FilenameFilter() {
-            @Override
-            public boolean accept(File current, String name) {
-                return new File(current, name).isDirectory();
-            }
-        });
-
-        log.info("Initializing RecordReader and pipelines....");
-        List<Pair<ImageTransform, Double>> pipeline = new LinkedList<>();
-        pipeline.add(new Pair<>(new ResizeImageTransform(inputShape[1], inputShape[2]), 1.0));
-        pipeline.add(new Pair<>(new FlipImageTransform(1), 0.5));
-        ImageTransform combinedTransform = new PipelineImageTransform(pipeline, false);
-
-        ImageRecordReader trainRR = new ImageRecordReader(inputShape[1], inputShape[2], inputShape[0], combinedTransform);
-        trainRR.setLabels(Arrays.asList(directories));
-        trainRR.initialize(trainData);
-        ImageRecordReader testRR = new ImageRecordReader(inputShape[1], inputShape[2], inputShape[0], combinedTransform );
-        testRR.setLabels(Arrays.asList(directories));
-        testRR.initialize(testData);
-
-        log.info("Total dataset labels: "+ directories.length);
-        log.info("Total training labels: " + trainRR.getLabels().size());
-        log.info("Total test labels: " + testRR.getLabels().size());
-
-        log.info("Creating RecordReader iterator....");
-        DataSetIterator trainIter = new RecordReaderDataSetIterator(trainRR, batchSize, 1, 200);
-        DataSetIterator testIter = new RecordReaderDataSetIterator(testRR, batchSize, 1, 200);
+        log.info("Loading data....");
+        DataSetIterator trainIter = new TinyImageNetDataSetIterator(batchSize, new int[]{224,224}, DataSetType.TRAIN);
+        DataSetIterator testIter = new TinyImageNetDataSetIterator(batchSize, new int[]{224,224}, DataSetType.TEST);
 
         log.info("Fitting normalizer...");
         ImagePreProcessingScaler scaler = new ImagePreProcessingScaler(0, 1);
@@ -130,13 +82,12 @@ public class MultiGpuVGG16TinyImageNetExample {
             // use gradient sharing, a more effective distributed training method
             .trainingMode(ParallelWrapper.TrainingMode.SHARED_GRADIENTS)
 
+            .thresholdAlgorithm(new AdaptiveThresholdAlgorithm())
+
             .build();
 
         log.info("Train model....");
         long timeX = System.currentTimeMillis();
-
-        // optionally you might want to use MultipleEpochsIterator instead of manually iterating/resetting over your iterator
-        //MultipleEpochsIterator mnistMultiEpochIterator = new MultipleEpochsIterator(nEpochs, mnistTrain);
 
         for( int i=0; i<nEpochs; i++ ) {
             long time = System.currentTimeMillis();

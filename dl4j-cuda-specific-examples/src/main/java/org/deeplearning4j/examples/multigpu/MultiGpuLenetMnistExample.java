@@ -36,18 +36,15 @@ import org.slf4j.LoggerFactory;
 public class MultiGpuLenetMnistExample {
     private static final Logger log = LoggerFactory.getLogger(MultiGpuLenetMnistExample.class);
 
+    public static int nChannels = 1;
+    public static int outputNum = 10;
+
+    // for GPU you usually want to have higher batchSize
+    public static int batchSize = 128;
+    public static int nEpochs = 2;
+    public static int seed = 123;
+
     public static void main(String[] args) throws Exception {
-        // PLEASE NOTE: For CUDA FP16 precision support is available
-        Nd4j.setDataType(DataBuffer.Type.HALF);
-
-        int nChannels = 1;
-        int outputNum = 10;
-
-        // for GPU you usually want to have higher batchSize
-        int batchSize = 128;
-        int nEpochs = 10;
-        int seed = 123;
-
         log.info("Load data....");
         DataSetIterator mnistTrain = new MnistDataSetIterator(batchSize,true,12345);
         DataSetIterator mnistTest = new MnistDataSetIterator(batchSize,false,12345);
@@ -105,15 +102,11 @@ public class MultiGpuLenetMnistExample {
         model.setListeners(new ScoreIterationListener(100));
         long timeX = System.currentTimeMillis();
 
-        // optionally you might want to use MultipleEpochsIterator instead of manually iterating/resetting over your iterator
-        //MultipleEpochsIterator mnistMultiEpochIterator = new MultipleEpochsIterator(nEpochs, mnistTrain);
-
         for( int i=0; i<nEpochs; i++ ) {
             long time1 = System.currentTimeMillis();
 
-            // Please note: we're feeding ParallelWrapper with iterator, not model directly
-//            wrapper.fit(mnistMultiEpochIterator);
             wrapper.fit(mnistTrain);
+
             long time2 = System.currentTimeMillis();
             log.info("*** Completed epoch {}, time: {} ***", i, (time2 - time1));
         }

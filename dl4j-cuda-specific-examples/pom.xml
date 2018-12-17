@@ -13,7 +13,7 @@
 
     <name>DeepLearning4j CUDA special examples</name>
     <properties>
-      <nd4j.backend>nd4j-cuda-9.2</nd4j.backend>
+      <nd4j.backend>nd4j-cuda-10.0</nd4j.backend>
     </properties>
 
     <repositories>
