@@ -92,8 +92,7 @@ public class MnistDCGANExample {
                 .convolutionMode(ConvolutionMode.Same).activation(Activation.LEAKYRELU).build())
             .layer(5, new Convolution2D.Builder().nIn(256).nOut(channels).kernelSize(7, 7)
                 .convolutionMode(ConvolutionMode.Same).activation(Activation.TANH).build())
-            .layer(6, new DenseLayer.Builder().nIn(channels * height * width).nOut(channels * height * width)
-                .activation(Activation.TANH).build())
+            .layer(6, new ActivationLayer.Builder().activation(Activation.IDENTITY).build())
             .inputPreProcessor(1,
                 new FeedForwardToCnnPreProcessor(height/2,width/2,128))
             .inputPreProcessor(6, new CnnToFeedForwardPreProcessor(height, width, channels))
