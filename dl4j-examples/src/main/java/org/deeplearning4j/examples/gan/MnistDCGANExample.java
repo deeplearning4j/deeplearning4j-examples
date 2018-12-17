@@ -36,6 +36,8 @@ public class MnistDCGANExample {
     private static final int height = 28;
     private static final int width = 28;
     private static final int channels = 1;
+    private static final int mediumHidden = 128;
+    private static final int largeHidden = 256;
 
 
     private static void visualize(INDArray[] samples) {
@@ -78,23 +80,23 @@ public class MnistDCGANExample {
 
     public static void main(String[] args) throws Exception {
         MultiLayerConfiguration genConf = new NeuralNetConfiguration.Builder().list()
-            .layer(0, new DenseLayer.Builder().nIn(latentDim).nOut(width/2 * height/2 * 128)
+            .layer(0, new DenseLayer.Builder().nIn(latentDim).nOut(width/2 * height/2 * mediumHidden)
                 .activation(Activation.LEAKYRELU).build())
-            .layer(1, new Convolution2D.Builder().nIn(128).nOut(256).kernelSize(5, 5)
+            .layer(1, new Convolution2D.Builder().nIn(mediumHidden).nOut(largeHidden).kernelSize(5, 5)
                 .convolutionMode(ConvolutionMode.Same).activation(Activation.LEAKYRELU).build())
-            // Up-sampling to 28x28x256
-            .layer(2, new Deconvolution2D.Builder().nIn(256).nOut(256).stride(2,2)
+            // Up-sampling to 28x28xlargeHidden
+            .layer(2, new Deconvolution2D.Builder().nIn(largeHidden).nOut(largeHidden).stride(2,2)
                 .kernelSize(5, 5).convolutionMode(ConvolutionMode.Same)
                 .activation(Activation.LEAKYRELU).build())
-            .layer(3, new Convolution2D.Builder().nIn(256).nOut(256).kernelSize(5, 5)
+            .layer(3, new Convolution2D.Builder().nIn(largeHidden).nOut(largeHidden).kernelSize(5, 5)
                 .convolutionMode(ConvolutionMode.Same).activation(Activation.LEAKYRELU).build())
-            .layer(4, new Convolution2D.Builder().nIn(256).nOut(256).kernelSize(5, 5)
+            .layer(4, new Convolution2D.Builder().nIn(largeHidden).nOut(largeHidden).kernelSize(5, 5)
                 .convolutionMode(ConvolutionMode.Same).activation(Activation.LEAKYRELU).build())
-            .layer(5, new Convolution2D.Builder().nIn(256).nOut(channels).kernelSize(7, 7)
+            .layer(5, new Convolution2D.Builder().nIn(largeHidden).nOut(channels).kernelSize(7, 7)
                 .convolutionMode(ConvolutionMode.Same).activation(Activation.TANH).build())
             .layer(6, new ActivationLayer.Builder().activation(Activation.IDENTITY).build())
             .inputPreProcessor(1,
-                new FeedForwardToCnnPreProcessor(height/2,width/2,128))
+                new FeedForwardToCnnPreProcessor(height/2,width/2,mediumHidden))
             .inputPreProcessor(6, new CnnToFeedForwardPreProcessor(height, width, channels))
             .setInputType(InputType.feedForward(latentDim))
             .build();
@@ -107,19 +109,19 @@ public class MnistDCGANExample {
             .gradientNormalization(GradientNormalization.ClipElementWiseAbsoluteValue)
             .gradientNormalizationThreshold(1.0)
             .list()
-            .layer(0, new Convolution2D.Builder().nIn(channels).nOut(128).kernelSize(3, 3)
+            .layer(0, new Convolution2D.Builder().nIn(channels).nOut(mediumHidden).kernelSize(3, 3)
                 .activation(Activation.LEAKYRELU).build())
-            .layer(1, new Convolution2D.Builder().nIn(128).nOut(128).kernelSize(3, 3).stride(2, 2)
+            .layer(1, new Convolution2D.Builder().nIn(mediumHidden).nOut(mediumHidden).kernelSize(3, 3).stride(2, 2)
                 .activation(Activation.LEAKYRELU).build())
-            .layer(2, new Convolution2D.Builder().nIn(128).nOut(128).kernelSize(3, 3).stride(2, 2)
+            .layer(2, new Convolution2D.Builder().nIn(mediumHidden).nOut(mediumHidden).kernelSize(3, 3).stride(2, 2)
                 .activation(Activation.LEAKYRELU).build())
-            .layer(3, new Convolution2D.Builder().nIn(128).nOut(128).kernelSize(3, 3).stride(2, 2)
+            .layer(3, new Convolution2D.Builder().nIn(mediumHidden).nOut(mediumHidden).kernelSize(3, 3).stride(2, 2)
                 .activation(Activation.LEAKYRELU).build())
             .layer(4, new DropoutLayer.Builder().dropOut(0.6).build())
-            .layer(5, new DenseLayer.Builder().nIn(128 * 2 * 2).nOut(1).activation(Activation.SIGMOID).build())
+            .layer(5, new DenseLayer.Builder().nIn(mediumHidden * 2 * 2).nOut(1).activation(Activation.SIGMOID).build())
             .layer(6, new LossLayer.Builder().lossFunction(LossFunctions.LossFunction.XENT).build())
             .inputPreProcessor(0,new FeedForwardToCnnPreProcessor(height, width, channels))
-            .inputPreProcessor(4,new CnnToFeedForwardPreProcessor(2, 2, 128))
+            .inputPreProcessor(4,new CnnToFeedForwardPreProcessor(2, 2, mediumHidden))
             .setInputType(InputType.convolutional(height, width, channels))
             .build();
 
