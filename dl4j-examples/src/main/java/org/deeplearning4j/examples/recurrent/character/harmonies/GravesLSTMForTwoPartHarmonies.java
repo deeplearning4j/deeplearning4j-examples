@@ -166,7 +166,7 @@ public class GravesLSTMForTwoPartHarmonies {
         UIServer uiServer = UIServer.getInstance();
 
         //Configure where the network information (gradients, score vs. time etc) is to be stored. Here: store in memory.
-        StatsStorage statsStorage = new FileStatsStorage(new File("java.io.tmpdir"));         //Alternative: new FileStatsStorage(File), for saving and loading later
+        StatsStorage statsStorage = new FileStatsStorage(new File(System.getProperty("java.io.tmpdir"), "ui-stats.dl4j"));
 
         //Attach the StatsStorage instance to the UI: this allows the contents of the StatsStorage to be visualized
         uiServer.attach(statsStorage);
