@@ -24,8 +24,6 @@ public class UIStorageExample {
         //Run this example twice - once with collectStats = true, and then again with collectStats = false
         boolean collectStats = true;
 
-        File statsFile = new File("UIStorageExampleStats.dl4j");
-
         if(collectStats){
             //First run: Collect training stats from the network
             //Note that we don't have to actually plot it when we collect it - though we can do that too, if required
@@ -33,7 +31,7 @@ public class UIStorageExample {
             MultiLayerNetwork net = UIExampleUtils.getMnistNetwork();
             DataSetIterator trainData = UIExampleUtils.getMnistData();
 
-            StatsStorage statsStorage = new FileStatsStorage(statsFile);
+            StatsStorage statsStorage = new FileStatsStorage(new File(System.getProperty("java.io.tmpdir"), "ui-stats.dl4j"));
             net.setListeners(new StatsListener(statsStorage), new ScoreIterationListener(10));
 
             net.fit(trainData);
@@ -42,7 +40,7 @@ public class UIStorageExample {
         } else {
             //Second run: Load the saved stats and visualize. Go to http://localhost:9000/train
 
-            StatsStorage statsStorage = new FileStatsStorage(statsFile);    //If file already exists: load the data from it
+            StatsStorage statsStorage = new FileStatsStorage(new File(System.getProperty("java.io.tmpdir"), "ui-stats.dl4j"));
             UIServer uiServer = UIServer.getInstance();
             uiServer.attach(statsStorage);
         }

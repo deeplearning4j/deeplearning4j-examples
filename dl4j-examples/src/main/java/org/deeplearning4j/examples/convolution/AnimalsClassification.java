@@ -152,7 +152,7 @@ public class AnimalsClassification {
         network.init();
        // network.setListeners(new ScoreIterationListener(listenerFreq));
         UIServer uiServer = UIServer.getInstance();
-        StatsStorage statsStorage = new FileStatsStorage(new File("java.io.tmpdir"));
+        StatsStorage statsStorage = new FileStatsStorage(new File(System.getProperty("java.io.tmpdir"), "ui-stats.dl4j"));
         uiServer.attach(statsStorage);
         /**
          * Data Setup -> define how to load data into net:

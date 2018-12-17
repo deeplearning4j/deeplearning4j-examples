@@ -103,7 +103,7 @@ public class PredictGenderTrain
             model.init();
 
             UIServer uiServer = UIServer.getInstance();
-            StatsStorage statsStorage = new FileStatsStorage(new File("java.io.tmpdir"));
+            StatsStorage statsStorage = new FileStatsStorage(new File(System.getProperty("java.io.tmpdir"), "ui-stats.dl4j"));
             uiServer.attach(statsStorage);
             model.setListeners(new StatsListener(statsStorage));
 

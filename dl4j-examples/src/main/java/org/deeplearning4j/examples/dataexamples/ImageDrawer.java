@@ -72,7 +72,7 @@ public class ImageDrawer extends Application {
         boolean fUseUI = false; // set to false if you do not want the web ui to track learning progress.
         if(fUseUI) {
             UIServer uiServer = UIServer.getInstance();
-            StatsStorage statsStorage = new FileStatsStorage(new File("java.io.tmpdir"));
+            StatsStorage statsStorage = new FileStatsStorage(new File(System.getProperty("java.io.tmpdir"), "ui-stats.dl4j"));
             uiServer.attach(statsStorage);
             nn.setListeners(new StatsListener(statsStorage));
         }

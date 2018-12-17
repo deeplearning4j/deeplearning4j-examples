@@ -54,7 +54,7 @@ public class AEMNISTAnomalyDectection {
 
         MultiLayerNetwork net = createModel();
         UIServer uiServer = UIServer.getInstance();
-        StatsStorage statsStorage = new FileStatsStorage(new File("java.io.tmpdir"));
+        StatsStorage statsStorage = new FileStatsStorage(new File(System.getProperty("java.io.tmpdir"), "ui-stats.dl4j"));
         uiServer.attach(statsStorage);
         net.setListeners(new StatsListener(statsStorage),new ScoreIterationListener(10));
 
