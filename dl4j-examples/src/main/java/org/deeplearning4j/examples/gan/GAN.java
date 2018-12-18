@@ -25,8 +25,21 @@ import java.util.Map;
 /**
  * Implementation of vanilla Generative Adversarial Networks as introduced in https://arxiv.org/pdf/1406.2661.pdf.
  *
- * A DL4J GAN is initialized from two networks: a generator and a discriminator and will build a third network,
- * the GAN network, from the first two.
+ * A DL4J GAN is built from two networks: a generator and a discriminator and will build a third network,
+ * the GAN network, from the first two. The GAN networks essentially chains the discriminator to the generator, i.e.
+ * first images are generated, then the discriminator tries to decide if they are real or fake.
+ *
+ * In the training step of a GAN, we start off by training the discriminator. For each batch of real images, we generate
+ * a batch of fake images using the generator. All real images are labeled "1", all fake ones "0". With this data the
+ * discriminator gets better at distinguishing the two. Next, we create so called adversarial or "misleading" examples,
+ * that is we let the generator create images and we falsely label them as real ("1"). Now it's time to train the GAN with
+ * this batch of data. To do so, we freeze the weights of the discriminator and only update the generator. This way,
+ * the generator will get better at creating adversarial example, thereby fooling the discriminator.
+ *
+ * These two training steps get repeated all over. The discriminator will slowly get better at separating real from fake,
+ * and the generator will get better at creating better fake images. This leads to strong discriminators, but first and
+ * foremost to really powerful generators. If you train a GAN on MNIST handwritten digits, for instance, the GAN will
+ * learn to generate realistic handwritten data.
  *
  * @author Max Pumperla
  */
