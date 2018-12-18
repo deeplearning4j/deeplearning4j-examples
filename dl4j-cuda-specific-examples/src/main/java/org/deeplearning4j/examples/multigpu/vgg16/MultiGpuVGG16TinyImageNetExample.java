@@ -1,39 +1,21 @@
 package org.deeplearning4j.examples.multigpu.vgg16;
 
-import org.datavec.api.io.filters.RandomPathFilter;
-import org.datavec.api.io.labels.ParentPathLabelGenerator;
-import org.datavec.api.split.FileSplit;
-import org.datavec.api.split.InputSplit;
-import org.datavec.image.loader.NativeImageLoader;
-import org.datavec.image.recordreader.ImageRecordReader;
-import org.datavec.image.transform.FlipImageTransform;
-import org.datavec.image.transform.ImageTransform;
-import org.datavec.image.transform.PipelineImageTransform;
-import org.datavec.image.transform.ResizeImageTransform;
-import org.deeplearning4j.datasets.datavec.RecordReaderDataSetIterator;
 import org.deeplearning4j.datasets.fetchers.DataSetType;
 import org.deeplearning4j.datasets.fetchers.TinyImageNetFetcher;
 import org.deeplearning4j.datasets.iterator.impl.TinyImageNetDataSetIterator;
 import org.deeplearning4j.eval.Evaluation;
+import org.deeplearning4j.nn.conf.CacheMode;
+import org.deeplearning4j.nn.conf.WorkspaceMode;
 import org.deeplearning4j.nn.graph.ComputationGraph;
 import org.deeplearning4j.optimize.listeners.PerformanceListener;
 import org.deeplearning4j.optimize.solvers.accumulation.encoding.threshold.AdaptiveThresholdAlgorithm;
 import org.deeplearning4j.parallelism.ParallelWrapper;
 import org.deeplearning4j.zoo.model.VGG16;
-import org.nd4j.jita.conf.CudaEnvironment;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.nd4j.linalg.dataset.api.preprocessor.ImagePreProcessingScaler;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.learning.config.AdaDelta;
-import org.nd4j.linalg.primitives.Pair;
 import org.slf4j.Logger;
-
-import java.io.File;
-import java.io.FilenameFilter;
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Random;
 
 
 /**
@@ -57,6 +39,8 @@ public class MultiGpuVGG16TinyImageNetExample {
             .seed(seed)
             .inputShape(new int[]{TinyImageNetFetcher.INPUT_CHANNELS, 224, 224})
             .updater(new AdaDelta())
+            .workspaceMode(WorkspaceMode.ENABLED)
+            .cacheMode(CacheMode.DEVICE)
             .build();
         ComputationGraph vgg16 = zooModel.init();
         vgg16.setListeners(new PerformanceListener(1, true));

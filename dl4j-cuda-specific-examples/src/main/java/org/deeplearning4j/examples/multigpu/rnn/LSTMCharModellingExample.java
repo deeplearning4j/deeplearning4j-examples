@@ -4,10 +4,11 @@ import org.apache.commons.io.FileUtils;
 import org.deeplearning4j.nn.api.Layer;
 import org.deeplearning4j.nn.api.Model;
 import org.deeplearning4j.nn.conf.BackpropType;
-import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
+import org.deeplearning4j.nn.conf.ComputationGraphConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
 import org.deeplearning4j.nn.conf.layers.LSTM;
 import org.deeplearning4j.nn.conf.layers.RnnOutputLayer;
+import org.deeplearning4j.nn.graph.ComputationGraph;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
 import org.deeplearning4j.optimize.api.IterationListener;
@@ -16,8 +17,8 @@ import org.deeplearning4j.parallelism.ParallelWrapper;
 import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
-import org.nd4j.linalg.learning.config.RmsProp;
-import org.nd4j.linalg.lossfunctions.LossFunctions.LossFunction;
+import org.nd4j.linalg.learning.config.Adam;
+import org.nd4j.linalg.lossfunctions.LossFunctions;
 
 import java.io.File;
 import java.io.IOException;
@@ -64,30 +65,36 @@ public class LSTMCharModellingExample {
 		int nOut = iter.totalOutcomes();
 
 		//Set up network configuration:
-		MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
-			.seed(seed)
-			.l2(0.001)
+        ComputationGraphConfiguration conf = new NeuralNetConfiguration.Builder()
+            .seed(12345)
+            .l2(0.0001)
             .weightInit(WeightInit.XAVIER)
-            .updater(new RmsProp.Builder().learningRate(0.1).build())
-			.list()
-			.layer(new LSTM.Builder().nIn(iter.inputColumns()).nOut(lstmLayerSize)
-					.activation(Activation.TANH).build())
-			.layer(new LSTM.Builder().nIn(lstmLayerSize).nOut(lstmLayerSize)
-					.activation(Activation.TANH).build())
-			.layer(new RnnOutputLayer.Builder(LossFunction.MCXENT).activation(Activation.SOFTMAX)        //MCXENT + softmax for classification
-					.nIn(lstmLayerSize).nOut(nOut).build())
+            .updater(new Adam(0.005))
+            .graphBuilder()
+            .addInputs("input") //Give the input a name. For a ComputationGraph with multiple inputs, this also defines the input array orders
+            //First layer: name "first", with inputs from the input called "input"
+            .addLayer("first", new LSTM.Builder().nIn(iter.inputColumns()).nOut(lstmLayerSize)
+                .activation(Activation.TANH).build(),"input")
+            //Second layer, name "second", with inputs from the layer called "first"
+            .addLayer("second", new LSTM.Builder().nIn(lstmLayerSize).nOut(lstmLayerSize)
+                .activation(Activation.TANH).build(),"first")
+            //Output layer, name "outputlayer" with inputs from the two layers called "first" and "second"
+            .addLayer("outputLayer", new RnnOutputLayer.Builder(LossFunctions.LossFunction.MCXENT)
+                .activation(Activation.SOFTMAX)
+                .nIn(2*lstmLayerSize).nOut(nOut).build(),"first","second")
+            .setOutputs("outputLayer")  //List the output. For a ComputationGraph with multiple outputs, this also defines the input array orders
             .backpropType(BackpropType.TruncatedBPTT).tBPTTForwardLength(tbpttLength).tBPTTBackwardLength(tbpttLength)
-			.build();
+            .build();
 
-		MultiLayerNetwork net = new MultiLayerNetwork(conf);
-		net.init();
+        ComputationGraph net = new ComputationGraph(conf);
+        net.init();
 		net.setListeners(new ScoreIterationListener(1), new IterationListener() {
             @Override
             public void iterationDone(Model model, int iteration, int epoch) {
                 if (iteration % 20 == 0) {
                     System.out.println("--------------------");
                     System.out.println("Sampling characters from network given initialization \"" + (generationInitialization == null ? "" : generationInitialization) + "\"");
-                    String[] samples = sampleCharactersFromNetwork(generationInitialization, (MultiLayerNetwork) model, iter, rng, nCharactersToSample, nSamplesToGenerate);
+                    String[] samples = sampleCharactersFromNetwork(generationInitialization, (ComputationGraph) model, iter, rng, nCharactersToSample, nSamplesToGenerate);
                     for (int j = 0; j < samples.length; j++) {
                         System.out.println("----- Sample " + j + " -----");
                         System.out.println(samples[j]);
@@ -161,7 +168,7 @@ public class LSTMCharModellingExample {
 	 * @param net MultiLayerNetwork with one or more LSTM/RNN layers and a softmax output layer
 	 * @param iter CharacterIterator. Used for going from indexes back to characters
 	 */
-	private static String[] sampleCharactersFromNetwork(String initialization, MultiLayerNetwork net,
+	private static String[] sampleCharactersFromNetwork(String initialization, ComputationGraph net,
                                                         CharacterIterator iter, Random rng, int charactersToSample, int numSamples ){
 		//Set up initialization. If no initialization: use a random character
 		if( initialization == null ){
@@ -184,7 +191,7 @@ public class LSTMCharModellingExample {
 		//Sample from network (and feed samples back into input) one character at a time (for all samples)
 		//Sampling is done in parallel here
 		net.rnnClearPreviousState();
-		INDArray output = net.rnnTimeStep(initializationInput);
+		INDArray output = net.rnnTimeStep(initializationInput)[0];
 		output = output.tensorAlongDimension((int)output.size(2)-1,1,0);	//Gets the last time step output
 
 		for( int i=0; i<charactersToSample; i++ ){
@@ -200,7 +207,7 @@ public class LSTMCharModellingExample {
 				sb[s].append(iter.convertIndexToCharacter(sampledCharacterIdx));	//Add sampled character to StringBuilder (human readable output)
 			}
 
-			output = net.rnnTimeStep(nextInput);	//Do one time step of forward pass
+			output = net.rnnTimeStep(nextInput)[0];	//Do one time step of forward pass
 		}
 
 		String[] out = new String[numSamples];
