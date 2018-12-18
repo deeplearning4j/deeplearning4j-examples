@@ -1,14 +1,9 @@
 package org.deeplearning4j.examples.gan;
 
 import org.deeplearning4j.datasets.iterator.impl.MnistDataSetIterator;
-import org.deeplearning4j.nn.conf.ConvolutionMode;
-import org.deeplearning4j.nn.conf.GradientNormalization;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
-import org.deeplearning4j.nn.conf.inputs.InputType;
 import org.deeplearning4j.nn.conf.layers.*;
-import org.deeplearning4j.nn.conf.preprocessor.CnnToFeedForwardPreProcessor;
-import org.deeplearning4j.nn.conf.preprocessor.FeedForwardToCnnPreProcessor;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
 import org.nd4j.linalg.activations.Activation;
@@ -17,15 +12,20 @@ import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.learning.config.Adam;
 import org.nd4j.linalg.learning.config.IUpdater;
-import org.nd4j.linalg.learning.config.RmsProp;
 import org.nd4j.linalg.learning.config.Sgd;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 
 import javax.swing.*;
 
+
+/**
+ * Relatively small GAN example using only Dense layers with dropout to generate handwritten
+ * digits from MNIST data.
+ *
+ */
 public class MnistSimpleGAN {
 
-    private static final int latentDim = 100;
+    private static final int LATENT_DIM = 100;
 
     private static final double LEARNING_RATE = 0.0002;
     private static final IUpdater UPDATER_ZERO = Sgd.builder().learningRate(0.0).build();
@@ -81,10 +81,9 @@ public class MnistSimpleGAN {
         GAN gan = new GAN.Builder()
             .generator(generator)
             .discriminator(discriminator)
-            .latentDimension(latentDim)
-            .gradientNormalization(GradientNormalization.ClipElementWiseAbsoluteValue)
-            .gradientNormalizationThreshold(1.0)
-            .updater(new RmsProp.Builder().learningRate(0.0008).rmsDecay(1e-8).build())
+            .latentDimension(LATENT_DIM)
+            .seed(42)
+            .updater(UPDATER)
             .build();
 
         Nd4j.getMemoryManager().setAutoGcWindow(15 * 1000);
@@ -95,7 +94,7 @@ public class MnistSimpleGAN {
 
         // Sample from latent space once to visualize progress on image generation.
         int numSamples = 9;
-        INDArray fakeIn = Nd4j.rand(new int[]{batchSize,  latentDim});
+        INDArray fakeIn = Nd4j.rand(new int[]{batchSize, LATENT_DIM});
         JFrame frame = GANVisualizationUtils.initFrame();
         JPanel panel = GANVisualizationUtils.initPanel(frame, numSamples);
 
