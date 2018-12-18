@@ -6,6 +6,7 @@ import org.datavec.api.split.FileSplit;
 import org.datavec.image.loader.NativeImageLoader;
 import org.datavec.image.recordreader.ImageRecordReader;
 import org.deeplearning4j.datasets.datavec.RecordReaderDataSetIterator;
+import org.deeplearning4j.datasets.iterator.impl.MnistDataSetIterator;
 import org.deeplearning4j.examples.utilities.DataUtilities;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
@@ -23,6 +24,7 @@ import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.nd4j.linalg.dataset.api.preprocessor.DataNormalization;
 import org.nd4j.linalg.dataset.api.preprocessor.ImagePreProcessingScaler;
+import org.nd4j.linalg.learning.config.AdaDelta;
 import org.nd4j.linalg.learning.config.Nesterovs;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 import org.nd4j.linalg.schedule.MapSchedule;
@@ -47,61 +49,27 @@ import java.util.Random;
 public class MnistClassifier {
 
   private static final Logger log = LoggerFactory.getLogger(MnistClassifier.class);
-  private static final String basePath = System.getProperty("java.io.tmpdir") + "/mnist";
-  private static final String dataUrl = "http://github.com/myleott/mnist_png/raw/master/mnist_png.tar.gz";
+    public static int batchSize = 54;
+    public static int nEpochs = 1;
+    public static int seed = 123;
+
+    public static int channels = 1;
+    public static int width = 28;
+    public static int height = 28;
+    public static int classes = 10;
 
   public static void main(String[] args) throws Exception {
-    int height = 28;
-    int width = 28;
-    int channels = 1; // single channel for grayscale images
-    int outputNum = 10; // 10 digits classification
-    int batchSize = 54;
-    int nEpochs = 1;
-    int iterations = 1;
-
-    int seed = 1234;
     Random randNumGen = new Random(seed);
 
-    log.info("Data load and vectorization...");
-    String localFilePath = basePath + "/mnist_png.tar.gz";
-    if (DataUtilities.downloadFile(dataUrl, localFilePath))
-      log.debug("Data downloaded from {}", dataUrl);
-    if (!new File(basePath + "/mnist_png").exists())
-      DataUtilities.extractTarGz(localFilePath, basePath);
+    log.info("Loading data...");
+    DataSetIterator trainMnist = new MnistDataSetIterator(batchSize, true, seed);
+    DataSetIterator testMnist = new MnistDataSetIterator(batchSize, false, seed);
 
-    // vectorization of train data
-    File trainData = new File(basePath + "/mnist_png/training");
-    FileSplit trainSplit = new FileSplit(trainData, NativeImageLoader.ALLOWED_FORMATS, randNumGen);
-    ParentPathLabelGenerator labelMaker = new ParentPathLabelGenerator(); // parent path as the image label
-    ImageRecordReader trainRR = new ImageRecordReader(height, width, channels, labelMaker);
-    trainRR.initialize(trainSplit);
-    DataSetIterator trainIter = new RecordReaderDataSetIterator(trainRR, batchSize, 1, outputNum);
-
-    // pixel values from 0-255 to 0-1 (min-max scaling)
-    DataNormalization scaler = new ImagePreProcessingScaler(0, 1);
-    scaler.fit(trainIter);
-    trainIter.setPreProcessor(scaler);
-
-    // vectorization of test data
-    File testData = new File(basePath + "/mnist_png/testing");
-    FileSplit testSplit = new FileSplit(testData, NativeImageLoader.ALLOWED_FORMATS, randNumGen);
-    ImageRecordReader testRR = new ImageRecordReader(height, width, channels, labelMaker);
-    testRR.initialize(testSplit);
-    DataSetIterator testIter = new RecordReaderDataSetIterator(testRR, batchSize, 1, outputNum);
-    testIter.setPreProcessor(scaler); // same normalization for better results
-
-    log.info("Network configuration and training...");
-    Map<Integer, Double> lrSchedule = new HashMap<>();
-    lrSchedule.put(0, 0.06); // iteration #, learning rate
-    lrSchedule.put(200, 0.05);
-    lrSchedule.put(600, 0.028);
-    lrSchedule.put(800, 0.0060);
-    lrSchedule.put(1000, 0.001);
-
+    log.info("Creating network...");
     MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
         .seed(seed)
         .l2(0.0005)
-        .updater(new Nesterovs(new MapSchedule(ScheduleType.ITERATION, lrSchedule)))
+        .updater(new AdaDelta())
         .weightInit(WeightInit.XAVIER)
         .list()
         .layer(new ConvolutionLayer.Builder(5, 5)
@@ -126,22 +94,23 @@ public class MnistClassifier {
         .layer(new DenseLayer.Builder().activation(Activation.RELU)
             .nOut(500).build())
         .layer( new OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD)
-            .nOut(outputNum)
+            .nOut(classes)
             .activation(Activation.SOFTMAX)
             .build())
-        .setInputType(InputType.convolutionalFlat(28, 28, 1)) // InputType.convolutional for normal image
+        .setInputType(InputType.convolutionalFlat(height, width, channels)) // InputType.convolutional for normal image
         .build();
 
     MultiLayerNetwork net = new MultiLayerNetwork(conf);
     net.init();
-    net.setListeners(new ScoreIterationListener(10), new EvaluativeListener(testIter, 1, InvocationType.EPOCH_END));
+    net.setListeners(new ScoreIterationListener(10), new EvaluativeListener(testMnist, 1, InvocationType.EPOCH_END));
     log.debug("Total num of params: {}", net.numParams());
 
     // evaluation while training (the score should go down)
-    net.fit(trainIter, nEpochs);
+    net.fit(trainMnist, nEpochs);
 
+    log.info("Saving model to disk...");
     String basePath = FilenameUtils.concat(System.getProperty("user.dir"), "src/main/resources/");
-    net.save(new File(basePath + "mnist-model.bin"));
+    net.save(new File(basePath + "mnist-model.zip"));
   }
 
 }

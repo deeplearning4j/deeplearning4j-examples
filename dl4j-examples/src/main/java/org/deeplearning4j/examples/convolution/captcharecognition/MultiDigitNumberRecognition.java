@@ -9,6 +9,8 @@ import org.deeplearning4j.nn.conf.inputs.InputType;
 import org.deeplearning4j.nn.conf.layers.*;
 import org.deeplearning4j.nn.graph.ComputationGraph;
 import org.deeplearning4j.nn.weights.WeightInit;
+import org.deeplearning4j.optimize.api.InvocationType;
+import org.deeplearning4j.optimize.listeners.EvaluativeListener;
 import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
 import org.deeplearning4j.ui.api.UIServer;
 import org.deeplearning4j.ui.stats.StatsListener;
@@ -41,7 +43,7 @@ public class MultiDigitNumberRecognition {
     private static final Logger log = LoggerFactory.getLogger(MultiDigitNumberRecognition.class);
 
     private static long seed = 123;
-    private static int epochs = 50;
+    private static int epochs = 4;
     private static int batchSize = 15;
     private static String rootPath = System.getProperty("user.dir");
 
@@ -64,7 +66,6 @@ public class MultiDigitNumberRecognition {
         UIServer uiServer = UIServer.getInstance();
         StatsStorage statsStorage = new FileStatsStorage(new File(System.getProperty("java.io.tmpdir"), "ui-stats.dl4j"));
         uiServer.attach(statsStorage);
-        model.setListeners(new ScoreIterationListener(10), new StatsListener( statsStorage));
 
         //construct the iterator
         MultiDataSetIterator trainMulIterator = new MultiRecordDataSetIterator(batchSize, "train");
@@ -72,6 +73,7 @@ public class MultiDigitNumberRecognition {
         MultiDataSetIterator validateMulIterator = new MultiRecordDataSetIterator(batchSize,"validate");
 
         //fit
+        model.setListeners(new ScoreIterationListener(10), new StatsListener( statsStorage), new EvaluativeListener(testMulIterator, 1, InvocationType.EPOCH_END));
         model.fit(trainMulIterator, epochs);
 
         //save
