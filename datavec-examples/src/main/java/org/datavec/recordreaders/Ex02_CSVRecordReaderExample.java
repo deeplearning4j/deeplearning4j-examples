@@ -180,7 +180,7 @@ public class Ex02_CSVRecordReaderExample {
         //=====================================================================
         /*
           A CSVRecordReader that can split each column into additional columns using a RegEx pattern for each column.
-          A RegEx is a short form for a regular expression. A regular expression a sequence of characters that define
+          A RegEx is a short form for a regular expression. A regular expression is a sequence of characters that define
           a search pattern. You can learn more about it here: https://en.wikipedia.org/wiki/Regular_expression.
           Also, look at the javadocs for the Pattern class here:
           https://docs.oracle.com/javase/7/docs/api/java/util/regex/Pattern.html

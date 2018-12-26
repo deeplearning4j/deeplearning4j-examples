@@ -11,7 +11,7 @@ import static java.util.Arrays.asList;
 
 /**
  * {@link org.datavec.api.split.TransformSplit} is an InputSplit implementation that maps the URIs of a given
- * {@link org.datavec.api.split.BaseInputSplit} to new URIs. It's seful when features and labels are in different
+ * {@link org.datavec.api.split.BaseInputSplit} to new URIs. It's useful when features and labels are in different
  * files sharing a common naming scheme, and the name of the output file can be determined given the name of the
  * input file.
  *
@@ -27,7 +27,7 @@ public class Ex04_TransformSplitExample {
           For the above files list, we can normalize the URI through URI#normalize by implementing the URITransform
           interface as follows:
          */
-        TransformSplit.URITransform normalizeUriTransform = uri -> uri.normalize();
+        TransformSplit.URITransform normalizeUriTransform = URI::normalize;
 
         TransformSplit transformSplit1 = new TransformSplit(new CollectionInputSplit(inputFiles1), normalizeUriTransform);
 

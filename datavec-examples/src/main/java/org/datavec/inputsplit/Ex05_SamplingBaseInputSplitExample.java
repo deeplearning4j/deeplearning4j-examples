@@ -9,6 +9,7 @@ import org.datavec.api.split.InputSplit;
 import org.nd4j.linalg.io.ClassPathResource;
 
 import java.util.Iterator;
+import java.util.Locale;
 import java.util.Random;
 
 /**
@@ -25,13 +26,13 @@ import java.util.Random;
  * weightN/totalWeightSum)
  *
  * {@link PathFilter} has two default implementations,
- * {@link org.datavec.api.io.filters.RandomPathFilter} that simple randomizes the order of paths in an array.
+ * {@link org.datavec.api.io.filters.RandomPathFilter} that simply randomizes the order of paths in an array.
  * and
  * {@link org.datavec.api.io.filters.BalancedPathFilter} that randomizes the order of paths in an array and removes
  * paths randomly to have the same number of paths for each label. Further interlaces the paths on output based on
- * their labels, to obtain easily optimal batches for training.
+ * their labels, to easily obtain optimal batches for training.
  *
- * Their usages are shown here.
+ * Let's look at their usage:
  */
 public class Ex05_SamplingBaseInputSplitExample {
     public static void main(String[] args) throws Exception{
@@ -39,10 +40,11 @@ public class Ex05_SamplingBaseInputSplitExample {
 
         //Sampling with a RandomPathFilter
         InputSplit[] inputSplits1 = fileSplit.sample(
-            new RandomPathFilter(new Random(123), null),
+            new RandomPathFilter(new Random(123)),
             10, 10, 10, 10, 10);
 
-        System.out.println(String.format(("Random filtered splits -> Total(%d) = Splits of (%s)"), fileSplit.length(),
+        System.out.println(String.format(Locale.ENGLISH,
+            "Random filtered splits -> Total(%d) = Splits of (%s)", fileSplit.length(),
             String.join(" + ", () -> new InputSplitLengthIterator(inputSplits1))));
 
         //Sampling with a BalancedPathFilter
@@ -50,7 +52,8 @@ public class Ex05_SamplingBaseInputSplitExample {
             new BalancedPathFilter(new Random(123), null, new ParentPathLabelGenerator()),
             10, 10, 10, 10, 10);
 
-        System.out.println(String.format(("Balanced Splits are: %s"),
+        System.out.println(String.format(Locale.ENGLISH,
+            "Balanced Splits are: %s",
             String.join(" + ", () -> new InputSplitLengthIterator(inputSplits2))));
     }
 
@@ -59,7 +62,7 @@ public class Ex05_SamplingBaseInputSplitExample {
         InputSplit[] inputSplits;
         int i;
 
-        public InputSplitLengthIterator(InputSplit[] inputSplits) {
+        InputSplitLengthIterator(InputSplit[] inputSplits) {
             this.inputSplits = inputSplits;
             this.i = 0;
         }

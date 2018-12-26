@@ -18,7 +18,7 @@ import java.util.List;
 /**
  * {@link LineRecordReader} in an implementation of {@link org.datavec.api.records.reader.BaseRecordReader}
  * which is implemented from the interface {@link org.datavec.api.records.reader.RecordReader}. It
- * read records line by line, given any type of file. {@link LineRecordReader} takes an
+ * reads records line by line, given any type of file. {@link LineRecordReader} takes an
  * implementation of {@link InputSplit} in its {@link LineRecordReader#initialize(InputSplit)}
  * method to read from the data source. In case of multiple files/locations in an {@link InputSplit},
  * {@link LineRecordReader} will go through each file/location one by one and read it line by line.
@@ -27,7 +27,7 @@ public class Ex01_LineRecordReaderExample {
     public static void main(String[] args) throws Exception {
         //=====================================================================
         //          Example 1: LineRecordReader with a single file
-        //=====================================================================
+        //============================3 =========================================
 
         /*
           This example shows the working of a LineRecordReader with a single file. It will read the file
@@ -58,7 +58,7 @@ public class Ex01_LineRecordReaderExample {
          */
         InputStreamInputSplit inputStreamInputSplit = new InputStreamInputSplit(new FileInputStream(classPathResource1.getFile()));
         LineRecordReader lineRecordReader2 = new LineRecordReader();
-        //
+
         lineRecordReader2.setListeners(new LogRecordListener());
         lineRecordReader2.initialize(inputStreamInputSplit);
 
