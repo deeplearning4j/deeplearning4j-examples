@@ -1,0 +1,26 @@
+plugins {
+    id 'java'
+}
+
+group 'com.pygmytitan'
+version '1.0-SNAPSHOT'
+
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'org.deeplearning4j:deeplearning4j-core:1.0.0-beta3'
+    implementation 'org.deeplearning4j:deeplearning4j-ui_2.11:1.0.0-beta3'
+    implementation 'ch.qos.logback:logback-classic:1.2.3'
+    implementation 'org.projectlombok:lombok:1.18.4'
+
+    //CPU
+//    implementation 'org.nd4j:nd4j-native-platform:1.0.0-beta3'
+
+    //GPU
+    implementation group: 'org.nd4j', name: 'nd4j-cuda-9.0-platform', version: '1.0.0-beta3'
+    implementation group: 'org.deeplearning4j', name: 'deeplearning4j-cuda-9.0', version: '1.0.0-beta3'
+}
