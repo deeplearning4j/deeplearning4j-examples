@@ -50,7 +50,7 @@ Run the `runexamples.sh` script to run the examples (requires [bash](https://www
 
 
 ## Documentation
-For more information, check out [deeplearning4j.org](http://deeplearning4j.org/) and its [JavaDoc](http://deeplearning4j.org/doc/).
+For more information, check out [deeplearning4j.org](http://deeplearning4j.org/) and its [JavaDoc](https://deeplearning4j.org/docs/latest/).
 
 `GradientsListenerExample.java` in dl4j-examples/src/main/java/org/deeplearning4j/examples/userInterface uses JavaFX. If you're using Java 8 or greater, it should run as is.  If you're using Java 7 or an earlier version, you should set JAVAFX_HOME to point to the root directory of the JavaFX 2.0 SDK.
 
