@@ -12,6 +12,7 @@ import org.deeplearning4j.models.embeddings.wordvectors.WordVectors;
 import org.deeplearning4j.nn.api.Layer;
 import org.deeplearning4j.nn.conf.*;
 import org.deeplearning4j.nn.conf.graph.MergeVertex;
+import org.deeplearning4j.nn.conf.inputs.InputType;
 import org.deeplearning4j.nn.conf.layers.ConvolutionLayer;
 import org.deeplearning4j.nn.conf.layers.GlobalPoolingLayer;
 import org.deeplearning4j.nn.conf.layers.OutputLayer;
@@ -79,22 +80,21 @@ public class CnnSentenceClassificationExample {
             .addLayer("cnn3", new ConvolutionLayer.Builder()
                 .kernelSize(3,vectorSize)
                 .stride(1,vectorSize)
-                .nIn(1)
                 .nOut(cnnLayerFeatureMaps)
                 .build(), "input")
             .addLayer("cnn4", new ConvolutionLayer.Builder()
                 .kernelSize(4,vectorSize)
                 .stride(1,vectorSize)
-                .nIn(1)
                 .nOut(cnnLayerFeatureMaps)
                 .build(), "input")
             .addLayer("cnn5", new ConvolutionLayer.Builder()
                 .kernelSize(5,vectorSize)
                 .stride(1,vectorSize)
-                .nIn(1)
                 .nOut(cnnLayerFeatureMaps)
                 .build(), "input")
-            .addVertex("merge", new MergeVertex(), "cnn3", "cnn4", "cnn5")      //Perform depth concatenation
+            //MergeVertex performs depth concatenation on activations: 3x[minibatch,100,length,300] to 1x[minibatch,300,length,300]
+            .addVertex("merge", new MergeVertex(), "cnn3", "cnn4", "cnn5")
+            //Global pooling: pool over x/y locations (dimensions 2 and 3): Activations [minibatch,300,length,300] to [minibatch, 300]
             .addLayer("globalPool", new GlobalPoolingLayer.Builder()
                 .poolingType(globalPoolingType)
                 .dropOut(0.5)
@@ -102,10 +102,11 @@ public class CnnSentenceClassificationExample {
             .addLayer("out", new OutputLayer.Builder()
                 .lossFunction(LossFunctions.LossFunction.MCXENT)
                 .activation(Activation.SOFTMAX)
-                .nIn(3*cnnLayerFeatureMaps)
                 .nOut(2)    //2 classes: positive or negative
                 .build(), "globalPool")
             .setOutputs("out")
+            //Input has shape [minibatch, channels=1, length=1 to 256, 300]
+            .setInputTypes(InputType.convolutional(truncateReviewsToLength, vectorSize, 1))
             .build();
 
         ComputationGraph net = new ComputationGraph(config);
