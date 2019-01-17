@@ -26,16 +26,24 @@ import org.deeplearning4j.arbiter.scoring.impl.EvaluationScoreFunction;
 import org.deeplearning4j.arbiter.task.MultiLayerNetworkTaskCreator;
 import org.deeplearning4j.arbiter.ui.listener.ArbiterStatusListener;
 import org.deeplearning4j.datasets.iterator.impl.MnistDataSetIterator;
+import org.deeplearning4j.earlystopping.EarlyStoppingConfiguration;
+import org.deeplearning4j.earlystopping.scorecalc.DataSetLossCalculator;
+import org.deeplearning4j.earlystopping.scorecalc.ScoreCalculator;
+import org.deeplearning4j.earlystopping.termination.MaxEpochsTerminationCondition;
+import org.deeplearning4j.earlystopping.termination.ScoreImprovementEpochTerminationCondition;
 import org.deeplearning4j.eval.Evaluation;
+import org.deeplearning4j.nn.api.Model;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
 import org.deeplearning4j.ui.api.UIServer;
 import org.deeplearning4j.ui.storage.FileStatsStorage;
 import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
+import org.nd4j.linalg.function.Supplier;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 
 import java.io.File;
+import java.io.Serializable;
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
@@ -60,6 +68,9 @@ public class BasicHyperparameterOptimizationExample {
         ParameterSpace<Double> learningRateHyperparam = new ContinuousParameterSpace(0.0001, 0.1);  //Values will be generated uniformly at random between 0.0001 and 0.1 (inclusive)
         ParameterSpace<Integer> layerSizeHyperparam = new IntegerParameterSpace(16, 256);            //Integer values will be generated uniformly at random between 16 and 256 (inclusive)
 
+        ScoreCalculator<Model> testScoreCalculator = new DataSetLossCalculator((DataSetIterator)new ExampleDataSource().testData(), true);
+        Supplier<ScoreCalculator> testScoreCalculatorSupplier = new ExampleScoreCalculatorSupplier();
+
         MultiLayerSpace hyperparameterSpace = new MultiLayerSpace.Builder()
             //These next few options: fixed values for all models
             .weightInit(WeightInit.XAVIER)
@@ -79,7 +90,15 @@ public class BasicHyperparameterOptimizationExample {
                 .activation(Activation.SOFTMAX)
                 .lossFunction(LossFunctions.LossFunction.MCXENT)
                 .build())
-            .numEpochs(2)
+            .earlyStoppingConfiguration(new EarlyStoppingConfiguration.Builder<MultiLayerNetwork>()
+                .epochTerminationConditions(
+                    new MaxEpochsTerminationCondition(50),
+                    new ScoreImprovementEpochTerminationCondition(10))
+                .evaluateEveryNEpochs(1)
+                //.scoreCalculator(testScoreCalculator)
+                .scoreCalculator(testScoreCalculatorSupplier)
+
+                .build())
             .build();
 
 
@@ -197,6 +216,35 @@ public class BasicHyperparameterOptimizationExample {
         @Override
         public Class<?> getDataType() {
             return DataSetIterator.class;
+        }
+    }
+
+    public static class ExampleScoreCalculatorSupplier implements Supplier<ScoreCalculator>, Serializable {
+        ExampleDataSource source;;
+
+        public ExampleScoreCalculatorSupplier() {
+            source = new ExampleDataSource();
+            Properties dataSourceProperties = new Properties();
+            dataSourceProperties.setProperty("minibatchSize", "64");
+            source.configure(dataSourceProperties);
+        }
+
+        @Override
+        public ScoreCalculator get() {
+            return new DataSetLossCalculator((DataSetIterator)source.testData(), true);
+        }
+    }
+
+
+    public static class MyScoreImprovementEpochTerminationCondition extends ScoreImprovementEpochTerminationCondition {
+        public MyScoreImprovementEpochTerminationCondition() {
+            super(10);
+        }
+    }
+
+    public static class MyMaxEpochsTerminationCondition extends MaxEpochsTerminationCondition {
+        public MyMaxEpochsTerminationCondition() {
+            super(50);
         }
     }
 }
