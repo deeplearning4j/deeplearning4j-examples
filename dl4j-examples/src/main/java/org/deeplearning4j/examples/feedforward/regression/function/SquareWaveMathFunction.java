@@ -4,6 +4,7 @@ import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.api.ops.impl.transforms.same.Sign;
 import org.nd4j.linalg.api.ops.impl.transforms.strict.Sin;
 import org.nd4j.linalg.factory.Nd4j;
+import org.nd4j.linalg.ops.transforms.Transforms;
 
 /**
  * Sign(x) or Sign of a real number, x, is -1 if x is negative, 0 if x is zero and 1 if x is positive.
@@ -15,8 +16,8 @@ public class SquareWaveMathFunction implements MathFunction {
 
     @Override
     public INDArray getFunctionValues(final INDArray x) {
-        final INDArray sin = Nd4j.getExecutioner().execAndReturn(new Sin(x.dup()));
-        return Nd4j.getExecutioner().execAndReturn(new Sign(sin));
+        INDArray sin = Transforms.sin(x, true);
+        return Transforms.sign(sin, false);
     }
 
     @Override

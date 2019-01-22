@@ -1,7 +1,7 @@
 package org.nd4j.examples;
 
 import org.nd4j.linalg.api.ndarray.INDArray;
-import org.nd4j.linalg.api.ops.impl.transforms.floating.Sin;
+import org.nd4j.linalg.api.ops.impl.transforms.strict.Sin;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.ops.transforms.Transforms;
 
@@ -82,7 +82,7 @@ public class Nd4jEx4_Ops {
         System.out.println("Element-wise power (x^3.0) on random array:\n" + Transforms.pow(random,3.0));
         System.out.println("Element-wise scalar max (with scalar 0.5):\n" + Transforms.max(random,0.5));
             //We can perform this in a more verbose way, too:
-        INDArray sinx = Nd4j.getExecutioner().execAndReturn(new Sin(random.dup()));
+        INDArray sinx = Nd4j.getExecutioner().exec(new Sin(random.dup()));
         System.out.println("Element-wise sin(x) operation:\n" + sinx);
     }
 }

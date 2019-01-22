@@ -7,6 +7,7 @@ import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -69,7 +70,7 @@ public class Ex1_SameDiff_Basics {
 
 
         //Now, let's execute the graph forward pass:
-        sd.exec();
+        sd.exec(Collections.<String,INDArray>emptyMap(), sd.outputs());
 
         INDArray variableArr = variable.getArr();               //We can get arrays directly from the variables
         INDArray plusOneArr = plusOne.getArr();

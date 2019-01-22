@@ -58,7 +58,7 @@ public class CustomActivation extends BaseActivationFunction{
         //
         //      h(x) = 1.7159*tanh(2x/3);
         //      h'(x) = 1.7159*[tanh(2x/3)]' * 2/3
-        INDArray dLdz = Nd4j.getExecutioner().execAndReturn(new TanhDerivative(in.muli(2/3.0)));
+        INDArray dLdz = Nd4j.getExecutioner().exec(new TanhDerivative(in.muli(2/3.0)));
         dLdz.muli(2/3.0);
         dLdz.muli(1.7159);
 

@@ -5,6 +5,7 @@ import org.nd4j.autodiff.samediff.SDVariable;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.autodiff.samediff.TrainingConfig;
 import org.nd4j.evaluation.classification.Evaluation;
+import org.nd4j.linalg.api.buffer.DataType;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.nd4j.linalg.learning.config.Adam;
@@ -32,19 +33,17 @@ public class SameDiffTrainingExample {
         int nOut = 10;
 
         //Create input and label variables
-        SDVariable in = sd.var("input", -1, nIn);                 //Shape: [?, 784] - i.e., minibatch x 784 for MNIST
-        SDVariable label = sd.var("label", -1, nOut);             //Shape: [?, 10] - i.e., minibatch x 10 for MNIST
-        sd.addAsPlaceHolder("input");
-        sd.addAsPlaceHolder("label");
+        SDVariable in = sd.placeHolder("input", -1, nIn);                 //Shape: [?, 784] - i.e., minibatch x 784 for MNIST
+        SDVariable label = sd.placeHolder("label", -1, nOut);             //Shape: [?, 10] - i.e., minibatch x 10 for MNIST
 
         //Define hidden layer - MLP (fully connected)
         int layerSize0 = 128;
-        SDVariable w0 = sd.var("w0", new XavierInitScheme('c', nIn, layerSize0), nIn, layerSize0);
+        SDVariable w0 = sd.var("w0", new XavierInitScheme('c', nIn, layerSize0), DataType.FLOAT, nIn, layerSize0);
         SDVariable b0 = sd.zero("b0", 1, layerSize0);
         SDVariable activations0 = sd.tanh(in.mmul(w0).add(b0));
 
         //Define output layer - MLP (fully connected) + softmax
-        SDVariable w1 = sd.var("w1", new XavierInitScheme('c', layerSize0, nOut), layerSize0, nOut);
+        SDVariable w1 = sd.var("w1", new XavierInitScheme('c', layerSize0, nOut), DataType.FLOAT, layerSize0, nOut);
         SDVariable b1 = sd.zero("b1", 1, nOut);
 
         SDVariable z1 = activations0.mmul(w1).add("prediction", b1);

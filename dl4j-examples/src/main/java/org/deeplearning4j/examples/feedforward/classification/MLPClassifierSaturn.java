@@ -37,7 +37,6 @@ public class MLPClassifierSaturn {
 
 
     public static void main(String[] args) throws Exception {
-        Nd4j.ENFORCE_NUMERICAL_STABILITY = true;
         int batchSize = 50;
         int seed = 123;
         double learningRate = 0.005;

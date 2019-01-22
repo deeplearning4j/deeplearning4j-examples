@@ -369,8 +369,8 @@ public class NeuralStyleTransfer {
     }
 
     private INDArray ensurePositive(INDArray comboFeatures) {
-        BooleanIndexing.applyWhere(comboFeatures, Conditions.lessThan(0.0f), new Value(0.0f));
-        BooleanIndexing.applyWhere(comboFeatures, Conditions.greaterThan(0.0f), new Value(1.0f));
+        BooleanIndexing.replaceWhere(comboFeatures, 0.0, Conditions.lessThan(0.0f));
+        BooleanIndexing.replaceWhere(comboFeatures, 1.0f, Conditions.greaterThan(0.0f));
         return comboFeatures;
     }
 

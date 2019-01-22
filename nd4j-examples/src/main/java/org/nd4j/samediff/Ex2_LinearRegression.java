@@ -2,6 +2,7 @@ package org.nd4j.samediff;
 
 import org.nd4j.autodiff.samediff.SDVariable;
 import org.nd4j.autodiff.samediff.SameDiff;
+import org.nd4j.linalg.api.buffer.DataType;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.weightinit.impl.XavierInitScheme;
@@ -32,7 +33,7 @@ public class Ex2_LinearRegression {
         //First: let's create our variables
         SDVariable input = sd.var("input", new long[]{-1, nIn});
         SDVariable labels = sd.var("labels", new long[]{-1, 1});
-        SDVariable weights = sd.var("weights", new long[]{nIn,nOut}, new XavierInitScheme('c', nIn, nOut));
+        SDVariable weights = sd.var("weights", new XavierInitScheme('c', nIn, nOut), DataType.FLOAT, nIn,nOut);
         SDVariable bias = sd.var("bias");
 
 

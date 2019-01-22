@@ -132,7 +132,7 @@ public class BasicRNNExample {
                 // first process the last output of the network to a concrete
                 // neuron, the neuron with the highest output has the highest
                 // chance to get chosen
-                int sampledCharacterIdx = Nd4j.getExecutioner().exec(new IMax(output), 1).getInt(0);
+                int sampledCharacterIdx = Nd4j.getExecutioner().exec(new IMax(output, 1)).getInt(0);
 
                 // print the chosen output
                 System.out.print(LEARNSTRING_CHARS_LIST.get(sampledCharacterIdx));
