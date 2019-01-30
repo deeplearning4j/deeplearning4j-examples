@@ -12,6 +12,7 @@ import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
 import org.deeplearning4j.nn.weights.WeightInit;
 import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.learning.config.Sgd;
+import org.nd4j.linalg.lossfunctions.LossFunctions;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -159,7 +160,7 @@ class DL4JAlphaGoZeroBuilder {
         Map<String, InputPreProcessor> preProcessorMap = new HashMap<String, InputPreProcessor>();
         preProcessorMap.put(denseName, new CnnToFeedForwardPreProcessor(19, 19, 1));
         conf.setInputPreProcessors(preProcessorMap);
-        conf.addLayer(outputName, new OutputLayer.Builder().nIn(256).nOut(1).build(), denseName);
+        conf.addLayer(outputName, new OutputLayer.Builder(LossFunctions.LossFunction.XENT).activation(Activation.SIGMOID).nIn(256).nOut(1).build(), denseName);
         return outputName;
     }
 
