@@ -102,14 +102,12 @@ public class PlotUtil {
     private static XYDataset createDataSetTrain(INDArray features, INDArray labels ){
         int nRows = features.rows();
 
-        // int nClasses = labels.columns();
-        int nClasses = 2; // We are doing binary classification now.
+        int nClasses = 2; // Binary classification using one output call end sigmoid.
 
             XYSeries[] series = new XYSeries[nClasses];
         for( int i=0; i<series.length; i++) series[i] = new XYSeries("Class " + String.valueOf(i));
         INDArray argMax = Nd4j.getExecutioner().exec(new IMax(labels), 1);
         for( int i=0; i<nRows; i++ ){
-            // int classIdx = (int)argMax.getDouble(i);
             int classIdx = (int)labels.getDouble(i);
             series[classIdx].add(features.getDouble(i, 0), features.getDouble(i, 1));
         }
@@ -123,9 +121,9 @@ public class PlotUtil {
     private static XYDataset createDataSetTest(INDArray features, INDArray labels, INDArray predicted ){
         int nRows = features.rows();
 
-        int nClasses = 2; //labels.columns();
+        int nClasses = 2; // Binary classification using one output call end sigmoid.
 
-        XYSeries[] series = new XYSeries[nClasses*nClasses];    //new XYSeries("Data");
+        XYSeries[] series = new XYSeries[nClasses*nClasses];
         int [] series_index = new int [] {0,3,2,1}; //little hack to make the charts look consistent.
         for( int i=0; i<nClasses*nClasses; i++){
             int trueClass = i/nClasses;
@@ -135,10 +133,8 @@ public class PlotUtil {
         }
         // INDArray actualIdx = Nd4j.getExecutioner().exec(new IMax(labels), 1);
         INDArray actualIdx = labels;
-        INDArray predictedIdx = Nd4j.getExecutioner().exec(new IMax(predicted), 1);
         for( int i=0; i<nRows; i++ ){
             int classIdx = (int)actualIdx.getDouble(i);
-            //int predIdx = (int)predictedIdx.getDouble(i);
             int predIdx = (int)Math.round( predicted.getDouble(i));
             int idx = series_index[classIdx * nClasses + predIdx];
             series[idx].add(features.getDouble(i, 0), features.getDouble(i, 1));
