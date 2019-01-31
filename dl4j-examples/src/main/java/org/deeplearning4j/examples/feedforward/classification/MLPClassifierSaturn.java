@@ -47,7 +47,7 @@ public class MLPClassifierSaturn {
         int nEpochs = 30;
 
         int numInputs = 2;
-        int numOutputs = 2;
+        int numOutputs = 1;
         int numHiddenNodes = 20;
 
         final String filenameTrain  = new ClassPathResource("/classification/saturn_data_train.csv").getFile().getPath();
@@ -56,25 +56,24 @@ public class MLPClassifierSaturn {
         //Load the training data:
         RecordReader rr = new CSVRecordReader();
         rr.initialize(new FileSplit(new File(filenameTrain)));
-        DataSetIterator trainIter = new RecordReaderDataSetIterator(rr,batchSize,0,2);
+        DataSetIterator trainIter = new RecordReaderDataSetIterator(rr,batchSize,0,1);
 
         //Load the test/evaluation data:
         RecordReader rrTest = new CSVRecordReader();
         rrTest.initialize(new FileSplit(new File(filenameTest)));
-        DataSetIterator testIter = new RecordReaderDataSetIterator(rrTest,batchSize,0,2);
+        DataSetIterator testIter = new RecordReaderDataSetIterator(rrTest,batchSize,0,1);
 
         //log.info("Build model....");
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
                 .seed(seed)
+                .weightInit(WeightInit.XAVIER)
                 .updater(new Nesterovs(learningRate, 0.9))
                 .list()
                 .layer(0, new DenseLayer.Builder().nIn(numInputs).nOut(numHiddenNodes)
-                        .weightInit(WeightInit.XAVIER)
                         .activation(Activation.RELU)
                         .build())
-                .layer(1, new OutputLayer.Builder(LossFunction.NEGATIVELOGLIKELIHOOD)
-                        .weightInit(WeightInit.XAVIER)
-                        .activation(Activation.SOFTMAX)
+                .layer(1, new OutputLayer.Builder(LossFunction.XENT)
+                        .activation(Activation.SIGMOID)
                         .nIn(numHiddenNodes).nOut(numOutputs).build())
                 .build();
 
@@ -133,7 +132,7 @@ public class MLPClassifierSaturn {
         rr.initialize(new FileSplit(new File(filenameTrain)));
         rr.reset();
         int nTrainPoints = 500;
-        trainIter = new RecordReaderDataSetIterator(rr,nTrainPoints,0,2);
+        trainIter = new RecordReaderDataSetIterator(rr,nTrainPoints,0,1);
         DataSet ds = trainIter.next();
         PlotUtil.plotTrainingData(ds.getFeatures(), ds.getLabels(), allXYPoints, predictionsAtXYPoints, nPointsPerAxis);
 
@@ -142,7 +141,7 @@ public class MLPClassifierSaturn {
         rrTest.initialize(new FileSplit(new File(filenameTest)));
         rrTest.reset();
         int nTestPoints = 100;
-        testIter = new RecordReaderDataSetIterator(rrTest,nTestPoints,0,2);
+        testIter = new RecordReaderDataSetIterator(rrTest,nTestPoints,0,1);
         ds = testIter.next();
         INDArray testPredicted = model.output(ds.getFeatures());
         PlotUtil.plotTestData(ds.getFeatures(), ds.getLabels(), testPredicted, allXYPoints, predictionsAtXYPoints, nPointsPerAxis);
