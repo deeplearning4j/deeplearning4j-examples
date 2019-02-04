@@ -61,14 +61,13 @@ public class MLPMnistSingleLayerExample {
                 .updater(new Nesterovs(0.006, 0.9))
                 .l2(1e-4)
                 .list()
-                .layer(0, new DenseLayer.Builder() //create the first, input layer with xavier initialization
+                .layer(new DenseLayer.Builder() //create the first, input layer with xavier initialization
                         .nIn(numRows * numColumns)
                         .nOut(1000)
                         .activation(Activation.RELU)
                         .weightInit(WeightInit.XAVIER)
                         .build())
-                .layer(1, new OutputLayer.Builder(LossFunction.NEGATIVELOGLIKELIHOOD) //create hidden layer
-                        .nIn(1000)
+                .layer( new OutputLayer.Builder(LossFunction.NEGATIVELOGLIKELIHOOD) //create hidden layer
                         .nOut(outputNum)
                         .activation(Activation.SOFTMAX)
                         .weightInit(WeightInit.XAVIER)
