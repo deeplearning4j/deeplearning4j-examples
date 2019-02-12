@@ -68,17 +68,15 @@ public class MLPMnistTwoLayerExample {
             .updater(new Nesterovs(rate, 0.98))
             .l2(rate * 0.005) // regularize learning model
             .list()
-            .layer(0, new DenseLayer.Builder() //create the first input layer.
+            .layer( new DenseLayer.Builder() //create the first input layer.
                     .nIn(numRows * numColumns)
                     .nOut(500)
                     .build())
-            .layer(1, new DenseLayer.Builder() //create the second input layer
-                    .nIn(500)
+            .layer(new DenseLayer.Builder() //create the second input layer.
                     .nOut(100)
                     .build())
-            .layer(2, new OutputLayer.Builder(LossFunction.NEGATIVELOGLIKELIHOOD) //create hidden layer
+            .layer( new OutputLayer.Builder(LossFunction.NEGATIVELOGLIKELIHOOD) //create hidden layer
                     .activation(Activation.SOFTMAX)
-                    .nIn(100)
                     .nOut(outputNum)
                     .build())
             .build();
