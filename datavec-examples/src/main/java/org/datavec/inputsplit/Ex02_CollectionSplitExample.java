@@ -21,8 +21,10 @@ public class Ex02_CollectionSplitExample {
 
         /*
           Creating a FileSplit this just to receive a list of URIs. From those URIs we'll create the CollectionInputSplit.
+          Specify the allowed extensions using an array of String where each entry denotes an extension to be included.
+          Added extensions with an intuitive approach. eg: ".jpg", ".png" etc.
          */
-        FileSplit fileSplit = new FileSplit(directoryToLook, new String[]{"jpg"}, false);
+        FileSplit fileSplit = new FileSplit(directoryToLook, new String[]{".jpg"}, false);
 
         /*
           Now you can create the CollectionInputSplit and print it as follows.
