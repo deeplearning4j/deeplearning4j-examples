@@ -59,7 +59,7 @@ public class VariationalAutoEncoderExample {
         Nd4j.getRandom().setSeed(rngSeed);
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
             .seed(rngSeed)
-            .updater(new RmsProp(1e-2))
+            .updater(new RmsProp(1e-3))
             .weightInit(WeightInit.XAVIER)
             .l2(1e-4)
             .list()
