@@ -419,7 +419,7 @@ public class EncoderDecoderLSTM {
         dict.put("<go>", 2.0);
         revDict.put(2.0, "<go>");
         for (char c : CHARS.toCharArray()) {
-            if (!dict.containsKey(c)) {
+            if (!dict.containsKey(String.valueOf(c))) {
                 dict.put(String.valueOf(c), idx);
                 revDict.put(idx, String.valueOf(c));
                 ++idx;

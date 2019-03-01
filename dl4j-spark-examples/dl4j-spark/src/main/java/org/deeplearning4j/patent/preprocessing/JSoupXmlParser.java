@@ -86,7 +86,7 @@ public class JSoupXmlParser {
             Element e2 = e.first();
             Elements mainClassification = e2.select("main-classification");
             if (mainClassification == null || mainClassification.size() == 0) {
-                log.warn("Skipping patent {} in document - no main classification");
+                log.warn("Skipping patent {} in document - no main classification", patent);
                 return null;
             }
             String main = e2.select("main-classification").outerHtml().replaceAll("\n", "")
