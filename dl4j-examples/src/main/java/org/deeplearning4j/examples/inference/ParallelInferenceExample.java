@@ -6,8 +6,6 @@ import org.deeplearning4j.parallelism.inference.InferenceMode;
 import org.deeplearning4j.util.ModelSerializer;
 import org.nd4j.linalg.api.ndarray.INDArray;
 
-import java.io.File;
-
 /**
  * This examples shows use of ParallelInference mechanism
  *

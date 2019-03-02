@@ -40,7 +40,6 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.text.NumberFormat;
 import java.util.*;
-import java.util.List;
 
 /**
  * A JavaFX application for viewing gradients and params in 3D.
