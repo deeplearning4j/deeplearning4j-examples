@@ -3,9 +3,9 @@ package org.deeplearning4j.examples.feedforward.classification;
 import org.datavec.api.records.reader.RecordReader;
 import org.datavec.api.records.reader.impl.csv.CSVRecordReader;
 import org.datavec.api.split.FileSplit;
-import org.datavec.api.util.ClassPathResource;
+import org.nd4j.linalg.io.ClassPathResource;
 import org.deeplearning4j.datasets.datavec.RecordReaderDataSetIterator;
-import org.deeplearning4j.eval.Evaluation;
+import org.nd4j.evaluation.classification.Evaluation;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
 import org.deeplearning4j.nn.conf.layers.DenseLayer;
@@ -61,17 +61,21 @@ public class MLPClassifierLinear {
         DataSetIterator testIter = new RecordReaderDataSetIterator(rrTest,batchSize,0,1);
 
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
-                .seed(seed)
-                .weightInit(WeightInit.XAVIER)
-                .updater(new Nesterovs(learningRate, 0.9))
-                .list()
-                .layer(0, new DenseLayer.Builder().nIn(numInputs).nOut(numHiddenNodes)
-                        .activation(Activation.RELU)
-                        .build())
-                .layer(1, new OutputLayer.Builder(LossFunction.XENT)
-                        .activation(Activation.SIGMOID)
-                        .nIn(numHiddenNodes).nOut(numOutputs).build())
-                .build();
+            .seed(seed)
+            .weightInit(WeightInit.XAVIER)
+            .updater(new Nesterovs(learningRate, 0.9))
+            .list()
+            .layer(0, new DenseLayer.Builder()
+                .nIn(numInputs)
+                .nOut(numHiddenNodes)
+                .activation(Activation.RELU)
+                .build())
+            .layer(1, new OutputLayer.Builder(LossFunction.XENT)
+                .nIn(numHiddenNodes)
+                .nOut(numOutputs)
+                .activation(Activation.SIGMOID)
+                .build())
+            .build();
 
 
         MultiLayerNetwork model = new MultiLayerNetwork(conf);

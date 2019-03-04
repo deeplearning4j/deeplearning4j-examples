@@ -6,7 +6,7 @@ import org.datavec.api.split.FileSplit;
 import org.deeplearning4j.datasets.datavec.RecordReaderDataSetIterator;
 import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
-import org.deeplearning4j.eval.Evaluation;
+import org.nd4j.evaluation.classification.Evaluation;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
 import org.deeplearning4j.nn.conf.layers.DenseLayer;
@@ -67,12 +67,16 @@ public class MLPClassifierSaturn {
                 .weightInit(WeightInit.XAVIER)
                 .updater(new Nesterovs(learningRate, 0.9))
                 .list()
-                .layer(0, new DenseLayer.Builder().nIn(numInputs).nOut(numHiddenNodes)
-                        .activation(Activation.RELU)
-                        .build())
+                .layer(0, new DenseLayer.Builder()
+                    .nIn(numInputs)
+                    .nOut(numHiddenNodes)
+                    .activation(Activation.RELU)
+                    .build())
                 .layer(1, new OutputLayer.Builder(LossFunction.XENT)
-                        .activation(Activation.SIGMOID)
-                        .nIn(numHiddenNodes).nOut(numOutputs).build())
+                    .nIn(numHiddenNodes)
+                    .nOut(numOutputs)
+                    .activation(Activation.SIGMOID)
+                    .build())
                 .build();
 
 
