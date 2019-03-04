@@ -2,8 +2,6 @@ package org.deeplearning4j.examples.multigpu.vgg16.vgg16;
 
 import org.deeplearning4j.examples.multigpu.vgg16.dataHelpers.FeaturizedPreSave;
 import org.deeplearning4j.examples.multigpu.vgg16.dataHelpers.FlowerDataSetIteratorFeaturized;
-import org.deeplearning4j.nn.api.OptimizationAlgorithm;
-import org.deeplearning4j.nn.conf.Updater;
 import org.deeplearning4j.nn.conf.layers.OutputLayer;
 import org.deeplearning4j.nn.graph.ComputationGraph;
 import org.deeplearning4j.nn.modelimport.keras.exceptions.InvalidKerasConfigurationException;

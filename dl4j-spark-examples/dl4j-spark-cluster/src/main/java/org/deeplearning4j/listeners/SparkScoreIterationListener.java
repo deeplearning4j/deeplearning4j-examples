@@ -7,7 +7,6 @@ import org.apache.hadoop.ipc.RemoteException;
 import org.deeplearning4j.optimize.api.BaseTrainingListener;
 import org.deeplearning4j.utils.CommonUtils;
 import org.deeplearning4j.nn.api.Model;
-import org.deeplearning4j.optimize.api.IterationListener;
 import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -13,7 +13,6 @@ import org.datavec.image.transform.ResizeImageTransform;
 import org.deeplearning4j.datasets.datavec.RecordReaderDataSetIterator;
 import org.deeplearning4j.eval.Evaluation;
 import org.deeplearning4j.nn.graph.ComputationGraph;
-import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.optimize.listeners.PerformanceListener;
 import org.deeplearning4j.parallelism.ParallelWrapper;
 import org.deeplearning4j.zoo.model.VGG16;

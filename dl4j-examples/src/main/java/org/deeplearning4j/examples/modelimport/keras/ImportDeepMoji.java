@@ -11,8 +11,6 @@ import org.nd4j.linalg.factory.Nd4j;
 import java.io.File;
 import java.net.URL;
 
-import static java.io.File.createTempFile;
-
 /**
  * Test import of DeepMoji application
  *

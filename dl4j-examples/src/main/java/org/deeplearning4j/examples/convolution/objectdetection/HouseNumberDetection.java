@@ -33,7 +33,6 @@ import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.api.preprocessor.ImagePreProcessingScaler;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.learning.config.Adam;
-import org.nd4j.linalg.learning.config.Nesterovs;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
