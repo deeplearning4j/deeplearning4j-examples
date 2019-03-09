@@ -1,3 +1,5 @@
+package org.deeplearning4j.examples.denseNet;
+
 import org.deeplearning4j.nn.graph.ComputationGraph;
 
 public class DenseNetModel {
