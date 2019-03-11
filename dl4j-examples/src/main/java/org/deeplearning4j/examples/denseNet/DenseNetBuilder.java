@@ -18,9 +18,11 @@ public class DenseNetBuilder {
 
     private ComputationGraphConfiguration.GraphBuilder conf;
     private int growthRate;
+    private boolean useBottleNeck;
 
-    public DenseNetBuilder(int height, int width, int channels, long seed, int growthRate) {
+    public DenseNetBuilder(int height, int width, int channels, long seed, int growthRate, boolean useBottleNeck) {
         this.growthRate = growthRate;
+        this.useBottleNeck = useBottleNeck;
         this.conf = new NeuralNetConfiguration.Builder()
             .cudnnAlgoMode(ConvolutionLayer.AlgoMode.PREFER_FASTEST)
             .seed(seed)
@@ -86,19 +88,20 @@ public class DenseNetBuilder {
         String bnName2 = "bn2_" + layerName;
         String convName2 = "conv2_" + layerName;
 
-        //bottleneck part
-//        conf.addLayer(bnName, new BatchNormalization.Builder()
-//                .build(), previousLayers);
-//        conf.addLayer(convName, new ConvolutionLayer.Builder()
-//                .kernelSize(1, 1)
-//                .stride(1, 1)
-//                .padding(0, 0)
-//                .nOut(growthRate * 2)
-//                .build(), bnName);
-        //bottleneck part
+
+        if (useBottleNeck) {
+            conf.addLayer(bnName, new BatchNormalization.Builder()
+                .build(), previousLayers);
+            conf.addLayer(convName, new ConvolutionLayer.Builder()
+                .kernelSize(1, 1)
+                .stride(1, 1)
+                .padding(0, 0)
+                .nOut(growthRate * 2)
+                .build(), bnName);
+        }
 
         conf.addLayer(bnName2, new BatchNormalization.Builder()
-            .build(), previousLayers);
+            .build(), useBottleNeck ? new String[]{convName} : previousLayers);
         conf.addLayer(convName2, new ConvolutionLayer.Builder()
             .kernelSize(3, 3)
             .stride(1, 1)

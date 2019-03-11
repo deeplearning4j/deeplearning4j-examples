@@ -130,11 +130,13 @@ public class Main {
             ScoreIterationListener scoreIterationListener = new ScoreIterationListener(1);
 
             File model = new File(MODEL_PATH);
+            boolean newRun = false;
             if (!model.exists()) {
-                model.mkdir();
+                newRun = model.mkdir();
             }
-            CheckpointListener checkpointListener = new CheckpointListener.Builder(new File(MODEL_PATH))
+            CheckpointListener checkpointListener = new CheckpointListener.Builder(model)
                 .keepAll()
+                .deleteExisting(!newRun)
                 .saveEveryNEpochs(epochs)
                 .build();
 

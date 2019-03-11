@@ -15,7 +15,7 @@ public class DenseNetModel {
 
     public ComputationGraph buildNetwork(long seed, int channels, int numLabels, int width, int height) {
 
-        DenseNetBuilder denseNetModel = new DenseNetBuilder(height, width, channels, seed, 12); //227x227x3
+        DenseNetBuilder denseNetModel = new DenseNetBuilder(height, width, channels, seed, 12, false); //227x227x3
 
         String init = denseNetModel.initLayer(7, 2, 1, channels); //56x56x24
         String[] block1 = denseNetModel.addDenseBlock(6, true, "db1", new String[]{init});
