@@ -7,6 +7,9 @@ import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.weightinit.impl.XavierInitScheme;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * This example shows how to implement a simple linear regression graph with a mean-squared error loss function.
  *
@@ -30,9 +33,12 @@ public class Ex2_LinearRegression {
 
         SameDiff sd = SameDiff.create();
 
-        //First: let's create our variables
-        SDVariable input = sd.var("input", new long[]{-1, nIn});
-        SDVariable labels = sd.var("labels", new long[]{-1, 1});
+
+        //First: Let's create our placeholders. Shape: [minibatch, in/out]
+        SDVariable input = sd.var("input", DataType.FLOAT, -1, nIn);
+        SDVariable labels = sd.var("labels", DataType.FLOAT, -1, 1);
+
+        //Second: let's create our variables
         SDVariable weights = sd.var("weights", new XavierInitScheme('c', nIn, nOut), DataType.FLOAT, nIn,nOut);
         SDVariable bias = sd.var("bias");
 
@@ -42,8 +48,8 @@ public class Ex2_LinearRegression {
 
         //And our loss function (done manually here for the purposes of this example):
         SDVariable difference = labels.sub(out);
-        SDVariable sqDiff = sd.square(difference);
-        SDVariable mse = sqDiff.mean();
+        SDVariable sqDiff = sd.math().square(difference);
+        SDVariable mse = sqDiff.mean("mse");
 
         //Let's create some mock data for this example:
         int minibatch = 3;
@@ -51,16 +57,16 @@ public class Ex2_LinearRegression {
         INDArray inputArr = Nd4j.rand(minibatch, nIn);
         INDArray labelArr = Nd4j.rand(minibatch, nOut);
 
-        //Associate these variables with the SameDiff instance:
-        input.setArray(inputArr);                                   //One approach
-        sd.associateArrayWithVariable(labelArr, "labels");   //Alternative but equivalent
+        Map<String,INDArray> placeholderData = new HashMap<>();
+        placeholderData.put("input", inputArr);
+        placeholderData.put("labels", labelArr);
 
         //Execute forward pass:
-        INDArray loss = sd.execAndEndResult();
+        INDArray loss = sd.exec(placeholderData, "mse").get("mse");
         System.out.println("MSE: " + loss);
 
         //Calculate gradients:
-        sd.execBackwards();
+        sd.execBackwards(placeholderData);
 
         //Get gradients for each variable:
         for(SDVariable v : new SDVariable[]{weights, bias}){
