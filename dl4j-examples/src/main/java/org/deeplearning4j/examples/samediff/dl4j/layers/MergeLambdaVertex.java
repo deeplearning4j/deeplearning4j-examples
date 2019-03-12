@@ -10,7 +10,7 @@ public class MergeLambdaVertex extends SameDiffLambdaVertex {
         //2 inputs to the vertex. The VertexInputs class will dynamically add as many variables as we request from it!
         SDVariable input1 = inputs.getInput(0);
         SDVariable input2 = inputs.getInput(1);
-        SDVariable average = sameDiff.mergeAvg(input1, input2);
+        SDVariable average = sameDiff.math().mergeAvg(input1, input2);
         return average;
     }
 }

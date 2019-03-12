@@ -18,6 +18,7 @@ import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.learning.config.IUpdater;
 import org.nd4j.linalg.learning.config.NoOp;
 import org.nd4j.linalg.learning.config.RmsProp;
+import org.nd4j.linalg.learning.regularization.L2Regularization;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 
 import java.io.File;
@@ -76,7 +77,7 @@ public class CustomLayerExample {
 
 
         //First:  run some basic sanity checks on the configuration:
-        double customLayerL2 = ((BaseLayer)config.getConf(1).getLayer()).getL2();
+        double customLayerL2 = ((L2Regularization)((BaseLayer)config.getConf(1).getLayer()).getRegularization().get(0)).getL2().valueAt(0,0);
         System.out.println("l2 coefficient for custom layer: " + customLayerL2);                //As expected: custom layer inherits the global L2 parameter configuration
         IUpdater customLayerUpdater = ((BaseLayer)config.getConf(1).getLayer()).getIUpdater();
         System.out.println("Updater for custom layer: " + customLayerUpdater);                  //As expected: custom layer inherits the global Updater configuration

@@ -33,21 +33,21 @@ public class SameDiffTrainingExample {
         int nOut = 10;
 
         //Create input and label variables
-        SDVariable in = sd.placeHolder("input", -1, nIn);                 //Shape: [?, 784] - i.e., minibatch x 784 for MNIST
-        SDVariable label = sd.placeHolder("label", -1, nOut);             //Shape: [?, 10] - i.e., minibatch x 10 for MNIST
+        SDVariable in = sd.placeHolder("input", DataType.FLOAT, -1, nIn);                 //Shape: [?, 784] - i.e., minibatch x 784 for MNIST
+        SDVariable label = sd.placeHolder("label", DataType.FLOAT, -1, nOut);             //Shape: [?, 10] - i.e., minibatch x 10 for MNIST
 
         //Define hidden layer - MLP (fully connected)
         int layerSize0 = 128;
         SDVariable w0 = sd.var("w0", new XavierInitScheme('c', nIn, layerSize0), DataType.FLOAT, nIn, layerSize0);
         SDVariable b0 = sd.zero("b0", 1, layerSize0);
-        SDVariable activations0 = sd.tanh(in.mmul(w0).add(b0));
+        SDVariable activations0 = sd.nn().tanh(in.mmul(w0).add(b0));
 
         //Define output layer - MLP (fully connected) + softmax
         SDVariable w1 = sd.var("w1", new XavierInitScheme('c', layerSize0, nOut), DataType.FLOAT, layerSize0, nOut);
         SDVariable b1 = sd.zero("b1", 1, nOut);
 
         SDVariable z1 = activations0.mmul(w1).add("prediction", b1);
-        SDVariable softmax = sd.softmax("softmax", z1);
+        SDVariable softmax = sd.nn().softmax("softmax", z1);
 
         //Define loss function:
         SDVariable diff = sd.f().squaredDifference(softmax, label);

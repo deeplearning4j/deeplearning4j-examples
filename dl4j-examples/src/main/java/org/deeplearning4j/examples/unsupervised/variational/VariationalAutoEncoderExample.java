@@ -12,6 +12,7 @@ import org.deeplearning4j.nn.weights.WeightInit;
 import org.deeplearning4j.nn.workspace.LayerWorkspaceMgr;
 import org.deeplearning4j.optimize.api.IterationListener;
 import org.nd4j.linalg.activations.Activation;
+import org.nd4j.linalg.api.buffer.DataType;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.api.DataSet;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
@@ -119,7 +120,7 @@ public class VariationalAutoEncoderExample {
     //This simply returns a 2d grid: (x,y) for x=plotMin to plotMax, and y=plotMin to plotMax
     private static INDArray getLatentSpaceGrid(double plotMin, double plotMax, int plotSteps) {
         INDArray data = Nd4j.create(plotSteps * plotSteps, 2);
-        INDArray linspaceRow = Nd4j.linspace(plotMin, plotMax, plotSteps);
+        INDArray linspaceRow = Nd4j.linspace(plotMin, plotMax, plotSteps, DataType.FLOAT);
         for (int i = 0; i < plotSteps; i++) {
             data.get(NDArrayIndex.interval(i * plotSteps, (i + 1) * plotSteps), NDArrayIndex.point(0)).assign(linspaceRow);
             int yStart = plotSteps - i - 1;
