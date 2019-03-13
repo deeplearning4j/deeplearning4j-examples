@@ -52,16 +52,15 @@ public class Main {
     private static final int numEpochs = 1000;
     private static final double splitTrainTest = 0.8;
 
-    private static int currentEpoch;
-
     public static void main(String[] args) {
-
         File mainPath = new File(System.getProperty("user.dir"), "dl4j-examples/src/main/resources/animals/");
-        FileSplit fileSplit = new FileSplit(mainPath, NativeImageLoader.ALLOWED_FORMATS, new Random(1234));
+        Random random = new Random(1234);
+
+        FileSplit fileSplit = new FileSplit(mainPath, NativeImageLoader.ALLOWED_FORMATS, random);
         ParentPathLabelGenerator labelMaker = new ParentPathLabelGenerator();
         DataNormalization dataNormalization = new ImagePreProcessingScaler(0, 1);
 
-        BalancedPathFilter pathFilter = new BalancedPathFilter(new Random(4321), labelMaker, 0);
+        BalancedPathFilter pathFilter = new BalancedPathFilter(random, labelMaker, 0);
         InputSplit[] inputSplit = fileSplit.sample(pathFilter, splitTrainTest, 1 - splitTrainTest);
         trainingData = inputSplit[0];
         validationData = inputSplit[1];
@@ -75,8 +74,8 @@ public class Main {
         trainData(dataNormalization, labelMaker, computationGraph);
     }
 
-    private static ImageTransform getImageTransform(int i) {
-        Random random = new Random(1234 + i);
+    private static ImageTransform getImageTransform() {
+        Random random = new Random(1234);
         ImageTransform blur = new BlurTransform(random, 3, 3);
         ImageTransform noise = new NoiseTransform(random, (int) (height * width * 0.1));
         ImageTransform show = new ShowImageTransform("Display");
@@ -91,16 +90,13 @@ public class Main {
 
     private static void trainData(DataNormalization dataNormalization, ParentPathLabelGenerator labelMaker, ComputationGraph computationGraph) {
         try {
-            for (int i = 0; i < numEpochs; ++i) {
-                currentEpoch = i;
-                ImageRecordReader recordReader = new ImageRecordReader(height, width, channels, labelMaker);
-                recordReader.initialize(trainingData, getImageTransform(i));
-                DataSetIterator dataSetIterator = new RecordReaderDataSetIterator(recordReader, batchSize, 1, outputNum);
-                dataNormalization.fit(dataSetIterator);
-                dataSetIterator.setPreProcessor(dataNormalization);
-                computationGraph.fit(dataSetIterator);
-                dataSetIterator.reset();
-            }
+            ImageRecordReader recordReader = new ImageRecordReader(height, width, channels, labelMaker);
+            recordReader.initialize(trainingData, getImageTransform());
+            DataSetIterator dataSetIterator = new RecordReaderDataSetIterator(recordReader, batchSize, 1, outputNum);
+            dataNormalization.fit(dataSetIterator);
+            dataSetIterator.setPreProcessor(dataNormalization);
+            computationGraph.fit(dataSetIterator, numEpochs);
+            dataSetIterator.reset();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -111,7 +107,7 @@ public class Main {
             UIServer uiServer = UIServer.getInstance();
 
             ImageRecordReader trainingRecordReader = new ImageRecordReader(height, width, channels, labelMaker);
-            trainingRecordReader.initialize(trainingData, getImageTransform(currentEpoch));
+            trainingRecordReader.initialize(trainingData, getImageTransform());
             DataSetIterator trainingDataSetIterator = new RecordReaderDataSetIterator(trainingRecordReader, batchSize, 1, outputNum);
             dataNormalization.fit(trainingDataSetIterator);
             trainingDataSetIterator.setPreProcessor(dataNormalization);
