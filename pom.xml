@@ -55,6 +55,7 @@
         <module>nd4j-examples</module>
         <module>rl4j-examples</module>
         <module>lstm-hdfs</module>
+        <module>gan-examples</module>
     </modules>
 
     <!-- Maven Enforcer: Ensures user has an up to date version of Maven before building -->
@@ -87,6 +88,7 @@
                 <artifactId>formatter-maven-plugin</artifactId>
                 <version>2.0.0</version>
                 <configuration>
+                    q
                     <configFile>${session.executionRootDirectory}/contrib/formatter.xml</configFile>
                     <directories>
                         <directory>dl4j-examples</directory>
@@ -97,6 +99,7 @@
                         <directory>rl4j-examples</directory>
                         <directory>arbiter-examples</directory>
                         <directory>lstm-hdfs</directory>
+                        <directory>gan-example</directory>
                     </directories>
                 </configuration>
             </plugin>
