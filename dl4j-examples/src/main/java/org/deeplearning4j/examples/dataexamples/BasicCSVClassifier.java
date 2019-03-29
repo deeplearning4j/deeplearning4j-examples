@@ -45,21 +45,19 @@ import java.util.Map;
  */
 public class BasicCSVClassifier {
 
-    private static Logger log = LoggerFactory.getLogger(BasicCSVClassifier.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(BasicCSVClassifier.class);
 
     private static Map<Integer,String> eats = readEnumCSV("/DataExamples/animals/eats.csv");
     private static Map<Integer,String> sounds = readEnumCSV("/DataExamples/animals/sounds.csv");
     private static Map<Integer,String> classifiers = readEnumCSV("/DataExamples/animals/classifiers.csv");
 
-    public static void main(String[] args){
-
-        try {
+    public static void main(String[] args) throws Exception {
 
             //Second: the RecordReaderDataSetIterator handles conversion to DataSet objects, ready for use in neural network
             int labelIndex = 4;     //5 values in each row of the animals.csv CSV: 4 input features followed by an integer label (class) index. Labels are the 5th value (index 4) in each row
             int numClasses = 3;     //3 classes (types of animals) in the animals data set. Classes have integer values 0, 1 or 2
 
-            int batchSizeTraining = 30;    //Iris data set: 150 examples total. We are loading all of them into one DataSet (not recommended for large data sets)
+            int batchSizeTraining = 30;    //Animals training data set: 44 examples total. We are loading all of them into one DataSet (not recommended for large data sets)
             DataSet trainingData = readCSVDataset(
                     "/DataExamples/animals/animals_train.csv",
                     batchSizeTraining, labelIndex, numClasses);
@@ -69,10 +67,9 @@ public class BasicCSVClassifier {
             DataSet testData = readCSVDataset("/DataExamples/animals/animals.csv",
                     batchSizeTest, labelIndex, numClasses);
 
-
             // make the data model for records prior to normalization, because it
             // changes the data.
-            Map<Integer,Map<String,Object>> animals = makeAnimalsForTesting(testData);
+            Map<Integer, Map<String, Object>> animals = makeAnimalsForTesting(testData);
 
 
             //We need to normalize our data. We'll use NormalizeStandardize (which gives us mean 0, unit variance):
@@ -81,12 +78,13 @@ public class BasicCSVClassifier {
             normalizer.transform(trainingData);     //Apply normalization to the training data
             normalizer.transform(testData);         //Apply normalization to the test data. This is using statistics calculated from the *training* set
 
+            //Configure neural network
             final int numInputs = 4;
             int outputNum = 3;
             int epochs = 1000;
             long seed = 6;
 
-            log.info("Build model....");
+            LOGGER.info("Build model....");
             MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
                     .seed(seed)
                     .activation(Activation.TANH)
@@ -94,10 +92,19 @@ public class BasicCSVClassifier {
                     .updater(new Sgd(0.1))
                     .l2(1e-4)
                     .list()
-                    .layer(new DenseLayer.Builder().nIn(numInputs).nOut(3).build())
-                    .layer(new DenseLayer.Builder().nIn(3).nOut(3).build())
+                    .layer(new DenseLayer.Builder()
+                        .nIn(numInputs)
+                        .nOut(3)
+                        .build())
+                    .layer(new DenseLayer
+                        .Builder()
+                        .nIn(3)
+                        .nOut(3)
+                        .build())
                     .layer(new OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD)
-                            .activation(Activation.SOFTMAX).nIn(3).nOut(outputNum).build())
+                        .activation(Activation.SOFTMAX)
+                        .nIn(3)
+                        .nOut(outputNum).build())
                     .build();
 
             //run the model
@@ -114,22 +121,18 @@ public class BasicCSVClassifier {
             INDArray output = model.output(testData.getFeatures());
 
             eval.eval(testData.getLabels(), output);
-            log.info(eval.stats());
+            LOGGER.info(eval.stats());
 
             setFittedClassifiers(output, animals);
             logAnimals(animals);
-
-        } catch (Exception e){
-            e.printStackTrace();
-        }
     }
 
-    public static void logAnimals(Map<Integer,Map<String,Object>> animals){
+    public static void logAnimals(Map<Integer, Map<String, Object>> animals){
         for(Map<String,Object> a:animals.values())
-            log.info(a.toString());
+            LOGGER.info(a.toString());
     }
 
-    public static void setFittedClassifiers(INDArray output, Map<Integer,Map<String,Object>> animals){
+    public static void setFittedClassifiers(INDArray output, Map<Integer, Map<String, Object>> animals){
         for (int i = 0; i < output.rows() ; i++) {
 
             // set the classification from the fitted results
