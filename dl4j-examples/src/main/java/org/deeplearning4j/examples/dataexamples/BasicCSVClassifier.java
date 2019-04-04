@@ -45,7 +45,7 @@ import java.util.Map;
  */
 public class BasicCSVClassifier {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(BasicCSVClassifier.class);
+    private static Logger log = LoggerFactory.getLogger(BasicCSVClassifier.class);
 
     private static Map<Integer,String> eats = readEnumCSV("/DataExamples/animals/eats.csv");
     private static Map<Integer,String> sounds = readEnumCSV("/DataExamples/animals/sounds.csv");
@@ -84,7 +84,7 @@ public class BasicCSVClassifier {
             int epochs = 1000;
             long seed = 6;
 
-            LOGGER.info("Build model....");
+            log.info("Build model....");
             MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
                     .seed(seed)
                     .activation(Activation.TANH)
@@ -98,12 +98,10 @@ public class BasicCSVClassifier {
                         .build())
                     .layer(new DenseLayer
                         .Builder()
-                        .nIn(3)
                         .nOut(3)
                         .build())
                     .layer(new OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD)
                         .activation(Activation.SOFTMAX)
-                        .nIn(3)
                         .nOut(outputNum).build())
                     .build();
 
@@ -121,7 +119,7 @@ public class BasicCSVClassifier {
             INDArray output = model.output(testData.getFeatures());
 
             eval.eval(testData.getLabels(), output);
-            LOGGER.info(eval.stats());
+            log.info(eval.stats());
 
             setFittedClassifiers(output, animals);
             logAnimals(animals);
@@ -129,7 +127,7 @@ public class BasicCSVClassifier {
 
     public static void logAnimals(Map<Integer, Map<String, Object>> animals){
         for(Map<String,Object> a:animals.values())
-            LOGGER.info(a.toString());
+            log.info(a.toString());
     }
 
     public static void setFittedClassifiers(INDArray output, Map<Integer, Map<String, Object>> animals){
