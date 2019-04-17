@@ -254,13 +254,13 @@ public class SentimentExampleIterator implements DataSetIterator {
         for(String t : tokens ){
             if(wordVectors.hasWord(t)) tokensFiltered.add(t);
         }
-        int outputLength = Math.max(maxLength,tokensFiltered.size());
+        int outputLength = Math.min(maxLength,tokensFiltered.size());
 
         INDArray features = Nd4j.create(1, vectorSize, outputLength);
 
         int count = 0;
-        for( int j=0; j<tokens.size() && count<maxLength; j++ ){
-            String token = tokens.get(j);
+        for( int j=0; j<tokensFiltered.size() && count<maxLength; j++ ){
+            String token = tokensFiltered.get(j);
             INDArray vector = wordVectors.getWordVectorMatrix(token);
             if(vector == null){
                 continue;   //Word not in word vectors
