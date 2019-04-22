@@ -80,7 +80,7 @@ public class MnistMLPDistributedExample {
         if (useSparkLocal) {
             sparkConf.setMaster("local[*]");
         }
-        sparkConf.set("spark.driver.bindAddress", "127.0.0.1");
+        //sparkConf.set("spark.driver.bindAddress", "127.0.0.1");
         sparkConf.setAppName("DL4J Spark MLP Example");
         JavaSparkContext sc = new JavaSparkContext(sparkConf);
 
