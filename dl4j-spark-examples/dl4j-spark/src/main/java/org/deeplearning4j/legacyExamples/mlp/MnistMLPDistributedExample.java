@@ -143,7 +143,7 @@ public class MnistMLPDistributedExample {
             .batchSizePerWorker(batchSizePerWorker)
 
             // this option will enforce exactly 4 workers for each Spark node
-            .workersPerNode(4)
+            .workersPerNode(1)
             .build();
 
         //Create the Spark network
