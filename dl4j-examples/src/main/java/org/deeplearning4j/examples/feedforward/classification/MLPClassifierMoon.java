@@ -42,7 +42,7 @@ public class MLPClassifierMoon {
         int nEpochs = 100;
 
         int numInputs = 2;
-        int numOutputs = 1;
+        int numOutputs = 2;
         int numHiddenNodes = 50;
 
         final String filenameTrain  = new ClassPathResource("/classification/moon_data_train.csv").getFile().getPath();
@@ -51,12 +51,15 @@ public class MLPClassifierMoon {
         //Load the training data:
         RecordReader rr = new CSVRecordReader();
         rr.initialize(new FileSplit(new File(filenameTrain)));
-        DataSetIterator trainIter = new RecordReaderDataSetIterator(rr,batchSize,0,1);
+        DataSetIterator trainIter = new RecordReaderDataSetIterator(rr,batchSize,0,2);
 
         //Load the test/evaluation data:
         RecordReader rrTest = new CSVRecordReader();
         rrTest.initialize(new FileSplit(new File(filenameTest)));
-        DataSetIterator testIter = new RecordReaderDataSetIterator(rrTest,batchSize,0,1);
+        DataSetIterator testIter = new RecordReaderDataSetIterator(rrTest,batchSize,0,2);
+
+        DataSet ds1 = trainIter.next();
+        DataSet ds2 = testIter.next();
 
         //log.info("Build model....");
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
@@ -119,7 +122,7 @@ public class MLPClassifierMoon {
         rr.initialize(new FileSplit(new ClassPathResource("/classification/moon_data_train.csv").getFile()));
         rr.reset();
         int nTrainPoints = 2000;
-        trainIter = new RecordReaderDataSetIterator(rr,nTrainPoints,0,1);
+        trainIter = new RecordReaderDataSetIterator(rr,nTrainPoints,0,2);
         DataSet ds = trainIter.next();
         PlotUtil.plotTrainingData(ds.getFeatures(), ds.getLabels(), allXYPoints, predictionsAtXYPoints, nPointsPerAxis);
 
@@ -128,7 +131,7 @@ public class MLPClassifierMoon {
         rrTest.initialize(new FileSplit(new ClassPathResource("/classification/moon_data_eval.csv").getFile()));
         rrTest.reset();
         int nTestPoints = 1000;
-        testIter = new RecordReaderDataSetIterator(rrTest,nTestPoints,0,1);
+        testIter = new RecordReaderDataSetIterator(rrTest,nTestPoints,0,2);
         ds = testIter.next();
         INDArray testPredicted = model.output(ds.getFeatures());
         PlotUtil.plotTestData(ds.getFeatures(), ds.getLabels(), testPredicted, allXYPoints, predictionsAtXYPoints, nPointsPerAxis);

@@ -44,7 +44,7 @@ public class MLPClassifierSaturn {
         int nEpochs = 30;
 
         int numInputs = 2;
-        int numOutputs = 1;
+        int numOutputs = 2;
         int numHiddenNodes = 20;
 
         final String filenameTrain  = new ClassPathResource("/classification/saturn_data_train.csv").getFile().getPath();
@@ -53,12 +53,12 @@ public class MLPClassifierSaturn {
         //Load the training data:
         RecordReader rr = new CSVRecordReader();
         rr.initialize(new FileSplit(new File(filenameTrain)));
-        DataSetIterator trainIter = new RecordReaderDataSetIterator(rr,batchSize,0,1);
+        DataSetIterator trainIter = new RecordReaderDataSetIterator(rr,batchSize,0,2);
 
         //Load the test/evaluation data:
         RecordReader rrTest = new CSVRecordReader();
         rrTest.initialize(new FileSplit(new File(filenameTest)));
-        DataSetIterator testIter = new RecordReaderDataSetIterator(rrTest,batchSize,0,1);
+        DataSetIterator testIter = new RecordReaderDataSetIterator(rrTest,batchSize,0,2);
 
         //log.info("Build model....");
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
@@ -116,7 +116,7 @@ public class MLPClassifierSaturn {
         rr.initialize(new FileSplit(new File(filenameTrain)));
         rr.reset();
         int nTrainPoints = 500;
-        trainIter = new RecordReaderDataSetIterator(rr,nTrainPoints,0,1);
+        trainIter = new RecordReaderDataSetIterator(rr,nTrainPoints,0,2);
         DataSet ds = trainIter.next();
         PlotUtil.plotTrainingData(ds.getFeatures(), ds.getLabels(), allXYPoints, predictionsAtXYPoints, nPointsPerAxis);
 
@@ -125,7 +125,7 @@ public class MLPClassifierSaturn {
         rrTest.initialize(new FileSplit(new File(filenameTest)));
         rrTest.reset();
         int nTestPoints = 100;
-        testIter = new RecordReaderDataSetIterator(rrTest,nTestPoints,0,1);
+        testIter = new RecordReaderDataSetIterator(rrTest,nTestPoints,0,2);
         ds = testIter.next();
         INDArray testPredicted = model.output(ds.getFeatures());
         PlotUtil.plotTestData(ds.getFeatures(), ds.getLabels(), testPredicted, allXYPoints, predictionsAtXYPoints, nPointsPerAxis);

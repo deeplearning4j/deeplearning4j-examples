@@ -108,7 +108,7 @@ public class PlotUtil {
         for( int i=0; i<series.length; i++) series[i] = new XYSeries("Class " + String.valueOf(i));
         INDArray argMax = Nd4j.getExecutioner().exec(new IMax(labels, 1));
         for( int i=0; i<nRows; i++ ){
-            int classIdx = (int)labels.getDouble(i);
+            int classIdx = (int)argMax.getDouble(i);
             series[classIdx].add(features.getDouble(i, 0), features.getDouble(i, 1));
         }
 
@@ -131,11 +131,11 @@ public class PlotUtil {
             String label = "actual=" + trueClass + ", pred=" + predClass;
             series[series_index[i]] = new XYSeries(label);
         }
-        INDArray actualIdx = labels;
+        INDArray actualIdx = labels.argMax(1);
         INDArray predictedIdx = predicted.argMax(1);
         for( int i=0; i<nRows; i++ ){
-            int classIdx = (int)actualIdx.getDouble(i);
-            int predIdx = (int)Math.round( predicted.getDouble(i));
+            int classIdx = actualIdx.getInt(i);
+            int predIdx = predictedIdx.getInt(i);
             int idx = series_index[classIdx * nClasses + predIdx];
             series[idx].add(features.getDouble(i, 0), features.getDouble(i, 1));
         }
