@@ -110,7 +110,7 @@ public class VaeMNISTAnomaly {
             INDArray reconstructionErrorEachExample = vae.reconstructionLogProbability(features, reconstructionNumSamples);    //Shape: [minibatchSize, 1]
 
             for( int j=0; j<nRows; j++){
-                INDArray example = features.getRow(j);
+                INDArray example = features.getRow(j, true);
                 int label = (int)labels.getDouble(j);
                 double score = reconstructionErrorEachExample.getDouble(j);
                 listsByDigit.get(label).add(new Pair<>(score, example));
