@@ -12,7 +12,7 @@ import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
 import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
-import org.nd4j.linalg.learning.config.Nadam;
+import org.nd4j.linalg.learning.config.Adam;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 
 import java.io.IOException;
@@ -32,7 +32,7 @@ public class UIExampleUtils {
             .seed(seed)
             .l2(0.0005)
             .weightInit(WeightInit.XAVIER)
-            .updater(new Nadam())
+            .updater(new Adam(0.001))
             .list()
             .layer(new ConvolutionLayer.Builder(5, 5)
                 //nIn and nOut specify depth. nIn here is the nChannels and nOut is the number of filters to be applied
