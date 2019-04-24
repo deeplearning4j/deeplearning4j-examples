@@ -13,15 +13,12 @@ import org.deeplearning4j.optimize.listeners.EvaluativeListener;
 import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
 import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
-import org.nd4j.linalg.learning.config.Nadam;
-import org.nd4j.linalg.learning.config.Nesterovs;
+import org.nd4j.linalg.learning.config.Adam;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Created by agibsonccc on 9/16/15.
@@ -48,17 +45,11 @@ public class LenetMnistExample {
          */
         log.info("Build model....");
 
-        // learning rate schedule in the form of <Iteration #, Learning Rate>
-        Map<Integer, Double> lrSchedule = new HashMap<>();
-        lrSchedule.put(0, 0.01);
-        lrSchedule.put(1000, 0.005);
-        lrSchedule.put(3000, 0.001);
-
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
                 .seed(seed)
                 .l2(0.0005)
                 .weightInit(WeightInit.XAVIER)
-                .updater(new Nadam(0.001))
+                .updater(new Adam(1e-3))
                 .list()
                 .layer(new ConvolutionLayer.Builder(5, 5)
                         //nIn and nOut specify depth. nIn here is the nChannels and nOut is the number of filters to be applied

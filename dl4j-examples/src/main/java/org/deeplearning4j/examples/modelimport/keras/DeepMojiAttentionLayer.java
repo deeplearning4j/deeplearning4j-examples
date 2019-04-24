@@ -64,7 +64,7 @@ public class DeepMojiAttentionLayer extends SameDiffLayer {
      * @return layer output
      */
     @Override
-    public SDVariable defineLayer(SameDiff sd, SDVariable layerInput, Map<String, SDVariable> paramTable) {
+    public SDVariable defineLayer(SameDiff sd, SDVariable layerInput, Map<String, SDVariable> paramTable, SDVariable mask) {
         SDVariable weights = paramTable.get(DefaultParamInitializer.WEIGHT_KEY);
 
         SDVariable logits = sd.tensorMmul(layerInput, weights, new int[][] { {2}, {0}});
