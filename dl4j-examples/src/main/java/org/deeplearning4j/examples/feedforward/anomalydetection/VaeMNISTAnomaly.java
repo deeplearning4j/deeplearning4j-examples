@@ -14,7 +14,7 @@ import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.api.DataSet;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.nd4j.linalg.factory.Nd4j;
-import org.nd4j.linalg.learning.config.Nadam;
+import org.nd4j.linalg.learning.config.Adam;
 import org.nd4j.linalg.primitives.Pair;
 
 import java.io.IOException;
@@ -57,7 +57,7 @@ public class VaeMNISTAnomaly {
         Nd4j.getRandom().setSeed(rngSeed);
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
             .seed(rngSeed)
-            .updater(new Nadam())
+            .updater(new Adam(1e-3))
             .weightInit(WeightInit.XAVIER)
             .l2(1e-4)
             .list()
