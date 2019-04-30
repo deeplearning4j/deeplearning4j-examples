@@ -47,6 +47,7 @@
         <scala.plugin.version>3.2.2</scala.plugin.version>
     </properties>
 
+  <!--
     <repositories>
         <repository>
             <id>sonatype-nexus-staging</id>
@@ -54,7 +55,7 @@
             <url>https://oss.sonatype.org/content/repositories/orgdeeplearning4j-1091/</url>
         </repository>
     </repositories>
-
+-->
     <modules>
         <module>dl4j-examples</module>
     </modules>
