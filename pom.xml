@@ -18,11 +18,11 @@
 
 
         <java.version>1.8</java.version>
-        <nd4j.version>1.0.0-SNAPSHOT</nd4j.version>
-        <dl4j.version>1.0.0-SNAPSHOT</dl4j.version>
-        <datavec.version>1.0.0-SNAPSHOT</datavec.version>
-        <arbiter.version>1.0.0-SNAPSHOT</arbiter.version>
-        <rl4j.version>1.0.0-SNAPSHOT</rl4j.version>
+        <nd4j.version>1.0.0-beta4</nd4j.version>
+        <dl4j.version>1.0.0-beta4</dl4j.version>
+        <datavec.version>1.0.0-beta4</datavec.version>
+        <arbiter.version>1.0.0-beta4</arbiter.version>
+        <rl4j.version>1.0.0-beta4</rl4j.version>
 
         <!-- For Spark examples: change the _1 to _2 to switch between Spark 1 and Spark 2 -->
         <dl4j.spark.version>1.0.0-beta4_spark_2</dl4j.spark.version>
