@@ -56,7 +56,7 @@
             <groupId>org.nd4j</groupId>
             <artifactId>${nd4j.backend}</artifactId>
             <version>${nd4j.version}</version>
-            <classifier>avx512</classifier>
+            <classifier>linux-x86_64-avx512</classifier>
         </dependency>
 
         <dependency>
