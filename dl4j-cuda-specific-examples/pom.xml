@@ -8,7 +8,7 @@
     <parent>
         <groupId>org.deeplearning4j</groupId>
         <artifactId>deeplearning4j-examples-parent</artifactId>
-        <version>1.0.0-beta3</version>
+        <version>1.0.0-beta4</version>
     </parent>
 
     <name>DeepLearning4j CUDA special examples</name>
