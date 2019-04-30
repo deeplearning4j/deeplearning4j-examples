@@ -45,6 +45,7 @@
                 <groupId>org.nd4j</groupId>
                 <artifactId>nd4j-native-platform</artifactId>
                 <version>${nd4j.version}</version>
+                <classifier>avx512</classifier>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -55,6 +56,7 @@
             <groupId>org.nd4j</groupId>
             <artifactId>${nd4j.backend}</artifactId>
             <version>${nd4j.version}</version>
+            <classifier>avx512</classifier>
         </dependency>
 
         <dependency>
