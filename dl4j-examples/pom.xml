@@ -38,7 +38,7 @@
             <url>http://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
         </repository>
     </distributionManagement>
--->
+
     <dependencyManagement>
         <dependencies>
             <dependency>
@@ -49,7 +49,7 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
-
+-->
     <dependencies>
         <!-- ND4J backend. You need one in every DL4J project. Normally define artifactId as either "nd4j-native-platform" or "nd4j-cuda-9.2-platform" -->
         <dependency>
