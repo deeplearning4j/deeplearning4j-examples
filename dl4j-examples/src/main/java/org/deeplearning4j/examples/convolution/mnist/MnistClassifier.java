@@ -109,8 +109,7 @@ public class MnistClassifier {
     net.fit(trainMnist, nEpochs);
 
     log.info("Saving model to disk...");
-    String basePath = FilenameUtils.concat(System.getProperty("user.dir"), "src/main/resources/");
-    net.save(new File(basePath + "mnist-model.zip"));
+    net.save(new File("mnist-model.zip"));
   }
 
 }
