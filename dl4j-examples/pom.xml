@@ -57,6 +57,7 @@
             <artifactId>${nd4j.backend}</artifactId>
             <version>${nd4j.version}</version>
             <classifier>avx512</classifier>
+            <type>zip</type>
         </dependency>
 
         <dependency>
