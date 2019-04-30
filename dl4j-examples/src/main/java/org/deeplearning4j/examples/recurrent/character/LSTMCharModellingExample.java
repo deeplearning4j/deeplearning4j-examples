@@ -13,6 +13,7 @@ import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.factory.Nd4j;
+import org.nd4j.linalg.learning.config.Adam;
 import org.nd4j.linalg.learning.config.Nadam;
 import org.nd4j.linalg.lossfunctions.LossFunctions.LossFunction;
 
@@ -63,7 +64,7 @@ public class LSTMCharModellingExample {
 			.seed(12345)
 			.l2(0.0001)
             .weightInit(WeightInit.XAVIER)
-            .updater(new Nadam())
+            .updater(new Adam(0.005))
 			.list()
 			.layer(new LSTM.Builder().nIn(iter.inputColumns()).nOut(lstmLayerSize)
 					.activation(Activation.TANH).build())
