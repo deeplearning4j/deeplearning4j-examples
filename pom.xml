@@ -51,7 +51,7 @@
         <repository>
             <id>sonatype-nexus-staging</id>
             <name>Sonatype Nexus Staging</name>
-            <url>https://oss.sonatype.org/content/repositories/orgdeeplearning4j-1092/</url>
+            <url>https://oss.sonatype.org/content/repositories/orgdeeplearning4j-1093/</url>
         </repository>
     </repositories>
 
