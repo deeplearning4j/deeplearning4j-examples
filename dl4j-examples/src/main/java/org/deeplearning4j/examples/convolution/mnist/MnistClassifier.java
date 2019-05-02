@@ -48,7 +48,6 @@ import java.util.Random;
  * @author dariuszzbyrad
  */
 public class MnistClassifier {
-
     private static final Logger LOGGER = LoggerFactory.getLogger(MnistClassifier.class);
     private static final String BASE_PATH = System.getProperty("java.io.tmpdir") + "/mnist";
     private static final String DATA_URL = "http://github.com/myleott/mnist_png/raw/master/mnist_png.tar.gz";
@@ -161,5 +160,4 @@ public class MnistClassifier {
         ModelSerializer.writeModel(net, ministModelPath, true);
         LOGGER.info("The MINIST model has been saved in {}", ministModelPath.getPath());
     }
-
 }

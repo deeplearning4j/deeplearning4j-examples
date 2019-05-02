@@ -46,15 +46,14 @@ public class WeightedLossFunctionExample {
             .weightInit(WeightInit.XAVIER)
             .updater(new Sgd(0.1))
             .list()
-            .layer(0, new DenseLayer.Builder().nIn(numInputs).nOut(5)
+            .layer(new DenseLayer.Builder().nIn(numInputs).nOut(5)
                 .build())
-            .layer(1, new DenseLayer.Builder().nIn(5).nOut(5)
+            .layer(new DenseLayer.Builder().nIn(5).nOut(5)
                 .build())
-            .layer(2, new OutputLayer.Builder()
+            .layer(new OutputLayer.Builder()
                 .lossFunction(new LossMCXENT(weightsArray))     // *** Weighted loss function configured here ***
                 .activation(Activation.SOFTMAX)
                 .nIn(5).nOut(numClasses).build())
-            .backprop(true).pretrain(false)
             .build();
 
         //Initialize and use the model as before

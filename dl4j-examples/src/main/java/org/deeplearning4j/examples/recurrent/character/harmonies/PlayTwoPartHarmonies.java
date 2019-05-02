@@ -14,20 +14,10 @@ package org.deeplearning4j.examples.recurrent.character.harmonies;
 
 import org.deeplearning4j.examples.recurrent.character.melodl4j.Note;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileFilter;
-import java.io.FileOutputStream;
-import java.io.FileReader;
+import javax.sound.midi.*;
+import javax.swing.*;
+import java.io.*;
 import java.util.Random;
-
-import javax.sound.midi.InvalidMidiDataException;
-import javax.sound.midi.MidiEvent;
-import javax.sound.midi.MidiSystem;
-import javax.sound.midi.Sequence;
-import javax.sound.midi.ShortMessage;
-import javax.sound.midi.Track;
-import javax.swing.JFileChooser;
 
 public class PlayTwoPartHarmonies {
 	public static int tickIncrement = 150;

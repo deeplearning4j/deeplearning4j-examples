@@ -2,7 +2,6 @@ package org.deeplearning4j.examples.recurrent.word2vecsentiment;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
-import org.deeplearning4j.eval.Evaluation;
 import org.deeplearning4j.examples.utilities.DataUtilities;
 import org.deeplearning4j.models.embeddings.loader.WordVectorSerializer;
 import org.deeplearning4j.models.embeddings.wordvectors.WordVectors;
@@ -13,6 +12,8 @@ import org.deeplearning4j.nn.conf.layers.LSTM;
 import org.deeplearning4j.nn.conf.layers.RnnOutputLayer;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
+import org.deeplearning4j.optimize.api.InvocationType;
+import org.deeplearning4j.optimize.listeners.EvaluativeListener;
 import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
 import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.api.ndarray.INDArray;
@@ -81,15 +82,14 @@ public class Word2VecSentimentRNN {
             .weightInit(WeightInit.XAVIER)
             .gradientNormalization(GradientNormalization.ClipElementWiseAbsoluteValue).gradientNormalizationThreshold(1.0)
             .list()
-            .layer(0, new LSTM.Builder().nIn(vectorSize).nOut(256)
+            .layer(new LSTM.Builder().nIn(vectorSize).nOut(256)
                 .activation(Activation.TANH).build())
-            .layer(1, new RnnOutputLayer.Builder().activation(Activation.SOFTMAX)
+            .layer(new RnnOutputLayer.Builder().activation(Activation.SOFTMAX)
                 .lossFunction(LossFunctions.LossFunction.MCXENT).nIn(256).nOut(2).build())
             .build();
 
         MultiLayerNetwork net = new MultiLayerNetwork(conf);
         net.init();
-        net.setListeners(new ScoreIterationListener(1));
 
         //DataSetIterators for training and testing respectively
         WordVectors wordVectors = WordVectorSerializer.loadStaticModel(new File(WORD_VECTORS_PATH));
@@ -97,15 +97,8 @@ public class Word2VecSentimentRNN {
         SentimentExampleIterator test = new SentimentExampleIterator(DATA_PATH, wordVectors, batchSize, truncateReviewsToLength, false);
 
         System.out.println("Starting training");
-        for (int i = 0; i < nEpochs; i++) {
-            net.fit(train);
-            train.reset();
-            System.out.println("Epoch " + i + " complete. Starting evaluation:");
-
-            //Run evaluation. This is on 25k reviews, so can take some time
-            Evaluation evaluation = net.evaluate(test);
-            System.out.println(evaluation.stats());
-        }
+        net.setListeners(new ScoreIterationListener(1), new EvaluativeListener(test, 1, InvocationType.EPOCH_END));
+        net.fit(train, nEpochs);
 
         //After training: load a single example and generate predictions
         File shortNegativeReviewFile = new File(FilenameUtils.concat(DATA_PATH, "aclImdb/test/neg/12100_1.txt"));

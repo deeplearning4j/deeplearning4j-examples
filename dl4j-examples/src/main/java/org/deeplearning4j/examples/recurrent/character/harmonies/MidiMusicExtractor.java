@@ -9,31 +9,13 @@ package org.deeplearning4j.examples.recurrent.character.harmonies;
 import org.deeplearning4j.examples.recurrent.character.melodl4j.MelodyStrings;
 import org.deeplearning4j.examples.recurrent.character.melodl4j.Note;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.PrintStream;
-import java.io.PrintWriter;
-import java.text.NumberFormat;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
-import java.util.TreeSet;
-import java.util.regex.Pattern;
-import javax.sound.midi.InvalidMidiDataException;
-import javax.sound.midi.MidiEvent;
-import javax.sound.midi.MidiMessage;
-import javax.sound.midi.MidiSystem;
-import javax.sound.midi.Sequence;
-import javax.sound.midi.ShortMessage;
-import javax.sound.midi.Track;
-import javax.swing.JFileChooser;
+import javax.sound.midi.*;
+import javax.swing.*;
 import javax.swing.filechooser.FileFilter;
+import java.io.*;
+import java.text.NumberFormat;
+import java.util.*;
+import java.util.regex.Pattern;
 
 /*
  *  MidiMusicExtractor processes MIDI files and outputs two-part harmonies as strings, for processing by GravesLSTMForTwoPartHarmonies.

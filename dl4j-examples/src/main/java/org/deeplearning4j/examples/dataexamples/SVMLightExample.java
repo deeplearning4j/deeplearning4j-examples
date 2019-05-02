@@ -59,12 +59,11 @@ public class SVMLightExample {
             .updater(Adam.builder().learningRate(0.02).beta1(0.9).beta2(0.999).build())
             .l2(1e-4)
             .list()
-            .layer(0, new DenseLayer.Builder().nIn(numOfFeatures).nOut(hiddenLayer1Num)
+            .layer(new DenseLayer.Builder().nIn(numOfFeatures).nOut(hiddenLayer1Num)
                 .build())
-            .layer(1, new OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD)
+            .layer(new OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD)
                 .activation(Activation.SOFTMAX)
                 .nIn(hiddenLayer1Num).nOut(numOfClasses).build())
-            .backprop(true).pretrain(false)
             .build();
 
         //run the model

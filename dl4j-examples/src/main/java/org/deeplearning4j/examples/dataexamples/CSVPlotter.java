@@ -84,10 +84,10 @@ public class CSVPlotter {
                 .weightInit(WeightInit.XAVIER)
                 .updater(new Nesterovs(learningRate, 0.9))
                 .list()
-                .layer(0, new DenseLayer.Builder().nIn(numInputs).nOut(numOutputs)
+                .layer(new DenseLayer.Builder().nIn(numInputs).nOut(numOutputs)
                         .activation(Activation.IDENTITY)
                         .build())
-                .layer(1, new OutputLayer.Builder(LossFunctions.LossFunction.MSE)
+                .layer(new OutputLayer.Builder(LossFunctions.LossFunction.MSE)
                         .activation(Activation.IDENTITY)
                         .nIn(numOutputs).nOut(numOutputs).build())
                 .build();

@@ -1,17 +1,17 @@
 package org.deeplearning4j.examples.misc.externalerrors;
 
-import org.deeplearning4j.nn.workspace.LayerWorkspaceMgr;
-import org.nd4j.linalg.learning.config.Nesterovs;
-import org.nd4j.linalg.primitives.Pair;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
 import org.deeplearning4j.nn.conf.layers.DenseLayer;
 import org.deeplearning4j.nn.gradient.Gradient;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
+import org.deeplearning4j.nn.workspace.LayerWorkspaceMgr;
 import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
+import org.nd4j.linalg.learning.config.Nadam;
+import org.nd4j.linalg.primitives.Pair;
 
 /**
  * This example: shows how to train a MultiLayerNetwork where the errors come from an external source, instead
@@ -39,11 +39,10 @@ public class MultiLayerNetworkExternalErrors {
             .seed(12345)
             .activation(Activation.TANH)
             .weightInit(WeightInit.XAVIER)
-            .updater(new Nesterovs(0.1))
+            .updater(new Nadam())
             .list()
-            .layer(0, new DenseLayer.Builder().nIn(nIn).nOut(3).build())
-            .layer(1, new DenseLayer.Builder().nIn(3).nOut(3).build())
-            .backprop(true).pretrain(false)
+            .layer(new DenseLayer.Builder().nIn(nIn).nOut(3).build())
+            .layer(new DenseLayer.Builder().nIn(3).nOut(3).build())
             .build();
 
         MultiLayerNetwork model = new MultiLayerNetwork(conf);

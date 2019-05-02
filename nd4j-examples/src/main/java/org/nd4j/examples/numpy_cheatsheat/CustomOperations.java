@@ -1,6 +1,7 @@
 package org.nd4j.examples.numpy_cheatsheat;
 
 import com.google.common.base.Function;
+import org.nd4j.linalg.api.buffer.DataType;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.indexing.BooleanIndexing;
@@ -31,7 +32,7 @@ class CustomOperations {
     static INDArray arange(double start, double end, double step) {
         int elements = (int) ((end - start) / step);
         System.out.println(elements);
-        return Nd4j.linspace(start, start + elements * step,  elements + 1);
+        return Nd4j.linspace(start, start + elements * step,  elements + 1, DataType.FLOAT);
     }
 
     static INDArray randInt(int [] shape, int upper) {
@@ -137,27 +138,6 @@ class CustomOperations {
 
     static INDArray [] hsplit(INDArray arr1, int numOfSplits) {
         return split(arr1, numOfSplits, 1);
-    }
-
-    static INDArray booleanOp(INDArray arr, Condition condition) {
-        INDArray dup = arr.dup();
-        BooleanIndexing.applyWhere(dup, condition,
-            new Function<Number, Number>() {
-                @Override
-                public Number apply( Number number) {
-                    return 1.0;
-                }
-            }, new Function<Number, Number>() {
-                @Override
-                public Number apply( Number number) {
-                    return 0.0;
-                }
-            });
-        return dup;
-    }
-
-    static INDArray invert(INDArray arr1) {
-        return booleanOp(arr1, Conditions.equals(0));
     }
 
     static INDArray compare(INDArray arr1, INDArray arr2, Predicate<Boolean []> predicate) {

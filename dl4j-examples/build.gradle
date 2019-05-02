@@ -1,6 +1,6 @@
 buildscript {
     ext {
-        dl4j_version = "1.0.0-beta"
+        dl4j_version = "1.0.0-beta4"
         kotlin_version = "1.2.31"
     }
     repositories {

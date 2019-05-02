@@ -1,6 +1,5 @@
 package org.deeplearning4j.examples.feedforward.xor;
 
-import org.deeplearning4j.nn.api.Layer;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
 import org.deeplearning4j.nn.conf.distribution.UniformDistribution;
@@ -128,14 +127,7 @@ public class XorExample {
 
         // C&P from LSTMCharModellingExample
         // Print the number of parameters in the network (and for each layer)
-        Layer[] layers = net.getLayers();
-        long totalNumParams = 0;
-        for (int i = 0; i < layers.length; i++) {
-            long nParams = layers[i].numParams();
-            System.out.println("Number of parameters in layer " + i + ": " + nParams);
-            totalNumParams += nParams;
-        }
-        System.out.println("Total number of network parameters: " + totalNumParams);
+        System.out.println(net.summary());
 
         // here the actual learning takes place
         for( int i=0; i < nEpochs; i++ ) {

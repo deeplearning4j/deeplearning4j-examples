@@ -74,7 +74,7 @@ public class MelodyModelingExample {
         CharacterIterator iter = getMidiIterator(miniBatchSize, exampleLength);
 
         if (loadNetworkPath != null) {
-            MultiLayerNetwork net = ModelSerializer.restoreMultiLayerNetwork(loadNetworkPath);
+            MultiLayerNetwork net = MultiLayerNetwork.load(new File(loadNetworkPath), true);
             String[] samples = sampleCharactersFromNetwork(generationInitialization, net, iter, rng, nCharactersToSample, nSamplesToGenerate);
             for (String melody : samples) {
                 System.out.println(melody);

@@ -2,6 +2,7 @@ package org.nd4j.samediff;
 
 import org.nd4j.autodiff.samediff.SDVariable;
 import org.nd4j.autodiff.samediff.SameDiff;
+import org.nd4j.linalg.api.buffer.DataType;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.api.rng.distribution.impl.TruncatedNormalDistribution;
 import org.nd4j.linalg.factory.Nd4j;
@@ -52,7 +53,7 @@ public class Ex3_Variables {
          */
         long[] shape = new long[]{3,4};
         WeightInitScheme initScheme = new DistributionInitScheme(Nd4j.order(), new TruncatedNormalDistribution(0, 1));
-        SDVariable var2 = sd.var("var2", shape, initScheme);
+        SDVariable var2 = sd.var("var2", initScheme, DataType.FLOAT, shape);
 
         //Note that the array will be allocated using the specified distribution (truncated normal), when we try to get the array:
         INDArray var2Array = var2.getArr();
@@ -71,9 +72,9 @@ public class Ex3_Variables {
         // on every forward pass
         SDVariable scalar = sd.scalar("scalar", 0.5);
         SDVariable zero = sd.zero("zero", new long[]{3,4});
-        SDVariable zeroToNine = sd.linspace("zeroToNine", 0, 9, 10);
-        SDVariable randomUniform = sd.randomUniform(-1, 1, 3,4);      //-1 to 1, shape [3,4]
-        SDVariable randomBernoulli = sd.randomBernoulli(0.5, 3,4);          //Random Bernoulli: 0 or 1 with probability 0.5
+        SDVariable zeroToNine = sd.linspace("zeroToNine", DataType.FLOAT, 0, 9, 10);
+        SDVariable randomUniform = sd.random().uniform(-1, 1, 3,4);      //-1 to 1, shape [3,4]
+        SDVariable randomBernoulli = sd.random().bernoulli(0.5, 3,4);          //Random Bernoulli: 0 or 1 with probability 0.5
     }
 
 }

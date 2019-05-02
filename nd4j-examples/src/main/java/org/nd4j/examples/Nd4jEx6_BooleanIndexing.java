@@ -1,7 +1,7 @@
 package org.nd4j.examples;
 
 import org.nd4j.linalg.api.ndarray.INDArray;
-import org.nd4j.linalg.api.ops.impl.accum.MatchCondition;
+import org.nd4j.linalg.api.ops.impl.reduce.longer.MatchCondition;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.indexing.BooleanIndexing;
 import org.nd4j.linalg.indexing.conditions.Conditions;
@@ -45,7 +45,7 @@ public class Nd4jEx6_BooleanIndexing {
 
         //One simple task is to count the number of values that match the condition
         MatchCondition op = new MatchCondition(random, Conditions.greaterThan(0.0));
-        int countGreaterThanZero = Nd4j.getExecutioner().exec(op,Integer.MAX_VALUE).getInt(0);  //MAX_VALUE = "along all dimensions" or equivalently "for entire array"
+        int countGreaterThanZero = Nd4j.getExecutioner().exec(op).getInt(0);
         System.out.println("Number of values matching condition 'greater than 0': " + countGreaterThanZero);
     }
 

@@ -1,7 +1,6 @@
 package org.deeplearning4j.examples.nlp.paragraphvectors;
 
 import org.datavec.api.util.ClassPathResource;
-import org.nd4j.linalg.primitives.Pair;
 import org.deeplearning4j.examples.nlp.paragraphvectors.tools.LabelSeeker;
 import org.deeplearning4j.examples.nlp.paragraphvectors.tools.MeansBuilder;
 import org.deeplearning4j.models.embeddings.inmemory.InMemoryLookupTable;
@@ -14,6 +13,7 @@ import org.deeplearning4j.text.tokenization.tokenizer.preprocessor.CommonPreproc
 import org.deeplearning4j.text.tokenization.tokenizerfactory.DefaultTokenizerFactory;
 import org.deeplearning4j.text.tokenization.tokenizerfactory.TokenizerFactory;
 import org.nd4j.linalg.api.ndarray.INDArray;
+import org.nd4j.linalg.primitives.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

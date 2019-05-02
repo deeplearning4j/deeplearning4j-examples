@@ -1,12 +1,12 @@
 package org.deeplearning4j.examples.recurrent.processlottery;
 
 
-
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.dataset.api.DataSetPreProcessor;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
+
 import java.io.File;
-import java.util.*;
+import java.util.List;
 
 /**
  * @author WangFeng

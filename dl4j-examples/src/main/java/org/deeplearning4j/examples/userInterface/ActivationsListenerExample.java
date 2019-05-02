@@ -28,7 +28,6 @@ public class ActivationsListenerExample {
         }
         System.out.println();
         net.setListeners(new ActivationsListener(net,20));
-       // net.setListeners(new ScoreIterationListener(10));
         net.fit(trainData);
 
     }

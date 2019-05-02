@@ -2,16 +2,19 @@ package org.deeplearning4j.examples.convolution.captcharecognition;
 
 
 import org.deeplearning4j.api.storage.StatsStorage;
-import org.deeplearning4j.nn.conf.*;
+import org.deeplearning4j.nn.conf.ComputationGraphConfiguration;
+import org.deeplearning4j.nn.conf.GradientNormalization;
+import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
 import org.deeplearning4j.nn.conf.inputs.InputType;
 import org.deeplearning4j.nn.conf.layers.*;
 import org.deeplearning4j.nn.graph.ComputationGraph;
 import org.deeplearning4j.nn.weights.WeightInit;
+import org.deeplearning4j.optimize.api.InvocationType;
+import org.deeplearning4j.optimize.listeners.EvaluativeListener;
 import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
 import org.deeplearning4j.ui.api.UIServer;
 import org.deeplearning4j.ui.stats.StatsListener;
-import org.deeplearning4j.ui.storage.InMemoryStatsStorage;
-import org.deeplearning4j.util.ModelSerializer;
+import org.deeplearning4j.ui.storage.FileStatsStorage;
 import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.api.MultiDataSet;
@@ -40,7 +43,7 @@ public class MultiDigitNumberRecognition {
     private static final Logger log = LoggerFactory.getLogger(MultiDigitNumberRecognition.class);
 
     private static long seed = 123;
-    private static int epochs = 50;
+    private static int epochs = 4;
     private static int batchSize = 15;
     private static String rootPath = System.getProperty("user.dir");
 
@@ -61,21 +64,22 @@ public class MultiDigitNumberRecognition {
         ComputationGraph model =  createModel();
         //monitor the model score
         UIServer uiServer = UIServer.getInstance();
-        StatsStorage statsStorage = new InMemoryStatsStorage();
+        StatsStorage statsStorage = new FileStatsStorage(new File(System.getProperty("java.io.tmpdir"), "ui-stats.dl4j"));
         uiServer.attach(statsStorage);
-        model.setListeners(new ScoreIterationListener(10), new StatsListener( statsStorage));
 
         //construct the iterator
         MultiDataSetIterator trainMulIterator = new MultiRecordDataSetIterator(batchSize, "train");
         MultiDataSetIterator testMulIterator = new MultiRecordDataSetIterator(batchSize,"test");
         MultiDataSetIterator validateMulIterator = new MultiRecordDataSetIterator(batchSize,"validate");
+
         //fit
-        for ( int i = 0; i < epochs; i ++ ) {
-            System.out.println("Epoch=====================" + i);
-            model.fit(trainMulIterator);
-        }
-        ModelSerializer.writeModel(model, modelPath, true);
+        model.setListeners(new ScoreIterationListener(10), new StatsListener( statsStorage), new EvaluativeListener(testMulIterator, 1, InvocationType.EPOCH_END));
+        model.fit(trainMulIterator, epochs);
+
+        //save
+        model.save(new File(modelPath), true);
         long endTime = System.currentTimeMillis();
+
         System.out.println("=============run time=====================" + (endTime - startTime));
 
         System.out.println("=====eval model=====test==================");

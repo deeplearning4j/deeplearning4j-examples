@@ -6,13 +6,13 @@ package org.deeplearning4j.examples.feedforward.classification.detectgender;
 
 
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
-import org.deeplearning4j.util.ModelSerializer;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
 
+import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import javax.swing.*;
+import java.io.File;
 
 
 /**
@@ -152,7 +152,7 @@ public class PredictGenderTest implements Runnable {
         {
             this.filePath = System.getProperty("user.dir") + "\\src\\main\\resources\\PredictGender\\Data\\";
             this.possibleCharacters = " abcdefghijklmnopqrstuvwxyz";
-            this.model = ModelSerializer.restoreMultiLayerNetwork(this.filePath + "PredictGender.net");
+            this.model = MultiLayerNetwork.load(new File(this.filePath + "PredictGender.net"), true);
         }
         catch(Exception e)
         {

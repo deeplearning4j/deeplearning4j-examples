@@ -92,17 +92,10 @@ public class BasicCSVClassifier {
                     .updater(new Sgd(0.1))
                     .l2(1e-4)
                     .list()
-                    .layer(new DenseLayer.Builder()
-                        .nIn(numInputs)
-                        .nOut(3)
-                        .build())
-                    .layer(new DenseLayer
-                        .Builder()
-                        .nOut(3)
-                        .build())
+                    .layer(new DenseLayer.Builder().nIn(numInputs).nOut(3).build())
+                    .layer(new DenseLayer.Builder().nIn(3).nOut(3).build())
                     .layer(new OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD)
-                        .activation(Activation.SOFTMAX)
-                        .nOut(outputNum).build())
+                            .activation(Activation.SOFTMAX).nIn(3).nOut(outputNum).build())
                     .build();
 
             //run the model

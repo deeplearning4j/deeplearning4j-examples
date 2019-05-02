@@ -12,7 +12,7 @@ import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.nd4j.linalg.factory.Nd4j;
-import org.nd4j.linalg.learning.config.Adam;
+import org.nd4j.linalg.learning.config.Nadam;
 import org.nd4j.linalg.lossfunctions.impl.LossMixtureDensity;
 
 import java.io.PrintStream;
@@ -63,19 +63,19 @@ public class MixtureDensityNetwork {
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
                 .seed(rng.nextInt())
                 .weightInit(WeightInit.XAVIER)
-                .updater(new Adam(1e-2))
+                .updater(new Nadam())
                 .list()
-                .layer(0, new DenseLayer.Builder()
+                .layer(new DenseLayer.Builder()
                         .nIn(inputSize)
                         .nOut(hiddenLayerSize)
                         .activation(Activation.TANH)
                         .build())
-                .layer(1, new DenseLayer.Builder()
+                .layer(new DenseLayer.Builder()
                         .nIn(hiddenLayerSize)
                         .nOut(hiddenLayerSize)
                         .activation(Activation.TANH)
                         .build())
-                .layer(2, new OutputLayer.Builder()
+                .layer(new OutputLayer.Builder()
                         .nIn(hiddenLayerSize)
                         .nOut(mixturesToFit * (2+outputLabels))
                         .activation(Activation.IDENTITY)

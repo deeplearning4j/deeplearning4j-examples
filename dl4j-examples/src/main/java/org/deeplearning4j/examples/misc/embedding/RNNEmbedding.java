@@ -2,16 +2,18 @@ package org.deeplearning4j.examples.misc.embedding;
 
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
-import org.deeplearning4j.nn.conf.layers.*;
+import org.deeplearning4j.nn.conf.layers.EmbeddingLayer;
+import org.deeplearning4j.nn.conf.layers.LSTM;
+import org.deeplearning4j.nn.conf.layers.RnnOutputLayer;
 import org.deeplearning4j.nn.conf.preprocessor.FeedForwardToRnnPreProcessor;
 import org.deeplearning4j.nn.conf.preprocessor.RnnToFeedForwardPreProcessor;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.api.ndarray.INDArray;
-
-import java.util.Random;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
+
+import java.util.Random;
 
 /** Feed-forward layer that expects single integers per example as input (class numbers, in range 0 to numClass-1)
  * as input. This input has shape [numExamples,1] instead of [numExamples,numClasses] for the equivalent one-hot representation.
@@ -46,9 +48,9 @@ public class RNNEmbedding {
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
             .activation(Activation.RELU)
             .list()
-            .layer(0, new EmbeddingLayer.Builder().nIn(nClassesIn).nOut(5).build())
-            .layer(1, new LSTM.Builder().nIn(5).nOut(7).activation(Activation.SOFTSIGN).build())
-            .layer(2, new RnnOutputLayer.Builder(LossFunctions.LossFunction.MCXENT).nIn(7).nOut(4).activation(Activation.SOFTMAX).build())
+            .layer(new EmbeddingLayer.Builder().nIn(nClassesIn).nOut(5).build())
+            .layer(new LSTM.Builder().nIn(5).nOut(7).activation(Activation.TANH).build())
+            .layer(new RnnOutputLayer.Builder(LossFunctions.LossFunction.MCXENT).nIn(7).nOut(4).activation(Activation.SOFTMAX).build())
             .inputPreProcessor(0, new RnnToFeedForwardPreProcessor())
             .inputPreProcessor(1, new FeedForwardToRnnPreProcessor())
             .build();

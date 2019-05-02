@@ -56,8 +56,8 @@ public class Nd4jEx5_Accumulations {
 
         // Index Accumulation operations
         // IAMax returns index of max value along specified dimension
-        INDArray idxOfMaxInEachColumn = Nd4j.getExecutioner().exec(new IAMax(originalArray),0);
-        INDArray idxOfMaxInEachRow = Nd4j.getExecutioner().exec(new IAMax(originalArray),1);
+        INDArray idxOfMaxInEachColumn = Nd4j.getExecutioner().exec(new IAMax(originalArray, 0));
+        INDArray idxOfMaxInEachRow = Nd4j.getExecutioner().exec(new IAMax(originalArray, 1));
 
 
         System.out.println("\n\n\n");
@@ -81,7 +81,7 @@ public class Nd4jEx5_Accumulations {
         //Index accumulations return an integer value.
         INDArray argMaxAlongDim0 = Nd4j.argMax(originalArray,0);                            //Index of the max value, along dimension 0
         System.out.println("\n\nargmax along dimension 0:   " + argMaxAlongDim0);
-        INDArray argMinAlongDim0 = Nd4j.getExecutioner().exec(new IMin(originalArray),0);   //Index of the min value, along dimension 0
+        INDArray argMinAlongDim0 = Nd4j.getExecutioner().exec(new IMin(originalArray, 0));   //Index of the min value, along dimension 0
         System.out.println("argmin along dimension 0:   " + argMinAlongDim0);
 
 

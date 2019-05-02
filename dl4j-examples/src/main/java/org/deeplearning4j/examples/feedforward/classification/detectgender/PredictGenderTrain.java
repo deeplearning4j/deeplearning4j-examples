@@ -16,8 +16,7 @@ import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
 import org.deeplearning4j.ui.api.UIServer;
 import org.deeplearning4j.ui.stats.StatsListener;
-import org.deeplearning4j.ui.storage.InMemoryStatsStorage;
-import org.deeplearning4j.util.ModelSerializer;
+import org.deeplearning4j.ui.storage.FileStatsStorage;
 import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
@@ -25,7 +24,7 @@ import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.nd4j.linalg.learning.config.Nesterovs;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 
-import java.io.*;
+import java.io.File;
 import java.util.ArrayList;
 
 /**
@@ -104,7 +103,7 @@ public class PredictGenderTrain
             model.init();
 
             UIServer uiServer = UIServer.getInstance();
-            StatsStorage statsStorage = new InMemoryStatsStorage();
+            StatsStorage statsStorage = new FileStatsStorage(new File(System.getProperty("java.io.tmpdir"), "ui-stats.dl4j"));
             uiServer.attach(statsStorage);
             model.setListeners(new StatsListener(statsStorage));
 
@@ -117,7 +116,7 @@ public class PredictGenderTrain
                 trainIter.reset();
             }
 
-            ModelSerializer.writeModel(model,this.filePath + "PredictGender.net",true);
+            model.save(new File(this.filePath + "PredictGender.net"),true);
 
             System.out.println("Evaluate model....");
             Evaluation eval = new Evaluation(numOutputs);

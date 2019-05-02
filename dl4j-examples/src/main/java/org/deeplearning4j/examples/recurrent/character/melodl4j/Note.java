@@ -1,10 +1,6 @@
 package org.deeplearning4j.examples.recurrent.character.melodl4j;
 
-import javax.sound.midi.InvalidMidiDataException;
-import javax.sound.midi.MidiEvent;
-import javax.sound.midi.MidiMessage;
-import javax.sound.midi.ShortMessage;
-import javax.sound.midi.Track;
+import javax.sound.midi.*;
 
 import com.google.common.base.Objects;
 

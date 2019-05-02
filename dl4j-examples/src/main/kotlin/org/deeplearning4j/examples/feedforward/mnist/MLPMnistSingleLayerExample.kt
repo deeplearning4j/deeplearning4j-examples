@@ -59,43 +59,34 @@ object MLPMnistSingleLayerExample {
         val conf = NeuralNetConfiguration.Builder()
                 .seed(rngSeed.toLong()) //include a random seed for reproducibility
                 // use stochastic gradient descent as an optimization algorithm
-                .updater(Nesterovs(0.006, 0.9)) //specify the rate of change of the learning rate.
+                .updater(Nadam()) //specify the rate of change of the learning rate.
                 .l2(1e-4)
                 .list()
-                .layer(0, DenseLayer.Builder() //create the first, input layer with xavier initialization
+                .layer(DenseLayer.Builder() //create the first, input layer with xavier initialization
                         .nIn(numRows * numColumns)
                         .nOut(1000)
                         .activation(Activation.RELU)
                         .weightInit(WeightInit.XAVIER)
                         .build())
-                .layer(1, OutputLayer.Builder(LossFunction.NEGATIVELOGLIKELIHOOD) //create hidden layer
+                .layer(OutputLayer.Builder(LossFunction.NEGATIVELOGLIKELIHOOD) //create hidden layer
                         .nIn(1000)
                         .nOut(outputNum)
                         .activation(Activation.SOFTMAX)
                         .weightInit(WeightInit.XAVIER)
                         .build())
-                .pretrain(false).backprop(true) //use backpropagation to adjust weights
                 .build()
 
         val model = MultiLayerNetwork(conf)
         model.init()
-        //print the score with every 1 iteration
-        model.setListeners(ScoreIterationListener(1))
 
         log.info("Train model....")
-        for (i in 0..numEpochs - 1) {
-            model.fit(mnistTrain)
-        }
+        model.setListeners(ScoreIterationListener(1), org.deeplearning4j.optimize.listeners.EvaluativeListener(mnistTest, 300)) //print the score with every 1 iteration and evaluate periodically
+        model.fit(mnistTrain, numEpochs)
 
         log.info("Evaluate model....")
-        val eval = Evaluation(outputNum) //create an evaluation object with 10 possible classes
-        while (mnistTest.hasNext()) {
-            val next = mnistTest.next()
-            val output = model.output(next.features) //get the networks prediction
-            eval.eval(next.getLabels(), output) //check the prediction against the true class
-        }
-
+        val eval = model.evaluate(mnistTest)
         log.info(eval.stats())
+
         log.info("****************Example finished********************")
     }
 

@@ -2,17 +2,18 @@ package org.deeplearning4j.examples.recurrent.processlottery;
 
 
 import org.deeplearning4j.api.storage.StatsStorage;
-import org.deeplearning4j.nn.api.Layer;
 import org.deeplearning4j.nn.api.OptimizationAlgorithm;
-import org.deeplearning4j.nn.conf.*;
-import org.deeplearning4j.nn.conf.layers.*;
+import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
+import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
+import org.deeplearning4j.nn.conf.WorkspaceMode;
+import org.deeplearning4j.nn.conf.layers.LSTM;
+import org.deeplearning4j.nn.conf.layers.RnnOutputLayer;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
 import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
 import org.deeplearning4j.ui.api.UIServer;
 import org.deeplearning4j.ui.stats.StatsListener;
-import org.deeplearning4j.ui.storage.InMemoryStatsStorage;
-import org.deeplearning4j.util.ModelSerializer;
+import org.deeplearning4j.ui.storage.FileStatsStorage;
 import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
@@ -23,6 +24,7 @@ import org.nd4j.linalg.learning.config.RmsProp;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import java.io.File;
 import java.util.Random;
 
@@ -53,27 +55,22 @@ public class TrainLotteryModel {
 
         MultiLayerNetwork model = getNetModel(trainIterator.inputColumns(), trainIterator.totalOutcomes());
         UIServer uiServer = UIServer.getInstance();
-        StatsStorage statsStorage = new InMemoryStatsStorage();
+        StatsStorage statsStorage = new FileStatsStorage(new File(System.getProperty("java.io.tmpdir"), "ui-stats.dl4j"));
         uiServer.attach(statsStorage);
-        model.setListeners(new StatsListener(statsStorage),new ScoreIterationListener(10));
 
-        Layer[] layers = model.getLayers();
-        long totalNumParams = 0;
-        for( int i=0; i<layers.length; i++ ){
-            long nParams = layers[i].numParams();
-            System.out.println("Number of parameters in layer " + i + ": " + nParams);
-            totalNumParams += nParams;
-        }
-        System.out.println("Total number of network parameters: " + totalNumParams);
+        // print layers and parameters
+        System.out.println(model.summary());
+
+        // training
+        model.setListeners(new StatsListener(statsStorage), new ScoreIterationListener(10));
 
         long startTime = System.currentTimeMillis();
-        for (int i = 0;i < numEpochs; i ++) {
-            System.out.println("=============numEpochs==========================" + i);
-            model.fit(trainIterator);
-        }
+        model.fit(trainIterator, numEpochs);
         long endTime = System.currentTimeMillis();
         System.out.println("=============run time=====================" + (endTime - startTime));
-        ModelSerializer.writeModel(model, modelFile, true);
+
+        // save model to disk
+        model.save(modelFile, true);
 
         int luckySize = 5;
         if (modelType) {
@@ -187,11 +184,11 @@ public class TrainLotteryModel {
                 .weightInit(WeightInit.XAVIER)
                 .updater(new RmsProp.Builder().rmsDecay(0.95).learningRate(1e-2).build())
                 .list()
-                .layer(0, new GravesLSTM.Builder().name("lstm1")
+                .layer(new LSTM.Builder().name("lstm1")
                         .activation(Activation.TANH).nIn(inputNum).nOut(100).build())
-                .layer(1, new GravesLSTM.Builder().name("lstm2")
+                .layer(new LSTM.Builder().name("lstm2")
                         .activation(Activation.TANH).nOut(80).build())
-                .layer(2, new RnnOutputLayer.Builder().name("output")
+                .layer(new RnnOutputLayer.Builder().name("output")
                         .activation(Activation.SOFTMAX).nOut(outputNum).lossFunction(LossFunctions.LossFunction.MSE)
                         .build())
                 .build();

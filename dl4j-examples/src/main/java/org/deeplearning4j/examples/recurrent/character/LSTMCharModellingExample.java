@@ -1,7 +1,6 @@
 package org.deeplearning4j.examples.recurrent.character;
 
 import org.apache.commons.io.FileUtils;
-import org.deeplearning4j.nn.api.Layer;
 import org.deeplearning4j.nn.conf.BackpropType;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
@@ -15,6 +14,7 @@ import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.learning.config.Adam;
+import org.nd4j.linalg.learning.config.Nadam;
 import org.nd4j.linalg.lossfunctions.LossFunctions.LossFunction;
 
 import java.io.File;
@@ -66,11 +66,11 @@ public class LSTMCharModellingExample {
             .weightInit(WeightInit.XAVIER)
             .updater(new Adam(0.005))
 			.list()
-			.layer(0, new LSTM.Builder().nIn(iter.inputColumns()).nOut(lstmLayerSize)
+			.layer(new LSTM.Builder().nIn(iter.inputColumns()).nOut(lstmLayerSize)
 					.activation(Activation.TANH).build())
-			.layer(1, new LSTM.Builder().nIn(lstmLayerSize).nOut(lstmLayerSize)
+			.layer(new LSTM.Builder().nIn(lstmLayerSize).nOut(lstmLayerSize)
 					.activation(Activation.TANH).build())
-			.layer(2, new RnnOutputLayer.Builder(LossFunction.MCXENT).activation(Activation.SOFTMAX)        //MCXENT + softmax for classification
+			.layer(new RnnOutputLayer.Builder(LossFunction.MCXENT).activation(Activation.SOFTMAX)        //MCXENT + softmax for classification
 					.nIn(lstmLayerSize).nOut(nOut).build())
             .backpropType(BackpropType.TruncatedBPTT).tBPTTForwardLength(tbpttLength).tBPTTBackwardLength(tbpttLength)
 			.build();
@@ -80,14 +80,7 @@ public class LSTMCharModellingExample {
 		net.setListeners(new ScoreIterationListener(1));
 
 		//Print the  number of parameters in the network (and for each layer)
-		Layer[] layers = net.getLayers();
-		long totalNumParams = 0;
-		for( int i=0; i<layers.length; i++ ){
-			long nParams = layers[i].numParams();
-			System.out.println("Number of parameters in layer " + i + ": " + nParams);
-			totalNumParams += nParams;
-		}
-		System.out.println("Total number of network parameters: " + totalNumParams);
+        System.out.println(net.summary());
 
 		//Do training, and then generate and print samples from network
         int miniBatchNumber = 0;

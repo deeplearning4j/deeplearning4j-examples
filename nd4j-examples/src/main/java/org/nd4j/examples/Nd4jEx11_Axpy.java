@@ -1,6 +1,7 @@
 package org.nd4j.examples;
 
 import org.nd4j.linalg.api.buffer.DataBuffer;
+import org.nd4j.linalg.api.buffer.DataType;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
 
@@ -13,8 +14,7 @@ public class Nd4jEx11_Axpy {
 
     public static void main(String[] args) {
 
-        Nd4j.setDataType(DataBuffer.Type.DOUBLE);
-        INDArray arr = Nd4j.create(300);
+        INDArray arr = Nd4j.create(DataType.DOUBLE, 300);
         double numTimes = 10000000;
         double total = 0;
 

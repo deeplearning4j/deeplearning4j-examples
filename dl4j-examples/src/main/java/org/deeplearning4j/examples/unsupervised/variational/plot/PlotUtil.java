@@ -1,6 +1,5 @@
 package org.deeplearning4j.examples.unsupervised.variational.plot;
 
-import org.nd4j.linalg.primitives.Pair;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -13,6 +12,7 @@ import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
+import org.nd4j.linalg.primitives.Pair;
 
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;

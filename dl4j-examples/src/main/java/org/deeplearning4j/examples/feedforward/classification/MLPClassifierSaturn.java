@@ -4,9 +4,7 @@ import org.datavec.api.records.reader.RecordReader;
 import org.datavec.api.records.reader.impl.csv.CSVRecordReader;
 import org.datavec.api.split.FileSplit;
 import org.deeplearning4j.datasets.datavec.RecordReaderDataSetIterator;
-import org.nd4j.linalg.activations.Activation;
-import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
-import org.nd4j.evaluation.classification.Evaluation;
+import org.deeplearning4j.eval.Evaluation;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
 import org.deeplearning4j.nn.conf.layers.DenseLayer;
@@ -14,8 +12,10 @@ import org.deeplearning4j.nn.conf.layers.OutputLayer;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
 import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
+import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
+import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.io.ClassPathResource;
 import org.nd4j.linalg.learning.config.Nesterovs;
@@ -37,7 +37,6 @@ public class MLPClassifierSaturn {
 
 
     public static void main(String[] args) throws Exception {
-        Nd4j.ENFORCE_NUMERICAL_STABILITY = true;
         int batchSize = 50;
         int seed = 123;
         double learningRate = 0.005;
@@ -45,7 +44,7 @@ public class MLPClassifierSaturn {
         int nEpochs = 30;
 
         int numInputs = 2;
-        int numOutputs = 1;
+        int numOutputs = 2;
         int numHiddenNodes = 20;
 
         final String filenameTrain  = new ClassPathResource("/classification/saturn_data_train.csv").getFile().getPath();
@@ -54,12 +53,12 @@ public class MLPClassifierSaturn {
         //Load the training data:
         RecordReader rr = new CSVRecordReader();
         rr.initialize(new FileSplit(new File(filenameTrain)));
-        DataSetIterator trainIter = new RecordReaderDataSetIterator(rr,batchSize,0,1);
+        DataSetIterator trainIter = new RecordReaderDataSetIterator(rr,batchSize,0,2);
 
         //Load the test/evaluation data:
         RecordReader rrTest = new CSVRecordReader();
         rrTest.initialize(new FileSplit(new File(filenameTest)));
-        DataSetIterator testIter = new RecordReaderDataSetIterator(rrTest,batchSize,0,1);
+        DataSetIterator testIter = new RecordReaderDataSetIterator(rrTest,batchSize,0,2);
 
         //log.info("Build model....");
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
@@ -67,16 +66,12 @@ public class MLPClassifierSaturn {
                 .weightInit(WeightInit.XAVIER)
                 .updater(new Nesterovs(learningRate, 0.9))
                 .list()
-                .layer(new DenseLayer.Builder()
-                    .nIn(numInputs)
-                    .nOut(numHiddenNodes)
-                    .activation(Activation.RELU)
-                    .build())
-                .layer(new OutputLayer.Builder(LossFunction.XENT)
-                    .nIn(numHiddenNodes)
-                    .nOut(numOutputs)
-                    .activation(Activation.SIGMOID)
-                    .build())
+                .layer(new DenseLayer.Builder().nIn(numInputs).nOut(numHiddenNodes)
+                        .activation(Activation.RELU)
+                        .build())
+                .layer(new OutputLayer.Builder(LossFunction.NEGATIVELOGLIKELIHOOD)
+                        .activation(Activation.SOFTMAX)
+                        .nIn(numHiddenNodes).nOut(numOutputs).build())
                 .build();
 
 
@@ -84,23 +79,10 @@ public class MLPClassifierSaturn {
         model.init();
         model.setListeners(new ScoreIterationListener(10));    //Print score every 10 parameter updates
 
-        for ( int n = 0; n < nEpochs; n++) {
-            model.fit( trainIter );
-        }
+        model.fit( trainIter, nEpochs );
 
         System.out.println("Evaluate model....");
-        Evaluation eval = new Evaluation(numOutputs);
-        while(testIter.hasNext()){
-            DataSet t = testIter.next();
-            INDArray features = t.getFeatures();
-            INDArray lables = t.getLabels();
-            INDArray predicted = model.output(features,false);
-
-            eval.eval(lables, predicted);
-
-        }
-
-
+        Evaluation eval = model.evaluate(testIter);
         System.out.println(eval.stats());
         //------------------------------------------------------------------------------------
         //Training is complete. Code that follows is for plotting the data & predictions only
@@ -134,7 +116,7 @@ public class MLPClassifierSaturn {
         rr.initialize(new FileSplit(new File(filenameTrain)));
         rr.reset();
         int nTrainPoints = 500;
-        trainIter = new RecordReaderDataSetIterator(rr,nTrainPoints,0,1);
+        trainIter = new RecordReaderDataSetIterator(rr,nTrainPoints,0,2);
         DataSet ds = trainIter.next();
         PlotUtil.plotTrainingData(ds.getFeatures(), ds.getLabels(), allXYPoints, predictionsAtXYPoints, nPointsPerAxis);
 
@@ -143,7 +125,7 @@ public class MLPClassifierSaturn {
         rrTest.initialize(new FileSplit(new File(filenameTest)));
         rrTest.reset();
         int nTestPoints = 100;
-        testIter = new RecordReaderDataSetIterator(rrTest,nTestPoints,0,1);
+        testIter = new RecordReaderDataSetIterator(rrTest,nTestPoints,0,2);
         ds = testIter.next();
         INDArray testPredicted = model.output(ds.getFeatures());
         PlotUtil.plotTestData(ds.getFeatures(), ds.getLabels(), testPredicted, allXYPoints, predictionsAtXYPoints, nPointsPerAxis);
