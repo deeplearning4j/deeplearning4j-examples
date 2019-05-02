@@ -101,16 +101,16 @@ public class Word2VecSentimentRNN {
         net.fit(train, nEpochs);
 
         //After training: load a single example and generate predictions
-        File firstPositiveReviewFile = new File(FilenameUtils.concat(DATA_PATH, "aclImdb/test/pos/0_10.txt"));
-        String firstPositiveReview = FileUtils.readFileToString(firstPositiveReviewFile);
+        File shortNegativeReviewFile = new File(FilenameUtils.concat(DATA_PATH, "aclImdb/test/neg/12100_1.txt"));
+        String shortNegativeReview = FileUtils.readFileToString(shortNegativeReviewFile);
 
-        INDArray features = test.loadFeaturesFromString(firstPositiveReview, truncateReviewsToLength);
+        INDArray features = test.loadFeaturesFromString(shortNegativeReview, truncateReviewsToLength);
         INDArray networkOutput = net.output(features);
         long timeSeriesLength = networkOutput.size(2);
         INDArray probabilitiesAtLastWord = networkOutput.get(NDArrayIndex.point(0), NDArrayIndex.all(), NDArrayIndex.point(timeSeriesLength - 1));
 
         System.out.println("\n\n-------------------------------");
-        System.out.println("First positive review: \n" + firstPositiveReview);
+        System.out.println("Short negative review: \n" + shortNegativeReview);
         System.out.println("\n\nProbabilities at last time step:");
         System.out.println("p(positive): " + probabilitiesAtLastWord.getDouble(0));
         System.out.println("p(negative): " + probabilitiesAtLastWord.getDouble(1));

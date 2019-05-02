@@ -1,13 +1,15 @@
 package org.deeplearning4j.examples.feedforward.xor;
 
+<<<<<<< HEAD
 import org.deeplearning4j.eval.Evaluation;
+=======
+import org.deeplearning4j.nn.api.Layer;
+>>>>>>> master
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
-import org.deeplearning4j.nn.conf.NeuralNetConfiguration.ListBuilder;
 import org.deeplearning4j.nn.conf.distribution.UniformDistribution;
 import org.deeplearning4j.nn.conf.layers.DenseLayer;
 import org.deeplearning4j.nn.conf.layers.OutputLayer;
-import org.deeplearning4j.nn.conf.layers.OutputLayer.Builder;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
 import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
@@ -17,21 +19,43 @@ import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.learning.config.Sgd;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
+import org.nd4j.evaluation.classification.Evaluation;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
- * This basic example shows how to manually create a DataSet and train it to an
- * basic Network.
+ * This basic example shows how to manually create a DataSet and train it to an basic Network.
  * <p>
- * The network consists in 2 input-neurons, 1 hidden-layer with 4
- * hidden-neurons, and 2 output-neurons.
+ * The network consists in 2 input-neurons, 1 hidden-layer with 4 hidden-neurons, and 2 output-neurons.
  * <p>
  * I choose 2 output neurons, (the first fires for false, the second fires for
  * true) because the Evaluation class needs one neuron per classification.
+ * <p>
+ * +---------+---------+---------------+--------------+
+ * | Input 1 | Input 2 | Label 1(XNOR) | Label 2(XOR) |
+ * +---------+---------+---------------+--------------+
+ * |    0    |    0    |       1       |       0      |
+ * +---------+---------+---------------+--------------+
+ * |    1    |    0    |       0       |       1      |
+ * +---------+---------+---------------+--------------+
+ * |    0    |    1    |       0       |       1      |
+ * +---------+---------+---------------+--------------+
+ * |    1    |    1    |       1       |       0      |
+ * +---------+---------+---------------+--------------+
  *
  * @author Peter Großmann
+ * @author Dariusz Zbyrad
  */
 public class XorExample {
+
+    private static final Logger log = LoggerFactory.getLogger(XorExample.class);
+
     public static void main(String[] args) {
+
+        int seed = 1234;        // number used to initialize a pseudorandom number generator.
+        int nEpochs = 10000;    // number of training epochs
+
+        log.info("Data preparation...");
 
         // list off input values, 4 training samples with data for 2
         // input-neurons each
@@ -45,8 +69,7 @@ public class XorExample {
         // when first input=0 and second input=0
         input.putScalar(new int[]{0, 0}, 0);
         input.putScalar(new int[]{0, 1}, 0);
-        // then the first output fires for false, and the second is 0 (see class
-        // comment)
+        // then the first output fires for false, and the second is 0 (see class comment)
         labels.putScalar(new int[]{0, 0}, 1);
         labels.putScalar(new int[]{0, 1}, 0);
 
@@ -63,8 +86,7 @@ public class XorExample {
         labels.putScalar(new int[]{2, 0}, 0);
         labels.putScalar(new int[]{2, 1}, 1);
 
-        // when both inputs fire, xor is false again - the first output should
-        // fire
+        // when both inputs fire, xor is false again - the first output should fire
         input.putScalar(new int[]{3, 0}, 1);
         input.putScalar(new int[]{3, 1}, 1);
         labels.putScalar(new int[]{3, 0}, 1);
@@ -73,62 +95,35 @@ public class XorExample {
         // create dataset object
         DataSet ds = new DataSet(input, labels);
 
-        // Set up network configuration
-        NeuralNetConfiguration.Builder builder = new NeuralNetConfiguration.Builder();
-        // Updater and learning rate
-        builder.updater(new Sgd(0.1));
-        // fixed seed for the random generator, so any run of this program
-        // brings the same results - may not work if you do something like
-        // ds.shuffle()
-        builder.seed(123);
-        // init the bias with 0 - empirical value, too
-        builder.biasInit(0);
-        // from "http://deeplearning4j.org/architecture": The networks can
-        // process the input more quickly and more accurately by ingesting
-        // minibatches 5-10 elements at a time in parallel.
-        // this example runs better without, because the dataset is smaller than
-        // the mini batch size
-        builder.miniBatch(false);
+        log.info("Network configuration and training...");
 
-        // create a multilayer network with 2 layers (including the output
-        // layer, excluding the input payer)
-        ListBuilder listBuilder = builder.list();
+        MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
+            .updater(new Sgd(0.1))
+            .seed(seed)
+            .biasInit(0) // init the bias with 0 - empirical value, too
+            // from "http://deeplearning4j.org/architecture": The networks can
+            // process the input more quickly and more accurately by ingesting
+            // minibatches 5-10 elements at a time in parallel.
+            // this example runs better without, because the dataset is smaller than
+            // the mini batch size
+            .miniBatch(false)
+            .list()
+            .layer(new DenseLayer.Builder()
+                .nIn(2)
+                .nOut(4)
+                .activation(Activation.SIGMOID)
+                // random initialize weights with values between 0 and 1
+                .weightInit(WeightInit.DISTRIBUTION)
+                .dist(new UniformDistribution(0, 1))
+                .build())
+            .layer(new OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD)
+                .nOut(2)
+                .activation(Activation.SOFTMAX)
+                .weightInit(WeightInit.DISTRIBUTION)
+                .dist(new UniformDistribution(0, 1))
+                .build())
+            .build();
 
-        DenseLayer.Builder hiddenLayerBuilder = new DenseLayer.Builder();
-        // two input connections - simultaneously defines the number of input
-        // neurons, because it's the first non-input-layer
-        hiddenLayerBuilder.nIn(2);
-        // number of outgooing connections, nOut simultaneously defines the
-        // number of neurons in this layer
-        hiddenLayerBuilder.nOut(4);
-        // put the output through the sigmoid function, to cap the output
-        // valuebetween 0 and 1
-        hiddenLayerBuilder.activation(Activation.SIGMOID);
-        // random initialize weights with values between 0 and 1
-        hiddenLayerBuilder.weightInit(WeightInit.DISTRIBUTION);
-        hiddenLayerBuilder.dist(new UniformDistribution(0, 1));
-
-        // build and set as layer 0
-        listBuilder.layer(0, hiddenLayerBuilder.build());
-
-        // MCXENT or NEGATIVELOGLIKELIHOOD (both are mathematically equivalent) work ok for this example - this
-        // function calculates the error-value (aka 'cost' or 'loss function value'), and quantifies the goodness
-        // or badness of a prediction, in a differentiable way
-        // For classification (with mutually exclusive classes, like here), use multiclass cross entropy, in conjunction
-        // with softmax activation function
-        Builder outputLayerBuilder = new OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD);
-        // must be the same amout as neurons in the layer before
-        outputLayerBuilder.nIn(4);
-        // two neurons in this layer
-        outputLayerBuilder.nOut(2);
-        outputLayerBuilder.activation(Activation.SOFTMAX);
-        outputLayerBuilder.weightInit(WeightInit.DISTRIBUTION);
-        outputLayerBuilder.dist(new UniformDistribution(0, 1));
-        listBuilder.layer(1, outputLayerBuilder.build());
-
-        // build and init the network, will check if everything is configured
-        // correct
-        MultiLayerConfiguration conf = listBuilder.build();
         MultiLayerNetwork net = new MultiLayerNetwork(conf);
         net.init();
 
@@ -140,8 +135,7 @@ public class XorExample {
         System.out.println(net.summary());
 
         // here the actual learning takes place
-        int numEpochs = 10000;
-        for( int i=0; i<numEpochs; i++ ) {
+        for( int i=0; i < nEpochs; i++ ) {
             net.fit(ds);
         }
 
@@ -149,9 +143,8 @@ public class XorExample {
         INDArray output = net.output(ds.getFeatures());
         System.out.println(output);
 
-        // let Evaluation prints stats how often the right output had the
-        // highest value
-        Evaluation eval = new Evaluation(2);
+        // let Evaluation prints stats how often the right output had the highest value
+        Evaluation eval = new Evaluation();
         eval.eval(ds.getLabels(), output);
         System.out.println(eval.stats());
 
