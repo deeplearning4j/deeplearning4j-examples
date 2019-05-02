@@ -1,10 +1,5 @@
 package org.deeplearning4j.examples.feedforward.xor;
 
-<<<<<<< HEAD
-import org.deeplearning4j.eval.Evaluation;
-=======
-import org.deeplearning4j.nn.api.Layer;
->>>>>>> master
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
 import org.deeplearning4j.nn.conf.distribution.UniformDistribution;
