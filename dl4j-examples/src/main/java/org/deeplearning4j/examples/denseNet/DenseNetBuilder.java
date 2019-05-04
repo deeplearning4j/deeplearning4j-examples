@@ -29,7 +29,7 @@ public class DenseNetBuilder {
             .weightInit(WeightInit.RELU)
             .activation(Activation.LEAKYRELU)
             .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
-            .updater(new Adam(new StepSchedule(ScheduleType.EPOCH, 1e-4, 0.5, 5)))
+            .updater(new Adam(new StepSchedule(ScheduleType.EPOCH, 5e-5, 0.5, 5)))
             .gradientNormalization(GradientNormalization.RenormalizeL2PerLayer)
             .l2(1e-4)
             .graphBuilder()
@@ -55,7 +55,7 @@ public class DenseNetBuilder {
             .nIn(channels)
             .nOut(growthRate * 2)
             .build(), "input");
-        conf.addLayer(initPool, new SubsamplingLayer.Builder()
+        conf.addLayer(initPool, new Pooling2D.Builder(SubsamplingLayer.PoolingType.MAX)
             .kernelSize(2, 2)
             .padding(0, 0)
             .build(), init);
@@ -75,9 +75,11 @@ public class DenseNetBuilder {
             .padding(0, 0)
             .nOut(numIn / 2)
             .build(), bnName);
-        conf.addLayer(poolName, new SubsamplingLayer.Builder()
+        conf.addLayer(poolName, new Pooling2D.Builder(SubsamplingLayer.PoolingType.AVG)
             .kernelSize(2, 2)
+            .padding(0, 0)
             .build(), convName);
+        ;
 
         return poolName;
     }
@@ -87,7 +89,6 @@ public class DenseNetBuilder {
         String convName = "conv1_" + layerName;
         String bnName2 = "bn2_" + layerName;
         String convName2 = "conv2_" + layerName;
-
 
         if (useBottleNeck) {
             conf.addLayer(bnName, new BatchNormalization.Builder()
@@ -119,32 +120,24 @@ public class DenseNetBuilder {
         if (numLayers > 0) {
             layersInput = addDenseBlock(numLayers, false, blockName, layersInput);
         }
-        return layersInput;
+        return first ? increaseArray(previousLayer[0], layersInput) : layersInput;
     }
 
     public void addOutputLayer(int height, int width, int numIn, int numLabels, String... previousLayer) {
         conf.addLayer("lastBatch", new BatchNormalization.Builder()
             .build(), previousLayer);
-        conf.addLayer("lastConv", new ConvolutionLayer.Builder()
-            .kernelSize(height, width)
-            .stride(1, 1)
-            .padding(0, 0)
-            .nOut(numIn)
-            .build(), "lastBatch");
-        conf.addLayer("avgPool", new GlobalPoolingLayer.Builder()
+        conf.addLayer("GAP", new GlobalPoolingLayer.Builder()
             .poolingType(PoolingType.AVG)
-            .collapseDimensions(false)
-            .build(), "lastConv");
+            .build(), "lastBatch");
         conf.addLayer("dense", new DenseLayer.Builder()
             .nIn(numIn)
             .nOut(1024)
-            .build(), "avgPool");
+            .build(), "GAP");
         conf.addLayer("output", new OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD)
             .nOut(numLabels)
             .activation(Activation.SOFTMAX)
             .build(), "dense");
     }
-
 
     private String[] increaseArray(String newLayer, String... theArray) {
         String[] newArray = new String[theArray.length + 1];
