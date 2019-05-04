@@ -51,7 +51,6 @@
         <module>dl4j-examples</module>
         <module>dl4j-spark-examples</module>
         <module>datavec-examples</module>
-        <module>dl4j-cuda-specific-examples</module>
         <module>nd4j-examples</module>
         <module>rl4j-examples</module>
         <module>lstm-hdfs</module>
@@ -162,6 +161,32 @@
     </build>
 
     <profiles>
+        <profile>
+            <id>linux</id>
+            <activation>
+                <os><name>linux</name></os>
+            </activation>
+            <properties>
+                <os.name>linux</os.name>
+            </properties>
+            <modules>
+                <module>dl4j-cuda-specific-examples</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>windows</id>
+            <activation>
+                <os><family>windows</family></os>
+            </activation>
+            <properties>
+                <os.name>windows</os.name>
+            </properties>
+            <modules>
+                <module>dl4j-cuda-specific-examples</module>
+            </modules>
+        </profile>
+
+
         <profile>
             <id>OpenJFX-11</id>
             <activation>
