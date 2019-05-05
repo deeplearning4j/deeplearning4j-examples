@@ -89,9 +89,9 @@
 <!-- The Arcade Learning Environment (ALE) is under GPL license, so we cannot use it as a dependency of RL4J. -->
 <!--
         <dependency>
-            <groupId>org.bytedeco.javacpp-presets</groupId>
+            <groupId>org.bytedeco</groupId>
             <artifactId>ale-platform</artifactId>
-            <version>0.6.0-1.4.1</version>
+            <version>0.6.0-1.5</version>
         </dependency>
 -->
 
