@@ -1,14 +1,14 @@
 package org.deeplearning4j.examples.denseNet.imageUtils;
 
-import org.bytedeco.javacpp.opencv_core.Mat;
-import org.bytedeco.javacpp.opencv_core.Size;
 import org.bytedeco.javacv.OpenCVFrameConverter;
+import org.bytedeco.opencv.opencv_core.Mat;
+import org.bytedeco.opencv.opencv_core.Size;
 import org.datavec.image.data.ImageWritable;
 import org.datavec.image.transform.BaseImageTransform;
 
 import java.util.Random;
 
-import static org.bytedeco.javacpp.opencv_imgproc.GaussianBlur;
+import static org.bytedeco.opencv.global.opencv_imgproc.GaussianBlur;
 
 public class BlurTransform extends BaseImageTransform<Mat> {
 

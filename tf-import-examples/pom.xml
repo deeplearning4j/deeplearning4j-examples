@@ -25,8 +25,8 @@
     </build>
 
     <properties>
-        <javacpp.version>1.4.2</javacpp.version>
-        <tensorflow.version>1.9.0</tensorflow.version>
+        <javacpp.version>1.5</javacpp.version>
+        <tensorflow.version>1.13.1</tensorflow.version>
     </properties>
 
     <dependencies>
@@ -44,7 +44,7 @@
             <version>${nd4j.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.bytedeco.javacpp-presets</groupId>
+            <groupId>org.bytedeco</groupId>
             <artifactId>tensorflow-platform</artifactId>
             <version>${tensorflow.version}-${javacpp.version}</version>
         </dependency>

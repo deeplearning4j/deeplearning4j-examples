@@ -1,8 +1,8 @@
 package org.deeplearning4j.examples.denseNet.imageUtils;
 
 import org.bytedeco.javacpp.indexer.UByteIndexer;
-import org.bytedeco.javacpp.opencv_core.Mat;
 import org.bytedeco.javacv.OpenCVFrameConverter;
+import org.bytedeco.opencv.opencv_core.Mat;
 import org.datavec.image.data.ImageWritable;
 import org.datavec.image.transform.BaseImageTransform;
 
