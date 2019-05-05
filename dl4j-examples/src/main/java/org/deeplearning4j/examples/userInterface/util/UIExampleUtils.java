@@ -12,7 +12,7 @@ import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
 import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
-import org.nd4j.linalg.learning.config.Nesterovs;
+import org.nd4j.linalg.learning.config.Adam;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 
 import java.io.IOException;
@@ -32,36 +32,36 @@ public class UIExampleUtils {
             .seed(seed)
             .l2(0.0005)
             .weightInit(WeightInit.XAVIER)
-            .updater(new Nesterovs(0.01, 0.9))
+            .updater(new Adam(0.001))
             .list()
-            .layer(0, new ConvolutionLayer.Builder(5, 5)
+            .layer(new ConvolutionLayer.Builder(5, 5)
                 //nIn and nOut specify depth. nIn here is the nChannels and nOut is the number of filters to be applied
                 .nIn(nChannels)
                 .stride(1, 1)
                 .nOut(20)
                 .activation(Activation.LEAKYRELU)
                 .build())
-            .layer(1, new SubsamplingLayer.Builder(SubsamplingLayer.PoolingType.MAX)
+            .layer(new SubsamplingLayer.Builder(SubsamplingLayer.PoolingType.MAX)
                 .kernelSize(2,2)
                 .stride(2,2)
                 .build())
-            .layer(2, new ConvolutionLayer.Builder(5, 5)
+            .layer(new ConvolutionLayer.Builder(5, 5)
                 //Note that nIn need not be specified in later layers
                 .stride(1, 1)
                 .nOut(50)
                 .activation(Activation.LEAKYRELU)
                 .build())
-            .layer(3, new SubsamplingLayer.Builder(SubsamplingLayer.PoolingType.MAX)
+            .layer(new SubsamplingLayer.Builder(SubsamplingLayer.PoolingType.MAX)
                 .kernelSize(2,2)
                 .stride(2,2)
                 .build())
-            .layer(4, new DenseLayer.Builder().activation(Activation.LEAKYRELU).nOut(500).build())
-            .layer(5, new OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD)
+            .layer(new DenseLayer.Builder().activation(Activation.LEAKYRELU).nOut(500).build())
+            .layer(new OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD)
                 .nOut(outputNum)
                 .activation(Activation.SOFTMAX)
                 .build())
             .setInputType(InputType.convolutionalFlat(28,28,1))
-            .backprop(true).pretrain(false).build();
+            .build();
 
 
         MultiLayerNetwork net = new MultiLayerNetwork(conf);

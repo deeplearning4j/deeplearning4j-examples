@@ -36,7 +36,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 
-import static org.nd4j.linalg.indexing.NDArrayIndex.*;
+import static org.nd4j.linalg.indexing.NDArrayIndex.all;
+import static org.nd4j.linalg.indexing.NDArrayIndex.point;
 
 public class NewsIterator implements DataSetIterator {
     private final WordVectors wordVectors;

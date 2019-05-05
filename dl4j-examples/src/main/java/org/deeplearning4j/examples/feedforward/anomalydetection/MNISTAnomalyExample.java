@@ -9,7 +9,6 @@ import org.deeplearning4j.nn.conf.layers.DenseLayer;
 import org.deeplearning4j.nn.conf.layers.OutputLayer;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
-import org.deeplearning4j.optimize.api.IterationListener;
 import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
 import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.api.ndarray.INDArray;
@@ -48,13 +47,13 @@ public class MNISTAnomalyExample {
                 .activation(Activation.RELU)
                 .l2(0.0001)
                 .list()
-                .layer(0, new DenseLayer.Builder().nIn(784).nOut(250)
+                .layer(new DenseLayer.Builder().nIn(784).nOut(250)
                         .build())
-                .layer(1, new DenseLayer.Builder().nIn(250).nOut(10)
+                .layer(new DenseLayer.Builder().nIn(250).nOut(10)
                         .build())
-                .layer(2, new DenseLayer.Builder().nIn(10).nOut(250)
+                .layer(new DenseLayer.Builder().nIn(10).nOut(250)
                         .build())
-                .layer(3, new OutputLayer.Builder().nIn(250).nOut(784)
+                .layer(new OutputLayer.Builder().nIn(250).nOut(784)
                         .lossFunction(LossFunctions.LossFunction.MSE)
                         .build())
                 .build();

@@ -2,14 +2,14 @@ package org.deeplearning4j.examples.recurrent.word2vecsentiment;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
-import org.deeplearning4j.text.tokenization.tokenizerfactory.DefaultTokenizerFactory;
-import org.deeplearning4j.text.tokenization.tokenizerfactory.TokenizerFactory;
-import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.deeplearning4j.models.embeddings.wordvectors.WordVectors;
 import org.deeplearning4j.text.tokenization.tokenizer.preprocessor.CommonPreprocessor;
+import org.deeplearning4j.text.tokenization.tokenizerfactory.DefaultTokenizerFactory;
+import org.deeplearning4j.text.tokenization.tokenizerfactory.TokenizerFactory;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.dataset.api.DataSetPreProcessor;
+import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.indexing.INDArrayIndex;
 import org.nd4j.linalg.indexing.NDArrayIndex;
@@ -254,13 +254,13 @@ public class SentimentExampleIterator implements DataSetIterator {
         for(String t : tokens ){
             if(wordVectors.hasWord(t)) tokensFiltered.add(t);
         }
-        int outputLength = Math.max(maxLength,tokensFiltered.size());
+        int outputLength = Math.min(maxLength,tokensFiltered.size());
 
         INDArray features = Nd4j.create(1, vectorSize, outputLength);
 
         int count = 0;
-        for( int j=0; j<tokens.size() && count<maxLength; j++ ){
-            String token = tokens.get(j);
+        for( int j=0; j<tokensFiltered.size() && count<maxLength; j++ ){
+            String token = tokensFiltered.get(j);
             INDArray vector = wordVectors.getWordVectorMatrix(token);
             if(vector == null){
                 continue;   //Word not in word vectors

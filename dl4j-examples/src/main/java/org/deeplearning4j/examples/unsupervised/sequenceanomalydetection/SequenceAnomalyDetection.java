@@ -15,7 +15,7 @@ import org.deeplearning4j.nn.weights.WeightInit;
 import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
 import org.deeplearning4j.ui.api.UIServer;
 import org.deeplearning4j.ui.stats.StatsListener;
-import org.deeplearning4j.ui.storage.InMemoryStatsStorage;
+import org.deeplearning4j.ui.storage.FileStatsStorage;
 import org.deeplearning4j.util.ModelSerializer;
 import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.dataset.DataSet;
@@ -26,6 +26,7 @@ import org.nd4j.linalg.dataset.api.preprocessor.serializer.NormalizerSerializer;
 import org.nd4j.linalg.io.ClassPathResource;
 import org.nd4j.linalg.learning.config.RmsProp;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
+
 import java.io.File;
 import java.util.*;
 
@@ -46,12 +47,10 @@ public class SequenceAnomalyDetection {
         DataSetIterator trainIterator = new AnomalyDataSetIterator(dataPath + File.separatorChar + "ads.csv", trainBatchSize);
         DataSetIterator testIterator = new AnomalyDataSetIterator(dataPath + File.separatorChar + "test.csv", testBatchSize);
 
-        MultiLayerNetwork net = true ? createModel(trainIterator.inputColumns(), trainIterator.totalOutcomes()) : ModelSerializer.restoreMultiLayerNetwork(modelFile);
+        MultiLayerNetwork net = true ? createModel(trainIterator.inputColumns(), trainIterator.totalOutcomes()) : MultiLayerNetwork.load(modelFile, true);
         UIServer uiServer = UIServer.getInstance();
-        StatsStorage statsStorage = new InMemoryStatsStorage();
+        StatsStorage statsStorage = new FileStatsStorage(new File(System.getProperty("java.io.tmpdir"), "ui-stats.dl4j"));
         uiServer.attach(statsStorage);
-        net.setListeners(new StatsListener(statsStorage),new ScoreIterationListener(10));
-
 
         DataNormalization normalizer = new NormalizerStandardize();
         normalizer.fit(trainIterator);              //Collect training data statistics
@@ -60,11 +59,11 @@ public class SequenceAnomalyDetection {
         testIterator.setPreProcessor(normalizer);	//Note: using training normalization statistics
         NormalizerSerializer.getDefault().write(normalizer, dataPath + File.separatorChar + "anomalyDetectionNormlizer.ty");
 
+        // training
+        net.setListeners(new StatsListener(statsStorage), new ScoreIterationListener(10));
+        net.fit(trainIterator, numEpochs);
 
-        for( int i = 0; i < numEpochs; i ++ ) {
-            System.out.println("=============numEpochs==========================" + i);
-            net.fit(trainIterator);
-        }
+        // save model to disk
         ModelSerializer.writeModel(net, modelFile,true);
 
         List<Pair<Double,String>> evalList = new ArrayList<>();
@@ -106,12 +105,12 @@ public class SequenceAnomalyDetection {
                 .weightInit(WeightInit.XAVIER)
                 .activation(Activation.TANH)
                 .list()
-                .layer(0, new LSTM.Builder().name("encoder0").nIn(inputNum).nOut(100).build())
-                .layer(1, new LSTM.Builder().name("encoder1").nOut(80).build())
-                .layer(2, new LSTM.Builder().name("encoder2").nOut(5).build())
-                .layer(3, new LSTM.Builder().name("decoder1").nOut(80).build())
-                .layer(4, new LSTM.Builder().name("decoder2").nOut(100).build())
-                .layer(5, new RnnOutputLayer.Builder().name("output").nOut(outputNum)
+                .layer(new LSTM.Builder().name("encoder0").nIn(inputNum).nOut(100).build())
+                .layer(new LSTM.Builder().name("encoder1").nOut(80).build())
+                .layer(new LSTM.Builder().name("encoder2").nOut(5).build())
+                .layer(new LSTM.Builder().name("decoder1").nOut(80).build())
+                .layer(new LSTM.Builder().name("decoder2").nOut(100).build())
+                .layer(new RnnOutputLayer.Builder().name("output").nOut(outputNum)
                         .activation(Activation.IDENTITY).lossFunction(LossFunctions.LossFunction.MSE).build())
                 .build();
         MultiLayerNetwork net = new MultiLayerNetwork(conf);

@@ -1,10 +1,8 @@
 package org.deeplearning4j.examples.recurrent.character.melodl4j;
 
-import javax.sound.midi.InvalidMidiDataException;
-import javax.sound.midi.MidiEvent;
-import javax.sound.midi.MidiMessage;
-import javax.sound.midi.ShortMessage;
-import javax.sound.midi.Track;
+import javax.sound.midi.*;
+
+import com.google.common.base.Objects;
 
 public class Note implements Comparable<Note> {
     private final int pitch;
@@ -78,9 +76,20 @@ public class Note implements Comparable<Note> {
     }
     @Override
     public boolean equals(Object obj) {
+    	if (obj == null) {
+    		return false;
+    	} else if (! (obj instanceof Note)) {
+    		return false;
+    	}
         Note other=(Note)obj;
-        return startTick==other.startTick  && pitch==other.pitch && channel==other.channel;
+        return startTick==other.startTick  && pitch==other.pitch && Objects.equal(channel, other.channel);
     }
+
+    @Override
+    public int hashCode() {
+    	return Objects.hashCode(startTick, pitch, channel);
+    }
+
     public void addMidiEvents(Track track) throws InvalidMidiDataException {
         MidiMessage midiMessageStart=new ShortMessage(ShortMessage.NOTE_ON,channel,pitch,velocity);
         track.add(new MidiEvent(midiMessageStart,startTick));

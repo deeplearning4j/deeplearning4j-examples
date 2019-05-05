@@ -2,7 +2,6 @@ package org.deeplearning4j.examples.convolution.sentenceclassification;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
-import org.deeplearning4j.eval.Evaluation;
 import org.deeplearning4j.examples.recurrent.word2vecsentiment.Word2VecSentimentRNN;
 import org.deeplearning4j.iterator.CnnSentenceDataSetIterator;
 import org.deeplearning4j.iterator.LabeledSentenceProvider;
@@ -10,14 +9,19 @@ import org.deeplearning4j.iterator.provider.FileLabeledSentenceProvider;
 import org.deeplearning4j.models.embeddings.loader.WordVectorSerializer;
 import org.deeplearning4j.models.embeddings.wordvectors.WordVectors;
 import org.deeplearning4j.nn.api.Layer;
-import org.deeplearning4j.nn.conf.*;
+import org.deeplearning4j.nn.conf.ComputationGraphConfiguration;
+import org.deeplearning4j.nn.conf.ConvolutionMode;
+import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
 import org.deeplearning4j.nn.conf.graph.MergeVertex;
+import org.deeplearning4j.nn.conf.inputs.InputType;
 import org.deeplearning4j.nn.conf.layers.ConvolutionLayer;
 import org.deeplearning4j.nn.conf.layers.GlobalPoolingLayer;
 import org.deeplearning4j.nn.conf.layers.OutputLayer;
 import org.deeplearning4j.nn.conf.layers.PoolingType;
 import org.deeplearning4j.nn.graph.ComputationGraph;
 import org.deeplearning4j.nn.weights.WeightInit;
+import org.deeplearning4j.optimize.api.InvocationType;
+import org.deeplearning4j.optimize.listeners.EvaluativeListener;
 import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
 import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.api.ndarray.INDArray;
@@ -79,22 +83,21 @@ public class CnnSentenceClassificationExample {
             .addLayer("cnn3", new ConvolutionLayer.Builder()
                 .kernelSize(3,vectorSize)
                 .stride(1,vectorSize)
-                .nIn(1)
                 .nOut(cnnLayerFeatureMaps)
                 .build(), "input")
             .addLayer("cnn4", new ConvolutionLayer.Builder()
                 .kernelSize(4,vectorSize)
                 .stride(1,vectorSize)
-                .nIn(1)
                 .nOut(cnnLayerFeatureMaps)
                 .build(), "input")
             .addLayer("cnn5", new ConvolutionLayer.Builder()
                 .kernelSize(5,vectorSize)
                 .stride(1,vectorSize)
-                .nIn(1)
                 .nOut(cnnLayerFeatureMaps)
                 .build(), "input")
-            .addVertex("merge", new MergeVertex(), "cnn3", "cnn4", "cnn5")      //Perform depth concatenation
+            //MergeVertex performs depth concatenation on activations: 3x[minibatch,100,length,300] to 1x[minibatch,300,length,300]
+            .addVertex("merge", new MergeVertex(), "cnn3", "cnn4", "cnn5")
+            //Global pooling: pool over x/y locations (dimensions 2 and 3): Activations [minibatch,300,length,300] to [minibatch, 300]
             .addLayer("globalPool", new GlobalPoolingLayer.Builder()
                 .poolingType(globalPoolingType)
                 .dropOut(0.5)
@@ -102,10 +105,11 @@ public class CnnSentenceClassificationExample {
             .addLayer("out", new OutputLayer.Builder()
                 .lossFunction(LossFunctions.LossFunction.MCXENT)
                 .activation(Activation.SOFTMAX)
-                .nIn(3*cnnLayerFeatureMaps)
                 .nOut(2)    //2 classes: positive or negative
                 .build(), "globalPool")
             .setOutputs("out")
+            //Input has shape [minibatch, channels=1, length=1 to 256, 300]
+            .setInputTypes(InputType.convolutional(truncateReviewsToLength, vectorSize, 1))
             .build();
 
         ComputationGraph net = new ComputationGraph(config);
@@ -123,16 +127,8 @@ public class CnnSentenceClassificationExample {
         DataSetIterator testIter = getDataSetIterator(false, wordVectors, batchSize, truncateReviewsToLength, rng);
 
         System.out.println("Starting training");
-        net.setListeners(new ScoreIterationListener(100));
-        for (int i = 0; i < nEpochs; i++) {
-            net.fit(trainIter);
-            System.out.println("Epoch " + i + " complete. Starting evaluation:");
-
-            //Run evaluation. This is on 25k reviews, so can take some time
-            Evaluation evaluation = net.evaluate(testIter);
-
-            System.out.println(evaluation.stats());
-        }
+        net.setListeners(new ScoreIterationListener(100), new EvaluativeListener(testIter, 1, InvocationType.EPOCH_END));
+        net.fit(trainIter, nEpochs);
 
 
         //After training: load a single sentence and generate a prediction

@@ -38,7 +38,7 @@ public class MultiRecordDataSetIterator implements MultiDataSetIterator {
 
     @Override
     public void setPreProcessor(MultiDataSetPreProcessor multiDataSetPreProcessor) {
-        this.preProcessor = preProcessor;
+        this.preProcessor = multiDataSetPreProcessor;
     }
 
     @Override

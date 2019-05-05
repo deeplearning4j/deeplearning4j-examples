@@ -8,7 +8,6 @@ import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import org.deeplearning4j.api.storage.StatsStorage;
-import org.deeplearning4j.nn.api.OptimizationAlgorithm;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
 import org.deeplearning4j.nn.conf.layers.DenseLayer;
@@ -17,7 +16,7 @@ import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
 import org.deeplearning4j.ui.api.UIServer;
 import org.deeplearning4j.ui.stats.StatsListener;
-import org.deeplearning4j.ui.storage.InMemoryStatsStorage;
+import org.deeplearning4j.ui.storage.FileStatsStorage;
 import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
@@ -25,6 +24,7 @@ import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.learning.config.Nesterovs;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 
+import java.io.File;
 import java.util.Random;
 
 /**
@@ -72,7 +72,7 @@ public class ImageDrawer extends Application {
         boolean fUseUI = false; // set to false if you do not want the web ui to track learning progress.
         if(fUseUI) {
             UIServer uiServer = UIServer.getInstance();
-            StatsStorage statsStorage = new InMemoryStatsStorage();
+            StatsStorage statsStorage = new FileStatsStorage(new File(System.getProperty("java.io.tmpdir"), "ui-stats.dl4j"));
             uiServer.attach(statsStorage);
             nn.setListeners(new StatsListener(statsStorage));
         }
@@ -147,22 +147,22 @@ public class ImageDrawer extends Application {
             .weightInit(WeightInit.XAVIER)
             .updater(new Nesterovs(learningRate, 0.9))
             .list()
-            .layer(0, new DenseLayer.Builder().nIn(numInputs).nOut(numHiddenNodes)
+            .layer(new DenseLayer.Builder().nIn(numInputs).nOut(numHiddenNodes)
                 .activation(Activation.LEAKYRELU)
                 .build())
-            .layer(1, new DenseLayer.Builder().nIn(numHiddenNodes).nOut(numHiddenNodes)
+            .layer(new DenseLayer.Builder().nIn(numHiddenNodes).nOut(numHiddenNodes)
                 .activation(Activation.LEAKYRELU)
                 .build())
-            .layer(2, new DenseLayer.Builder().nIn(numHiddenNodes).nOut(numHiddenNodes)
+            .layer(new DenseLayer.Builder().nIn(numHiddenNodes).nOut(numHiddenNodes)
                 .activation(Activation.LEAKYRELU)
                 .build())
-            .layer(3, new DenseLayer.Builder().nIn(numHiddenNodes).nOut(numHiddenNodes)
+            .layer(new DenseLayer.Builder().nIn(numHiddenNodes).nOut(numHiddenNodes)
                 .activation(Activation.LEAKYRELU)
                 .build())
-            .layer(4, new DenseLayer.Builder().nIn(numHiddenNodes).nOut(numHiddenNodes)
+            .layer(new DenseLayer.Builder().nIn(numHiddenNodes).nOut(numHiddenNodes)
                 .activation(Activation.LEAKYRELU)
                 .build())
-            .layer(5, new OutputLayer.Builder(LossFunctions.LossFunction.L2)
+            .layer(new OutputLayer.Builder(LossFunctions.LossFunction.L2)
                 .activation(Activation.IDENTITY)
                 .nIn(numHiddenNodes).nOut(numOutputs).build())
             .build();

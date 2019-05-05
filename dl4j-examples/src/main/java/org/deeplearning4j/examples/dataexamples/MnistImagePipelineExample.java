@@ -15,7 +15,8 @@ import org.nd4j.linalg.dataset.api.preprocessor.ImagePreProcessingScaler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
 import java.util.Random;
 
 /**
@@ -41,7 +42,7 @@ import java.util.Random;
  * the list with the label for that image and a list of the label values
  *
  * This example also applies a Listener to the RecordReader that logs the path of each image read
- * You would not want to do this in production. The reason it is done here is to show that a 
+ * You would not want to do this in production. The reason it is done here is to show that a
  * handwritten image 3 (for example) was read from directory 3, has a matrix with the shown values,
  * has a label value corresponding to 3
  */

@@ -203,7 +203,7 @@ public class EncoderDecoderLSTM {
         int offset = 0;
         if (networkFile.exists()) {
             System.out.println("Loading the existing network...");
-            net = ModelSerializer.restoreComputationGraph(networkFile);
+            net = ComputationGraph.load(networkFile, true);
             System.out.print("Enter d to start dialog or a number to continue training from that minibatch: ");
             String input;
             try (Scanner scanner = new Scanner(System.in)) {
@@ -235,8 +235,6 @@ public class EncoderDecoderLSTM {
             .gradientNormalization(GradientNormalization.RenormalizeL2PerLayer);
 
         final GraphBuilder graphBuilder = builder.graphBuilder()
-            .pretrain(false)
-            .backprop(true)
             .backpropType(BackpropType.Standard)
             .tBPTTBackwardLength(TBPTT_SIZE)
             .tBPTTForwardLength(TBPTT_SIZE)
@@ -419,7 +417,7 @@ public class EncoderDecoderLSTM {
         dict.put("<go>", 2.0);
         revDict.put(2.0, "<go>");
         for (char c : CHARS.toCharArray()) {
-            if (!dict.containsKey(c)) {
+            if (!dict.containsKey(String.valueOf(c))) {
                 dict.put(String.valueOf(c), idx);
                 revDict.put(idx, String.valueOf(c));
                 ++idx;

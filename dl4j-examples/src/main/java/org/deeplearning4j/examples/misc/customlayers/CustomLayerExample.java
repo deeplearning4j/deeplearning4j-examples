@@ -2,26 +2,23 @@ package org.deeplearning4j.examples.misc.customlayers;
 
 import org.deeplearning4j.examples.misc.customlayers.layer.CustomLayer;
 import org.deeplearning4j.gradientcheck.GradientCheckUtil;
-import org.deeplearning4j.nn.api.OptimizationAlgorithm;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
-import org.deeplearning4j.nn.conf.Updater;
 import org.deeplearning4j.nn.conf.distribution.NormalDistribution;
 import org.deeplearning4j.nn.conf.layers.BaseLayer;
 import org.deeplearning4j.nn.conf.layers.DenseLayer;
 import org.deeplearning4j.nn.conf.layers.OutputLayer;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
-import org.deeplearning4j.util.ModelSerializer;
 import org.nd4j.linalg.activations.Activation;
-import org.nd4j.linalg.api.buffer.DataBuffer;
-import org.nd4j.linalg.api.buffer.util.DataTypeUtil;
+import org.nd4j.linalg.api.buffer.DataType;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.learning.config.IUpdater;
 import org.nd4j.linalg.learning.config.NoOp;
 import org.nd4j.linalg.learning.config.RmsProp;
+import org.nd4j.linalg.learning.regularization.L2Regularization;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 
 import java.io.File;
@@ -40,7 +37,7 @@ public class CustomLayerExample {
     static{
         //Double precision for the gradient checks. See comments in the doGradientCheck() method
         // See also http://nd4j.org/userguide.html#miscdatatype
-        Nd4j.setDataType(DataBuffer.Type.DOUBLE);
+        Nd4j.setDefaultDataTypes(DataType.DOUBLE, DataType.DOUBLE);
     }
 
     public static void main(String[] args) throws IOException {
@@ -80,7 +77,7 @@ public class CustomLayerExample {
 
 
         //First:  run some basic sanity checks on the configuration:
-        double customLayerL2 = ((BaseLayer)config.getConf(1).getLayer()).getL2();
+        double customLayerL2 = ((L2Regularization)((BaseLayer)config.getConf(1).getLayer()).getRegularization().get(0)).getL2().valueAt(0,0);
         System.out.println("l2 coefficient for custom layer: " + customLayerL2);                //As expected: custom layer inherits the global L2 parameter configuration
         IUpdater customLayerUpdater = ((BaseLayer)config.getConf(1).getLayer()).getIUpdater();
         System.out.println("Updater for custom layer: " + customLayerUpdater);                  //As expected: custom layer inherits the global Updater configuration
@@ -117,8 +114,8 @@ public class CustomLayerExample {
 
 
         //Finally, let's check the model serialization process, using ModelSerializer:
-        ModelSerializer.writeModel(net, new File("CustomLayerModel.zip"), true);
-        MultiLayerNetwork restored = ModelSerializer.restoreMultiLayerNetwork(new File("CustomLayerModel.zip"));
+        net.save(new File("CustomLayerModel.zip"), true);
+        MultiLayerNetwork restored = MultiLayerNetwork.load(new File("CustomLayerModel.zip"), true);
 
         System.out.println();
         System.out.println("Original and restored networks: configs are equal: " + net.getLayerWiseConfigurations().equals(restored.getLayerWiseConfigurations()));

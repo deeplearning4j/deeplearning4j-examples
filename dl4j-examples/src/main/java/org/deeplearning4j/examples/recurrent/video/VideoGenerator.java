@@ -3,12 +3,6 @@ package org.deeplearning4j.examples.recurrent.video;
 import org.apache.commons.io.FilenameUtils;
 
 import java.awt.*;
-import java.awt.geom.Arc2D;
-import java.awt.geom.Ellipse2D;
-import java.awt.geom.Line2D;
-import java.awt.geom.Rectangle2D;
-import java.awt.image.BufferedImage;
-import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;

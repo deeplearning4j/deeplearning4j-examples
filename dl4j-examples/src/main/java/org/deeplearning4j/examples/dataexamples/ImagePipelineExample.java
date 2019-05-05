@@ -13,6 +13,7 @@ import org.datavec.image.transform.ShowImageTransform;
 import org.deeplearning4j.datasets.datavec.RecordReaderDataSetIterator;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
+
 import java.io.File;
 import java.util.Random;
 

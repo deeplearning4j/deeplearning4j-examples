@@ -20,6 +20,7 @@ import org.deeplearning4j.spark.parameterserver.training.SharedTrainingMaster;
 import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
+import org.nd4j.linalg.learning.config.Nadam;
 import org.nd4j.linalg.learning.config.Nesterovs;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 import org.nd4j.parameterserver.distributed.conf.VoidConfiguration;
@@ -106,14 +107,13 @@ public class MnistMLPDistributedExample {
 
             .activation(Activation.LEAKYRELU)
             .weightInit(WeightInit.XAVIER)
-            .updater(new Nesterovs(0.02))// To configure: .updater(Nesterovs.builder().momentum(0.9).build())
+            .updater(new Nadam())// To configure: .updater(Nesterovs.builder().momentum(0.9).build())
             .l2(1e-4)
             .list()
-            .layer(0, new DenseLayer.Builder().nIn(28 * 28).nOut(500).build())
-            .layer(1, new DenseLayer.Builder().nIn(500).nOut(100).build())
-            .layer(2, new OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD)
-                .activation(Activation.SOFTMAX).nIn(100).nOut(10).build())
-            .pretrain(false).backprop(true)
+            .layer(new DenseLayer.Builder().nIn(28 * 28).nOut(500).build())
+            .layer(new DenseLayer.Builder().nOut(100).build())
+            .layer(new OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD)
+                .activation(Activation.SOFTMAX).nOut(10).build())
             .build();
 
         //Configuration for Spark training: see https://deeplearning4j.org/distributed for explanation of these configuration options

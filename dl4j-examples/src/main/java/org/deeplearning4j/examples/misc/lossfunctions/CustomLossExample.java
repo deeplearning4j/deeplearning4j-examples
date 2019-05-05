@@ -1,9 +1,7 @@
 package org.deeplearning4j.examples.misc.lossfunctions;
 
 import org.deeplearning4j.datasets.iterator.impl.ListDataSetIterator;
-import org.deeplearning4j.nn.api.OptimizationAlgorithm;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
-import org.deeplearning4j.nn.conf.Updater;
 import org.deeplearning4j.nn.conf.layers.DenseLayer;
 import org.deeplearning4j.nn.conf.layers.OutputLayer;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
@@ -63,25 +61,23 @@ public class CustomLossExample {
             .weightInit(WeightInit.XAVIER)
             .updater(new Nesterovs(learningRate, 0.95))
             .list()
-            .layer(0, new DenseLayer.Builder().nIn(numInput).nOut(nHidden)
+            .layer(new DenseLayer.Builder().nIn(numInput).nOut(nHidden)
                 .activation(Activation.TANH)
                 .build())
                 //INSTANTIATE CUSTOM LOSS FUNCTION here as follows
                 //Refer to CustomLossL1L2 class for more details on implementation
-            .layer(1, new OutputLayer.Builder(new CustomLossL1L2())
+            .layer(new OutputLayer.Builder(new CustomLossL1L2())
                 .activation(Activation.IDENTITY)
                 .nIn(nHidden).nOut(numOutputs).build())
             .build()
         );
         net.init();
+
+
+        //Train the network on the full data set and evaluate
         net.setListeners(new ScoreIterationListener(100));
+        net.fit(iterator, nEpochs);
 
-
-        //Train the network on the full data set, and evaluate in periodically
-        for( int i=0; i<nEpochs; i++ ){
-            iterator.reset();
-            net.fit(iterator);
-        }
         // Test the addition of 2 numbers (Try different numbers here)
         final INDArray input = Nd4j.create(new double[] { 0.111111, 0.3333333333333 }, new int[] { 1, 2 });
         INDArray out = net.output(input, false);

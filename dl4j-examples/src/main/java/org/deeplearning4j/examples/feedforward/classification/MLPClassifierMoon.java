@@ -1,16 +1,12 @@
 package org.deeplearning4j.examples.feedforward.classification;
 
-import java.io.File;
-
 import org.datavec.api.records.reader.RecordReader;
 import org.datavec.api.records.reader.impl.csv.CSVRecordReader;
 import org.datavec.api.split.FileSplit;
 import org.deeplearning4j.datasets.datavec.RecordReaderDataSetIterator;
-import org.deeplearning4j.eval.Evaluation;
-import org.deeplearning4j.nn.api.OptimizationAlgorithm;
+import org.nd4j.evaluation.classification.Evaluation;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
-import org.deeplearning4j.nn.conf.Updater;
 import org.deeplearning4j.nn.conf.layers.DenseLayer;
 import org.deeplearning4j.nn.conf.layers.OutputLayer;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
@@ -24,6 +20,8 @@ import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.io.ClassPathResource;
 import org.nd4j.linalg.learning.config.Nesterovs;
 import org.nd4j.linalg.lossfunctions.LossFunctions.LossFunction;
+
+import java.io.File;
 
 /**
  * "Moon" Data Classification Example
@@ -45,7 +43,7 @@ public class MLPClassifierMoon {
 
         int numInputs = 2;
         int numOutputs = 2;
-        int numHiddenNodes = 20;
+        int numHiddenNodes = 50;
 
         final String filenameTrain  = new ClassPathResource("/classification/moon_data_train.csv").getFile().getPath();
         final String filenameTest  = new ClassPathResource("/classification/moon_data_eval.csv").getFile().getPath();
@@ -60,16 +58,19 @@ public class MLPClassifierMoon {
         rrTest.initialize(new FileSplit(new File(filenameTest)));
         DataSetIterator testIter = new RecordReaderDataSetIterator(rrTest,batchSize,0,2);
 
+        DataSet ds1 = trainIter.next();
+        DataSet ds2 = testIter.next();
+
         //log.info("Build model....");
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
                 .seed(seed)
+                .weightInit(WeightInit.XAVIER)
                 .updater(new Nesterovs(learningRate, 0.9))
                 .list()
-                .layer(0, new DenseLayer.Builder().nIn(numInputs).nOut(numHiddenNodes)
-                        .weightInit(WeightInit.XAVIER)
+                .layer(new DenseLayer.Builder().nIn(numInputs).nOut(numHiddenNodes)
                         .activation(Activation.RELU)
                         .build())
-                .layer(1, new OutputLayer.Builder(LossFunction.NEGATIVELOGLIKELIHOOD)
+                .layer(new OutputLayer.Builder(LossFunction.NEGATIVELOGLIKELIHOOD)
                         .weightInit(WeightInit.XAVIER)
                         .activation(Activation.SOFTMAX)
                         .nIn(numHiddenNodes).nOut(numOutputs).build())
@@ -80,20 +81,10 @@ public class MLPClassifierMoon {
         model.init();
         model.setListeners(new ScoreIterationListener(100));    //Print score every 100 parameter updates
 
-        for ( int n = 0; n < nEpochs; n++) {
-            model.fit( trainIter );
-        }
+        model.fit( trainIter, nEpochs );
 
         System.out.println("Evaluate model....");
-        Evaluation eval = new Evaluation(numOutputs);
-        while(testIter.hasNext()){
-            DataSet t = testIter.next();
-            INDArray features = t.getFeatures();
-            INDArray labels = t.getLabels();
-            INDArray predicted = model.output(features,false);
-
-            eval.eval(labels, predicted);
-        }
+        Evaluation eval = model.evaluate(testIter);
 
         //Print the evaluation statistics
         System.out.println(eval.stats());

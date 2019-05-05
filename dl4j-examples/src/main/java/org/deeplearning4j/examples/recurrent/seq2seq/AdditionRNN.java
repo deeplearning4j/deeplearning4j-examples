@@ -12,6 +12,7 @@ import org.deeplearning4j.nn.weights.WeightInit;
 import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
 import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.api.buffer.DataBuffer;
+import org.nd4j.linalg.api.buffer.DataType;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.api.MultiDataSet;
 import org.nd4j.linalg.factory.Nd4j;
@@ -80,7 +81,7 @@ public class AdditionRNN {
     public static void main(String[] args) throws Exception {
 
         //DataType is set to double for higher precision
-        Nd4j.setDataType(DataBuffer.Type.DOUBLE);
+        Nd4j.setDefaultDataTypes(DataType.DOUBLE, DataType.DOUBLE);
 
         //This is a custom iterator that returns MultiDataSets on each call of next - More details in comments in the class
         CustomSequenceIterator iterator = new CustomSequenceIterator(seed, batchSize, totalBatches);
@@ -95,7 +96,7 @@ public class AdditionRNN {
                 .setInputTypes(InputType.recurrent(FEATURE_VEC_SIZE), InputType.recurrent(FEATURE_VEC_SIZE))
                 //The inputs to the encoder will have size = minibatch x featuresize x timesteps
                 //Note that the network only knows of the feature vector size. It does not know how many time steps unless it sees an instance of the data
-                .addLayer("encoder", new LSTM.Builder().nIn(FEATURE_VEC_SIZE).nOut(numHiddenNodes).activation(Activation.SOFTSIGN).build(),"additionIn")
+                .addLayer("encoder", new LSTM.Builder().nIn(FEATURE_VEC_SIZE).nOut(numHiddenNodes).activation(Activation.TANH).build(),"additionIn")
                 //Create a vertex indicating the very last time step of the encoder layer needs to be directed to other places in the comp graph
                 .addVertex("lastTimeStep", new LastTimeStepVertex("additionIn"), "encoder")
                 //Create a vertex that allows the duplication of 2d input to a 3d input

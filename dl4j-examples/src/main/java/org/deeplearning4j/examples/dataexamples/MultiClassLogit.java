@@ -1,7 +1,14 @@
 package org.deeplearning4j.examples.dataexamples;
 
-import static org.nd4j.linalg.ops.transforms.Transforms.abs;
-import static org.nd4j.linalg.ops.transforms.Transforms.exp;
+import org.datavec.api.util.ClassPathResource;
+import org.deeplearning4j.datasets.iterator.IteratorDataSetIterator;
+import org.nd4j.linalg.api.ndarray.INDArray;
+import org.nd4j.linalg.dataset.DataSet;
+import org.nd4j.linalg.dataset.SplitTestAndTrain;
+import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
+import org.nd4j.linalg.factory.Nd4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -13,15 +20,8 @@ import java.util.Random;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import org.datavec.api.util.ClassPathResource;
-import org.deeplearning4j.datasets.iterator.IteratorDataSetIterator;
-import org.nd4j.linalg.api.ndarray.INDArray;
-import org.nd4j.linalg.dataset.DataSet;
-import org.nd4j.linalg.dataset.SplitTestAndTrain;
-import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
-import org.nd4j.linalg.factory.Nd4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static org.nd4j.linalg.ops.transforms.Transforms.abs;
+import static org.nd4j.linalg.ops.transforms.Transforms.exp;
 
 /**
  * Multiclass logistic regression.

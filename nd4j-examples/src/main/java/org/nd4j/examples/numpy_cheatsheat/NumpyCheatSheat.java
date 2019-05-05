@@ -4,6 +4,7 @@ import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.indexing.NDArrayIndex;
 import org.nd4j.linalg.indexing.conditions.Conditions;
+import org.nd4j.linalg.ops.transforms.Transforms;
 import org.nd4j.linalg.util.ArrayUtil;
 
 import java.io.IOException;
@@ -198,13 +199,11 @@ public class NumpyCheatSheat {
         print("Get interval from array ([:,1])", allRowsIndexOne);
         //For the functions below, since there's no boolean type in ND4J so I'll work on 0.0s(false) and 1.0s(true)
         // 9. arr<5 - Returns an array with boolean values
-        INDArray lessThan5 = CustomOperations.booleanOp(CustomOperations.randInt(new int[]{3, 3}, 10), Conditions.lessThan(5));
+        INDArray lessThan5 = CustomOperations.randInt(new int[]{3, 3}, 10).lt(5);
         print("Less than 5", lessThan5);
         // 10. (arr1<3) & (arr2>5) - Returns an array with boolean values
-        INDArray lessThan3 = CustomOperations.booleanOp(CustomOperations.randInt(new int[]{3, 3}, 10),
-            Conditions.lessThan(3));
-        INDArray greaterThan5 = CustomOperations.booleanOp(CustomOperations.randInt(new int[]{3, 3}, 10),
-            Conditions.greaterThan(5));
+        INDArray lessThan3 = CustomOperations.randInt(new int[]{3, 3}, 10).lt(3);
+        INDArray greaterThan5 = CustomOperations.randInt(new int[]{3, 3}, 10).gt(5);
         INDArray compared = CustomOperations.compare(lessThan3, greaterThan5, new Predicate<Boolean[]>() {
             @Override
             public boolean test(Boolean[] booleans) {
@@ -213,7 +212,7 @@ public class NumpyCheatSheat {
         });
         print("Compared", compared);
         // 11. ~arr - Inverts a boolean array
-        INDArray inverted = CustomOperations.invert(lessThan5);
+        INDArray inverted = Transforms.not(lessThan5);
         print("Inverted", inverted);
         // 12. arr[arr<5] - Returns array elements smaller than 5
         INDArray lessThan5Elements = CustomOperations.find(CustomOperations.randInt(new int[]{3, 3}, 10),

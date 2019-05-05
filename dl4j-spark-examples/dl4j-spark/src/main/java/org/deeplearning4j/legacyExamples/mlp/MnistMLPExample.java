@@ -105,11 +105,10 @@ public class MnistMLPExample {
             .updater(new Nesterovs(0.1))// To configure: .updater(Nesterovs.builder().momentum(0.9).build())
             .l2(1e-4)
             .list()
-            .layer(0, new DenseLayer.Builder().nIn(28 * 28).nOut(500).build())
-            .layer(1, new DenseLayer.Builder().nIn(500).nOut(100).build())
-            .layer(2, new OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD)
-                .activation(Activation.SOFTMAX).nIn(100).nOut(10).build())
-            .pretrain(false).backprop(true)
+            .layer(new DenseLayer.Builder().nIn(28 * 28).nOut(500).build())
+            .layer(new DenseLayer.Builder().nOut(100).build())
+            .layer(new OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD)
+                .activation(Activation.SOFTMAX).nOut(10).build())
             .build();
 
         //Configuration for Spark training: see http://deeplearning4j.org/spark for explanation of these configuration options

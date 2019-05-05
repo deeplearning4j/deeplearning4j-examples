@@ -5,10 +5,8 @@ import org.datavec.api.records.reader.impl.csv.CSVRecordReader;
 import org.datavec.api.split.FileSplit;
 import org.datavec.api.util.ClassPathResource;
 import org.deeplearning4j.datasets.datavec.RecordReaderDataSetIterator;
-import org.deeplearning4j.nn.api.OptimizationAlgorithm;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
-import org.deeplearning4j.nn.conf.Updater;
 import org.deeplearning4j.nn.conf.layers.DenseLayer;
 import org.deeplearning4j.nn.conf.layers.OutputLayer;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
@@ -86,10 +84,10 @@ public class CSVPlotter {
                 .weightInit(WeightInit.XAVIER)
                 .updater(new Nesterovs(learningRate, 0.9))
                 .list()
-                .layer(0, new DenseLayer.Builder().nIn(numInputs).nOut(numOutputs)
+                .layer(new DenseLayer.Builder().nIn(numInputs).nOut(numOutputs)
                         .activation(Activation.IDENTITY)
                         .build())
-                .layer(1, new OutputLayer.Builder(LossFunctions.LossFunction.MSE)
+                .layer(new OutputLayer.Builder(LossFunctions.LossFunction.MSE)
                         .activation(Activation.IDENTITY)
                         .nIn(numOutputs).nOut(numOutputs).build())
                 .build();

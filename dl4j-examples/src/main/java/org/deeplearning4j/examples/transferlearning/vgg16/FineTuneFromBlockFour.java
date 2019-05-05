@@ -2,7 +2,6 @@ package org.deeplearning4j.examples.transferlearning.vgg16;
 
 import org.deeplearning4j.eval.Evaluation;
 import org.deeplearning4j.examples.transferlearning.vgg16.dataHelpers.FlowerDataSetIterator;
-import org.deeplearning4j.nn.conf.Updater;
 import org.deeplearning4j.nn.graph.ComputationGraph;
 import org.deeplearning4j.nn.transferlearning.FineTuneConfiguration;
 import org.deeplearning4j.nn.transferlearning.TransferLearning;

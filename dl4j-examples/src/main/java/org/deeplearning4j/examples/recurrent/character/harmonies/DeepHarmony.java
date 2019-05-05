@@ -1,14 +1,6 @@
 
 package org.deeplearning4j.examples.recurrent.character.harmonies;
 
-import java.io.*;
-import java.util.*;
-import javax.sound.midi.MidiChannel;
-import javax.sound.midi.MidiSystem;
-import javax.sound.midi.MidiUnavailableException;
-import javax.sound.midi.Synthesizer;
-import javax.swing.*;
-import javax.swing.filechooser.FileNameExtensionFilter;
 import javafx.application.Application;
 import javafx.scene.DepthTest;
 import javafx.scene.Group;
@@ -20,9 +12,19 @@ import javafx.stage.Stage;
 import org.deeplearning4j.examples.recurrent.character.CharacterIterator;
 import org.deeplearning4j.examples.recurrent.character.LSTMCharModellingExample;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
-import org.deeplearning4j.util.ModelSerializer;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
+
+import javax.sound.midi.MidiChannel;
+import javax.sound.midi.MidiSystem;
+import javax.sound.midi.MidiUnavailableException;
+import javax.sound.midi.Synthesizer;
+import javax.swing.*;
+import javax.swing.filechooser.FileNameExtensionFilter;
+import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Random;
 
 /**
  * Allows you to harmonize with a saved network, using a piano keyboard on the screen.
@@ -146,7 +148,7 @@ public class DeepHarmony extends Application {
             if (netFile==null) {
                 return; // User hit Cancel
             }
-            net = ModelSerializer.restoreMultiLayerNetwork(netFile, false);
+            net = MultiLayerNetwork.load(netFile, false);
             characterIterator = GravesLSTMForTwoPartHarmonies.getCharacterIteratorForPlayBack();
             //GravesLSTMForTwoPartHarmonies.getHarmoniesIterator(64,2000);
             //loadCharacterIterator("D:/tmp/midi-character-iterator.jobj");

@@ -4,7 +4,16 @@ package org.deeplearning4j.examples.recurrent.character.harmonies;
  * This class was borrowed and modified from JFugue  http://www.jfugue.org/, which operates under an Apache License
  */
 
-import java.io.BufferedReader;
+import com.sun.media.sound.AudioSynthesizer;
+
+import javax.sound.midi.*;
+import javax.sound.sampled.AudioFileFormat;
+import javax.sound.sampled.AudioFormat;
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import java.io.*;
+import java.util.HashMap;
+import java.util.Map;
 
 /*
  * JFugue - API for Music Programming
@@ -27,32 +36,6 @@ import java.io.BufferedReader;
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  *
  */
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.util.HashMap;
-import java.util.Map;
-import javax.sound.midi.InvalidMidiDataException;
-import javax.sound.midi.MetaMessage;
-import javax.sound.midi.MidiDevice;
-import javax.sound.midi.MidiEvent;
-import javax.sound.midi.MidiMessage;
-import javax.sound.midi.MidiSystem;
-import javax.sound.midi.MidiUnavailableException;
-import javax.sound.midi.Receiver;
-import javax.sound.midi.Sequence;
-import javax.sound.midi.ShortMessage;
-import javax.sound.midi.Synthesizer;
-import javax.sound.midi.Track;
-import javax.sound.sampled.AudioFileFormat;
-import javax.sound.sampled.AudioFormat;
-import javax.sound.sampled.AudioInputStream;
-import javax.sound.sampled.AudioSystem;
-
-import com.sun.media.sound.AudioSynthesizer;
 
 @SuppressWarnings("restriction")
 public class Midi2WavRenderer {

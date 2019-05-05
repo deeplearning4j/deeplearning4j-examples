@@ -3,9 +3,10 @@ package org.deeplearning4j.examples.recurrent.processlottery;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.factory.Nd4j;
-import java.io.*;
+
+import java.io.File;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Date;
 
 /**
  * lottery numbers -> lottery numbers
@@ -56,7 +57,7 @@ public class LotteryCombinationDataSetReader extends BaseDataSetReader  {
     //based on the lottery rule,here will the openning lottery date and term switch to the long integer
     //if anyone need extend this model, maybe you can use the method
     private String decorateRecordData(String line) {
-        if (line == null && line.isEmpty()) {
+        if (line == null || line.isEmpty()) {
             return null;
         }
         String[] strArr = line.split(",");

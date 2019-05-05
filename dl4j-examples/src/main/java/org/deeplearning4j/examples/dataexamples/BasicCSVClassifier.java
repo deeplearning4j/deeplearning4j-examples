@@ -5,9 +5,7 @@ import org.apache.commons.io.IOUtils;
 import org.datavec.api.records.reader.RecordReader;
 import org.datavec.api.records.reader.impl.csv.CSVRecordReader;
 import org.datavec.api.split.FileSplit;
-import org.datavec.api.util.ClassPathResource;
 import org.deeplearning4j.datasets.datavec.RecordReaderDataSetIterator;
-import org.deeplearning4j.eval.Evaluation;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
 import org.deeplearning4j.nn.conf.layers.DenseLayer;
@@ -23,10 +21,13 @@ import org.nd4j.linalg.dataset.api.preprocessor.DataNormalization;
 import org.nd4j.linalg.dataset.api.preprocessor.NormalizerStandardize;
 import org.nd4j.linalg.learning.config.Sgd;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
+import org.nd4j.linalg.io.ClassPathResource;
+import org.nd4j.evaluation.classification.Evaluation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,10 +35,10 @@ import java.util.Map;
 
 
 /**
- * This example is intended to be a simple CSV classifier that seperates the training data
+ * This example is intended to be a simple CSV classifier that separates the training data
  * from the test data for the classification of animals. It would be suitable as a beginner's
  * example because not only does it load CSV data into the network, it also shows how to extract the
- * data and display the results of the classification, as well as a simple method to map the lables
+ * data and display the results of the classification, as well as a simple method to map the labels
  * from the testing data into the results.
  *
  * @author Clay Graham
@@ -50,15 +51,13 @@ public class BasicCSVClassifier {
     private static Map<Integer,String> sounds = readEnumCSV("/DataExamples/animals/sounds.csv");
     private static Map<Integer,String> classifiers = readEnumCSV("/DataExamples/animals/classifiers.csv");
 
-    public static void main(String[] args){
-
-        try {
+    public static void main(String[] args) throws Exception {
 
             //Second: the RecordReaderDataSetIterator handles conversion to DataSet objects, ready for use in neural network
             int labelIndex = 4;     //5 values in each row of the animals.csv CSV: 4 input features followed by an integer label (class) index. Labels are the 5th value (index 4) in each row
             int numClasses = 3;     //3 classes (types of animals) in the animals data set. Classes have integer values 0, 1 or 2
 
-            int batchSizeTraining = 30;    //Iris data set: 150 examples total. We are loading all of them into one DataSet (not recommended for large data sets)
+            int batchSizeTraining = 30;    //Animals training data set: 30 examples total. We are loading all of them into one DataSet (not recommended for large data sets)
             DataSet trainingData = readCSVDataset(
                     "/DataExamples/animals/animals_train.csv",
                     batchSizeTraining, labelIndex, numClasses);
@@ -68,10 +67,9 @@ public class BasicCSVClassifier {
             DataSet testData = readCSVDataset("/DataExamples/animals/animals.csv",
                     batchSizeTest, labelIndex, numClasses);
 
-
             // make the data model for records prior to normalization, because it
             // changes the data.
-            Map<Integer,Map<String,Object>> animals = makeAnimalsForTesting(testData);
+            Map<Integer, Map<String, Object>> animals = makeAnimalsForTesting(testData);
 
 
             //We need to normalize our data. We'll use NormalizeStandardize (which gives us mean 0, unit variance):
@@ -80,6 +78,7 @@ public class BasicCSVClassifier {
             normalizer.transform(trainingData);     //Apply normalization to the training data
             normalizer.transform(testData);         //Apply normalization to the test data. This is using statistics calculated from the *training* set
 
+            //Configure neural network
             final int numInputs = 4;
             int outputNum = 3;
             int epochs = 1000;
@@ -93,11 +92,10 @@ public class BasicCSVClassifier {
                     .updater(new Sgd(0.1))
                     .l2(1e-4)
                     .list()
-                    .layer(0, new DenseLayer.Builder().nIn(numInputs).nOut(3).build())
-                    .layer(1, new DenseLayer.Builder().nIn(3).nOut(3).build())
-                    .layer(2, new OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD)
+                    .layer(new DenseLayer.Builder().nIn(numInputs).nOut(3).build())
+                    .layer(new DenseLayer.Builder().nIn(3).nOut(3).build())
+                    .layer(new OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD)
                             .activation(Activation.SOFTMAX).nIn(3).nOut(outputNum).build())
-                    .backprop(true).pretrain(false)
                     .build();
 
             //run the model
@@ -118,31 +116,21 @@ public class BasicCSVClassifier {
 
             setFittedClassifiers(output, animals);
             logAnimals(animals);
-
-        } catch (Exception e){
-            e.printStackTrace();
-        }
-
     }
 
-
-
-    public static void logAnimals(Map<Integer,Map<String,Object>> animals){
+    public static void logAnimals(Map<Integer, Map<String, Object>> animals){
         for(Map<String,Object> a:animals.values())
             log.info(a.toString());
     }
 
-    public static void setFittedClassifiers(INDArray output, Map<Integer,Map<String,Object>> animals){
+    public static void setFittedClassifiers(INDArray output, Map<Integer, Map<String, Object>> animals){
         for (int i = 0; i < output.rows() ; i++) {
 
             // set the classification from the fitted results
             animals.get(i).put("classifier",
                     classifiers.get(maxIndex(getFloatArrayFromSlice(output.slice(i)))));
-
         }
-
     }
-
 
     /**
      * This method is to show how to convert the INDArray to a float array. This is to
@@ -202,13 +190,12 @@ public class BasicCSVClassifier {
             animals.put(i,animal);
         }
         return animals;
-
     }
 
 
     public static Map<Integer,String> readEnumCSV(String csvFileClasspath) {
         try{
-            List<String> lines = IOUtils.readLines(new ClassPathResource(csvFileClasspath).getInputStream());
+            List<String> lines = IOUtils.readLines(new ClassPathResource(csvFileClasspath).getInputStream(), StandardCharsets.UTF_8);
             Map<Integer,String> enums = new HashMap<>();
             for(String line:lines){
                 String[] parts = line.split(",");
@@ -219,7 +206,6 @@ public class BasicCSVClassifier {
             e.printStackTrace();
             return null;
         }
-
     }
 
     /**
@@ -242,7 +228,4 @@ public class BasicCSVClassifier {
         DataSetIterator iterator = new RecordReaderDataSetIterator(rr,batchSize,labelIndex,numClasses);
         return iterator.next();
     }
-
-
-
 }

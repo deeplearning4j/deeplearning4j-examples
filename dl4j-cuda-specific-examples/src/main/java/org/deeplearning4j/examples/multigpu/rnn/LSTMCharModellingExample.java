@@ -4,10 +4,11 @@ import org.apache.commons.io.FileUtils;
 import org.deeplearning4j.nn.api.Layer;
 import org.deeplearning4j.nn.api.Model;
 import org.deeplearning4j.nn.conf.BackpropType;
-import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
+import org.deeplearning4j.nn.conf.ComputationGraphConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
 import org.deeplearning4j.nn.conf.layers.LSTM;
 import org.deeplearning4j.nn.conf.layers.RnnOutputLayer;
+import org.deeplearning4j.nn.graph.ComputationGraph;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
 import org.deeplearning4j.optimize.api.IterationListener;
@@ -16,8 +17,8 @@ import org.deeplearning4j.parallelism.ParallelWrapper;
 import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
-import org.nd4j.linalg.learning.config.RmsProp;
-import org.nd4j.linalg.lossfunctions.LossFunctions.LossFunction;
+import org.nd4j.linalg.learning.config.Adam;
+import org.nd4j.linalg.lossfunctions.LossFunctions;
 
 import java.io.File;
 import java.io.IOException;
@@ -45,32 +46,18 @@ import java.util.Random;
  */
 public class LSTMCharModellingExample {
 	public static void main( String[] args ) throws Exception {
+	    int seed =  12345;
 		int lstmLayerSize = 200;					//Number of units in each LSTM layer
 		int miniBatchSize = 32;						//Size of mini batch to use when  training
 		int exampleLength = 1000;					//Length of each training example sequence to use. This could certainly be increased
         int tbpttLength = 50;                       //Length for truncated backpropagation through time. i.e., do parameter updates ever 50 characters
-		int numEpochs = 1;							//Total number of training epochs
-        int generateSamplesEveryNMinibatches = 10;  //How frequently to generate samples from the network? 1000 characters / 50 tbptt length: 20 parameter updates per minibatch
 		int nSamplesToGenerate = 4;					//Number of samples to generate after each training epoch
 		int nCharactersToSample = 300;				//Length of each sample to generate
 		String generationInitialization = null;		//Optional character initialization; a random character is used if null
-		// Above is Used to 'prime' the LSTM with a character sequence to continue/complete.
+
+        // Above is Used to 'prime' the LSTM with a character sequence to continue/complete.
 		// Initialization characters must all be in CharacterIterator.getMinimalCharacterSet() by default
-
-        // temp workaround for backend initialization
-/*
-        CudaEnvironment.getInstance().getConfiguration()
-            // key option enabled
-            .allowMultiGPU(true)
-
-            // we're allowing larger memory caches
-            .setMaximumDeviceCache(2L * 1024L * 1024L * 1024L)
-
-            // cross-device access is used for faster model averaging over pcie
-            .allowCrossDeviceAccess(true);
-*/
-
-		Random rng = new Random(12345);
+		Random rng = new Random(seed);
 
 		//Get a DataSetIterator that handles vectorization of text into something we can use to train
 		// our LSTM network.
@@ -78,31 +65,36 @@ public class LSTMCharModellingExample {
 		int nOut = iter.totalOutcomes();
 
 		//Set up network configuration:
-		MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
-			.seed(12345)
-			.l2(0.001)
+        ComputationGraphConfiguration conf = new NeuralNetConfiguration.Builder()
+            .seed(12345)
+            .l2(0.0001)
             .weightInit(WeightInit.XAVIER)
-            .updater(new RmsProp.Builder().learningRate(0.1).build())
-			.list()
-			.layer(0, new LSTM.Builder().nIn(iter.inputColumns()).nOut(lstmLayerSize)
-					.activation(Activation.TANH).build())
-			.layer(1, new LSTM.Builder().nIn(lstmLayerSize).nOut(lstmLayerSize)
-					.activation(Activation.TANH).build())
-			.layer(2, new RnnOutputLayer.Builder(LossFunction.MCXENT).activation(Activation.SOFTMAX)        //MCXENT + softmax for classification
-					.nIn(lstmLayerSize).nOut(nOut).build())
+            .updater(new Adam(0.005))
+            .graphBuilder()
+            .addInputs("input") //Give the input a name. For a ComputationGraph with multiple inputs, this also defines the input array orders
+            //First layer: name "first", with inputs from the input called "input"
+            .addLayer("first", new LSTM.Builder().nIn(iter.inputColumns()).nOut(lstmLayerSize)
+                .activation(Activation.TANH).build(),"input")
+            //Second layer, name "second", with inputs from the layer called "first"
+            .addLayer("second", new LSTM.Builder().nIn(lstmLayerSize).nOut(lstmLayerSize)
+                .activation(Activation.TANH).build(),"first")
+            //Output layer, name "outputlayer" with inputs from the two layers called "first" and "second"
+            .addLayer("outputLayer", new RnnOutputLayer.Builder(LossFunctions.LossFunction.MCXENT)
+                .activation(Activation.SOFTMAX)
+                .nIn(2*lstmLayerSize).nOut(nOut).build(),"first","second")
+            .setOutputs("outputLayer")  //List the output. For a ComputationGraph with multiple outputs, this also defines the input array orders
             .backpropType(BackpropType.TruncatedBPTT).tBPTTForwardLength(tbpttLength).tBPTTBackwardLength(tbpttLength)
-			.pretrain(false).backprop(true)
-			.build();
+            .build();
 
-		MultiLayerNetwork net = new MultiLayerNetwork(conf);
-		net.init();
+        ComputationGraph net = new ComputationGraph(conf);
+        net.init();
 		net.setListeners(new ScoreIterationListener(1), new IterationListener() {
             @Override
             public void iterationDone(Model model, int iteration, int epoch) {
                 if (iteration % 20 == 0) {
                     System.out.println("--------------------");
                     System.out.println("Sampling characters from network given initialization \"" + (generationInitialization == null ? "" : generationInitialization) + "\"");
-                    String[] samples = sampleCharactersFromNetwork(generationInitialization, (MultiLayerNetwork) model, iter, rng, nCharactersToSample, nSamplesToGenerate);
+                    String[] samples = sampleCharactersFromNetwork(generationInitialization, (ComputationGraph) model, iter, rng, nCharactersToSample, nSamplesToGenerate);
                     for (int j = 0; j < samples.length; j++) {
                         System.out.println("----- Sample " + j + " -----");
                         System.out.println(samples[j]);
@@ -131,13 +123,7 @@ public class LSTMCharModellingExample {
             .prefetchBuffer(24)
 
             // set number of workers equal to number of available devices. x1-x2 are good values to start with
-            .workers(4)
-
-            // rare averaging improves performance, but might reduce model accuracy
-            .averagingFrequency(3)
-
-            // if set to TRUE, on every averaging model score will be reported
-            .reportScoreAfterAveraging(true)
+            .workers(2)
 
             .build();
 
@@ -182,7 +168,7 @@ public class LSTMCharModellingExample {
 	 * @param net MultiLayerNetwork with one or more LSTM/RNN layers and a softmax output layer
 	 * @param iter CharacterIterator. Used for going from indexes back to characters
 	 */
-	private static String[] sampleCharactersFromNetwork(String initialization, MultiLayerNetwork net,
+	private static String[] sampleCharactersFromNetwork(String initialization, ComputationGraph net,
                                                         CharacterIterator iter, Random rng, int charactersToSample, int numSamples ){
 		//Set up initialization. If no initialization: use a random character
 		if( initialization == null ){
@@ -205,7 +191,7 @@ public class LSTMCharModellingExample {
 		//Sample from network (and feed samples back into input) one character at a time (for all samples)
 		//Sampling is done in parallel here
 		net.rnnClearPreviousState();
-		INDArray output = net.rnnTimeStep(initializationInput);
+		INDArray output = net.rnnTimeStep(initializationInput)[0];
 		output = output.tensorAlongDimension((int)output.size(2)-1,1,0);	//Gets the last time step output
 
 		for( int i=0; i<charactersToSample; i++ ){
@@ -221,7 +207,7 @@ public class LSTMCharModellingExample {
 				sb[s].append(iter.convertIndexToCharacter(sampledCharacterIdx));	//Add sampled character to StringBuilder (human readable output)
 			}
 
-			output = net.rnnTimeStep(nextInput);	//Do one time step of forward pass
+			output = net.rnnTimeStep(nextInput)[0];	//Do one time step of forward pass
 		}
 
 		String[] out = new String[numSamples];

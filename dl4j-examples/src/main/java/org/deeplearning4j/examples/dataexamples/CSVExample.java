@@ -73,14 +73,13 @@ public class CSVExample {
             .updater(new Sgd(0.1))
             .l2(1e-4)
             .list()
-            .layer(0, new DenseLayer.Builder().nIn(numInputs).nOut(3)
+            .layer(new DenseLayer.Builder().nIn(numInputs).nOut(3)
                 .build())
-            .layer(1, new DenseLayer.Builder().nIn(3).nOut(3)
+            .layer(new DenseLayer.Builder().nIn(3).nOut(3)
                 .build())
-            .layer(2, new OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD)
+            .layer( new OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD)
                 .activation(Activation.SOFTMAX)
                 .nIn(3).nOut(outputNum).build())
-            .backprop(true).pretrain(false)
             .build();
 
         //run the model

@@ -1,23 +1,24 @@
 package org.deeplearning4j.examples.convolution;
 
+import org.apache.commons.io.FilenameUtils;
 import org.deeplearning4j.datasets.iterator.impl.MnistDataSetIterator;
-import org.deeplearning4j.eval.Evaluation;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
 import org.deeplearning4j.nn.conf.inputs.InputType;
 import org.deeplearning4j.nn.conf.layers.*;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
+import org.deeplearning4j.optimize.api.InvocationType;
+import org.deeplearning4j.optimize.listeners.EvaluativeListener;
 import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
 import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
-import org.nd4j.linalg.learning.config.Nesterovs;
+import org.nd4j.linalg.learning.config.Adam;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.io.File;
 
 /**
  * Created by agibsonccc on 9/16/15.
@@ -44,47 +45,41 @@ public class LenetMnistExample {
          */
         log.info("Build model....");
 
-        // learning rate schedule in the form of <Iteration #, Learning Rate>
-        Map<Integer, Double> lrSchedule = new HashMap<>();
-        lrSchedule.put(0, 0.01);
-        lrSchedule.put(1000, 0.005);
-        lrSchedule.put(3000, 0.001);
-
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
                 .seed(seed)
                 .l2(0.0005)
                 .weightInit(WeightInit.XAVIER)
-                .updater(new Nesterovs(0.01, 0.9))
+                .updater(new Adam(1e-3))
                 .list()
-                .layer(0, new ConvolutionLayer.Builder(5, 5)
+                .layer(new ConvolutionLayer.Builder(5, 5)
                         //nIn and nOut specify depth. nIn here is the nChannels and nOut is the number of filters to be applied
                         .nIn(nChannels)
-                        .stride(1, 1)
+                        .stride(1,1)
                         .nOut(20)
                         .activation(Activation.IDENTITY)
                         .build())
-                .layer(1, new SubsamplingLayer.Builder(PoolingType.MAX)
+                .layer(new SubsamplingLayer.Builder(PoolingType.MAX)
                         .kernelSize(2,2)
                         .stride(2,2)
                         .build())
-                .layer(2, new ConvolutionLayer.Builder(5, 5)
+                .layer(new ConvolutionLayer.Builder(5, 5)
                         //Note that nIn need not be specified in later layers
-                        .stride(1, 1)
+                        .stride(1,1)
                         .nOut(50)
                         .activation(Activation.IDENTITY)
                         .build())
-                .layer(3, new SubsamplingLayer.Builder(PoolingType.MAX)
+                .layer(new SubsamplingLayer.Builder(PoolingType.MAX)
                         .kernelSize(2,2)
                         .stride(2,2)
                         .build())
-                .layer(4, new DenseLayer.Builder().activation(Activation.RELU)
+                .layer(new DenseLayer.Builder().activation(Activation.RELU)
                         .nOut(500).build())
-                .layer(5, new OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD)
+                .layer(new OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD)
                         .nOut(outputNum)
                         .activation(Activation.SOFTMAX)
                         .build())
                 .setInputType(InputType.convolutionalFlat(28,28,1)) //See note below
-                .backprop(true).pretrain(false).build();
+                .build();
 
         /*
         Regarding the .setInputType(InputType.convolutionalFlat(28,28,1)) line: This does a few things.
@@ -103,18 +98,15 @@ public class LenetMnistExample {
         MultiLayerNetwork model = new MultiLayerNetwork(conf);
         model.init();
 
+        log.info("Train model...");
+        model.setListeners(new ScoreIterationListener(10), new EvaluativeListener(mnistTest, 1, InvocationType.EPOCH_END)); //Print score every 10 iterations and evaluate on test set every epoch
+        model.fit(mnistTrain, nEpochs);
 
-        log.info("Train model....");
-        model.setListeners(new ScoreIterationListener(10)); //Print score every 10 iterations
-        for( int i=0; i<nEpochs; i++ ) {
-            model.fit(mnistTrain);
-            log.info("*** Completed epoch {} ***", i);
+        String path = FilenameUtils.concat(System.getProperty("java.io.tmpdir"), "lenetmnist.zip");
 
-            log.info("Evaluate model....");
-            Evaluation eval = model.evaluate(mnistTest);
-            log.info(eval.stats());
-            mnistTest.reset();
-        }
+        log.info("Saving model to tmp folder: "+path);
+        model.save(new File(path), true);
+
         log.info("****************Example finished********************");
     }
 }

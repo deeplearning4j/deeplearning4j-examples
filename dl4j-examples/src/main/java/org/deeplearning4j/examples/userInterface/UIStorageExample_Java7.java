@@ -6,9 +6,7 @@ import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
 import org.deeplearning4j.ui.api.UIServer;
 import org.deeplearning4j.ui.stats.J7StatsListener;
-import org.deeplearning4j.ui.stats.StatsListener;
 import org.deeplearning4j.ui.storage.FileStatsStorage;
-import org.deeplearning4j.ui.storage.sqlite.J7FileStatsStorage;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 
 import java.io.File;
@@ -28,20 +26,12 @@ import java.io.File;
 public class UIStorageExample_Java7 {
 
     public static void main(String[] args){
-
-        //Run this example twice - once with collectStats = true, and then again with collectStats = false
-        boolean collectStats = true;
-
-        File statsFile = new File("UIStorageExampleStats_Java7.dl4j");
-
-        //First run: Collect training stats from the network
-        //Note that we don't have to actually plot it when we collect it - though we can do that too, if required
-
         MultiLayerNetwork net = UIExampleUtils.getMnistNetwork();
         DataSetIterator trainData = UIExampleUtils.getMnistData();
 
-        StatsStorage statsStorage = new J7FileStatsStorage(statsFile);                                      //Note the J7
+        StatsStorage statsStorage = new FileStatsStorage(new File(System.getProperty("java.io.tmpdir"), "ui-stats-j7.dl4j"));
         net.setListeners(new J7StatsListener(statsStorage), new ScoreIterationListener(10));
+        UIServer.getInstance().attach(statsStorage);
 
         net.fit(trainData);
 
