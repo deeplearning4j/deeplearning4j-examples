@@ -1,5 +1,5 @@
 ################################################################################
-# Copyright (c) 2015-2018 Skymind, Inc.
+# Copyright (c) 2015-2019 Skymind, Inc.
 #
 # This program and the accompanying materials are made available under the
 # terms of the Apache License, Version 2.0 which is available at
@@ -50,7 +50,7 @@ tp.one_hot('country_visited')
 
 
  # For each person, reduce all columns using `sum` op, except for entry_time; reduce it using `max` op :
-tp.reduce('person', 'sum', {'entry_time' : 'max'}) 
+tp.reduce('person', 'sum', {'entry_time' : 'max'})
 
 # Rename column
 tp.rename_column('max(entry_time)', 'most_recent_entry')

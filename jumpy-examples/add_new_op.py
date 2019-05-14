@@ -1,5 +1,5 @@
 ################################################################################
-# Copyright (c) 2015-2018 Skymind, Inc.
+# Copyright (c) 2015-2019 Skymind, Inc.
 #
 # This program and the accompanying materials are made available under the
 # terms of the Apache License, Version 2.0 which is available at
@@ -17,7 +17,7 @@
 from jumpy import op, array
 import jumpy as jp
 
-# Use @op decorator to add a new jumpy op. 
+# Use @op decorator to add a new jumpy op.
 # The function will receive an INDArray object, regardless of what it's called with : INDArray, Jumpy array or numpy array.
 # The value returned by the function will normalized to Jumpy array.
 
