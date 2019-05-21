@@ -284,8 +284,7 @@ public class AnimalsClassification {
 
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
             .seed(seed)
-            .weightInit(WeightInit.DISTRIBUTION)
-            .dist(new NormalDistribution(0.0, 0.01))
+            .weightInit(new NormalDistribution(0.0, 0.01))
             .activation(Activation.RELU)
             .updater(new AdaDelta())
             .gradientNormalization(GradientNormalization.RenormalizeL2PerLayer) // normalize to prevent vanishing or exploding gradients
