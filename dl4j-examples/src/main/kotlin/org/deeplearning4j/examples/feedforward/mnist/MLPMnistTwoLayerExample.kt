@@ -97,7 +97,7 @@ object MLPMnistTwoLayerExample {
 
 
         log.info("Evaluate model....")
-        val eval = model.evaluate(mnistTest)
+        val eval: org.nd4j.evaluation.classification.Evaluation = model.evaluate(mnistTest)
         log.info(eval.stats())
 
         log.info("****************Example finished********************")

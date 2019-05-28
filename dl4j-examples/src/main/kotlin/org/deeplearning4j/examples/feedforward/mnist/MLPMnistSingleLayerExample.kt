@@ -2,6 +2,7 @@ package org.deeplearning4j.examples.feedforward.mnist
 
 import org.nd4j.linalg.activations.Activation
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator
+import org.nd4j.linalg.learning.config.Nadam
 import org.deeplearning4j.datasets.iterator.impl.MnistDataSetIterator
 import org.deeplearning4j.eval.Evaluation
 import org.deeplearning4j.nn.api.OptimizationAlgorithm
@@ -84,7 +85,7 @@ object MLPMnistSingleLayerExample {
         model.fit(mnistTrain, numEpochs)
 
         log.info("Evaluate model....")
-        val eval = model.evaluate(mnistTest)
+        val eval: org.nd4j.evaluation.classification.Evaluation = model.evaluate(mnistTest)
         log.info(eval.stats())
 
         log.info("****************Example finished********************")
