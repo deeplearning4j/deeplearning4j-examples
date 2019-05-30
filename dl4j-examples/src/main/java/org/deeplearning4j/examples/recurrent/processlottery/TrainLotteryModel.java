@@ -95,30 +95,30 @@ public class TrainLotteryModel {
                 //predictions all at once
                 INDArray output = model.output(ds.getFeatures());
                 INDArray label = ds.getLabels();
-                INDArray preOutput = Nd4j.argMax(output.getRow(0), new int[]{1});
-                INDArray realLabel = Nd4j.argMax(label.getRow(0), new int[]{1});
+                INDArray preOutput = Nd4j.argMax(output, 2);
+                INDArray realLabel = Nd4j.argMax(label, 2);
                 StringBuilder peLabel = new StringBuilder();
                 StringBuilder reLabel = new StringBuilder();
                 for (int dataIndex = 0; dataIndex < 5; dataIndex ++) {
-                    peLabel.append(preOutput.getRow(dataIndex).getInt(0));
-                    reLabel.append(realLabel.getRow(dataIndex).getInt(0));
+                    peLabel.append(preOutput.getInt(dataIndex));
+                    reLabel.append(realLabel.getInt(dataIndex));
                 }
-                log.info("test-->real lottery {}  prediction {} status {}",  reLabel.toString(), peLabel.toString(), peLabel.equals(reLabel));
+                log.info("test-->real lottery {}  prediction {} status {}",  reLabel.toString(), peLabel.toString(), peLabel.toString().equals(reLabel.toString()));
             }
             while (validateIterator.hasNext()) {
                 DataSet ds = validateIterator.next();
                 //predictions all at once
                 INDArray output = model.feedForward(ds.getFeatures()).get(0);
                 INDArray label = ds.getLabels();
-                INDArray preOutput = Nd4j.argMax(output.getRow(0), new int[]{1});
-                INDArray realLabel = Nd4j.argMax(label.getRow(0), new int[]{1});
+                INDArray preOutput = Nd4j.argMax(output, 2);
+                INDArray realLabel = Nd4j.argMax(label, 2);
                 StringBuilder peLabel = new StringBuilder();
                 StringBuilder reLabel = new StringBuilder();
                 for (int dataIndex = 0; dataIndex < 5; dataIndex ++) {
-                    peLabel.append(preOutput.getRow(dataIndex).getInt(0));
-                    reLabel.append(realLabel.getRow(dataIndex).getInt(0));
+                    peLabel.append(preOutput.getInt(dataIndex));
+                    reLabel.append(realLabel.getInt(dataIndex));
                 }
-                log.info("validate-->real lottery {}  prediction {} status {}",  reLabel.toString(), peLabel.toString(), peLabel.equals(reLabel));
+                log.info("validate-->real lottery {}  prediction {} status {}",  reLabel.toString(), peLabel.toString(), peLabel.toString().equals(reLabel.toString()));
             }
 
             String currentLottery = "27578";
@@ -129,10 +129,10 @@ public class TrainLotteryModel {
                 initCondition.putScalar(new int[]{0, j, p}, 1);
             }
             INDArray output = model.output(initCondition);
-            INDArray preOutput = Nd4j.argMax(output.getRow(0), new int[]{1});
+            INDArray preOutput = Nd4j.argMax(output, 2);
             StringBuilder latestLottery = new StringBuilder();
             for (int dataIndex = 0; dataIndex < 5; dataIndex ++) {
-                latestLottery.append(preOutput.getRow(dataIndex).getInt(0));
+                latestLottery.append(preOutput.getInt(dataIndex));
             }
             System.out.println("current lottery numbers==" + currentLottery + "==prediction===next lottery numbers==" +  latestLottery.toString());
 
