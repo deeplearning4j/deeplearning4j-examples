@@ -8,6 +8,8 @@ import org.deeplearning4j.iterator.LabeledSentenceProvider;
 import org.deeplearning4j.iterator.provider.FileLabeledSentenceProvider;
 import org.deeplearning4j.models.embeddings.wordvectors.WordVectors;
 import org.deeplearning4j.text.tokenization.tokenizerfactory.BertWordPieceTokenizerFactory;
+import org.deeplearning4j.ui.api.UIServer;
+import org.nd4j.autodiff.listeners.checkpoint.CheckpointListener;
 import org.nd4j.autodiff.listeners.impl.ScoreListener;
 import org.nd4j.autodiff.listeners.impl.UIListener;
 import org.nd4j.autodiff.samediff.SDVariable;
@@ -34,6 +36,7 @@ import java.io.File;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 
 public class BertSentimentExample {
@@ -43,9 +46,17 @@ public class BertSentimentExample {
 
     public static void main(String[] args) throws Exception {
 
+        UIServer.getInstance();
+        Thread.sleep(100000);
+
+        File rootDir = new File("/home/skymind/bert_test");
+        if(!rootDir.exists()){
+            rootDir.mkdir();
+        }
+
 
         String url = "https://deeplearning4jblob.blob.core.windows.net/testresources/bert_mrpc_frozen_v1.zip";
-        File saveDir = new File("C:/Temp/BERT_Example/", "bert_mrpc_frozen_v1");
+        File saveDir = new File(rootDir, "bert_mrpc_frozen_v1");
         saveDir.mkdirs();
 
         File localFile = new File(saveDir, "bert_mrpc_frozen_v1.zip");
@@ -121,13 +132,13 @@ public class BertSentimentExample {
 
 
         //Next: create training pipeline...
-        MultiDataSetIterator iterTrain = getDataSetIterator(true, 4, 128, new Random(12345));
-        MultiDataSetIterator iterTest = getDataSetIterator(false, 4, 128, new Random(12345));
+        MultiDataSetIterator iterTrain = getDataSetIterator(rootDir, true, 4, 128, new Random(12345));
+        MultiDataSetIterator iterTest = getDataSetIterator(rootDir, false, 4, 128, new Random(12345));
 
         //Set up training configuration...
 
         sd.setTrainingConfig(TrainingConfig.builder()
-                .updater(new Adam(new RampSchedule(new FixedSchedule(1e-3), 50)))
+                .updater(new Adam(new RampSchedule(new FixedSchedule(5e-3), 50)))
 //                .dataSetFeatureMapping("IteratorGetNext", "IteratorGetNext:4")
 //                .dataSetFeatureMaskMapping("IteratorGetNext:1")
                 .dataSetFeatureMapping("tokenIdxs", "sentenceIdx")
@@ -135,13 +146,22 @@ public class BertSentimentExample {
                 .dataSetLabelMapping("label")
                 .build());
 
-        File uiFile = new File("C:\\Temp\\BERT_Example\\UIData.bin");
+        File dir = new File(rootDir, "lr_5e-3");
+        dir.mkdirs();
+        File uiFile = new File(dir, "UIData.bin");
+        File checkpointDir = new File(dir, "checkpoints");
         sd.setListeners(new ScoreListener(10, true, true),
+            new CheckpointListener.Builder(checkpointDir)
+                .saveEvery(30, TimeUnit.MINUTES)
+                .saveEveryNEpochs(1)
+                .keepLastAndEvery(3,3)
+                .saveUpdaterState(false)    //Until 2GB limit is fixed
+                .build(),
             new UIListener.Builder(uiFile)
-            .learningRate(1)
+            .learningRate(10)
             .plotLosses(1)
             .trainAccuracy("loss/Softmax", 0)
-            .updateRatios(1)
+            .updateRatios(20)
             .build()
         );
 
@@ -161,7 +181,7 @@ public class BertSentimentExample {
     }
 
 
-    private static MultiDataSetIterator getDataSetIterator(boolean isTraining, int minibatchSize,
+    private static MultiDataSetIterator getDataSetIterator(File rootDir, boolean isTraining, int minibatchSize,
                                                            int maxSentenceLength, Random rng ) throws Exception {
 
         Word2VecSentimentRNN.downloadData();
@@ -185,7 +205,7 @@ public class BertSentimentExample {
 
 
         //Need BERT WordPiece tokens...
-        File wordPieceTokens = new File("C:/Temp/BERT_Example/uncased_L-12_H-768_A-12/vocab.txt");
+        File wordPieceTokens = new File(rootDir, "uncased_L-12_H-768_A-12/vocab.txt");
         BertWordPieceTokenizerFactory t = new BertWordPieceTokenizerFactory(wordPieceTokens, true, true, StandardCharsets.UTF_8);
 
         BertIterator b = BertIterator.builder()
