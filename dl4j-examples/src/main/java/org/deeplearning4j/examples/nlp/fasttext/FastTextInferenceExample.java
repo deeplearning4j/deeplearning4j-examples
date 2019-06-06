@@ -36,7 +36,7 @@ public class FastTextInferenceExample {
 
          */
 
-        File fastTextFile = new File("C:/Temp/FastText/cc.en.300.bin");
+        File fastTextFile = new File("YOUR/PATH/TO/cc.en.300.bin");
 
         if(!fastTextFile.exists() || !fastTextFile.isFile())
             throw new RuntimeException();
