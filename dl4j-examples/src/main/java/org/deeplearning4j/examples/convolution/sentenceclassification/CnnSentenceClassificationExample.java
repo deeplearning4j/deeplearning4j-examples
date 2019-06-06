@@ -177,7 +177,7 @@ public class CnnSentenceClassificationExample {
 
         LabeledSentenceProvider sentenceProvider = new FileLabeledSentenceProvider(reviewFilesMap, rng);
 
-        return new CnnSentenceDataSetIterator.Builder()
+        return new CnnSentenceDataSetIterator.Builder(CnnSentenceDataSetIterator.Format.CNN2D)
             .sentenceProvider(sentenceProvider)
             .wordVectors(wordVectors)
             .minibatchSize(minibatchSize)
