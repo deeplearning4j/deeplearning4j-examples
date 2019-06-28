@@ -5,6 +5,9 @@ import org.deeplearning4j.examples.recurrent.word2vecsentiment.Word2VecSentiment
 import org.deeplearning4j.iterator.BertIterator;
 import org.deeplearning4j.iterator.LabeledSentenceProvider;
 import org.deeplearning4j.iterator.provider.FileLabeledSentenceProvider;
+import org.deeplearning4j.text.tokenization.tokenizer.TokenPreProcess;
+import org.deeplearning4j.text.tokenization.tokenizer.preprocessor.BertWordPiecePreProcessor;
+import org.deeplearning4j.text.tokenization.tokenizer.preprocessor.CompositePreProcessor;
 import org.deeplearning4j.text.tokenization.tokenizerfactory.BertWordPieceTokenizerFactory;
 import org.nd4j.autodiff.listeners.checkpoint.CheckpointListener;
 import org.nd4j.autodiff.listeners.impl.ScoreListener;
@@ -263,7 +266,24 @@ public class BertFrozenSentimentExampleNoDropout2 {
 
         //Need BERT WordPiece tokens...
         File wordPieceTokens = new File(rootDir, "uncased_L-12_H-768_A-12/vocab.txt");
-        BertWordPieceTokenizerFactory t = new BertWordPieceTokenizerFactory(wordPieceTokens, true, true, StandardCharsets.UTF_8);
+//        BertWordPieceTokenizerFactory t = new BertWordPieceTokenizerFactory(wordPieceTokens, true, true, StandardCharsets.UTF_8);
+
+        NavigableMap<String,Integer> vocabMap = BertWordPieceTokenizerFactory.loadVocab(wordPieceTokens, StandardCharsets.UTF_8);
+
+        TokenPreProcess pp = new CompositePreProcessor(
+            new TokenPreProcess(){
+                @Override
+                public String preProcess(String token) {
+                    //The raw dataset includes a bunch of "<br /><br />" entries, which (unless removed) get tokenized to 8 tokens - ["<", "br", "/", ">] x2
+                    return token.replaceAll("<br /><br />", " ");
+                }
+            },
+            new BertWordPiecePreProcessor(true, true, vocabMap)
+        );
+
+        BertWordPieceTokenizerFactory t = new BertWordPieceTokenizerFactory(vocabMap, pp);
+
+
 
         BertIterator b = BertIterator.builder()
             .tokenizer(t)
