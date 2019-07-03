@@ -49,9 +49,10 @@ public class BertFrozenSentimentExampleNoDropoutNoPre {
 //        UIServer.getInstance();
 //        Thread.sleep(100000);
 
-//        int minibatch = 4;
-        int minibatch = 32;
+        int minibatch = 4;
+//        int minibatch = 32;
         int seqLength = 128;
+        double lr = 2e-4;
 
         File rootDir = new File("/mnt/bert_test/");
 //        File rootDir = new File("C:/Temp/Bert_Frozen/");
@@ -173,13 +174,13 @@ public class BertFrozenSentimentExampleNoDropoutNoPre {
         //Set up training configuration...
 
         sd.setTrainingConfig(TrainingConfig.builder()
-            .updater(new Adam(new RampSchedule(new FixedSchedule(5e-4), 50)))
+            .updater(new Adam(new RampSchedule(new FixedSchedule(lr), 50)))
             .dataSetFeatureMapping("tokenIdxs", "sentenceIdx")
             .dataSetFeatureMaskMapping("mask")
             .dataSetLabelMapping("label")
             .build());
 
-        File dir = new File(saveDir, "lr_5e-4_2layer_cls");
+        File dir = new File(saveDir, "lr_" + lr + "_2layer_cls");
         dir.mkdirs();
         File uiFile = new File(dir, "UIData.bin");
         File checkpointDir = new File(dir, "checkpoints");
