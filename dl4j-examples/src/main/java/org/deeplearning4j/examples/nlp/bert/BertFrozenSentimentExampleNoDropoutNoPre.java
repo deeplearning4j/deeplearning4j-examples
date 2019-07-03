@@ -53,6 +53,7 @@ public class BertFrozenSentimentExampleNoDropoutNoPre {
 //        int minibatch = 32;
         int seqLength = 128;
         double lr = 2e-4;
+        int nEpochs = 3;
 
         File rootDir = new File("/mnt/bert_test/");
 //        File rootDir = new File("C:/Temp/Bert_Frozen/");
@@ -211,7 +212,7 @@ public class BertFrozenSentimentExampleNoDropoutNoPre {
 
 //        sd.fit(iterTrain, 10);
 
-        for(int i=0; i<10; i++ ) {
+        for(int i=0; i<nEpochs; i++ ) {
             sd.fit(iterTrain, 1);
             log.info("Completed training, epoch {}", i);
             Evaluation e = new Evaluation();
