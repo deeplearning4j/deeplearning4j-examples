@@ -220,7 +220,7 @@ public class BertFrozenSentimentExampleNoDropoutNoPre {
             sd.evaluate(iterTest, "loss/Softmax", 0, e);
             log.info("Evaluation, end epoch {}", i);
             log.info(e.stats());
-            File evalStatsFile = new File(rootDir, "eval_epoch_" + i + ".txt");
+            File evalStatsFile = new File(dir, "eval_epoch_" + i + ".txt");
             FileUtils.writeStringToFile(evalStatsFile, e.stats(), StandardCharsets.UTF_8);
         }
     }
