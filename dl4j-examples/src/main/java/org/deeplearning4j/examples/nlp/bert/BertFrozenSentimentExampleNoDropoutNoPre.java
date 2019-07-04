@@ -51,7 +51,8 @@ public class BertFrozenSentimentExampleNoDropoutNoPre {
 
         int minibatch = 4;
 //        int minibatch = 32;
-        int seqLength = 128;
+//        int seqLength = 128;
+        int seqLength = 512;
         double lr = 2e-4;
         int nEpochs = 3;
 
@@ -78,9 +79,9 @@ public class BertFrozenSentimentExampleNoDropoutNoPre {
         m.put("IteratorGetNext", (inputs, controlDepInputs, nodeDef, initWith, attributesForNode, graph) -> {
             //Return 3 placeholders called "IteratorGetNext:0", "IteratorGetNext:1", "IteratorGetNext:3" instead of the training iterator
             return Arrays.asList(
-                initWith.placeHolder("IteratorGetNext", DataType.INT, minibatch, 128),
-                initWith.placeHolder("IteratorGetNext:1", DataType.INT, minibatch, 128),
-                initWith.placeHolder("IteratorGetNext:4", DataType.INT, minibatch, 128)
+                initWith.placeHolder("IteratorGetNext", DataType.INT, minibatch, seqLength),
+                initWith.placeHolder("IteratorGetNext:1", DataType.INT, minibatch, seqLength),
+                initWith.placeHolder("IteratorGetNext:4", DataType.INT, minibatch, seqLength)
             );
         });
 
