@@ -51,8 +51,8 @@ public class BertFrozenSentimentExampleNoDropoutNoPre {
 
 //        int minibatch = 4;
         int minibatch = 32;
-//        int seqLength = 128;
-        int seqLength = 512;
+        int seqLength = 128;
+//        int seqLength = 512;
         double lr = 2e-4;
         int nEpochs = 3;
 
