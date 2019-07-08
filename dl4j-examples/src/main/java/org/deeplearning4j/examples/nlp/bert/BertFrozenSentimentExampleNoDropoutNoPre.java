@@ -49,8 +49,8 @@ public class BertFrozenSentimentExampleNoDropoutNoPre {
 //        UIServer.getInstance();
 //        Thread.sleep(100000);
 
-        int minibatch = 4;
-//        int minibatch = 32;
+//        int minibatch = 4;
+        int minibatch = 32;
 //        int seqLength = 128;
         int seqLength = 512;
         double lr = 2e-4;
