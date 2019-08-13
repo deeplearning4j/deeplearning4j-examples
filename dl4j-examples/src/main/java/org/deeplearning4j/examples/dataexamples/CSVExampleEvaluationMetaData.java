@@ -150,8 +150,8 @@ public class CSVExampleEvaluationMetaData {
         for(int i=0; i<predictionErrors.size(); i++ ){
             Prediction p = predictionErrors.get(i);
             RecordMetaData meta = p.getRecordMetaData(RecordMetaData.class);
-            INDArray features = predictionErrorExamples.getFeatures().getRow(i);
-            INDArray labels = predictionErrorExamples.getLabels().getRow(i);
+            INDArray features = predictionErrorExamples.getFeatures().getRow(i).reshape(1,4);
+            INDArray labels = predictionErrorExamples.getLabels().getRow(i).reshape(1,3);
             List<Writable> rawData = predictionErrorRawData.get(i).getRecord();
 
             INDArray networkPrediction = model.output(features);
