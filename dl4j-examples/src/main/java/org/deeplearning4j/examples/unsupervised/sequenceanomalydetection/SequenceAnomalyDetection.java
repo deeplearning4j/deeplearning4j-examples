@@ -17,6 +17,7 @@
 package org.deeplearning4j.examples.unsupervised.sequenceanomalydetection;
 
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.deeplearning4j.api.storage.StatsStorage;
@@ -39,11 +40,13 @@ import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.nd4j.linalg.dataset.api.preprocessor.DataNormalization;
 import org.nd4j.linalg.dataset.api.preprocessor.NormalizerStandardize;
 import org.nd4j.linalg.dataset.api.preprocessor.serializer.NormalizerSerializer;
-import org.nd4j.linalg.io.ClassPathResource;
 import org.nd4j.linalg.learning.config.RmsProp;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
+import org.nd4j.resources.Downloader;
 
 import java.io.File;
+import java.io.IOException;
+import java.net.URL;
 import java.util.*;
 
 /**Detection anomaly data from these sequence data which comes from the sensor
@@ -56,12 +59,41 @@ public class SequenceAnomalyDetection {
     private static int testBatchSize = 1;
     private static int numEpochs = 38;
 
+    public static final String DATA_LOCAL_PATH;
+
+    static {
+        final String DATA_URL = "https://deeplearning4jblob.blob.core.windows.net/dl4j-examples/dl4j-examples/anomalysequencedata.zip";
+        final String MD5 = "51bb7c50e265edec3a241a2d7cce0e73";
+        final int DOWNLOAD_RETRIES = 10;
+        final String DOWNLOAD_PATH = FilenameUtils.concat(System.getProperty("java.io.tmpdir"), "anomalysequencedata.zip");
+        final String EXTRACT_DIR = FilenameUtils.concat(System.getProperty("user.home"), "dl4j-examples-data/dl4j-examples");
+        DATA_LOCAL_PATH = FilenameUtils.concat(EXTRACT_DIR, "anomalysequencedata");
+        if (!new File(DATA_LOCAL_PATH).exists()) {
+            try {
+                System.out.println("_______________________________________________________________________");
+                System.out.println("Downloading data (3MB) and extracting to \n\t" + DATA_LOCAL_PATH);
+                System.out.println("_______________________________________________________________________");
+                Downloader.downloadAndExtract("files",
+                    new URL(DATA_URL),
+                    new File(DOWNLOAD_PATH),
+                    new File(EXTRACT_DIR),
+                    MD5,
+                    DOWNLOAD_RETRIES);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } else {
+            System.out.println("_______________________________________________________________________");
+            System.out.println("Example data present in \n\t" + DATA_LOCAL_PATH);
+            System.out.println("_______________________________________________________________________");
+        }
+    }
+
     public static void main(String[] args) throws Exception {
 
-        String dataPath = new ClassPathResource("/anomalysequencedata").getFile().getPath();
-        File modelFile = new File(dataPath + File.separatorChar + "anomalyDetectionModel.gz");
-        DataSetIterator trainIterator = new AnomalyDataSetIterator(dataPath + File.separatorChar + "ads.csv", trainBatchSize);
-        DataSetIterator testIterator = new AnomalyDataSetIterator(dataPath + File.separatorChar + "test.csv", testBatchSize);
+        File modelFile = new File(DATA_LOCAL_PATH, "anomalyDetectionModel.gz");
+        DataSetIterator trainIterator = new AnomalyDataSetIterator(new File(DATA_LOCAL_PATH, "ads.csv").getAbsolutePath(), trainBatchSize);
+        DataSetIterator testIterator = new AnomalyDataSetIterator(new File(DATA_LOCAL_PATH,"test.csv").getAbsolutePath(), testBatchSize);
 
         MultiLayerNetwork net = true ? createModel(trainIterator.inputColumns(), trainIterator.totalOutcomes()) : MultiLayerNetwork.load(modelFile, true);
         UIServer uiServer = UIServer.getInstance();
@@ -73,7 +105,7 @@ public class SequenceAnomalyDetection {
         trainIterator.reset();
         trainIterator.setPreProcessor(normalizer);
         testIterator.setPreProcessor(normalizer);	//Note: using training normalization statistics
-        NormalizerSerializer.getDefault().write(normalizer, dataPath + File.separatorChar + "anomalyDetectionNormlizer.ty");
+        NormalizerSerializer.getDefault().write(normalizer, new File(DATA_LOCAL_PATH, "anomalyDetectionNormlizer.ty").getAbsolutePath());
 
         // training
         net.setListeners(new StatsListener(statsStorage), new ScoreIterationListener(10));

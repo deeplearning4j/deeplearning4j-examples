@@ -29,7 +29,6 @@ import org.datavec.image.transform.PipelineImageTransform;
 import org.datavec.image.transform.WarpImageTransform;
 import org.deeplearning4j.api.storage.StatsStorage;
 import org.deeplearning4j.datasets.datavec.RecordReaderDataSetIterator;
-import org.deeplearning4j.eval.Evaluation;
 import org.deeplearning4j.nn.conf.GradientNormalization;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
@@ -53,16 +52,15 @@ import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.nd4j.linalg.dataset.api.preprocessor.DataNormalization;
 import org.nd4j.linalg.dataset.api.preprocessor.ImagePreProcessingScaler;
 import org.nd4j.linalg.learning.config.AdaDelta;
-import org.nd4j.linalg.learning.config.Nadam;
-import org.nd4j.linalg.learning.config.Nesterovs;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 import org.nd4j.linalg.primitives.Pair;
-import org.nd4j.linalg.schedule.ScheduleType;
-import org.nd4j.linalg.schedule.StepSchedule;
+import org.nd4j.resources.Downloader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.IOException;
+import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
@@ -103,9 +101,38 @@ public class AnimalsClassification {
     protected static String modelType = "LeNet"; // LeNet, AlexNet or Custom but you need to fill it out
     private int numLabels;
 
+    public static final String DATA_LOCAL_PATH;
+    static {
+        final String DATA_URL = "https://deeplearning4jblob.blob.core.windows.net/dl4j-examples/dl4j-examples/animals.zip";
+        final String MD5 = "1976a1f2b61191d2906e4f615246d63e";
+        final int DOWNLOAD_RETRIES = 10;
+        final String DOWNLOAD_PATH = FilenameUtils.concat(System.getProperty("java.io.tmpdir"), "animals.zip");
+        final String EXTRACT_DIR = FilenameUtils.concat(System.getProperty("user.home"), "dl4j-examples-data/dl4j-examples");
+        DATA_LOCAL_PATH = FilenameUtils.concat(EXTRACT_DIR,"animals");
+        if (!new File(DATA_LOCAL_PATH).exists()) {
+            try {
+
+                System.out.println("_______________________________________________________________________");
+                System.out.println("Downloading data (820KB) and extracting to \n\t" + DATA_LOCAL_PATH);
+                System.out.println("_______________________________________________________________________");
+                Downloader.downloadAndExtract("files",
+                    new URL(DATA_URL),
+                    new File(DOWNLOAD_PATH),
+                    new File(EXTRACT_DIR),
+                    MD5,
+                    DOWNLOAD_RETRIES);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } else {
+            System.out.println("_______________________________________________________________________");
+            System.out.println("Example data present in \n\t" + DATA_LOCAL_PATH);
+            System.out.println("_______________________________________________________________________");
+        }
+    }
+
     public void run(String[] args) throws Exception {
 
-        log.info("Load data....");
         /**cd
          * Data Setup -> organize and limit data file paths:
          *  - mainPath = path to image files
@@ -113,7 +140,7 @@ public class AnimalsClassification {
          *  - pathFilter = define additional file load filter to limit size and balance batch content
          **/
         ParentPathLabelGenerator labelMaker = new ParentPathLabelGenerator();
-        File mainPath = new File(System.getProperty("user.dir"), "dl4j-examples/src/main/resources/animals/");
+        File mainPath = new File(DATA_LOCAL_PATH);
         FileSplit fileSplit = new FileSplit(mainPath, NativeImageLoader.ALLOWED_FORMATS, rng);
         int numExamples = toIntExact(fileSplit.length());
         numLabels = fileSplit.getRootDir().listFiles(File::isDirectory).length; //This only works if your root is clean: only label subdirs.

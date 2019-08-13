@@ -16,6 +16,7 @@
 
 package org.deeplearning4j.examples.modelimport.keras.basic;
 
+import org.apache.commons.io.FilenameUtils;
 import org.deeplearning4j.nn.api.Layer;
 import org.deeplearning4j.nn.api.OptimizationAlgorithm;
 import org.deeplearning4j.nn.conf.layers.DenseLayer;
@@ -25,8 +26,12 @@ import org.deeplearning4j.nn.modelimport.keras.KerasModelImport;
 import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
-import org.nd4j.linalg.io.ClassPathResource;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
+import org.nd4j.resources.Downloader;
+
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
 
 
 /**
@@ -64,9 +69,39 @@ import org.nd4j.linalg.lossfunctions.LossFunctions;
  */
 public class SimpleFunctionalMlpImport {
 
+    public static final String DATA_LOCAL_PATH;
+
+    static {
+        final String DATA_URL = "https://deeplearning4jblob.blob.core.windows.net/dl4j-examples/dl4j-examples/modelimport.zip";
+        final String MD5 = "411df05aace1c9ff587e430a662ce621";
+        final int DOWNLOAD_RETRIES = 10;
+        final String DOWNLOAD_PATH = FilenameUtils.concat(System.getProperty("java.io.tmpdir"), "modelimport.zip");
+        final String EXTRACT_DIR = FilenameUtils.concat(System.getProperty("user.home"), "dl4j-examples-data/dl4j-examples");
+        DATA_LOCAL_PATH = FilenameUtils.concat(EXTRACT_DIR, "modelimport");
+        if (!new File(DATA_LOCAL_PATH).exists()) {
+            try {
+                System.out.println("_______________________________________________________________________");
+                System.out.println("Downloading data (3MB) and extracting to \n\t" + DATA_LOCAL_PATH);
+                System.out.println("_______________________________________________________________________");
+                Downloader.downloadAndExtract("files",
+                    new URL(DATA_URL),
+                    new File(DOWNLOAD_PATH),
+                    new File(EXTRACT_DIR),
+                    MD5,
+                    DOWNLOAD_RETRIES);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } else {
+            System.out.println("_______________________________________________________________________");
+            System.out.println("Example data present in \n\t" + DATA_LOCAL_PATH);
+            System.out.println("_______________________________________________________________________");
+        }
+    }
+
 
     public static void main(String[] args) throws Exception {
-        final String SIMPLE_FUNCTIONAL_MLP = new ClassPathResource("modelimport/keras/simple_functional_mlp.h5").getFile().getPath();
+        final String SIMPLE_FUNCTIONAL_MLP = new File(DATA_LOCAL_PATH,"keras/simple_functional_mlp.h5").getAbsolutePath();
 
         // Keras functional Models correspond to DL4J ComputationGraphs. We enforce loading the training configuration
         // of the model as well. If you're only interested in inference, you can safely set this to 'false'.

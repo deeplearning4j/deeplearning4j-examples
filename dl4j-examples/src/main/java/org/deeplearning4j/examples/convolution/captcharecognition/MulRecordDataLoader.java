@@ -23,7 +23,6 @@ import org.nd4j.linalg.api.concurrency.AffinityManager;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.MultiDataSet;
 import org.nd4j.linalg.factory.Nd4j;
-import org.nd4j.linalg.io.ClassPathResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,11 +33,14 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
+import static org.deeplearning4j.examples.convolution.captcharecognition.MultiDigitNumberRecognition.DATA_LOCAL_PATH;
+
 
 /**
  * @author WangFeng
  */
 public class MulRecordDataLoader extends NativeImageLoader implements Serializable {
+
     private static final Logger log = LoggerFactory.getLogger(MulRecordDataLoader.class);
 
     private static int height = 60;
@@ -61,7 +63,7 @@ public class MulRecordDataLoader extends NativeImageLoader implements Serializab
         this.width = width;
         this.channels = channels;
         try {
-            this.fullDir = fullDir != null && fullDir.exists() ? fullDir : new ClassPathResource("/captchaImage").getFile();
+            this.fullDir = fullDir != null && fullDir.exists() ? fullDir : new File(DATA_LOCAL_PATH);
         } catch (Exception e) {
            // log.error("the datasets directory failed, plz checking", e);
             throw new RuntimeException( e );

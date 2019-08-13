@@ -16,7 +16,7 @@
 
 package org.deeplearning4j.examples.recurrent.processnews;
 
-import org.datavec.api.util.ClassPathResource;
+import org.apache.commons.io.FilenameUtils;
 import org.deeplearning4j.models.embeddings.loader.WordVectorSerializer;
 import org.deeplearning4j.models.word2vec.Word2Vec;
 import org.deeplearning4j.text.sentenceiterator.BasicLineIterator;
@@ -24,10 +24,13 @@ import org.deeplearning4j.text.sentenceiterator.SentenceIterator;
 import org.deeplearning4j.text.tokenization.tokenizer.preprocessor.CommonPreprocessor;
 import org.deeplearning4j.text.tokenization.tokenizerfactory.DefaultTokenizerFactory;
 import org.deeplearning4j.text.tokenization.tokenizerfactory.TokenizerFactory;
+import org.nd4j.resources.Downloader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.IOException;
+import java.net.URL;
 
 /**-
  * This program generates a word-vector from news items stored in resources folder.
@@ -43,11 +46,41 @@ public class PrepareWordVector {
 
     private static Logger log = LoggerFactory.getLogger(PrepareWordVector.class);
 
+    public static final String DATA_LOCAL_PATH;
+
+    static {
+        final String DATA_URL = "https://deeplearning4jblob.blob.core.windows.net/dl4j-examples/dl4j-examples/NewsData.zip";
+        final String MD5 = "0d08e902faabe6b8bfe5ecdd78af9f64";
+        final int DOWNLOAD_RETRIES = 10;
+        final String DOWNLOAD_PATH = FilenameUtils.concat(System.getProperty("java.io.tmpdir"), "NewsData.zip");
+        final String EXTRACT_DIR = FilenameUtils.concat(System.getProperty("user.home"), "dl4j-examples-data/dl4j-examples");
+        DATA_LOCAL_PATH = FilenameUtils.concat(EXTRACT_DIR, "NewsData");
+        if (!new File(DATA_LOCAL_PATH).exists()) {
+            try {
+                System.out.println("_______________________________________________________________________");
+                System.out.println("Downloading data (21MB) and extracting to \n\t" + DATA_LOCAL_PATH);
+                System.out.println("_______________________________________________________________________");
+                Downloader.downloadAndExtract("files",
+                    new URL(DATA_URL),
+                    new File(DOWNLOAD_PATH),
+                    new File(EXTRACT_DIR),
+                    MD5,
+                    DOWNLOAD_RETRIES);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } else {
+            System.out.println("_______________________________________________________________________");
+            System.out.println("Example data present in \n\t" + DATA_LOCAL_PATH);
+            System.out.println("_______________________________________________________________________");
+        }
+    }
+
+
     public static void main(String[] args) throws Exception {
 
         // Gets Path to Text file
-        String classPathResource = new ClassPathResource("NewsData").getFile().getAbsolutePath() + File.separator;
-        String filePath = new File(classPathResource + File.separator + "RawNewsToGenerateWordVector.txt").getAbsolutePath();
+        String filePath = new File(DATA_LOCAL_PATH, "RawNewsToGenerateWordVector.txt").getAbsolutePath();
 
         log.info("Load & Vectorize Sentences....");
         // Strip white space before and after for each line
@@ -77,6 +110,6 @@ public class PrepareWordVector {
         log.info("Writing word vectors to text file....");
 
         // Write word vectors to file
-        WordVectorSerializer.writeWordVectors(vec.lookupTable(), classPathResource + "NewsWordVector.txt");
+        WordVectorSerializer.writeWordVectors(vec.lookupTable(), new File(DATA_LOCAL_PATH, "NewsWordVector.txt").getAbsolutePath());
     }
 }

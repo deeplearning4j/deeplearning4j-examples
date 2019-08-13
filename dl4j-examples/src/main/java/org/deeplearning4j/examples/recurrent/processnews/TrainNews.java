@@ -51,7 +51,6 @@
 
 package org.deeplearning4j.examples.recurrent.processnews;
 
-import org.datavec.api.util.ClassPathResource;
 import org.deeplearning4j.eval.Evaluation;
 import org.deeplearning4j.models.embeddings.loader.WordVectorSerializer;
 import org.deeplearning4j.models.embeddings.wordvectors.WordVectors;
@@ -74,25 +73,23 @@ import org.nd4j.linalg.lossfunctions.LossFunctions;
 
 import java.io.File;
 
+import static org.deeplearning4j.examples.recurrent.processnews.PrepareWordVector.DATA_LOCAL_PATH;
+
 public class TrainNews {
-    public static String userDirectory = "";
     public static String DATA_PATH = "";
-    public static String WORD_VECTORS_PATH = "";
     public static WordVectors wordVectors;
     private static TokenizerFactory tokenizerFactory;
 
     public static void main(String[] args) throws Exception {
-        userDirectory = new ClassPathResource("NewsData").getFile().getAbsolutePath() + File.separator;
-        DATA_PATH = userDirectory + "LabelledNews";
-        WORD_VECTORS_PATH = userDirectory + "NewsWordVector.txt";
+        DATA_PATH = new File(DATA_LOCAL_PATH,"LabelledNews").getAbsolutePath();
 
         int batchSize = 50;     //Number of examples in each minibatch
-        int nEpochs = 1000;        //Number of epochs (full passes of training data) to train on
+        int nEpochs = 10;        //Number of epochs (full passes of training data) to train on
         int truncateReviewsToLength = 300;  //Truncate reviews with length (# words) greater than this
 
         //DataSetIterators for training and testing respectively
         //Using AsyncDataSetIterator to do data loading in a separate thread; this may improve performance vs. waiting for data to load
-        wordVectors = WordVectorSerializer.readWord2VecModel(new File(WORD_VECTORS_PATH));
+        wordVectors = WordVectorSerializer.readWord2VecModel(new File(DATA_LOCAL_PATH,"NewsWordVector.txt"));
 
         TokenizerFactory tokenizerFactory = new DefaultTokenizerFactory();
         tokenizerFactory.setTokenPreProcessor(new CommonPreprocessor());
@@ -147,7 +144,7 @@ public class TrainNews {
         Evaluation eval = net.evaluate(iTest);
         System.out.println(eval.stats());
 
-        net.save(new File(userDirectory + "NewsModel.net"), true);
+        net.save(new File(DATA_LOCAL_PATH,"NewsModel.net"), true);
         System.out.println("----- Example complete -----");
     }
 

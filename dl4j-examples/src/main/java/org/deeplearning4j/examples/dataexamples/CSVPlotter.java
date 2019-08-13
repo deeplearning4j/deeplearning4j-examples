@@ -16,10 +16,10 @@
 
 package org.deeplearning4j.examples.dataexamples;
 
+import org.apache.commons.io.FilenameUtils;
 import org.datavec.api.records.reader.RecordReader;
 import org.datavec.api.records.reader.impl.csv.CSVRecordReader;
 import org.datavec.api.split.FileSplit;
-import org.datavec.api.util.ClassPathResource;
 import org.deeplearning4j.datasets.datavec.RecordReaderDataSetIterator;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
@@ -42,10 +42,12 @@ import org.nd4j.linalg.dataset.api.preprocessor.NormalizerMinMaxScaler;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.learning.config.Nesterovs;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
+import org.nd4j.resources.Downloader;
 
 import javax.swing.*;
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 
 /**
@@ -55,9 +57,40 @@ import java.util.ArrayList;
  */
 public class CSVPlotter {
 
+    public static final String DATA_LOCAL_PATH;
+
+    static {
+        final String DATA_URL = "https://deeplearning4jblob.blob.core.windows.net/dl4j-examples/dl4j-examples/DataExamples.zip";
+        final String MD5 = "25de3941b3491af7234321f35b93ec25";
+        final int DOWNLOAD_RETRIES = 10;
+        final String DOWNLOAD_PATH = FilenameUtils.concat(System.getProperty("java.io.tmpdir"), "DataExamples.zip");
+        final String EXTRACT_DIR = FilenameUtils.concat(System.getProperty("user.home"), "dl4j-examples-data/dl4j-examples");
+        DATA_LOCAL_PATH = FilenameUtils.concat(EXTRACT_DIR,"DataExamples");
+        if (!new File(DATA_LOCAL_PATH).exists()) {
+            try {
+                System.out.println("_______________________________________________________________________");
+                System.out.println("Downloading data (2MB) and extracting to \n\t" + DATA_LOCAL_PATH);
+                System.out.println("_______________________________________________________________________");
+                Downloader.downloadAndExtract("files",
+                    new URL(DATA_URL),
+                    new File(DOWNLOAD_PATH),
+                    new File(EXTRACT_DIR),
+                    MD5,
+                    DOWNLOAD_RETRIES);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        else {
+            System.out.println("_______________________________________________________________________");
+            System.out.println("Example data present in \n\t" + DATA_LOCAL_PATH);
+            System.out.println("_______________________________________________________________________");
+        }
+    }
+
     public static void main( String[] args ) throws IOException, InterruptedException
     {
-        String filename = new ClassPathResource("/DataExamples/CSVPlotData.csv").getFile().getPath();
+        String filename = new File(DATA_LOCAL_PATH,"CSVPlotData.csv").getAbsolutePath();
     	DataSet ds = readCSVDataset(filename);
 
     	ArrayList<DataSet> DataSetList = new ArrayList<>();

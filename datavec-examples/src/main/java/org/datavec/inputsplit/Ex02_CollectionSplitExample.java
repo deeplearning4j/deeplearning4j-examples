@@ -16,12 +16,15 @@
 
 package org.datavec.inputsplit;
 
+import org.apache.commons.io.FilenameUtils;
 import org.datavec.api.split.CollectionInputSplit;
 import org.datavec.api.split.FileSplit;
-import org.nd4j.linalg.io.ClassPathResource;
+import org.nd4j.resources.Downloader;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URI;
+import java.net.URL;
 import java.util.Iterator;
 
 /**
@@ -30,10 +33,41 @@ import java.util.Iterator;
  * URIs
  */
 public class Ex02_CollectionSplitExample {
-    public static void main(String[] args) throws Exception{
-        // Receive the class path resource from the resource folder
-        ClassPathResource classPathResource1 = new ClassPathResource("inputsplit/files/cats");
-        File directoryToLook = classPathResource1.getFile();
+
+    public static final String DATA_LOCAL_PATH;
+
+    static {
+        final String DATA_URL = "https://deeplearning4jblob.blob.core.windows.net/dl4j-examples/datavec-examples/inputsplit.zip";
+        final String MD5 = "f316b5274bab3b0f568eded9bee1c67f";
+        final int DOWNLOAD_RETRIES = 10;
+        final String DOWNLOAD_PATH = FilenameUtils.concat(System.getProperty("java.io.tmpdir"), "inputsplit.zip");
+        final String EXTRACT_DIR = FilenameUtils.concat(System.getProperty("user.home"), "dl4j-examples-data/datavec-examples");
+        DATA_LOCAL_PATH = FilenameUtils.concat(EXTRACT_DIR, "inputsplit");
+        if (!new File(DATA_LOCAL_PATH).exists()) {
+            try {
+
+                System.out.println("_______________________________________________________________________");
+                System.out.println("Downloading data (128KB) and extracting to \n\t" + DATA_LOCAL_PATH);
+                System.out.println("_______________________________________________________________________");
+                Downloader.downloadAndExtract("files",
+                    new URL(DATA_URL),
+                    new File(DOWNLOAD_PATH),
+                    new File(EXTRACT_DIR),
+                    MD5,
+                    DOWNLOAD_RETRIES);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } else {
+            System.out.println("_______________________________________________________________________");
+            System.out.println("Example data present in \n\t" + DATA_LOCAL_PATH);
+            System.out.println("_______________________________________________________________________");
+        }
+
+    }
+
+    public static void main(String[] args) throws Exception {
+        File directoryToLook = new File(DATA_LOCAL_PATH, "files/cats");
 
         /*
           Creating a FileSplit this just to receive a list of URIs. From those URIs we'll create the CollectionInputSplit.

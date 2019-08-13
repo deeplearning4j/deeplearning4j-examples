@@ -17,6 +17,7 @@
 package org.deeplearning4j.examples.dataexamples;
 
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.datavec.api.records.reader.RecordReader;
 import org.datavec.api.records.reader.impl.csv.CSVRecordReader;
@@ -29,6 +30,7 @@ import org.deeplearning4j.nn.conf.layers.OutputLayer;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
 import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
+import org.nd4j.evaluation.classification.Evaluation;
 import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
@@ -37,17 +39,18 @@ import org.nd4j.linalg.dataset.api.preprocessor.DataNormalization;
 import org.nd4j.linalg.dataset.api.preprocessor.NormalizerStandardize;
 import org.nd4j.linalg.learning.config.Sgd;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
-import org.nd4j.linalg.io.ClassPathResource;
-import org.nd4j.evaluation.classification.Evaluation;
+import org.nd4j.resources.Downloader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 
 
 /**
@@ -63,88 +66,122 @@ public class BasicCSVClassifier {
 
     private static Logger log = LoggerFactory.getLogger(BasicCSVClassifier.class);
 
-    private static Map<Integer,String> eats = readEnumCSV("/DataExamples/animals/eats.csv");
-    private static Map<Integer,String> sounds = readEnumCSV("/DataExamples/animals/sounds.csv");
-    private static Map<Integer,String> classifiers = readEnumCSV("/DataExamples/animals/classifiers.csv");
+    private static Map<Integer, String> eats;
+    private static Map<Integer, String> sounds;
+    private static Map<Integer, String> classifiers;
+
+    public static final String DATA_LOCAL_PATH;
+
+    static {
+        final String DATA_URL = "https://deeplearning4jblob.blob.core.windows.net/dl4j-examples/dl4j-examples/DataExamples.zip";
+        final String MD5 = "25de3941b3491af7234321f35b93ec25";
+        final int DOWNLOAD_RETRIES = 10;
+        final String DOWNLOAD_PATH = FilenameUtils.concat(System.getProperty("java.io.tmpdir"), "DataExamples.zip");
+        final String EXTRACT_DIR = FilenameUtils.concat(System.getProperty("user.home"), "dl4j-examples-data/dl4j-examples");
+        DATA_LOCAL_PATH = FilenameUtils.concat(EXTRACT_DIR, "DataExamples");
+        if (!new File(DATA_LOCAL_PATH).exists()) {
+            try {
+                System.out.println("_______________________________________________________________________");
+                System.out.println("Downloading data (2MB) and extracting to \n\t" + DATA_LOCAL_PATH);
+                System.out.println("_______________________________________________________________________");
+                Downloader.downloadAndExtract("files",
+                    new URL(DATA_URL),
+                    new File(DOWNLOAD_PATH),
+                    new File(EXTRACT_DIR),
+                    MD5,
+                    DOWNLOAD_RETRIES);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        else {
+            System.out.println("_______________________________________________________________________");
+            System.out.println("Example data present in \n\t" + DATA_LOCAL_PATH);
+            System.out.println("_______________________________________________________________________");
+        }
+        eats = readEnumCSV("animals/eats.csv");
+        sounds = readEnumCSV("animals/sounds.csv");
+        classifiers = readEnumCSV("animals/classifiers.csv");
+    }
 
     public static void main(String[] args) throws Exception {
 
-            //Second: the RecordReaderDataSetIterator handles conversion to DataSet objects, ready for use in neural network
-            int labelIndex = 4;     //5 values in each row of the animals.csv CSV: 4 input features followed by an integer label (class) index. Labels are the 5th value (index 4) in each row
-            int numClasses = 3;     //3 classes (types of animals) in the animals data set. Classes have integer values 0, 1 or 2
+        //Second: the RecordReaderDataSetIterator handles conversion to DataSet objects, ready for use in neural network
+        int labelIndex = 4;     //5 values in each row of the animals.csv CSV: 4 input features followed by an integer label (class) index. Labels are the 5th value (index 4) in each row
+        int numClasses = 3;     //3 classes (types of animals) in the animals data set. Classes have integer values 0, 1 or 2
 
-            int batchSizeTraining = 30;    //Animals training data set: 30 examples total. We are loading all of them into one DataSet (not recommended for large data sets)
-            DataSet trainingData = readCSVDataset(
-                    "/DataExamples/animals/animals_train.csv",
-                    batchSizeTraining, labelIndex, numClasses);
+        int batchSizeTraining = 30;    //Animals training data set: 30 examples total. We are loading all of them into one DataSet (not recommended for large data sets)
+        DataSet trainingData = readCSVDataset(
+            "animals/animals_train.csv",
+            batchSizeTraining, labelIndex, numClasses);
 
-            // this is the data we want to classify
-            int batchSizeTest = 44;
-            DataSet testData = readCSVDataset("/DataExamples/animals/animals.csv",
-                    batchSizeTest, labelIndex, numClasses);
+        // this is the data we want to classify
+        int batchSizeTest = 44;
+        DataSet testData = readCSVDataset("animals/animals.csv",
+            batchSizeTest, labelIndex, numClasses);
 
-            // make the data model for records prior to normalization, because it
-            // changes the data.
-            Map<Integer, Map<String, Object>> animals = makeAnimalsForTesting(testData);
+        // make the data model for records prior to normalization, because it
+        // changes the data.
+        Map<Integer, Map<String, Object>> animals = makeAnimalsForTesting(testData);
 
 
-            //We need to normalize our data. We'll use NormalizeStandardize (which gives us mean 0, unit variance):
-            DataNormalization normalizer = new NormalizerStandardize();
-            normalizer.fit(trainingData);           //Collect the statistics (mean/stdev) from the training data. This does not modify the input data
-            normalizer.transform(trainingData);     //Apply normalization to the training data
-            normalizer.transform(testData);         //Apply normalization to the test data. This is using statistics calculated from the *training* set
+        //We need to normalize our data. We'll use NormalizeStandardize (which gives us mean 0, unit variance):
+        DataNormalization normalizer = new NormalizerStandardize();
+        normalizer.fit(trainingData);           //Collect the statistics (mean/stdev) from the training data. This does not modify the input data
+        normalizer.transform(trainingData);     //Apply normalization to the training data
+        normalizer.transform(testData);         //Apply normalization to the test data. This is using statistics calculated from the *training* set
 
-            //Configure neural network
-            final int numInputs = 4;
-            int outputNum = 3;
-            int epochs = 1000;
-            long seed = 6;
+        //Configure neural network
+        final int numInputs = 4;
+        int outputNum = 3;
+        int epochs = 1000;
+        long seed = 6;
 
-            log.info("Build model....");
-            MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
-                    .seed(seed)
-                    .activation(Activation.TANH)
-                    .weightInit(WeightInit.XAVIER)
-                    .updater(new Sgd(0.1))
-                    .l2(1e-4)
-                    .list()
-                    .layer(new DenseLayer.Builder().nIn(numInputs).nOut(3).build())
-                    .layer(new DenseLayer.Builder().nIn(3).nOut(3).build())
-                    .layer(new OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD)
-                            .activation(Activation.SOFTMAX).nIn(3).nOut(outputNum).build())
-                    .build();
+        log.info("Build model....");
+        MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
+            .seed(seed)
+            .activation(Activation.TANH)
+            .weightInit(WeightInit.XAVIER)
+            .updater(new Sgd(0.1))
+            .l2(1e-4)
+            .list()
+            .layer(new DenseLayer.Builder().nIn(numInputs).nOut(3).build())
+            .layer(new DenseLayer.Builder().nIn(3).nOut(3).build())
+            .layer(new OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD)
+                .activation(Activation.SOFTMAX).nIn(3).nOut(outputNum).build())
+            .build();
 
-            //run the model
-            MultiLayerNetwork model = new MultiLayerNetwork(conf);
-            model.init();
-            model.setListeners(new ScoreIterationListener(100));
+        //run the model
+        MultiLayerNetwork model = new MultiLayerNetwork(conf);
+        model.init();
+        model.setListeners(new ScoreIterationListener(100));
 
-            for( int i=0; i<epochs; i++ ) {
-                model.fit(trainingData);
-            }
+        for (int i = 0; i < epochs; i++) {
+            model.fit(trainingData);
+        }
 
-            //evaluate the model on the test set
-            Evaluation eval = new Evaluation(3);
-            INDArray output = model.output(testData.getFeatures());
+        //evaluate the model on the test set
+        Evaluation eval = new Evaluation(3);
+        INDArray output = model.output(testData.getFeatures());
 
-            eval.eval(testData.getLabels(), output);
-            log.info(eval.stats());
+        eval.eval(testData.getLabels(), output);
+        log.info(eval.stats());
 
-            setFittedClassifiers(output, animals);
-            logAnimals(animals);
+        setFittedClassifiers(output, animals);
+        logAnimals(animals);
     }
 
-    public static void logAnimals(Map<Integer, Map<String, Object>> animals){
-        for(Map<String,Object> a:animals.values())
+    public static void logAnimals(Map<Integer, Map<String, Object>> animals) {
+        for (Map<String, Object> a : animals.values())
             log.info(a.toString());
     }
 
-    public static void setFittedClassifiers(INDArray output, Map<Integer, Map<String, Object>> animals){
-        for (int i = 0; i < output.rows() ; i++) {
+    public static void setFittedClassifiers(INDArray output, Map<Integer, Map<String, Object>> animals) {
+        for (int i = 0; i < output.rows(); i++) {
 
             // set the classification from the fitted results
             animals.get(i).put("classifier",
-                    classifiers.get(maxIndex(getFloatArrayFromSlice(output.slice(i)))));
+                classifiers.get(maxIndex(getFloatArrayFromSlice(output.slice(i)))));
         }
     }
 
@@ -156,7 +193,7 @@ public class BasicCSVClassifier {
      * @param rowSlice
      * @return
      */
-    public static float[] getFloatArrayFromSlice(INDArray rowSlice){
+    public static float[] getFloatArrayFromSlice(INDArray rowSlice) {
         float[] result = new float[rowSlice.columns()];
         for (int i = 0; i < rowSlice.columns(); i++) {
             result[i] = rowSlice.getFloat(i);
@@ -171,11 +208,11 @@ public class BasicCSVClassifier {
      * @param vals
      * @return
      */
-    public static int maxIndex(float[] vals){
+    public static int maxIndex(float[] vals) {
         int maxIndex = 0;
-        for (int i = 1; i < vals.length; i++){
+        for (int i = 1; i < vals.length; i++) {
             float newnumber = vals[i];
-            if ((newnumber > vals[maxIndex])){
+            if ((newnumber > vals[maxIndex])) {
                 maxIndex = i;
             }
         }
@@ -189,13 +226,13 @@ public class BasicCSVClassifier {
      * @param testData
      * @return
      */
-    public static Map<Integer,Map<String,Object>> makeAnimalsForTesting(DataSet testData){
-        Map<Integer,Map<String,Object>> animals = new HashMap<>();
+    public static Map<Integer, Map<String, Object>> makeAnimalsForTesting(DataSet testData) {
+        Map<Integer, Map<String, Object>> animals = new HashMap<>();
 
         INDArray features = testData.getFeatures();
-        for (int i = 0; i < features.rows() ; i++) {
+        for (int i = 0; i < features.rows(); i++) {
             INDArray slice = features.slice(i);
-            Map<String,Object> animal = new HashMap();
+            Map<String, Object> animal = new HashMap();
 
             //set the attributes
             animal.put("yearsLived", slice.getInt(0));
@@ -203,22 +240,22 @@ public class BasicCSVClassifier {
             animal.put("sounds", sounds.get(slice.getInt(2)));
             animal.put("weight", slice.getFloat(3));
 
-            animals.put(i,animal);
+            animals.put(i, animal);
         }
         return animals;
     }
 
 
-    public static Map<Integer,String> readEnumCSV(String csvFileClasspath) {
-        try{
-            List<String> lines = IOUtils.readLines(new ClassPathResource(csvFileClasspath).getInputStream(), StandardCharsets.UTF_8);
-            Map<Integer,String> enums = new HashMap<>();
-            for(String line:lines){
+    public static Map<Integer, String> readEnumCSV(String csvFileClasspath) {
+        try {
+            List<String> lines = IOUtils.readLines(new FileInputStream(new File(DATA_LOCAL_PATH, csvFileClasspath)), StandardCharsets.UTF_8);
+            Map<Integer, String> enums = new HashMap<>();
+            for (String line : lines) {
                 String[] parts = line.split(",");
-                enums.put(Integer.parseInt(parts[0]),parts[1]);
+                enums.put(Integer.parseInt(parts[0]), parts[1]);
             }
             return enums;
-        } catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             return null;
         }
@@ -236,12 +273,12 @@ public class BasicCSVClassifier {
      * @throws InterruptedException
      */
     private static DataSet readCSVDataset(
-            String csvFileClasspath, int batchSize, int labelIndex, int numClasses)
-            throws IOException, InterruptedException{
+        String csvFileClasspath, int batchSize, int labelIndex, int numClasses)
+        throws IOException, InterruptedException {
 
         RecordReader rr = new CSVRecordReader();
-        rr.initialize(new FileSplit(new ClassPathResource(csvFileClasspath).getFile()));
-        DataSetIterator iterator = new RecordReaderDataSetIterator(rr,batchSize,labelIndex,numClasses);
+        rr.initialize(new FileSplit(new File(DATA_LOCAL_PATH, csvFileClasspath)));
+        DataSetIterator iterator = new RecordReaderDataSetIterator(rr, batchSize, labelIndex, numClasses);
         return iterator.next();
     }
 }

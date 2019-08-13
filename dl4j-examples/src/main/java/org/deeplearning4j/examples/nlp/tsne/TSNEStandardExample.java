@@ -16,6 +16,7 @@
 
 package org.deeplearning4j.examples.nlp.tsne;
 
+import org.apache.commons.io.FilenameUtils;
 import org.deeplearning4j.models.embeddings.inmemory.InMemoryLookupTable;
 import org.deeplearning4j.models.embeddings.loader.WordVectorSerializer;
 import org.deeplearning4j.models.word2vec.wordstore.VocabCache;
@@ -23,24 +24,55 @@ import org.deeplearning4j.plot.BarnesHutTsne;
 import org.nd4j.linalg.api.buffer.DataType;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
-import org.nd4j.linalg.io.ClassPathResource;
 import org.nd4j.linalg.primitives.Pair;
+import org.nd4j.resources.Downloader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Created by agibsonccc on 9/20/14.
- *
+ * <p>
  * Dimensionality reduction for high-dimension datasets
  */
 public class TSNEStandardExample {
     private static Logger log = LoggerFactory.getLogger(TSNEStandardExample.class);
+    public static final String DATA_LOCAL_PATH;
 
-    public static void main(String[] args) throws Exception  {
+    static {
+        final String DATA_URL = "https://deeplearning4jblob.blob.core.windows.net/dl4j-examples/dl4j-examples/nlp.zip";
+        final String MD5 = "1ac7cd7ca08f13402f0e3b83e20c0512";
+        final int DOWNLOAD_RETRIES = 10;
+        final String DOWNLOAD_PATH = FilenameUtils.concat(System.getProperty("java.io.tmpdir"), "nlp.zip");
+        final String EXTRACT_DIR = FilenameUtils.concat(System.getProperty("user.home"), "dl4j-examples-data/dl4j-examples");
+        DATA_LOCAL_PATH = FilenameUtils.concat(EXTRACT_DIR, "nlp");
+        if (!new File(DATA_LOCAL_PATH).exists()) {
+            try {
+                System.out.println("_______________________________________________________________________");
+                System.out.println("Downloading data (91MB) and extracting to \n\t" + DATA_LOCAL_PATH);
+                System.out.println("_______________________________________________________________________");
+                Downloader.downloadAndExtract("files",
+                    new URL(DATA_URL),
+                    new File(DOWNLOAD_PATH),
+                    new File(EXTRACT_DIR),
+                    MD5,
+                    DOWNLOAD_RETRIES);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } else {
+            System.out.println("_______________________________________________________________________");
+            System.out.println("Example data present in \n\t" + DATA_LOCAL_PATH);
+            System.out.println("_______________________________________________________________________");
+        }
+    }
+
+    public static void main(String[] args) throws Exception {
         //STEP 1: Initialization
         int iterations = 100;
         //create an n-dimensional array of doubles
@@ -49,24 +81,24 @@ public class TSNEStandardExample {
 
         //STEP 2: Turn text input into a list of words
         log.info("Load & Vectorize data....");
-        File wordFile = new ClassPathResource("words.txt").getFile();   //Open the file
+        File wordFile = new File(DATA_LOCAL_PATH,"words.txt");   //Open the file
         //Get the data of all unique word vectors
-        Pair<InMemoryLookupTable,VocabCache> vectors = WordVectorSerializer.loadTxt(wordFile);
+        Pair<InMemoryLookupTable, VocabCache> vectors = WordVectorSerializer.loadTxt(wordFile);
         VocabCache cache = vectors.getSecond();
         INDArray weights = vectors.getFirst().getSyn0();    //seperate weights of unique words into their own list
 
-        for(int i = 0; i < cache.numWords(); i++)   //seperate strings of words into their own list
+        for (int i = 0; i < cache.numWords(); i++)   //seperate strings of words into their own list
             cacheList.add(cache.wordAtIndex(i));
 
         //STEP 3: build a dual-tree tsne to use later
         log.info("Build model....");
         BarnesHutTsne tsne = new BarnesHutTsne.Builder()
-                .setMaxIter(iterations).theta(0.5)
-                .normalize(false)
-                .learningRate(500)
-                .useAdaGrad(false)
+            .setMaxIter(iterations).theta(0.5)
+            .normalize(false)
+            .learningRate(500)
+            .useAdaGrad(false)
 //                .usePca(false)
-                .build();
+            .build();
 
         //STEP 4: establish the tsne values and save them to a file
         log.info("Store TSNE Coordinates for Plotting....");
@@ -87,7 +119,6 @@ public class TSNEStandardExample {
         //    set datafile separator ","
         //    splot 'tsne-standard-coords.csv' using 1:2:3:4 with labels font "Times,8"
     }
-
 
 
 }

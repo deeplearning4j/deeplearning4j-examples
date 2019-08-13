@@ -16,16 +16,18 @@
 
 package org.deeplearning4j.examples.modelimport.tensorflow;
 
+import org.apache.commons.io.FilenameUtils;
 import org.nd4j.autodiff.execution.NativeGraphExecutioner;
 import org.nd4j.autodiff.samediff.SDVariable;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.imports.graphmapper.tf.TFGraphMapper;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
-import org.nd4j.linalg.io.ClassPathResource;
+import org.nd4j.resources.Downloader;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -50,13 +52,41 @@ import java.util.Map;
  */
 public class LoadTensorFlowMNISTMLP {
 
-    //Python code for this can be found in resources/import/tensorflow under generate_model.py and freeze_model_after.py
+    //Python code for this can be found in ~/dl4j-examples-data/dl4j-examples/modelimport/tensorflow under generate_model.py and freeze_model_after.py
     //Input node/Placeholder in this graph is names "input"
     //Output node/op in this graph is names "output"
-    public final static String BASE_DIR = "modelimport/tensorflow";
+    public static final String DATA_LOCAL_PATH;
+
+    static {
+        final String DATA_URL = "https://deeplearning4jblob.blob.core.windows.net/dl4j-examples/dl4j-examples/modelimport.zip";
+        final String MD5 = "411df05aace1c9ff587e430a662ce621";
+        final int DOWNLOAD_RETRIES = 10;
+        final String DOWNLOAD_PATH = FilenameUtils.concat(System.getProperty("java.io.tmpdir"), "modelimport.zip");
+        final String EXTRACT_DIR = FilenameUtils.concat(System.getProperty("user.home"), "dl4j-examples-data/dl4j-examples");
+        DATA_LOCAL_PATH = FilenameUtils.concat(EXTRACT_DIR, "modelimport/tensorflow");
+        if (!new File(DATA_LOCAL_PATH).exists()) {
+            try {
+                System.out.println("_______________________________________________________________________");
+                System.out.println("Downloading data (3MB) and extracting to \n\t" + DATA_LOCAL_PATH);
+                System.out.println("_______________________________________________________________________");
+                Downloader.downloadAndExtract("files",
+                    new URL(DATA_URL),
+                    new File(DOWNLOAD_PATH),
+                    new File(EXTRACT_DIR),
+                    MD5,
+                    DOWNLOAD_RETRIES);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } else {
+            System.out.println("_______________________________________________________________________");
+            System.out.println("Example data present in \n\t" + DATA_LOCAL_PATH);
+            System.out.println("_______________________________________________________________________");
+        }
+    }
 
     public static void main(String[] args) throws Exception {
-        final String FROZEN_MLP = new ClassPathResource(BASE_DIR + "/frozen_model.pb").getFile().getPath();
+        final String FROZEN_MLP = new File(DATA_LOCAL_PATH,"frozen_model.pb").getAbsolutePath();
 
         //Load placeholder inputs and corresponding predictions generated from tensorflow
         Map<String, INDArray> inputsPredictions = readPlaceholdersAndPredictions();
@@ -101,8 +131,8 @@ public class LoadTensorFlowMNISTMLP {
         String[] toReadList = {"input_a", "input_b", "prediction_a", "prediction_b"};
         Map<String, INDArray> arraysFromPython = new HashMap<>();
         for (int i = 0; i < toReadList.length; i++) {
-            String varShapePath = new ClassPathResource(BASE_DIR + "/" + toReadList[i] + ".shape").getFile().getPath();
-            String varValuePath = new ClassPathResource(BASE_DIR + "/" + toReadList[i] + ".csv").getFile().getPath();
+            String varShapePath = new File(DATA_LOCAL_PATH,toReadList[i] + ".shape").getAbsolutePath();
+            String varValuePath = new File(DATA_LOCAL_PATH,toReadList[i] + ".csv").getAbsolutePath();
             int[] varShape = Nd4j.readNumpy(varShapePath, ",").data().asInt();
             float[] varContents = Nd4j.readNumpy(varValuePath).data().asFloat();
             arraysFromPython.put(toReadList[i], Nd4j.create(varContents).reshape(varShape));

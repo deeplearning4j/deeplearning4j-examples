@@ -16,6 +16,7 @@
 
 package org.datavec.transform.basic;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
@@ -30,8 +31,11 @@ import org.datavec.spark.transform.SparkTransformExecutor;
 import org.datavec.spark.transform.misc.StringToWritablesFunction;
 import org.datavec.spark.transform.misc.WritablesToStringFunction;
 import org.joda.time.DateTimeZone;
-import org.nd4j.linalg.io.ClassPathResource;
+import org.nd4j.resources.Downloader;
 
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
 
@@ -44,6 +48,39 @@ import java.util.List;
  * @author Alex Black
  */
 public class PivotExample {
+
+    public static final String DATA_LOCAL_PATH;
+
+    static {
+
+        final String DATA_URL = "https://deeplearning4jblob.blob.core.windows.net/dl4j-examples/datavec-examples/BasicDataVecExample.zip";
+        final String MD5 = "92f87e0ceb81093ff8b49e2b4e0a5a02";
+        final int DOWNLOAD_RETRIES = 10;
+        final String DOWNLOAD_PATH = FilenameUtils.concat(System.getProperty("java.io.tmpdir"), "BasicDataVecExample.zip");
+        final String EXTRACT_DIR = FilenameUtils.concat(System.getProperty("user.home"), "dl4j-examples-data/datavec-examples");
+        DATA_LOCAL_PATH = FilenameUtils.concat(EXTRACT_DIR,"BasicDataVecExample");
+        if (!new File(DATA_LOCAL_PATH).exists()) {
+            try {
+                System.out.println("_______________________________________________________________________");
+                System.out.println("Downloading data (1KB) to \n\t" + DATA_LOCAL_PATH);
+                System.out.println("_______________________________________________________________________");
+                Downloader.downloadAndExtract("files",
+                    new URL(DATA_URL),
+                    new File(DOWNLOAD_PATH),
+                    new File(EXTRACT_DIR),
+                    MD5,
+                    DOWNLOAD_RETRIES);
+            }
+            catch (IOException e) {
+                e.printStackTrace();
+            }
+        } else {
+            System.out.println("_______________________________________________________________________");
+            System.out.println("Example data present in \n\t" + DATA_LOCAL_PATH);
+            System.out.println("_______________________________________________________________________");
+        }
+    }
+
 
     public static void main(String[] args) throws Exception {
 
@@ -97,7 +134,7 @@ public class PivotExample {
 
         //Define the path to the data file. You could use a directory here if the data is in multiple files
         //Normally just define your path like "file:/..." or "hdfs:/..."
-        String path = new ClassPathResource("BasicDataVecExample/PivotExampleData.csv").getFile().getAbsolutePath();
+        String path = new File(DATA_LOCAL_PATH, "PivotExampleData.csv").getAbsolutePath();
         JavaRDD<String> stringData = sc.textFile(path);
 
         //We first need to parse this format. It's comma-delimited (CSV) format, so let's parse it using CSVRecordReader:

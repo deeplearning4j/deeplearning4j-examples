@@ -17,6 +17,7 @@
 package org.datavec.transform.basic;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.datavec.api.records.reader.RecordReader;
 import org.datavec.api.records.reader.impl.csv.CSVRecordReader;
 import org.datavec.api.records.writer.RecordWriter;
@@ -36,9 +37,11 @@ import org.datavec.api.writable.Writable;
 import org.datavec.local.transforms.LocalTransformExecutor;
 import org.joda.time.DateTimeFieldType;
 import org.joda.time.DateTimeZone;
-import org.nd4j.linalg.io.ClassPathResource;
+import org.nd4j.resources.Downloader;
 
 import java.io.File;
+import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -58,6 +61,38 @@ import java.util.List;
  * @author Alex Black
  */
 public class BasicDataVecExampleLocal {
+
+    public static final String DATA_LOCAL_PATH;
+
+    static {
+
+        final String DATA_URL = "https://deeplearning4jblob.blob.core.windows.net/dl4j-examples/datavec-examples/BasicDataVecExample.zip";
+        final String MD5 = "92f87e0ceb81093ff8b49e2b4e0a5a02";
+        final int DOWNLOAD_RETRIES = 10;
+        final String DOWNLOAD_PATH = FilenameUtils.concat(System.getProperty("java.io.tmpdir"), "BasicDataVecExample.zip");
+        final String EXTRACT_DIR = FilenameUtils.concat(System.getProperty("user.home"), "dl4j-examples-data/datavec-examples");
+        DATA_LOCAL_PATH = FilenameUtils.concat(EXTRACT_DIR,"BasicDataVecExample");
+        if (!new File(DATA_LOCAL_PATH).exists()) {
+            try {
+                System.out.println("_______________________________________________________________________");
+                System.out.println("Downloading data (1KB) to \n\t" + DATA_LOCAL_PATH);
+                System.out.println("_______________________________________________________________________");
+                Downloader.downloadAndExtract("files",
+                    new URL(DATA_URL),
+                    new File(DOWNLOAD_PATH),
+                    new File(EXTRACT_DIR),
+                    MD5,
+                    DOWNLOAD_RETRIES);
+            }
+            catch (IOException e) {
+                e.printStackTrace();
+            }
+        } else {
+            System.out.println("_______________________________________________________________________");
+            System.out.println("Example data present in \n\t" + DATA_LOCAL_PATH);
+            System.out.println("_______________________________________________________________________");
+        }
+    }
 
     public static  void main(String[] args) throws Exception {
 
@@ -149,7 +184,7 @@ public class BasicDataVecExampleLocal {
         //=====================================================================
 
         //Define input and output paths:
-        File inputFile = new ClassPathResource("BasicDataVecExample/exampledata.csv").getFile();
+        File inputFile = new File(DATA_LOCAL_PATH, "exampledata.csv");
         File outputFile = new File("BasicDataVecExampleLocalOut.csv");
         if(outputFile.exists()){
             outputFile.delete();

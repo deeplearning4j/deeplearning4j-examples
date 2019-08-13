@@ -16,6 +16,7 @@
 
 package org.deeplearning4j.examples.feedforward.classification;
 
+import org.apache.commons.io.FilenameUtils;
 import org.datavec.api.records.reader.RecordReader;
 import org.datavec.api.records.reader.impl.csv.CSVRecordReader;
 import org.datavec.api.split.FileSplit;
@@ -33,11 +34,13 @@ import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.nd4j.linalg.factory.Nd4j;
-import org.nd4j.linalg.io.ClassPathResource;
 import org.nd4j.linalg.learning.config.Nesterovs;
 import org.nd4j.linalg.lossfunctions.LossFunctions.LossFunction;
+import org.nd4j.resources.Downloader;
 
 import java.io.File;
+import java.io.IOException;
+import java.net.URL;
 
 /**
  * "Saturn" Data Classification Example
@@ -51,6 +54,37 @@ import java.io.File;
  */
 public class MLPClassifierSaturn {
 
+    public static final String DATA_LOCAL_PATH;
+
+    static {
+        final String DATA_URL = "https://deeplearning4jblob.blob.core.windows.net/dl4j-examples/dl4j-examples/classification.zip";
+        final String MD5 = "dba31e5838fe15993579edbf1c60c355";
+        final int DOWNLOAD_RETRIES = 10;
+        final String DOWNLOAD_PATH = FilenameUtils.concat(System.getProperty("java.io.tmpdir"), "classification.zip");
+        final String EXTRACT_DIR = FilenameUtils.concat(System.getProperty("user.home"), "dl4j-examples-data/dl4j-examples");
+        DATA_LOCAL_PATH = FilenameUtils.concat(EXTRACT_DIR, "classification");
+        if (!new File(DATA_LOCAL_PATH).exists()) {
+            try {
+                System.out.println("_______________________________________________________________________");
+                System.out.println("Downloading data (77KB) and extracting to \n\t" + DATA_LOCAL_PATH);
+                System.out.println("_______________________________________________________________________");
+                Downloader.downloadAndExtract("files",
+                    new URL(DATA_URL),
+                    new File(DOWNLOAD_PATH),
+                    new File(EXTRACT_DIR),
+                    MD5,
+                    DOWNLOAD_RETRIES);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        else {
+            System.out.println("_______________________________________________________________________");
+            System.out.println("Example data present in \n\t" + DATA_LOCAL_PATH);
+            System.out.println("_______________________________________________________________________");
+        }
+    }
+
 
     public static void main(String[] args) throws Exception {
         int batchSize = 50;
@@ -63,17 +97,14 @@ public class MLPClassifierSaturn {
         int numOutputs = 2;
         int numHiddenNodes = 20;
 
-        final String filenameTrain  = new ClassPathResource("/classification/saturn_data_train.csv").getFile().getPath();
-        final String filenameTest  = new ClassPathResource("/classification/saturn_data_eval.csv").getFile().getPath();
-
         //Load the training data:
         RecordReader rr = new CSVRecordReader();
-        rr.initialize(new FileSplit(new File(filenameTrain)));
+        rr.initialize(new FileSplit(new File(DATA_LOCAL_PATH,"saturn_data_train.csv")));
         DataSetIterator trainIter = new RecordReaderDataSetIterator(rr,batchSize,0,2);
 
         //Load the test/evaluation data:
         RecordReader rrTest = new CSVRecordReader();
-        rrTest.initialize(new FileSplit(new File(filenameTest)));
+        rrTest.initialize(new FileSplit(new File(DATA_LOCAL_PATH,"saturn_data_eval.csv")));
         DataSetIterator testIter = new RecordReaderDataSetIterator(rrTest,batchSize,0,2);
 
         //log.info("Build model....");
@@ -129,7 +160,7 @@ public class MLPClassifierSaturn {
         INDArray predictionsAtXYPoints = model.output(allXYPoints);
 
         //Get all of the training data in a single array, and plot it:
-        rr.initialize(new FileSplit(new File(filenameTrain)));
+        rr.initialize(new FileSplit(new File(DATA_LOCAL_PATH,"saturn_data_train.csv")));
         rr.reset();
         int nTrainPoints = 500;
         trainIter = new RecordReaderDataSetIterator(rr,nTrainPoints,0,2);
@@ -138,7 +169,7 @@ public class MLPClassifierSaturn {
 
 
         //Get test data, run the test data through the network to generate predictions, and plot those predictions:
-        rrTest.initialize(new FileSplit(new File(filenameTest)));
+        rrTest.initialize(new FileSplit(new File(DATA_LOCAL_PATH,"saturn_data_eval.csv")));
         rrTest.reset();
         int nTestPoints = 100;
         testIter = new RecordReaderDataSetIterator(rrTest,nTestPoints,0,2);

@@ -24,7 +24,6 @@
 
 package org.deeplearning4j.examples.recurrent.processnews;
 
-import org.datavec.api.util.ClassPathResource;
 import org.deeplearning4j.models.embeddings.loader.WordVectorSerializer;
 import org.deeplearning4j.models.embeddings.wordvectors.WordVectors;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
@@ -45,13 +44,13 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import static org.deeplearning4j.examples.recurrent.processnews.PrepareWordVector.DATA_LOCAL_PATH;
+
 
 public class TestNews extends javax.swing.JFrame {
-    private static String WORD_VECTORS_PATH = "";
     private static WordVectors wordVectors;
     private static TokenizerFactory tokenizerFactory;
     private static int maxLength = 8;
-    private static String userDirectory = "";
 
     // Variables declaration - do not modify
     private javax.swing.JButton jButton1;
@@ -148,14 +147,13 @@ public class TestNews extends javax.swing.JFrame {
         double bollywoodTotal = 0;
         double developmentTotal = 0;
 
-        String DATA_PATH = userDirectory + "LabelledNews";
-        File categories = new File(DATA_PATH + File.separator + "categories.txt");
+        File categories = new File(DATA_LOCAL_PATH, "LabelledNews/categories.txt");
 
         double max = 0;
         int pos = 0;
         for (int i = 0; i < arrsiz[1]; i++) {
-            if (max < (double) predicted.getColumn(i).sumNumber()) {
-                max = (double) predicted.getColumn(i).sumNumber();
+            if (max < (double) predicted.slice(0).getRow(i).sumNumber()) {
+                max = (double) predicted.slice(0).getRow(i).sumNumber();
                 pos = i;
             }
         }
@@ -195,12 +193,10 @@ public class TestNews extends javax.swing.JFrame {
         test.setVisible(true);
 
         try {
-            userDirectory = new ClassPathResource("NewsData").getFile().getAbsolutePath() + File.separator;
-            WORD_VECTORS_PATH = userDirectory + "NewsWordVector.txt";
             tokenizerFactory = new DefaultTokenizerFactory();
             tokenizerFactory.setTokenPreProcessor(new CommonPreprocessor());
-            net = MultiLayerNetwork.load(new File(userDirectory + "NewsModel.net"), true);
-            wordVectors = WordVectorSerializer.readWord2VecModel(new File(WORD_VECTORS_PATH));
+            net = MultiLayerNetwork.load(new File(DATA_LOCAL_PATH,"NewsModel.net"), true);
+            wordVectors = WordVectorSerializer.readWord2VecModel(new File(DATA_LOCAL_PATH,"NewsWordVector.txt"));
         } catch (Exception e) {
 
         }

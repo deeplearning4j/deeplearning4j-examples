@@ -16,7 +16,7 @@
 
 package org.deeplearning4j.examples.nlp.word2vec;
 
-import org.datavec.api.util.ClassPathResource;
+import org.apache.commons.io.FilenameUtils;
 import org.deeplearning4j.models.embeddings.WeightLookupTable;
 import org.deeplearning4j.models.embeddings.inmemory.InMemoryLookupTable;
 import org.deeplearning4j.models.embeddings.loader.WordVectorSerializer;
@@ -29,16 +29,20 @@ import org.deeplearning4j.text.sentenceiterator.SentenceIterator;
 import org.deeplearning4j.text.tokenization.tokenizer.preprocessor.CommonPreprocessor;
 import org.deeplearning4j.text.tokenization.tokenizerfactory.DefaultTokenizerFactory;
 import org.deeplearning4j.text.tokenization.tokenizerfactory.TokenizerFactory;
+import org.nd4j.resources.Downloader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
 import java.util.Collection;
 
 /**
  * This is simple example for model weights update after initial vocab building.
  * If you have built your w2v model, and some time later you've decided that it can be
  * additionally trained over new corpus, here's an example how to do it.
- *
+ * <p>
  * PLEASE NOTE: At this moment, no new words will be added to vocabulary/model.
  * Only weights update process will be issued. It's often called "frozen vocab training".
  *
@@ -47,12 +51,41 @@ import java.util.Collection;
 public class Word2VecUptrainingExample {
 
     private static Logger log = LoggerFactory.getLogger(Word2VecUptrainingExample.class);
+    public static final String DATA_LOCAL_PATH;
+
+    static {
+        final String DATA_URL = "https://deeplearning4jblob.blob.core.windows.net/dl4j-examples/dl4j-examples/nlp.zip";
+        final String MD5 = "1ac7cd7ca08f13402f0e3b83e20c0512";
+        final int DOWNLOAD_RETRIES = 10;
+        final String DOWNLOAD_PATH = FilenameUtils.concat(System.getProperty("java.io.tmpdir"), "nlp.zip");
+        final String EXTRACT_DIR = FilenameUtils.concat(System.getProperty("user.home"), "dl4j-examples-data/dl4j-examples");
+        DATA_LOCAL_PATH = FilenameUtils.concat(EXTRACT_DIR, "nlp");
+        if (!new File(DATA_LOCAL_PATH).exists()) {
+            try {
+                System.out.println("_______________________________________________________________________");
+                System.out.println("Downloading data (91MB) and extracting to \n\t" + DATA_LOCAL_PATH);
+                System.out.println("_______________________________________________________________________");
+                Downloader.downloadAndExtract("files",
+                    new URL(DATA_URL),
+                    new File(DOWNLOAD_PATH),
+                    new File(EXTRACT_DIR),
+                    MD5,
+                    DOWNLOAD_RETRIES);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } else {
+            System.out.println("_______________________________________________________________________");
+            System.out.println("Example data present in \n\t" + DATA_LOCAL_PATH);
+            System.out.println("_______________________________________________________________________");
+        }
+    }
 
     public static void main(String[] args) throws Exception {
         /*
                 Initial model training phase
          */
-        String filePath = new ClassPathResource("raw_sentences.txt").getFile().getAbsolutePath();
+        String filePath = new File(DATA_LOCAL_PATH, "raw_sentences.txt").getAbsolutePath();
 
         log.info("Load & Vectorize Sentences....");
         // Strip white space before and after for each line
@@ -65,23 +98,23 @@ public class Word2VecUptrainingExample {
         // but in this case we'll need them
         VocabCache<VocabWord> cache = new AbstractCache<>();
         WeightLookupTable<VocabWord> table = new InMemoryLookupTable.Builder<VocabWord>()
-                .vectorLength(100)
-                .useAdaGrad(false)
-                .cache(cache).build();
+            .vectorLength(100)
+            .useAdaGrad(false)
+            .cache(cache).build();
 
         log.info("Building model....");
         Word2Vec vec = new Word2Vec.Builder()
-                .minWordFrequency(5)
-                .iterations(1)
-                .epochs(1)
-                .layerSize(100)
-                .seed(42)
-                .windowSize(5)
-                .iterate(iter)
-                .tokenizerFactory(t)
-                .lookupTable(table)
-                .vocabCache(cache)
-                .build();
+            .minWordFrequency(5)
+            .iterations(1)
+            .epochs(1)
+            .layerSize(100)
+            .seed(42)
+            .windowSize(5)
+            .iterate(iter)
+            .tokenizerFactory(t)
+            .lookupTable(table)
+            .vocabCache(cache)
+            .build();
 
         log.info("Fitting Word2Vec model....");
         vec.fit();
