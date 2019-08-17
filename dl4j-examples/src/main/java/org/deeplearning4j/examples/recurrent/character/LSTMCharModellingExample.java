@@ -29,6 +29,8 @@ import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.factory.Nd4j;
+import org.nd4j.linalg.indexing.BooleanIndexing;
+import org.nd4j.linalg.indexing.conditions.Conditions;
 import org.nd4j.linalg.learning.config.Adam;
 import org.nd4j.linalg.learning.config.Nadam;
 import org.nd4j.linalg.lossfunctions.LossFunctions.LossFunction;
@@ -184,21 +186,20 @@ public class LSTMCharModellingExample {
 		INDArray output = net.rnnTimeStep(initializationInput);
 		output = output.tensorAlongDimension((int)output.size(2)-1,1,0);	//Gets the last time step output
 
-		for( int i=0; i<charactersToSample; i++ ){
-			//Set up next input (single time step) by sampling from previous output
-			INDArray nextInput = Nd4j.zeros(numSamples,iter.inputColumns());
-			//Output is a probability distribution. Sample from this for each example we want to generate, and add it to the new input
-			for( int s=0; s<numSamples; s++ ){
-				double[] outputProbDistribution = new double[iter.totalOutcomes()];
-				for( int j=0; j<outputProbDistribution.length; j++ ) outputProbDistribution[j] = output.getDouble(s,j);
-				int sampledCharacterIdx = sampleFromDistribution(outputProbDistribution,rng);
+        for (int i = 0; i < charactersToSample; i++) {
+            //Set up next input (single time step) by sampling from previous output
+            INDArray nextInput = Nd4j.zeros(numSamples, iter.inputColumns());
+            INDArray cumsum = Nd4j.cumsum(output, 1);
 
-				nextInput.putScalar(new int[]{s,sampledCharacterIdx}, 1.0f);		//Prepare next time step input
-				sb[s].append(iter.convertIndexToCharacter(sampledCharacterIdx));	//Add sampled character to StringBuilder (human readable output)
-			}
+            for (int s = 0; s < numSamples; s++) {
+                //Output is a probability distribution. Sample from this for each example we want to generate, and add it to the new input
+                int sampledCharacterIdx = BooleanIndexing.firstIndex(cumsum.getRow(s), Conditions.greaterThan(rng.nextDouble())).getInt(0);
+                nextInput.putScalar(new int[]{s, sampledCharacterIdx}, 1.0f);        //Prepare next time step input
+                sb[s].append(iter.convertIndexToCharacter(sampledCharacterIdx));    //Add sampled character to StringBuilder (human readable output)
+            }
 
-			output = net.rnnTimeStep(nextInput);	//Do one time step of forward pass
-		}
+            output = net.rnnTimeStep(nextInput);    //Do one time step of forward pass
+        }
 
 		String[] out = new String[numSamples];
 		for( int i=0; i<numSamples; i++ ) out[i] = sb[i].toString();
