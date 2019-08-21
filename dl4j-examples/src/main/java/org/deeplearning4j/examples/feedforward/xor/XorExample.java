@@ -124,14 +124,12 @@ public class XorExample {
                 .nOut(4)
                 .activation(Activation.SIGMOID)
                 // random initialize weights with values between 0 and 1
-                .weightInit(WeightInit.DISTRIBUTION)
-                .dist(new UniformDistribution(0, 1))
+                .weightInit(new UniformDistribution(0, 1))   
                 .build())
             .layer(new OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD)
                 .nOut(2)
                 .activation(Activation.SOFTMAX)
-                .weightInit(WeightInit.DISTRIBUTION)
-                .dist(new UniformDistribution(0, 1))
+                .weightInit(new UniformDistribution(0, 1))
                 .build())
             .build();
 
