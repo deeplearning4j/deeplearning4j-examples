@@ -70,6 +70,7 @@
         <module>nd4j-examples</module>
         <module>rl4j-examples</module>
         <module>lstm-hdfs</module>
+        <module>shared-utilities</module>
     </modules>
 
     <!-- Maven Enforcer: Ensures user has an up to date version of Maven before building -->
