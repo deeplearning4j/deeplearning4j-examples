@@ -16,8 +16,8 @@
 
 package org.deeplearning4j.examples.dataexamples;
 
-import org.datavec.api.util.ClassPathResource;
 import org.deeplearning4j.datasets.iterator.IteratorDataSetIterator;
+import org.deeplearning4j.examples.download.DownloaderUtility;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.dataset.SplitTestAndTrain;
@@ -53,7 +53,7 @@ public class MultiClassLogit {
 
   private static final Logger log = LoggerFactory.getLogger(MultiClassLogit.class);
 
-  public static void main(String[] args) {
+  public static void main(String[] args) throws Exception {
     DataSet irisDataSet = getIrisDataSet();
 
     //dataset split: 80% training, 20% test
@@ -70,11 +70,11 @@ public class MultiClassLogit {
     testModel(testData, model);
   }
 
-  private static DataSet getIrisDataSet() {
+  private static DataSet getIrisDataSet() throws Exception {
     DataSet irisDataSet = null;
     try {
 
-      File irisData = new ClassPathResource("iris.txt").getFile();
+      File irisData = new File(DownloaderUtility.IRISDATA.Download(),"iris.txt");
       BufferedReader reader = new BufferedReader(new FileReader(irisData));
 
       List<DataSet> data = reader.lines()

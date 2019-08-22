@@ -16,11 +16,11 @@
 
 package org.deeplearning4j.examples.dataexamples;
 
-import org.apache.commons.io.FilenameUtils;
 import org.datavec.api.records.reader.RecordReader;
 import org.datavec.api.records.reader.impl.csv.CSVRecordReader;
 import org.datavec.api.split.FileSplit;
 import org.deeplearning4j.datasets.datavec.RecordReaderDataSetIterator;
+import org.deeplearning4j.examples.download.DownloaderUtility;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
 import org.deeplearning4j.nn.conf.layers.DenseLayer;
@@ -42,12 +42,10 @@ import org.nd4j.linalg.dataset.api.preprocessor.NormalizerMinMaxScaler;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.learning.config.Nesterovs;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
-import org.nd4j.resources.Downloader;
 
 import javax.swing.*;
 import java.io.File;
 import java.io.IOException;
-import java.net.URL;
 import java.util.ArrayList;
 
 /**
@@ -57,173 +55,145 @@ import java.util.ArrayList;
  */
 public class CSVPlotter {
 
-    public static final String DATA_LOCAL_PATH;
+    public static String dataLocalPath;
 
-    static {
-        final String DATA_URL = "https://deeplearning4jblob.blob.core.windows.net/dl4j-examples/dl4j-examples/DataExamples.zip";
-        final String MD5 = "25de3941b3491af7234321f35b93ec25";
-        final int DOWNLOAD_RETRIES = 10;
-        final String DOWNLOAD_PATH = FilenameUtils.concat(System.getProperty("java.io.tmpdir"), "DataExamples.zip");
-        final String EXTRACT_DIR = FilenameUtils.concat(System.getProperty("user.home"), "dl4j-examples-data/dl4j-examples");
-        DATA_LOCAL_PATH = FilenameUtils.concat(EXTRACT_DIR,"DataExamples");
-        if (!new File(DATA_LOCAL_PATH).exists()) {
-            try {
-                System.out.println("_______________________________________________________________________");
-                System.out.println("Downloading data (2MB) and extracting to \n\t" + DATA_LOCAL_PATH);
-                System.out.println("_______________________________________________________________________");
-                Downloader.downloadAndExtract("files",
-                    new URL(DATA_URL),
-                    new File(DOWNLOAD_PATH),
-                    new File(EXTRACT_DIR),
-                    MD5,
-                    DOWNLOAD_RETRIES);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        else {
-            System.out.println("_______________________________________________________________________");
-            System.out.println("Example data present in \n\t" + DATA_LOCAL_PATH);
-            System.out.println("_______________________________________________________________________");
-        }
-    }
 
-    public static void main( String[] args ) throws IOException, InterruptedException
-    {
-        String filename = new File(DATA_LOCAL_PATH,"CSVPlotData.csv").getAbsolutePath();
-    	DataSet ds = readCSVDataset(filename);
+    public static void main(String[] args) throws Exception {
+        dataLocalPath = DownloaderUtility.DATAEXAMPLES.Download();
+        String filename = new File(dataLocalPath, "CSVPlotData.csv").getAbsolutePath();
+        DataSet ds = readCSVDataset(filename);
 
-    	ArrayList<DataSet> DataSetList = new ArrayList<>();
-    	DataSetList.add(ds);
+        ArrayList<DataSet> DataSetList = new ArrayList<>();
+        DataSetList.add(ds);
 
-    	plotDataset(DataSetList); //Plot the data, make sure we have the right data.
+        plotDataset(DataSetList); //Plot the data, make sure we have the right data.
 
-    	MultiLayerNetwork net =fitStraightline(ds);
+        MultiLayerNetwork net = fitStraightline(ds);
 
-    	// Get the min and max x values, using Nd4j
-    	NormalizerMinMaxScaler preProcessor = new NormalizerMinMaxScaler();
-    	preProcessor.fit(ds);
+        // Get the min and max x values, using Nd4j
+        NormalizerMinMaxScaler preProcessor = new NormalizerMinMaxScaler();
+        preProcessor.fit(ds);
         int nSamples = 50;
-        INDArray x = Nd4j.linspace(preProcessor.getMin().getInt(0),preProcessor.getMax().getInt(0),nSamples).reshape(nSamples, 1);
+        INDArray x = Nd4j.linspace(preProcessor.getMin().getInt(0), preProcessor.getMax().getInt(0), nSamples).reshape(nSamples, 1);
         INDArray y = net.output(x);
-        DataSet modeloutput = new DataSet(x,y);
+        DataSet modeloutput = new DataSet(x, y);
         DataSetList.add(modeloutput);
 
-    	plotDataset(DataSetList);    //Plot data and model fit.
+        plotDataset(DataSetList);    //Plot data and model fit.
     }
 
-	/**
-	 * Fit a straight line using a neural network.
-	 * @param ds The dataset to fit.
-	 * @return The network fitted to the data
-	 */
-	private static MultiLayerNetwork fitStraightline(DataSet ds){
-		int seed = 12345;
-		int nEpochs = 200;
-		double learningRate = 0.00001;
-		int numInputs = 1;
-	    int numOutputs = 1;
+    /**
+     * Fit a straight line using a neural network.
+     *
+     * @param ds The dataset to fit.
+     * @return The network fitted to the data
+     */
+    private static MultiLayerNetwork fitStraightline(DataSet ds) {
+        int seed = 12345;
+        int nEpochs = 200;
+        double learningRate = 0.00001;
+        int numInputs = 1;
+        int numOutputs = 1;
 
-	    //
-	    // Hook up one input to the one output.
-	    // The resulting model is a straight line.
-	    //
-		MultiLayerConfiguration conf = new  NeuralNetConfiguration.Builder()
-                .seed(seed)
-                .weightInit(WeightInit.XAVIER)
-                .updater(new Nesterovs(learningRate, 0.9))
-                .list()
-                .layer(new DenseLayer.Builder().nIn(numInputs).nOut(numOutputs)
-                        .activation(Activation.IDENTITY)
-                        .build())
-                .layer(new OutputLayer.Builder(LossFunctions.LossFunction.MSE)
-                        .activation(Activation.IDENTITY)
-                        .nIn(numOutputs).nOut(numOutputs).build())
-                .build();
+        //
+        // Hook up one input to the one output.
+        // The resulting model is a straight line.
+        //
+        MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
+            .seed(seed)
+            .weightInit(WeightInit.XAVIER)
+            .updater(new Nesterovs(learningRate, 0.9))
+            .list()
+            .layer(new DenseLayer.Builder().nIn(numInputs).nOut(numOutputs)
+                .activation(Activation.IDENTITY)
+                .build())
+            .layer(new OutputLayer.Builder(LossFunctions.LossFunction.MSE)
+                .activation(Activation.IDENTITY)
+                .nIn(numOutputs).nOut(numOutputs).build())
+            .build();
 
-		MultiLayerNetwork net = new MultiLayerNetwork(conf);
-		net.init();
-	    net.setListeners(new ScoreIterationListener(1));
+        MultiLayerNetwork net = new MultiLayerNetwork(conf);
+        net.init();
+        net.setListeners(new ScoreIterationListener(1));
 
-	    for( int i=0; i<nEpochs; i++ ){
-	    	net.fit(ds);
-	    }
+        for (int i = 0; i < nEpochs; i++) {
+            net.fit(ds);
+        }
 
-	    return net;
-	}
+        return net;
+    }
 
     /**
      * Read a CSV file into a dataset.
-     *
+     * <p>
      * Use the correct constructor:
      * DataSet ds = new RecordReaderDataSetIterator(rr,batchSize);
      * returns the data as follows:
      * ===========INPUT===================
-     *[[12.89, 22.70],
+     * [[12.89, 22.70],
      * [19.34, 20.47],
      * [16.94,  6.08],
-     *  [15.87,  8.42],
-     *  [10.71, 26.18]]
-     *
-     *  Which is not the way the framework likes its data.
-     *
-     *  This one:
-     *   RecordReaderDataSetIterator(rr,batchSize, 1, 1, true);
-     *   returns
-     *   ===========INPUT===================
+     * [15.87,  8.42],
+     * [10.71, 26.18]]
+     * <p>
+     * Which is not the way the framework likes its data.
+     * <p>
+     * This one:
+     * RecordReaderDataSetIterator(rr,batchSize, 1, 1, true);
+     * returns
+     * ===========INPUT===================
      * [12.89, 19.34, 16.94, 15.87, 10.71]
      * =================OUTPUT==================
      * [22.70, 20.47,  6.08,  8.42, 26.18]
-     *
-     *  This can be used as is for regression.
+     * <p>
+     * This can be used as is for regression.
      */
-	private static DataSet readCSVDataset(String filename) throws IOException, InterruptedException{
-		int batchSize = 1000;
-		RecordReader rr = new CSVRecordReader();
-		rr.initialize(new FileSplit(new File(filename)));
+    private static DataSet readCSVDataset(String filename) throws IOException, InterruptedException {
+        int batchSize = 1000;
+        RecordReader rr = new CSVRecordReader();
+        rr.initialize(new FileSplit(new File(filename)));
 
-		DataSetIterator iter =  new RecordReaderDataSetIterator(rr,batchSize, 1, 1, true);
-		return iter.next();
-	}
+        DataSetIterator iter = new RecordReaderDataSetIterator(rr, batchSize, 1, 1, true);
+        return iter.next();
+    }
 
-	/**
-	 * Generate an xy plot of the datasets provided.
-	 */
-	private static void plotDataset(ArrayList<DataSet> DataSetList){
+    /**
+     * Generate an xy plot of the datasets provided.
+     */
+    private static void plotDataset(ArrayList<DataSet> DataSetList) {
 
-		XYSeriesCollection c = new XYSeriesCollection();
+        XYSeriesCollection c = new XYSeriesCollection();
 
-		int dscounter = 1; //use to name the dataseries
-		for (DataSet ds : DataSetList)
-		{
-			INDArray features = ds.getFeatures();
-			INDArray outputs= ds.getLabels();
+        int dscounter = 1; //use to name the dataseries
+        for (DataSet ds : DataSetList) {
+            INDArray features = ds.getFeatures();
+            INDArray outputs = ds.getLabels();
 
-			int nRows = features.rows();
-			XYSeries series = new XYSeries("S" + dscounter);
-			for( int i=0; i<nRows; i++ ){
-				series.add(features.getDouble(i), outputs.getDouble(i));
-			}
+            int nRows = features.rows();
+            XYSeries series = new XYSeries("S" + dscounter);
+            for (int i = 0; i < nRows; i++) {
+                series.add(features.getDouble(i), outputs.getDouble(i));
+            }
 
-			c.addSeries(series);
-		}
+            c.addSeries(series);
+        }
 
         String title = "title";
-		String xAxisLabel = "xAxisLabel";
-		String yAxisLabel = "yAxisLabel";
-		PlotOrientation orientation = PlotOrientation.VERTICAL;
-		boolean legend = false;
-		boolean tooltips = false;
-		boolean urls = false;
-		JFreeChart chart = ChartFactory.createScatterPlot(title , xAxisLabel, yAxisLabel, c, orientation , legend , tooltips , urls);
-    	JPanel panel = new ChartPanel(chart);
+        String xAxisLabel = "xAxisLabel";
+        String yAxisLabel = "yAxisLabel";
+        PlotOrientation orientation = PlotOrientation.VERTICAL;
+        boolean legend = false;
+        boolean tooltips = false;
+        boolean urls = false;
+        JFreeChart chart = ChartFactory.createScatterPlot(title, xAxisLabel, yAxisLabel, c, orientation, legend, tooltips, urls);
+        JPanel panel = new ChartPanel(chart);
 
-    	 JFrame f = new JFrame();
-    	 f.add(panel);
-    	 f.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-         f.pack();
-         f.setTitle("Training Data");
+        JFrame f = new JFrame();
+        f.add(panel);
+        f.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        f.pack();
+        f.setTitle("Training Data");
 
-         f.setVisible(true);
-	}
+        f.setVisible(true);
+    }
 }

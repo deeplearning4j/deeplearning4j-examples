@@ -20,9 +20,9 @@ import org.datavec.api.records.converter.RecordReaderConverter;
 import org.datavec.api.records.reader.RecordReader;
 import org.datavec.api.records.reader.impl.csv.CSVRecordReader;
 import org.datavec.api.split.FileSplit;
-import org.datavec.api.util.ClassPathResource;
 import org.datavec.hadoop.records.reader.mapfile.MapFileRecordReader;
 import org.datavec.hadoop.records.writer.mapfile.MapFileRecordWriter;
+import org.deeplearning4j.examples.download.DownloaderUtility;
 
 import java.io.File;
 import java.util.Random;
@@ -45,7 +45,7 @@ public class MapFileConversion {
     public static void main(String[] args) throws Exception {
 
         //Create CSV reader
-        File irisFile = new ClassPathResource("iris.txt").getFile();
+        File irisFile = new File(DownloaderUtility.IRISDATA.Download(),"iris.txt");
         RecordReader recordReader = new CSVRecordReader();
         recordReader.initialize(new FileSplit(irisFile));
 

@@ -16,7 +16,6 @@
 
 package org.datavec.transform.basic;
 
-import org.apache.commons.io.FilenameUtils;
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
@@ -34,13 +33,11 @@ import org.datavec.api.writable.Writable;
 import org.datavec.spark.transform.SparkTransformExecutor;
 import org.datavec.spark.transform.misc.StringToWritablesFunction;
 import org.datavec.spark.transform.misc.WritablesToStringFunction;
+import org.deeplearning4j.examples.download.DownloaderUtility;
 import org.joda.time.DateTimeFieldType;
 import org.joda.time.DateTimeZone;
-import org.nd4j.resources.Downloader;
 
 import java.io.File;
-import java.io.IOException;
-import java.net.URL;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -48,7 +45,7 @@ import java.util.List;
 /**
  * Basic DataVec example for preprocessing operations on some simple CSV data. If you just want to load CSV data
  * and pass it on for learning take a look at {@see org.deeplearning4j.examples.dataExample.CSVExample}.
- *
+ * <p>
  * The premise here is that some data regarding transactions is available in CSV format, and we want to do some
  * operations on this data, including:
  * 1. Removing some unnecessary columns
@@ -60,39 +57,10 @@ import java.util.List;
  */
 public class BasicDataVecExample {
 
-    public static final String DATA_LOCAL_PATH;
+    public static String dataLocalPath;
 
-    static {
-
-        final String DATA_URL = "https://deeplearning4jblob.blob.core.windows.net/dl4j-examples/datavec-examples/BasicDataVecExample.zip";
-        final String MD5 = "92f87e0ceb81093ff8b49e2b4e0a5a02";
-        final int DOWNLOAD_RETRIES = 10;
-        final String DOWNLOAD_PATH = FilenameUtils.concat(System.getProperty("java.io.tmpdir"), "BasicDataVecExample.zip");
-        final String EXTRACT_DIR = FilenameUtils.concat(System.getProperty("user.home"), "dl4j-examples-data/datavec-examples");
-        DATA_LOCAL_PATH = FilenameUtils.concat(EXTRACT_DIR,"BasicDataVecExample");
-        if (!new File(DATA_LOCAL_PATH).exists()) {
-            try {
-                System.out.println("_______________________________________________________________________");
-                System.out.println("Downloading data (1KB) to \n\t" + DATA_LOCAL_PATH);
-                System.out.println("_______________________________________________________________________");
-                Downloader.downloadAndExtract("files",
-                    new URL(DATA_URL),
-                    new File(DOWNLOAD_PATH),
-                    new File(EXTRACT_DIR),
-                    MD5,
-                    DOWNLOAD_RETRIES);
-            }
-            catch (IOException e) {
-                e.printStackTrace();
-            }
-        } else {
-            System.out.println("_______________________________________________________________________");
-            System.out.println("Example data present in \n\t" + DATA_LOCAL_PATH);
-            System.out.println("_______________________________________________________________________");
-        }
-    }
-
-    public static  void main(String[] args) throws Exception {
+    public static void main(String[] args) throws Exception {
+        dataLocalPath = DownloaderUtility.BASICDATAVECEXAMPLE.Download();
         //=====================================================================
         //                 Step 1: Define the input data schema
         //=====================================================================
@@ -106,10 +74,10 @@ public class BasicDataVecExample {
             .addColumnsString("CustomerID", "MerchantID")
             //We can define different column types for different types of data:
             .addColumnInteger("NumItemsInTransaction")
-            .addColumnCategorical("MerchantCountryCode", Arrays.asList("USA","CAN","FR","MX"))
+            .addColumnCategorical("MerchantCountryCode", Arrays.asList("USA", "CAN", "FR", "MX"))
             //Some columns have restrictions on the allowable values, that we consider valid:
-            .addColumnDouble("TransactionAmountUSD",0.0,null,false,false)   //$0.0 or more, no maximum limit, no NaN and no Infinite values
-            .addColumnCategorical("FraudLabel", Arrays.asList("Fraud","Legit"))
+            .addColumnDouble("TransactionAmountUSD", 0.0, null, false, false)   //$0.0 or more, no maximum limit, no NaN and no Infinite values
+            .addColumnCategorical("FraudLabel", Arrays.asList("Fraud", "Legit"))
             .build();
 
         //Print out the schema:
@@ -132,14 +100,14 @@ public class BasicDataVecExample {
 
         TransformProcess tp = new TransformProcess.Builder(inputDataSchema)
             //Let's remove some column we don't need
-            .removeColumns("CustomerID","MerchantID")
+            .removeColumns("CustomerID", "MerchantID")
 
             //Now, suppose we only want to analyze transactions involving merchants in USA or Canada. Let's filter out
             // everything except for those countries.
             //Here, we are applying a conditional filter. We remove all of the examples that match the condition
             // The condition is "MerchantCountryCode" isn't one of {"USA", "CAN"}
             .filter(new ConditionFilter(
-                new CategoricalColumnCondition("MerchantCountryCode", ConditionOp.NotInSet, new HashSet<>(Arrays.asList("USA","CAN")))))
+                new CategoricalColumnCondition("MerchantCountryCode", ConditionOp.NotInSet, new HashSet<>(Arrays.asList("USA", "CAN")))))
 
             //Let's suppose our data source isn't perfect, and we have some invalid data: negative dollar amounts that we want to replace with 0.0
             //For positive dollar amounts, we don't want to modify those values
@@ -147,11 +115,11 @@ public class BasicDataVecExample {
             .conditionalReplaceValueTransform(
                 "TransactionAmountUSD",     //Column to operate on
                 new DoubleWritable(0.0),    //New value to use, when the condition is satisfied
-                new DoubleColumnCondition("TransactionAmountUSD",ConditionOp.LessThan, 0.0)) //Condition: amount < 0.0
+                new DoubleColumnCondition("TransactionAmountUSD", ConditionOp.LessThan, 0.0)) //Condition: amount < 0.0
 
             //Finally, let's suppose we want to parse our date/time column in a format like "2016/01/01 17:50.000"
             //We use JodaTime internally, so formats can be specified as follows: http://www.joda.org/joda-time/apidocs/org/joda/time/format/DateTimeFormat.html
-            .stringToTimeTransform("DateTimeString","YYYY-MM-DD HH:mm:ss.SSS", DateTimeZone.UTC)
+            .stringToTimeTransform("DateTimeString", "YYYY-MM-DD HH:mm:ss.SSS", DateTimeZone.UTC)
 
             //However, our time column ("DateTimeString") isn't a String anymore. So let's rename it to something better:
             .renameColumn("DateTimeString", "DateTime")
@@ -190,7 +158,7 @@ public class BasicDataVecExample {
 
         //Define the path to the data file. You could use a directory here if the data is in multiple files
         //Normally just define your path like "file:/..." or "hdfs:/..."
-        String path = new File(DATA_LOCAL_PATH, "exampledata.csv").getAbsolutePath();
+        String path = new File(dataLocalPath, "exampledata.csv").getAbsolutePath();
         JavaRDD<String> stringData = sc.textFile(path);
 
         //We first need to parse this format. It's comma-delimited (CSV) format, so let's parse it using CSVRecordReader:
@@ -210,10 +178,10 @@ public class BasicDataVecExample {
 
 
         System.out.println("\n\n---- Original Data ----");
-        for(String s : inputDataCollected) System.out.println(s);
+        for (String s : inputDataCollected) System.out.println(s);
 
         System.out.println("\n\n---- Processed Data ----");
-        for(String s : processedCollected) System.out.println(s);
+        for (String s : processedCollected) System.out.println(s);
 
 
         System.out.println("\n\nDONE");

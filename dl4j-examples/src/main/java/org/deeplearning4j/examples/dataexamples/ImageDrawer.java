@@ -24,6 +24,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import org.deeplearning4j.api.storage.StatsStorage;
+import org.deeplearning4j.examples.download.DownloaderUtility;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
 import org.deeplearning4j.nn.conf.layers.DenseLayer;
@@ -76,8 +77,9 @@ public class ImageDrawer extends Application {
     }
 
     @Override
-    public void init(){
-        originalImage = new Image("/DataExamples/Mona_Lisa.png");
+    public void init() throws Exception {
+        String localDataPath = DownloaderUtility.DATAEXAMPLES.Download();
+        originalImage = new Image(new File(localDataPath,"Mona_Lisa.png").toURI().toString());
 
         final int w = (int) originalImage.getWidth();
         final int h = (int) originalImage.getHeight();

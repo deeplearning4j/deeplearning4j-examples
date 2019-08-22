@@ -17,8 +17,8 @@
 package org.deeplearning4j.examples.recurrent.processlottery;
 
 
-import org.apache.commons.io.FilenameUtils;
 import org.deeplearning4j.api.storage.StatsStorage;
+import org.deeplearning4j.examples.download.DownloaderUtility;
 import org.deeplearning4j.nn.api.OptimizationAlgorithm;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
@@ -38,13 +38,10 @@ import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.learning.config.RmsProp;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
-import org.nd4j.resources.Downloader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.io.IOException;
-import java.net.URL;
 import java.util.Random;
 
 
@@ -64,42 +61,16 @@ public class TrainLotteryModel {
     private static int numEpochs = 3;
     private static boolean modelType = true;
 
-    public static final String DATA_LOCAL_PATH;
+    public static String dataLocalPath;
 
-    static {
-        final String DATA_URL = "https://deeplearning4jblob.blob.core.windows.net/dl4j-examples/dl4j-examples/lottery.zip";
-        final String MD5 = "1e54ac1210e39c948aa55417efee193a";
-        final int DOWNLOAD_RETRIES = 10;
-        final String DOWNLOAD_PATH = FilenameUtils.concat(System.getProperty("java.io.tmpdir"), "lottery.zip");
-        final String EXTRACT_DIR = FilenameUtils.concat(System.getProperty("user.home"), "dl4j-examples-data/dl4j-examples");
-        DATA_LOCAL_PATH = FilenameUtils.concat(EXTRACT_DIR, "lottery");
-        if (!new File(DATA_LOCAL_PATH).exists()) {
-            try {
-                System.out.println("_______________________________________________________________________");
-                System.out.println("Downloading data (2MB) and extracting to \n\t" + DATA_LOCAL_PATH);
-                System.out.println("_______________________________________________________________________");
-                Downloader.downloadAndExtract("files",
-                    new URL(DATA_URL),
-                    new File(DOWNLOAD_PATH),
-                    new File(EXTRACT_DIR),
-                    MD5,
-                    DOWNLOAD_RETRIES);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        } else {
-            System.out.println("_______________________________________________________________________");
-            System.out.println("Example data present in \n\t" + DATA_LOCAL_PATH);
-            System.out.println("_______________________________________________________________________");
-        }
-    }
 
     public static void main(String[] args) throws Exception {
 
-        File modelFile = new File(DATA_LOCAL_PATH, "lotteryPredictModel.json");
-        DataSetIterator trainIterator = new LotteryDataSetIterator(new File(DATA_LOCAL_PATH,"cqssc_train.csv").getAbsolutePath(), batchSize, modelType);
-        DataSetIterator testIterator = new LotteryDataSetIterator(new File(DATA_LOCAL_PATH, "cqssc_test.csv").getAbsolutePath(), 2, modelType);
-        DataSetIterator validateIterator = new LotteryDataSetIterator(new File(DATA_LOCAL_PATH, "cqssc_validate.csv").getAbsolutePath(), 2, modelType);
+        dataLocalPath = DownloaderUtility.LOTTERYDATA.Download();
+        File modelFile = new File(dataLocalPath, "lotteryPredictModel.json");
+        DataSetIterator trainIterator = new LotteryDataSetIterator(new File(dataLocalPath,"cqssc_train.csv").getAbsolutePath(), batchSize, modelType);
+        DataSetIterator testIterator = new LotteryDataSetIterator(new File(dataLocalPath, "cqssc_test.csv").getAbsolutePath(), 2, modelType);
+        DataSetIterator validateIterator = new LotteryDataSetIterator(new File(dataLocalPath, "cqssc_validate.csv").getAbsolutePath(), 2, modelType);
 
         MultiLayerNetwork model = getNetModel(trainIterator.inputColumns(), trainIterator.totalOutcomes());
         UIServer uiServer = UIServer.getInstance();

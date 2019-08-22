@@ -17,7 +17,6 @@
 package org.deeplearning4j.examples.convolution.captcharecognition;
 
 
-import org.apache.commons.io.FilenameUtils;
 import org.deeplearning4j.api.storage.StatsStorage;
 import org.deeplearning4j.nn.conf.ComputationGraphConfiguration;
 import org.deeplearning4j.nn.conf.GradientNormalization;
@@ -39,13 +38,10 @@ import org.nd4j.linalg.dataset.api.iterator.MultiDataSetIterator;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.learning.config.Adam;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
-import org.nd4j.resources.Downloader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.io.IOException;
-import java.net.URL;
 
 /**
  * @Description This is a demo that multi-digit number recognition. The maximum length is 6 digits.
@@ -68,38 +64,6 @@ public class MultiDigitNumberRecognition {
 
     private static String modelDirPath = rootPath.substring(0, rootPath.lastIndexOf(File.separatorChar)) + File.separatorChar + "out" + File.separatorChar + "models";
     private static String modelPath = modelDirPath + File.separatorChar + "validateCodeCheckModel.json";
-
-    public static final String DATA_LOCAL_PATH;
-
-    static {
-        final String DATA_URL = "https://deeplearning4jblob.blob.core.windows.net/dl4j-examples/dl4j-examples/captchaImage.zip";
-        final String MD5 = "1d159c9587fdbb1cbfd66f0d62380e61";
-        final int DOWNLOAD_RETRIES = 10;
-        final String DOWNLOAD_PATH = FilenameUtils.concat(System.getProperty("java.io.tmpdir"), "captchaImage.zip");
-        final String EXTRACT_DIR = FilenameUtils.concat(System.getProperty("user.home"), "dl4j-examples-data/dl4j-examples");
-        DATA_LOCAL_PATH = FilenameUtils.concat(EXTRACT_DIR,"captchaImage");
-        if (!new File(DATA_LOCAL_PATH).exists()) {
-            try {
-
-                System.out.println("_______________________________________________________________________");
-                System.out.println("Downloading data (42MB) and extracting to \n\t" + DATA_LOCAL_PATH);
-                System.out.println("_______________________________________________________________________");
-                Downloader.downloadAndExtract("files",
-                    new URL(DATA_URL),
-                    new File(DOWNLOAD_PATH),
-                    new File(EXTRACT_DIR),
-                    MD5,
-                    DOWNLOAD_RETRIES);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        } else {
-            System.out.println("_______________________________________________________________________");
-            System.out.println("Example data present in \n\t" + DATA_LOCAL_PATH);
-            System.out.println("_______________________________________________________________________");
-        }
-    }
-
 
     public static void main(String[] args) throws Exception {
         long startTime = System.currentTimeMillis();

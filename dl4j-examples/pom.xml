@@ -179,6 +179,11 @@
             <artifactId>httpclient</artifactId>
             <version>4.3.5</version>
         </dependency>
+        <dependency>
+            <groupId>org.deeplearning4j.examples</groupId>
+            <artifactId>shared-utilities</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
         <dependency>
             <groupId>ch.qos.logback</groupId>

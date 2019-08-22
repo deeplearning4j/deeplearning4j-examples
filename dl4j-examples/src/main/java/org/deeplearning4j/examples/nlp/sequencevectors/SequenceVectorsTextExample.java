@@ -16,7 +16,7 @@
 
 package org.deeplearning4j.examples.nlp.sequencevectors;
 
-import org.apache.commons.io.FilenameUtils;
+import org.deeplearning4j.examples.download.DownloaderUtility;
 import org.deeplearning4j.models.embeddings.WeightLookupTable;
 import org.deeplearning4j.models.embeddings.inmemory.InMemoryLookupTable;
 import org.deeplearning4j.models.embeddings.learning.impl.elements.SkipGram;
@@ -31,13 +31,10 @@ import org.deeplearning4j.text.sentenceiterator.BasicLineIterator;
 import org.deeplearning4j.text.tokenization.tokenizer.preprocessor.CommonPreprocessor;
 import org.deeplearning4j.text.tokenization.tokenizerfactory.DefaultTokenizerFactory;
 import org.deeplearning4j.text.tokenization.tokenizerfactory.TokenizerFactory;
-import org.nd4j.resources.Downloader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.io.IOException;
-import java.net.URL;
 
 /**
  * This is example of abstract sequence of data is learned using SequenceVectors. In this example, we use text sentences as Sequences, and VocabWords as SequenceElements.
@@ -54,39 +51,13 @@ import java.net.URL;
 public class SequenceVectorsTextExample {
 
     protected static final Logger logger = LoggerFactory.getLogger(SequenceVectorsTextExample.class);
-    public static final String DATA_LOCAL_PATH;
+    public static String dataLocalPath;
 
-    static {
-        final String DATA_URL = "https://deeplearning4jblob.blob.core.windows.net/dl4j-examples/dl4j-examples/nlp.zip";
-        final String MD5 = "1ac7cd7ca08f13402f0e3b83e20c0512";
-        final int DOWNLOAD_RETRIES = 10;
-        final String DOWNLOAD_PATH = FilenameUtils.concat(System.getProperty("java.io.tmpdir"), "nlp.zip");
-        final String EXTRACT_DIR = FilenameUtils.concat(System.getProperty("user.home"), "dl4j-examples-data/dl4j-examples");
-        DATA_LOCAL_PATH = FilenameUtils.concat(EXTRACT_DIR, "nlp");
-        if (!new File(DATA_LOCAL_PATH).exists()) {
-            try {
-                System.out.println("_______________________________________________________________________");
-                System.out.println("Downloading data (91MB) and extracting to \n\t" + DATA_LOCAL_PATH);
-                System.out.println("_______________________________________________________________________");
-                Downloader.downloadAndExtract("files",
-                    new URL(DATA_URL),
-                    new File(DOWNLOAD_PATH),
-                    new File(EXTRACT_DIR),
-                    MD5,
-                    DOWNLOAD_RETRIES);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        } else {
-            System.out.println("_______________________________________________________________________");
-            System.out.println("Example data present in \n\t" + DATA_LOCAL_PATH);
-            System.out.println("_______________________________________________________________________");
-        }
-    }
 
     public static void main(String[] args) throws Exception {
+        dataLocalPath = DownloaderUtility.NLPDATA.Download();
 
-        File file = new File(DATA_LOCAL_PATH,"raw_sentences.txt");
+        File file = new File(dataLocalPath,"raw_sentences.txt");
 
         AbstractCache<VocabWord> vocabCache = new AbstractCache.Builder<VocabWord>().build();
 

@@ -21,10 +21,10 @@ import org.datavec.api.records.metadata.RecordMetaData;
 import org.datavec.api.records.reader.RecordReader;
 import org.datavec.api.records.reader.impl.csv.CSVRecordReader;
 import org.datavec.api.split.FileSplit;
-import org.datavec.api.util.ClassPathResource;
 import org.datavec.api.writable.Writable;
 import org.deeplearning4j.datasets.datavec.RecordReaderDataSetIterator;
 import org.deeplearning4j.eval.Evaluation;
+import org.deeplearning4j.examples.download.DownloaderUtility;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
 import org.deeplearning4j.nn.conf.layers.DenseLayer;
@@ -42,6 +42,7 @@ import org.nd4j.linalg.dataset.api.preprocessor.NormalizerStandardize;
 import org.nd4j.linalg.learning.config.Sgd;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -57,7 +58,7 @@ public class CSVExampleEvaluationMetaData {
     public static void main(String[] args) throws  Exception {
         //First: get the dataset using the record reader. This is as per CSV example - see that example for details
         RecordReader recordReader = new CSVRecordReader(0, ',');
-        recordReader.initialize(new FileSplit(new ClassPathResource("iris.txt").getFile()));
+        recordReader.initialize(new FileSplit(new File(DownloaderUtility.IRISDATA.Download(),"iris.txt")));
         int labelIndex = 4;
         int numClasses = 3;
         int batchSize = 150;
@@ -150,8 +151,8 @@ public class CSVExampleEvaluationMetaData {
         for(int i=0; i<predictionErrors.size(); i++ ){
             Prediction p = predictionErrors.get(i);
             RecordMetaData meta = p.getRecordMetaData(RecordMetaData.class);
-            INDArray features = predictionErrorExamples.getFeatures().getRow(i).reshape(1,4);
-            INDArray labels = predictionErrorExamples.getLabels().getRow(i).reshape(1,3);
+            INDArray features = predictionErrorExamples.getFeatures().getRow(i,true);
+            INDArray labels = predictionErrorExamples.getLabels().getRow(i,true);
             List<Writable> rawData = predictionErrorRawData.get(i).getRecord();
 
             INDArray networkPrediction = model.output(features);

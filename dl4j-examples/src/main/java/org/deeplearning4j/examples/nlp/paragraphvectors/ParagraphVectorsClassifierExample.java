@@ -16,7 +16,7 @@
 
 package org.deeplearning4j.examples.nlp.paragraphvectors;
 
-import org.apache.commons.io.FilenameUtils;
+import org.deeplearning4j.examples.download.DownloaderUtility;
 import org.deeplearning4j.examples.nlp.paragraphvectors.tools.LabelSeeker;
 import org.deeplearning4j.examples.nlp.paragraphvectors.tools.MeansBuilder;
 import org.deeplearning4j.models.embeddings.inmemory.InMemoryLookupTable;
@@ -30,13 +30,11 @@ import org.deeplearning4j.text.tokenization.tokenizerfactory.DefaultTokenizerFac
 import org.deeplearning4j.text.tokenization.tokenizerfactory.TokenizerFactory;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.primitives.Pair;
-import org.nd4j.resources.Downloader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URL;
 import java.util.List;
 
 /**
@@ -62,38 +60,12 @@ public class ParagraphVectorsClassifierExample {
 
     private static final Logger log = LoggerFactory.getLogger(ParagraphVectorsClassifierExample.class);
 
-    public static final String DATA_LOCAL_PATH;
+    public static String dataLocalPath;
 
-    static {
-        final String DATA_URL = "https://deeplearning4jblob.blob.core.windows.net/dl4j-examples/dl4j-examples/nlp.zip";
-        final String MD5 = "1ac7cd7ca08f13402f0e3b83e20c0512";
-        final int DOWNLOAD_RETRIES = 10;
-        final String DOWNLOAD_PATH = FilenameUtils.concat(System.getProperty("java.io.tmpdir"), "nlp.zip");
-        final String EXTRACT_DIR = FilenameUtils.concat(System.getProperty("user.home"), "dl4j-examples-data/dl4j-examples");
-        DATA_LOCAL_PATH = FilenameUtils.concat(EXTRACT_DIR, "nlp");
-        if (!new File(DATA_LOCAL_PATH).exists()) {
-            try {
-                System.out.println("_______________________________________________________________________");
-                System.out.println("Downloading data (91MB) and extracting to \n\t" + DATA_LOCAL_PATH);
-                System.out.println("_______________________________________________________________________");
-                Downloader.downloadAndExtract("files",
-                    new URL(DATA_URL),
-                    new File(DOWNLOAD_PATH),
-                    new File(EXTRACT_DIR),
-                    MD5,
-                    DOWNLOAD_RETRIES);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        } else {
-            System.out.println("_______________________________________________________________________");
-            System.out.println("Example data present in \n\t" + DATA_LOCAL_PATH);
-            System.out.println("_______________________________________________________________________");
-        }
-    }
 
     public static void main(String[] args) throws Exception {
 
+        dataLocalPath = DownloaderUtility.NLPDATA.Download();
         ParagraphVectorsClassifierExample app = new ParagraphVectorsClassifierExample();
         app.makeParagraphVectors();
         app.checkUnlabeledData();
@@ -115,7 +87,7 @@ public class ParagraphVectorsClassifierExample {
     }
 
     void makeParagraphVectors() throws Exception {
-        File resource = new File(DATA_LOCAL_PATH, "paravec/labeled");
+        File resource = new File(dataLocalPath, "paravec/labeled");
 
         // build a iterator for our dataset
         iterator = new FileLabelAwareIterator.Builder()
@@ -146,7 +118,7 @@ public class ParagraphVectorsClassifierExample {
       which categories our unlabeled document falls into.
       So we'll start loading our unlabeled documents and checking them
      */
-        File unClassifiedResource = new File(DATA_LOCAL_PATH, "paravec/unlabeled");
+        File unClassifiedResource = new File(dataLocalPath, "paravec/unlabeled");
         FileLabelAwareIterator unClassifiedIterator = new FileLabelAwareIterator.Builder()
             .addSourceFolder(unClassifiedResource)
             .build();

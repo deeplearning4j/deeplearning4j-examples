@@ -16,8 +16,8 @@
 
 package org.deeplearning4j.examples.styletransfer;
 
-import org.apache.commons.io.FilenameUtils;
 import org.datavec.image.loader.NativeImageLoader;
+import org.deeplearning4j.examples.download.DownloaderUtility;
 import org.deeplearning4j.nn.api.Layer;
 import org.deeplearning4j.nn.graph.ComputationGraph;
 import org.deeplearning4j.nn.workspace.LayerWorkspaceMgr;
@@ -33,7 +33,6 @@ import org.nd4j.linalg.indexing.conditions.Conditions;
 import org.nd4j.linalg.learning.AdamUpdater;
 import org.nd4j.linalg.learning.config.Adam;
 import org.nd4j.linalg.ops.transforms.Transforms;
-import org.nd4j.resources.Downloader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -119,38 +118,10 @@ public class NeuralStyleTransfer {
     private static final DataNormalization IMAGE_PRE_PROCESSOR = new VGG16ImagePreProcessor();
     private static final NativeImageLoader LOADER = new NativeImageLoader(HEIGHT, WIDTH, CHANNELS);
 
-    public static final String DATA_LOCAL_PATH;
+    public static String dataLocalPath;
 
-    static {
-        final String DATA_URL = "https://deeplearning4jblob.blob.core.windows.net/dl4j-examples/dl4j-examples/styletransfer.zip";
-        final String MD5 = "b2b90834d667679d7ee3dfb1f40abe94";
-        final int DOWNLOAD_RETRIES = 10;
-        final String DOWNLOAD_PATH = FilenameUtils.concat(System.getProperty("java.io.tmpdir"), "styletransfer.zip");
-        final String EXTRACT_DIR = FilenameUtils.concat(System.getProperty("user.home"), "dl4j-examples-data/dl4j-examples");
-        DATA_LOCAL_PATH = FilenameUtils.concat(EXTRACT_DIR, "styletransfer");
-        if (!new File(DATA_LOCAL_PATH).exists()) {
-            try {
-                System.out.println("_______________________________________________________________________");
-                System.out.println("Downloading data (3MB) and extracting to \n\t" + DATA_LOCAL_PATH);
-                System.out.println("_______________________________________________________________________");
-                Downloader.downloadAndExtract("files",
-                    new URL(DATA_URL),
-                    new File(DOWNLOAD_PATH),
-                    new File(EXTRACT_DIR),
-                    MD5,
-                    DOWNLOAD_RETRIES);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        } else {
-            System.out.println("_______________________________________________________________________");
-            System.out.println("Example data present in \n\t" + DATA_LOCAL_PATH);
-            System.out.println("_______________________________________________________________________");
-        }
-    }
-
-
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws Exception {
+        dataLocalPath = DownloaderUtility.STYLETRANSFER.Download();
         new NeuralStyleTransfer().transferStyle();
     }
 
@@ -216,7 +187,7 @@ public class NeuralStyleTransfer {
     }
 
     private INDArray createCombinationImage() throws IOException {
-        INDArray content = LOADER.asMatrix(new File(DATA_LOCAL_PATH,CONTENT_FILE));
+        INDArray content = LOADER.asMatrix(new File(dataLocalPath,CONTENT_FILE));
         IMAGE_PRE_PROCESSOR.transform(content);
         INDArray combination = createCombineImageWithRandomPixels();
         combination.muli(NOISE_RATION).addi(content.muli(1 - NOISE_RATION));
@@ -233,7 +204,7 @@ public class NeuralStyleTransfer {
     }
 
     private INDArray loadImage(String contentFile) throws IOException {
-        INDArray content = LOADER.asMatrix(new File(DATA_LOCAL_PATH,contentFile));
+        INDArray content = LOADER.asMatrix(new File(dataLocalPath,contentFile));
         IMAGE_PRE_PROCESSOR.transform(content);
         return content;
     }

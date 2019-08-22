@@ -16,7 +16,6 @@
 
 package org.deeplearning4j.examples.dataexamples;
 
-import org.apache.commons.io.FilenameUtils;
 import org.datavec.api.io.filters.BalancedPathFilter;
 import org.datavec.api.io.labels.ParentPathLabelGenerator;
 import org.datavec.api.split.FileSplit;
@@ -27,13 +26,11 @@ import org.datavec.image.transform.ImageTransform;
 import org.datavec.image.transform.MultiImageTransform;
 import org.datavec.image.transform.ShowImageTransform;
 import org.deeplearning4j.datasets.datavec.RecordReaderDataSetIterator;
+import org.deeplearning4j.examples.download.DownloaderUtility;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
-import org.nd4j.resources.Downloader;
 
 import java.io.File;
-import java.io.IOException;
-import java.net.URL;
 import java.util.Random;
 
 /**
@@ -52,39 +49,12 @@ public class ImagePipelineExample {
     private static final int width = 50;
     private static final int channels = 3;
 
-    public static final String DATA_LOCAL_PATH;
+    public static String dataLocalPath;
 
-    static {
-        final String DATA_URL = "https://deeplearning4jblob.blob.core.windows.net/dl4j-examples/dl4j-examples/DataExamples.zip";
-        final String MD5 = "25de3941b3491af7234321f35b93ec25";
-        final int DOWNLOAD_RETRIES = 10;
-        final String DOWNLOAD_PATH = FilenameUtils.concat(System.getProperty("java.io.tmpdir"), "DataExamples.zip");
-        final String EXTRACT_DIR = FilenameUtils.concat(System.getProperty("user.home"), "dl4j-examples-data/dl4j-examples");
-        DATA_LOCAL_PATH = FilenameUtils.concat(EXTRACT_DIR, "DataExamples");
-        if (!new File(DATA_LOCAL_PATH).exists()) {
-            try {
-                System.out.println("_______________________________________________________________________");
-                System.out.println("Downloading data (2MB) and extracting to \n\t" + DATA_LOCAL_PATH);
-                System.out.println("_______________________________________________________________________");
-                Downloader.downloadAndExtract("files",
-                    new URL(DATA_URL),
-                    new File(DOWNLOAD_PATH),
-                    new File(EXTRACT_DIR),
-                    MD5,
-                    DOWNLOAD_RETRIES);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        else {
-            System.out.println("_______________________________________________________________________");
-            System.out.println("Example data present in \n\t" + DATA_LOCAL_PATH);
-            System.out.println("_______________________________________________________________________");
-        }
-    }
 
     public static void main(String[] args) throws Exception {
 
+        dataLocalPath = DownloaderUtility.DATAEXAMPLES.Download();
         //DIRECTORY STRUCTURE:
         //Images in the dataset have to be organized in directories by class/label.
         //In this example there are ten images in three classes
@@ -98,7 +68,7 @@ public class ImagePipelineExample {
         //And these label/class directories live together in the parent directory
         //
         //
-        File parentDir=new File(DATA_LOCAL_PATH,"ImagePipeline/");
+        File parentDir=new File(dataLocalPath,"ImagePipeline/");
         //Files in directories under the parent dir that have "allowed extensions" split needs a random number generator for reproducibility when splitting the files into train and test
         FileSplit filesInDir = new FileSplit(parentDir, allowedExtensions, randNumGen);
 

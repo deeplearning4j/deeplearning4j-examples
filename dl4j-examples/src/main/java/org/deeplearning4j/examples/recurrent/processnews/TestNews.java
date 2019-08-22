@@ -24,6 +24,7 @@
 
 package org.deeplearning4j.examples.recurrent.processnews;
 
+import org.deeplearning4j.examples.download.DownloaderUtility;
 import org.deeplearning4j.models.embeddings.loader.WordVectorSerializer;
 import org.deeplearning4j.models.embeddings.wordvectors.WordVectors;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
@@ -44,9 +45,6 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import static org.deeplearning4j.examples.recurrent.processnews.PrepareWordVector.DATA_LOCAL_PATH;
-
-
 public class TestNews extends javax.swing.JFrame {
     private static WordVectors wordVectors;
     private static TokenizerFactory tokenizerFactory;
@@ -60,9 +58,11 @@ public class TestNews extends javax.swing.JFrame {
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTextArea jTextArea1;
     private static MultiLayerNetwork net;
+    private static String dataLocalPath;
 
-    public TestNews() {
+    public TestNews() throws Exception {
         initComponents();
+        dataLocalPath = DownloaderUtility.NEWSDATA.Download();
     }
 
     /**
@@ -147,7 +147,7 @@ public class TestNews extends javax.swing.JFrame {
         double bollywoodTotal = 0;
         double developmentTotal = 0;
 
-        File categories = new File(DATA_LOCAL_PATH, "LabelledNews/categories.txt");
+        File categories = new File(dataLocalPath, "LabelledNews/categories.txt");
 
         double max = 0;
         int pos = 0;
@@ -171,7 +171,7 @@ public class TestNews extends javax.swing.JFrame {
         }
     }
 
-    public static void main(String args[]) {
+    public static void main(String args[]) throws Exception{
 
         try {
             for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
@@ -195,8 +195,8 @@ public class TestNews extends javax.swing.JFrame {
         try {
             tokenizerFactory = new DefaultTokenizerFactory();
             tokenizerFactory.setTokenPreProcessor(new CommonPreprocessor());
-            net = MultiLayerNetwork.load(new File(DATA_LOCAL_PATH,"NewsModel.net"), true);
-            wordVectors = WordVectorSerializer.readWord2VecModel(new File(DATA_LOCAL_PATH,"NewsWordVector.txt"));
+            net = MultiLayerNetwork.load(new File(dataLocalPath,"NewsModel.net"), true);
+            wordVectors = WordVectorSerializer.readWord2VecModel(new File(dataLocalPath,"NewsWordVector.txt"));
         } catch (Exception e) {
 
         }

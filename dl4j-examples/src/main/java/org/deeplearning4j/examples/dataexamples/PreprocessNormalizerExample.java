@@ -19,13 +19,15 @@ package org.deeplearning4j.examples.dataexamples;
 import org.datavec.api.records.reader.RecordReader;
 import org.datavec.api.records.reader.impl.csv.CSVRecordReader;
 import org.datavec.api.split.FileSplit;
-import org.datavec.api.util.ClassPathResource;
 import org.deeplearning4j.datasets.datavec.RecordReaderDataSetIterator;
+import org.deeplearning4j.examples.download.DownloaderUtility;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.nd4j.linalg.dataset.api.preprocessor.NormalizerMinMaxScaler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.File;
 
 /**
  * This basic example demonstrates how to use the preprocessors available
@@ -44,12 +46,13 @@ public class PreprocessNormalizerExample {
         //                               Refer to the csv example for details
         int numLinesToSkip = 0;
         char delimiter = ',';
+        String localDataPath = DownloaderUtility.IRISDATA.Download();
         RecordReader recordReader = new CSVRecordReader(numLinesToSkip,delimiter);
         RecordReader recordReaderA = new CSVRecordReader(numLinesToSkip,delimiter);
         RecordReader recordReaderB = new CSVRecordReader(numLinesToSkip,delimiter);
-        recordReader.initialize(new FileSplit(new ClassPathResource("iris.txt").getFile()));
-        recordReaderA.initialize(new FileSplit(new ClassPathResource("iris.txt").getFile()));
-        recordReaderB.initialize(new FileSplit(new ClassPathResource("iris.txt").getFile()));
+        recordReader.initialize(new FileSplit(new File(localDataPath,"iris.txt")));
+        recordReaderA.initialize(new FileSplit(new File(localDataPath,"iris.txt")));
+        recordReaderB.initialize(new FileSplit(new File(localDataPath,"iris.txt")));
         int labelIndex = 4;
         int numClasses = 3;
         DataSetIterator iteratorA = new RecordReaderDataSetIterator(recordReaderA,10,labelIndex,numClasses);
