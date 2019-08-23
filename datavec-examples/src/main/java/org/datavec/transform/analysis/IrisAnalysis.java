@@ -25,10 +25,10 @@ import org.datavec.api.transform.analysis.DataAnalysis;
 import org.datavec.api.transform.analysis.columns.DoubleAnalysis;
 import org.datavec.api.transform.schema.Schema;
 import org.datavec.api.transform.ui.HtmlAnalysis;
-import org.datavec.api.util.ClassPathResource;
 import org.datavec.api.writable.Writable;
 import org.datavec.spark.transform.AnalyzeSpark;
 import org.datavec.spark.transform.misc.StringToWritablesFunction;
+import org.deeplearning4j.examples.download.DownloaderUtility;
 
 import java.io.File;
 import java.util.List;
@@ -55,7 +55,7 @@ public class IrisAnalysis {
 
         JavaSparkContext sc = new JavaSparkContext(conf);
 
-        String directory = new ClassPathResource("IrisData/iris.txt").getFile().getParent(); //Normally just define your directory like "file:/..." or "hdfs:/..."
+        String directory = DownloaderUtility.IRISDATA.Download();
         JavaRDD<String> stringData = sc.textFile(directory);
 
         //We first need to parse this comma-delimited (CSV) format; we can do this using CSVRecordReader:

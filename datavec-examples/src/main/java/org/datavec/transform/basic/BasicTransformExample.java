@@ -39,7 +39,7 @@ import java.util.List;
  * The file we downloaded has 2 problems:
  * 1. an empty line at the bottom.
  * 2. the labels are in the form of strings. We want an integer.
- * The output matches the iris.txt file you can find in the resources of the datavec and dl4j examples
+ * The output matches the iris.txt file you can find in the resources of the datavec and dl4j examples under ~/dl4j-examples-data/datavec-examples/IrisData
 **/
 public class BasicTransformExample {
 

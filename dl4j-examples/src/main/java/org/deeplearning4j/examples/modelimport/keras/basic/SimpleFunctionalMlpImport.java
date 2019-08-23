@@ -16,6 +16,7 @@
 
 package org.deeplearning4j.examples.modelimport.keras.basic;
 
+import org.deeplearning4j.examples.download.DownloaderUtility;
 import org.deeplearning4j.nn.api.Layer;
 import org.deeplearning4j.nn.api.OptimizationAlgorithm;
 import org.deeplearning4j.nn.conf.layers.DenseLayer;
@@ -25,8 +26,9 @@ import org.deeplearning4j.nn.modelimport.keras.KerasModelImport;
 import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
-import org.nd4j.linalg.io.ClassPathResource;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
+
+import java.io.File;
 
 
 /**
@@ -64,9 +66,11 @@ import org.nd4j.linalg.lossfunctions.LossFunctions;
  */
 public class SimpleFunctionalMlpImport {
 
+    public static String dataLocalPath;
 
     public static void main(String[] args) throws Exception {
-        final String SIMPLE_FUNCTIONAL_MLP = new ClassPathResource("modelimport/keras/simple_functional_mlp.h5").getFile().getPath();
+        dataLocalPath = DownloaderUtility.MODELIMPORT.Download();
+        final String SIMPLE_FUNCTIONAL_MLP = new File(dataLocalPath,"keras/simple_functional_mlp.h5").getAbsolutePath();
 
         // Keras functional Models correspond to DL4J ComputationGraphs. We enforce loading the training configuration
         // of the model as well. If you're only interested in inference, you can safely set this to 'false'.

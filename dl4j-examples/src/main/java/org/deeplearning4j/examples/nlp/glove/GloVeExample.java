@@ -16,7 +16,7 @@
 
 package org.deeplearning4j.examples.nlp.glove;
 
-import org.datavec.api.util.ClassPathResource;
+import org.deeplearning4j.examples.download.DownloaderUtility;
 import org.deeplearning4j.models.glove.Glove;
 import org.deeplearning4j.text.sentenceiterator.BasicLineIterator;
 import org.deeplearning4j.text.sentenceiterator.SentenceIterator;
@@ -35,9 +35,12 @@ import java.util.Collection;
 public class GloVeExample {
 
     private static final Logger log = LoggerFactory.getLogger(GloVeExample.class);
+    public static String dataLocalPath;
+
 
     public static void main(String[] args) throws Exception {
-        File inputFile = new ClassPathResource("raw_sentences.txt").getFile();
+        dataLocalPath = DownloaderUtility.NLPDATA.Download();
+        File inputFile = new File(dataLocalPath, "raw_sentences.txt");
 
         // creating SentenceIterator wrapping our training corpus
         SentenceIterator iter = new BasicLineIterator(inputFile.getAbsolutePath());
@@ -47,28 +50,28 @@ public class GloVeExample {
         t.setTokenPreProcessor(new CommonPreprocessor());
 
         Glove glove = new Glove.Builder()
-                .iterate(iter)
-                .tokenizerFactory(t)
+            .iterate(iter)
+            .tokenizerFactory(t)
 
 
-                .alpha(0.75)
-                .learningRate(0.1)
+            .alpha(0.75)
+            .learningRate(0.1)
 
-                // number of epochs for training
-                .epochs(25)
+            // number of epochs for training
+            .epochs(25)
 
-                // cutoff for weighting function
-                .xMax(100)
+            // cutoff for weighting function
+            .xMax(100)
 
-                // training is done in batches taken from training corpus
-                .batchSize(1000)
+            // training is done in batches taken from training corpus
+            .batchSize(1000)
 
-                // if set to true, batches will be shuffled before training
-                .shuffle(true)
+            // if set to true, batches will be shuffled before training
+            .shuffle(true)
 
-                // if set to true word pairs will be built in both directions, LTR and RTL
-                .symmetric(true)
-                .build();
+            // if set to true word pairs will be built in both directions, LTR and RTL
+            .symmetric(true)
+            .build();
 
         glove.fit();
 

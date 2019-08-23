@@ -26,9 +26,10 @@ import org.datavec.api.transform.schema.Schema;
 import org.datavec.api.writable.Writable;
 import org.datavec.spark.transform.SparkTransformExecutor;
 import org.datavec.spark.transform.misc.StringToWritablesFunction;
+import org.deeplearning4j.examples.download.DownloaderUtility;
 import org.joda.time.DateTimeZone;
-import org.nd4j.linalg.io.ClassPathResource;
 
+import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 
@@ -43,10 +44,14 @@ import java.util.List;
  */
 public class JoinExample {
 
+    public static String dataLocalPath;
+
+
     public static void main(String[] args) throws Exception {
 
-        String customerInfoPath = new ClassPathResource("JoinExample/CustomerInfo.csv").getFile().getPath();
-        String purchaseInfoPath = new ClassPathResource("JoinExample/CustomerPurchases.csv").getFile().getPath();
+        dataLocalPath = DownloaderUtility.JOINEXAMPLE.Download();
+        String customerInfoPath = new File(dataLocalPath,"CustomerInfo.csv").getAbsolutePath();
+        String purchaseInfoPath = new File(dataLocalPath,"CustomerPurchases.csv").getAbsolutePath();
 
         //First: Let's define our two data sets, and their schemas
 

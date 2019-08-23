@@ -16,7 +16,7 @@
 
 package org.deeplearning4j.examples.nlp.word2vec;
 
-import org.datavec.api.util.ClassPathResource;
+import org.deeplearning4j.examples.download.DownloaderUtility;
 import org.deeplearning4j.models.word2vec.Word2Vec;
 import org.deeplearning4j.text.sentenceiterator.BasicLineIterator;
 import org.deeplearning4j.text.sentenceiterator.SentenceIterator;
@@ -26,6 +26,7 @@ import org.deeplearning4j.text.tokenization.tokenizerfactory.TokenizerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.util.Collection;
 
 /**
@@ -38,10 +39,14 @@ public class Word2VecRawTextExample {
 
     private static Logger log = LoggerFactory.getLogger(Word2VecRawTextExample.class);
 
+    public static String dataLocalPath;
+
+
     public static void main(String[] args) throws Exception {
 
+        dataLocalPath = DownloaderUtility.NLPDATA.Download();
         // Gets Path to Text file
-        String filePath = new ClassPathResource("raw_sentences.txt").getFile().getAbsolutePath();
+        String filePath = new File(dataLocalPath,"raw_sentences.txt").getAbsolutePath();
 
         log.info("Load & Vectorize Sentences....");
         // Strip white space before and after for each line

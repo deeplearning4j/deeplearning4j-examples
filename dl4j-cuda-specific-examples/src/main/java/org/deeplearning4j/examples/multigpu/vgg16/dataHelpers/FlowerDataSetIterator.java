@@ -42,7 +42,7 @@ import java.util.Random;
  */
 public class FlowerDataSetIterator {
 
-    private static final String DATA_DIR = new File(System.getProperty("user.home")) + "/dl4jDataDir";
+    private static final String DATA_DIR = new File(System.getProperty("user.home")) + "/dl4j-examples-data/dl4j-examples";
     private static final String DATA_URL = "http://download.tensorflow.org/example_images/flower_photos.tgz";
     private static final String FLOWER_DIR = DATA_DIR + "/flower_photos";
 

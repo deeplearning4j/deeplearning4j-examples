@@ -18,7 +18,7 @@ package org.datavec.inputsplit;
 
 import org.datavec.api.split.CollectionInputSplit;
 import org.datavec.api.split.FileSplit;
-import org.nd4j.linalg.io.ClassPathResource;
+import org.deeplearning4j.examples.download.DownloaderUtility;
 
 import java.io.File;
 import java.net.URI;
@@ -30,10 +30,13 @@ import java.util.Iterator;
  * URIs
  */
 public class Ex02_CollectionSplitExample {
-    public static void main(String[] args) throws Exception{
-        // Receive the class path resource from the resource folder
-        ClassPathResource classPathResource1 = new ClassPathResource("inputsplit/files/cats");
-        File directoryToLook = classPathResource1.getFile();
+
+    public static String dataLocalPath;
+
+
+    public static void main(String[] args) throws Exception {
+        dataLocalPath = DownloaderUtility.INPUTSPLIT.Download();
+        File directoryToLook = new File(dataLocalPath, "files/cats");
 
         /*
           Creating a FileSplit this just to receive a list of URIs. From those URIs we'll create the CollectionInputSplit.

@@ -30,6 +30,7 @@ import org.deeplearning4j.api.storage.StatsStorage;
 import org.deeplearning4j.datasets.datavec.RecordReaderDataSetIterator;
 import org.deeplearning4j.examples.denseNet.imageUtils.BlurTransform;
 import org.deeplearning4j.examples.denseNet.imageUtils.NoiseTransform;
+import org.deeplearning4j.examples.download.DownloaderUtility;
 import org.deeplearning4j.nn.graph.ComputationGraph;
 import org.deeplearning4j.optimize.api.InvocationType;
 import org.deeplearning4j.optimize.listeners.CheckpointListener;
@@ -68,8 +69,12 @@ public class Main {
     private static final int numEpochs = 1000;
     private static final double splitTrainTest = 0.8;
 
-    public static void main(String[] args) {
-        File mainPath = new File(System.getProperty("user.dir"), "dl4j-examples/src/main/resources/animals/");
+    public static String dataLocalPath;
+
+
+    public static void main(String[] args) throws Exception {
+        dataLocalPath = DownloaderUtility.ANIMALS.Download();
+        File mainPath = new File(dataLocalPath);
         Random random = new Random(1234);
 
         FileSplit fileSplit = new FileSplit(mainPath, NativeImageLoader.ALLOWED_FORMATS, random);

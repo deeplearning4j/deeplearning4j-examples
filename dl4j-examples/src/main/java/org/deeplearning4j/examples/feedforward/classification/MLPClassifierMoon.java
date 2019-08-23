@@ -20,7 +20,7 @@ import org.datavec.api.records.reader.RecordReader;
 import org.datavec.api.records.reader.impl.csv.CSVRecordReader;
 import org.datavec.api.split.FileSplit;
 import org.deeplearning4j.datasets.datavec.RecordReaderDataSetIterator;
-import org.nd4j.evaluation.classification.Evaluation;
+import org.deeplearning4j.examples.download.DownloaderUtility;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
 import org.deeplearning4j.nn.conf.layers.DenseLayer;
@@ -28,12 +28,12 @@ import org.deeplearning4j.nn.conf.layers.OutputLayer;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
 import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
+import org.nd4j.evaluation.classification.Evaluation;
 import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.nd4j.linalg.factory.Nd4j;
-import org.nd4j.linalg.io.ClassPathResource;
 import org.nd4j.linalg.learning.config.Nesterovs;
 import org.nd4j.linalg.lossfunctions.LossFunctions.LossFunction;
 
@@ -51,6 +51,8 @@ import java.io.File;
  */
 public class MLPClassifierMoon {
 
+    public static String dataLocalPath;
+
     public static void main(String[] args) throws Exception {
         int seed = 123;
         double learningRate = 0.005;
@@ -61,17 +63,16 @@ public class MLPClassifierMoon {
         int numOutputs = 2;
         int numHiddenNodes = 50;
 
-        final String filenameTrain  = new ClassPathResource("/classification/moon_data_train.csv").getFile().getPath();
-        final String filenameTest  = new ClassPathResource("/classification/moon_data_eval.csv").getFile().getPath();
+        dataLocalPath = DownloaderUtility.CLASSIFICATIONDATA.Download();
 
         //Load the training data:
         RecordReader rr = new CSVRecordReader();
-        rr.initialize(new FileSplit(new File(filenameTrain)));
+        rr.initialize(new FileSplit(new File(dataLocalPath,"moon_data_train.csv")));
         DataSetIterator trainIter = new RecordReaderDataSetIterator(rr,batchSize,0,2);
 
         //Load the test/evaluation data:
         RecordReader rrTest = new CSVRecordReader();
-        rrTest.initialize(new FileSplit(new File(filenameTest)));
+        rrTest.initialize(new FileSplit(new File(dataLocalPath,"moon_data_eval.csv")));
         DataSetIterator testIter = new RecordReaderDataSetIterator(rrTest,batchSize,0,2);
 
         DataSet ds1 = trainIter.next();
@@ -135,7 +136,7 @@ public class MLPClassifierMoon {
         INDArray predictionsAtXYPoints = model.output(allXYPoints);
 
         //Get all of the training data in a single array, and plot it:
-        rr.initialize(new FileSplit(new ClassPathResource("/classification/moon_data_train.csv").getFile()));
+        rr.initialize(new FileSplit(new File(dataLocalPath,"moon_data_train.csv")));
         rr.reset();
         int nTrainPoints = 2000;
         trainIter = new RecordReaderDataSetIterator(rr,nTrainPoints,0,2);
@@ -144,7 +145,7 @@ public class MLPClassifierMoon {
 
 
         //Get test data, run the test data through the network to generate predictions, and plot those predictions:
-        rrTest.initialize(new FileSplit(new ClassPathResource("/classification/moon_data_eval.csv").getFile()));
+        rrTest.initialize(new FileSplit(new File(dataLocalPath,"moon_data_eval.csv")));
         rrTest.reset();
         int nTestPoints = 1000;
         testIter = new RecordReaderDataSetIterator(rrTest,nTestPoints,0,2);

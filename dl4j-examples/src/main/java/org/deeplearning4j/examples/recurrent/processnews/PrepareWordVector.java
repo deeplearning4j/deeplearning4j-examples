@@ -16,7 +16,7 @@
 
 package org.deeplearning4j.examples.recurrent.processnews;
 
-import org.datavec.api.util.ClassPathResource;
+import org.deeplearning4j.examples.download.DownloaderUtility;
 import org.deeplearning4j.models.embeddings.loader.WordVectorSerializer;
 import org.deeplearning4j.models.word2vec.Word2Vec;
 import org.deeplearning4j.text.sentenceiterator.BasicLineIterator;
@@ -43,11 +43,13 @@ public class PrepareWordVector {
 
     private static Logger log = LoggerFactory.getLogger(PrepareWordVector.class);
 
+    public static String dataLocalPath;
+
     public static void main(String[] args) throws Exception {
 
+        dataLocalPath = DownloaderUtility.NEWSDATA.Download();
         // Gets Path to Text file
-        String classPathResource = new ClassPathResource("NewsData").getFile().getAbsolutePath() + File.separator;
-        String filePath = new File(classPathResource + File.separator + "RawNewsToGenerateWordVector.txt").getAbsolutePath();
+        String filePath = new File(dataLocalPath, "RawNewsToGenerateWordVector.txt").getAbsolutePath();
 
         log.info("Load & Vectorize Sentences....");
         // Strip white space before and after for each line
@@ -77,6 +79,6 @@ public class PrepareWordVector {
         log.info("Writing word vectors to text file....");
 
         // Write word vectors to file
-        WordVectorSerializer.writeWordVectors(vec.lookupTable(), classPathResource + "NewsWordVector.txt");
+        WordVectorSerializer.writeWordVectors(vec.lookupTable(), new File(dataLocalPath, "NewsWordVector.txt").getAbsolutePath());
     }
 }

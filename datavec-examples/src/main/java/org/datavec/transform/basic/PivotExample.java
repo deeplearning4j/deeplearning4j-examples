@@ -29,9 +29,10 @@ import org.datavec.api.writable.Writable;
 import org.datavec.spark.transform.SparkTransformExecutor;
 import org.datavec.spark.transform.misc.StringToWritablesFunction;
 import org.datavec.spark.transform.misc.WritablesToStringFunction;
+import org.deeplearning4j.examples.download.DownloaderUtility;
 import org.joda.time.DateTimeZone;
-import org.nd4j.linalg.io.ClassPathResource;
 
+import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 
@@ -45,7 +46,12 @@ import java.util.List;
  */
 public class PivotExample {
 
+    public static String dataLocalPath;
+
+
+
     public static void main(String[] args) throws Exception {
+        dataLocalPath = DownloaderUtility.BASICDATAVECEXAMPLE.Download();
 
         //=====================================================================
         //                 Step 1: Define the input data schema
@@ -97,7 +103,7 @@ public class PivotExample {
 
         //Define the path to the data file. You could use a directory here if the data is in multiple files
         //Normally just define your path like "file:/..." or "hdfs:/..."
-        String path = new ClassPathResource("BasicDataVecExample/PivotExampleData.csv").getFile().getAbsolutePath();
+        String path = new File(dataLocalPath, "PivotExampleData.csv").getAbsolutePath();
         JavaRDD<String> stringData = sc.textFile(path);
 
         //We first need to parse this format. It's comma-delimited (CSV) format, so let's parse it using CSVRecordReader:

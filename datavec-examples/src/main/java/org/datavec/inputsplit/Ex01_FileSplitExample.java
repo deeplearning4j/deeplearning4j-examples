@@ -17,31 +17,34 @@
 package org.datavec.inputsplit;
 
 import org.datavec.api.split.FileSplit;
-import org.nd4j.linalg.io.ClassPathResource;
+import org.deeplearning4j.examples.download.DownloaderUtility;
 
 import java.io.File;
 import java.net.URI;
 import java.util.Iterator;
 import java.util.Random;
 
+
 /**
  * {@link org.datavec.api.split.InputSplit} and its implementations are utility classes for defining and managing a catalog of
  * loadable locations (paths/files), in memory, that can later be exposed through an {{@link java.util.Iterator}}.
  * It also provides methods for exposing the locations through URIs. InputSplit also contains utilities for
  * opening up {@link java.io.InputStream} and {@link java.io.OutputStream}, given the location.
- *
+ * <p>
  * In simple terms, they define where your data comes from or should be saved to, when building a data pipeline with DataVec
- *
+ * <p>
  * In this example, we'll see the basic implementation and usages of the {@link org.datavec.api.split.FileSplit},
  * which is implemented from {@link org.datavec.api.split.BaseInputSplit}, which is further implemented from
  * {@link org.datavec.api.split.InputSplit}
  */
 
 public class Ex01_FileSplitExample {
+
+    public static String dataLocalPath;
+
     public static void main(String[] args) throws Exception {
-        // Receive the class path resource from the resource folder
-        ClassPathResource classPathResource1 = new ClassPathResource("inputsplit/files/");
-        File directoryToLook = classPathResource1.getFile();
+        dataLocalPath = DownloaderUtility.INPUTSPLIT.Download();
+        File directoryToLook = new File(dataLocalPath, "files");
 
         //=====================================================================
         //                 Example 1: Loading everything within
@@ -60,7 +63,7 @@ public class Ex01_FileSplitExample {
 
         System.out.println("--------------- Example 1: Loading every file ---------------");
         URI[] fileSplit1Uris = fileSplit1.locations();
-        for (URI uri: fileSplit1Uris) {
+        for (URI uri : fileSplit1Uris) {
             System.out.println(uri);
         }
         System.out.println("------------------------------------------------------------\n\n\n");
@@ -80,7 +83,7 @@ public class Ex01_FileSplitExample {
          */
         System.out.println("--------------- Example 2: Loading non-recursively ---------------");
         URI[] fileSplit2Uris = fileSplit2.locations();
-        for (URI uri: fileSplit2Uris) {
+        for (URI uri : fileSplit2Uris) {
             System.out.println(uri);
         }
         System.out.println("------------------------------------------------------------\n\n\n");
@@ -101,7 +104,7 @@ public class Ex01_FileSplitExample {
          */
         System.out.println("--------------- Example 3: Loading with filters ---------------");
         URI[] fileSplit3Uris = fileSplit3.locations();
-        for (URI uri: fileSplit3Uris) {
+        for (URI uri : fileSplit3Uris) {
             System.out.println(uri);
         }
         System.out.println("------------------------------------------------------------\n\n\n");
@@ -135,9 +138,7 @@ public class Ex01_FileSplitExample {
           This example will show that you can point a FileSplit to a single file and have
           it do basically what you'd expect.
          */
-        FileSplit fileSplit5 = new FileSplit(
-            new ClassPathResource("inputsplit/files/cats/domestic_cat_s_001970.jpg").getFile()
-        );
+        FileSplit fileSplit5 = new FileSplit(new File(directoryToLook.getAbsolutePath(), "cats/domestic_cat_s_001970.jpg"));
 
         /*
           This will print the single file uri we've specified through the class path resource.
@@ -149,4 +150,5 @@ public class Ex01_FileSplitExample {
         }
         System.out.println("------------------------------------------------------------\n\n\n");
     }
+
 }

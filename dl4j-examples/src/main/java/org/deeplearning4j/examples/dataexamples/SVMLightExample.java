@@ -19,9 +19,9 @@ package org.deeplearning4j.examples.dataexamples;
 import org.datavec.api.conf.Configuration;
 import org.datavec.api.records.reader.impl.misc.SVMLightRecordReader;
 import org.datavec.api.split.FileSplit;
-import org.datavec.api.util.ClassPathResource;
 import org.deeplearning4j.datasets.datavec.RecordReaderDataSetIterator;
 import org.deeplearning4j.eval.Evaluation;
+import org.deeplearning4j.examples.download.DownloaderUtility;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
 import org.deeplearning4j.nn.conf.WorkspaceMode;
@@ -39,8 +39,13 @@ import org.nd4j.linalg.lossfunctions.LossFunctions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
+
 public class SVMLightExample {
     private static Logger log = LoggerFactory.getLogger(SVMLightExample.class);
+
+    public static String dataLocalPath;
+
 
     public static void main(String[] args) throws Exception {
 
@@ -53,16 +58,18 @@ public class SVMLightExample {
         long seed = 42;
         int nEpochs = 4;
 
+        dataLocalPath = DownloaderUtility.DATAEXAMPLES.Download();
+
         Configuration config = new Configuration();
         config.setBoolean(SVMLightRecordReader.ZERO_BASED_INDEXING, true);
         config.setInt(SVMLightRecordReader.NUM_FEATURES, numOfFeatures);
 
         SVMLightRecordReader trainRecordReader = new SVMLightRecordReader();
-        trainRecordReader.initialize(config, new FileSplit(new ClassPathResource("/DataExamples/MnistSVMLightExample/mnist_svmlight_train_1000.txt").getFile()));
+        trainRecordReader.initialize(config, new FileSplit(new File(dataLocalPath,"MnistSVMLightExample/mnist_svmlight_train_1000.txt")));
         DataSetIterator trainIter = new RecordReaderDataSetIterator(trainRecordReader, batchSize, numOfFeatures, numOfClasses);
 
         SVMLightRecordReader testRecordReader = new SVMLightRecordReader();
-        testRecordReader.initialize(config, new FileSplit(new ClassPathResource("/DataExamples/MnistSVMLightExample/mnist_svmlight_test_100.txt").getFile()));
+        testRecordReader.initialize(config, new FileSplit(new File(dataLocalPath,"MnistSVMLightExample/mnist_svmlight_test_100.txt")));
         DataSetIterator testIter = new RecordReaderDataSetIterator(testRecordReader, batchSize, numOfFeatures, numOfClasses);
 
 

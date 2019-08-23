@@ -55,7 +55,6 @@ import java.io.File;
  */
 public class MultiDigitNumberRecognition {
 
-
     private static final Logger log = LoggerFactory.getLogger(MultiDigitNumberRecognition.class);
 
     private static long seed = 123;
@@ -65,7 +64,6 @@ public class MultiDigitNumberRecognition {
 
     private static String modelDirPath = rootPath.substring(0, rootPath.lastIndexOf(File.separatorChar)) + File.separatorChar + "out" + File.separatorChar + "models";
     private static String modelPath = modelDirPath + File.separatorChar + "validateCodeCheckModel.json";
-
 
     public static void main(String[] args) throws Exception {
         long startTime = System.currentTimeMillis();

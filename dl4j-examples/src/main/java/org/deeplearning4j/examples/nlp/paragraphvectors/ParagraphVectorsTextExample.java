@@ -16,7 +16,7 @@
 
 package org.deeplearning4j.examples.nlp.paragraphvectors;
 
-import org.datavec.api.util.ClassPathResource;
+import org.deeplearning4j.examples.download.DownloaderUtility;
 import org.deeplearning4j.models.paragraphvectors.ParagraphVectors;
 import org.deeplearning4j.models.word2vec.VocabWord;
 import org.deeplearning4j.models.word2vec.wordstore.inmemory.AbstractCache;
@@ -34,7 +34,7 @@ import java.io.File;
 /**
  * This is example code for dl4j ParagraphVectors implementation. In this example we build distributed representation of all sentences present in training corpus.
  * However, you still use it for training on labelled documents, using sets of LabelledDocument and LabelAwareIterator implementation.
- *
+ * <p>
  * *************************************************************************************************
  * PLEASE NOTE: THIS EXAMPLE REQUIRES DL4J/ND4J VERSIONS >= rc3.8 TO COMPILE SUCCESSFULLY
  * *************************************************************************************************
@@ -45,9 +45,11 @@ public class ParagraphVectorsTextExample {
 
     private static final Logger log = LoggerFactory.getLogger(ParagraphVectorsTextExample.class);
 
+    public static String dataLocalPath;
+
     public static void main(String[] args) throws Exception {
-        ClassPathResource resource = new ClassPathResource("/raw_sentences.txt");
-        File file = resource.getFile();
+        dataLocalPath = DownloaderUtility.NLPDATA.Download();
+        File file = new File(dataLocalPath, "raw_sentences.txt");
         SentenceIterator iter = new BasicLineIterator(file);
 
         AbstractCache<VocabWord> cache = new AbstractCache<>();
@@ -64,19 +66,19 @@ public class ParagraphVectorsTextExample {
         LabelsSource source = new LabelsSource("DOC_");
 
         ParagraphVectors vec = new ParagraphVectors.Builder()
-                .minWordFrequency(1)
-                .iterations(5)
-                .epochs(1)
-                .layerSize(100)
-                .learningRate(0.025)
-                .labelsSource(source)
-                .windowSize(5)
-                .iterate(iter)
-                .trainWordVectors(false)
-                .vocabCache(cache)
-                .tokenizerFactory(t)
-                .sampling(0)
-                .build();
+            .minWordFrequency(1)
+            .iterations(5)
+            .epochs(1)
+            .layerSize(100)
+            .learningRate(0.025)
+            .labelsSource(source)
+            .windowSize(5)
+            .iterate(iter)
+            .trainWordVectors(false)
+            .vocabCache(cache)
+            .tokenizerFactory(t)
+            .sampling(0)
+            .build();
 
         vec.fit();
 

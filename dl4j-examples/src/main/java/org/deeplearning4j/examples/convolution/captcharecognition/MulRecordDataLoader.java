@@ -19,11 +19,11 @@ package org.deeplearning4j.examples.convolution.captcharecognition;
 import org.apache.commons.io.FileUtils;
 import org.datavec.image.loader.NativeImageLoader;
 import org.datavec.image.transform.ImageTransform;
+import org.deeplearning4j.examples.download.DownloaderUtility;
 import org.nd4j.linalg.api.concurrency.AffinityManager;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.MultiDataSet;
 import org.nd4j.linalg.factory.Nd4j;
-import org.nd4j.linalg.io.ClassPathResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,11 +34,11 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
-
 /**
  * @author WangFeng
  */
 public class MulRecordDataLoader extends NativeImageLoader implements Serializable {
+
     private static final Logger log = LoggerFactory.getLogger(MulRecordDataLoader.class);
 
     private static int height = 60;
@@ -49,19 +49,20 @@ public class MulRecordDataLoader extends NativeImageLoader implements Serializab
     private int numExample = 0;
 
 
-    public MulRecordDataLoader(String dataSetType) {
+    public MulRecordDataLoader(String dataSetType) throws Exception {
         this( height, width, channels, null, dataSetType);
     }
-    public MulRecordDataLoader(ImageTransform imageTransform, String dataSetType)  {
+    public MulRecordDataLoader(ImageTransform imageTransform, String dataSetType) throws Exception {
         this( height, width, channels, imageTransform, dataSetType );
     }
-    public MulRecordDataLoader(int height, int width, int channels, ImageTransform imageTransform, String dataSetType) {
+    public MulRecordDataLoader(int height, int width, int channels, ImageTransform imageTransform, String dataSetType) throws Exception {
         super(height, width, channels, imageTransform);
         this.height = height;
         this.width = width;
         this.channels = channels;
+        String dataLocalPath = DownloaderUtility.CAPTCHAIMAGE.Download();
         try {
-            this.fullDir = fullDir != null && fullDir.exists() ? fullDir : new ClassPathResource("/captchaImage").getFile();
+            this.fullDir = fullDir != null && fullDir.exists() ? fullDir : new File(dataLocalPath);
         } catch (Exception e) {
            // log.error("the datasets directory failed, plz checking", e);
             throw new RuntimeException( e );

@@ -24,6 +24,7 @@ import org.datavec.api.split.FileSplit;
 import org.deeplearning4j.api.storage.StatsStorage;
 import org.deeplearning4j.datasets.datavec.RecordReaderDataSetIterator;
 import org.deeplearning4j.eval.Evaluation;
+import org.deeplearning4j.examples.download.DownloaderUtility;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
 import org.deeplearning4j.nn.conf.layers.DenseLayer;
@@ -43,21 +44,18 @@ import org.nd4j.linalg.lossfunctions.LossFunctions;
 import java.io.File;
 import java.util.ArrayList;
 
-/**
- * - Notes:
- *  - Data files are stored at following location
- *  .\dl4j-0.4-examples-master\dl4j-examples\src\main\resources\PredictGender\Data folder
- */
-
 public class PredictGenderTrain
 {
     public String filePath;
+    public static String dataLocalPath;
 
-    public static void main(String args[])
-    {
 
+    public static void main(String args[]) throws Exception {
+
+        dataLocalPath = DownloaderUtility.PREDICTGENDERDATA.Download();
         PredictGenderTrain dg = new PredictGenderTrain();
-        dg.filePath =  System.getProperty("user.dir") + "\\src\\main\\resources\\PredictGender\\Data";
+        dg.filePath =  new File(dataLocalPath,"Data").getAbsolutePath();
+        System.out.println(dg.filePath);
         dg.train();
     }
 
@@ -69,7 +67,7 @@ public class PredictGenderTrain
         int seed = 123456;
         double learningRate = 0.005;// was .01 but often got errors: "o.d.optimize.solvers.BaseOptimizer - Hit termination condition on iteration 0"
         int batchSize = 100;
-        int nEpochs = 100;
+        int nEpochs = 10;
         int numInputs = 0;
         int numOutputs = 0;
         int numHiddenNodes = 0;

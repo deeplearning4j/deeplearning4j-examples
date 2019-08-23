@@ -18,6 +18,7 @@ package org.deeplearning4j.examples.recurrent.processlottery;
 
 
 import org.deeplearning4j.api.storage.StatsStorage;
+import org.deeplearning4j.examples.download.DownloaderUtility;
 import org.deeplearning4j.nn.api.OptimizationAlgorithm;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
@@ -35,7 +36,6 @@ import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.nd4j.linalg.factory.Nd4j;
-import org.nd4j.linalg.io.ClassPathResource;
 import org.nd4j.linalg.learning.config.RmsProp;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 import org.slf4j.Logger;
@@ -45,29 +45,32 @@ import java.io.File;
 import java.util.Random;
 
 
- /**
-  * lottery rule:every day has 120 term, during 10:00-22:00(72),every 10 minutes generate new lottery number, during 22:00-02:00(48) every 5 minutes generate new lottery number,
-  * lottery number rule: its length is 5 bit, every bit choose one from 0-9 digit
-  * this example only try to get the lottery algorithm by an unidentified structure underlying the data,maybe the inputting features still is less,
-  * although the model don't seem to get the original lottery algorithm, but this example can still be used as a reference for processing sequence data.
-  * @author wangfeng.
-  */
+/**
+ * lottery rule:every day has 120 term, during 10:00-22:00(72),every 10 minutes generate new lottery number, during 22:00-02:00(48) every 5 minutes generate new lottery number,
+ * lottery number rule: its length is 5 bit, every bit choose one from 0-9 digit
+ * this example only try to get the lottery algorithm by an unidentified structure underlying the data,maybe the inputting features still is less,
+ * although the model don't seem to get the original lottery algorithm, but this example can still be used as a reference for processing sequence data.
+ *
+ * @author wangfeng.
+ */
 public class TrainLotteryModel {
     private static Logger log = LoggerFactory.getLogger(TrainLotteryModel.class);
-
 
     private static int batchSize = 64;
     private static long seed = 123;
     private static int numEpochs = 3;
     private static boolean modelType = true;
 
-	public static void main(String[] args) throws Exception{
+    public static String dataLocalPath;
 
-        String dataPath = new ClassPathResource("/lottery").getFile().getPath();
-        File modelFile = new File(dataPath + File.separatorChar + "lotteryPredictModel.json");
-        DataSetIterator trainIterator = new LotteryDataSetIterator(dataPath + File.separatorChar + "cqssc_train.csv", batchSize, modelType);
-        DataSetIterator testIterator = new LotteryDataSetIterator(dataPath + File.separatorChar + "cqssc_test.csv" , 2 , modelType);
-        DataSetIterator validateIterator = new LotteryDataSetIterator(dataPath + File.separatorChar + "cqssc_validate.csv", 2 , modelType);
+
+    public static void main(String[] args) throws Exception {
+
+        dataLocalPath = DownloaderUtility.LOTTERYDATA.Download();
+        File modelFile = new File(dataLocalPath, "lotteryPredictModel.json");
+        DataSetIterator trainIterator = new LotteryDataSetIterator(new File(dataLocalPath,"cqssc_train.csv").getAbsolutePath(), batchSize, modelType);
+        DataSetIterator testIterator = new LotteryDataSetIterator(new File(dataLocalPath, "cqssc_test.csv").getAbsolutePath(), 2, modelType);
+        DataSetIterator validateIterator = new LotteryDataSetIterator(new File(dataLocalPath, "cqssc_validate.csv").getAbsolutePath(), 2, modelType);
 
         MultiLayerNetwork model = getNetModel(trainIterator.inputColumns(), trainIterator.totalOutcomes());
         UIServer uiServer = UIServer.getInstance();
@@ -99,11 +102,11 @@ public class TrainLotteryModel {
                 INDArray realLabel = Nd4j.argMax(label, 2);
                 StringBuilder peLabel = new StringBuilder();
                 StringBuilder reLabel = new StringBuilder();
-                for (int dataIndex = 0; dataIndex < 5; dataIndex ++) {
+                for (int dataIndex = 0; dataIndex < 5; dataIndex++) {
                     peLabel.append(preOutput.getInt(dataIndex));
                     reLabel.append(realLabel.getInt(dataIndex));
                 }
-                log.info("test-->real lottery {}  prediction {} status {}",  reLabel.toString(), peLabel.toString(), peLabel.toString().equals(reLabel.toString()));
+                log.info("test-->real lottery {}  prediction {} status {}", reLabel.toString(), peLabel.toString(), peLabel.toString().equals(reLabel.toString()));
             }
             while (validateIterator.hasNext()) {
                 DataSet ds = validateIterator.next();
@@ -114,27 +117,27 @@ public class TrainLotteryModel {
                 INDArray realLabel = Nd4j.argMax(label, 2);
                 StringBuilder peLabel = new StringBuilder();
                 StringBuilder reLabel = new StringBuilder();
-                for (int dataIndex = 0; dataIndex < 5; dataIndex ++) {
+                for (int dataIndex = 0; dataIndex < 5; dataIndex++) {
                     peLabel.append(preOutput.getInt(dataIndex));
                     reLabel.append(realLabel.getInt(dataIndex));
                 }
-                log.info("validate-->real lottery {}  prediction {} status {}",  reLabel.toString(), peLabel.toString(), peLabel.toString().equals(reLabel.toString()));
+                log.info("validate-->real lottery {}  prediction {} status {}", reLabel.toString(), peLabel.toString(), peLabel.toString().equals(reLabel.toString()));
             }
 
             String currentLottery = "27578";
             INDArray initCondition = Nd4j.zeros(1, 5, 10);
             String[] featureAry = currentLottery.split("");
-            for( int j = 0; j < featureAry.length; j ++ ){
+            for (int j = 0; j < featureAry.length; j++) {
                 int p = Integer.parseInt(featureAry[j]);
                 initCondition.putScalar(new int[]{0, j, p}, 1);
             }
             INDArray output = model.output(initCondition);
             INDArray preOutput = Nd4j.argMax(output, 2);
             StringBuilder latestLottery = new StringBuilder();
-            for (int dataIndex = 0; dataIndex < 5; dataIndex ++) {
+            for (int dataIndex = 0; dataIndex < 5; dataIndex++) {
                 latestLottery.append(preOutput.getInt(dataIndex));
             }
-            System.out.println("current lottery numbers==" + currentLottery + "==prediction===next lottery numbers==" +  latestLottery.toString());
+            System.out.println("current lottery numbers==" + currentLottery + "==prediction===next lottery numbers==" + latestLottery.toString());
 
         } else {
             int predictCount = 2;
@@ -145,14 +148,14 @@ public class TrainLotteryModel {
             INDArray initCondition = Nd4j.zeros(predictCount, 10, predictDateNum.length());
 
             String[] featureAry = predictDateNum.split("");
-            for( int j = 0; j < featureAry.length; j ++ ){
+            for (int j = 0; j < featureAry.length; j++) {
                 int p = Integer.parseInt(featureAry[j]);
-                for( int i=0; i< predictCount; i++ ){
-                    initCondition.putScalar(new int[]{i, p,j}, 1);
+                for (int i = 0; i < predictCount; i++) {
+                    initCondition.putScalar(new int[]{i, p, j}, 1);
                 }
             }
             StringBuilder[] sb = new StringBuilder[predictCount];
-            for( int i = 0; i < predictCount; i ++ ) {
+            for (int i = 0; i < predictCount; i++) {
                 sb[i] = new StringBuilder(predictDateNum);
             }
             //Clear the previous state of the RNN layers (if any)
@@ -160,54 +163,54 @@ public class TrainLotteryModel {
             INDArray output = model.rnnTimeStep(initCondition);
             //output.size(x) will get the size along a specified dimension,
             //output.tensorAlongDimension(...) will get the vector along a particular dimension
-            output = output.tensorAlongDimension((int)output.size(2)-1,1,0);	//Gets the last time step output
+            output = output.tensorAlongDimension((int) output.size(2) - 1, 1, 0);    //Gets the last time step output
             Random random = new Random(12345);
-            for( int i=0; i < luckySize; i++ ){
+            for (int i = 0; i < luckySize; i++) {
                 //Set up next input (single time step) by sampling from previous output
-                INDArray nextInput = Nd4j.zeros(predictCount,10);
+                INDArray nextInput = Nd4j.zeros(predictCount, 10);
                 //Output is a probability distribution. Sample from this for each example we want to generate, and add it to the new input
-                for( int s = 0; s < predictCount; s ++ ){
+                for (int s = 0; s < predictCount; s++) {
                     double[] outputProbDistribution = new double[10];
-                    for( int j = 0; j < outputProbDistribution.length; j++ ) {
-                        outputProbDistribution[j] = output.getDouble(s,j);
+                    for (int j = 0; j < outputProbDistribution.length; j++) {
+                        outputProbDistribution[j] = output.getDouble(s, j);
                     }
                     double sum = 0.0;
                     int luckyNum = 0;
                     double d = random.nextDouble();
-                    for( int j = 0; j < outputProbDistribution.length; j++ ){
+                    for (int j = 0; j < outputProbDistribution.length; j++) {
                         sum += outputProbDistribution[j];
-                        if( d <= sum ) luckyNum = i;
+                        if (d <= sum) luckyNum = i;
                     }
                     //Prepare next time step input
-                    nextInput.putScalar(new int[]{s,luckyNum}, 1.0f);
+                    nextInput.putScalar(new int[]{s, luckyNum}, 1.0f);
                     sb[s].append(luckyNum);
                 }
                 //Do one time step of forward pass
                 output = model.rnnTimeStep(nextInput);
             }
-            for( int i = 0; i < predictCount; i++ ) {
+            for (int i = 0; i < predictCount; i++) {
                 System.out.println("==prediction====result===" + predictCount + "======" + sb[i].toString());
             }
         }
     }
 
     //create the neural network
-	private static MultiLayerNetwork getNetModel(int inputNum, int outputNum) {
+    private static MultiLayerNetwork getNetModel(int inputNum, int outputNum) {
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
-                .trainingWorkspaceMode(WorkspaceMode.ENABLED).inferenceWorkspaceMode(WorkspaceMode.ENABLED)
-                .seed(seed)
-                .optimizationAlgo( OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
-                .weightInit(WeightInit.XAVIER)
-                .updater(new RmsProp.Builder().rmsDecay(0.95).learningRate(1e-2).build())
-                .list()
-                .layer(new LSTM.Builder().name("lstm1")
-                        .activation(Activation.TANH).nIn(inputNum).nOut(100).build())
-                .layer(new LSTM.Builder().name("lstm2")
-                        .activation(Activation.TANH).nOut(80).build())
-                .layer(new RnnOutputLayer.Builder().name("output")
-                        .activation(Activation.SOFTMAX).nOut(outputNum).lossFunction(LossFunctions.LossFunction.MSE)
-                        .build())
-                .build();
+            .trainingWorkspaceMode(WorkspaceMode.ENABLED).inferenceWorkspaceMode(WorkspaceMode.ENABLED)
+            .seed(seed)
+            .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
+            .weightInit(WeightInit.XAVIER)
+            .updater(new RmsProp.Builder().rmsDecay(0.95).learningRate(1e-2).build())
+            .list()
+            .layer(new LSTM.Builder().name("lstm1")
+                .activation(Activation.TANH).nIn(inputNum).nOut(100).build())
+            .layer(new LSTM.Builder().name("lstm2")
+                .activation(Activation.TANH).nOut(80).build())
+            .layer(new RnnOutputLayer.Builder().name("output")
+                .activation(Activation.SOFTMAX).nOut(outputNum).lossFunction(LossFunctions.LossFunction.MSE)
+                .build())
+            .build();
 
         MultiLayerNetwork net = new MultiLayerNetwork(conf);
         net.init();

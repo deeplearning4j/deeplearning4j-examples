@@ -20,13 +20,13 @@ import org.datavec.api.io.filters.BalancedPathFilter;
 import org.datavec.api.io.labels.ParentPathLabelGenerator;
 import org.datavec.api.split.FileSplit;
 import org.datavec.api.split.InputSplit;
-import org.datavec.api.util.ClassPathResource;
 import org.datavec.image.loader.BaseImageLoader;
 import org.datavec.image.recordreader.ImageRecordReader;
 import org.datavec.image.transform.ImageTransform;
 import org.datavec.image.transform.MultiImageTransform;
 import org.datavec.image.transform.ShowImageTransform;
 import org.deeplearning4j.datasets.datavec.RecordReaderDataSetIterator;
+import org.deeplearning4j.examples.download.DownloaderUtility;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 
@@ -49,8 +49,12 @@ public class ImagePipelineExample {
     private static final int width = 50;
     private static final int channels = 3;
 
+    public static String dataLocalPath;
+
+
     public static void main(String[] args) throws Exception {
 
+        dataLocalPath = DownloaderUtility.DATAEXAMPLES.Download();
         //DIRECTORY STRUCTURE:
         //Images in the dataset have to be organized in directories by class/label.
         //In this example there are ten images in three classes
@@ -64,7 +68,7 @@ public class ImagePipelineExample {
         //And these label/class directories live together in the parent directory
         //
         //
-        File parentDir=new ClassPathResource("DataExamples/ImagePipeline/").getFile();
+        File parentDir=new File(dataLocalPath,"ImagePipeline/");
         //Files in directories under the parent dir that have "allowed extensions" split needs a random number generator for reproducibility when splitting the files into train and test
         FileSplit filesInDir = new FileSplit(parentDir, allowedExtensions, randNumGen);
 

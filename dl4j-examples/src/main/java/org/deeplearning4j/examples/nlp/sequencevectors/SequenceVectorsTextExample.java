@@ -16,7 +16,7 @@
 
 package org.deeplearning4j.examples.nlp.sequencevectors;
 
-import org.datavec.api.util.ClassPathResource;
+import org.deeplearning4j.examples.download.DownloaderUtility;
 import org.deeplearning4j.models.embeddings.WeightLookupTable;
 import org.deeplearning4j.models.embeddings.inmemory.InMemoryLookupTable;
 import org.deeplearning4j.models.embeddings.learning.impl.elements.SkipGram;
@@ -39,22 +39,25 @@ import java.io.File;
 /**
  * This is example of abstract sequence of data is learned using SequenceVectors. In this example, we use text sentences as Sequences, and VocabWords as SequenceElements.
  * So, this example is  a simple demonstration how one can learn distributed representation of data sequences.
- *
+ * <p>
  * For training on different data, you can extend base class SequenceElement, and feed model with your Iterable. Aslo, please note, in this case model persistence should be handled on your side.
- *
+ * <p>
  * *************************************************************************************************
  * PLEASE NOTE: THIS EXAMPLE REQUIRES DL4J/ND4J VERSIONS >= rc3.8 TO COMPILE SUCCESSFULLY
  * *************************************************************************************************
+ *
  * @author raver119@gmail.com
  */
 public class SequenceVectorsTextExample {
 
     protected static final Logger logger = LoggerFactory.getLogger(SequenceVectorsTextExample.class);
+    public static String dataLocalPath;
+
 
     public static void main(String[] args) throws Exception {
+        dataLocalPath = DownloaderUtility.NLPDATA.Download();
 
-        ClassPathResource resource = new ClassPathResource("raw_sentences.txt");
-        File file = resource.getFile();
+        File file = new File(dataLocalPath,"raw_sentences.txt");
 
         AbstractCache<VocabWord> vocabCache = new AbstractCache.Builder<VocabWord>().build();
 
@@ -72,9 +75,9 @@ public class SequenceVectorsTextExample {
         t.setTokenPreProcessor(new CommonPreprocessor());
 
         SentenceTransformer transformer = new SentenceTransformer.Builder()
-                .iterator(underlyingIterator)
-                .tokenizerFactory(t)
-                .build();
+            .iterator(underlyingIterator)
+            .tokenizerFactory(t)
+            .build();
 
 
         /*
@@ -89,9 +92,9 @@ public class SequenceVectorsTextExample {
             We can skip this phase, and just set AbstractVectors.resetModel(TRUE), and vocabulary will be mastered internally
         */
         VocabConstructor<VocabWord> constructor = new VocabConstructor.Builder<VocabWord>()
-                .addSource(sequenceIterator, 5)
-                .setTargetVocabCache(vocabCache)
-                .build();
+            .addSource(sequenceIterator, 5)
+            .setTargetVocabCache(vocabCache)
+            .build();
 
         constructor.buildJointVocabulary(false, true);
 
@@ -100,10 +103,10 @@ public class SequenceVectorsTextExample {
         */
 
         WeightLookupTable<VocabWord> lookupTable = new InMemoryLookupTable.Builder<VocabWord>()
-                .vectorLength(150)
-                .useAdaGrad(false)
-                .cache(vocabCache)
-                .build();
+            .vectorLength(150)
+            .useAdaGrad(false)
+            .cache(vocabCache)
+            .build();
 
          /*
              reset model is viable only if you're setting AbstractVectors.resetModel() to false
@@ -115,46 +118,46 @@ public class SequenceVectorsTextExample {
             Now we can build AbstractVectors model, that suits our needs
          */
         SequenceVectors<VocabWord> vectors = new SequenceVectors.Builder<VocabWord>(new VectorsConfiguration())
-                // minimum number of occurencies for each element in training corpus. All elements below this value will be ignored
-                // Please note: this value has effect only if resetModel() set to TRUE, for internal model building. Otherwise it'll be ignored, and actual vocabulary content will be used
-                .minWordFrequency(5)
+            // minimum number of occurencies for each element in training corpus. All elements below this value will be ignored
+            // Please note: this value has effect only if resetModel() set to TRUE, for internal model building. Otherwise it'll be ignored, and actual vocabulary content will be used
+            .minWordFrequency(5)
 
-                // WeightLookupTable
-                .lookupTable(lookupTable)
+            // WeightLookupTable
+            .lookupTable(lookupTable)
 
-                // abstract iterator that covers training corpus
-                .iterate(sequenceIterator)
+            // abstract iterator that covers training corpus
+            .iterate(sequenceIterator)
 
-                // vocabulary built prior to modelling
-                .vocabCache(vocabCache)
+            // vocabulary built prior to modelling
+            .vocabCache(vocabCache)
 
-                // batchSize is the number of sequences being processed by 1 thread at once
-                // this value actually matters if you have iterations > 1
-                .batchSize(250)
+            // batchSize is the number of sequences being processed by 1 thread at once
+            // this value actually matters if you have iterations > 1
+            .batchSize(250)
 
-                // number of iterations over batch
-                .iterations(1)
+            // number of iterations over batch
+            .iterations(1)
 
-                // number of iterations over whole training corpus
-                .epochs(1)
+            // number of iterations over whole training corpus
+            .epochs(1)
 
-                // if set to true, vocabulary will be built from scratches internally
-                // otherwise externally provided vocab will be used
-                .resetModel(false)
+            // if set to true, vocabulary will be built from scratches internally
+            // otherwise externally provided vocab will be used
+            .resetModel(false)
 
 
                 /*
                     These two methods define our training goals. At least one goal should be set to TRUE.
                  */
-                .trainElementsRepresentation(true)
-                .trainSequencesRepresentation(false)
+            .trainElementsRepresentation(true)
+            .trainSequencesRepresentation(false)
 
                 /*
                     Specifies elements learning algorithms. SkipGram, for example.
                  */
-                .elementsLearningAlgorithm(new SkipGram<VocabWord>())
+            .elementsLearningAlgorithm(new SkipGram<VocabWord>())
 
-                .build();
+            .build();
 
         /*
             Now, after all options are set, we just call fit()

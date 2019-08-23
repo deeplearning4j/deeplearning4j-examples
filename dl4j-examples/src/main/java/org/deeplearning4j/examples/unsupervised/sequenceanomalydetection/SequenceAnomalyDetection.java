@@ -20,6 +20,7 @@ package org.deeplearning4j.examples.unsupervised.sequenceanomalydetection;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.deeplearning4j.api.storage.StatsStorage;
+import org.deeplearning4j.examples.download.DownloaderUtility;
 import org.deeplearning4j.nn.api.OptimizationAlgorithm;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
@@ -39,7 +40,6 @@ import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.nd4j.linalg.dataset.api.preprocessor.DataNormalization;
 import org.nd4j.linalg.dataset.api.preprocessor.NormalizerStandardize;
 import org.nd4j.linalg.dataset.api.preprocessor.serializer.NormalizerSerializer;
-import org.nd4j.linalg.io.ClassPathResource;
 import org.nd4j.linalg.learning.config.RmsProp;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 
@@ -56,12 +56,15 @@ public class SequenceAnomalyDetection {
     private static int testBatchSize = 1;
     private static int numEpochs = 38;
 
+    public static String dataLocalPath;
+
+
     public static void main(String[] args) throws Exception {
 
-        String dataPath = new ClassPathResource("/anomalysequencedata").getFile().getPath();
-        File modelFile = new File(dataPath + File.separatorChar + "anomalyDetectionModel.gz");
-        DataSetIterator trainIterator = new AnomalyDataSetIterator(dataPath + File.separatorChar + "ads.csv", trainBatchSize);
-        DataSetIterator testIterator = new AnomalyDataSetIterator(dataPath + File.separatorChar + "test.csv", testBatchSize);
+        dataLocalPath = DownloaderUtility.ANOMALYSEQUENCEDATA.Download();
+        File modelFile = new File(dataLocalPath, "anomalyDetectionModel.gz");
+        DataSetIterator trainIterator = new AnomalyDataSetIterator(new File(dataLocalPath, "ads.csv").getAbsolutePath(), trainBatchSize);
+        DataSetIterator testIterator = new AnomalyDataSetIterator(new File(dataLocalPath,"test.csv").getAbsolutePath(), testBatchSize);
 
         MultiLayerNetwork net = true ? createModel(trainIterator.inputColumns(), trainIterator.totalOutcomes()) : MultiLayerNetwork.load(modelFile, true);
         UIServer uiServer = UIServer.getInstance();
@@ -73,7 +76,7 @@ public class SequenceAnomalyDetection {
         trainIterator.reset();
         trainIterator.setPreProcessor(normalizer);
         testIterator.setPreProcessor(normalizer);	//Note: using training normalization statistics
-        NormalizerSerializer.getDefault().write(normalizer, dataPath + File.separatorChar + "anomalyDetectionNormlizer.ty");
+        NormalizerSerializer.getDefault().write(normalizer, new File(dataLocalPath, "anomalyDetectionNormlizer.ty").getAbsolutePath());
 
         // training
         net.setListeners(new StatsListener(statsStorage), new ScoreIterationListener(10));

@@ -32,10 +32,10 @@ public class MultiRecordDataSetIterator implements MultiDataSetIterator {
     private MulRecordDataLoader load;
     private MultiDataSetPreProcessor preProcessor;
 
-    public MultiRecordDataSetIterator(int batchSize, String dataSetType) {
+    public MultiRecordDataSetIterator(int batchSize, String dataSetType) throws Exception {
         this(batchSize, null, dataSetType);
     }
-    public MultiRecordDataSetIterator(int batchSize, ImageTransform imageTransform, String dataSetType) {
+    public MultiRecordDataSetIterator(int batchSize, ImageTransform imageTransform, String dataSetType) throws Exception {
         this.batchSize = batchSize;
         load = new MulRecordDataLoader(imageTransform, dataSetType);
         numExample = load.totalExamples();

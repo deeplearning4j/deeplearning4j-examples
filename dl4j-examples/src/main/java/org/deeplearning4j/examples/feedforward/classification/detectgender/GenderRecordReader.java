@@ -145,8 +145,9 @@ public class GenderRecordReader extends LineRecordReader
                         Pair<String,List<String>> tempPair = new Pair<String,List<String>>(temp.get(0),tempList);
                         tempNames.add(tempPair);
                     }
-                    else
-                        throw new InterruptedException("File missing for any of the specified labels");
+                    else {
+                        if (!file.getName().equals("PredictGender.net")) throw new InterruptedException("File missing for any of the specified labels");
+                    }
                 }
 
                 this.maxLengthName = longestName.length();

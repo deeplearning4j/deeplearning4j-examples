@@ -34,9 +34,9 @@ import org.datavec.api.transform.transform.time.DeriveColumnsFromTimeTransform;
 import org.datavec.api.writable.DoubleWritable;
 import org.datavec.api.writable.Writable;
 import org.datavec.local.transforms.LocalTransformExecutor;
+import org.deeplearning4j.examples.download.DownloaderUtility;
 import org.joda.time.DateTimeFieldType;
 import org.joda.time.DateTimeZone;
-import org.nd4j.linalg.io.ClassPathResource;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -59,8 +59,11 @@ import java.util.List;
  */
 public class BasicDataVecExampleLocal {
 
-    public static  void main(String[] args) throws Exception {
+    public static String dataLocalPath;
 
+
+    public static  void main(String[] args) throws Exception {
+        dataLocalPath = DownloaderUtility.BASICDATAVECEXAMPLE.Download();
         //=====================================================================
         //                 Step 1: Define the input data schema
         //=====================================================================
@@ -149,7 +152,7 @@ public class BasicDataVecExampleLocal {
         //=====================================================================
 
         //Define input and output paths:
-        File inputFile = new ClassPathResource("BasicDataVecExample/exampledata.csv").getFile();
+        File inputFile = new File(dataLocalPath, "exampledata.csv");
         File outputFile = new File("BasicDataVecExampleLocalOut.csv");
         if(outputFile.exists()){
             outputFile.delete();

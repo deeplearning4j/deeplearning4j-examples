@@ -16,7 +16,7 @@
 
 package org.deeplearning4j.examples.nlp.paragraphvectors;
 
-import org.datavec.api.util.ClassPathResource;
+import org.deeplearning4j.examples.download.DownloaderUtility;
 import org.deeplearning4j.models.embeddings.loader.WordVectorSerializer;
 import org.deeplearning4j.models.paragraphvectors.ParagraphVectors;
 import org.deeplearning4j.text.tokenization.tokenizer.preprocessor.CommonPreprocessor;
@@ -27,11 +27,13 @@ import org.nd4j.linalg.ops.transforms.Transforms;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
+
 /**
  * This is example code for dl4j ParagraphVectors inference use implementation.
  * In this example we load previously built model, and pass raw sentences, probably never seen before, to get their vector representation.
- *
- *
+ * <p>
+ * <p>
  * *************************************************************************************************
  * PLEASE NOTE: THIS EXAMPLE REQUIRES DL4J/ND4J VERSIONS >= 0.6.0 TO COMPILE SUCCESSFULLY
  * *************************************************************************************************
@@ -42,13 +44,16 @@ public class ParagraphVectorsInferenceExample {
 
     private static final Logger log = LoggerFactory.getLogger(ParagraphVectorsInferenceExample.class);
 
+    public static String dataLocalPath;
+
     public static void main(String[] args) throws Exception {
-        ClassPathResource resource = new ClassPathResource("/paravec/simple.pv");
+        dataLocalPath = DownloaderUtility.NLPDATA.Download();
+        File resource = new File(dataLocalPath, "paravec/simple.pv");
         TokenizerFactory t = new DefaultTokenizerFactory();
         t.setTokenPreProcessor(new CommonPreprocessor());
 
         // we load externally originated model
-        ParagraphVectors vectors = WordVectorSerializer.readParagraphVectors(resource.getFile());
+        ParagraphVectors vectors = WordVectorSerializer.readParagraphVectors(resource);
         vectors.setTokenizerFactory(t);
         vectors.getConfiguration().setIterations(1); // please note, we set iterations to 1 here, just to speedup inference
 

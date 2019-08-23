@@ -16,8 +16,8 @@
 
 package org.deeplearning4j.examples.styletransfer;
 
-import org.datavec.api.util.ClassPathResource;
 import org.datavec.image.loader.NativeImageLoader;
+import org.deeplearning4j.examples.download.DownloaderUtility;
 import org.deeplearning4j.nn.api.Layer;
 import org.deeplearning4j.nn.graph.ComputationGraph;
 import org.deeplearning4j.nn.workspace.LayerWorkspaceMgr;
@@ -30,7 +30,6 @@ import org.nd4j.linalg.dataset.api.preprocessor.VGG16ImagePreProcessor;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.indexing.BooleanIndexing;
 import org.nd4j.linalg.indexing.conditions.Conditions;
-import org.nd4j.linalg.indexing.functions.Value;
 import org.nd4j.linalg.learning.AdamUpdater;
 import org.nd4j.linalg.learning.config.Adam;
 import org.nd4j.linalg.ops.transforms.Transforms;
@@ -108,10 +107,10 @@ public class NeuralStyleTransfer {
     private static final double NOISE_RATION = 0.1;
     private static final int ITERATIONS = 1000;
 
-    private static final String CONTENT_FILE = "/styletransfer/content.jpg";
-    private static final String STYLE_FILE = "/styletransfer/style.jpg";
+    private static final String CONTENT_FILE = "content.jpg";
+    private static final String STYLE_FILE = "style.jpg";
     private static final int SAVE_IMAGE_CHECKPOINT = 5;
-    private static final String OUTPUT_PATH = "/styletransfer/out/";
+    private static final String OUTPUT_PATH = "out";
 
     private static final int HEIGHT = 224;
     private static final int WIDTH = 224;
@@ -119,8 +118,10 @@ public class NeuralStyleTransfer {
     private static final DataNormalization IMAGE_PRE_PROCESSOR = new VGG16ImagePreProcessor();
     private static final NativeImageLoader LOADER = new NativeImageLoader(HEIGHT, WIDTH, CHANNELS);
 
+    public static String dataLocalPath;
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws Exception {
+        dataLocalPath = DownloaderUtility.STYLETRANSFER.Download();
         new NeuralStyleTransfer().transferStyle();
     }
 
@@ -186,7 +187,7 @@ public class NeuralStyleTransfer {
     }
 
     private INDArray createCombinationImage() throws IOException {
-        INDArray content = LOADER.asMatrix(new ClassPathResource(CONTENT_FILE).getFile());
+        INDArray content = LOADER.asMatrix(new File(dataLocalPath,CONTENT_FILE));
         IMAGE_PRE_PROCESSOR.transform(content);
         INDArray combination = createCombineImageWithRandomPixels();
         combination.muli(NOISE_RATION).addi(content.muli(1 - NOISE_RATION));
@@ -203,7 +204,7 @@ public class NeuralStyleTransfer {
     }
 
     private INDArray loadImage(String contentFile) throws IOException {
-        INDArray content = LOADER.asMatrix(new ClassPathResource(contentFile).getFile());
+        INDArray content = LOADER.asMatrix(new File(dataLocalPath,contentFile));
         IMAGE_PRE_PROCESSOR.transform(content);
         return content;
     }
