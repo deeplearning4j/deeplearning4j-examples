@@ -1,0 +1,6 @@
+<resources>
+    <string name="app_name">DL4J</string>
+    <string name="action_settings">Settings</string>
+    <string name="choose_dl4j_model">Choose dl4j model</string>
+    <string name="please_choose">Please choose DL4J .zip file.</string>
+</resources>
