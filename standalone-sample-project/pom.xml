@@ -27,12 +27,26 @@
 
     <!-- Properties Section. Change DL4J and ND4J versions here, if required -->
     <properties>
-        <dl4j.version>1.0.0-beta4</dl4j.version>
-        <nd4j.version>1.0.0-beta4</nd4j.version>
+        <dl4j.version>1.0.0-SNAPSHOT</dl4j.version>
+        <nd4j.version>1.0.0-SNAPSHOT</nd4j.version>
         <logback.version>1.2.3</logback.version>
         <java.version>1.8</java.version>
         <maven-shade-plugin.version>2.4.3</maven-shade-plugin.version>
     </properties>
+
+    <repositories>
+        <repository>
+            <id>snapshots-repo</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+                <updatePolicy>always</updatePolicy>  <!-- Optional, update daily -->
+            </snapshots>
+        </repository>
+    </repositories>
 
 
     <dependencies>
@@ -77,6 +91,12 @@
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
             <version>${logback.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.nd4j</groupId>
+            <artifactId>nd4s_2.11</artifactId>
+            <version>${nd4j.version}</version>
         </dependency>
     </dependencies>
 
