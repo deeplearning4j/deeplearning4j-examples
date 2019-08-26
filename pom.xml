@@ -71,6 +71,7 @@
         <module>rl4j-examples</module>
         <module>lstm-hdfs</module>
         <module>shared-utilities</module>
+        <module>tf-import-examples</module>
     </modules>
 
     <!-- Maven Enforcer: Ensures user has an up to date version of Maven before building -->

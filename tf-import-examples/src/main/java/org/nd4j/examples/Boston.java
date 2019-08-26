@@ -21,7 +21,7 @@ import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.imports.graphmapper.tf.TFGraphMapper;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
-import org.nd4j.linalg.io.ClassPathResource;
+import org.deeplearning4j.examples.download.DownloaderUtility;
 
 import java.io.File;
 
@@ -33,11 +33,12 @@ public class Boston {
     private static SameDiff sd;
     private static double mean;
     private static double std;
+    public static String dataLocalPath;
 
     public static void loadModel(String filepath) throws Exception{
         File file = new File(filepath);
         if (!file.exists()){
-            file = new ClassPathResource(filepath).getFile();
+            file = new File(dataLocalPath,filepath);
         }
 
         sd = TFGraphMapper.getInstance().importGraph(file);
@@ -48,7 +49,7 @@ public class Boston {
     }
 
     private static void loadStats() throws Exception {
-        File file = new ClassPathResource("Boston/stats.txt").getFile();
+        File file = new File(dataLocalPath,"Boston/stats.txt");
         String contents = FileUtils.readFileToString(file,defaultCharset());
         String stats[] = contents.split(",");
         mean = Double.parseDouble(stats[0]);
@@ -97,6 +98,7 @@ public class Boston {
     }
 
     public static void main(String[] args) throws Exception{
+        dataLocalPath = DownloaderUtility.TFIMPORTEXAMPLES.Download();
         loadModel("Boston/boston.pb");
         loadStats();
         INDArray sampleData = getSampleData();

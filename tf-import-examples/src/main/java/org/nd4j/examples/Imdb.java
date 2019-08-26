@@ -17,11 +17,11 @@
 package org.nd4j.examples;
 
 import org.apache.commons.io.FileUtils;
+import org.deeplearning4j.examples.download.DownloaderUtility;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.imports.graphmapper.tf.TFGraphMapper;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
-import org.nd4j.linalg.io.ClassPathResource;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -39,11 +39,11 @@ public class Imdb {
     private static SameDiff sd;
     private static final int maxlen = 256;
     private static Map<String, Integer> wordIndex;
-
+    public static String dataLocalPath;
 
     private static void loadWordIndex() throws Exception {
         wordIndex = new HashMap<>();
-        File file = new ClassPathResource("Imdb/word_index.txt").getFile();
+        File file = new File(dataLocalPath,"Imdb/word_index.txt");
         String content = FileUtils.readFileToString(file);
         String[] lines = content.split("\n");
         for(int i=0; i < lines.length - 1; i++){
@@ -78,7 +78,7 @@ public class Imdb {
     public static void loadModel(String filepath) throws Exception{
         File file = new File(filepath);
         if (!file.exists()){
-            file = new ClassPathResource(filepath).getFile();
+            file = new File(filepath);
         }
         sd = TFGraphMapper.getInstance().importGraph(file);
         if (sd == null){
@@ -95,6 +95,7 @@ public class Imdb {
     }
 
     public static void main(String[] args) throws Exception{
+        dataLocalPath = DownloaderUtility.TFIMPORTEXAMPLES.Download();
         loadModel("Imdb/imdb.pb");
         loadWordIndex();
         BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
