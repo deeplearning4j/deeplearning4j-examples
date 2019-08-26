@@ -57,7 +57,12 @@ public enum DownloaderUtility {
     NEWSDATA("NewsData.zip","dl4j-examples","0d08e902faabe6b8bfe5ecdd78af9f64","21MB"),
     NLPDATA("nlp.zip","dl4j-examples","1ac7cd7ca08f13402f0e3b83e20c0512","91MB"),
     PREDICTGENDERDATA("PredictGender.zip","dl4j-examples","42a3fec42afa798217e0b8687667257e","3MB"),
-    STYLETRANSFER("styletransfer.zip","dl4j-examples","b2b90834d667679d7ee3dfb1f40abe94","3MB");
+    STYLETRANSFER("styletransfer.zip","dl4j-examples","b2b90834d667679d7ee3dfb1f40abe94","3MB"),
+
+    /*
+        Skymind tf-import-examples resources stored under AZURE_BLOB_URL/tf-import-examples
+     */
+    TFIMPORTEXAMPLES("resources.zip","tf-import-examples","4895e40e71b17799e4d6fb75d5a22491","3MB");
 
     private final String BASE_URL;
     private final String DATA_FOLDER;

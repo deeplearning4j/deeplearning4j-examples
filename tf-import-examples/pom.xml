@@ -93,6 +93,11 @@
             <artifactId>deeplearning4j-datasets</artifactId>
             <version>RELEASE</version>
         </dependency>
+        <dependency>
+            <groupId>org.deeplearning4j.examples</groupId>
+            <artifactId>shared-utilities</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
 
     </dependencies>

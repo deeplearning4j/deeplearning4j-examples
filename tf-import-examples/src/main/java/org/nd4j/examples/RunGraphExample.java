@@ -16,14 +16,15 @@
 
 package org.nd4j.examples;
 
-import com.github.os72.protobuf351.util.JsonFormat;
 import org.apache.commons.io.IOUtils;
 import org.deeplearning4j.datasets.iterator.impl.MnistDataSetIterator;
+import org.deeplearning4j.examples.download.DownloaderUtility;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
-import org.nd4j.linalg.io.ClassPathResource;
 import org.nd4j.tensorflow.conversion.graphrunner.GraphRunner;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -38,9 +39,10 @@ public class RunGraphExample {
 
     public static void main(String...args) throws Exception {
         //input name (usually with place holders)
+        String dataLocalPath = DownloaderUtility.TFIMPORTEXAMPLES.Download();
         List<String> inputs = Arrays.asList("flatten_2_input");
         //load the graph from the classpath
-        byte[] content = IOUtils.toByteArray(new ClassPathResource("Mnist/mnist.pb").getInputStream());
+        byte[] content = IOUtils.toByteArray(new FileInputStream(new File(dataLocalPath,"Mnist/mnist.pb")));
         DataSetIterator dataSetIterator = new MnistDataSetIterator(1,1);
         INDArray predict = dataSetIterator.next().getFeatures();
         //run the graph using nd4j

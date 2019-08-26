@@ -16,12 +16,12 @@
 
 package org.nd4j.examples;
 
-import org.nd4j.imports.graphmapper.tf.TFGraphMapper;
+import org.deeplearning4j.examples.download.DownloaderUtility;
 import org.nd4j.autodiff.samediff.SameDiff;
+import org.nd4j.imports.graphmapper.tf.TFGraphMapper;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.indexing.NDArrayIndex;
-import org.nd4j.linalg.io.ClassPathResource;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -41,11 +41,12 @@ import java.util.Arrays;
  */
 public class Mnist {
     private static SameDiff sd;
+    public static String dataLocalPath;
 
     public static void loadModel(String filepath) throws Exception{
         File file = new File(filepath);
         if (!file.exists()){
-            file = new ClassPathResource(filepath).getFile();
+            file = new File(filepath);
         }
 
         sd = TFGraphMapper.getInstance().importGraph(file);
@@ -70,7 +71,7 @@ public class Mnist {
     public static INDArray predict (String filepath) throws IOException{
         File file = new File(filepath);
         if (!file.exists()){
-            file = new ClassPathResource(filepath).getFile();
+            file = new File(filepath);
         }
 
         BufferedImage img = ImageIO.read(file);
@@ -102,6 +103,7 @@ public class Mnist {
 
 
     public static void main(String[] args) throws Exception{
+        dataLocalPath = DownloaderUtility.TFIMPORTEXAMPLES.Download();
         loadModel("Mnist/mnist.pb");
         for(int i = 1; i < 11; i++){
             String file = "Mnist/images/img_%d.jpg";
