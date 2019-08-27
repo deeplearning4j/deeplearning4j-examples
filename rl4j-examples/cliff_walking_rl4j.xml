@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  ~ Copyright (c) 2015-2019 Skymind, Inc.
+  ~
+  ~ This program and the accompanying materials are made available under the
+  ~ terms of the Apache License, Version 2.0 which is available at
+  ~ https://www.apache.org/licenses/LICENSE-2.0.
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+  ~ WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+  ~ License for the specific language governing permissions and limitations
+  ~ under the License.
+  ~
+  ~ SPDX-License-Identifier: Apache-2.0
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
+
+<Mission xmlns="http://ProjectMalmo.microsoft.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+  <About>
+    <Summary>Cliff walking mission based on Sutton and Barto.</Summary>
+  </About>
+
+  <ModSettings>
+    <MsPerTick>1</MsPerTick>
+  </ModSettings>
+
+  <ServerSection>
+      <ServerInitialConditions>
+            <Time>
+                <StartTime>6000</StartTime>
+                <AllowPassageOfTime>false</AllowPassageOfTime>
+            </Time>
+            <Weather>clear</Weather>
+            <AllowSpawning>false</AllowSpawning>
+      </ServerInitialConditions>
+    <ServerHandlers>
+      <FlatWorldGenerator generatorString="3;7,220*1,5*3,2;3;,biome_1"/>
+      <DrawingDecorator>
+        <!-- coordinates for cuboid are inclusive -->
+        <DrawCuboid x1="-2" y1="46" z1="-2" x2="7" y2="50" z2="18" type="air" />            <!-- limits of our arena -->
+        <DrawCuboid x1="-2" y1="45" z1="-2" x2="7" y2="45" z2="18" type="lava" />           <!-- lava floor -->
+        <DrawCuboid x1="1"  y1="45" z1="1"  x2="3" y2="45" z2="12" type="sandstone" />      <!-- floor of the arena -->
+        <DrawBlock   x="4"   y="45"  z="1"  type="cobblestone" />                           <!-- the starting marker -->
+        <DrawBlock   x="4"   y="45"  z="12" type="lapis_block" />                           <!-- the destination marker -->
+        <DrawItem    x="4"   y="46"  z="12" type="diamond" />                               <!-- another destination marker -->
+      </DrawingDecorator>
+      <ServerQuitFromTimeUp timeLimitMs="100000000"/>
+      <ServerQuitWhenAnyAgentFinishes/>
+    </ServerHandlers>
+  </ServerSection>
+
+  <AgentSection mode="Survival">
+    <Name>Cristina</Name>
+    <AgentStart>
+      <Placement x="4.5" y="46.0" z="1.5" pitch="30" yaw="0"/>
+    </AgentStart>
+    <AgentHandlers>
+      <ObservationFromFullStats/>
+      <ObservationFromGrid>
+          <Grid name="floor">
+            <min x="-4" y="-1" z="-13"/>
+            <max x="4" y="-1" z="13"/>
+          </Grid>
+      </ObservationFromGrid>
+      <VideoProducer viewpoint="1" want_depth="false">
+          <Width>320</Width>
+          <Height>240</Height>
+      </VideoProducer>
+      <DiscreteMovementCommands/>
+      <RewardForTouchingBlockType>
+        <Block reward="-100.0" type="lava" behaviour="onceOnly"/>
+        <Block reward="100.0" type="lapis_block" behaviour="onceOnly"/>
+      </RewardForTouchingBlockType>
+      <RewardForSendingCommand reward="-1"/>
+      <AgentQuitFromTouchingBlockType>
+          <Block type="lava" />
+          <Block type="lapis_block" />
+      </AgentQuitFromTouchingBlockType>
+    </AgentHandlers>
+  </AgentSection>
+
+</Mission>

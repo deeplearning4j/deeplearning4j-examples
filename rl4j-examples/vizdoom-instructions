@@ -1,0 +1,14 @@
+mkdir vizdoom
+cd ..
+git clone https://github.com/Marqt/ViZDoom
+cd VizDoom
+cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_JAVA=ON
+make
+cp bin/java/libvizdoom.so ../rl4j-examples/vizdoom/
+cp bin/java/vizdoom.jar ../rl4j-examples/vizdoom/
+cp bin/vizdoom ../rl4j-examples/vizdoom/
+cp bin/vizdoom.pk3 ../rl4j-examples/vizdoom/
+cp -r scenarios/ ../rl4j-examples/vizdoom/
+cd ../rl4j-examples/
+export MAVEN_OPTS="-Djava.library.path=vizdoom -Xmx30g"
+mvn clean compile exec:java -Dexec.mainClass="org.deeplearning4j.rl4j.Doom"
