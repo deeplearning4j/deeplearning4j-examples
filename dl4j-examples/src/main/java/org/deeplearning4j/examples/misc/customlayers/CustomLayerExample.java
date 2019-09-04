@@ -148,7 +148,7 @@ public class CustomLayerExample {
         Deeplearning4j comes with a gradient check utility that you can use to check your layers.
         This utility works for feed-forward layers, CNNs, RNNs etc.
         For more details on gradient checks, and some references, see the Javadoc for the GradientCheckUtil class:
-        https://github.com/deeplearning4j/deeplearning4j/blob/master/deeplearning4j-core/src/main/java/org/deeplearning4j/gradientcheck/GradientCheckUtil.java
+        https://github.com/eclipse/deeplearning4j/blob/master/deeplearning4j/deeplearning4j-nn/src/main/java/org/deeplearning4j/gradientcheck/GradientCheckUtil.java
 
         There are a few things to note when doing gradient checks:
         1. It is necessary to use double precision for ND4J. Single precision (float - the default) isn't sufficiently

@@ -35,7 +35,7 @@ public class CustomOpsExamples {
     public static void main(String[] args){
 
         //First example: Reverse op. This op reverses the values along a specified dimension
-        //c++ code: https://github.com/deeplearning4j/libnd4j/blob/master/include/ops/declarable/generic/transforms/reverse.cpp#L15
+        //c++ code: https://github.com/eclipse/deeplearning4j/blob/master/libnd4j/include/ops/declarable/generic/transforms/reverse.cpp
         INDArray input = Nd4j.linspace(1, 50, 50).reshape(5,10);
         INDArray output = Nd4j.create(input.shape());
         CustomOp op = DynamicCustomOp.builder("reverse")
@@ -52,7 +52,7 @@ public class CustomOpsExamples {
         System.out.println("-------------");
 
         //Another example: meshgrid
-        //c++ code: https://github.com/deeplearning4j/libnd4j/blob/master/include/ops/declarable/generic/broadcastable/meshgrid.cpp
+        //c++ code: https://github.com/eclipse/deeplearning4j/blob/master/libnd4j/include/ops/declarable/generic/broadcastable/meshgrid.cpp
         INDArray input1 = Nd4j.linspace(0, 1, 4);
         INDArray input2 = Nd4j.linspace(0, 1, 5);
         INDArray output1 = Nd4j.create(5,4);
