@@ -29,7 +29,7 @@ import org.nd4j.linalg.indexing.NDArrayIndex;
     Note this is a helper class with methods to step through the decoder, one time step at a time.
     This process is common to all seq2seq models and will eventually be wrapped in a class in dl4j (along with an easier API).
     Track issue:
-        https://github.com/deeplearning4j/deeplearning4j/issues/2635
+        https://github.com/eclipse/deeplearning4j/issues/2635
  */
 public class Seq2SeqPredicter {
 

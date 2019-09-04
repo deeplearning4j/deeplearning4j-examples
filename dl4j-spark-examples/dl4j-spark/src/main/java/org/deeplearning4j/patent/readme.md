@@ -54,9 +54,7 @@ with access to spark-submit.
 **First**: clone and build the project. To do this, you can use the following:
 
 ```
-#If required: clone project
-cd /your/project/dir
-git clone https://github.com/deeplearning4j/dl4j-examples.git
+#If required: git clone this repo
 cd dl4j-examples/dl4j-spark-examples/dl4j-spark
 mvn package -DskipTests
 #Or, if required: mvn clean package -Dspark.version=2.1.0 -Ddl4j.spark.version=1.0.0-beta4_spark_2 -Ddatavec.spark.version=1.0.0-beta4_spark_2

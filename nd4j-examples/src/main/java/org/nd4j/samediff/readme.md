@@ -9,10 +9,8 @@ Many operations in SameDiff are limited to CPU-only exeuction. GPU (CUDA) execut
 
 Note also that a number of Deeplearning4j examples demonstrate how to use SameDiff to create DL4J layers and
 vertices as part of a Deeplearning4j MultiLayerNetwork or ComputationGraph.
-These examples can be found at:
-[https://github.com/deeplearning4j/dl4j-examples/tree/master/dl4j-examples/src/main/java/org/deeplearning4j/examples/samediff](https://github.com/deeplearning4j/dl4j-examples/tree/master/dl4j-examples/src/main/java/org/deeplearning4j/examples/samediff) 
+These examples can be found under [samediff](../../../../../../../dl4j-examples/src/main/java/org/deeplearning4j/examples/samediff)
 
 SameDiff also supports importing TensorFlow models to a SameDiff graph.
 Note that this functionality is still being built out - some operations are not yet available.
-The TensorFlow import examples can be found here:
-[https://github.com/deeplearning4j/dl4j-examples/tree/master/tf-import-examples/src/main/java/org/nd4j/examples](https://github.com/deeplearning4j/dl4j-examples/tree/master/tf-import-examples/src/main/java/org/nd4j/examples)
+The TensorFlow import examples can be found under [tf-import-examples](../../../../../../../tf-import-examples)

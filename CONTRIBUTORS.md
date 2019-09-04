@@ -4,7 +4,7 @@ Thanks for your interest in Deeplearning4j's examples. Our goal is to bring fast
 
 ## Getting Started
 
-Here are Deeplearning4j's [open issues are here](https://github.com/deeplearning4j/deeplearning4j/issues). In time, we'll tag issues that would make a good first pull request for new contributors. An easy way to get started helping the project is to *file an issue*. You can do that on the Deeplearning4j issues page by clicking on the green button at the right. Issues can include bugs to fix, features to add, or documentation that looks outdated. 
+Here are Deeplearning4j's [open issues are here](https://github.com/eclipse/deeplearning4j/issues). In time, we'll tag issues that would make a good first pull request for new contributors. An easy way to get started helping the project is to *file an issue*. You can do that on the Deeplearning4j issues page by clicking on the green button at the right. Issues can include bugs to fix, features to add, or documentation that looks outdated. 
 
 For some tips on contributing to open source, this [post is helpful](http://blog.smartbear.com/programming/14-ways-to-contribute-to-open-source-without-being-a-programming-genius-or-a-rock-star/).
 

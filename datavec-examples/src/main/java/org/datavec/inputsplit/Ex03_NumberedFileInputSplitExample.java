@@ -87,7 +87,7 @@ public class Ex03_NumberedFileInputSplitExample {
           Make sure you only use the formats with the '%d' type
 
           Also, you can see some more examples for the unit tests here:
-          https://github.com/deeplearning4j/deeplearning4j/blob/79d4110eee96f6b7f331931f4775233c4264d999/datavec/datavec-api/src/test/java/org/datavec/api/split/NumberedFileInputSplitTests.java
+          https://github.com/eclipse/deeplearning4j/blob/master/datavec/datavec-api/src/test/java/org/datavec/api/split/NumberedFileInputSplitTests.java
          */
     }
 }
