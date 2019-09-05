@@ -372,7 +372,7 @@ public class TrainPatentClassifier {
     }
 
 
-    private void evaluateOnly(JavaSparkContext sc, ComputationGraph net, JavaRDD<String> testDataPaths) throws IOException {
+    private void evaluateOnly(JavaSparkContext sc, ComputationGraph net, JavaRDD<String> testDataPaths) throws Exception {
         log.info("***** Starting Evaluation only for directory {} *****", outputPath);
 
         File f = new File(outputPath, "paramSnapshots");
