@@ -1,4 +1,4 @@
-Copyright 2017 Skymind Inc. 
+Copyright 2017 Skymind Inc.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -11,3 +11,37 @@ distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
+
+
+##########################
+
+-- Misc files --
+.github/CONTRIBUTING.md
+.github/ISSUE_TEMPLATE.md
+.github/PULL_REQUEST_TEMPLATE.md
+various README.md/readme.md files
+org/deeplearning4j/examples/misc/customlayers/CustomLayerExampleReadme.md
+org/deeplearning4j/examples/tictactoe/ReadMe.txt
+lstm-hdfs/src/resources/test/f1
+lstm-hdfs/src/resources/test/f2
+lstm-hdfs/src/resources/train/f1
+lstm-hdfs/src/resources/train/f2
+lstm-hdfs/src/resources/train/f3
+nd4j-examples/src/main/resources/numpy_cheatsheet/file.csv
+nd4j-examples/src/main/resources/numpy_cheatsheet/file.txt
+nd4j-examples/src/main/resources/numpy_cheatsheet/saveFile.csv
+nd4j-examples/src/main/resources/numpy_cheatsheet/saveFile.txt
+pydatavec-examples/basic_example.csv
+pydatavec-examples/reduction_example.csv
+rl4j-examples/cartpole.gif
+rl4j-examples/cliffwalk.gif
+rl4j-examples/cliffwalk_block.gif
+rl4j-examples/doom.gif
+rl4j-examples/scoregraph.png
+tutorials/*.json
+tutorials/*.ipynb
+
+Copyright (c) 2015-2019 Skymind, Inc.
+Apache 2.0 License
+
+##########################
