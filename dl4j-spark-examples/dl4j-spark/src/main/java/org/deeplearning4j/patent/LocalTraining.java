@@ -238,7 +238,7 @@ public class LocalTraining {
     }
 
 
-    public DataSetIterator getDataIterator(String dataRootDir, boolean train, int totalExamples, int batchSize, int seed) {
+    public DataSetIterator getDataIterator(String dataRootDir, boolean train, int totalExamples, int batchSize, int seed) throws Exception {
         File root = new File(dataRootDir, train ? "train" : "test");
         List<String> all = new ArrayList<>();
         File[] files = root.listFiles();

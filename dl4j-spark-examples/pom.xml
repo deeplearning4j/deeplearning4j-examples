@@ -41,6 +41,11 @@
             <artifactId>deeplearning4j-zoo</artifactId>
             <version>${dl4j.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.deeplearning4j.examples</groupId>
+            <artifactId>shared-utilities</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
 </project>

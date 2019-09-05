@@ -17,8 +17,9 @@
 package org.deeplearning4j.patent.preprocessing;
 
 import org.apache.commons.io.FileUtils;
-import org.nd4j.linalg.io.ClassPathResource;
+import org.deeplearning4j.examples.download.DownloaderUtility;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.LinkedHashMap;
@@ -43,17 +44,19 @@ public class PatentLabelGenerator {
      * @param in "main-classification" (USPO US classification) text from patent raw data
      * @return
      */
-    public static String tier1Label(String in){
-        if(in.matches("\\s*D.*")){
+    public static String dataLocalPath;
+
+    public static String tier1Label(String in) {
+        if (in.matches("\\s*D.*")) {
             return "D";
         }
-        if(in.matches("\\s*PLT.*")){
+        if (in.matches("\\s*PLT.*")) {
             return "PLT";
         }
-        if(in.matches("\\s*\\d.*")){
+        if (in.matches("\\s*\\d.*")) {
             return "U";
         }
-        if(in.matches("\\s*G.*")){
+        if (in.matches("\\s*G.*")) {
             return "G";
         }
         throw new RuntimeException(in);
@@ -65,46 +68,46 @@ public class PatentLabelGenerator {
      *
      * @param in "main-classification" (USPO US classification) text from patent raw data
      */
-    public static String tier2Label(String in){
+    public static String tier2Label(String in) throws Exception {
         if (in.matches("\\s*D.*")) {
-            if(in.startsWith("D ")){
+            if (in.startsWith("D ")) {
                 in = in.replace("D ", "D0");
             }
-            if(in.startsWith(" D")){
+            if (in.startsWith(" D")) {
                 in = in.replace(" D", "D0");
             }
             String tier2 = in.substring(0, 3);
             return tier2;
-        } else if(in.startsWith("PLT")){
+        } else if (in.startsWith("PLT")) {
             return "PLT";
-        } else if(in.matches("\\s*\\d.*")){
+        } else if (in.matches("\\s*\\d.*")) {
             //Utility
 
             //First: strip any non-digits (these are tier 3: "62DIG" -> "62"
-            for( int i=0; i<in.length(); i++ ){
-                if(!Character.isDigit(in.charAt(i)) && in.charAt(i) != ' '){
+            for (int i = 0; i < in.length(); i++) {
+                if (!Character.isDigit(in.charAt(i)) && in.charAt(i) != ' ') {
                     in = in.substring(0, i);
                     break;
                 }
             }
 
             String ret;
-            if(in.startsWith(" ")){ //Leading double space - "  " never occurs...
+            if (in.startsWith(" ")) { //Leading double space - "  " never occurs...
                 String sub = in.substring(1);
-                if(sub.contains(" ")){
+                if (sub.contains(" ")) {
                     //" 72 3106"        ->  072 /   031.06
                     //" 56 50"          ->  056 /   050
                     String[] split = sub.split(" ");
                     ret = split[0];
                 } else {
-                    if(sub.length() >= 3) {
+                    if (sub.length() >= 3) {
                         //" 70224"          ->  070 /   224
                         ret = sub.substring(0, 2);
                     } else {
                         ret = sub;
                     }
                 }
-            } else if(in.length() >= 3) {
+            } else if (in.length() >= 3) {
                 //Must be leading 3 digits present
                 //"100117"              ->  100 /   117
                 ret = in.substring(0, 3);
@@ -113,15 +116,15 @@ public class PatentLabelGenerator {
             }
 
             String out;
-            if(ret.length() == 1){
+            if (ret.length() == 1) {
                 out = "00" + ret;
-            } else if(ret.length() == 2){
+            } else if (ret.length() == 2) {
                 out = "0" + ret;
             } else {
                 out = ret;
             }
 
-            if(classLabelNames().containsKey(out)){
+            if (classLabelNames().containsKey(out)) {
                 return out;
             }
             return null;    //Old/obsolete label
@@ -129,23 +132,24 @@ public class PatentLabelGenerator {
         return null;
     }
 
-    private static Map<String,String> classLabelNames;
+    private static Map<String, String> classLabelNames;
 
-    public static synchronized Map<String,String> classLabelNames(){
-        if(classLabelNames != null){
+    public static synchronized Map<String, String> classLabelNames() throws Exception {
+        if (classLabelNames != null) {
             return classLabelNames;
         }
+        if (dataLocalPath == null) dataLocalPath = DownloaderUtility.PATENTEXAMPLE.Download();
 
         String s;
         try {
-            s = FileUtils.readFileToString(new ClassPathResource("PatentClassLabels.txt").getFile(), Charset.forName("UTF-8"));
-        } catch (IOException e){
+            s = FileUtils.readFileToString(new File(dataLocalPath, "PatentClassLabels.txt"), Charset.forName("UTF-8"));
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        Map<String,String> m = new LinkedHashMap<>();
+        Map<String, String> m = new LinkedHashMap<>();
         String[] lines = s.split("\n");
-        for(String line : lines){
-            String key = line.substring(0,3);
+        for (String line : lines) {
+            String key = line.substring(0, 3);
             String name = line.substring(4);
             m.put(key, name);
         }
@@ -154,22 +158,22 @@ public class PatentLabelGenerator {
     }
 
 
-    private static Map<String,Integer> classLabelsFilteredCounts;
+    private static Map<String, Integer> classLabelsFilteredCounts;
 
-    public static synchronized Map<String,Integer> classLabelFilteredCounts(){
-        if(classLabelsFilteredCounts != null){
+    public static synchronized Map<String, Integer> classLabelFilteredCounts() throws Exception {
+        if (classLabelsFilteredCounts != null) {
             return classLabelsFilteredCounts;
         }
-
+        if (dataLocalPath == null) dataLocalPath = DownloaderUtility.PATENTEXAMPLE.Download();
         String s;
         try {
-            s = FileUtils.readFileToString(new ClassPathResource("FilteredPatentClassCounts.txt").getFile(), Charset.forName("UTF-8"));
-        } catch (IOException e){
+            s = FileUtils.readFileToString(new File(dataLocalPath, "FilteredPatentClassCounts.txt"), Charset.forName("UTF-8"));
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        Map<String,Integer> m = new LinkedHashMap<>();
+        Map<String, Integer> m = new LinkedHashMap<>();
         String[] lines = s.split("\n");
-        for(String line : lines){
+        for (String line : lines) {
             String[] split = line.split(",");
             m.put(split[0], Integer.parseInt(split[1]));
         }
@@ -177,21 +181,24 @@ public class PatentLabelGenerator {
         return classLabelsFilteredCounts;
     }
 
-    private static Map<String,Integer> classLabelToIndex;
-    public static synchronized Map<String,Integer> classLabelToIndex(){
-        if(classLabelToIndex != null){
+    private static Map<String, Integer> classLabelToIndex;
+
+    public static synchronized Map<String, Integer> classLabelToIndex() throws Exception {
+        if (classLabelToIndex != null) {
             return classLabelToIndex;
         }
-        Map<String,Integer> m = new LinkedHashMap<>();
+        Map<String, Integer> m = new LinkedHashMap<>();
+
+        if (dataLocalPath == null) dataLocalPath = DownloaderUtility.PATENTEXAMPLE.Download();
 
         String s;
         try {
-            s = FileUtils.readFileToString(new ClassPathResource("FilteredPatentClassCounts.txt").getFile(), Charset.forName("UTF-8"));
-        } catch (IOException e){
+            s = FileUtils.readFileToString(new File(dataLocalPath, "FilteredPatentClassCounts.txt"), Charset.forName("UTF-8"));
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        int i=0;
-        for(String line : s.split("\n")){
+        int i = 0;
+        for (String line : s.split("\n")) {
             String[] split = line.split(",");
             m.put(split[0].trim(), i++);
         }

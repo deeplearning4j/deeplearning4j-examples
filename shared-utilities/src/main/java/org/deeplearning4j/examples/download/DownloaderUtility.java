@@ -62,7 +62,12 @@ public enum DownloaderUtility {
     /*
         Skymind tf-import-examples resources stored under AZURE_BLOB_URL/tf-import-examples
      */
-    TFIMPORTEXAMPLES("resources.zip","tf-import-examples","4895e40e71b17799e4d6fb75d5a22491","3MB");
+    TFIMPORTEXAMPLES("resources.zip","tf-import-examples","4895e40e71b17799e4d6fb75d5a22491","3MB"),
+
+    /*
+        Skymind dl4j-spark example resources stored under AZURE_BLOB_URL/dl4j-spark-examples
+     */
+    PATENTEXAMPLE("patentExample.zip","dl4j-spark-examples","435e2b814d866550678d2ac4d8cc5423","10KB");
 
     private final String BASE_URL;
     private final String DATA_FOLDER;
