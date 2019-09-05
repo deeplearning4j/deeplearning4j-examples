@@ -7,4 +7,4 @@
 (Please explain how this patch was tested. E.g. unit tests, integration tests, manual tests)
 
 Please review
-https://github.com/deeplearning4j/deeplearning4j/blob/master/CONTRIBUTING.md before opening a pull request.
+https://github.com/eclipse/deeplearning4j/blob/master/CONTRIBUTING.md before opening a pull request.
