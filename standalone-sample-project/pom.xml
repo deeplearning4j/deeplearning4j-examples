@@ -27,8 +27,8 @@
 
     <!-- Properties Section. Change DL4J and ND4J versions here, if required -->
     <properties>
-        <dl4j.version>1.0.0-beta4</dl4j.version>
-        <nd4j.version>1.0.0-beta4</nd4j.version>
+        <dl4j.version>1.0.0-SNAPSHOT</dl4j.version>
+        <nd4j.version>1.0.0-SNAPSHOT</nd4j.version>
         <logback.version>1.2.3</logback.version>
         <java.version>1.8</java.version>
         <maven-shade-plugin.version>2.4.3</maven-shade-plugin.version>

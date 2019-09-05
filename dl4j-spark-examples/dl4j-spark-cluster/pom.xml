@@ -27,11 +27,7 @@
 
     <artifactId>dl4j-spark-cluster</artifactId>
     <properties>
-        <!-- For Spark examples: change the _1 to _2 to switch between Spark 1 and Spark 2 -->
-        <dl4j.spark.version>1.0.0-beta4_spark_2</dl4j.spark.version>
-        <datavec.spark.version>1.0.0-beta4_spark_2</datavec.spark.version>
-
-        <!-- Scala binary version: DL4J's Spark and UI functionality are released with both Scala 2.10 and 2.11 support -->
+        <!-- Scala binary version: DL4J's Spark and UI functionality are released with both Scala 2.11 and 2.12 support -->
         <scala.binary.version>2.11</scala.binary.version>
     </properties>
 
@@ -46,13 +42,13 @@
         <dependency>
             <groupId>org.deeplearning4j</groupId>
             <artifactId>dl4j-spark_${scala.binary.version}</artifactId>
-            <version>${dl4j.spark.version}</version>
+            <version>${dl4j.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.deeplearning4j</groupId>
             <artifactId>dl4j-spark-parameterserver_${scala.binary.version}</artifactId>
-            <version>${dl4j.spark.version}</version>
+            <version>${dl4j.version}</version>
         </dependency>
 
         <dependency>
