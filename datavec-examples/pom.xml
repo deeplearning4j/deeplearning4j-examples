@@ -39,7 +39,7 @@
         <dependency>
             <groupId>org.datavec</groupId>
             <artifactId>datavec-spark_${scala.binary.version}</artifactId>
-            <version>${datavec.spark.version}</version>
+            <version>${datavec.version}</version>
         </dependency>
 
         <dependency>
@@ -51,6 +51,12 @@
             <groupId>org.deeplearning4j.examples</groupId>
             <artifactId>shared-utilities</artifactId>
             <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.spark</groupId>
+            <artifactId>spark-core_${scala.binary.version}</artifactId>
+            <version>${spark.version}</version>
         </dependency>
     </dependencies>
 

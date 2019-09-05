@@ -46,6 +46,7 @@
 
         <!-- Scala binary version: DL4J's Spark and UI functionality are released with both Scala 2.10 and 2.11 support -->
         <scala.binary.version>2.11</scala.binary.version>
+        <spark.version>2.4.3</spark.version>
 
         <hadoop.version>2.2.0</hadoop.version>  <!-- Hadoop version used by Spark 1.6.3 and 2.2.1 (and likely others) -->
         <guava.version>19.0</guava.version>
