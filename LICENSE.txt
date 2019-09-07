@@ -1,0 +1,88 @@
+Copyright 2015-2019 Skymind Inc.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+
+##########################
+
+-- Misc files --
+*README.md
+*readme.md
+.github/CONTRIBUTING.md
+.github/ISSUE_TEMPLATE.md
+.github/PULL_REQUEST_TEMPLATE.md
+org/deeplearning4j/examples/misc/customlayers/CustomLayerExampleReadme.md
+org/deeplearning4j/examples/tictactoe/ReadMe.txt
+lstm-hdfs/src/resources/test/f1
+lstm-hdfs/src/resources/test/f2
+lstm-hdfs/src/resources/train/f1
+lstm-hdfs/src/resources/train/f2
+lstm-hdfs/src/resources/train/f3
+nd4j-examples/src/main/resources/numpy_cheatsheet/file.csv
+nd4j-examples/src/main/resources/numpy_cheatsheet/file.txt
+nd4j-examples/src/main/resources/numpy_cheatsheet/saveFile.csv
+nd4j-examples/src/main/resources/numpy_cheatsheet/saveFile.txt
+pydatavec-examples/basic_example.csv
+pydatavec-examples/reduction_example.csv
+rl4j-examples/cartpole.gif
+rl4j-examples/cliffwalk.gif
+rl4j-examples/cliffwalk_block.gif
+rl4j-examples/doom.gif
+rl4j-examples/scoregraph.png
+tutorials/00. Quickstart for Deeplearning4j.json
+tutorials/00. Quickstart for Deeplearning4j.zepp.ipynb
+tutorials/01. MultiLayerNetwork and ComputationGraph.json
+tutorials/01. MultiLayerNetwork and ComputationGraph.zepp.ipynb
+tutorials/02. Built-in Data Iterators.json
+tutorials/02. Built-in Data Iterators.zepp.ipynb
+tutorials/03. Logistic Regression.json
+tutorials/03. Logistic Regression.zepp.ipynb
+tutorials/04. Feed-forward.json
+tutorials/04. Feed-forward.zepp.ipynb
+tutorials/05. Basic Autoencoder- Anomaly Detection Using Reconstruction Error.json
+tutorials/05. Basic Autoencoder- Anomaly Detection Using Reconstruction Error.zepp.ipynb
+tutorials/06. Advanced Autoencoder- Trajectory Clustering using AIS.json
+tutorials/06. Advanced Autoencoder- Trajectory Clustering using AIS.zepp.ipynb
+tutorials/07. Convolutions- Train FaceNet Using Center Loss.json
+tutorials/07. Convolutions- Train FaceNet Using Center Loss.zepp.ipynb
+tutorials/08. RNNs- Sequence Classification of Synthetic Control Data.json
+tutorials/08. RNNs- Sequence Classification of Synthetic Control Data.zepp.ipynb
+tutorials/09. Early Stopping.ipynb
+tutorials/09. Early Stopping.zepp.json
+tutorials/10. Layers and Preprocessors.ipynb
+tutorials/10. Layers and Preprocessors.zepp.json
+tutorials/11. Hyperparameter Optimization.json
+tutorials/11. Hyperparameter Optimization.zepp.ipynb
+tutorials/12. Clinical Time Series LSTM Example.json
+tutorials/12. Clinical Time Series LSTM Example.zepp.ipynb
+tutorials/13. Clinical LSTM Time Series Example Using SKIL.json
+tutorials/13. Clinical LSTM Time Series Example Using SKIL.zepp.ipynb
+tutorials/14. Parallel Training.json
+tutorials/14. Parallel Training.zepp.ipynb
+tutorials/15. Sea Temperature Convolutional LSTM Example.json
+tutorials/15. Sea Temperature Convolutional LSTM Example.zepp.ipynb
+tutorials/16. Sea Temperature Convolutional LSTM Example 2.json
+tutorials/16. Sea Temperature Convolutional LSTM Example 2.zepp.ipynb
+tutorials/17. Instacart Multitask Example.json
+tutorials/17. Instacart Multitask Example.zepp.ipynb
+tutorials/18. Instacart Single Task Example.json
+tutorials/18. Instacart Single Task Example.zepp.ipynb
+tutorials/19. Cloud Detection Example.json
+tutorials/19. Cloud Detection Example.zepp.ipynb
+
+
+
+Copyright (c) 2015-2019 Skymind, Inc.
+Apache 2.0 License
+
+##########################
