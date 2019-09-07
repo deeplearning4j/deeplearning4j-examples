@@ -15,7 +15,7 @@ MINIBATCH=32                                    #Minibatch size for preprocessed
 
 #Other variables. Don't modify these
 SCRIPTDIR=$(dirname "$0")
-JARFILE=${SCRIPTDIR}/../target/dl4j-spark-1.0.0-beta4-bin.jar
+JARFILE=${SCRIPTDIR}/../target/dl4j-spark-1.0.0-beta5-bin.jar
 AZURE_ACCT=fs.azure.account.key.${AZURE_STORAGE_ACCT}.blob.core.windows.net
 
 
