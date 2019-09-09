@@ -1,4 +1,4 @@
-/*******************************************************************************
+/* *****************************************************************************
  * Copyright (c) 2015-2019 Skymind, Inc.
  *
  * This program and the accompanying materials are made available under the
@@ -38,24 +38,24 @@ import org.slf4j.Logger;
  *
  * @author raver119@gmail.com
  */
+@SuppressWarnings("unused") //variable names clarify the example.
 public class Nd4jEx15_Workspaces {
     private static final Logger log = org.slf4j.LoggerFactory.getLogger(Nd4jEx15_Workspaces.class);
 
-    public static void main(String[] args) throws Exception {
-        /**
+    public static void main(String[] args) {
+        /*
          * Each workspace is tied to a JVM Thread via ID. So, same ID in different threads will point to different actual workspaces
          * Each workspace is created using some configuration, and different workspaces can either share the same config, or have their own
          */
 
-        // we create config with 10MB memory space preallocated
+        // we create config with 10MB memory space pre allocated
         WorkspaceConfiguration initialConfig = WorkspaceConfiguration.builder()
             .initialSize(10 * 1024L * 1024L)
             .policyAllocation(AllocationPolicy.STRICT)
             .policyLearning(LearningPolicy.NONE)
             .build();
 
-
-        INDArray result = null;
+        INDArray result;
 
         // we use
         try(MemoryWorkspace ws = Nd4j.getWorkspaceManager().getAndActivateWorkspace(initialConfig, "SOME_ID")) {
@@ -68,10 +68,9 @@ public class Nd4jEx15_Workspaces {
             // please note, new array mean will be also attached to this workspace
             INDArray mean = array.mean(1);
 
-            /**
+            /*
              * PLEASE NOTE: if after doing some operations on the workspace, you want to bring result away from it, you should either leverage it, or detach
              */
-
             result = mean.detach();
         }
 
@@ -79,11 +78,9 @@ public class Nd4jEx15_Workspaces {
         log.info("Array attached? {}", result.isAttached());
 
 
-
-        /**
+        /*
          * Workspace can be initially preallocated as shown above, or can be learning their desired size over time, or after first loop
          */
-
         WorkspaceConfiguration learningConfig = WorkspaceConfiguration.builder()
             .policyAllocation(AllocationPolicy.STRICT) // <-- this option disables overallocation behavior
             .policyLearning(LearningPolicy.FIRST_LOOP) // <-- this option makes workspace learning after first loop
@@ -93,7 +90,7 @@ public class Nd4jEx15_Workspaces {
             try (MemoryWorkspace ws = Nd4j.getWorkspaceManager().getAndActivateWorkspace(learningConfig, "OTHER_ID")) {
                 INDArray array = Nd4j.create(100);
 
-                /**
+                /*
                  * At first iteration, workspace will be spilling all allocations as separate memory chunks.
                  * But after first iteration is finished - workspace will be allocated, to match all required allocations in this loop
                  * So, further iterations will be reusing workspace memory over and over again
@@ -102,7 +99,7 @@ public class Nd4jEx15_Workspaces {
         }
 
 
-        /**
+        /*
          * Workspaces can be nested. And INDArrays can migrate between them, if needed
          */
 
@@ -123,7 +120,7 @@ public class Nd4jEx15_Workspaces {
         }
 
 
-        /**
+        /*
          * You can break your workspace flow, if, for some reason you need part of calculations to be handled with GC
          */
         try(MemoryWorkspace ws1 = Nd4j.getWorkspaceManager().getAndActivateWorkspace(initialConfig, "SOME_ID")) {
@@ -132,17 +129,14 @@ public class Nd4jEx15_Workspaces {
 
             try(MemoryWorkspace ws = Nd4j.getWorkspaceManager().scopeOutOfWorkspaces()) {
                 // anything allocated within this try block will be managed by GC
-
                 array2 = Nd4j.create(10, 10).assign(2.0f);
             }
-
 
             // at this point sumRes contains valid data, allocated in current workspace. We expect 300 printed here.
             log.info("Sum: {}", array1.addi(array2).sumNumber().floatValue());
         }
 
-
-        /**
+        /*
          * It's also possible to build workspace that'll be acting as circular buffer.
          */
         WorkspaceConfiguration circularConfig = WorkspaceConfiguration.builder()
@@ -153,7 +147,7 @@ public class Nd4jEx15_Workspaces {
             .build();
 
         for (int x = 0; x < 10; x++) {
-            // since this workspace is ciruclar, we know that all pointers allocated before buffer ended - will be viable.
+            // since this workspace is circular, we know that all pointers allocated before buffer ended - will be viable.
             try (MemoryWorkspace ws1 = Nd4j.getWorkspaceManager().getAndActivateWorkspace(circularConfig, "CIRCULAR_ID")) {
                 INDArray array = Nd4j.create(100);
                 // so, you can use this array anywhere as long as YOU're sure buffer wasn't reset.

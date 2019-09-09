@@ -1,4 +1,4 @@
-/*******************************************************************************
+/* *****************************************************************************
  * Copyright (c) 2015-2019 Skymind, Inc.
  *
  * This program and the accompanying materials are made available under the
@@ -18,8 +18,6 @@ package org.nd4j.examples;
 
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * --- Nd4j Example 13: Large Matrix ---
@@ -28,15 +26,10 @@ import org.slf4j.LoggerFactory;
  *
  * @author Adam Gibson
  */
-
 public class Nd4jEx13_LargeMatrices {
 
-    private static Logger log = LoggerFactory.getLogger(Nd4jEx13_LargeMatrices.class);
-
     public static void main(String[] args) {
-        INDArray n = Nd4j.linspace(1,10000000,10000000);
+        INDArray n = Nd4j.linspace(1,10000000,10000000).reshape(1, 10000000);
         System.out.println("MMUL" + n.mmul(n.transpose()));
-
     }
-
 }

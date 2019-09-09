@@ -1,4 +1,4 @@
-/*******************************************************************************
+/* *****************************************************************************
  * Copyright (c) 2015-2019 Skymind, Inc.
  *
  * This program and the accompanying materials are made available under the
@@ -55,7 +55,7 @@ public class Nd4jEx2_CreatingINDArrays {
         System.out.println("rowVector:              " + rowVector);
         System.out.println("rowVector.shape():      " + Arrays.toString(rowVector.shape()));    //1 row, 3 columns
 
-        INDArray columnVector = Nd4j.create(vectorDouble, new int[]{3,1});  //Manually specify: 3 rows, 1 column
+        INDArray columnVector = Nd4j.create(vectorDouble, 3,1);  //Manually specify: 3 rows, 1 column
         System.out.println("columnVector:           " + columnVector);      //Note for printing: row/column vectors are printed as one line
         System.out.println("columnVector.shape():   " + Arrays.toString(columnVector.shape()));    //3 row, 1 columns
 
@@ -71,6 +71,7 @@ public class Nd4jEx2_CreatingINDArrays {
         //It is also possible to create random INDArrays:
         //Be aware however that by default, random values are printed with truncated precision using INDArray.toString()
         int[] shape = new int[]{nRows, nColumns};
+        long[] shape_long = new long []{nRows, nColumns};
         INDArray uniformRandom = Nd4j.rand(shape);
         System.out.println("\n\n\nUniform random array:");
         System.out.println(uniformRandom);
@@ -82,8 +83,8 @@ public class Nd4jEx2_CreatingINDArrays {
 
         //We can make things repeatable using RNG seed:
         long rngSeed = 12345;
-        INDArray uniformRandom2 = Nd4j.rand(shape, rngSeed);
-        INDArray uniformRandom3 = Nd4j.rand(shape, rngSeed);
+        INDArray uniformRandom2 = Nd4j.rand(rngSeed, shape_long);
+        INDArray uniformRandom3 = Nd4j.rand(rngSeed, shape_long);
         System.out.println("\nUniform random arrays with same fixed seed:");
         System.out.println(uniformRandom2);
         System.out.println();
