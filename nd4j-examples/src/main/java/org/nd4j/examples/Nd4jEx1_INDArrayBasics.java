@@ -1,4 +1,4 @@
-/*******************************************************************************
+/* *****************************************************************************
  * Copyright (c) 2015-2019 Skymind, Inc.
  *
  * This program and the accompanying materials are made available under the
@@ -64,7 +64,7 @@ public class Nd4jEx1_INDArrayBasics {
         System.out.println("Is a vector:        " + myArray.isVector());
         System.out.println("Is a scalar:        " + myArray.isScalar());
         System.out.println("Is a matrix:        " + myArray.isMatrix());
-        System.out.println("Is a square matrix: " + myArray.isSquare());;
+        System.out.println("Is a square matrix: " + myArray.isSquare());
 
 
 

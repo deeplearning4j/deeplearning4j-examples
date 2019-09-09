@@ -1,4 +1,4 @@
-/*******************************************************************************
+/* *****************************************************************************
  * Copyright (c) 2015-2019 Skymind, Inc.
  *
  * This program and the accompanying materials are made available under the
@@ -80,9 +80,6 @@ public class ConcatVstackHstackPad {
         INDArray vstack = Nd4j.vstack(ones,zeros);
         System.out.println("### VSTACK ####");
         System.out.println(vstack);
-
-
-
     }
 
 }

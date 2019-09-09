@@ -1,4 +1,4 @@
-/*******************************************************************************
+/* *****************************************************************************
  * Copyright (c) 2015-2019 Skymind, Inc.
  *
  * This program and the accompanying materials are made available under the
@@ -26,13 +26,11 @@ import org.nd4j.linalg.factory.Nd4j;
  *
  * Created by cvn on 9/7/14.
  */
-
-
 public class Nd4jEx8_ReshapeOperation {
 
     public static void main(String[] args) {
 
-        INDArray nd = Nd4j.create(new float[]{1, 2, 3, 4}, new int[]{2, 2});
+        INDArray nd = Nd4j.create(new float[]{1, 2, 3, 4}, 2, 2);
         INDArray ndv;
 
         System.out.println(nd);
@@ -40,7 +38,7 @@ public class Nd4jEx8_ReshapeOperation {
         ndv = nd.transpose(); // the two and the three switch - a simple transpose
         System.out.println(ndv);
 
-        INDArray nd2 = Nd4j.create(new float[]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12}, new int[]{2, 6});
+        INDArray nd2 = Nd4j.create(new float[]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12}, 2, 6);
         System.out.println(nd2);
 
         ndv = nd2.transpose(); // this will make a long-rowed matrix into a tall-columned matrix
