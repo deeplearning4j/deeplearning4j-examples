@@ -1,4 +1,4 @@
-/*******************************************************************************
+/* *****************************************************************************
  * Copyright (c) 2015-2019 Skymind, Inc.
  *
  * This program and the accompanying materials are made available under the
@@ -16,7 +16,6 @@
 
 package org.nd4j.examples;
 
-import org.nd4j.linalg.api.buffer.DataBuffer;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
 
@@ -27,13 +26,10 @@ import org.nd4j.linalg.factory.Nd4j;
  *
  * Created by cvn on 9/6/14.
  */
-
-
 public class Nd4jEx10_ElementWiseOperation {
 
     public static void main(String[] args) {
-        //Nd4j.dtype = DataBuffer.DOUBLE;
-        INDArray nd1 = Nd4j.create(new double[]{1,2,3,4,5,6},new int[]{2,3});
+        INDArray nd1 = Nd4j.create(new double[]{1,2,3,4,5,6}, 2,3);
         System.out.println("nd1:\n"+nd1);
 
         //create nd-array variable ndv to be able to print result of nondestructive operations. add scalar to matrix and assign ndv the sum.
@@ -53,7 +49,7 @@ public class Nd4jEx10_ElementWiseOperation {
 
         //add column vector to matrix
 
-        INDArray nd2 = Nd4j.create(new double[]{10,20},new int[]{2,1}); //vector as column
+        INDArray nd2 = Nd4j.create(new double[]{10,20}, 2,1); //vector as column
         System.out.println("nd2:\n"+nd2);
 
         ndv = nd1.addColumnVector(nd2);
@@ -62,7 +58,7 @@ public class Nd4jEx10_ElementWiseOperation {
 
         // add row vector to matrix
 
-        INDArray nd3 = Nd4j.create(new double[]{30,40,50},new int[]{1, 3}); //vector as row
+        INDArray nd3 = Nd4j.create(new double[]{30,40,50}, 1, 3); //vector as row
         System.out.println("nd3:\n"+nd3);
 
         ndv = nd1.addRowVector(nd3);
@@ -71,14 +67,11 @@ public class Nd4jEx10_ElementWiseOperation {
 
         //multiply two matrices of equal dimensions elementwise.
 
-        INDArray nd4 = Nd4j.create(new double[]{1,2,1,2,1,2},new int[]{2,3});
+        INDArray nd4 = Nd4j.create(new double[]{1,2,1,2,1,2}, 2,3);
         System.out.println("nd4:\n"+nd4);
 
         ndv = nd1.mul(nd4);
 
         System.out.println("nd1.mul(nd4):\n"+ndv);
-
-
     }
-
 }

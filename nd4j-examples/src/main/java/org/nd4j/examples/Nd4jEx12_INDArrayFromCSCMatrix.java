@@ -1,4 +1,4 @@
-/*******************************************************************************
+/* *****************************************************************************
  * Copyright (c) 2015-2019 Skymind, Inc.
  *
  * This program and the accompanying materials are made available under the
@@ -26,7 +26,6 @@ import org.nd4j.linalg.factory.Nd4j;
  *
  * @author Audrey Loeffel
  */
-
 public class Nd4jEx12_INDArrayFromCSCMatrix {
 
     public static void main(String[] args) {
@@ -36,23 +35,17 @@ public class Nd4jEx12_INDArrayFromCSCMatrix {
         int[] columnPointers = {0, 1, 3, 5};
         double[] dataCSC = {11, 12, 22, 13, 23, 14, 34};
         int[] shapeCSC = {5, 4};
-        INDArray matrix = createFromCSC(dataCSC, rowIndices, columnPointers, shapeCSC);
-        System.out.println("nd array is: \n" + matrix);
-        long[] matrixCSCShape = matrix.shape();
-        System.out.println("Its shape is [" + matrixCSCShape[0] +","+ matrixCSCShape[1]+"]");
+        createFromCSC(dataCSC, rowIndices, columnPointers, shapeCSC);
 
         System.out.println("-------- CSC with empty column to INDArray -------");
         int[] rowIndices2 = {1, 2};
         int[] columnPointers2 = {0, 0, 1};
         double[] dataCSC2 = {22, 33};
         int[] shapeCSC2 = {4, 3};
-        INDArray matrix2 = createFromCSC(dataCSC2, rowIndices2, columnPointers2, shapeCSC2);
-        System.out.println("nd array is: \n" + matrix2);
-        long[] matrixCSCShape2 = matrix2.shape();
-        System.out.println("Its shape is [" + matrixCSCShape2[0] +","+ matrixCSCShape2[1]+"]");
+        createFromCSC(dataCSC2, rowIndices2, columnPointers2, shapeCSC2);
     }
 
-    private static INDArray createFromCSC(double[] data, int[] rowIndices, int[] columnPointers, int[] shape){
+    private static void createFromCSC(double[] data, int[] rowIndices, int[] columnPointers, int[] shape){
         INDArray result = Nd4j.zeros(shape);
         int columns = shape[1];
         int dataIdx = 0;
@@ -60,9 +53,11 @@ public class Nd4jEx12_INDArrayFromCSCMatrix {
             for(int k = dataIdx; k < (i == columnPointers.length-1 ? rowIndices.length : columnPointers[i+1]); k++, dataIdx++){
                 int j = rowIndices[k];
                 result.put(j, i, data[k]);
-                //System.out.println("i = "+i+", k = "+k+ ", data[k] = "+data[k]+"\n matrix = "+result.toString());
             }
         }
-        return result;
+        // Normally one would return the result. For this example we just print the result.
+        System.out.println("nd array is: \n" + result);
+        long[] matrixCSCShape2 = result.shape();
+        System.out.println("Its shape is [" + matrixCSCShape2[0] +","+ matrixCSCShape2[1]+"]");
     }
 }
