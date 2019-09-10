@@ -61,13 +61,13 @@
     </properties>
 
     <modules>
+        <module>shared-utilities</module>
         <module>dl4j-examples</module>
         <module>dl4j-spark-examples</module>
         <module>datavec-examples</module>
         <module>nd4j-examples</module>
         <module>rl4j-examples</module>
         <module>lstm-hdfs</module>
-        <module>shared-utilities</module>
         <module>tf-import-examples</module>
     </modules>
 

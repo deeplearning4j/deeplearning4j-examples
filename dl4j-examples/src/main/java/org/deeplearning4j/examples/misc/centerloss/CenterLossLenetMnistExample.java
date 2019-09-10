@@ -18,7 +18,6 @@ package org.deeplearning4j.examples.misc.centerloss;
 
 import org.deeplearning4j.datasets.iterator.impl.MnistDataSetIterator;
 import org.deeplearning4j.examples.unsupervised.variational.plot.PlotUtil;
-import org.deeplearning4j.examples.userInterface.util.GradientsAndParamsListener;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
 import org.deeplearning4j.nn.conf.inputs.InputType;
@@ -108,7 +107,7 @@ public class CenterLossLenetMnistExample {
 
 
         log.info("Train model....");
-        model.setListeners(new GradientsAndParamsListener(model,100),new ScoreIterationListener(100));
+        model.setListeners(new ScoreIterationListener(100));
 
         List<Pair<INDArray, INDArray>> embeddingByEpoch = new ArrayList<>();
         List<Integer> epochNum = new ArrayList<>();
