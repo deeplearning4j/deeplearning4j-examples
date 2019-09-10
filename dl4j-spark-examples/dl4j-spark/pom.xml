@@ -21,7 +21,7 @@
     <parent>
         <artifactId>dl4j-spark-examples</artifactId>
         <groupId>org.deeplearning4j</groupId>
-        <version>1.0.0-beta4</version>
+        <version>1.0.0-beta5</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -87,13 +87,13 @@
         <dependency>
             <groupId>org.deeplearning4j</groupId>
             <artifactId>dl4j-spark_${scala.binary.version}</artifactId>
-            <version>${dl4j.spark.version}</version>
+            <version>${dl4j.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.deeplearning4j</groupId>
             <artifactId>dl4j-spark-parameterserver_${scala.binary.version}</artifactId>
-            <version>${dl4j.spark.version}</version>
+            <version>${dl4j.version}</version>
         </dependency>
 
         <dependency>

@@ -76,8 +76,8 @@ public class Ex1_SameDiff_Basics {
         You can think of functions as operations that map input variables (arrays) to new variables (arrays)
         Functions have 0 or more inputs (usually 1 or more) and 1 or more outputs
          */
-        DifferentialFunction[] functions = sd.functions();
-        for(DifferentialFunction df : functions){
+        DifferentialFunction[] ops = sd.ops();
+        for(DifferentialFunction df : ops){
             SDVariable[] inputsToFunction = df.args();      //Inputs are also known as "args" or "arguments" for a function
             SDVariable[] outputsOfFunction = df.outputVariables();
             System.out.println("Op: " + df.opName() + ", inputs: " + Arrays.toString(inputsToFunction) + ", outputs: " +

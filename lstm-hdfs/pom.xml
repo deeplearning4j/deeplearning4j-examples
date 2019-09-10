@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.deeplearning4j</groupId>
         <artifactId>deeplearning4j-examples-parent</artifactId>
-        <version>1.0.0-beta4</version>
+        <version>1.0.0-beta5</version>
     </parent>
     <groupId>org.deeplearning4j.examples</groupId>
     <artifactId>lstm-hdfs</artifactId>
@@ -29,8 +29,7 @@
     <url>http://maven.apache.org</url>
 
     <properties>
-        <dl4j.version>1.0.0-beta4</dl4j.version>
-        <dl4j.spark.version>1.0.0-beta4_spark_2</dl4j.spark.version>
+        <dl4j.version>1.0.0-beta5</dl4j.version>
     </properties>
 
     <build>
@@ -106,12 +105,12 @@
         <dependency>
             <groupId>org.deeplearning4j</groupId>
             <artifactId>dl4j-spark-nlp_2.11</artifactId>
-            <version>${dl4j.spark.version}</version>
+            <version>${dl4j.version}</version>
         </dependency>
         <dependency>
             <groupId>org.deeplearning4j</groupId>
             <artifactId>dl4j-spark_2.11</artifactId>
-            <version>${dl4j.spark.version}</version>
+            <version>${dl4j.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.spark</groupId>

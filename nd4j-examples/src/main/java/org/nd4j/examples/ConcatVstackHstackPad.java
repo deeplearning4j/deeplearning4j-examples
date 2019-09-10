@@ -1,4 +1,4 @@
-/*******************************************************************************
+/* *****************************************************************************
  * Copyright (c) 2015-2019 Skymind, Inc.
  *
  * This program and the accompanying materials are made available under the
@@ -17,6 +17,7 @@
 package org.nd4j.examples;
 
 import org.nd4j.linalg.api.ndarray.INDArray;
+import org.nd4j.linalg.api.ops.impl.transforms.Pad;
 import org.nd4j.linalg.factory.Nd4j;
 
 /**
@@ -65,7 +66,7 @@ public class ConcatVstackHstackPad {
         System.out.println(combined2);
 
         //Padding
-        INDArray padded = Nd4j.pad(ones, new int[]{1,1}, Nd4j.PadMode.CONSTANT );
+        INDArray padded = Nd4j.pad(ones, new int[]{1,1}, Pad.Mode.CONSTANT, 0 );
         System.out.println("### Padded ####");
         System.out.println(padded);
 
@@ -79,9 +80,6 @@ public class ConcatVstackHstackPad {
         INDArray vstack = Nd4j.vstack(ones,zeros);
         System.out.println("### VSTACK ####");
         System.out.println(vstack);
-
-
-
     }
 
 }

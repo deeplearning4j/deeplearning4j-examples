@@ -1,4 +1,4 @@
-/*******************************************************************************
+/* *****************************************************************************
  * Copyright (c) 2015-2019 Skymind, Inc.
  *
  * This program and the accompanying materials are made available under the
@@ -81,6 +81,7 @@ public class Nd4jEx5_Accumulations {
         System.out.println("max along dimension 0:  " + maxAlong0);
         System.out.println("sum along dimension 0:  " + sumAlong0);
         System.out.println("avg along dimension 0:  " + avgAlong0);
+        System.out.println("stddev along dimension 0:  " + stdevAlong0);
         System.out.println("Index of max dimension 0:  " + idxOfMaxInEachColumn);
         System.out.println("Index of max dimension 1:  " + idxOfMaxInEachRow);
 

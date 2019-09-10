@@ -19,7 +19,7 @@
 
     <groupId>org.deeplearning4j</groupId>
     <artifactId>deeplearning4j-examples-parent</artifactId>
-    <version>1.0.0-beta4</version>
+    <version>1.0.0-beta5</version>
     <modelVersion>4.0.0</modelVersion>
     <packaging>pom</packaging>
 
@@ -34,18 +34,15 @@
 
 
         <java.version>1.8</java.version>
-        <nd4j.version>1.0.0-beta4</nd4j.version>
-        <dl4j.version>1.0.0-beta4</dl4j.version>
-        <datavec.version>1.0.0-beta4</datavec.version>
-        <arbiter.version>1.0.0-beta4</arbiter.version>
-        <rl4j.version>1.0.0-beta4</rl4j.version>
-
-        <!-- For Spark examples: change the _1 to _2 to switch between Spark 1 and Spark 2 -->
-        <dl4j.spark.version>1.0.0-beta4_spark_2</dl4j.spark.version>
-        <datavec.spark.version>1.0.0-beta4_spark_2</datavec.spark.version>
+        <nd4j.version>1.0.0-beta5</nd4j.version>
+        <dl4j.version>1.0.0-beta5</dl4j.version>
+        <datavec.version>1.0.0-beta5</datavec.version>
+        <arbiter.version>1.0.0-beta5</arbiter.version>
+        <rl4j.version>1.0.0-beta5</rl4j.version>
 
         <!-- Scala binary version: DL4J's Spark and UI functionality are released with both Scala 2.10 and 2.11 support -->
         <scala.binary.version>2.11</scala.binary.version>
+        <spark.version>2.4.3</spark.version>
 
         <hadoop.version>2.2.0</hadoop.version>  <!-- Hadoop version used by Spark 1.6.3 and 2.2.1 (and likely others) -->
         <guava.version>19.0</guava.version>
