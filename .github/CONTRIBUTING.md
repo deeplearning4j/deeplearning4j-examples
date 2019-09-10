@@ -3,7 +3,7 @@
 1. Check for open issues, or open a new issue to start a discussion around a
    new example or a bug.
 2. If you feel uncomfortable or uncertain about an issue or your changes, feel free to contact us on Gitter using the link above.
-3. Fork [the repository](https://github.com/deeplearning4j/dl4j-examples.git) on GitHub to start making your changes to the **master** branch (or branch off of it).
+3. Fork [the repository](https://github.com/eclipse/deeplearning4j-examples.git) on GitHub to start making your changes to the **master** branch (or branch off of it).
 4. If you're providing a new example, please help reference it by adding notes
    of relevant publications to the code comments, including links if
    available. If you fix an existing example, write a test, which shows that the bug was fixed or that the feature works as expected.
