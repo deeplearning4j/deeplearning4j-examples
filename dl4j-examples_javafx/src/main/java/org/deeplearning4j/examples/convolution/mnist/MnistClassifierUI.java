@@ -57,7 +57,7 @@ import org.slf4j.LoggerFactory;
  * @author dariuszzbyrad
  */
 public class MnistClassifierUI extends Application {
-    private static final Logger LOGGER = LoggerFactory.getLogger(MnistClassifier.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(MnistClassifierUI.class);
     private static final String BASE_PATH = System.getProperty("java.io.tmpdir") + "/mnist";
 
     private static final int CANVAS_WIDTH = 150;
