@@ -92,8 +92,15 @@
                 <version>${nd4j.version}</version>
                 <scope>test</scope>
             </dependency>
+            <dependency>
+                <groupId>org.datavec</groupId>
+                <artifactId>datavec-spark_${scala.binary.version}</artifactId>
+                <version>${datavec.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
+
+
 
     <dependencies>
         <dependency>

@@ -31,7 +31,22 @@
         <scala.binary.version>2.11</scala.binary.version>
     </properties>
 
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.datavec</groupId>
+                <artifactId>datavec-spark_${scala.binary.version}</artifactId>
+                <version>${datavec.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
     <dependencies>
+        <dependency>
+            <groupId>org.datavec</groupId>
+            <artifactId>datavec-spark_${scala.binary.version}</artifactId>
+            <version>${datavec.version}</version>
+        </dependency>
 
         <dependency>
             <groupId>org.nd4j</groupId>
@@ -56,7 +71,6 @@
             <artifactId>deeplearning4j-ui_${scala.binary.version}</artifactId>
             <version>${dl4j.version}</version>
         </dependency>
-
     </dependencies>
     <build>
         <plugins>
