@@ -244,7 +244,8 @@ public class SameDiffTransferLearningExample {
         // again, we reshape to the proper size as part of the data set iterator
         DataSetIterator trainData = new Cifar10DataSetIterator(32, new int[]{224, 224}, DataSetType.TRAIN, null, 12345);
 
-        //Perform fine tuning for 20 epochs.  The pre-trained weights are imported as constants, and thus not trained
+        //Perform fine tuning for 20 epochs.  The pre-trained weights are imported as constants, and thus not trained.
+        // Note that this may take a long time, especially if you try to use the CPU backend.
         int numEpochs = 20;
         History hist = sd.fit()
             .train(trainData, numEpochs)
