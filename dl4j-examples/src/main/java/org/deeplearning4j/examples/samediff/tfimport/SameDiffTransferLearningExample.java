@@ -7,6 +7,7 @@ import java.util.List;
 import org.deeplearning4j.datasets.fetchers.DataSetType;
 import org.deeplearning4j.datasets.iterator.impl.Cifar10DataSetIterator;
 import org.deeplearning4j.datasets.iterator.impl.MnistDataSetIterator;
+import org.deeplearning4j.examples.samediff.training.SameDiffCustomListenerExample;
 import org.deeplearning4j.examples.samediff.training.SameDiffMNISTTrainingExample;
 import org.nd4j.autodiff.listeners.At;
 import org.nd4j.autodiff.listeners.BaseListener;
@@ -42,63 +43,14 @@ import org.nd4j.weightinit.impl.XavierInitScheme;
 /**
  * This is an example of doing transfer learning by importing a tensorflow model of mobilenet and replacing the last layer.
  *
- * It turns the original imagenet model into a model for CIFAR 10.
+ * It turns the original ImageNet model into a model for CIFAR 10.
  *
  * See {@link SameDiffTFImportMobileNetExample} for the model import example.
  * See {@link SameDiffMNISTTrainingExample} for the SameDiff training example.
+ * See {@link SameDiffCustomListenerExample} for an example of how to use custom listeners (we use one here to find the shapes of an activation).
  *
  */
 public class SameDiffTransferLearningExample {
-
-    // Used to figure out the shapes of variables, needed to figure out how many channels are going into our added Conv layer
-    static class ShapeListener extends BaseListener{
-
-        @Override
-        public boolean isActive(Operation operation) {
-            return true;
-        }
-
-        @Override
-        public void activationAvailable(SameDiff sd, At at,
-            MultiDataSet batch, SameDiffOp op,
-            String varName, INDArray activation) {
-            System.out.println(varName + ": \t\t\t" + Arrays.toString(activation.shape()));
-
-            if(varName.endsWith("Shape")){
-                System.out.println("Shape value: " + activation);
-            }
-
-        }
-    }
-
-    /**
-     * Does inception preprocessing on a batch of images.  Takes an image with shape [batchSize, c, h, w]
-     * and returns an image with shape [batchSize, height, width, c].
-     *
-     * @param height the height to resize to
-     * @param width the width to resize to
-     */
-    public static INDArray batchInceptionPreprocessing(INDArray img, int height, int width){
-        // change to channels-last
-        img = img.permute(0, 2, 3, 1);
-
-        // normalize to 0-1
-        img = img.div(256);
-
-        // resize
-        INDArray preprocessedImage = Nd4j.createUninitialized(img.size(0), height, width, img.size(3));
-
-        DynamicCustomOp op = DynamicCustomOp.builder("resize_bilinear")
-            .addInputs(img)
-            .addOutputs(preprocessedImage)
-            .addIntegerArguments(height, width).build();
-        Nd4j.exec(op);
-
-        // finish preprocessing
-        preprocessedImage = preprocessedImage.sub(0.5);
-        preprocessedImage = preprocessedImage.mul(2);
-        return preprocessedImage;
-    }
 
     public static void main(String[] args) throws Exception {
         File modelFile = SameDiffTFImportMobileNetExample.downloadModel();
@@ -112,7 +64,14 @@ public class SameDiffTransferLearningExample {
 
         System.out.println("\n\n");
 
-        // Print shapes for each activation
+
+        // We want to replace the last convolution layer and the output layer with our own ops, so we can fine tune the network
+        // These are the MobilenetV2/Logits and MobilenetV2/Predictions sections, respectively.  See the printed summary.
+
+
+        // Print shapes for each activation.
+        // We need to know the shape (especially the channels) of the convolution op's input, so we know what shape to make the weight.
+        // We use a custom listener for this, see SameDiffCustomListenerExample
 
 //        INDArray test = new Cifar10DataSetIterator(10).next().getFeatures();
 //        test = batchInceptionPreprocessing(test, 224, 224);
@@ -123,16 +82,46 @@ public class SameDiffTransferLearningExample {
 //            .listeners(new ShapeListener())
 //            .execSingle();
 
-        // get info for the last convolution layer (MobilenetV2/Logits)
+        // get info for the last convolution layer (MobilenetV2/Logits).  We want to use an equivalent config.
         Conv2D convOp = (Conv2D) sd.getOpById("MobilenetV2/Logits/Conv2d_1c_1x1/Conv2D");
         System.out.println("Conv config: " + convOp.getConfig());
 
-        // replace last convolution layer (MobilenetV2/Logits)
-        sd = GraphTransformUtil.replaceSubgraphsMatching(sd,
-            SubGraphPredicate.withRoot(OpPredicate.nameMatches("MobilenetV2/Logits/Conv2d_1c_1x1/BiasAdd"))
-            .withInputSubgraph(0, OpPredicate.nameMatches("MobilenetV2/Logits/Conv2d_1c_1x1/Conv2D")),
-            (sd1, subGraph) -> {
+        /*
+        The MobilenetV2/Logits section looks like:
+            MobilenetV2/Logits/AvgPool
+            MobilenetV2/Logits/Conv2d_1c_1x1/Conv2D
+            MobilenetV2/Logits/Conv2d_1c_1x1/BiasAdd
+            MobilenetV2/Logits/Squeeze
 
+        We want to replace the convolution layer (Conv2D and BiasAdd) with our own, so we can fine tune it.
+
+
+        The SubGraphPredicate will select a subset of the graph by starting at the root node,
+            and then optionally applying SubGraphPredicate's for inputs.
+        Those SubGraphPredicate's can also add their inputs, etc.
+
+        The predicate will only accept a subgraph if it passes all the filters.
+         */
+
+        // Create a predicate for selecting the BiasAdd and Conv2D ops we want
+        SubGraphPredicate pred1 =
+            // Select the subgraph with root MobilenetV2/Logits/Conv2d_1c_1x1/BiasAdd
+            SubGraphPredicate.withRoot(OpPredicate.nameMatches("MobilenetV2/Logits/Conv2d_1c_1x1/BiasAdd"))
+            // Select (and require) the BiasAdd's 0th input to be MobilenetV2/Logits/Conv2d_1c_1x1/Conv2D
+            .withInputSubgraph(0, OpPredicate.nameMatches("MobilenetV2/Logits/Conv2d_1c_1x1/Conv2D"));
+
+
+        /*
+        Replace any subgraphs matching the predicate with our own subgraph
+        There will only be one match, but you can use SubGraphPredicate and GraphTransformUtil to replace many occurrences of the same subgraph.
+
+        The number of outputs from the replacement subgraph must match the number of outputs of the subgraph it is replacing.
+
+        Note that the graph isn't actually modified, a copy is made, modified, and then returned.
+         */
+        sd = GraphTransformUtil.replaceSubgraphsMatching(sd,
+            pred1,
+            (sd1, subGraph) -> {
                 NameScope logits = sd1.withNameScope("Logits/Conv2D");
 
                 // get the output of the AveragePooling op
@@ -140,6 +129,8 @@ public class SameDiffTransferLearningExample {
 
                 // we know the sizes from using the ShapeListener earlier
 
+                // We know what shape the weight needs to be from the input's channels and the config's kernel height and width.
+                // This is why we printed the shapes.
                 SDVariable w = sd1.var("W", new XavierInitScheme('c', 5 * 5 * 8, 10), DataType.FLOAT,
                     1, 1, 1280, 10);
 
@@ -155,17 +146,38 @@ public class SameDiffTransferLearningExample {
                 return Collections.singletonList(output);
             });
 
+        /*
+        The MobilenetV2/Predictions section looks like:
+            MobilenetV2/Predictions/Reshape/shape
+            MobilenetV2/Predictions/Reshape
+            MobilenetV2/Predictions/Softmax
+            MobilenetV2/Predictions/Shape
+            MobilenetV2/Predictions/Reshape_1
+
+        We want to replace the reshapes (unneeded and the wrong shape) and the softmax (we need a loss function and an output function).
+        You could keep the softmax, but there is no reason to.
+
+        We also need to add a labels input.
+
+        Note that this subgraph has no outputs, so neither should the replacement subgraph.
+         */
+
         // create SubGraphPredicate for selecting the MobilenetV2/Predictions ops
-        SubGraphPredicate graphPred = SubGraphPredicate.withRoot(OpPredicate.nameEquals("MobilenetV2/Predictions/Reshape_1"))
-            .withInputSubgraph(0, SubGraphPredicate.withRoot(OpPredicate.nameEquals("MobilenetV2/Predictions/Softmax"))
-                .withInputSubgraph(0, SubGraphPredicate.withRoot(OpPredicate.nameEquals("MobilenetV2/Predictions/Reshape"))))
-            .withInputSubgraph(1, SubGraphPredicate.withRoot(OpPredicate.nameEquals("MobilenetV2/Predictions/Shape")));
+        SubGraphPredicate pred2 =
+            // Select a subgraph starting with the Reshape_1 op
+            SubGraphPredicate.withRoot(OpPredicate.nameEquals("MobilenetV2/Predictions/Reshape_1"))
+                // Add the 0th input to the subgraph if it is the specified Softmax Op
+                .withInputSubgraph(0, SubGraphPredicate.withRoot(OpPredicate.nameEquals("MobilenetV2/Predictions/Softmax"))
+                    // Add the 0th input of the Softmax op to the subgraph, as long as it is the specified Reshape op
+                    .withInputSubgraph(0, SubGraphPredicate.withRoot(OpPredicate.nameEquals("MobilenetV2/Predictions/Reshape"))))
+                // Add the 1st input to the subgraph if it is the specified Shape Op
+                .withInputSubgraph(1, SubGraphPredicate.withRoot(OpPredicate.nameEquals("MobilenetV2/Predictions/Shape")));
 
-        // replace the MobilenetV2/Predictions with our own softmax and loss
+        // Replace any subgraphs matching the predicate with our own subgraph
+        // There will only be one match, but you can use SubGraphPredicate and GraphTransformUtil to replace many occurrences of the same subgraph
         sd = GraphTransformUtil.replaceSubgraphsMatching(sd,
-            graphPred,
+            pred2,
             (sd1, subGraph) -> {
-
                 // placeholder for labels (needed for training)
                 SDVariable labels = sd1.placeHolder("label", DataType.FLOAT, -1, 10);
 
@@ -186,8 +198,8 @@ public class SameDiffTransferLearningExample {
             });
 
 
-        // replace the input with input and inception preprocessing (except for resizing, which is done as part of the record reader)
-        // can't do this with GraphTransformUtil as it can't replace variables or re-use ops
+        // Add inception preprocessing to the input (except for resizing, which is done as part of the record reader)
+        // Can't do this with GraphTransformUtil as it can't replace variables or re-use ops
 
         SDVariable input = sd.getVariable("input");
 
@@ -200,6 +212,7 @@ public class SameDiffTransferLearningExample {
         // change range to -1 - 1
         SDVariable processed = normalized.sub(0.5).mul(2);
 
+        // The 0th arg was input, replace it with the preprocessed input
         sd.getOpById("MobilenetV2/Conv/Conv2D").replaceArg(0, processed);
 
 
@@ -253,5 +266,59 @@ public class SameDiffTransferLearningExample {
         List<Double> acc = hist.trainingEval(Metric.ACCURACY);
 
         System.out.println("Accuracy: " + acc);
+    }
+
+    /**
+     * Used to figure out the shapes of variables, needed to figure out how many channels are going into our added Conv layer
+     *
+     * See {@link SameDiffCustomListenerExample}
+     */
+    static class ShapeListener extends BaseListener{
+
+        @Override
+        public boolean isActive(Operation operation) {
+            return true;
+        }
+
+        @Override
+        public void activationAvailable(SameDiff sd, At at,
+            MultiDataSet batch, SameDiffOp op,
+            String varName, INDArray activation) {
+            System.out.println(varName + ": \t\t\t" + Arrays.toString(activation.shape()));
+
+            if(varName.endsWith("Shape")){
+                System.out.println("Shape value: " + activation);
+            }
+
+        }
+    }
+
+    /**
+     * Does inception preprocessing on a batch of images.  Takes an image with shape [batchSize, c, h, w]
+     * and returns an image with shape [batchSize, height, width, c].
+     *
+     * @param height the height to resize to
+     * @param width the width to resize to
+     */
+    public static INDArray batchInceptionPreprocessing(INDArray img, int height, int width){
+        // change to channels-last
+        img = img.permute(0, 2, 3, 1);
+
+        // normalize to 0-1
+        img = img.div(256);
+
+        // resize
+        INDArray preprocessedImage = Nd4j.createUninitialized(img.size(0), height, width, img.size(3));
+
+        DynamicCustomOp op = DynamicCustomOp.builder("resize_bilinear")
+            .addInputs(img)
+            .addOutputs(preprocessedImage)
+            .addIntegerArguments(height, width).build();
+        Nd4j.exec(op);
+
+        // finish preprocessing
+        preprocessedImage = preprocessedImage.sub(0.5);
+        preprocessedImage = preprocessedImage.mul(2);
+        return preprocessedImage;
     }
 }

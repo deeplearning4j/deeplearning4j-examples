@@ -21,63 +21,6 @@ import org.nd4j.resources.Downloader;
  */
 public class SameDiffTFImportMobileNetExample {
 
-    public static String MODEL_URL = "https://storage.googleapis.com/mobilenet_v2/checkpoints/mobilenet_v2_1.0_224.tgz";
-
-    // download and extract the model file in the ~/dl4j-examples-data directory used by other examples
-    public static File downloadModel() throws Exception{
-        String dataDir = FilenameUtils.concat(System.getProperty("user.home"), "dl4j-examples-data/tf_resnet");
-        String modelFile = FilenameUtils.concat(dataDir, "mobilenet_v2_1.0_224.tgz");
-
-        File frozenFile = new File(FilenameUtils.concat(dataDir, "mobilenet_v2_1.0_224_frozen.pb"));
-
-        if(frozenFile.exists()){
-            return frozenFile;
-        }
-
-        Downloader.downloadAndExtract("tf_resnet", new URL(MODEL_URL), new File(modelFile), new File(dataDir), "519bba7052fd279c66d2a28dc3f51f46", 5);
-
-        return frozenFile;
-    }
-
-    // gets the image we use to test the network.
-    // This isn't a single class ImageNet image, so it won't do very well, but it will at least classify it as a dog or a cat.
-    public static INDArray getTestImage() throws IOException {
-        URL url = new URL("https://github.com/tensorflow/models/blob/master/research/deeplab/g3doc/img/image2.jpg?raw=true");
-        return new ImageLoader(358, 500, 3).asMatrix(url.openStream());
-    }
-
-    /**
-     * Does inception preprocessing.  Takes an image with shape [c, h, w]
-     * and returns an image with shape [1, height, width, c].
-     *
-     * @param height the height to resize to
-     * @param width the width to resize to
-     */
-    public static INDArray inceptionPreprocessing(INDArray img, int height, int width){
-        // add batch dimension
-        img = Nd4j.expandDims(img, 0);
-
-        // change to channels-last
-        img = img.permute(0, 2, 3, 1);
-
-        // normalize to 0-1
-        img = img.div(256);
-
-        // resize
-        INDArray preprocessedImage = Nd4j.createUninitialized(1, height, width, 3);
-
-        DynamicCustomOp op = DynamicCustomOp.builder("resize_bilinear")
-            .addInputs(img)
-            .addOutputs(preprocessedImage)
-            .addIntegerArguments(height, width).build();
-        Nd4j.exec(op);
-
-        // finish preprocessing
-        preprocessedImage = preprocessedImage.sub(0.5);
-        preprocessedImage = preprocessedImage.mul(2);
-        return preprocessedImage;
-    }
-
     public static void main(String[] args) throws Exception {
 
         // download and extract a tensorflow frozen model file (usually a .pb file)
@@ -118,6 +61,67 @@ public class SameDiffTFImportMobileNetExample {
 
         System.out.println("Predictions: " + label);
 
+    }
+
+
+
+    public static String MODEL_URL = "https://storage.googleapis.com/mobilenet_v2/checkpoints/mobilenet_v2_1.0_224.tgz";
+
+    // download and extract the model file in the ~/dl4j-examples-data directory used by other examples
+    public static File downloadModel() throws Exception{
+        String dataDir = FilenameUtils.concat(System.getProperty("user.home"), "dl4j-examples-data/tf_resnet");
+        String modelFile = FilenameUtils.concat(dataDir, "mobilenet_v2_1.0_224.tgz");
+
+        File frozenFile = new File(FilenameUtils.concat(dataDir, "mobilenet_v2_1.0_224_frozen.pb"));
+
+        if(frozenFile.exists()){
+            return frozenFile;
+        }
+
+        Downloader.downloadAndExtract("tf_resnet", new URL(MODEL_URL), new File(modelFile), new File(dataDir), "519bba7052fd279c66d2a28dc3f51f46", 5);
+
+        return frozenFile;
+    }
+
+    // gets the image we use to test the network.
+    // This isn't a single class ImageNet image, so it won't do very well, but it will at least classify it as a dog or a cat.
+    public static INDArray getTestImage() throws IOException {
+        URL url = new URL("https://github.com/tensorflow/models/blob/master/research/deeplab/g3doc/img/image2.jpg?raw=true");
+        return new ImageLoader(358, 500, 3).asMatrix(url.openStream());
+    }
+
+    /**
+     * Does inception preprocessing.  Takes an image with shape [c, h, w]
+     * and returns an image with shape [1, height, width, c].
+     *
+     * Eventually this will be made part of DL4J.
+     *
+     * @param height the height to resize to
+     * @param width the width to resize to
+     */
+    public static INDArray inceptionPreprocessing(INDArray img, int height, int width){
+        // add batch dimension
+        img = Nd4j.expandDims(img, 0);
+
+        // change to channels-last
+        img = img.permute(0, 2, 3, 1);
+
+        // normalize to 0-1
+        img = img.div(256);
+
+        // resize
+        INDArray preprocessedImage = Nd4j.createUninitialized(1, height, width, 3);
+
+        DynamicCustomOp op = DynamicCustomOp.builder("resize_bilinear")
+            .addInputs(img)
+            .addOutputs(preprocessedImage)
+            .addIntegerArguments(height, width).build();
+        Nd4j.exec(op);
+
+        // finish preprocessing
+        preprocessedImage = preprocessedImage.sub(0.5);
+        preprocessedImage = preprocessedImage.mul(2);
+        return preprocessedImage;
     }
 
 }

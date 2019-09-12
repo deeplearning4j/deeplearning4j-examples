@@ -5,8 +5,11 @@ import static org.deeplearning4j.examples.samediff.training.SameDiffMNISTTrainin
 import java.util.Arrays;
 import java.util.List;
 import org.deeplearning4j.datasets.iterator.impl.MnistDataSetIterator;
+import org.deeplearning4j.examples.samediff.tfimport.SameDiffTransferLearningExample;
 import org.nd4j.autodiff.listeners.At;
+import org.nd4j.autodiff.listeners.BaseEvaluationListener;
 import org.nd4j.autodiff.listeners.BaseListener;
+import org.nd4j.autodiff.listeners.Listener;
 import org.nd4j.autodiff.listeners.ListenerVariables;
 import org.nd4j.autodiff.listeners.Operation;
 import org.nd4j.autodiff.listeners.impl.ScoreListener;
@@ -27,45 +30,17 @@ import org.nd4j.linalg.learning.config.Adam;
 import org.nd4j.weightinit.impl.XavierInitScheme;
 
 /**
- * This example shows how to use a custom listener, and is based on the {@link SameDiffMNISTTrainingExample}.
+ * This example shows how to use a custom listener, and is based on the {@link SameDiffMNISTTrainingExample}.<br><br>
+ *
+ * We use a basic custom listener that records the values of 2 variables, for comparison or printing later.
+ *
+ * Another example is a listener that prints the shapes of activations, used in {@link SameDiffTransferLearningExample}.
+ *
+ * For more details on what you can do with listeners, and the methods you can implement, look at {@link BaseListener} and {@link Listener}.<br>
+ * If you want to use evaluations in your listener, look at {@link BaseEvaluationListener}.
+ *
  */
 public class SameDiffCustomListenerExample {
-
-    /**
-     * A basic custom listener that records the values of z and out, for comparison later
-     */
-    public static class CustomListener extends BaseListener {
-
-        public INDArray z;
-        public INDArray out;
-
-        // Specify that this listener is active during inference operations
-        @Override
-        public boolean isActive(Operation operation) {
-            return operation == Operation.INFERENCE;
-        }
-
-        // Specify that this listener requires the activations of "z" and "out"
-        @Override
-        public ListenerVariables requiredVariables(SameDiff sd) {
-            return new ListenerVariables.Builder().inferenceVariables("z", "out").build();
-        }
-
-        // Called when the activation of a variable becomes available
-        @Override
-        public void activationAvailable(SameDiff sd, At at,
-            MultiDataSet batch, SameDiffOp op,
-            String varName, INDArray activation) {
-
-            // if the variable is z or out, store its activation
-            if(varName.equals("out")){
-                out = activation.detach().dup();
-            } else if(varName.equals("z")){
-                z = activation.detach().dup();
-            }
-        }
-    }
-
 
     public static void main(String[] args) throws Exception {
         SameDiff sd = makeMNISTNet();
@@ -102,5 +77,40 @@ public class SameDiffCustomListenerExample {
 
         System.out.println("Z: " + listener.z);
         System.out.println("Out (softmax(z)): " + listener.out);
+    }
+
+    /**
+     * A basic custom listener that records the values of z and out, for comparison or printing later.
+     */
+    public static class CustomListener extends BaseListener {
+
+        public INDArray z;
+        public INDArray out;
+
+        // Specify that this listener is active during inference operations
+        @Override
+        public boolean isActive(Operation operation) {
+            return operation == Operation.INFERENCE;
+        }
+
+        // Specify that this listener requires the activations of "z" and "out"
+        @Override
+        public ListenerVariables requiredVariables(SameDiff sd) {
+            return new ListenerVariables.Builder().inferenceVariables("z", "out").build();
+        }
+
+        // Called when the activation of a variable becomes available
+        @Override
+        public void activationAvailable(SameDiff sd, At at,
+            MultiDataSet batch, SameDiffOp op,
+            String varName, INDArray activation) {
+
+            // if the variable is z or out, store its activation
+            if(varName.equals("out")){
+                out = activation.detach().dup();
+            } else if(varName.equals("z")){
+                z = activation.detach().dup();
+            }
+        }
     }
 }
