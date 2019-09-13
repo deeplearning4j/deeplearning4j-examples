@@ -69,6 +69,8 @@ public class SameDiffTrainingExample {
         SDVariable diff = sd.f().squaredDifference(softmax, label);
         SDVariable lossMse = diff.mean();
 
+        sd.setLossVariables(lossMse);
+
         //Create and set the training configuration
         double learningRate = 1e-3;
         TrainingConfig config = new TrainingConfig.Builder()
