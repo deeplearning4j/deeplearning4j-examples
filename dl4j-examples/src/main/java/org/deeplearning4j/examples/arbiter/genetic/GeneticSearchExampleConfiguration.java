@@ -1,4 +1,4 @@
-/*******************************************************************************
+/* *****************************************************************************
  * Copyright (c) 2015-2019 Skymind, Inc.
  *
  * This program and the accompanying materials are made available under the
@@ -49,22 +49,20 @@ import org.nd4j.linalg.schedule.ScheduleType;
 import java.io.File;
 import java.util.Properties;
 
-public class GeneticSearchExampleConfiguration {
+class GeneticSearchExampleConfiguration {
 
-    public static ComputationGraphSpace GetGraphConfiguration() {
+    static ComputationGraphSpace GetGraphConfiguration() {
         int inputSize = 784;
         int outputSize = 47;
 
         // First, we setup the hyperspace parameters. These are the values which will change, breed and mutate
         // while attempting to find the best candidate.
-        DiscreteParameterSpace<Activation> activationSpace = new DiscreteParameterSpace(new Activation[] {
-            Activation.ELU,
+        DiscreteParameterSpace<Activation> activationSpace = new DiscreteParameterSpace<>(Activation.ELU,
             Activation.RELU,
             Activation.LEAKYRELU,
             Activation.TANH,
             Activation.SELU,
-            Activation.HARDSIGMOID
-        });
+            Activation.HARDSIGMOID);
         IntegerParameterSpace[] layersParametersSpace = new IntegerParameterSpace[] {
             new IntegerParameterSpace(outputSize, inputSize),
             new IntegerParameterSpace(outputSize, inputSize),
