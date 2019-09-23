@@ -1,4 +1,4 @@
-/*******************************************************************************
+/* *****************************************************************************
  * Copyright (c) 2015-2019 Skymind, Inc.
  *
  * This program and the accompanying materials are made available under the
@@ -26,16 +26,16 @@ import org.nd4j.linalg.dataset.api.iterator.MultiDataSetIterator;
  */
 
 public class MultiRecordDataSetIterator implements MultiDataSetIterator {
-    private int batchSize = 0;
+    private int batchSize;
     private int batchNum = 0;
-    private int numExample = 0;
+    private int numExample;
     private MulRecordDataLoader load;
     private MultiDataSetPreProcessor preProcessor;
 
-    public MultiRecordDataSetIterator(int batchSize, String dataSetType) throws Exception {
+    MultiRecordDataSetIterator(int batchSize, String dataSetType) throws Exception {
         this(batchSize, null, dataSetType);
     }
-    public MultiRecordDataSetIterator(int batchSize, ImageTransform imageTransform, String dataSetType) throws Exception {
+    private MultiRecordDataSetIterator(int batchSize, ImageTransform imageTransform, String dataSetType) throws Exception {
         this.batchSize = batchSize;
         load = new MulRecordDataLoader(imageTransform, dataSetType);
         numExample = load.totalExamples();
@@ -80,11 +80,7 @@ public class MultiRecordDataSetIterator implements MultiDataSetIterator {
 
     @Override
     public boolean hasNext() {
-        if(batchNum < numExample){
-            return true;
-        } else {
-            return false;
-        }
+        return batchNum < numExample;
     }
 
     @Override

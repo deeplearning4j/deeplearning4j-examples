@@ -1,4 +1,4 @@
-/*******************************************************************************
+/* *****************************************************************************
  * Copyright (c) 2015-2019 Skymind, Inc.
  *
  * This program and the accompanying materials are made available under the
@@ -44,7 +44,7 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 
 /**
- * @Description This is a demo that multi-digit number recognition. The maximum length is 6 digits.
+ * Description This is a demo that multi-digit number recognition. The maximum length is 6 digits.
  * If it is less than 6 digits, then zero is added to last
  * Training set: There were 14108 images, and they were used to train a model.
  * Testing set: in total 108 images,they copied from the training set,mainly to determine whether it's good that the model fited training data
@@ -57,8 +57,6 @@ public class MultiDigitNumberRecognition {
 
     private static final Logger log = LoggerFactory.getLogger(MultiDigitNumberRecognition.class);
 
-    private static long seed = 123;
-    private static int epochs = 4;
     private static int batchSize = 15;
     private static String rootPath = System.getProperty("user.dir");
 
@@ -72,7 +70,8 @@ public class MultiDigitNumberRecognition {
         File modelDir = new File(modelDirPath);
 
         // create directory
-        boolean hasDir = modelDir.exists() || modelDir.mkdirs();
+        if (!modelDir.exists()) { //noinspection ResultOfMethodCallIgnored
+            modelDir.mkdirs(); }
         log.info( modelPath );
         //create model
         ComputationGraph model =  createModel();
@@ -88,6 +87,7 @@ public class MultiDigitNumberRecognition {
 
         //fit
         model.setListeners(new ScoreIterationListener(10), new StatsListener( statsStorage), new EvaluativeListener(testMulIterator, 1, InvocationType.EPOCH_END));
+        int epochs = 4;
         model.fit(trainMulIterator, epochs);
 
         //save
@@ -104,8 +104,9 @@ public class MultiDigitNumberRecognition {
 
     }
 
-    public static ComputationGraph createModel() {
+    private static ComputationGraph createModel() {
 
+        long seed = 123;
         ComputationGraphConfiguration config = new NeuralNetConfiguration.Builder()
             .seed(seed)
             .gradientNormalization(GradientNormalization.RenormalizeL2PerLayer)
@@ -157,7 +158,7 @@ public class MultiDigitNumberRecognition {
         return model;
     }
 
-    public static void modelPredict(ComputationGraph model, MultiDataSetIterator iterator) {
+    private static void modelPredict(ComputationGraph model, MultiDataSetIterator iterator) {
         int sumCount = 0;
         int correctCount = 0;
 
@@ -165,23 +166,24 @@ public class MultiDigitNumberRecognition {
             MultiDataSet mds = iterator.next();
             INDArray[]  output = model.output(mds.getFeatures());
             INDArray[] labels = mds.getLabels();
-            int dataNum = batchSize > output[0].rows() ? output[0].rows() : batchSize;
+            int dataNum = Math.min(batchSize, output[0].rows());
             for (int dataIndex = 0;  dataIndex < dataNum; dataIndex ++) {
-                String reLabel = "";
-                String peLabel = "";
-                INDArray preOutput = null;
-                INDArray realLabel = null;
+                StringBuilder reLabel = new StringBuilder();
+                StringBuilder peLabel = new StringBuilder();
+                INDArray preOutput;
+                INDArray realLabel;
                 for (int digit = 0; digit < 6; digit ++) {
                     preOutput = output[digit].getRow(dataIndex);
-                    peLabel += Nd4j.argMax(preOutput, 1).getInt(0);
+                    peLabel.append(Nd4j.argMax(preOutput, 1).getInt(0));
                     realLabel = labels[digit].getRow(dataIndex);
-                    reLabel += Nd4j.argMax(realLabel, 1).getInt(0);
+                    reLabel.append(Nd4j.argMax(realLabel, 1).getInt(0));
                 }
-                if (peLabel.equals(reLabel)) {
+                boolean equals = peLabel.toString().equals(reLabel.toString());
+                if (equals) {
                     correctCount ++;
                 }
                 sumCount ++;
-                log.info("real image {}  prediction {} status {}",  reLabel,peLabel, peLabel.equals(reLabel));
+                log.info("real image {}  prediction {} status {}", reLabel.toString(), peLabel.toString(), equals);
             }
         }
         iterator.reset();
