@@ -1,4 +1,4 @@
-/*******************************************************************************
+/* *****************************************************************************
  * Copyright (c) 2015-2019 Skymind, Inc.
  *
  * This program and the accompanying materials are made available under the
@@ -20,6 +20,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.deeplearning4j.examples.recurrent.word2vecsentiment.Word2VecSentimentRNN;
 import org.deeplearning4j.iterator.CnnSentenceDataSetIterator;
+import org.deeplearning4j.iterator.CnnSentenceDataSetIterator.Format;
 import org.deeplearning4j.iterator.LabeledSentenceProvider;
 import org.deeplearning4j.iterator.provider.FileLabeledSentenceProvider;
 import org.deeplearning4j.models.embeddings.loader.WordVectorSerializer;
@@ -47,6 +48,7 @@ import org.nd4j.linalg.learning.config.Adam;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 
 import java.io.File;
+import java.nio.charset.Charset;
 import java.util.*;
 
 /**
@@ -58,14 +60,13 @@ import java.util.*;
  */
 public class CnnSentenceClassificationExample {
 
-    /** Data URL for downloading */
-    public static final String DATA_URL = "http://ai.stanford.edu/~amaas/data/sentiment/aclImdb_v1.tar.gz";
     /** Location to save and extract the training/testing data */
     public static final String DATA_PATH = FilenameUtils.concat(System.getProperty("java.io.tmpdir"), "dl4j_w2vSentiment/");
     /** Location (local file system) for the Google News vectors. Set this manually. */
-    public static final String WORD_VECTORS_PATH = "/PATH/TO/YOUR/VECTORS/GoogleNews-vectors-negative300.bin.gz";
+    private static final String WORD_VECTORS_PATH = "/PATH/TO/YOUR/VECTORS/GoogleNews-vectors-negative300.bin.gz";
 
     public static void main(String[] args) throws Exception {
+        //noinspection ConstantConditions
         if(WORD_VECTORS_PATH.startsWith("/PATH/TO/YOUR/VECTORS/")){
             throw new RuntimeException("Please set the WORD_VECTORS_PATH before running this example");
         }
@@ -149,7 +150,7 @@ public class CnnSentenceClassificationExample {
 
         //After training: load a single sentence and generate a prediction
         String pathFirstNegativeFile = FilenameUtils.concat(DATA_PATH, "aclImdb/test/neg/0_2.txt");
-        String contentsFirstNegative = FileUtils.readFileToString(new File(pathFirstNegativeFile));
+        String contentsFirstNegative = FileUtils.readFileToString(new File(pathFirstNegativeFile), (Charset) null);
         INDArray featuresFirstNegative = ((CnnSentenceDataSetIterator)testIter).loadSingleSentence(contentsFirstNegative);
 
         INDArray predictionsFirstNegative = net.outputSingle(featuresFirstNegative);
@@ -172,12 +173,12 @@ public class CnnSentenceClassificationExample {
         File fileNegative = new File(negativeBaseDir);
 
         Map<String,List<File>> reviewFilesMap = new HashMap<>();
-        reviewFilesMap.put("Positive", Arrays.asList(filePositive.listFiles()));
-        reviewFilesMap.put("Negative", Arrays.asList(fileNegative.listFiles()));
+        reviewFilesMap.put("Positive", Arrays.asList(Objects.requireNonNull(filePositive.listFiles())));
+        reviewFilesMap.put("Negative", Arrays.asList(Objects.requireNonNull(fileNegative.listFiles())));
 
         LabeledSentenceProvider sentenceProvider = new FileLabeledSentenceProvider(reviewFilesMap, rng);
 
-        return new CnnSentenceDataSetIterator.Builder()
+        return new CnnSentenceDataSetIterator.Builder(Format.CNN2D)
             .sentenceProvider(sentenceProvider)
             .wordVectors(wordVectors)
             .minibatchSize(minibatchSize)
