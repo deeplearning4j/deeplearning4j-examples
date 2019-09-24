@@ -1,4 +1,4 @@
-/*******************************************************************************
+/* *****************************************************************************
  * Copyright (c) 2015-2019 Skymind, Inc.
  *
  * This program and the accompanying materials are made available under the
@@ -42,7 +42,7 @@ import java.awt.*;
 /**Simple plotting methods for the MLPClassifier examples
  * @author Alex Black
  */
-public class PlotUtil {
+class PlotUtil {
 
     /**Plot the training data. Assume 2d input, classification output
      * @param features Training data features
@@ -51,7 +51,7 @@ public class PlotUtil {
      * @param backgroundOut results of network evaluation at points in x,y points in space
      * @param nDivisions Number of points (per axis, for the backgroundIn/backgroundOut arrays)
      */
-    public static void plotTrainingData(INDArray features, INDArray labels, INDArray backgroundIn, INDArray backgroundOut, int nDivisions){
+    static void plotTrainingData(INDArray features, INDArray labels, INDArray backgroundIn, INDArray backgroundOut, int nDivisions){
         double[] mins = backgroundIn.min(0).data().asDouble();
         double[] maxs = backgroundIn.max(0).data().asDouble();
 
@@ -75,7 +75,7 @@ public class PlotUtil {
      * @param backgroundOut results of network evaluation at points in x,y points in space
      * @param nDivisions Number of points (per axis, for the backgroundIn/backgroundOut arrays)
      */
-    public static void plotTestData(INDArray features, INDArray labels, INDArray predicted, INDArray backgroundIn, INDArray backgroundOut, int nDivisions){
+    static void plotTestData(INDArray features, INDArray labels, INDArray predicted, INDArray backgroundIn, INDArray backgroundOut, int nDivisions){
 
         double[] mins = backgroundIn.min(0).data().asDouble();
         double[] maxs = backgroundIn.max(0).data().asDouble();
@@ -121,7 +121,7 @@ public class PlotUtil {
         int nClasses = 2; // Binary classification using one output call end sigmoid.
 
             XYSeries[] series = new XYSeries[nClasses];
-        for( int i=0; i<series.length; i++) series[i] = new XYSeries("Class " + String.valueOf(i));
+        for( int i=0; i<series.length; i++) series[i] = new XYSeries("Class " + i);
         INDArray argMax = Nd4j.getExecutioner().exec(new IMax(labels, 1));
         for( int i=0; i<nRows; i++ ){
             int classIdx = (int)argMax.getDouble(i);
