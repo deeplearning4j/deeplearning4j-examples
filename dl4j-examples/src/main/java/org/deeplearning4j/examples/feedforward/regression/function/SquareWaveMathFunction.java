@@ -1,4 +1,4 @@
-/*******************************************************************************
+/* *****************************************************************************
  * Copyright (c) 2015-2019 Skymind, Inc.
  *
  * This program and the accompanying materials are made available under the
@@ -17,9 +17,6 @@
 package org.deeplearning4j.examples.feedforward.regression.function;
 
 import org.nd4j.linalg.api.ndarray.INDArray;
-import org.nd4j.linalg.api.ops.impl.transforms.same.Sign;
-import org.nd4j.linalg.api.ops.impl.transforms.strict.Sin;
-import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.ops.transforms.Transforms;
 
 /**

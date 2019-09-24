@@ -1,4 +1,4 @@
-/*******************************************************************************
+/* *****************************************************************************
  * Copyright (c) 2015-2019 Skymind, Inc.
  *
  * This program and the accompanying materials are made available under the
@@ -27,7 +27,6 @@ import org.nd4j.linalg.factory.Nd4j;
  * @author Unknown
  * Documentation added by ERRM
  */
-
 public class SawtoothMathFunction implements MathFunction {
 
     @Override
@@ -39,7 +38,7 @@ public class SawtoothMathFunction implements MathFunction {
         for (int i = 0; i < xd2.length; i++) {  //Using the sawtooth wave function, find the values at the given intervals
             yd2[i] = 2 * (xd2[i] / sawtoothPeriod - Math.floor(xd2[i] / sawtoothPeriod + 0.5));
         }
-        return Nd4j.create(yd2, new int[]{xd2.length, 1});  //Column vector
+        return Nd4j.create(yd2, xd2.length, 1);  //Column vector
     }
 
     @Override

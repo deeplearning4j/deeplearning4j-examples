@@ -1,4 +1,4 @@
-/*******************************************************************************
+/* *****************************************************************************
  * Copyright (c) 2015-2019 Skymind, Inc.
  *
  * This program and the accompanying materials are made available under the
@@ -33,7 +33,7 @@ public class TriangleWaveMathFunction implements MathFunction {
         for (int i = 0; i < xd.length; i++) {
             yd[i] = Math.abs(2 * (xd[i] / period - Math.floor(xd[i] / period + 0.5)));
         }
-        return Nd4j.create(yd, new int[]{xd.length, 1});  //Column vector
+        return Nd4j.create(yd, xd.length, 1);  //Column vector
     }
 
     @Override
