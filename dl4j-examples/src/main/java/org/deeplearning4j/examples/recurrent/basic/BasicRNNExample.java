@@ -1,4 +1,4 @@
-/*******************************************************************************
+/* *****************************************************************************
  * Copyright (c) 2015-2019 Skymind, Inc.
  *
  * This program and the accompanying materials are made available under the
@@ -35,7 +35,6 @@ import org.nd4j.linalg.lossfunctions.LossFunctions.LossFunction;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Random;
 
 /**
  * This example trains a RNN. When trained we only have to put the first
@@ -55,7 +54,6 @@ public class BasicRNNExample {
 	// RNN dimensions
 	private static final int HIDDEN_LAYER_WIDTH = 50;
 	private static final int HIDDEN_LAYER_CONT = 2;
-    private static final Random r = new Random(7894);
 
 	public static void main(String[] args) {
 
@@ -123,7 +121,7 @@ public class BasicRNNExample {
 		DataSet trainingData = new DataSet(input, labels);
 
 		// some epochs
-		for (int epoch = 0; epoch < 100; epoch++) {
+		for (int epoch = 0; epoch < 1000; epoch++) {
 
 			System.out.println("Epoch " + epoch);
 
@@ -143,7 +141,7 @@ public class BasicRNNExample {
 			INDArray output = net.rnnTimeStep(testInit);
 
 			// now the net should guess LEARNSTRING.length more characters
-            for (char dummy : LEARNSTRING) {
+            for (char ignored : LEARNSTRING) {
 
                 // first process the last output of the network to a concrete
                 // neuron, the neuron with the highest output has the highest

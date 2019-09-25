@@ -1,4 +1,4 @@
-/*******************************************************************************
+/* *****************************************************************************
  * Copyright (c) 2015-2019 Skymind, Inc.
  *
  * This program and the accompanying materials are made available under the
@@ -32,13 +32,12 @@ import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.indexing.BooleanIndexing;
 import org.nd4j.linalg.indexing.conditions.Conditions;
 import org.nd4j.linalg.learning.config.Adam;
-import org.nd4j.linalg.learning.config.Nadam;
 import org.nd4j.linalg.lossfunctions.LossFunctions.LossFunction;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Random;
 
 /**LSTM Character modelling example
@@ -57,8 +56,10 @@ import java.util.Random;
     http://deeplearning4j.org/lstm
     http://deeplearning4j.org/recurrentnetwork
  */
+@SuppressWarnings("DuplicatedCode")
 public class LSTMCharModellingExample {
-	public static void main( String[] args ) throws Exception {
+	@SuppressWarnings("ConstantConditions")
+    public static void main(String[] args ) throws Exception {
 		int lstmLayerSize = 200;					//Number of units in each LSTM layer
 		int miniBatchSize = 32;						//Size of mini batch to use when  training
 		int exampleLength = 1000;					//Length of each training example sequence to use. This could certainly be increased
@@ -130,7 +131,7 @@ public class LSTMCharModellingExample {
 	 * @param miniBatchSize Number of text segments in each training mini-batch
 	 * @param sequenceLength Number of characters in each text segment.
 	 */
-	public static CharacterIterator getShakespeareIterator(int miniBatchSize, int sequenceLength) throws Exception{
+	static CharacterIterator getShakespeareIterator(int miniBatchSize, int sequenceLength) throws Exception{
 		//The Complete Works of William Shakespeare
 		//5.3MB file in UTF-8 Encoding, ~5.4 million characters
 		//https://www.gutenberg.org/ebooks/100
@@ -148,7 +149,7 @@ public class LSTMCharModellingExample {
 		if(!f.exists()) throw new IOException("File does not exist: " + fileLocation);	//Download problem?
 
 		char[] validCharacters = CharacterIterator.getMinimalCharacterSet();	//Which characters are allowed? Others will be removed
-		return new CharacterIterator(fileLocation, Charset.forName("UTF-8"),
+		return new CharacterIterator(fileLocation, StandardCharsets.UTF_8,
 				miniBatchSize, sequenceLength, validCharacters, new Random(12345));
 	}
 
@@ -210,7 +211,7 @@ public class LSTMCharModellingExample {
 	 * and return the generated class index.
 	 * @param distribution Probability distribution over classes. Must sum to 1.0
 	 */
-	public static int sampleFromDistribution( double[] distribution, Random rng ){
+	static int sampleFromDistribution(double[] distribution, Random rng){
 	    double d = 0.0;
 	    double sum = 0.0;
 	    for( int t=0; t<10; t++ ) {

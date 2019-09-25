@@ -1,4 +1,4 @@
-/*******************************************************************************
+/* *****************************************************************************
  * Copyright (c) 2015-2019 Skymind, Inc.
  *
  * This program and the accompanying materials are made available under the
@@ -62,8 +62,8 @@ public class CharacterIterator implements DataSetIterator {
 	 * @param rng Random number generator, for repeatability if required
 	 * @throws IOException If text file cannot  be loaded
 	 */
-	public CharacterIterator(String textFilePath, Charset textFileEncoding, int miniBatchSize, int exampleLength,
-                             char[] validCharacters, Random rng) throws IOException {
+    CharacterIterator(String textFilePath, Charset textFileEncoding, int miniBatchSize, int exampleLength,
+                      char[] validCharacters, Random rng) throws IOException {
 	    this(textFilePath,textFileEncoding,miniBatchSize,exampleLength,validCharacters,rng,null);
     }
     /**
@@ -130,7 +130,7 @@ public class CharacterIterator implements DataSetIterator {
     }
 
     /** A minimal character set, with a-z, A-Z, 0-9 and common punctuation etc */
-	public static char[] getMinimalCharacterSet(){
+	static char[] getMinimalCharacterSet(){
 		List<Character> validChars = new LinkedList<>();
 		for(char c='a'; c<='z'; c++) validChars.add(c);
 		for(char c='A'; c<='Z'; c++) validChars.add(c);
@@ -144,7 +144,8 @@ public class CharacterIterator implements DataSetIterator {
 	}
 
 	/** As per getMinimalCharacterSet(), but with a few extra characters */
-	public static char[] getDefaultCharacterSet(){
+	@SuppressWarnings("unused")
+    public static char[] getDefaultCharacterSet(){
 		List<Character> validChars = new LinkedList<>();
 		for(char c : getMinimalCharacterSet() ) validChars.add(c);
 		char[] additionalChars = {'@', '#', '$', '%', '^', '*', '{', '}', '[', ']', '/', '+', '_',
@@ -205,7 +206,7 @@ public class CharacterIterator implements DataSetIterator {
 		return new DataSet(input,labels);
 	}
 
-	public int totalExamples() {
+	private int totalExamples() {
 		return (fileCharacters.length-1) / miniBatchSize - 2;
 	}
 
@@ -244,11 +245,13 @@ public class CharacterIterator implements DataSetIterator {
 		return miniBatchSize;
 	}
 
-	public int cursor() {
+	@SuppressWarnings("unused")
+    public int cursor() {
 		return totalExamples() - exampleStartOffsets.size();
 	}
 
-	public int numExamples() {
+	@SuppressWarnings("unused")
+    public int numExamples() {
 		return totalExamples();
 	}
 
