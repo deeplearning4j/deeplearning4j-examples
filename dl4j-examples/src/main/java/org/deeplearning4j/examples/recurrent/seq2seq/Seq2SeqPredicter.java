@@ -1,4 +1,4 @@
-/*******************************************************************************
+/* *****************************************************************************
  * Copyright (c) 2015-2019 Skymind, Inc.
  *
  * This program and the accompanying materials are made available under the
@@ -19,7 +19,6 @@ package org.deeplearning4j.examples.recurrent.seq2seq;
 import org.deeplearning4j.nn.graph.ComputationGraph;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.api.MultiDataSet;
-import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.indexing.NDArrayIndex;
 
 /**
@@ -36,7 +35,7 @@ public class Seq2SeqPredicter {
     private ComputationGraph net;
     private INDArray decoderInputTemplate = null;
 
-    public Seq2SeqPredicter(ComputationGraph net) {
+    Seq2SeqPredicter(ComputationGraph net) {
         this.net = net;
     }
 
@@ -58,7 +57,7 @@ public class Seq2SeqPredicter {
     public INDArray output(MultiDataSet testSet, boolean print) {
 
         INDArray correctOutput = testSet.getLabels()[0];
-        INDArray ret = Nd4j.zeros(correctOutput.shape());
+        INDArray ret;
         decoderInputTemplate = testSet.getFeatures()[1].dup();
 
         int currentStepThrough = 0;
@@ -68,7 +67,7 @@ public class Seq2SeqPredicter {
             if (print) {
                 System.out.println("In time step "+currentStepThrough);
                 System.out.println("\tEncoder input and Decoder input:");
-                System.out.println(CustomSequenceIterator.mapToString(testSet.getFeatures()[0],decoderInputTemplate, " +  "));
+                System.out.println(CustomSequenceIterator.mapToString(testSet.getFeatures()[0],decoderInputTemplate));
 
             }
             ret = stepOnce(testSet, currentStepThrough);
@@ -83,7 +82,7 @@ public class Seq2SeqPredicter {
         if (print) {
             System.out.println("Final time step "+currentStepThrough);
             System.out.println("\tEncoder input and Decoder input:");
-            System.out.println(CustomSequenceIterator.mapToString(testSet.getFeatures()[0],decoderInputTemplate, " +  "));
+            System.out.println(CustomSequenceIterator.mapToString(testSet.getFeatures()[0],decoderInputTemplate));
             System.out.println("\tDecoder output:");
             System.out.println("\t"+String.join("\n\t",CustomSequenceIterator.oneHotDecode(ret)));
         }
