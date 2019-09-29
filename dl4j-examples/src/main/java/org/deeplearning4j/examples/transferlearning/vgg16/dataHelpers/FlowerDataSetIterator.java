@@ -1,4 +1,4 @@
-/*******************************************************************************
+/* *****************************************************************************
  * Copyright (c) 2015-2019 Skymind, Inc.
  *
  * This program and the accompanying materials are made available under the
@@ -69,7 +69,7 @@ public class FlowerDataSetIterator {
 
     }
 
-    public static void setup(int batchSizeArg, int trainPerc) throws IOException {
+    public static void setup(int batchSizeArg, int trainPerc) {
         try {
             downloadAndUntar();
         } catch (IOException e) {
@@ -96,7 +96,7 @@ public class FlowerDataSetIterator {
         return iter;
     }
 
-    public static void downloadAndUntar() throws IOException {
+    private static void downloadAndUntar() throws IOException {
          File rootFile = new File(DATA_DIR);
          if (!rootFile.exists()) {
              rootFile.mkdir();
