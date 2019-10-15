@@ -50,12 +50,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
 import org.bytedeco.opencv.opencv_core.*;
-import org.bytedeco.opencv.opencv_imgproc.*;
 import static org.bytedeco.opencv.global.opencv_core.*;
 import static org.bytedeco.opencv.global.opencv_imgproc.*;
 
@@ -75,16 +73,16 @@ public class HouseNumberDetection {
     private static final Logger log = LoggerFactory.getLogger(HouseNumberDetection.class);
 
     // Enable different colour bounding box for different classes
-    public static final Scalar RED = org.bytedeco.opencv.global.opencv_core.RGB(255.0D, 0D, 0);;
-    public static final Scalar GREEN = org.bytedeco.opencv.global.opencv_core.RGB(0D, 255.0D, 0);;
-    public static final Scalar BLUE = org.bytedeco.opencv.global.opencv_core.RGB(0D, 0D, 255.0D);;
-    public static final Scalar YELLOW = org.bytedeco.opencv.global.opencv_core.RGB(255.0D, 255.0D, 0);
-    public static final Scalar CYAN = org.bytedeco.opencv.global.opencv_core.RGB(0D, 255.0D, 255.0D);
-    public static final Scalar MAGENTA = org.bytedeco.opencv.global.opencv_core.RGB(255.0D, 0.0D, 255.0D);
-    public static final Scalar ORANGE = org.bytedeco.opencv.global.opencv_core.RGB(255.0D, 128.0D, 0);
-    public static final Scalar PINK = org.bytedeco.opencv.global.opencv_core.RGB(255.0D, 192.0D, 203.0D);
-    public static final Scalar LIGHTBLUE = org.bytedeco.opencv.global.opencv_core.RGB(153.0D, 204.0D, 255.0D);
-    public static final Scalar VIOLET = org.bytedeco.opencv.global.opencv_core.RGB(238.0D, 130.0D, 238.0D);
+    public static final Scalar RED = RGB(255.0D, 0D, 0);;
+    public static final Scalar GREEN = RGB(0D, 255.0D, 0);;
+    public static final Scalar BLUE = RGB(0D, 0D, 255.0D);;
+    public static final Scalar YELLOW = RGB(255.0D, 255.0D, 0);
+    public static final Scalar CYAN = RGB(0D, 255.0D, 255.0D);
+    public static final Scalar MAGENTA = RGB(255.0D, 0.0D, 255.0D);
+    public static final Scalar ORANGE = RGB(255.0D, 128.0D, 0);
+    public static final Scalar PINK = RGB(255.0D, 192.0D, 203.0D);
+    public static final Scalar LIGHTBLUE = RGB(153.0D, 204.0D, 255.0D);
+    public static final Scalar VIOLET = RGB(238.0D, 130.0D, 238.0D);
 
     public static void main(String[] args) throws java.lang.Exception {
 
@@ -209,18 +207,7 @@ public class HouseNumberDetection {
                         (org.deeplearning4j.nn.layers.objdetect.Yolo2OutputLayer)model.getOutputLayer(0);
         List<String> labels = train.getLabels();
         test.setCollectMetaData(true);
-
-        List<Scalar> colormap = new ArrayList<>();
-        colormap.add(RED);
-        colormap.add(BLUE);
-        colormap.add(GREEN);
-        colormap.add(CYAN);
-        colormap.add(YELLOW);
-        colormap.add(MAGENTA);
-        colormap.add(ORANGE);
-        colormap.add(PINK);
-        colormap.add(LIGHTBLUE);
-        colormap.add(VIOLET);
+        Scalar[] colormap = {RED,BLUE,GREEN,CYAN,YELLOW,MAGENTA,ORANGE,PINK,LIGHTBLUE,VIOLET};
 
         while (test.hasNext() && frame.isVisible()) {
             org.nd4j.linalg.dataset.DataSet ds = test.next();
@@ -246,8 +233,9 @@ public class HouseNumberDetection {
                 int y1 = (int) Math.round(h * xy1[1] / gridHeight);
                 int x2 = (int) Math.round(w * xy2[0] / gridWidth);
                 int y2 = (int) Math.round(h * xy2[1] / gridHeight);
-                rectangle(image, new Point(x1, y1), new Point(x2, y2), colormap.get(obj.getPredictedClass()));
-                putText(image, label, new Point(x1 + 2, y2 - 2), FONT_HERSHEY_DUPLEX, 1, colormap.get(obj.getPredictedClass()));
+                rectangle(image, new Point(x1, y1), new Point(x2, y2), colormap[obj.getPredictedClass()]);
+                putText(image, label, new Point(x1 + 2, y2 - 2), FONT_HERSHEY_DUPLEX, 1, colormap[obj.getPredictedClass()]);
+
             }
             frame.setTitle(new File(metadata.getURI()).getName() + " - HouseNumberDetection");
             frame.setCanvasSize(w, h);
