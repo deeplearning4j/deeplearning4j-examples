@@ -54,7 +54,6 @@ import java.util.List;
 import java.util.Random;
 
 import org.bytedeco.opencv.opencv_core.*;
-import org.bytedeco.opencv.opencv_imgproc.*;
 import static org.bytedeco.opencv.global.opencv_core.*;
 import static org.bytedeco.opencv.global.opencv_imgproc.*;
 
@@ -72,6 +71,18 @@ import static org.bytedeco.opencv.global.opencv_imgproc.*;
  */
 public class HouseNumberDetection {
     private static final Logger log = LoggerFactory.getLogger(HouseNumberDetection.class);
+
+    // Enable different colour bounding box for different classes
+    public static final Scalar RED = RGB(255.0, 0, 0);
+    public static final Scalar GREEN = RGB(0, 255.0, 0);
+    public static final Scalar BLUE = RGB(0, 0, 255.0);
+    public static final Scalar YELLOW = RGB(255.0, 255.0, 0);
+    public static final Scalar CYAN = RGB(0, 255.0, 255.0);
+    public static final Scalar MAGENTA = RGB(255.0, 0.0, 255.0);
+    public static final Scalar ORANGE = RGB(255.0, 128.0, 0);
+    public static final Scalar PINK = RGB(255.0, 192.0, 203.0);
+    public static final Scalar LIGHTBLUE = RGB(153.0, 204.0, 255.0);
+    public static final Scalar VIOLET = RGB(238.0, 130.0, 238.0);
 
     public static void main(String[] args) throws java.lang.Exception {
 
@@ -196,6 +207,8 @@ public class HouseNumberDetection {
                         (org.deeplearning4j.nn.layers.objdetect.Yolo2OutputLayer)model.getOutputLayer(0);
         List<String> labels = train.getLabels();
         test.setCollectMetaData(true);
+        Scalar[] colormap = {RED,BLUE,GREEN,CYAN,YELLOW,MAGENTA,ORANGE,PINK,LIGHTBLUE,VIOLET};
+
         while (test.hasNext() && frame.isVisible()) {
             org.nd4j.linalg.dataset.DataSet ds = test.next();
             RecordMetaDataImageURI metadata = (RecordMetaDataImageURI)ds.getExampleMetaData().get(0);
@@ -220,8 +233,9 @@ public class HouseNumberDetection {
                 int y1 = (int) Math.round(h * xy1[1] / gridHeight);
                 int x2 = (int) Math.round(w * xy2[0] / gridWidth);
                 int y2 = (int) Math.round(h * xy2[1] / gridHeight);
-                rectangle(image, new Point(x1, y1), new Point(x2, y2), Scalar.RED);
-                putText(image, label, new Point(x1 + 2, y2 - 2), FONT_HERSHEY_DUPLEX, 1, Scalar.GREEN);
+                rectangle(image, new Point(x1, y1), new Point(x2, y2), colormap[obj.getPredictedClass()]);
+                putText(image, label, new Point(x1 + 2, y2 - 2), FONT_HERSHEY_DUPLEX, 1, colormap[obj.getPredictedClass()]);
+
             }
             frame.setTitle(new File(metadata.getURI()).getName() + " - HouseNumberDetection");
             frame.setCanvasSize(w, h);
