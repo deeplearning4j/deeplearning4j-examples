@@ -73,16 +73,16 @@ public class HouseNumberDetection {
     private static final Logger log = LoggerFactory.getLogger(HouseNumberDetection.class);
 
     // Enable different colour bounding box for different classes
-    public static final Scalar RED = RGB(255.0D, 0D, 0);;
-    public static final Scalar GREEN = RGB(0D, 255.0D, 0);;
-    public static final Scalar BLUE = RGB(0D, 0D, 255.0D);;
-    public static final Scalar YELLOW = RGB(255.0D, 255.0D, 0);
-    public static final Scalar CYAN = RGB(0D, 255.0D, 255.0D);
-    public static final Scalar MAGENTA = RGB(255.0D, 0.0D, 255.0D);
-    public static final Scalar ORANGE = RGB(255.0D, 128.0D, 0);
-    public static final Scalar PINK = RGB(255.0D, 192.0D, 203.0D);
-    public static final Scalar LIGHTBLUE = RGB(153.0D, 204.0D, 255.0D);
-    public static final Scalar VIOLET = RGB(238.0D, 130.0D, 238.0D);
+    public static final Scalar RED = RGB(255.0, 0, 0);
+    public static final Scalar GREEN = RGB(0, 255.0, 0);
+    public static final Scalar BLUE = RGB(0, 0, 255.0);
+    public static final Scalar YELLOW = RGB(255.0, 255.0, 0);
+    public static final Scalar CYAN = RGB(0, 255.0, 255.0);
+    public static final Scalar MAGENTA = RGB(255.0, 0.0, 255.0);
+    public static final Scalar ORANGE = RGB(255.0, 128.0, 0);
+    public static final Scalar PINK = RGB(255.0, 192.0, 203.0);
+    public static final Scalar LIGHTBLUE = RGB(153.0, 204.0, 255.0);
+    public static final Scalar VIOLET = RGB(238.0, 130.0, 238.0);
 
     public static void main(String[] args) throws java.lang.Exception {
 
