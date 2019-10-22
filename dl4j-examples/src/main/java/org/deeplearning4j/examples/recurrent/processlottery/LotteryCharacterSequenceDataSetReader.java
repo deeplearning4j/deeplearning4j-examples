@@ -1,4 +1,4 @@
-/*******************************************************************************
+/* *****************************************************************************
  * Copyright (c) 2015-2019 Skymind, Inc.
  *
  * This program and the accompanying materials are made available under the
@@ -29,7 +29,7 @@ import java.io.File;
  */
 public class LotteryCharacterSequenceDataSetReader extends BaseDataSetReader {
 
-    public LotteryCharacterSequenceDataSetReader(File file) {
+    LotteryCharacterSequenceDataSetReader(File file) {
         filePath = file.toPath();
         doInitialize();
     }
@@ -39,9 +39,6 @@ public class LotteryCharacterSequenceDataSetReader extends BaseDataSetReader {
         INDArray features = Nd4j.create(new int[]{num, 10, 16}, 'f');
         INDArray labels = Nd4j.create(new int[]{num, 10, 16}, 'f');
 
-
-        INDArray featuresMask = null;
-        INDArray labelsMask = null;
         for (int i =0; i < num && iter.hasNext(); i ++) {
             String featureStr = iter.next();
             currentCursor ++;
@@ -54,7 +51,7 @@ public class LotteryCharacterSequenceDataSetReader extends BaseDataSetReader {
                 labels.putScalar(new int[]{i, label, j}, 1.0);
             }
         }
-        return new DataSet(features, labels, featuresMask, labelsMask);
+        return new DataSet(features, labels, null, null);
     }
 
 }

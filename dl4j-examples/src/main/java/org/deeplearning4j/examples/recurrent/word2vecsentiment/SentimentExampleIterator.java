@@ -32,6 +32,7 @@ import org.nd4j.linalg.indexing.NDArrayIndex;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -100,13 +101,13 @@ public class SentimentExampleIterator implements DataSetIterator {
             if(cursor % 2 == 0){
                 //Load positive review
                 int posReviewNumber = cursor / 2;
-                String review = FileUtils.readFileToString(positiveFiles[posReviewNumber]);
+                String review = FileUtils.readFileToString(positiveFiles[posReviewNumber], (Charset)null);
                 reviews.add(review);
                 positive[i] = true;
             } else {
                 //Load negative review
                 int negReviewNumber = cursor / 2;
-                String review = FileUtils.readFileToString(negativeFiles[negReviewNumber]);
+                String review = FileUtils.readFileToString(negativeFiles[negReviewNumber], (Charset)null);
                 reviews.add(review);
                 positive[i] = false;
             }
@@ -253,7 +254,7 @@ public class SentimentExampleIterator implements DataSetIterator {
      * @throws IOException If file cannot be read
      */
     public INDArray loadFeaturesFromFile(File file, int maxLength) throws IOException {
-        String review = FileUtils.readFileToString(file);
+        String review = FileUtils.readFileToString(file, (Charset)null);
         return loadFeaturesFromString(review, maxLength);
     }
 

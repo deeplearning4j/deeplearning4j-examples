@@ -1,4 +1,4 @@
-/*******************************************************************************
+/* *****************************************************************************
  * Copyright (c) 2015-2019 Skymind, Inc.
  *
  * This program and the accompanying materials are made available under the
@@ -82,8 +82,7 @@ public class MultiClassLogit {
           .map(mapRowToDataSet)
           .collect(Collectors.toList());
 
-      if (reader != null)
-        reader.close();
+      reader.close();
 
       DataSetIterator iter = new IteratorDataSetIterator(data.iterator(), 150);
       irisDataSet = iter.next();
@@ -116,8 +115,8 @@ public class MultiClassLogit {
         Nd4j.create(Arrays.copyOfRange(parsedRows, columns - 1, columns)));
   };
 
-  public static INDArray trainModel(DataSet trainDataSet, long maxIterations, double learningRate,
-      double minLearningRate) {
+  private static INDArray trainModel(DataSet trainDataSet, long maxIterations, double learningRate,
+                                     double minLearningRate) {
     log.info("Training the model...");
     long start = System.currentTimeMillis();
     INDArray trainFeatures = prependConstant(trainDataSet);
@@ -139,7 +138,7 @@ public class MultiClassLogit {
     return finalModel;
   }
 
-  public static void testModel(DataSet testDataSet, INDArray params) {
+  private static void testModel(DataSet testDataSet, INDArray params) {
     log.info("Testing the model...");
     INDArray testFeatures = prependConstant(testDataSet);
     INDArray testLabels = testDataSet.getLabels();
@@ -160,11 +159,10 @@ public class MultiClassLogit {
    * @param dataset dataset
    * @return features
    */
-  public static INDArray prependConstant(DataSet dataset) {
-    INDArray features = Nd4j.hstack(
-        Nd4j.ones(dataset.getFeatures().size(0), 1),
-        dataset.getFeatures());
-    return features;
+  private static INDArray prependConstant(DataSet dataset) {
+      return Nd4j.hstack(
+          Nd4j.ones(dataset.getFeatures().size(0), 1),
+          dataset.getFeatures());
   }
 
   /**
@@ -241,7 +239,7 @@ public class MultiClassLogit {
     INDArray params = Nd4j.rand((int)x.size(1), 1); //random guess
 
     INDArray newParams = params.dup();
-    INDArray optimalParams = params.dup();
+    INDArray optimalParams;
 
     for (int i = 0; i < maxIterations; i++) {
       INDArray gradients = gradient(x, y, params);
@@ -288,8 +286,7 @@ public class MultiClassLogit {
    * @return predicted labels
    */
   private static INDArray predictLabels(INDArray features, INDArray params) {
-    INDArray predictions = features.mmul(params).argMax(1);
-    return predictions;
+      return features.mmul(params).argMax(1);
   }
 
   private static double countCorrectPred(INDArray labels, INDArray predictions) {

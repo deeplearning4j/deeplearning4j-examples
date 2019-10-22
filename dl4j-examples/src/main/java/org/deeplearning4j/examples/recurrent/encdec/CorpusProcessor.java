@@ -1,4 +1,4 @@
-/*******************************************************************************
+/* *****************************************************************************
  * Copyright (c) 2015-2019 Skymind, Inc.
  *
  * This program and the accompanying materials are made available under the
@@ -21,7 +21,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 public class CorpusProcessor {
-    public static final String SPECIALS = "!\"#$;%^:?*()[]{}<>«»,.–—=+…";
+    static final String SPECIALS = "!\"#$;%^:?*()[]{}<>«»,.–—=+…";
     private Set<String> dictSet = new HashSet<>();
     private Map<String, Double> freq = new HashMap<>();
     private Map<String, Double> dict = new HashMap<>();
@@ -29,11 +29,11 @@ public class CorpusProcessor {
     private InputStream is;
     private int rowSize;
 
-    public CorpusProcessor(String filename, int rowSize, boolean countFreq) throws FileNotFoundException {
+    CorpusProcessor(String filename, int rowSize, boolean countFreq) throws FileNotFoundException {
         this(new FileInputStream(filename), rowSize, countFreq);
     }
 
-    public CorpusProcessor(InputStream is, int rowSize, boolean countFreq) {
+    CorpusProcessor(InputStream is, int rowSize, boolean countFreq) {
         this.is = is;
         this.rowSize = rowSize;
         this.countFreq = countFreq;
@@ -43,33 +43,33 @@ public class CorpusProcessor {
         try (BufferedReader br = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))) {
             String line;
             String lastName = "";
-            String lastLine = "";
+            StringBuilder lastLine = new StringBuilder();
             while ((line = br.readLine()) != null) {
                 String[] lineSplit = line.toLowerCase().split(" \\+\\+\\+\\$\\+\\+\\+ ", 5);
                 if (lineSplit.length > 4) {
                     // join consecuitive lines from the same speaker
                     if (lineSplit[1].equals(lastName)) {
-                        if (!lastLine.isEmpty()) {
+                        if (lastLine.length() > 0) {
                             // if the previous line doesn't end with a special symbol, append a comma and the current line
                             if (!SPECIALS.contains(lastLine.substring(lastLine.length() - 1))) {
-                                lastLine += ",";
+                                lastLine.append(",");
                             }
-                            lastLine += " " + lineSplit[4];
+                            lastLine.append(" ").append(lineSplit[4]);
                         } else {
-                            lastLine = lineSplit[4];
+                            lastLine = new StringBuilder(lineSplit[4]);
                         }
                     } else {
-                        if (lastLine.isEmpty()) {
-                            lastLine = lineSplit[4];
+                        if (lastLine.length() == 0) {
+                            lastLine = new StringBuilder(lineSplit[4]);
                         } else {
-                            processLine(lastLine);
-                            lastLine = lineSplit[4];
+                            processLine(lastLine.toString());
+                            lastLine = new StringBuilder(lineSplit[4]);
                         }
                         lastName = lineSplit[1];
                     }
                 }
             }
-            processLine(lastLine);
+            processLine(lastLine.toString());
         }
     }
 
@@ -78,7 +78,7 @@ public class CorpusProcessor {
     }
 
     // here we not only split the words but also store punctuation marks
-    protected void tokenizeLine(String lastLine, Collection<String> resultCollection, boolean addSpecials) {
+    void tokenizeLine(String lastLine, Collection<String> resultCollection, boolean addSpecials) {
         String[] words = lastLine.split("[ \t]");
         for (String word : words) {
             if (!word.isEmpty()) {
@@ -122,15 +122,11 @@ public class CorpusProcessor {
         }
     }
 
-    public Set<String> getDictSet() {
-        return dictSet;
-    }
-
-    public Map<String, Double> getFreq() {
+    Map<String, Double> getFreq() {
         return freq;
     }
 
-    public void setDict(Map<String, Double> dict) {
+    void setDict(Map<String, Double> dict) {
         this.dict = dict;
     }
 
@@ -142,7 +138,7 @@ public class CorpusProcessor {
      *            sequence of words
      * @return list of indices.
      */
-    protected final List<Double> wordsToIndexes(final Iterable<String> words) {
+    final List<Double> wordsToIndexes(final Iterable<String> words) {
         int i = rowSize;
         final List<Double> wordIdxs = new LinkedList<>();
         for (final String word : words) {

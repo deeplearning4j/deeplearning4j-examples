@@ -1,4 +1,4 @@
-/*******************************************************************************
+/* *****************************************************************************
  * Copyright (c) 2015-2019 Skymind, Inc.
  *
  * This program and the accompanying materials are made available under the
@@ -27,7 +27,6 @@ import org.deeplearning4j.nn.graph.ComputationGraph;
 import org.deeplearning4j.nn.weights.WeightInit;
 import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
 import org.nd4j.linalg.activations.Activation;
-import org.nd4j.linalg.api.buffer.DataBuffer;
 import org.nd4j.linalg.api.buffer.DataType;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.api.MultiDataSet;
@@ -79,27 +78,27 @@ public class AdditionRNN {
         To try out addition for numbers with different number of digits simply change "NUM_DIGITS"
      */
 
-    public static final int NUM_DIGITS =2;
+    static final int NUM_DIGITS =2;
     //Random number generator seed, for reproducability
     public static final int seed = 1234;
 
     //Tweak these to tune the dataset size = batchSize * totalBatches
     public static int batchSize = 10;
-    public static int totalBatches = 500;
     public static int nEpochs = 10;
 
     //Tweak the number of hidden nodes
-    public static final int numHiddenNodes = 128;
+    private static final int numHiddenNodes = 128;
 
     //This is the size of the one hot vector
-    public static final int FEATURE_VEC_SIZE = 14;
+    static final int FEATURE_VEC_SIZE = 14;
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) {
 
         //DataType is set to double for higher precision
         Nd4j.setDefaultDataTypes(DataType.DOUBLE, DataType.DOUBLE);
 
         //This is a custom iterator that returns MultiDataSets on each call of next - More details in comments in the class
+        int totalBatches = 500;
         CustomSequenceIterator iterator = new CustomSequenceIterator(seed, batchSize, totalBatches);
 
         ComputationGraphConfiguration configuration = new NeuralNetConfiguration.Builder()

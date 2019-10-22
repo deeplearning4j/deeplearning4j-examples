@@ -1,10 +1,6 @@
 package org.deeplearning4j.examples.samediff.training;
 
-import java.util.Arrays;
-import java.util.List;
 import org.deeplearning4j.datasets.iterator.impl.MnistDataSetIterator;
-import org.nd4j.autodiff.listeners.ListenerEvaluations;
-import org.nd4j.autodiff.listeners.impl.HistoryListener;
 import org.nd4j.autodiff.listeners.impl.ScoreListener;
 import org.nd4j.autodiff.listeners.records.History;
 import org.nd4j.autodiff.samediff.SDVariable;
@@ -17,15 +13,16 @@ import org.nd4j.linalg.api.ops.impl.layers.convolution.config.Conv2DConfig;
 import org.nd4j.linalg.api.ops.impl.layers.convolution.config.Pooling2DConfig;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.nd4j.linalg.learning.config.Adam;
-import org.nd4j.weightinit.impl.OneInitScheme;
 import org.nd4j.weightinit.impl.XavierInitScheme;
+
+import java.util.List;
 
 /**
  * This example shows the creation and training of a MNIST CNN network.
  */
 public class SameDiffMNISTTrainingExample {
 
-    public static SameDiff makeMNISTNet(){
+    static SameDiff makeMNISTNet(){
         SameDiff sd = SameDiff.create();
 
         //Properties for MNIST dataset:
@@ -75,6 +72,7 @@ public class SameDiffMNISTTrainingExample {
         // softmax crossentropy loss function
         SDVariable loss = sd.loss().softmaxCrossEntropy("loss", label, z);
 
+        //noinspection unused
         SDVariable out = sd.nn().softmax("out", z, 1);
 
         sd.setLossVariables(loss);

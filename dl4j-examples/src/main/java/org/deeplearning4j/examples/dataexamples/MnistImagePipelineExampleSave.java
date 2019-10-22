@@ -1,4 +1,4 @@
-/*******************************************************************************
+/* *****************************************************************************
  * Copyright (c) 2015-2019 Skymind, Inc.
  *
  * This program and the accompanying materials are made available under the
@@ -61,12 +61,10 @@ import java.util.Random;
 public class MnistImagePipelineExampleSave {
   private static Logger log = LoggerFactory.getLogger(MnistImagePipelineExampleSave.class);
 
-  /** Data URL for downloading */
-  public static final String DATA_URL = "http://github.com/myleott/mnist_png/raw/master/mnist_png.tar.gz";
-
   /** Location to save and extract the training/testing data */
-  public static final String DATA_PATH = FilenameUtils.concat(System.getProperty("java.io.tmpdir"), "dl4j_Mnist/");
+  private static final String DATA_PATH = FilenameUtils.concat(System.getProperty("java.io.tmpdir"), "dl4j_Mnist/");
 
+  @SuppressWarnings("DuplicatedCode")
   public static void main(String[] args) throws Exception {
     // image information
     // 28 * 28 grayscale
@@ -154,7 +152,8 @@ public class MnistImagePipelineExampleSave {
     boolean saveUpdater = false;
 
     // ModelSerializer needs modelname, saveUpdater, Location
-    model.save(locationToSave, saveUpdater);
+      //noinspection ConstantConditions
+      model.save(locationToSave, saveUpdater);
   }
 
 }

@@ -1,4 +1,4 @@
-/*******************************************************************************
+/* *****************************************************************************
  * Copyright (c) 2015-2019 Skymind, Inc.
  *
  * This program and the accompanying materials are made available under the
@@ -185,6 +185,7 @@ public class CSVPlotter {
         boolean legend = false;
         boolean tooltips = false;
         boolean urls = false;
+        //noinspection ConstantConditions
         JFreeChart chart = ChartFactory.createScatterPlot(title, xAxisLabel, yAxisLabel, c, orientation, legend, tooltips, urls);
         JPanel panel = new ChartPanel(chart);
 

@@ -1,4 +1,4 @@
-/*******************************************************************************
+/* *****************************************************************************
  * Copyright (c) 2015-2019 Skymind, Inc.
  *
  * This program and the accompanying materials are made available under the
@@ -116,7 +116,6 @@ public class PreprocessNormalizerExample {
             preProcessorIter.transform(firstBatch);
             log.info("\n{}",firstBatch);
             log.info("Note that this now gives the same results");
-            break;
         }
 
         log.info("If you are using batches and an iterator, set the preprocessor on your iterator to transform data automatically when next is called");

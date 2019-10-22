@@ -1,4 +1,4 @@
-/*******************************************************************************
+/* *****************************************************************************
  * Copyright (c) 2015-2019 Skymind, Inc.
  *
  * This program and the accompanying materials are made available under the
@@ -40,6 +40,7 @@ import org.nd4j.linalg.lossfunctions.LossFunctions;
 
 import java.io.File;
 import java.net.URL;
+import java.nio.charset.Charset;
 
 /**Example: Given a movie review (raw text), classify that movie review as either positive or negative based on the words it contains.
  * This is done by combining Word2Vec vectors and a recurrent neural network model. Each word in a review is vectorized
@@ -118,7 +119,7 @@ public class Word2VecSentimentRNN {
 
         //After training: load a single example and generate predictions
         File shortNegativeReviewFile = new File(FilenameUtils.concat(DATA_PATH, "aclImdb/test/neg/12100_1.txt"));
-        String shortNegativeReview = FileUtils.readFileToString(shortNegativeReviewFile);
+        String shortNegativeReview = FileUtils.readFileToString(shortNegativeReviewFile, (Charset)null);
 
         INDArray features = test.loadFeaturesFromString(shortNegativeReview, truncateReviewsToLength);
         INDArray networkOutput = net.output(features);

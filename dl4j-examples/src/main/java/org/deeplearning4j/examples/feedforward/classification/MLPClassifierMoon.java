@@ -1,4 +1,4 @@
-/*******************************************************************************
+/* *****************************************************************************
  * Copyright (c) 2015-2019 Skymind, Inc.
  *
  * This program and the accompanying materials are made available under the
@@ -49,6 +49,7 @@ import java.io.File;
  * @author Alex Black (added plots)
  *
  */
+@SuppressWarnings("DuplicatedCode")
 public class MLPClassifierMoon {
 
     public static String dataLocalPath;
@@ -74,9 +75,6 @@ public class MLPClassifierMoon {
         RecordReader rrTest = new CSVRecordReader();
         rrTest.initialize(new FileSplit(new File(dataLocalPath,"moon_data_eval.csv")));
         DataSetIterator testIter = new RecordReaderDataSetIterator(rrTest,batchSize,0,2);
-
-        DataSet ds1 = trainIter.next();
-        DataSet ds2 = testIter.next();
 
         //log.info("Build model....");
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()

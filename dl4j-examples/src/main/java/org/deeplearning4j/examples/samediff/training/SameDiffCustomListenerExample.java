@@ -1,33 +1,21 @@
 package org.deeplearning4j.examples.samediff.training;
 
-import static org.deeplearning4j.examples.samediff.training.SameDiffMNISTTrainingExample.makeMNISTNet;
-
-import java.util.Arrays;
-import java.util.List;
 import org.deeplearning4j.datasets.iterator.impl.MnistDataSetIterator;
 import org.deeplearning4j.examples.samediff.tfimport.SameDiffTransferLearningExample;
-import org.nd4j.autodiff.listeners.At;
-import org.nd4j.autodiff.listeners.BaseEvaluationListener;
-import org.nd4j.autodiff.listeners.BaseListener;
-import org.nd4j.autodiff.listeners.Listener;
-import org.nd4j.autodiff.listeners.ListenerVariables;
-import org.nd4j.autodiff.listeners.Operation;
-import org.nd4j.autodiff.listeners.impl.ScoreListener;
+import org.nd4j.autodiff.listeners.*;
 import org.nd4j.autodiff.listeners.records.History;
-import org.nd4j.autodiff.samediff.SDVariable;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.autodiff.samediff.TrainingConfig;
 import org.nd4j.autodiff.samediff.internal.SameDiffOp;
-import org.nd4j.evaluation.classification.Evaluation;
 import org.nd4j.evaluation.classification.Evaluation.Metric;
-import org.nd4j.linalg.api.buffer.DataType;
 import org.nd4j.linalg.api.ndarray.INDArray;
-import org.nd4j.linalg.api.ops.impl.layers.convolution.config.Conv2DConfig;
-import org.nd4j.linalg.api.ops.impl.layers.convolution.config.Pooling2DConfig;
 import org.nd4j.linalg.dataset.api.MultiDataSet;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.nd4j.linalg.learning.config.Adam;
-import org.nd4j.weightinit.impl.XavierInitScheme;
+
+import java.util.List;
+
+import static org.deeplearning4j.examples.samediff.training.SameDiffMNISTTrainingExample.makeMNISTNet;
 
 /**
  * This example shows how to use a custom listener, and is based on the {@link SameDiffMNISTTrainingExample}.<br><br>
@@ -40,6 +28,7 @@ import org.nd4j.weightinit.impl.XavierInitScheme;
  * If you want to use evaluations in your listener, look at {@link BaseEvaluationListener}.
  *
  */
+@SuppressWarnings("DuplicatedCode")
 public class SameDiffCustomListenerExample {
 
     public static void main(String[] args) throws Exception {
@@ -84,7 +73,7 @@ public class SameDiffCustomListenerExample {
      */
     public static class CustomListener extends BaseListener {
 
-        public INDArray z;
+        INDArray z;
         public INDArray out;
 
         // Specify that this listener is active during inference operations

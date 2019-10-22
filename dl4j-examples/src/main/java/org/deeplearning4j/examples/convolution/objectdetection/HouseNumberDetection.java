@@ -1,4 +1,4 @@
-/*******************************************************************************
+/* *****************************************************************************
  * Copyright (c) 2015-2019 Skymind, Inc.
  *
  * This program and the accompanying materials are made available under the
@@ -107,7 +107,6 @@ public class HouseNumberDetection {
         int batchSize = 10;
         int nEpochs = 20;
         double learningRate = 1e-4;
-        double lrMomentum = 0.9;
 
         int seed = 123;
         Random rng = new Random(seed);
@@ -160,8 +159,8 @@ public class HouseNumberDetection {
                     //.updater(new Nesterovs.Builder().learningRate(learningRate).momentum(lrMomentum).build())
                     .l2(0.00001)
                     .activation(Activation.IDENTITY)
-                    .trainingWorkspaceMode(WorkspaceMode.SEPARATE)
-                    .inferenceWorkspaceMode(WorkspaceMode.SEPARATE)
+                    .trainingWorkspaceMode(WorkspaceMode.ENABLED)
+                    .inferenceWorkspaceMode(WorkspaceMode.ENABLED)
                     .build();
 
             model = new TransferLearning.GraphBuilder(pretrained)

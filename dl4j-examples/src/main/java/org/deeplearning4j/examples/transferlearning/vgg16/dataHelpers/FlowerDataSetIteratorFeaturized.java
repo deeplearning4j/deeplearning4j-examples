@@ -16,9 +16,9 @@
 
 package org.deeplearning4j.examples.transferlearning.vgg16.dataHelpers;
 
-import org.deeplearning4j.datasets.iterator.AsyncDataSetIterator;
 import org.deeplearning4j.nn.modelimport.keras.exceptions.InvalidKerasConfigurationException;
 import org.deeplearning4j.nn.modelimport.keras.exceptions.UnsupportedKerasConfigurationException;
+import org.nd4j.linalg.dataset.AsyncDataSetIterator;
 import org.nd4j.linalg.dataset.ExistingMiniBatchDataSetIterator;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.slf4j.Logger;
@@ -33,11 +33,7 @@ import java.io.IOException;
 public class FlowerDataSetIteratorFeaturized {
     private static final Logger log = org.slf4j.LoggerFactory.getLogger(FlowerDataSetIteratorFeaturized.class);
 
-    static String featureExtractorLayer = FeaturizedPreSave.featurizeExtractionLayer;
-
-    public static void setup(String featureExtractorLayerArg) {
-        featureExtractorLayer = featureExtractorLayerArg;
-    }
+    private static String featureExtractorLayer = FeaturizedPreSave.featurizeExtractionLayer;
 
     public static DataSetIterator trainIterator() throws UnsupportedKerasConfigurationException, IOException, InvalidKerasConfigurationException {
         runFeaturize();

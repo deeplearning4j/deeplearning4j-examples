@@ -1,4 +1,4 @@
-/*******************************************************************************
+/* *****************************************************************************
  * Copyright (c) 2015-2019 Skymind, Inc.
  *
  * This program and the accompanying materials are made available under the
@@ -17,8 +17,6 @@
 package org.deeplearning4j.examples.transferlearning.vgg16.dataHelpers;
 
 import org.deeplearning4j.nn.graph.ComputationGraph;
-import org.deeplearning4j.nn.modelimport.keras.exceptions.InvalidKerasConfigurationException;
-import org.deeplearning4j.nn.modelimport.keras.exceptions.UnsupportedKerasConfigurationException;
 import org.deeplearning4j.nn.transferlearning.TransferLearningHelper;
 import org.deeplearning4j.zoo.ZooModel;
 import org.deeplearning4j.zoo.model.VGG16;
@@ -42,7 +40,7 @@ public class FeaturizedPreSave {
     protected static final int batchSize = 15;
     public static final String featurizeExtractionLayer = "fc2";
 
-    public static void main(String [] args) throws UnsupportedKerasConfigurationException, IOException, InvalidKerasConfigurationException {
+    public static void main(String [] args) throws IOException {
 
         //import org.deeplearning4j.transferlearning.vgg16 and print summary
         log.info("\n\nLoading org.deeplearning4j.transferlearning.vgg16...\n\n");
@@ -76,7 +74,7 @@ public class FeaturizedPreSave {
         log.info("Finished pre saving featurized test and train data");
     }
 
-    public static void saveToDisk(DataSet currentFeaturized, int iterNum, boolean isTrain) {
+    private static void saveToDisk(DataSet currentFeaturized, int iterNum, boolean isTrain) {
         File fileFolder = isTrain ? new File("trainFolder"): new File("testFolder");
         if (iterNum == 0) {
             fileFolder.mkdirs();

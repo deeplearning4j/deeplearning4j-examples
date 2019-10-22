@@ -1,4 +1,4 @@
-/*******************************************************************************
+/* *****************************************************************************
  * Copyright (c) 2015-2019 Skymind, Inc.
  *
  * This program and the accompanying materials are made available under the
@@ -49,6 +49,7 @@ import java.io.File;
  * @author Alex Black (added plots)
  *
  */
+@SuppressWarnings("DuplicatedCode")
 public class MLPClassifierLinear {
 
     public static String dataLocalPath;

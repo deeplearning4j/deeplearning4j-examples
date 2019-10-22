@@ -1,4 +1,4 @@
-/*******************************************************************************
+/* *****************************************************************************
  * Copyright (c) 2015-2019 Skymind, Inc.
  *
  * This program and the accompanying materials are made available under the
@@ -20,25 +20,19 @@ import org.apache.commons.math3.random.JDKRandomGenerator;
 import org.apache.commons.math3.random.RandomGenerator;
 import org.apache.commons.math3.random.SynchronizedRandomGenerator;
 import org.deeplearning4j.arbiter.ComputationGraphSpace;
-import org.deeplearning4j.arbiter.optimize.api.OptimizationResult;
-import org.deeplearning4j.arbiter.optimize.api.saving.ResultReference;
 import org.deeplearning4j.arbiter.optimize.generator.GeneticSearchCandidateGenerator;
-import org.deeplearning4j.arbiter.optimize.generator.genetic.Chromosome;
 import org.deeplearning4j.arbiter.optimize.generator.genetic.crossover.CrossoverOperator;
 import org.deeplearning4j.arbiter.optimize.generator.genetic.crossover.KPointCrossover;
 import org.deeplearning4j.arbiter.optimize.generator.genetic.crossover.parentselection.TwoParentSelection;
 import org.deeplearning4j.arbiter.optimize.generator.genetic.culling.CullOperator;
 import org.deeplearning4j.arbiter.optimize.generator.genetic.culling.LeastFitCullOperator;
-import org.deeplearning4j.arbiter.optimize.generator.genetic.population.PopulationListener;
 import org.deeplearning4j.arbiter.optimize.generator.genetic.population.PopulationModel;
 import org.deeplearning4j.arbiter.optimize.generator.genetic.selection.GeneticSelectionOperator;
 import org.deeplearning4j.arbiter.optimize.generator.genetic.selection.SelectionOperator;
-import org.deeplearning4j.arbiter.optimize.runner.IOptimizationRunner;
 import org.deeplearning4j.arbiter.scoring.impl.EvaluationScoreFunction;
-import org.deeplearning4j.eval.Evaluation;
-import org.deeplearning4j.nn.graph.ComputationGraph;
+import org.nd4j.evaluation.classification.Evaluation.Metric;
 
-import java.util.List;
+import static org.deeplearning4j.examples.arbiter.genetic.BaseGeneticHyperparameterOptimizationExample.run;
 
 /**
  * In this hyperparameter optimization example, we change the default behavior of the genetic candidate generator.
@@ -55,7 +49,7 @@ public class CustomGeneticHyperparameterOptimizationExample {
 
         ComputationGraphSpace cgs = GeneticSearchExampleConfiguration.GetGraphConfiguration();
 
-        EvaluationScoreFunction scoreFunction = new EvaluationScoreFunction(Evaluation.Metric.F1);
+        EvaluationScoreFunction scoreFunction = new EvaluationScoreFunction(Metric.F1);
 
         // The ExampleCullOperator extends the default cull operator (least fit) to include an artificial predator.
         CullOperator cullOperator = new ExampleCullOperator();
@@ -85,30 +79,8 @@ public class CustomGeneticHyperparameterOptimizationExample {
             .build();
 
         // Let's have a listener to print the population size after each evaluation.
-        populationModel.addListener(new ExamplePopulationListener());
-
-        IOptimizationRunner runner = GeneticSearchExampleConfiguration.BuildRunner(candidateGenerator, scoreFunction);
-
-        //Start the hyperparameter optimization
-        runner.execute();
-
-        //Print out some basic stats regarding the optimization procedure
-        String s = "Best score: " + runner.bestScore() + "\n" +
-            "Index of model with best score: " + runner.bestScoreCandidateIndex() + "\n" +
-            "Number of configurations evaluated: " + runner.numCandidatesCompleted() + "\n";
-        System.out.println(s);
-
-
-        //Get all results, and print out details of the best result:
-        int indexOfBestResult = runner.bestScoreCandidateIndex();
-        List<ResultReference> allResults = runner.getResults();
-
-        OptimizationResult bestResult = allResults.get(indexOfBestResult).getResult();
-        ComputationGraph bestModel = (ComputationGraph) bestResult.getResultReference().getResultModel();
-
-        System.out.println("\n\nConfiguration of best model:\n");
-        System.out.println(bestModel.getConfiguration().toJson());
-
+        populationModel.addListener(new BaseGeneticHyperparameterOptimizationExample.ExamplePopulationListener());
+        run(populationModel, candidateGenerator, scoreFunction);
     }
 
     // This is an example of a custom behavior for the genetic algorithm. We force one of the parent to be one of the
@@ -156,19 +128,6 @@ public class CustomGeneticHyperparameterOptimizationExample {
                 population.remove(preyIdx);
             }
             System.out.println(String.format("Randomly removed %1$s candidate(s).", preyCount));
-        }
-    }
-
-    public static class ExamplePopulationListener implements PopulationListener {
-
-        @Override
-        public void onChanged(List<Chromosome> population) {
-            double best = population.get(0).getFitness();
-            double average = population.stream()
-                .mapToDouble(Chromosome::getFitness)
-                .average()
-                .getAsDouble();
-            System.out.println(String.format("\nPopulation size is %1$s, best score is %2$s, average score is %3$s", population.size(), best, average));
         }
     }
 }

@@ -1,4 +1,4 @@
-/*******************************************************************************
+/* *****************************************************************************
  * Copyright (c) 2015-2019 Skymind, Inc.
  *
  * This program and the accompanying materials are made available under the
@@ -50,9 +50,8 @@ public class CorpusIterator implements MultiDataSetIterator {
     private int currentMacroBatch = 0;
     private int dictSize;
     private int rowSize;
-    private MultiDataSetPreProcessor preProcessor;
 
-    public CorpusIterator(List<List<Double>> corpus, int batchSize, int batchesPerMacrobatch, int dictSize, int rowSize) {
+    CorpusIterator(List<List<Double>> corpus, int batchSize, int batchesPerMacrobatch, int dictSize, int rowSize) {
         this.corpus = corpus;
         this.batchSize = batchSize;
         this.batchesPerMacrobatch = batchesPerMacrobatch;
@@ -100,8 +99,8 @@ public class CorpusIterator implements MultiDataSetIterator {
                     Nd4j.ones(rowPred.size()));
             // prediction (output) and decode ARE one-hots though, I couldn't add an embedding layer on top of the decoder and I'm not sure
             // it's a good idea either
-            double predOneHot[][] = new double[dictSize][rowPred.size()];
-            double decodeOneHot[][] = new double[dictSize][rowPred.size()];
+            double[][] predOneHot = new double[dictSize][rowPred.size()];
+            double[][] decodeOneHot = new double[dictSize][rowPred.size()];
             decodeOneHot[2][0] = 1; // <go> token
             int predIdx = 0;
             for (Double pred : rowPred) {
@@ -149,24 +148,23 @@ public class CorpusIterator implements MultiDataSetIterator {
         return currentBatch;
     }
 
-    public int totalBatches() {
+    int totalBatches() {
         return totalBatches;
     }
 
-    public void setCurrentBatch(int currentBatch) {
+    void setCurrentBatch(int currentBatch) {
         this.currentBatch = currentBatch;
         currentMacroBatch = getMacroBatchByCurrentBatch();
     }
 
-    public boolean hasNextMacrobatch() {
+    boolean hasNextMacrobatch() {
         return getMacroBatchByCurrentBatch() < totalMacroBatches && currentMacroBatch < totalMacroBatches;
     }
 
-    public void nextMacroBatch() {
+    void nextMacroBatch() {
         ++currentMacroBatch;
     }
 
     public void setPreProcessor(MultiDataSetPreProcessor preProcessor) {
-        this.preProcessor = preProcessor;
     }
 }
