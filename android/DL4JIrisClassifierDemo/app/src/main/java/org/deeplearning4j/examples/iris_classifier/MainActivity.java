@@ -180,8 +180,6 @@ public class MainActivity extends AppCompatActivity {
             listBuilder.layer(1, hiddenLayer);
             listBuilder.layer(2, outputLayer);
 
-            listBuilder.backprop(true);
-
             MultiLayerNetwork myNetwork = new MultiLayerNetwork(listBuilder.build());
             myNetwork.init();
 
