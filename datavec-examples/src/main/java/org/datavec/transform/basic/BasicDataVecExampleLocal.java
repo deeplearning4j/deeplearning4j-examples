@@ -39,6 +39,7 @@ import org.joda.time.DateTimeFieldType;
 import org.joda.time.DateTimeZone;
 
 import java.io.File;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -180,11 +181,11 @@ public class BasicDataVecExampleLocal {
 
         //Print before + after:
         System.out.println("\n\n---- Original Data File ----");
-        String originalFileContents = FileUtils.readFileToString(inputFile, (String) null);
+        String originalFileContents = FileUtils.readFileToString(inputFile, (Charset) null);
         System.out.println(originalFileContents);
 
         System.out.println("\n\n---- Processed Data File ----");
-        String fileContents = FileUtils.readFileToString(outputFile, (String) null);
+        String fileContents = FileUtils.readFileToString(outputFile, (Charset) null);
         System.out.println(fileContents);
 
         System.out.println("\n\nDONE");
