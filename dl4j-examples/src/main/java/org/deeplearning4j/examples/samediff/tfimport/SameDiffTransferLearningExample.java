@@ -1,12 +1,7 @@
 package org.deeplearning4j.examples.samediff.tfimport;
 
-import java.io.File;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 import org.deeplearning4j.datasets.fetchers.DataSetType;
 import org.deeplearning4j.datasets.iterator.impl.Cifar10DataSetIterator;
-import org.deeplearning4j.datasets.iterator.impl.MnistDataSetIterator;
 import org.deeplearning4j.examples.samediff.training.SameDiffCustomListenerExample;
 import org.deeplearning4j.examples.samediff.training.SameDiffMNISTTrainingExample;
 import org.nd4j.autodiff.listeners.At;
@@ -21,24 +16,24 @@ import org.nd4j.autodiff.samediff.TrainingConfig;
 import org.nd4j.autodiff.samediff.internal.SameDiffOp;
 import org.nd4j.autodiff.samediff.transform.GraphTransformUtil;
 import org.nd4j.autodiff.samediff.transform.OpPredicate;
-import org.nd4j.autodiff.samediff.transform.SubGraph;
 import org.nd4j.autodiff.samediff.transform.SubGraphPredicate;
-import org.nd4j.autodiff.samediff.transform.SubGraphProcessor;
 import org.nd4j.evaluation.classification.Evaluation;
 import org.nd4j.evaluation.classification.Evaluation.Metric;
 import org.nd4j.linalg.api.buffer.DataType;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.api.ops.DynamicCustomOp;
-import org.nd4j.linalg.api.ops.impl.broadcast.BiasAdd;
-import org.nd4j.linalg.api.ops.impl.layers.convolution.AvgPooling2D;
 import org.nd4j.linalg.api.ops.impl.layers.convolution.Conv2D;
 import org.nd4j.linalg.api.ops.impl.layers.convolution.config.Conv2DConfig;
-import org.nd4j.linalg.dataset.api.DataSet;
 import org.nd4j.linalg.dataset.api.MultiDataSet;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.learning.config.Adam;
 import org.nd4j.weightinit.impl.XavierInitScheme;
+
+import java.io.File;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * This is an example of doing transfer learning by importing a tensorflow model of mobilenet and replacing the last layer.
@@ -50,6 +45,7 @@ import org.nd4j.weightinit.impl.XavierInitScheme;
  * See {@link SameDiffCustomListenerExample} for an example of how to use custom listeners (we use one here to find the shapes of an activation).
  *
  */
+@SuppressWarnings("unused") //
 public class SameDiffTransferLearningExample {
 
     public static void main(String[] args) throws Exception {

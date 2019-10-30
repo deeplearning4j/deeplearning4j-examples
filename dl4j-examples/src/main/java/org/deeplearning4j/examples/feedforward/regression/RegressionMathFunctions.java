@@ -1,4 +1,4 @@
-/*******************************************************************************
+/* *****************************************************************************
  * Copyright (c) 2015-2019 Skymind, Inc.
  *
  * This program and the accompanying materials are made available under the
@@ -34,10 +34,8 @@ import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
-import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
-import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.learning.config.Nesterovs;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
@@ -62,16 +60,16 @@ public class RegressionMathFunctions {
     //Number of epochs (full passes of the data)
     public static final int nEpochs = 2000;
     //How frequently should we plot the network output?
-    public static final int plotFrequency = 500;
+    private static final int plotFrequency = 500;
     //Number of data points
-    public static final int nSamples = 1000;
+    private static final int nSamples = 1000;
     //Batch size: i.e., each epoch has nSamples/batchSize parameter updates
     public static final int batchSize = 100;
     //Network learning rate
     public static final double learningRate = 0.01;
     public static final Random rng = new Random(seed);
     public static final int numInputs = 1;
-    public static final int numOutputs = 1;
+    private static final int numOutputs = 1;
 
 
     public static void main(final String[] args){
@@ -127,13 +125,14 @@ public class RegressionMathFunctions {
      * @param batchSize Batch size (number of examples for every call of DataSetIterator.next())
      * @param rng Random number generator (for repeatability)
      */
+    @SuppressWarnings("SameParameterValue")
     private static DataSetIterator getTrainingData(final INDArray x, final MathFunction function, final int batchSize, final Random rng) {
         final INDArray y = function.getFunctionValues(x);
         final DataSet allData = new DataSet(x,y);
 
         final List<DataSet> list = allData.asList();
         Collections.shuffle(list,rng);
-        return new ListDataSetIterator(list,batchSize);
+        return new ListDataSetIterator<>(list,batchSize);
     }
 
     //Plot the data

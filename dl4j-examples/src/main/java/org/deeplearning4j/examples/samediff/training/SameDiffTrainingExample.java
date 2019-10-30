@@ -1,4 +1,4 @@
-/*******************************************************************************
+/* *****************************************************************************
  * Copyright (c) 2015-2019 Skymind, Inc.
  *
  * This program and the accompanying materials are made available under the
@@ -39,6 +39,7 @@ import java.io.File;
  *
  * @author Alex Black
  */
+@SuppressWarnings("DuplicatedCode")
 public class SameDiffTrainingExample {
 
     public static void main(String[] args) throws Exception {

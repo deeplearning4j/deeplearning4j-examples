@@ -1,4 +1,4 @@
-/*******************************************************************************
+/* *****************************************************************************
  * Copyright (c) 2015-2019 Skymind, Inc.
  *
  * This program and the accompanying materials are made available under the
@@ -22,7 +22,6 @@ import org.datavec.api.records.reader.SequenceRecordReader;
 import org.datavec.api.records.reader.impl.csv.CSVSequenceRecordReader;
 import org.datavec.api.split.NumberedFileInputSplit;
 import org.deeplearning4j.datasets.datavec.SequenceRecordReaderDataSetIterator;
-import org.deeplearning4j.eval.Evaluation;
 import org.deeplearning4j.nn.conf.GradientNormalization;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
@@ -33,6 +32,7 @@ import org.deeplearning4j.nn.weights.WeightInit;
 import org.deeplearning4j.optimize.api.InvocationType;
 import org.deeplearning4j.optimize.listeners.EvaluativeListener;
 import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
+import org.nd4j.evaluation.classification.Evaluation;
 import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.nd4j.linalg.dataset.api.preprocessor.DataNormalization;
@@ -45,6 +45,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -88,6 +89,7 @@ import java.util.Random;
  *
  * @author Alex Black
  */
+@SuppressWarnings("ResultOfMethodCallIgnored")
 public class UCISequenceClassificationExample {
     private static final Logger log = LoggerFactory.getLogger(UCISequenceClassificationExample.class);
 
@@ -173,7 +175,7 @@ public class UCISequenceClassificationExample {
         if (baseDir.exists()) return;    //Data already exists, don't download it again
 
         String url = "https://archive.ics.uci.edu/ml/machine-learning-databases/synthetic_control-mld/synthetic_control.data";
-        String data = IOUtils.toString(new URL(url));
+        String data = IOUtils.toString(new URL(url), (Charset) null);
 
         String[] lines = data.split("\n");
 
@@ -215,8 +217,8 @@ public class UCISequenceClassificationExample {
                 testCount++;
             }
 
-            FileUtils.writeStringToFile(outPathFeatures, p.getFirst());
-            FileUtils.writeStringToFile(outPathLabels, p.getSecond().toString());
+            FileUtils.writeStringToFile(outPathFeatures, p.getFirst(), (Charset) null);
+            FileUtils.writeStringToFile(outPathLabels, p.getSecond().toString(), (Charset) null);
         }
     }
 }

@@ -1,4 +1,4 @@
-/*******************************************************************************
+/* *****************************************************************************
  * Copyright (c) 2015-2019 Skymind, Inc.
  *
  * This program and the accompanying materials are made available under the
@@ -46,9 +46,11 @@ import java.util.Random;
  *
  * @author Alex Black
  */
+@SuppressWarnings("DuplicatedCode")
 public class CompGraphLSTMExample {
 
-    public static void main( String[] args ) throws Exception {
+    @SuppressWarnings("ConstantConditions")
+    public static void main(String[] args ) throws Exception {
         int lstmLayerSize = 200;					//Number of units in each LSTM layer
         int miniBatchSize = 32;						//Size of mini batch to use when  training
         int exampleLength = 1000;					//Length of each training example sequence to use. This could certainly be increased

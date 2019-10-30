@@ -1,4 +1,4 @@
-/*******************************************************************************
+/* *****************************************************************************
  * Copyright (c) 2015-2019 Skymind, Inc.
  *
  * This program and the accompanying materials are made available under the
@@ -16,14 +16,13 @@
 
 package org.deeplearning4j.examples.feedforward.classification.detectgender;
 
-/**
+/*
  * Created by KIT Solutions (www.kitsol.com) on 9/28/2016.
  */
 
 import org.datavec.api.split.FileSplit;
 import org.deeplearning4j.api.storage.StatsStorage;
 import org.deeplearning4j.datasets.datavec.RecordReaderDataSetIterator;
-import org.deeplearning4j.eval.Evaluation;
 import org.deeplearning4j.examples.download.DownloaderUtility;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
@@ -34,6 +33,7 @@ import org.deeplearning4j.nn.weights.WeightInit;
 import org.deeplearning4j.ui.api.UIServer;
 import org.deeplearning4j.ui.stats.StatsListener;
 import org.deeplearning4j.ui.storage.FileStatsStorage;
+import org.nd4j.evaluation.classification.Evaluation;
 import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
@@ -44,13 +44,14 @@ import org.nd4j.linalg.lossfunctions.LossFunctions;
 import java.io.File;
 import java.util.ArrayList;
 
+@SuppressWarnings("DuplicatedCode")
 public class PredictGenderTrain
 {
     public String filePath;
     public static String dataLocalPath;
 
 
-    public static void main(String args[]) throws Exception {
+    public static void main(String[] args) throws Exception {
 
         dataLocalPath = DownloaderUtility.PREDICTGENDERDATA.Download();
         PredictGenderTrain dg = new PredictGenderTrain();
@@ -68,9 +69,9 @@ public class PredictGenderTrain
         double learningRate = 0.005;// was .01 but often got errors: "o.d.optimize.solvers.BaseOptimizer - Hit termination condition on iteration 0"
         int batchSize = 100;
         int nEpochs = 10;
-        int numInputs = 0;
-        int numOutputs = 0;
-        int numHiddenNodes = 0;
+        int numInputs;
+        int numOutputs;
+        int numHiddenNodes;
 
         try(GenderRecordReader rr = new GenderRecordReader(new ArrayList<String>() {{add("M");add("F");}}))
         {

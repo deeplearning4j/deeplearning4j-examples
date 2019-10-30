@@ -1,4 +1,4 @@
-/*******************************************************************************
+/* *****************************************************************************
  * Copyright (c) 2015-2019 Skymind, Inc.
  *
  * This program and the accompanying materials are made available under the
@@ -79,6 +79,7 @@ public class PrepareWordVector {
         log.info("Writing word vectors to text file....");
 
         // Write word vectors to file
+        //noinspection unchecked
         WordVectorSerializer.writeWordVectors(vec.lookupTable(), new File(dataLocalPath, "NewsWordVector.txt").getAbsolutePath());
     }
 }

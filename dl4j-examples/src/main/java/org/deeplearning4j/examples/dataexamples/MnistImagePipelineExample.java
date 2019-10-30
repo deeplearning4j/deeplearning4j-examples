@@ -1,4 +1,4 @@
-/*******************************************************************************
+/* *****************************************************************************
  * Copyright (c) 2015-2019 Skymind, Inc.
  *
  * This program and the accompanying materials are made available under the
@@ -62,14 +62,15 @@ import java.util.Random;
  * handwritten image 3 (for example) was read from directory 3, has a matrix with the shown values,
  * has a label value corresponding to 3
  */
+@SuppressWarnings("ResultOfMethodCallIgnored")
 public class MnistImagePipelineExample {
   private static Logger log = LoggerFactory.getLogger(MnistImagePipelineExample.class);
 
   /** Data URL for downloading */
-  public static final String DATA_URL = "http://github.com/myleott/mnist_png/raw/master/mnist_png.tar.gz";
+  private static final String DATA_URL = "http://github.com/myleott/mnist_png/raw/master/mnist_png.tar.gz";
 
   /** Location to save and extract the training/testing data */
-  public static final String DATA_PATH = FilenameUtils.concat(System.getProperty("java.io.tmpdir"), "dl4j_Mnist/");
+  private static final String DATA_PATH = FilenameUtils.concat(System.getProperty("java.io.tmpdir"), "dl4j_Mnist/");
 
   public static void main(String[] args) throws Exception {
     /*
@@ -142,7 +143,7 @@ public class MnistImagePipelineExample {
   and extractTarGz are for downloading and extracting the data
   */
 
-  protected static void downloadData() throws Exception {
+  static void downloadData() throws Exception {
     // Create directory if required
     File directory = new File(DATA_PATH);
     if (!directory.exists())
@@ -171,7 +172,8 @@ public class MnistImagePipelineExample {
     }
   }
 
-  public static void getMnistPNG() throws IOException {
+  @SuppressWarnings("PlaceholderCountMatchesArgumentCount")
+  private static void getMnistPNG() throws IOException {
     String tmpDirStr = System.getProperty("java.io.tmpdir");
     String archizePath = DATA_PATH + "/mnist_png.tar.gz";
 
@@ -187,5 +189,4 @@ public class MnistImagePipelineExample {
       log.info("Using existing directory at ", f.getAbsolutePath());
     }
   }
-
 }

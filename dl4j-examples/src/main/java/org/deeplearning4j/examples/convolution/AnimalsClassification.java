@@ -1,4 +1,4 @@
-/*******************************************************************************
+/* *****************************************************************************
  * Copyright (c) 2015-2019 Skymind, Inc.
  *
  * This program and the accompanying materials are made available under the
@@ -34,13 +34,13 @@ import org.deeplearning4j.nn.conf.GradientNormalization;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
 import org.deeplearning4j.nn.conf.distribution.Distribution;
-import org.deeplearning4j.nn.conf.distribution.GaussianDistribution;
 import org.deeplearning4j.nn.conf.distribution.NormalDistribution;
 import org.deeplearning4j.nn.conf.inputs.InputType;
 import org.deeplearning4j.nn.conf.inputs.InvalidInputTypeException;
 import org.deeplearning4j.nn.conf.layers.*;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
+import org.deeplearning4j.nn.weights.WeightInitDistribution;
 import org.deeplearning4j.optimize.api.InvocationType;
 import org.deeplearning4j.optimize.listeners.EvaluativeListener;
 import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
@@ -61,6 +61,7 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.Random;
 
 import static java.lang.Math.toIntExact;
@@ -92,43 +93,42 @@ public class AnimalsClassification {
     protected static long seed = 42;
     protected static Random rng = new Random(seed);
     protected static int epochs = 100;
-    protected static double splitTrainTest = 0.8;
     protected static boolean save = false;
-    protected static int maxPathsPerLabel=18;
 
-    protected static String modelType = "LeNet"; // LeNet, AlexNet or Custom but you need to fill it out
     private int numLabels;
 
     public static String dataLocalPath;
 
-    public void run(String[] args) throws Exception {
+    public void run() throws Exception {
 
         dataLocalPath = DownloaderUtility.ANIMALS.Download();
-        /**cd
+        /* cd
          * Data Setup -> organize and limit data file paths:
          *  - mainPath = path to image files
          *  - fileSplit = define basic dataset split with limits on format
          *  - pathFilter = define additional file load filter to limit size and balance batch content
-         **/
+         */
         ParentPathLabelGenerator labelMaker = new ParentPathLabelGenerator();
         File mainPath = new File(dataLocalPath);
         FileSplit fileSplit = new FileSplit(mainPath, NativeImageLoader.ALLOWED_FORMATS, rng);
         int numExamples = toIntExact(fileSplit.length());
-        numLabels = fileSplit.getRootDir().listFiles(File::isDirectory).length; //This only works if your root is clean: only label subdirs.
+        numLabels = Objects.requireNonNull(fileSplit.getRootDir().listFiles(File::isDirectory)).length; //This only works if your root is clean: only label subdirs.
+        int maxPathsPerLabel = 18;
         BalancedPathFilter pathFilter = new BalancedPathFilter(rng, labelMaker, numExamples, numLabels, maxPathsPerLabel);
 
-        /**
+        /*
          * Data Setup -> train test split
          *  - inputSplit = define train and test split
-         **/
+         */
+        double splitTrainTest = 0.8;
         InputSplit[] inputSplit = fileSplit.sample(pathFilter, splitTrainTest, 1 - splitTrainTest);
         InputSplit trainData = inputSplit[0];
         InputSplit testData = inputSplit[1];
 
-        /**
+        /*
          * Data Setup -> transformation
-         *  - Transform = how to tranform images and generate large dataset to train on
-         **/
+         *  - Transform = how to transform images and generate large dataset to train on
+         */
         ImageTransform flipTransform1 = new FlipImageTransform(rng);
         ImageTransform flipTransform2 = new FlipImageTransform(new Random(123));
         ImageTransform warpTransform = new WarpImageTransform(rng, 42);
@@ -137,11 +137,12 @@ public class AnimalsClassification {
                                                                    new Pair<>(flipTransform2,0.8),
                                                                    new Pair<>(warpTransform,0.5));
 
+        //noinspection ConstantConditions
         ImageTransform transform = new PipelineImageTransform(pipeline,shuffle);
-        /**
+        /*
          * Data Setup -> normalization
          *  - how to normalize images and generate large dataset to train on
-         **/
+         */
         DataNormalization scaler = new ImagePreProcessingScaler(0, 1);
 
         log.info("Build model....");
@@ -150,7 +151,10 @@ public class AnimalsClassification {
 //        MultiLayerNetwork network = new AlexNet(height, width, channels, numLabels, seed, iterations).init();
 
         MultiLayerNetwork network;
+        // LeNet, AlexNet or Custom but you need to fill it out
+        String modelType = "LeNet";
         switch (modelType) {
+            //noinspection ConstantConditions
             case "LeNet":
                 network = lenetModel();
                 break;
@@ -168,12 +172,12 @@ public class AnimalsClassification {
         UIServer uiServer = UIServer.getInstance();
         StatsStorage statsStorage = new FileStatsStorage(new File(System.getProperty("java.io.tmpdir"), "ui-stats.dl4j"));
         uiServer.attach(statsStorage);
-        /**
+        /*
          * Data Setup -> define how to load data into net:
          *  - recordReader = the reader that loads and converts image data pass in inputSplit to initialize
          *  - dataIter = a generator that only loads one batch at a time into memory to save memory
          *  - trainIter = uses MultipleEpochsIterator to ensure model runs through the data for all epochs
-         **/
+         */
         ImageRecordReader trainRR = new ImageRecordReader(height, width, channels, labelMaker);
         DataSetIterator trainIter;
 
@@ -221,6 +225,7 @@ public class AnimalsClassification {
         log.info("****************Example finished********************");
     }
 
+    @SuppressWarnings("SameParameterValue")
     private ConvolutionLayer convInit(String name, int in, int out, int[] kernel, int[] stride, int[] pad, double bias) {
         return new ConvolutionLayer.Builder(kernel, stride, pad).name(name).nIn(in).nOut(out).biasInit(bias).build();
     }
@@ -229,6 +234,7 @@ public class AnimalsClassification {
         return new ConvolutionLayer.Builder(new int[]{3,3}, new int[] {1,1}, new int[] {1,1}).name(name).nOut(out).biasInit(bias).build();
     }
 
+    @SuppressWarnings("SameParameterValue")
     private ConvolutionLayer conv5x5(String name, int out, int[] stride, int[] pad, double bias) {
         return new ConvolutionLayer.Builder(new int[]{5,5}, stride, pad).name(name).nOut(out).biasInit(bias).build();
     }
@@ -237,21 +243,21 @@ public class AnimalsClassification {
         return new SubsamplingLayer.Builder(kernel, new int[]{2,2}).name(name).build();
     }
 
+    @SuppressWarnings("SameParameterValue")
     private DenseLayer fullyConnected(String name, int out, double bias, double dropOut, Distribution dist) {
-        return new DenseLayer.Builder().name(name).nOut(out).biasInit(bias).dropOut(dropOut).dist(dist).build();
+        return new DenseLayer.Builder().name(name).nOut(out).biasInit(bias).dropOut(dropOut).weightInit(new WeightInitDistribution(dist)).build();
     }
 
-    public MultiLayerNetwork lenetModel() {
-        /**
+    private MultiLayerNetwork lenetModel() {
+        /*
          * Revisde Lenet Model approach developed by ramgo2 achieves slightly above random
          * Reference: https://gist.github.com/ramgo2/833f12e92359a2da9e5c2fb6333351c5
-         **/
+         */
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
             .seed(seed)
             .l2(0.005)
             .activation(Activation.RELU)
             .weightInit(WeightInit.XAVIER)
-//            .updater(new Nadam(1e-4))
             .updater(new AdaDelta())
             .list()
             .layer(0, convInit("cnn1", channels, 50 ,  new int[]{5, 5}, new int[]{1, 1}, new int[]{0, 0}, 0))
@@ -270,12 +276,12 @@ public class AnimalsClassification {
 
     }
 
-    public MultiLayerNetwork alexnetModel() {
-        /**
+    private MultiLayerNetwork alexnetModel() {
+        /*
          * AlexNet model interpretation based on the original paper ImageNet Classification with Deep Convolutional Neural Networks
          * and the imagenetExample code referenced.
          * http://papers.nips.cc/paper/4824-imagenet-classification-with-deep-convolutional-neural-networks.pdf
-         **/
+         */
 
         double nonZeroBias = 1;
         double dropOut = 0.5;
@@ -298,8 +304,8 @@ public class AnimalsClassification {
             .layer(conv3x3("cnn4", 384, nonZeroBias))
             .layer(conv3x3("cnn5", 256, nonZeroBias))
             .layer(maxPool("maxpool3", new int[]{3,3}))
-            .layer(fullyConnected("ffn1", 4096, nonZeroBias, dropOut, new GaussianDistribution(0, 0.005)))
-            .layer(fullyConnected("ffn2", 4096, nonZeroBias, dropOut, new GaussianDistribution(0, 0.005)))
+            .layer(fullyConnected("ffn1", 4096, nonZeroBias, dropOut, new NormalDistribution(0, 0.005)))
+            .layer(fullyConnected("ffn2", 4096, nonZeroBias, dropOut, new NormalDistribution(0, 0.005)))
             .layer(new OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD)
                 .name("output")
                 .nOut(numLabels)
@@ -312,15 +318,15 @@ public class AnimalsClassification {
 
     }
 
-    public static MultiLayerNetwork customModel() {
-        /**
+    private static MultiLayerNetwork customModel() {
+        /*
          * Use this method to build your own custom model.
-         **/
+         */
         return null;
     }
 
     public static void main(String[] args) throws Exception {
-        new AnimalsClassification().run(args);
+        new AnimalsClassification().run();
     }
 
 }

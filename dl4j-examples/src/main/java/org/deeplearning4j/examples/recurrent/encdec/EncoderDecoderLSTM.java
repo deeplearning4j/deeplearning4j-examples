@@ -1,4 +1,4 @@
-/*******************************************************************************
+/* *****************************************************************************
  * Copyright (c) 2015-2019 Skymind, Inc.
  *
  * This program and the accompanying materials are made available under the
@@ -168,8 +168,6 @@ public class EncoderDecoderLSTM {
      */
     private final Map<Double, String> revDict = new HashMap<>();
 
-    private final String CHARS = "-\\/_&" + CorpusProcessor.SPECIALS;
-
     /**
      * The contents of the corpus. This is a list of sentences (each word of the
      * sentence is denoted by a {@link java.lang.Double}).
@@ -189,7 +187,6 @@ public class EncoderDecoderLSTM {
                                                // dictionary) are replaced with <unk> token
     private static final int TBPTT_SIZE = 25;
     private static final double LEARNING_RATE = 1e-1;
-    private static final double RMS_DECAY = 0.95;
     private static final int ROW_SIZE = 40; // maximum line length in tokens
 
     /**
@@ -207,10 +204,10 @@ public class EncoderDecoderLSTM {
     private ComputationGraph net;
 
     public static void main(String[] args) throws IOException {
-        new EncoderDecoderLSTM().run(args);
+        new EncoderDecoderLSTM().run();
     }
 
-    private void run(String[] args) throws IOException {
+    private void run() throws IOException {
         Nd4j.getMemoryManager().setAutoGcWindow(GC_WINDOW);
 
         createDictionary();
@@ -227,7 +224,7 @@ public class EncoderDecoderLSTM {
                 if (input.toLowerCase().equals("d")) {
                     startDialog(scanner);
                 } else {
-                    offset = Integer.valueOf(input);
+                    offset = Integer.parseInt(input);
                     test();
                 }
             }
@@ -326,6 +323,7 @@ public class EncoderDecoderLSTM {
         }
     }
 
+    @SuppressWarnings("InfiniteLoopStatement")
     private void startDialog(Scanner scanner) throws IOException {
         System.out.println("Dialog started.");
         while (true) {
@@ -385,10 +383,10 @@ public class EncoderDecoderLSTM {
     private void output(List<Double> rowIn, boolean printUnknowns) {
         net.rnnClearPreviousState();
         Collections.reverse(rowIn);
-        INDArray in = Nd4j.create(ArrayUtils.toPrimitive(rowIn.toArray(new Double[0])), new int[] { 1, 1, rowIn.size() });
+        INDArray in = Nd4j.create(ArrayUtils.toPrimitive(rowIn.toArray(new Double[0])), 1, 1, rowIn.size());
         double[] decodeArr = new double[dict.size()];
         decodeArr[2] = 1;
-        INDArray decode = Nd4j.create(decodeArr, new int[] { 1, dict.size(), 1 });
+        INDArray decode = Nd4j.create(decodeArr, 1, dict.size(), 1);
         net.feedForward(new INDArray[] { in, decode }, false, false);
         org.deeplearning4j.nn.layers.recurrent.LSTM decoder = (org.deeplearning4j.nn.layers.recurrent.LSTM) net
                 .getLayer("decoder");
@@ -419,12 +417,12 @@ public class EncoderDecoderLSTM {
             }
             double[] newDecodeArr = new double[dict.size()];
             newDecodeArr[idx] = 1;
-            decode = Nd4j.create(newDecodeArr, new int[] { 1, dict.size(), 1 });
+            decode = Nd4j.create(newDecodeArr, 1, dict.size(), 1);
         }
         System.out.println();
     }
 
-    private void createDictionary() throws IOException, FileNotFoundException {
+    private void createDictionary() throws IOException {
         double idx = 3.0;
         dict.put("<unk>", 0.0);
         revDict.put(0.0, "<unk>");
@@ -432,6 +430,7 @@ public class EncoderDecoderLSTM {
         revDict.put(1.0, "<eos>");
         dict.put("<go>", 2.0);
         revDict.put(2.0, "<go>");
+        String CHARS = "-\\/_&" + CorpusProcessor.SPECIALS;
         for (char c : CHARS.toCharArray()) {
             if (!dict.containsKey(String.valueOf(c))) {
                 dict.put(String.valueOf(c), idx);
@@ -443,7 +442,6 @@ public class EncoderDecoderLSTM {
         CorpusProcessor corpusProcessor = new CorpusProcessor(toTempPath(CORPUS_FILENAME), ROW_SIZE, true);
         corpusProcessor.start();
         Map<String, Double> freqs = corpusProcessor.getFreq();
-        Set<String> dictSet = new TreeSet<>(); // the tokens order is preserved for TreeSet
         Map<Double, Set<String>> freqMap = new TreeMap<>(new Comparator<Double>() {
 
             @Override
@@ -452,15 +450,13 @@ public class EncoderDecoderLSTM {
             }
         }); // tokens of the same frequency fall under the same key, the order is reversed so the most frequent tokens go first
         for (Entry<String, Double> entry : freqs.entrySet()) {
-            Set<String> set = freqMap.get(entry.getValue());
-            if (set == null) {
-                set = new TreeSet<>(); // tokens of the same frequency would be sorted alphabetically
-                freqMap.put(entry.getValue(), set);
-            }
+            Set<String> set = freqMap.computeIfAbsent(entry.getValue(), k -> new TreeSet<>());
+            // tokens of the same frequency would be sorted alphabetically
             set.add(entry.getKey());
         }
         int cnt = 0;
-        dictSet.addAll(dict.keySet());
+        // the tokens order is preserved for TreeSet
+        Set<String> dictSet = new TreeSet<>(dict.keySet());
         // get most frequent tokens and put them to dictSet
         for (Entry<Double, Set<String>> entry : freqMap.entrySet()) {
             for (String val : entry.getValue()) {

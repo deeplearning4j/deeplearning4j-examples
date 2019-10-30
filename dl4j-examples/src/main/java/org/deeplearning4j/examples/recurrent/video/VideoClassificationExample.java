@@ -1,4 +1,4 @@
-/*******************************************************************************
+/* *****************************************************************************
  * Copyright (c) 2015-2019 Skymind, Inc.
  *
  * This program and the accompanying materials are made available under the
@@ -23,8 +23,6 @@ import org.datavec.api.records.reader.impl.csv.CSVSequenceRecordReader;
 import org.datavec.api.split.InputSplit;
 import org.datavec.api.split.NumberedFileInputSplit;
 import org.deeplearning4j.datasets.datavec.SequenceRecordReaderDataSetIterator;
-import org.deeplearning4j.datasets.iterator.AsyncDataSetIterator;
-import org.deeplearning4j.eval.Evaluation;
 import org.deeplearning4j.nn.conf.BackpropType;
 import org.deeplearning4j.nn.conf.GradientNormalization;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
@@ -36,8 +34,10 @@ import org.deeplearning4j.nn.conf.preprocessor.RnnToCnnPreProcessor;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
 import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
+import org.nd4j.evaluation.classification.Evaluation;
 import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.api.ndarray.INDArray;
+import org.nd4j.linalg.dataset.AsyncDataSetIterator;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.dataset.api.DataSetPreProcessor;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
@@ -46,6 +46,7 @@ import org.nd4j.linalg.learning.config.AdaGrad;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 
 import java.io.File;
+import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -163,7 +164,7 @@ public class VideoClassificationExample {
             while(trainData.hasNext())
                 net.fit(trainData.next());
             Nd4j.saveBinary(net.params(),new File("videomodel.bin"));
-            FileUtils.writeStringToFile(new File("videoconf.json"), conf.toJson());
+            FileUtils.writeStringToFile(new File("videoconf.json"), conf.toJson(), (Charset) null);
             System.out.println("Epoch " + i + " complete");
 
             //Evaluate classification performance:
@@ -175,7 +176,7 @@ public class VideoClassificationExample {
         File f = new File(path);
         if (!f.exists()) f.mkdir();
 
-        /** The data generation code does support the addition of background noise and distractor shapes (shapes which
+        /* The data generation code does support the addition of background noise and distractor shapes (shapes which
          * are shown for one frame only in addition to the target shape) but these are disabled by default.
          * These can be enabled to increase the complexity of the learning task.
          */
@@ -223,7 +224,7 @@ public class VideoClassificationExample {
         return new AsyncDataSetIterator(sequenceIter,1);
     }
 
-    private static SequenceRecordReader getFeaturesReader(String path, int startIdx, int num) throws Exception {
+    private static SequenceRecordReader getFeaturesReader(String path, int startIdx, int num) {
         //InputSplit is used here to define what the file paths look like
         InputSplit is = new NumberedFileInputSplit(path + "shapes_%d.mp4", startIdx, startIdx + num - 1);
 

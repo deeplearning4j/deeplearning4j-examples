@@ -1,20 +1,18 @@
 package org.deeplearning4j.examples.samediff.tfimport;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.URL;
-import java.util.Arrays;
 import org.apache.commons.io.FilenameUtils;
 import org.datavec.image.loader.ImageLoader;
-import org.deeplearning4j.zoo.model.helper.InceptionResNetHelper;
 import org.deeplearning4j.zoo.util.imagenet.ImageNetLabels;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.api.ops.DynamicCustomOp;
 import org.nd4j.linalg.factory.Nd4j;
-import org.nd4j.linalg.indexing.INDArrayIndex;
 import org.nd4j.linalg.indexing.NDArrayIndex;
 import org.nd4j.resources.Downloader;
+
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
 
 /**
  * This example shows the ability to import and use Tensorflow models, specifically mobilenet, and use them for inference.
@@ -64,11 +62,8 @@ public class SameDiffTFImportMobileNetExample {
     }
 
 
-
-    public static String MODEL_URL = "https://storage.googleapis.com/mobilenet_v2/checkpoints/mobilenet_v2_1.0_224.tgz";
-
     // download and extract the model file in the ~/dl4j-examples-data directory used by other examples
-    public static File downloadModel() throws Exception{
+    static File downloadModel() throws Exception{
         String dataDir = FilenameUtils.concat(System.getProperty("user.home"), "dl4j-examples-data/tf_resnet");
         String modelFile = FilenameUtils.concat(dataDir, "mobilenet_v2_1.0_224.tgz");
 
@@ -78,6 +73,7 @@ public class SameDiffTFImportMobileNetExample {
             return frozenFile;
         }
 
+        String MODEL_URL = "https://storage.googleapis.com/mobilenet_v2/checkpoints/mobilenet_v2_1.0_224.tgz";
         Downloader.downloadAndExtract("tf_resnet", new URL(MODEL_URL), new File(modelFile), new File(dataDir), "519bba7052fd279c66d2a28dc3f51f46", 5);
 
         return frozenFile;
@@ -85,7 +81,7 @@ public class SameDiffTFImportMobileNetExample {
 
     // gets the image we use to test the network.
     // This isn't a single class ImageNet image, so it won't do very well, but it will at least classify it as a dog or a cat.
-    public static INDArray getTestImage() throws IOException {
+    private static INDArray getTestImage() throws IOException {
         URL url = new URL("https://github.com/tensorflow/models/blob/master/research/deeplab/g3doc/img/image2.jpg?raw=true");
         return new ImageLoader(358, 500, 3).asMatrix(url.openStream());
     }
@@ -99,7 +95,8 @@ public class SameDiffTFImportMobileNetExample {
      * @param height the height to resize to
      * @param width the width to resize to
      */
-    public static INDArray inceptionPreprocessing(INDArray img, int height, int width){
+    @SuppressWarnings("SameParameterValue")
+    private static INDArray inceptionPreprocessing(INDArray img, int height, int width){
         // add batch dimension
         img = Nd4j.expandDims(img, 0);
 

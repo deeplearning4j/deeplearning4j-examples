@@ -1,4 +1,4 @@
-/*******************************************************************************
+/* *****************************************************************************
  * Copyright (c) 2015-2019 Skymind, Inc.
  *
  * This program and the accompanying materials are made available under the
@@ -25,9 +25,10 @@ import org.deeplearning4j.arbiter.optimize.generator.genetic.population.Populati
 import org.deeplearning4j.arbiter.optimize.generator.genetic.population.PopulationModel;
 import org.deeplearning4j.arbiter.optimize.runner.IOptimizationRunner;
 import org.deeplearning4j.arbiter.scoring.impl.EvaluationScoreFunction;
-import org.deeplearning4j.eval.Evaluation;
 import org.deeplearning4j.nn.graph.ComputationGraph;
+import org.nd4j.evaluation.classification.Evaluation.Metric;
 
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -38,23 +39,13 @@ import java.util.List;
  *
  * @author Alexandre Boulanger
  */
-
 public class BaseGeneticHyperparameterOptimizationExample {
 
-    public static void main(String[] args) throws Exception {
-
-        ComputationGraphSpace cgs = GeneticSearchExampleConfiguration.GetGraphConfiguration();
-
-        EvaluationScoreFunction scoreFunction = new EvaluationScoreFunction(Evaluation.Metric.F1);
-
-        // This is where we create the GeneticSearchCandidateGenerator with its default behavior:
-        //  - a population that fits 30 candidates and is culled back to 20 when it overflows
-        //  - new candidates are generated with a probability of 85% of being the result of breeding (a k-point crossover with 1 to 4 points)
-        //  - the new candidate have a probability of 0.5% of sustaining a random mutation on one of its genes.
-        GeneticSearchCandidateGenerator candidateGenerator = new GeneticSearchCandidateGenerator.Builder(cgs, scoreFunction).build();
-
-        // Let's have a listener to print the population size after each evaluation.
-        PopulationModel populationModel = candidateGenerator.getPopulationModel();
+    /**
+     * Common code used by two Arbiter examples.
+     */
+    public static void run(PopulationModel populationModel, GeneticSearchCandidateGenerator candidateGenerator,
+                           EvaluationScoreFunction scoreFunction) throws IOException {
         populationModel.addListener(new ExamplePopulationListener());
 
         IOptimizationRunner runner = GeneticSearchExampleConfiguration.BuildRunner(candidateGenerator, scoreFunction);
@@ -80,13 +71,32 @@ public class BaseGeneticHyperparameterOptimizationExample {
         System.out.println(bestModel.getConfiguration().toJson());
     }
 
+    public static void main(String[] args) throws Exception {
+
+        ComputationGraphSpace cgs = GeneticSearchExampleConfiguration.GetGraphConfiguration();
+
+        EvaluationScoreFunction scoreFunction = new EvaluationScoreFunction(Metric.F1);
+
+        // This is where we create the GeneticSearchCandidateGenerator with its default behavior:
+        //  - a population that fits 30 candidates and is culled back to 20 when it overflows
+        //  - new candidates are generated with a probability of 85% of being the result of breeding (a k-point crossover with 1 to 4 points)
+        //  - the new candidate have a probability of 0.5% of sustaining a random mutation on one of its genes.
+        GeneticSearchCandidateGenerator candidateGenerator = new GeneticSearchCandidateGenerator.Builder(cgs, scoreFunction).build();
+
+        // Let's have a listener to print the population size after each evaluation.
+        PopulationModel populationModel = candidateGenerator.getPopulationModel();
+        populationModel.addListener(new ExamplePopulationListener());
+        run(populationModel, candidateGenerator, scoreFunction);
+    }
+
     public static class ExamplePopulationListener implements PopulationListener {
 
+        @SuppressWarnings("OptionalGetWithoutIsPresent")
         @Override
         public void onChanged(List<Chromosome> population) {
             double best = population.get(0).getFitness();
             double average = population.stream()
-                .mapToDouble(c -> c.getFitness())
+                .mapToDouble(Chromosome::getFitness)
                 .average()
                 .getAsDouble();
             System.out.println(String.format("\nPopulation size is %1$s, best score is %2$s, average score is %3$s", population.size(), best, average));

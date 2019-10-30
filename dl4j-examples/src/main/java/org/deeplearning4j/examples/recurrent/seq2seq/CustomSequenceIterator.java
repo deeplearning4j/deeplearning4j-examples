@@ -1,4 +1,4 @@
-/*******************************************************************************
+/* *****************************************************************************
  * Copyright (c) 2015-2019 Skymind, Inc.
  *
  * This program and the accompanying materials are made available under the
@@ -37,25 +37,23 @@ import java.util.*;
  * Sequences generated during test are never before seen by the net
  * The random number generator seed is used for repeatability so that each reset of the iterator gives the same data in the same order.
  */
-
 public class CustomSequenceIterator implements MultiDataSetIterator {
 
-    private MultiDataSetPreProcessor preProcessor;
     private Random randnumG;
     private final int seed;
     private final int batchSize;
     private final int totalBatches;
 
     private static final int numDigits = AdditionRNN.NUM_DIGITS;
-    public static final int SEQ_VECTOR_DIM = AdditionRNN.FEATURE_VEC_SIZE;
-    public static final Map<String, Integer> oneHotMap = new HashMap<String, Integer>();
-    public static final String[] oneHotOrder = new String[SEQ_VECTOR_DIM];
+    private static final int SEQ_VECTOR_DIM = AdditionRNN.FEATURE_VEC_SIZE;
+    private static final Map<String, Integer> oneHotMap = new HashMap<>();
+    private static final String[] oneHotOrder = new String[SEQ_VECTOR_DIM];
 
-    private Set<String> seenSequences = new HashSet<String>();
+    private Set<String> seenSequences = new HashSet<>();
     private boolean toTestSet = false;
     private int currentBatch = 0;
 
-    public CustomSequenceIterator(int seed, int batchSize, int totalBatches) {
+    CustomSequenceIterator(int seed, int batchSize, int totalBatches) {
 
         this.seed = seed;
         this.randnumG = new Random(seed);
@@ -66,7 +64,7 @@ public class CustomSequenceIterator implements MultiDataSetIterator {
         oneHotEncoding();
     }
 
-    public MultiDataSet generateTest(int testSize) {
+    MultiDataSet generateTest(int testSize) {
         toTestSet = true;
         MultiDataSet testData = next(testSize);
         reset();
@@ -86,7 +84,7 @@ public class CustomSequenceIterator implements MultiDataSetIterator {
             while (true) {
                 num1 = randnumG.nextInt((int) Math.pow(10, numDigits));
                 num2 = randnumG.nextInt((int) Math.pow(10, numDigits));
-                String forSum = String.valueOf(num1) + "+" + String.valueOf(num2);
+                String forSum = num1 + "+" + num2;
                 if (seenSequences.add(forSum)) {
                     break;
                 }
@@ -126,7 +124,7 @@ public class CustomSequenceIterator implements MultiDataSetIterator {
     public void reset() {
         currentBatch = 0;
         toTestSet = false;
-        seenSequences =  new HashSet<String>();
+        seenSequences = new HashSet<>();
         randnumG = new Random(seed);
     }
 
@@ -166,17 +164,17 @@ public class CustomSequenceIterator implements MultiDataSetIterator {
         Note that the string is padded to the correct length and reversed
         Eg. num1 = 7, num 2 = 13 will return {"3","1","+","7"," "}
      */
-    public String[] prepToString(int num1, int num2) {
+    private String[] prepToString(int num1, int num2) {
 
         String[] encoded = new String[numDigits * 2 + 1];
-        String num1S = String.valueOf(num1);
-        String num2S = String.valueOf(num2);
+        StringBuilder num1S = new StringBuilder(String.valueOf(num1));
+        StringBuilder num2S = new StringBuilder(String.valueOf(num2));
         //padding
         while (num1S.length() < numDigits) {
-            num1S = " " + num1S;
+            num1S.insert(0, " ");
         }
         while (num2S.length() < numDigits) {
-            num2S = " " + num2S;
+            num2S.insert(0, " ");
         }
 
         String sumString = num1S + "+" + num2S;
@@ -199,7 +197,7 @@ public class CustomSequenceIterator implements MultiDataSetIterator {
                 if !goFirst will return {"3","1"," ","eos"}
 
      */
-    public String[] prepToString(int sum, boolean goFirst) {
+    private String[] prepToString(int sum, boolean goFirst) {
         int start, end;
         String[] decoded = new String[numDigits + 1 + 1];
         if (goFirst) {
@@ -244,24 +242,21 @@ public class CustomSequenceIterator implements MultiDataSetIterator {
         return ret;
     }
 
-    public  static String mapToString (INDArray encodeSeq, INDArray decodeSeq) {
-        return mapToString(encodeSeq,decodeSeq," --> ");
-    }
-    public static String mapToString(INDArray encodeSeq, INDArray decodeSeq, String sep) {
-        String ret = "";
+    static String mapToString(INDArray encodeSeq, INDArray decodeSeq) {
+        StringBuilder ret = new StringBuilder();
         String [] encodeSeqS = oneHotDecode(encodeSeq);
         String [] decodeSeqS = oneHotDecode(decodeSeq);
         for (int i=0; i<encodeSeqS.length;i++) {
-            ret += "\t" + encodeSeqS[i] + sep +decodeSeqS[i] + "\n";
+            ret.append("\t").append(encodeSeqS[i]).append(" +  ").append(decodeSeqS[i]).append("\n");
         }
-        return ret;
+        return ret.toString();
     }
 
     /*
         Helper method that takes in a one hot encoded INDArray and returns an interpreted array of strings
         toInterpret size batchSize x one_hot_vector_size(14) x time_steps
      */
-    public static String[] oneHotDecode(INDArray toInterpret) {
+    static String[] oneHotDecode(INDArray toInterpret) {
 
         String[] decodedString = new String[(int)toInterpret.size(0)];
         INDArray oneHotIndices = Nd4j.argMax(toInterpret, 1); //drops a dimension, so now a two dim array of shape batchSize x time_steps
@@ -273,15 +268,15 @@ public class CustomSequenceIterator implements MultiDataSetIterator {
     }
 
     private static String mapFromOneHot(int[] toMap) {
-        String ret = "";
-        for (int i = 0; i < toMap.length; i++) {
-            ret += oneHotOrder[toMap[i]];
+        StringBuilder ret = new StringBuilder();
+        for (int value : toMap) {
+            ret.append(oneHotOrder[value]);
         }
         //encoder sequence, needs to be reversed
         if (toMap.length > numDigits + 1 + 1) {
-            return new StringBuilder(ret).reverse().toString();
+            return new StringBuilder(ret.toString()).reverse().toString();
         }
-        return ret;
+        return ret.toString();
     }
 
     /*
@@ -308,6 +303,5 @@ public class CustomSequenceIterator implements MultiDataSetIterator {
     }
 
     public void setPreProcessor(MultiDataSetPreProcessor preProcessor) {
-        this.preProcessor = preProcessor;
     }
 }

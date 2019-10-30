@@ -1,4 +1,4 @@
-/*******************************************************************************
+/* *****************************************************************************
  * Copyright (c) 2015-2019 Skymind, Inc.
  *
  * This program and the accompanying materials are made available under the
@@ -70,6 +70,7 @@ public class BasicCSVClassifier {
 
     public static String dataLocalPath;
 
+    @SuppressWarnings("DuplicatedCode")
     public static void main(String[] args) throws Exception {
         dataLocalPath = DownloaderUtility.DATAEXAMPLES.Download();
         eats = readEnumCSV("animals/eats.csv");
@@ -141,12 +142,12 @@ public class BasicCSVClassifier {
         logAnimals(animals);
     }
 
-    public static void logAnimals(Map<Integer, Map<String, Object>> animals) {
+    private static void logAnimals(Map<Integer, Map<String, Object>> animals) {
         for (Map<String, Object> a : animals.values())
             log.info(a.toString());
     }
 
-    public static void setFittedClassifiers(INDArray output, Map<Integer, Map<String, Object>> animals) {
+    private static void setFittedClassifiers(INDArray output, Map<Integer, Map<String, Object>> animals) {
         for (int i = 0; i < output.rows(); i++) {
 
             // set the classification from the fitted results
@@ -159,11 +160,8 @@ public class BasicCSVClassifier {
      * This method is to show how to convert the INDArray to a float array. This is to
      * provide some more examples on how to convert INDArray to types that are more java
      * centric.
-     *
-     * @param rowSlice
-     * @return
      */
-    public static float[] getFloatArrayFromSlice(INDArray rowSlice) {
+    private static float[] getFloatArrayFromSlice(INDArray rowSlice) {
         float[] result = new float[rowSlice.columns()];
         for (int i = 0; i < rowSlice.columns(); i++) {
             result[i] = rowSlice.getFloat(i);
@@ -174,11 +172,8 @@ public class BasicCSVClassifier {
     /**
      * find the maximum item index. This is used when the data is fitted and we
      * want to determine which class to assign the test row to
-     *
-     * @param vals
-     * @return
      */
-    public static int maxIndex(float[] vals) {
+    private static int maxIndex(float[] vals) {
         int maxIndex = 0;
         for (int i = 1; i < vals.length; i++) {
             float newnumber = vals[i];
@@ -192,17 +187,14 @@ public class BasicCSVClassifier {
     /**
      * take the dataset loaded for the matric and make the record model out of it so
      * we can correlate the fitted classifier to the record.
-     *
-     * @param testData
-     * @return
      */
-    public static Map<Integer, Map<String, Object>> makeAnimalsForTesting(DataSet testData) {
+    private static Map<Integer, Map<String, Object>> makeAnimalsForTesting(DataSet testData) {
         Map<Integer, Map<String, Object>> animals = new HashMap<>();
 
         INDArray features = testData.getFeatures();
         for (int i = 0; i < features.rows(); i++) {
             INDArray slice = features.slice(i);
-            Map<String, Object> animal = new HashMap();
+            Map<String, Object> animal = new HashMap<>();
 
             //set the attributes
             animal.put("yearsLived", slice.getInt(0));
@@ -216,7 +208,7 @@ public class BasicCSVClassifier {
     }
 
 
-    public static Map<Integer, String> readEnumCSV(String csvFileClasspath) {
+    private static Map<Integer, String> readEnumCSV(String csvFileClasspath) {
         try {
             List<String> lines = IOUtils.readLines(new FileInputStream(new File(dataLocalPath, csvFileClasspath)), StandardCharsets.UTF_8);
             Map<Integer, String> enums = new HashMap<>();
@@ -232,15 +224,7 @@ public class BasicCSVClassifier {
     }
 
     /**
-     * used for testing and training
-     *
-     * @param csvFileClasspath
-     * @param batchSize
-     * @param labelIndex
-     * @param numClasses
-     * @return
-     * @throws IOException
-     * @throws InterruptedException
+     * used for testing and training*
      */
     private static DataSet readCSVDataset(
         String csvFileClasspath, int batchSize, int labelIndex, int numClasses)

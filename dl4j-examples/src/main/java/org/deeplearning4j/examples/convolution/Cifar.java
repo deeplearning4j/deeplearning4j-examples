@@ -1,4 +1,4 @@
-/*******************************************************************************
+/* *****************************************************************************
  * Copyright (c) 2015-2019 Skymind, Inc.
  *
  * This program and the accompanying materials are made available under the
@@ -43,8 +43,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.io.IOException;
-
 
 /**
  * train model by cifar
@@ -55,8 +53,8 @@ import java.io.IOException;
  */
 
 //@Slf4j
+@SuppressWarnings("FieldCanBeLocal")
 public class Cifar {
-    private static final File DATA_PATH = new File(System.getProperty("user.dir"));
     protected static final Logger log = LoggerFactory.getLogger(Cifar.class);
 
     private static int height = 32;
@@ -89,7 +87,7 @@ public class Cifar {
     }
 
 
-    public MultiLayerNetwork getModel() throws IOException {
+    public MultiLayerNetwork getModel()  {
         log.info("Building simple convolutional network...");
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
             .seed(seed)

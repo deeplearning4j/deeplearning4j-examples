@@ -1,4 +1,4 @@
-/*******************************************************************************
+/* *****************************************************************************
  * Copyright (c) 2015-2019 Skymind, Inc.
  *
  * This program and the accompanying materials are made available under the
@@ -42,11 +42,11 @@ import org.deeplearning4j.arbiter.scoring.impl.EvaluationScoreFunction;
 import org.deeplearning4j.arbiter.task.MultiLayerNetworkTaskCreator;
 import org.deeplearning4j.arbiter.ui.listener.ArbiterStatusListener;
 import org.deeplearning4j.datasets.iterator.impl.MnistDataSetIterator;
-import org.deeplearning4j.eval.Evaluation;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
 import org.deeplearning4j.ui.api.UIServer;
 import org.deeplearning4j.ui.storage.FileStatsStorage;
+import org.nd4j.evaluation.classification.Evaluation.Metric;
 import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
@@ -114,14 +114,16 @@ public class BasicHyperparameterOptimizationExample {
         //     This will result in examples being saved to arbiterExample/0/, arbiterExample/1/, arbiterExample/2/, ...
         String baseSaveDirectory = "arbiterExample/";
         File f = new File(baseSaveDirectory);
-        if (f.exists()) f.delete();
+        if (f.exists()) //noinspection ResultOfMethodCallIgnored
+            f.delete();
+        //noinspection ResultOfMethodCallIgnored
         f.mkdir();
         ResultSaver modelSaver = new FileModelSaver(baseSaveDirectory);
 
         // (d) What are we actually trying to optimize?
         //     In this example, let's use classification accuracy on the test set
         //     See also ScoreFunctions.testSetF1(), ScoreFunctions.testSetRegression(regressionValue) etc
-        ScoreFunction scoreFunction = new EvaluationScoreFunction(Evaluation.Metric.ACCURACY);
+        ScoreFunction scoreFunction = new EvaluationScoreFunction(Metric.ACCURACY);
 
 
         // (e) When should we stop searching? Specify this with termination conditions

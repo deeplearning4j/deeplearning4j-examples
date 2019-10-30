@@ -1,4 +1,4 @@
-/*******************************************************************************
+/* *****************************************************************************
  * Copyright (c) 2015-2019 Skymind, Inc.
  *
  * This program and the accompanying materials are made available under the
@@ -29,6 +29,7 @@ import javax.swing.*;
 import java.io.File;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * This code example is featured in this youtube video
@@ -54,7 +55,7 @@ public class MnistImagePipelineLoadChooser {
   private static Logger log = LoggerFactory.getLogger(MnistImagePipelineLoadChooser.class);
 
   /** Location to save and extract the training/testing data */
-  public static final String DATA_PATH = FilenameUtils.concat(System.getProperty("java.io.tmpdir"), "dl4j_Mnist/");
+  private static final String DATA_PATH = FilenameUtils.concat(System.getProperty("java.io.tmpdir"), "dl4j_Mnist/");
 
   /*
   Create a popup window to allow you to chose an image file to test against the
@@ -62,18 +63,18 @@ public class MnistImagePipelineLoadChooser {
   Chosen images will be automatically
   scaled to 28*28 grayscale
   */
-  public static String fileChose() {
+  private static String fileChose() {
     JFileChooser fc = new JFileChooser();
     int ret = fc.showOpenDialog(null);
     if (ret == JFileChooser.APPROVE_OPTION) {
       File file = fc.getSelectedFile();
-      String filename = file.getAbsolutePath();
-      return filename;
+        return file.getAbsolutePath();
     } else {
       return null;
     }
   }
 
+  @SuppressWarnings("DuplicatedCode")
   public static void main(String[] args) throws Exception {
     int height = 28;
     int width = 28;
@@ -86,7 +87,7 @@ public class MnistImagePipelineLoadChooser {
     List<Integer> labelList = Arrays.asList(0, 1, 2, 3, 4, 5, 6, 7, 8, 9);
 
     // pop up file chooser
-    String filechose = fileChose().toString();
+    String filechose = fileChose();
 
     //LOAD NEURAL NETWORK
 
@@ -105,7 +106,7 @@ public class MnistImagePipelineLoadChooser {
 
     log.info("TEST YOUR IMAGE AGAINST SAVED NETWORK");
     // FileChose is a string we will need a file
-    File file = new File(filechose);
+    File file = new File(Objects.requireNonNull(filechose));
 
     // Use NativeImageLoader to convert to numerical matrix
     NativeImageLoader loader = new NativeImageLoader(height, width, channels);
