@@ -62,7 +62,7 @@ public class BasicDataVecExampleLocal {
     public static String dataLocalPath;
 
 
-    public static  void main(String[] args) throws Exception {
+    public static void main(String[] args) throws Exception {
         dataLocalPath = DownloaderUtility.BASICDATAVECEXAMPLE.Download();
         //=====================================================================
         //                 Step 1: Define the input data schema
@@ -180,11 +180,11 @@ public class BasicDataVecExampleLocal {
 
         //Print before + after:
         System.out.println("\n\n---- Original Data File ----");
-        String originalFileContents = FileUtils.readFileToString(inputFile);
+        String originalFileContents = FileUtils.readFileToString(inputFile, (String) null);
         System.out.println(originalFileContents);
 
         System.out.println("\n\n---- Processed Data File ----");
-        String fileContents = FileUtils.readFileToString(outputFile);
+        String fileContents = FileUtils.readFileToString(outputFile, (String) null);
         System.out.println(fileContents);
 
         System.out.println("\n\nDONE");
