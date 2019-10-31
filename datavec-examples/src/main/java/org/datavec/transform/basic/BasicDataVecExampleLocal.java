@@ -181,11 +181,11 @@ public class BasicDataVecExampleLocal {
 
         //Print before + after:
         System.out.println("\n\n---- Original Data File ----");
-        String originalFileContents = FileUtils.readFileToString(inputFile, (Charset) null);
+        String originalFileContents = FileUtils.readFileToString(inputFile, Charset.defaultCharset());
         System.out.println(originalFileContents);
 
         System.out.println("\n\n---- Processed Data File ----");
-        String fileContents = FileUtils.readFileToString(outputFile, (Charset) null);
+        String fileContents = FileUtils.readFileToString(outputFile, Charset.defaultCharset());
         System.out.println(fileContents);
 
         System.out.println("\n\nDONE");
