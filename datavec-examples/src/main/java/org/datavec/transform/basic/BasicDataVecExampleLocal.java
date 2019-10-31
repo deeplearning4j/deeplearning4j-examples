@@ -39,6 +39,7 @@ import org.joda.time.DateTimeFieldType;
 import org.joda.time.DateTimeZone;
 
 import java.io.File;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -62,7 +63,7 @@ public class BasicDataVecExampleLocal {
     public static String dataLocalPath;
 
 
-    public static  void main(String[] args) throws Exception {
+    public static void main(String[] args) throws Exception {
         dataLocalPath = DownloaderUtility.BASICDATAVECEXAMPLE.Download();
         //=====================================================================
         //                 Step 1: Define the input data schema
@@ -180,11 +181,11 @@ public class BasicDataVecExampleLocal {
 
         //Print before + after:
         System.out.println("\n\n---- Original Data File ----");
-        String originalFileContents = FileUtils.readFileToString(inputFile);
+        String originalFileContents = FileUtils.readFileToString(inputFile, Charset.defaultCharset());
         System.out.println(originalFileContents);
 
         System.out.println("\n\n---- Processed Data File ----");
-        String fileContents = FileUtils.readFileToString(outputFile);
+        String fileContents = FileUtils.readFileToString(outputFile, Charset.defaultCharset());
         System.out.println(fileContents);
 
         System.out.println("\n\nDONE");
