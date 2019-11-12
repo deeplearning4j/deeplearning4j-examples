@@ -57,7 +57,7 @@ public class LoadTensorFlowMNISTMLP {
 
 
     public static void main(String[] args) throws Exception {
-        dataLocalPath = DownloaderUtility.MODELIMPORT.Download();
+        dataLocalPath = DownloaderUtility.MODELIMPORT.Download() + "/tensorflow";
         final String FROZEN_MLP = new File(dataLocalPath,"frozen_model.pb").getAbsolutePath();
 
         //Load placeholder inputs and corresponding predictions generated from tensorflow
