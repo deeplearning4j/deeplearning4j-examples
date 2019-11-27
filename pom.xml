@@ -27,18 +27,18 @@
     <description>Examples of training different data sets</description>
     <properties>
         <!-- Change the nd4j.backend property to nd4j-cuda-9.2-platform,nd4j-cuda-10.0-platform or nd4j-cuda-10.1-platform to use CUDA GPUs -->
-        <nd4j.backend>nd4j-native-platform</nd4j.backend>
+        <nd4j.backend>nd4j-native</nd4j.backend>
         <!--<nd4j.backend>nd4j-cuda-10.1-platform</nd4j.backend>-->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <shadedClassifier>bin</shadedClassifier>
 
 
         <java.version>1.8</java.version>
-        <nd4j.version>1.0.0-beta5</nd4j.version>
-        <dl4j.version>1.0.0-beta5</dl4j.version>
-        <datavec.version>1.0.0-beta5</datavec.version>
-        <arbiter.version>1.0.0-beta5</arbiter.version>
-        <rl4j.version>1.0.0-beta5</rl4j.version>
+        <nd4j.version>1.0.0-SNAPSHOT</nd4j.version>
+        <dl4j.version>1.0.0-SNAPSHOT</dl4j.version>
+        <datavec.version>1.0.0-SNAPSHOT</datavec.version>
+        <arbiter.version>1.0.0-SNAPSHOT</arbiter.version>
+        <rl4j.version>1.0.0-SNAPSHOT</rl4j.version>
 
         <!-- Scala binary version: DL4J's Spark and UI functionality are released with both Scala 2.10 and 2.11 support -->
         <scala.binary.version>2.11</scala.binary.version>
