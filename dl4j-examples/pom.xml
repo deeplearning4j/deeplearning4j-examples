@@ -74,7 +74,12 @@
             </dependency>
             <dependency>
                 <groupId>org.nd4j</groupId>
-                <artifactId>nd4j-cuda-10.1-platform</artifactId>
+                <artifactId>nd4j-cuda-10.1</artifactId>
+                <version>${nd4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.nd4j</groupId>
+                <artifactId>nd4j-cuda-10.2</artifactId>
                 <version>${nd4j.version}</version>
             </dependency>
         </dependencies>
@@ -104,7 +109,7 @@
         <!-- deeplearning4j-ui is used for visualization: see http://deeplearning4j.org/visualization -->
         <dependency>
             <groupId>org.deeplearning4j</groupId>
-            <artifactId>deeplearning4j-ui_${scala.binary.version}</artifactId>
+            <artifactId>deeplearning4j-ui</artifactId>
             <version>${dl4j.version}</version>
         </dependency>
 
@@ -150,7 +155,7 @@
         </dependency>
         <dependency>
             <groupId>org.deeplearning4j</groupId>
-            <artifactId>arbiter-ui_${scala.binary.version}</artifactId>
+            <artifactId>arbiter-ui</artifactId>
             <version>${arbiter.version}</version>
         </dependency>
 
