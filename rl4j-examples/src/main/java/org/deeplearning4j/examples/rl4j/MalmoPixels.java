@@ -68,7 +68,7 @@ public class MalmoPixels {
 
     /*
      * The pixel input is 320x240, but using the history processor we scale that to 160x120
-     * and then crop out a 160x80 segment to remove pixels that aren't needed 
+     * and then crop out a 160x80 segment to remove pixels that aren't needed
      */
     public static HistoryProcessor.Configuration MALMO_HPROC = new HistoryProcessor.Configuration(1, // Number of frames
                     160, // Scaled width
@@ -97,7 +97,6 @@ public class MalmoPixels {
     private static MalmoEnv createMDP(final int initialCount) {
         MalmoActionSpaceDiscrete actionSpace =
                         new MalmoActionSpaceDiscrete("movenorth 1", "movesouth 1", "movewest 1", "moveeast 1");
-        actionSpace.setRandomSeed(123);
         MalmoObservationSpace observationSpace = new MalmoObservationSpacePixels(320, 240);
         MalmoDescretePositionPolicy obsPolicy = new MalmoDescretePositionPolicy();
 

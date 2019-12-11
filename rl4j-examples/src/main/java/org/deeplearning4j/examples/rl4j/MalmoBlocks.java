@@ -79,7 +79,6 @@ public class MalmoBlocks {
     private static MalmoEnv createMDP(final int initialCount) {
         MalmoActionSpaceDiscrete actionSpace =
                         new MalmoActionSpaceDiscrete("movenorth 1", "movesouth 1", "movewest 1", "moveeast 1");
-        actionSpace.setRandomSeed(123);
         MalmoObservationSpace observationSpace = new MalmoObservationSpaceGrid("floor", 9, 1, 27,
                         new String[] {"lava", "flowing_lava"}, "lapis_block");
         MalmoDescretePositionPolicy obsPolicy = new MalmoDescretePositionPolicy();

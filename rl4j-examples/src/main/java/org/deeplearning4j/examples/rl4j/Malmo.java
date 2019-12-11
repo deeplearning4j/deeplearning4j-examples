@@ -71,7 +71,6 @@ public class Malmo {
         // Create action space comprised of just discrete north, south, east and west
         MalmoActionSpaceDiscrete actionSpace =
                         new MalmoActionSpaceDiscrete("movenorth 1", "movesouth 1", "movewest 1", "moveeast 1");
-        actionSpace.setRandomSeed(123);
 
         // Create a basic observation space that simply contains the x, y, z world position
         MalmoObservationSpace observationSpace = new MalmoObservationSpacePosition();

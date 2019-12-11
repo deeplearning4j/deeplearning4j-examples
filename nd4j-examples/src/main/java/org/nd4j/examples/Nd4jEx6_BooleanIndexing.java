@@ -16,6 +16,7 @@
 
 package org.nd4j.examples;
 
+import org.nd4j.linalg.api.buffer.DataType;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.api.ops.impl.reduce.longer.MatchCondition;
 import org.nd4j.linalg.factory.Nd4j;
@@ -33,11 +34,12 @@ public class Nd4jEx6_BooleanIndexing {
 
     public static void main(String[] args){
 
-        int nRows = 3;
-        int nCols = 5;
+        long nRows = 3;
+        long nCols = 5;
         long rngSeed = 12345;
         //Generate random numbers between -1 and +1
-        INDArray random = Nd4j.rand(nRows, nCols, rngSeed).muli(2).subi(1);
+        Nd4j.getRandom().setSeed(rngSeed);
+        INDArray random = Nd4j.rand(DataType.FLOAT, nRows, nCols).muli(2).subi(1);
 
         System.out.println("Array values:");
         System.out.println(random);
