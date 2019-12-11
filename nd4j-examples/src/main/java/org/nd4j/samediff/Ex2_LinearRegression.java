@@ -78,7 +78,7 @@ public class Ex2_LinearRegression {
         placeholderData.put("labels", labelArr);
 
         //Execute forward pass:
-        INDArray loss = sd.exec(placeholderData, "mse").get("mse");
+        INDArray loss = sd.output(placeholderData, "mse").get("mse");
         System.out.println("MSE: " + loss);
 
         //Calculate gradients:
