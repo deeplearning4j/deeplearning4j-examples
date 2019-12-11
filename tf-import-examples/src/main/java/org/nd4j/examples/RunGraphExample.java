@@ -46,7 +46,7 @@ public class RunGraphExample {
         DataSetIterator dataSetIterator = new MnistDataSetIterator(1,1);
         INDArray predict = dataSetIterator.next().getFeatures();
         //run the graph using nd4j
-        try(GraphRunner graphRunner = new GraphRunner(content,inputs)) {
+        try(GraphRunner graphRunner = GraphRunner.builder().graphBytes(content).inputNames(inputs).build()) {
             Map<String,INDArray> inputMap = new HashMap<>();
             inputMap.put(inputs.get(0),predict);
             Map<String, INDArray> run = graphRunner.run(inputMap);
