@@ -29,7 +29,7 @@
     <url>http://maven.apache.org</url>
 
     <properties>
-        <dl4j.version>1.0.0-beta5</dl4j.version>
+        <dl4j.version>1.0.0-beta6</dl4j.version>
     </properties>
 
     <build>
