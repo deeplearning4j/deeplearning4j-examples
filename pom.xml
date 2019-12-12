@@ -29,14 +29,19 @@
             <name>Sonatype Nexus Staging</name>
             <url>https://oss.sonatype.org/content/repositories/orgdeeplearning4j-1102/</url>
         </repository>
+        <repository>
+            <id>sonatype-nexus-staging2</id>
+            <name>Sonatype Nexus Staging2</name>
+            <url>https://oss.sonatype.org/content/repositories/orgdeeplearning4j-1103/</url>
+        </repository>
     </repositories>
 
     <name>DeepLearning4j Examples Parent</name>
     <description>Examples of training different data sets</description>
     <properties>
         <!-- Change the nd4j.backend property to nd4j-cuda-9.2-platform,nd4j-cuda-10.0-platform or nd4j-cuda-10.1-platform to use CUDA GPUs -->
-<!--        <nd4j.backend>nd4j-native-platform</nd4j.backend>-->
-        <nd4j.backend>nd4j-cuda-10.2-platform</nd4j.backend>
+        <nd4j.backend>nd4j-native-platform</nd4j.backend>
+<!--        <nd4j.backend>nd4j-cuda-10.2-platform</nd4j.backend>-->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <shadedClassifier>bin</shadedClassifier>
 
