@@ -23,14 +23,6 @@
     <modelVersion>4.0.0</modelVersion>
     <packaging>pom</packaging>
 
-    <repositories>
-      <repository>
-        <id>sonatype-nexus-staging</id>
-        <name>Sonatype Nexus Staging</name>
-        <url>https://oss.sonatype.org/content/repositories/orgdeeplearning4j-1104/</url>
-      </repository>
-    </repositories>
-
     <name>DeepLearning4j Examples Parent</name>
     <description>Examples of training different data sets</description>
     <properties>
