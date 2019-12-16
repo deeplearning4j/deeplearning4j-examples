@@ -23,7 +23,7 @@
     <parent>
         <artifactId>deeplearning4j-examples-parent</artifactId>
         <groupId>org.deeplearning4j</groupId>
-        <version>1.0.0-beta5</version>
+        <version>1.0.0-beta6</version>
     </parent>
     <groupId>org.deeplearning4j.examples</groupId>
     <artifactId>shared-utilities</artifactId>

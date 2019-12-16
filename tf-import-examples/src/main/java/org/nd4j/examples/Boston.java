@@ -51,7 +51,7 @@ public class Boston {
     private static void loadStats() throws Exception {
         File file = new File(dataLocalPath,"Boston/stats.txt");
         String contents = FileUtils.readFileToString(file,defaultCharset());
-        String stats[] = contents.split(",");
+        String stats[] = contents.replaceAll("[\\[\\]]","").split("[, ]");
         mean = Double.parseDouble(stats[0]);
         std = Double.parseDouble(stats[1]);
     }
@@ -92,7 +92,8 @@ public class Boston {
     public static double predict(INDArray arr){
         arr = Nd4j.expandDims(arr, 0);  // add batch dimension
         sd.associateArrayWithVariable(arr, sd.variables().get(0));
-        INDArray outArr = sd.outputSingle(null, "");
+//        System.out.println(sd.summary());
+        INDArray outArr = sd.outputSingle(null, "dense_2/BiasAdd");
         double pred = outArr.getDouble(0);
         return pred;
     }
@@ -103,6 +104,6 @@ public class Boston {
         loadStats();
         INDArray sampleData = getSampleData();
         double prediction = predict(sampleData); // in $1000
-        System.out.println(String.format("Predicted price = $%d",prediction * 1000));
+        System.out.println("Predicted price = $" + (prediction * 1000));
     }
 }
