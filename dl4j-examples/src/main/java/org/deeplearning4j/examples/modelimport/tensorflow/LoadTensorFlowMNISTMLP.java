@@ -64,7 +64,7 @@ public class LoadTensorFlowMNISTMLP {
         Map<String, INDArray> inputsPredictions = readPlaceholdersAndPredictions();
 
         //Load the graph into samediff
-        SameDiff graph = TFGraphMapper.getInstance().importGraph(new File(FROZEN_MLP));
+        SameDiff graph = TFGraphMapper.importGraph(new File(FROZEN_MLP));
         //libnd4j executor
         //running with input_a array expecting to get prediction_a
         graph.associateArrayWithVariable(inputsPredictions.get("input_a"), graph.variableMap().get("input"));
@@ -80,9 +80,8 @@ public class LoadTensorFlowMNISTMLP {
         }
 
         //Now to run with the samediff executor, with input_b array expecting to get prediction_b
-        SameDiff graphSD = TFGraphMapper.getInstance().importGraph(new File(FROZEN_MLP)); //Reimport graph here, necessary for the 1.0 alpha release
-        graphSD.associateArrayWithVariable(inputsPredictions.get("input_b"), graph.variableMap().get("input"));
-        INDArray samediffPred = graphSD.execAndEndResult();
+        SameDiff graphSD = TFGraphMapper.importGraph(new File(FROZEN_MLP)); //Reimport graph here, necessary for the 1.0 alpha release
+        INDArray samediffPred = graphSD.output(inputsPredictions, "preduction_a").get("prediction_a");
         System.out.println("SameDiff exec prediction for input_b:\n" + samediffPred);
         if (samediffPred.equals(inputsPredictions.get("prediction_b"))) {
             //this is true and therefore predictions are equal

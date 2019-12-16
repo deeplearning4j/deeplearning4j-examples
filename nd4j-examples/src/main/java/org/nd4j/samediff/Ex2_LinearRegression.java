@@ -51,8 +51,8 @@ public class Ex2_LinearRegression {
 
 
         //First: Let's create our placeholders. Shape: [minibatch, in/out]
-        SDVariable input = sd.var("input", DataType.FLOAT, -1, nIn);
-        SDVariable labels = sd.var("labels", DataType.FLOAT, -1, 1);
+        SDVariable input = sd.placeHolder("input", DataType.FLOAT, -1, nIn);
+        SDVariable labels = sd.placeHolder("labels", DataType.FLOAT, -1, 1);
 
         //Second: let's create our variables
         SDVariable weights = sd.var("weights", new XavierInitScheme('c', nIn, nOut), DataType.FLOAT, nIn,nOut);
@@ -78,18 +78,15 @@ public class Ex2_LinearRegression {
         placeholderData.put("labels", labelArr);
 
         //Execute forward pass:
-        INDArray loss = sd.exec(placeholderData, "mse").get("mse");
+        INDArray loss = sd.output(placeholderData, "mse").get("mse");
         System.out.println("MSE: " + loss);
 
         //Calculate gradients:
-        sd.execBackwards(placeholderData);
-
-        //Get gradients for each variable:
-        for(SDVariable v : new SDVariable[]{weights, bias}){
-            System.out.println("Variable name: " + v.getVarName());
-            System.out.println("Values:\n" + v.getArr());
-            System.out.println("Gradients:\n" + v.getGradient().getArr());
-        }
+        Map<String,INDArray> gradMap = sd.calculateGradients(placeholderData, "weights", "bias");
+        System.out.println("Weights gradient:");
+        System.out.println(gradMap.get("weights"));
+        System.out.println("Bias gradient:");
+        System.out.println(gradMap.get("bias"));
     }
 
 }

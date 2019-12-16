@@ -66,17 +66,17 @@ android {
         implementation 'com.android.support:design:27.1.0'
 
 
-        implementation (group: 'org.deeplearning4j', name: 'deeplearning4j-core', version: '1.0.0-beta5') {
+        implementation (group: 'org.deeplearning4j', name: 'deeplearning4j-core', version: '1.0.0-beta6') {
             exclude group: 'org.bytedeco', module: 'opencv-platform'
             exclude group: 'org.bytedeco', module: 'leptonica-platform'
             exclude group: 'org.bytedeco', module: 'hdf5-platform'
             exclude group: 'org.nd4j', module: 'nd4j-base64'
         }
-        implementation group: 'org.nd4j', name: 'nd4j-native', version: '1.0.0-beta5'
-        implementation group: 'org.nd4j', name: 'nd4j-native', version: '1.0.0-beta5', classifier: "android-arm"
-        implementation group: 'org.nd4j', name: 'nd4j-native', version: '1.0.0-beta5', classifier: "android-arm64"
-        implementation group: 'org.nd4j', name: 'nd4j-native', version: '1.0.0-beta5', classifier: "android-x86"
-        implementation group: 'org.nd4j', name: 'nd4j-native', version: '1.0.0-beta5', classifier: "android-x86_64"
+        implementation group: 'org.nd4j', name: 'nd4j-native', version: '1.0.0-beta6'
+        implementation group: 'org.nd4j', name: 'nd4j-native', version: '1.0.0-beta6', classifier: "android-arm"
+        implementation group: 'org.nd4j', name: 'nd4j-native', version: '1.0.0-beta6', classifier: "android-arm64"
+        implementation group: 'org.nd4j', name: 'nd4j-native', version: '1.0.0-beta6', classifier: "android-x86"
+        implementation group: 'org.nd4j', name: 'nd4j-native', version: '1.0.0-beta6', classifier: "android-x86_64"
         implementation group: 'org.bytedeco', name: 'openblas', version: '0.3.5-1.5'
         implementation group: 'org.bytedeco', name: 'openblas', version: '0.3.5-1.5', classifier: "android-arm"
         implementation group: 'org.bytedeco', name: 'openblas', version: '0.3.5-1.5', classifier: "android-arm64"

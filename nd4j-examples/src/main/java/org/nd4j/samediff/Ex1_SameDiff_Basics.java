@@ -86,7 +86,7 @@ public class Ex1_SameDiff_Basics {
 
 
         //Now, let's execute the graph forward pass:
-        sd.exec(Collections.<String,INDArray>emptyMap(), sd.outputs());
+        sd.output(Collections.<String,INDArray>emptyMap(), "mulTen");
 
         INDArray variableArr = variable.getArr();               //We can get arrays directly from the variables
         INDArray plusOneArr = plusOne.getArr();

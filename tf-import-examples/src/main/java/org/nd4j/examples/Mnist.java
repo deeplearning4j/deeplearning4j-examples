@@ -49,7 +49,7 @@ public class Mnist {
             file = new File(filepath);
         }
 
-        sd = TFGraphMapper.getInstance().importGraph(file);
+        sd = TFGraphMapper.importGraph(file);
 
         if (sd == null) {
             throw new Exception("Error loading model : " + file);
@@ -59,13 +59,13 @@ public class Mnist {
     public static INDArray predict(INDArray arr){
         INDArray batchedArr = Nd4j.expandDims(arr, 0);
         sd.associateArrayWithVariable(batchedArr, sd.variables().get(0));
-        INDArray out = sd.execAndEndResult();
+        INDArray out = sd.outputSingle(null, "");
         return Nd4j.squeeze(out, 0);
     }
 
     public static INDArray predictBatch(INDArray arr){
         sd.associateArrayWithVariable(arr, sd.variables().get(0));
-        return sd.execAndEndResult();
+        return sd.outputSingle(null, "");
     }
 
     public static INDArray predict (String filepath) throws IOException{
@@ -91,7 +91,7 @@ public class Mnist {
         INDArray arr = Nd4j.create(data).reshape(1, 28, 28);
         arr = Nd4j.pile(arr, arr);
         sd.associateArrayWithVariable(arr, sd.variables().get(0));
-        INDArray output = sd.execAndEndResult().get(NDArrayIndex.point(0));
+        INDArray output = sd.outputSingle(null, "").get(NDArrayIndex.point(0));
         System.out.println(Arrays.toString(output.reshape(10).toDoubleVector()));
         return output;
 

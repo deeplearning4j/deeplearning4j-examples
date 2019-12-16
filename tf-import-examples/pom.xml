@@ -21,7 +21,7 @@
     <parent>
         <artifactId>deeplearning4j-examples-parent</artifactId>
         <groupId>org.deeplearning4j</groupId>
-        <version>1.0.0-beta5</version>
+        <version>1.0.0-beta6</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -41,8 +41,8 @@
     </build>
 
     <properties>
-        <javacpp.version>1.5</javacpp.version>
-        <tensorflow.version>1.13.1</tensorflow.version>
+        <javacpp.version>1.5.2</javacpp.version>
+        <tensorflow.version>1.15.0</tensorflow.version>
     </properties>
 
     <dependencies>

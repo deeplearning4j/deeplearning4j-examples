@@ -89,7 +89,7 @@ public class Imdb {
     public static double predict(INDArray arr){
         arr = Nd4j.expandDims(arr, 0);  // add batch dimension
         sd.associateArrayWithVariable(arr, sd.variables().get(0));
-        INDArray outArr = sd.execAndEndResult();
+        INDArray outArr = sd.outputSingle(null, "");
         double pred = outArr.getDouble(0);
         return pred;
     }
