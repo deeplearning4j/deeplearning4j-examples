@@ -38,7 +38,7 @@ public class UIStorageExample {
     public static void main(String[] args){
 
         //Run this example twice - once with collectStats = true, and then again with collectStats = false
-        boolean collectStats = false;
+        boolean collectStats = true;
 
         if(collectStats){
             //First run: Collect training stats from the network
