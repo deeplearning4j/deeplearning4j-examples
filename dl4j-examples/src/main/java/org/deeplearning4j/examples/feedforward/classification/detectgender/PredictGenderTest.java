@@ -69,7 +69,6 @@ public class PredictGenderTest implements Runnable {
         this.jd.setLocationRelativeTo(null);
         this.jd.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         this.jd.setTitle("Predict Gender By Name");
-        this.jd.setVisible(true);
 
         //jd.add(jp);
 
@@ -123,6 +122,8 @@ public class PredictGenderTest implements Runnable {
         });
 
         this.jd.add(this.btnNext);
+        
+        this.jd.setVisible(true);
     }
 
     private String getBinaryString(String name)
