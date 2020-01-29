@@ -35,7 +35,6 @@ import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.indexing.NDArrayIndex;
-import org.nd4j.linalg.io.ClassPathResource;
 import org.nd4j.linalg.learning.config.Adam;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 import org.nd4j.resources.Downloader;
@@ -98,17 +97,17 @@ public class Word2VecSentimentRNN {
 
         //Set up network configuration
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
-                .seed(seed)
-                .updater(new Adam(5e-3))
-                .l2(1e-5)
-                .weightInit(WeightInit.XAVIER)
-                .gradientNormalization(GradientNormalization.ClipElementWiseAbsoluteValue).gradientNormalizationThreshold(1.0)
-                .list()
-                .layer(new LSTM.Builder().nIn(vectorSize).nOut(256)
-                        .activation(Activation.TANH).build())
-                .layer(new RnnOutputLayer.Builder().activation(Activation.SOFTMAX)
-                        .lossFunction(LossFunctions.LossFunction.MCXENT).nIn(256).nOut(2).build())
-                .build();
+            .seed(seed)
+            .updater(new Adam(5e-3))
+            .l2(1e-5)
+            .weightInit(WeightInit.XAVIER)
+            .gradientNormalization(GradientNormalization.ClipElementWiseAbsoluteValue).gradientNormalizationThreshold(1.0)
+            .list()
+            .layer(new LSTM.Builder().nIn(vectorSize).nOut(256)
+                .activation(Activation.TANH).build())
+            .layer(new RnnOutputLayer.Builder().activation(Activation.SOFTMAX)
+                .lossFunction(LossFunctions.LossFunction.MCXENT).nIn(256).nOut(2).build())
+            .build();
 
         MultiLayerNetwork net = new MultiLayerNetwork(conf);
         net.init();
@@ -171,11 +170,12 @@ public class Word2VecSentimentRNN {
 
     public static void checkDownloadW2VECModel() throws IOException {
         String defaultwordVectorsPath = FilenameUtils.concat(System.getProperty("user.home"), "dl4j-examples-data/w2vec300");
+        String md5w2vec = "1c892c4707a8a1a508b01a01735c0339";
         wordVectorsPath = new File(defaultwordVectorsPath, "GoogleNews-vectors-negative300.bin.gz").getAbsolutePath();
         if (new File(wordVectorsPath).exists()) {
             System.out.println("\n\tGoogleNews-vectors-negative300.bin.gz file found at path: " + defaultwordVectorsPath);
             System.out.println("\tChecking md5 of existing file..");
-            if (Downloader.checkMD5OfFile("1c892c4707a8a1a508b01a01735c0339", new File(wordVectorsPath))) {
+            if (Downloader.checkMD5OfFile(md5w2vec, new File(wordVectorsPath))) {
                 System.out.println("\tExisting file hash matches.");
                 return;
             } else {
@@ -189,23 +189,8 @@ public class Word2VecSentimentRNN {
         Scanner scanner = new Scanner(System.in);
         scanner.nextLine();
         System.out.println("Starting model download (1.5GB!)...");
-        String downloadScript = new ClassPathResource("w2vecdownload/word2vec-download300model.sh").getFile().getAbsolutePath();
-        ProcessBuilder processBuilder = new ProcessBuilder(downloadScript, defaultwordVectorsPath);
-        try {
-            processBuilder.inheritIO();
-            Process process = processBuilder.start();
-            int exitVal = process.waitFor();
-            if (exitVal == 0) {
-                System.out.println("Successfully downloaded word2vec model!");
-            } else {
-                System.out.println("Download failed. Please download model manually and set the \"wordVectorsPath\" in the code with the path to it.");
-                System.exit(0);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+        Downloader.download("Word2Vec", new URL("https://dl4jdata.blob.core.windows.net/resources/wordvectors/GoogleNews-vectors-negative300.bin.gz"), new File(wordVectorsPath), md5w2vec, 5);
+        System.out.println("Successfully downloaded word2vec model to " + wordVectorsPath);
     }
 }
 
