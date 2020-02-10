@@ -22,7 +22,6 @@ import org.deeplearning4j.rl4j.policy.DQNPolicy;
 import org.deeplearning4j.rl4j.space.Box;
 import org.nd4j.linalg.learning.config.Adam;
 
-import java.io.IOException;
 import java.util.logging.Logger;
 
 /**
@@ -53,12 +52,12 @@ public class Cartpole
             DQNFactoryStdDense.Configuration.builder()
                     .l2(0.001).updater(new Adam(0.0005)).numHiddenNodes(16).numLayer(3).build();
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
         DQNPolicy<Box>  pol = cartPole();
         loadCartpole(pol);
     }
 
-    private static DQNPolicy<Box> cartPole() throws IOException {
+    private static DQNPolicy<Box> cartPole() {
         //define the mdp from gym (name, render)
         GymEnv<Box, Integer, org.deeplearning4j.rl4j.space.DiscreteSpace> mdp = new GymEnv<Box, Integer, org.deeplearning4j.rl4j.space.DiscreteSpace>("CartPole-v0", false, false);
         QLearningDiscreteDense<Box> dql = new QLearningDiscreteDense<Box>(mdp, CARTPOLE_NET, CARTPOLE_QL);
@@ -69,7 +68,7 @@ public class Cartpole
         return dql.getPolicy(); //get the final policy
     }
 
-    private static void loadCartpole(DQNPolicy<Box> pol) throws IOException {
+    private static void loadCartpole(DQNPolicy<Box> pol) {
         //use the trained agent on a new similar mdp (but render it this time)
 
         //define the mdp from gym (name, render)
