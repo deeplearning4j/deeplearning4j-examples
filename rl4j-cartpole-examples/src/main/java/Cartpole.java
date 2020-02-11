@@ -19,7 +19,9 @@ import org.deeplearning4j.rl4j.learning.sync.qlearning.discrete.QLearningDiscret
 import org.deeplearning4j.rl4j.mdp.gym.GymEnv;
 import org.deeplearning4j.rl4j.network.dqn.DQNFactoryStdDense;
 import org.deeplearning4j.rl4j.policy.DQNPolicy;
+import org.deeplearning4j.rl4j.space.ActionSpace;
 import org.deeplearning4j.rl4j.space.Box;
+import org.deeplearning4j.rl4j.space.DiscreteSpace;
 import org.nd4j.linalg.learning.config.Adam;
 
 import java.util.logging.Logger;
@@ -31,26 +33,33 @@ import java.util.logging.Logger;
  */
 public class Cartpole
 {
-    private static QLearning.QLConfiguration CARTPOLE_QL =
-            new QLearning.QLConfiguration(
-                    123,    //Random seed
-                    200,    //Max step By epoch
-                    150000, //Max step
-                    150000, //Max size of experience replay
-                    32,     //size of batches
-                    500,    //target update (hard)
-                    10,     //num step noop warmup
-                    0.01,   //reward scaling
-                    0.99,   //gamma
-                    1.0,    //td-error clipping
-                    0.1f,   //min epsilon
-                    1000,   //num step for eps greedy anneal
-                    true    //double DQN
-            );
+    /*
+      Q learning configuration. Note that none of these are specific to the cartpole problem.
+     */
+    private static  QLearning.QLConfiguration CARTPOLE_QL = QLearning.QLConfiguration.builder()
+            .seed(123)                //Random seed (for reproducability)
+            .maxEpochStep(200)        // Max step By epoch
+            .maxStep(15000)           // Max step
+            .expRepMaxSize(150000)    // Max size of experience replay
+            .batchSize(32)            // size of batches
+            .targetDqnUpdateFreq(500) // target update (hard)
+            .updateStart(10)          // num step noop warmup
+            .rewardFactor(0.01)       // reward scaling
+            .gamma(0.99)              // gamma
+            .errorClamp(1.0)          // /td-error clipping
+            .minEpsilon(0.1f)         // min epsilon
+            .epsilonNbStep(1000)      // num step for eps greedy anneal
+            .doubleDQN(true)          // double DQN
+            .build();
+
 
     private static DQNFactoryStdDense.Configuration CARTPOLE_NET =
             DQNFactoryStdDense.Configuration.builder()
-                    .l2(0.001).updater(new Adam(0.0005)).numHiddenNodes(16).numLayer(3).build();
+                    .l2(0.001)
+                    .updater(new Adam(0.0005))
+                    .numHiddenNodes(16)
+                    .numLayer(3)
+                    .build();
 
     public static void main(String[] args) {
         DQNPolicy<Box>  pol = cartPole();
@@ -59,7 +68,7 @@ public class Cartpole
 
     private static DQNPolicy<Box> cartPole() {
         //define the mdp from gym (name, render)
-        GymEnv<Box, Integer, org.deeplearning4j.rl4j.space.DiscreteSpace> mdp = new GymEnv<Box, Integer, org.deeplearning4j.rl4j.space.DiscreteSpace>("CartPole-v0", false, false);
+        GymEnv<Box, Integer, DiscreteSpace> mdp = new GymEnv<Box, Integer, DiscreteSpace>("CartPole-v0", false, false);
         QLearningDiscreteDense<Box> dql = new QLearningDiscreteDense<Box>(mdp, CARTPOLE_NET, CARTPOLE_QL);
 
         dql.train();
@@ -72,7 +81,7 @@ public class Cartpole
         //use the trained agent on a new similar mdp (but render it this time)
 
         //define the mdp from gym (name, render)
-        GymEnv<Box, Integer, org.deeplearning4j.rl4j.space.ActionSpace<Integer>> mdp2 = new GymEnv<Box, Integer, org.deeplearning4j.rl4j.space.ActionSpace<Integer>>("CartPole-v0", true, false);
+        GymEnv<Box, Integer, ActionSpace<Integer>> mdp2 = new GymEnv<Box, Integer, ActionSpace<Integer>>("CartPole-v0", true, false);
 
         //evaluate the agent
         double rewards = 0;
