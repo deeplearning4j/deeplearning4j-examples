@@ -22,7 +22,7 @@ import org.deeplearning4j.rl4j.policy.DQNPolicy;
 import org.deeplearning4j.rl4j.space.ActionSpace;
 import org.deeplearning4j.rl4j.space.Box;
 import org.deeplearning4j.rl4j.space.DiscreteSpace;
-import org.nd4j.linalg.learning.config.Adam;
+import org.nd4j.linalg.learning.config.RmsProp;
 
 import java.util.logging.Logger;
 
@@ -41,7 +41,7 @@ public class Cartpole
             .maxEpochStep(200)        // Max step By epoch
             .maxStep(15000)           // Max step
             .expRepMaxSize(150000)    // Max size of experience replay
-            .batchSize(32)            // size of batches
+            .batchSize(128)            // size of batches
             .targetDqnUpdateFreq(500) // target update (hard)
             .updateStart(10)          // num step noop warmup
             .rewardFactor(0.01)       // reward scaling
@@ -52,13 +52,12 @@ public class Cartpole
             .doubleDQN(true)          // double DQN
             .build();
 
-
     private static DQNFactoryStdDense.Configuration CARTPOLE_NET =
             DQNFactoryStdDense.Configuration.builder()
-                    .l2(0.001)
-                    .updater(new Adam(0.0005))
-                    .numHiddenNodes(16)
-                    .numLayer(3)
+                    .l2(0)
+                    .updater(new RmsProp(0.000025))
+                    .numHiddenNodes(300)
+                    .numLayer(2)
                     .build();
 
     public static void main(String[] args) {
@@ -85,7 +84,7 @@ public class Cartpole
 
         //evaluate the agent
         double rewards = 0;
-        for (int i = 0; i < 1000; i++) {
+        for (int i = 0; i < 10; i++) {
             mdp2.reset();
             double reward = pol.play(mdp2);
             rewards += reward;
