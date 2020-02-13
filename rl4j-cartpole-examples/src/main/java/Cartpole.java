@@ -33,54 +33,61 @@ import java.util.logging.Logger;
  */
 public class Cartpole
 {
-    /*
-      Q learning configuration. Note that none of these are specific to the cartpole problem.
-     */
-    private static  QLearning.QLConfiguration CARTPOLE_QL = QLearning.QLConfiguration.builder()
-            .seed(123)                //Random seed (for reproducability)
-            .maxEpochStep(200)        // Max step By epoch
-            .maxStep(15000)           // Max step
-            .expRepMaxSize(150000)    // Max size of experience replay
-            .batchSize(128)            // size of batches
-            .targetDqnUpdateFreq(500) // target update (hard)
-            .updateStart(10)          // num step noop warmup
-            .rewardFactor(0.01)       // reward scaling
-            .gamma(0.99)              // gamma
-            .errorClamp(1.0)          // /td-error clipping
-            .minEpsilon(0.1f)         // min epsilon
-            .epsilonNbStep(1000)      // num step for eps greedy anneal
-            .doubleDQN(true)          // double DQN
-            .build();
-
-    private static DQNFactoryStdDense.Configuration CARTPOLE_NET =
-            DQNFactoryStdDense.Configuration.builder()
-                    .l2(0)
-                    .updater(new RmsProp(0.000025))
-                    .numHiddenNodes(300)
-                    .numLayer(2)
-                    .build();
+    private static String envUD = "CartPole-v1";
 
     public static void main(String[] args) {
-        DQNPolicy<Box>  pol = cartPole();
-        loadCartpole(pol);
+        DQNPolicy<Box>  pol = cartPole(); //get a trained agent to play the game.
+        loadCartpole(pol); //show off the trained agent.
     }
 
     private static DQNPolicy<Box> cartPole() {
-        //define the mdp from gym (name, render)
-        GymEnv<Box, Integer, DiscreteSpace> mdp = new GymEnv<Box, Integer, DiscreteSpace>("CartPole-v0", false, false);
+
+        // Q learning configuration. Note that none of these are specific to the cartpole problem.
+
+        QLearning.QLConfiguration CARTPOLE_QL = QLearning.QLConfiguration.builder()
+                .seed(123)                //Random seed (for reproducability)
+                .maxEpochStep(200)        // Max step By epoch
+                .maxStep(15000)           // Max step
+                .expRepMaxSize(150000)    // Max size of experience replay
+                .batchSize(128)            // size of batches
+                .targetDqnUpdateFreq(500) // target update (hard)
+                .updateStart(10)          // num step noop warmup
+                .rewardFactor(0.01)       // reward scaling
+                .gamma(0.99)              // gamma
+                .errorClamp(1.0)          // /td-error clipping
+                .minEpsilon(0.1f)         // min epsilon
+                .epsilonNbStep(1000)      // num step for eps greedy anneal
+                .doubleDQN(true)          // double DQN
+                .build();
+
+        // The neural network used by the agent. Note that there is no need to specify the number of inputs/outputs.
+        // These will be read from the gym environment at the start of training.
+        DQNFactoryStdDense.Configuration CARTPOLE_NET =
+                DQNFactoryStdDense.Configuration.builder()
+                        .l2(0)
+                        .updater(new RmsProp(0.000025))
+                        .numHiddenNodes(300)
+                        .numLayer(2)
+                        .build();
+
+        //Create the gym environment. We include these through the rl4j-gym dependency.
+        GymEnv<Box, Integer, DiscreteSpace> mdp = new GymEnv<Box, Integer, DiscreteSpace>(envUD, false, false);
+
+        //Create the solver. This class implements the 2013 article by Mnih et al. from deepmind.
+        // https://arxiv.org/pdf/1312.5602.pdf
         QLearningDiscreteDense<Box> dql = new QLearningDiscreteDense<Box>(mdp, CARTPOLE_NET, CARTPOLE_QL);
 
         dql.train();
         mdp.close();
 
-        return dql.getPolicy(); //get the final policy
+        return dql.getPolicy(); //return the trained agent.
     }
 
     private static void loadCartpole(DQNPolicy<Box> pol) {
         //use the trained agent on a new similar mdp (but render it this time)
 
         //define the mdp from gym (name, render)
-        GymEnv<Box, Integer, ActionSpace<Integer>> mdp2 = new GymEnv<Box, Integer, ActionSpace<Integer>>("CartPole-v0", true, false);
+        GymEnv<Box, Integer, ActionSpace<Integer>> mdp2 = new GymEnv<Box, Integer, ActionSpace<Integer>>(envUD, true, false);
 
         //evaluate the agent
         double rewards = 0;
@@ -92,5 +99,6 @@ public class Cartpole
         }
 
         Logger.getAnonymousLogger().info("average: " + rewards/1000);
+        mdp2.close();
     }
 }
