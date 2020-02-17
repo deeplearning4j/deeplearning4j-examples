@@ -19,6 +19,7 @@ import org.deeplearning4j.rl4j.learning.sync.qlearning.discrete.QLearningDiscret
 import org.deeplearning4j.rl4j.mdp.gym.GymEnv;
 import org.deeplearning4j.rl4j.network.dqn.DQNFactoryStdDense;
 import org.deeplearning4j.rl4j.policy.DQNPolicy;
+import org.deeplearning4j.rl4j.policy.Policy;
 import org.deeplearning4j.rl4j.space.ActionSpace;
 import org.deeplearning4j.rl4j.space.Box;
 import org.deeplearning4j.rl4j.space.DiscreteSpace;
@@ -29,15 +30,17 @@ import java.util.logging.Logger;
 /**
  * @author rubenfiszel (ruben.fiszel@epfl.ch) on 8/11/16.
  *
- * Main example for Cartpole DQN
+ * Cartpole DQN
+ * This example shows the basic rl4j classes implementing the 2013 article by Mnih et al. from deepmind.
+ * https://arxiv.org/pdf/1312.5602.pdf
  */
 public class Cartpole
 {
-    private static String envUD = "CartPole-v1";
+    private static String envID = "CartPole-v1";
 
     public static void main(String[] args) {
         DQNPolicy<Box>  pol = cartPole(); //get a trained agent to play the game.
-        loadCartpole(pol); //show off the trained agent.
+        loadCartpole(pol, envID); //show off the trained agent.
     }
 
     private static DQNPolicy<Box> cartPole() {
@@ -71,10 +74,9 @@ public class Cartpole
                         .build();
 
         //Create the gym environment. We include these through the rl4j-gym dependency.
-        GymEnv<Box, Integer, DiscreteSpace> mdp = new GymEnv<Box, Integer, DiscreteSpace>(envUD, false, false);
+        GymEnv<Box, Integer, DiscreteSpace> mdp = new GymEnv<Box, Integer, DiscreteSpace>(envID, false, false);
 
-        //Create the solver. This class implements the 2013 article by Mnih et al. from deepmind.
-        // https://arxiv.org/pdf/1312.5602.pdf
+        //Create the solver.
         QLearningDiscreteDense<Box> dql = new QLearningDiscreteDense<Box>(mdp, CARTPOLE_NET, CARTPOLE_QL);
 
         dql.train();
@@ -83,11 +85,12 @@ public class Cartpole
         return dql.getPolicy(); //return the trained agent.
     }
 
-    private static void loadCartpole(DQNPolicy<Box> pol) {
+    // pass in a generic policy and endID to allow access from other samples in this package..
+    static void loadCartpole(Policy<Box, Integer> pol, String envID) {
         //use the trained agent on a new similar mdp (but render it this time)
 
         //define the mdp from gym (name, render)
-        GymEnv<Box, Integer, ActionSpace<Integer>> mdp2 = new GymEnv<Box, Integer, ActionSpace<Integer>>(envUD, true, false);
+        GymEnv<Box, Integer, ActionSpace<Integer>> mdp2 = new GymEnv<Box, Integer, ActionSpace<Integer>>(envID, true, false);
 
         //evaluate the agent
         double rewards = 0;
