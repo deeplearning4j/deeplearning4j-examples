@@ -74,7 +74,7 @@ public enum DownloaderUtility {
     private final String ZIP_FILE;
     private final String MD5;
     private final String DATA_SIZE;
-    private static final String AZURE_BLOB_URL = "https://deeplearning4jblob.blob.core.windows.net/dl4j-examples";
+    private static final String AZURE_BLOB_URL = "https://dl4jdata.blob.core.windows.net/dl4j-examples";
 
     /**
      * For use with resources uploaded to Azure blob storage.
