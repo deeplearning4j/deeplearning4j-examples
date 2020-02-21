@@ -66,7 +66,7 @@ public class TextClassification {
         BertIterator b = BertIterator.builder()
             .tokenizer(t)
             .lengthHandling(BertIterator.LengthHandling.FIXED_LENGTH, 16)
-            .minibatchSize(2)
+            .minibatchSize(32)
             .sentenceProvider(new FileLabeledSentenceProvider(reviewFilesMap, rng))
             .featureArrays(BertIterator.FeatureArrays.INDICES_MASK)
             .vocabMap(t.getVocab())
@@ -85,7 +85,6 @@ public class TextClassification {
         downloadData();
 
 
-        Nd4j.getMemoryManager().setAutoGcWindow(10000);  //https://deeplearning4j.org/workspaces
         final int seed = 0;     //Seed for reproducibility
         String pathToVocab = "/home/jenkins/uncased_L-12_H-768_A-12/vocab.txt";
         BertWordPieceTokenizerFactory t = new BertWordPieceTokenizerFactory(new File(pathToVocab), true, true, StandardCharsets.UTF_8);
