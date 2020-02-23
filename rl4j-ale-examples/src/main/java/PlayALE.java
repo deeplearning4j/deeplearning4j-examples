@@ -6,7 +6,7 @@ import java.util.logging.Logger;
 
 public class PlayALE {
     public static void main(String[] args) throws IOException {
-        ALEMDP mdp = new ALEMDP("pong.bin");
+        ALEMDP mdp = new ALEMDP("E:\\projects\\ArcadeLearningEnvironment\\pong.bin");
 
         //load the previous agent
         ACPolicy<ALEMDP.GameScreen> pol2 = ACPolicy.load("ale-a3c.model");
