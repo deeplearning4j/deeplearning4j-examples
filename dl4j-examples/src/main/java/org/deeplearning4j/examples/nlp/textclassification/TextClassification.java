@@ -97,7 +97,7 @@ public class TextClassification {
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
             .seed(seed)
             .updater(new Adam(4e-3))
-            .l2(1e-3)
+            .l2(1e-6)
             .weightInit(WeightInit.XAVIER)
             .list()
             .setInputType(InputType.recurrent(1))
