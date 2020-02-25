@@ -105,7 +105,7 @@ public class TextClassification {
         //Set up network configuration
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
             .seed(seed)
-            .updater(new Nadam(1e-3))
+            .updater(new Nadam(1e-4))
             .weightDecay(1e-5,true)
             .weightInit(WeightInit.XAVIER)
             .list()
