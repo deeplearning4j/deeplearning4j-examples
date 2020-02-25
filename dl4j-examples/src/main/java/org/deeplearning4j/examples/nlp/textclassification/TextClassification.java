@@ -28,6 +28,7 @@ import org.nd4j.linalg.dataset.api.MultiDataSetPreProcessor;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.learning.config.Adam;
 import org.nd4j.linalg.learning.config.Nadam;
+import org.nd4j.linalg.learning.config.Nesterovs;
 import org.nd4j.linalg.learning.config.Sgd;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 import org.deeplearning4j.examples.utilities.DataUtilities;
@@ -104,14 +105,14 @@ public class TextClassification {
         //Set up network configuration
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
             .seed(seed)
-            .updater(new Nadam(1e-2))
-            .l2(0.0001)
+            .updater(new Nadam(1e-1))
+            .weightDecay(1e-4,true)
             .weightInit(WeightInit.XAVIER)
             .list()
             .setInputType(InputType.recurrent(1))
             .layer(0, new EmbeddingSequenceLayer.Builder().weightInit(new NormalDistribution(0,1))
                 .hasBias(true).nIn(t.getVocab().size())
-                .updater(new Sgd(1e-2))
+                .updater(new Nesterovs(1e-2))
                 .nOut(128).build())
             .layer(new LSTM.Builder().nOut(128).activation(Activation.TANH).build())
             .layer(new LSTM.Builder().nOut(128).activation(Activation.TANH).build())
