@@ -105,8 +105,8 @@ public class TextClassification {
         //Set up network configuration
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
             .seed(seed)
-            .updater(new Nadam(1e-4))
-            .weightDecay(1e-7)
+            .updater(new Nadam(new SigmoidSchedule(ScheduleType.ITERATION,1e-4,0.5, 10)))
+            .weightDecay(1e-6)
             .weightInit(WeightInit.XAVIER)
             .list()
             .setInputType(InputType.recurrent(1))
