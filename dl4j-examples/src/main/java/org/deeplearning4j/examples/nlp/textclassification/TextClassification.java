@@ -28,10 +28,16 @@ import org.nd4j.linalg.dataset.api.MultiDataSetPreProcessor;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.learning.config.Adam;
 import org.nd4j.linalg.learning.config.Nadam;
+import org.nd4j.linalg.learning.config.Sgd;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 import org.deeplearning4j.examples.utilities.DataUtilities;
 import org.nd4j.linalg.schedule.ExponentialSchedule;
 import org.nd4j.linalg.schedule.ScheduleType;
+import org.nd4j.linalg.schedule.SigmoidSchedule;
+import org.deeplearning4j.nn.api.Updater;
+import org.deeplearning4j.nn.api.Updater;
+
+
 
 
 import java.io.File;
@@ -93,18 +99,20 @@ public class TextClassification {
         BertWordPieceTokenizerFactory t = new BertWordPieceTokenizerFactory(new File(pathToVocab), true, true, StandardCharsets.UTF_8);
 
 
-        //DataSetIterators for training and testing respectively
 
 
         //Set up network configuration
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
             .seed(seed)
-            .updater(new Nadam(new ExponentialSchedule(ScheduleType.ITERATION, 4e-3, 0.99 )))
-            .weightDecay(1e-5)
+            .updater(new Nadam(1e-5))
+            .l2(0.0001)
             .weightInit(WeightInit.XAVIER)
             .list()
             .setInputType(InputType.recurrent(1))
-            .layer(0, new EmbeddingSequenceLayer.Builder().weightInit(new NormalDistribution(0,1)).hasBias(true).nIn(t.getVocab().size()).nOut(128).build())
+            .layer(0, new EmbeddingSequenceLayer.Builder().weightInit(new NormalDistribution(0,1))
+                .hasBias(true).nIn(t.getVocab().size())
+                .updater(new Sgd(1e-4))
+                .nOut(128).build())
             .layer(new LSTM.Builder().nOut(128).activation(Activation.TANH).build())
             .layer(new LSTM.Builder().nOut(128).activation(Activation.TANH).build())
             .layer(new LSTM.Builder().nOut(128).activation(Activation.TANH).build())
