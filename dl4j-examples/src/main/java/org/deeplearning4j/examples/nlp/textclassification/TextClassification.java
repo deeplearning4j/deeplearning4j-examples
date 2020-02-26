@@ -105,20 +105,23 @@ public class TextClassification {
         //Set up network configuration
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
             .seed(seed)
-            .weightDecay(1e-6)
+            .updater(new Nadam(1e-3))
+            .weightDecay(1e-5)
             .weightInit(WeightInit.XAVIER)
             .list()
             .setInputType(InputType.recurrent(1))
-            .layer(0, new EmbeddingSequenceLayer.Builder()
-                .hasBias(true).nIn(t.getVocab().size()).nOut(256).weightInit(WeightInit.ZERO)
-                .updater(new Sgd(1e-4)).build())
-            .layer(new LSTM.Builder().nOut(256).activation(Activation.TANH).updater(new Nadam(1e-4)).build())
-            .layer(new LSTM.Builder().nOut(256).activation(Activation.TANH).updater(new Nadam(1e-4)).build())
-            .layer(new LSTM.Builder().nOut(256).activation(Activation.TANH).updater(new Nadam(1e-4)).build())
+            .layer(0, new EmbeddingSequenceLayer.Builder().weightInit(new NormalDistribution(0,1))
+                .hasBias(true).nIn(t.getVocab().size())
+                .updater(new Sgd(1e-2))
+                .nOut(128).build())
+            .layer(new LSTM.Builder().nOut(128).activation(Activation.TANH).build())
+            .layer(new LSTM.Builder().nOut(128).activation(Activation.TANH).build())
             .layer(new GlobalPoolingLayer(PoolingType.MAX))
             .layer(new OutputLayer.Builder().nOut(2).activation(Activation.SOFTMAX)
                 .lossFunction(LossFunctions.LossFunction.MCXENT).build())
             .build();
+
+
 
         BertIterator train = getBertDataSetIterator(true, t);
         BertIterator test = getBertDataSetIterator(false, t);
