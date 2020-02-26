@@ -115,6 +115,8 @@ public class TextClassification {
                 .nOut(256).updater(new Sgd(1e-3)).build())
             .layer(new LSTM.Builder().nOut(256).activation(Activation.TANH).build())
             .layer(new LSTM.Builder().nOut(256).activation(Activation.TANH).build())
+            .layer(new LSTM.Builder().nOut(256).activation(Activation.TANH).build())
+
             .layer(new GlobalPoolingLayer(PoolingType.MAX))
             .layer(new OutputLayer.Builder().nOut(2).activation(Activation.SOFTMAX)
                 .lossFunction(LossFunctions.LossFunction.MCXENT).build())
