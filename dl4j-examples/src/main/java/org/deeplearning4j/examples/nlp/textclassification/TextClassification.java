@@ -110,9 +110,10 @@ public class TextClassification {
             .weightInit(WeightInit.XAVIER)
             .list()
             .setInputType(InputType.recurrent(1))
-            .layer(0, new EmbeddingSequenceLayer.Builder().weightInit(new NormalDistribution(0,1)).l2(0).hasBias(true).nIn(t.getVocab().size()).nOut(128).build())
-            .layer(new LSTM.Builder().nOut(128).activation(Activation.TANH).build())
-            .layer(new LSTM.Builder().nOut(128).activation(Activation.TANH).build())
+            .layer(0, new EmbeddingSequenceLayer.Builder().weightInit(new NormalDistribution(0,1))
+                .l2(0).hasBias(true).nIn(t.getVocab().size()).nOut(256).build())
+            .layer(new LSTM.Builder().nOut(256).activation(Activation.TANH).build())
+            .layer(new LSTM.Builder().nOut(256).activation(Activation.TANH).build())
             .layer(new GlobalPoolingLayer(PoolingType.MAX))
             .layer(new OutputLayer.Builder().nOut(2).activation(Activation.SOFTMAX)
                 .lossFunction(LossFunctions.LossFunction.MCXENT).build())
@@ -143,7 +144,7 @@ public class TextClassification {
         //Configure where the network information (gradients, activations, score vs. time etc) is to be stored
         //Then add the StatsListener to collect this information from the network, as it trains
         StatsStorage statsStorage = new FileStatsStorage(new File(System.getProperty("java.io.tmpdir"), "ui-stats-" + System.currentTimeMillis() + ".dl4j"));
-        int listenerFrequency = 1;
+        int listenerFrequency = 20;
         net.setListeners(new StatsListener(statsStorage, listenerFrequency), new ScoreIterationListener(50));
         //Attach the StatsStorage instance to the UI: this allows the contents of the StatsStorage to be visualized
         uiServer.attach(statsStorage);
