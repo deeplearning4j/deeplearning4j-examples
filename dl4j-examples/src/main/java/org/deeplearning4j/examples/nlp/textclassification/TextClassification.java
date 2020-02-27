@@ -1,8 +1,6 @@
 package org.deeplearning4j.examples.nlp.textclassification;
 
 
-
-
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.deeplearning4j.api.storage.StatsStorage;
@@ -39,8 +37,6 @@ import org.deeplearning4j.nn.api.Updater;
 import org.deeplearning4j.nn.api.Updater;
 
 
-
-
 import java.io.File;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
@@ -75,7 +71,7 @@ public class TextClassification {
 
         BertIterator b = BertIterator.builder()
             .tokenizer(t)
-            .lengthHandling(BertIterator.LengthHandling.FIXED_LENGTH, 16)
+            .lengthHandling(BertIterator.LengthHandling.FIXED_LENGTH, 256)
             .minibatchSize(32)
             .sentenceProvider(new FileLabeledSentenceProvider(reviewFilesMap, rng))
             .featureArrays(BertIterator.FeatureArrays.INDICES_MASK)
@@ -100,9 +96,6 @@ public class TextClassification {
         BertWordPieceTokenizerFactory t = new BertWordPieceTokenizerFactory(new File(pathToVocab), true, true, StandardCharsets.UTF_8);
 
 
-
-
-        //Set up network configuration
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
             .seed(seed)
             .updater(new Adam(1e-3))
@@ -110,18 +103,13 @@ public class TextClassification {
             .weightInit(WeightInit.XAVIER)
             .list()
             .setInputType(InputType.recurrent(1))
-            .layer(0, new EmbeddingSequenceLayer.Builder().weightInit(new NormalDistribution(0,1))
-                .l2(0).hasBias(true).nIn(t.getVocab().size())
-                .nOut(256).updater(new Sgd(1e-3)).build())
-            .layer(new LSTM.Builder().nOut(256).activation(Activation.TANH).build())
-            .layer(new LSTM.Builder().nOut(256).activation(Activation.TANH).build())
-            .layer(new LSTM.Builder().nOut(256).activation(Activation.TANH).build())
-
+            .layer(0, new EmbeddingSequenceLayer.Builder().weightInit(new NormalDistribution(0, 1)).l2(0).hasBias(true).nIn(t.getVocab().size()).nOut(128).build())
+            .layer(new LSTM.Builder().nOut(128).activation(Activation.TANH).build())
+            .layer(new LSTM.Builder().nOut(128).activation(Activation.TANH).build())
             .layer(new GlobalPoolingLayer(PoolingType.MAX))
             .layer(new OutputLayer.Builder().nOut(2).activation(Activation.SOFTMAX)
                 .lossFunction(LossFunctions.LossFunction.MCXENT).build())
             .build();
-
 
         BertIterator train = getBertDataSetIterator(true, t);
         BertIterator test = getBertDataSetIterator(false, t);
