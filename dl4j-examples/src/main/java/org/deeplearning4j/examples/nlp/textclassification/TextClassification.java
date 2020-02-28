@@ -99,14 +99,14 @@ public class TextClassification {
 
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
             .seed(seed)
-            .updater(new Adam(1e-4))
+            .updater(new Adam(1e-3))
             .l2(1e-6)
             .weightInit(WeightInit.XAVIER)
             .list()
             .setInputType(InputType.recurrent(1))
             .layer(0, new EmbeddingSequenceLayer.Builder().weightInit(new NormalDistribution(0, 1)).l2(0).hasBias(true).nIn(t.getVocab().size()).nOut(128).build())
-            .layer(new Bidirectional(new LSTM.Builder().nOut(128).activation(Activation.TANH).build()))
-            .layer(new Bidirectional(new LSTM.Builder().nOut(128).activation(Activation.TANH).build()))
+            .layer(new Bidirectional(new LSTM.Builder().nOut(256).activation(Activation.TANH).build()))
+            .layer(new Bidirectional(new LSTM.Builder().nOut(256).activation(Activation.TANH).build()))
             .layer(new GlobalPoolingLayer(PoolingType.MAX))
             .layer(new OutputLayer.Builder().nOut(2).activation(Activation.SOFTMAX)
                 .lossFunction(LossFunctions.LossFunction.MCXENT).build())
@@ -149,6 +149,8 @@ public class TextClassification {
             Evaluation eval = net.doEvaluation(test, new Evaluation[]{new Evaluation()})[0];
             System.out.println(eval.stats());
         }
+
+        System.out.print(net.summary());
 
     }
 
