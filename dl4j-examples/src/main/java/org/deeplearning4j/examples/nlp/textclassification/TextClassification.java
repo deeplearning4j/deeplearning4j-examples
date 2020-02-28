@@ -11,6 +11,7 @@ import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
 import org.deeplearning4j.nn.conf.distribution.NormalDistribution;
 import org.deeplearning4j.nn.conf.inputs.InputType;
 import org.deeplearning4j.nn.conf.layers.*;
+import org.deeplearning4j.nn.conf.layers.recurrent.Bidirectional;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
 import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
@@ -104,8 +105,8 @@ public class TextClassification {
             .list()
             .setInputType(InputType.recurrent(1))
             .layer(0, new EmbeddingSequenceLayer.Builder().weightInit(new NormalDistribution(0, 1)).l2(0).hasBias(true).nIn(t.getVocab().size()).nOut(128).build())
-            .layer(new LSTM.Builder().nOut(128).activation(Activation.TANH).build())
-            .layer(new LSTM.Builder().nOut(128).activation(Activation.TANH).build())
+            .layer(new Bidirectional(new LSTM.Builder().nOut(128).activation(Activation.TANH).build()))
+            .layer(new Bidirectional(new LSTM.Builder().nOut(128).activation(Activation.TANH).build()))
             .layer(new GlobalPoolingLayer(PoolingType.MAX))
             .layer(new OutputLayer.Builder().nOut(2).activation(Activation.SOFTMAX)
                 .lossFunction(LossFunctions.LossFunction.MCXENT).build())
