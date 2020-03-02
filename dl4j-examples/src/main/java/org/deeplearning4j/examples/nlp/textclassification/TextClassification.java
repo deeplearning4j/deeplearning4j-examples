@@ -6,6 +6,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.deeplearning4j.api.storage.StatsStorage;
 import org.deeplearning4j.iterator.BertIterator;
 import org.deeplearning4j.iterator.provider.FileLabeledSentenceProvider;
+import org.deeplearning4j.nn.conf.ComputationGraphConfiguration;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
 import org.deeplearning4j.nn.conf.distribution.NormalDistribution;
@@ -96,15 +97,31 @@ public class TextClassification {
         String pathToVocab = "/home/jenkins/uncased_L-12_H-768_A-12/vocab.txt";
         BertWordPieceTokenizerFactory t = new BertWordPieceTokenizerFactory(new File(pathToVocab), true, true, StandardCharsets.UTF_8);
 
+//        ComputationGraphConfiguration config = new NeuralNetConfiguration.Builder()
+//            .seed(seed)
+//            .updater(new Adam(1e-4))
+//            .l2(1e-6)
+//            .weightInit(WeightInit.XAVIER)
+//            .graphBuilder()
+//
+//            .addInputs("input1", "input2")
+//            .addLayer("L1", new DenseLayer.Builder().nIn(3).nOut(4).build(), "input1")
+//            .addLayer("L2", new DenseLayer.Builder().nIn(3).nOut(4).build(), "input2")
+//            .addVertex("merge", new MergeVertex(), "L1", "L2")
+//            .addLayer("out", new OutputLayer.Builder().nIn(4+4).nOut(3).build(), "merge")
+//            .setOutputs("out")
+//            .build();
 
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
             .seed(seed)
-            .updater(new Adam(1e-4))
+            .updater(new Adam(1e-3))
             .l2(1e-6)
             .weightInit(WeightInit.XAVIER)
             .list()
             .setInputType(InputType.recurrent(1))
-            .layer(0, new EmbeddingSequenceLayer.Builder().weightInit(new NormalDistribution(0, 1)).l2(0).hasBias(true).nIn(t.getVocab().size()).nOut(128).build())
+            .layer(0, new EmbeddingSequenceLayer.Builder().weightInit(new NormalDistribution(0, 1)).l2(0)
+                .hasBias(true).nIn(t.getVocab().size()).nOut(128)
+                .updater(new Sgd(1e-3)).build())
             .layer(new Bidirectional(new LSTM.Builder().nOut(256).activation(Activation.TANH).build()))
             .layer(new Bidirectional(new LSTM.Builder().nOut(256).activation(Activation.TANH).build()))
             .layer(new GlobalPoolingLayer(PoolingType.MAX))
@@ -149,6 +166,10 @@ public class TextClassification {
             Evaluation eval = net.doEvaluation(test, new Evaluation[]{new Evaluation()})[0];
             System.out.println(eval.stats());
         }
+
+        System.out.println("Training set evaluation");
+        Evaluation eval = net.doEvaluation(train, new Evaluation[]{new Evaluation()})[0];
+        System.out.println(eval.stats());
 
         System.out.print(net.summary());
 
