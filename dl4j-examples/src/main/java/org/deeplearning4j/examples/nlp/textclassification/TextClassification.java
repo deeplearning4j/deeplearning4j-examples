@@ -123,6 +123,7 @@ public class TextClassification {
                 .hasBias(true).nIn(t.getVocab().size()).nOut(128).build())
             .layer(new Bidirectional(new LSTM.Builder().nOut(256).activation(Activation.TANH).build()))
             .layer(new Bidirectional(new LSTM.Builder().nOut(256).activation(Activation.TANH).build()))
+            .layer(new Bidirectional(new LSTM.Builder().nOut(256).activation(Activation.TANH).build()))
             .layer(new GlobalPoolingLayer(PoolingType.MAX))
             .layer(new OutputLayer.Builder().nOut(2).activation(Activation.SOFTMAX)
                 .lossFunction(LossFunctions.LossFunction.MCXENT).build())
