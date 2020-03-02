@@ -120,7 +120,7 @@ public class TextClassification {
             .list()
             .setInputType(InputType.recurrent(1))
             .layer(0, new EmbeddingSequenceLayer.Builder().weightInit(new NormalDistribution(0, 1)).l2(0)
-                .hasBias(true).nIn(t.getVocab().size()).nOut(256).build())
+                .hasBias(true).nIn(t.getVocab().size()).nOut(128).build())
             .layer(new Bidirectional(new LSTM.Builder().nOut(256).activation(Activation.TANH).build()))
             .layer(new Bidirectional(new LSTM.Builder().nOut(256).activation(Activation.TANH).build()))
             .layer(new GlobalPoolingLayer(PoolingType.MAX))
