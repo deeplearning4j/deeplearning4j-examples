@@ -32,9 +32,7 @@ import org.nd4j.linalg.learning.config.Nesterovs;
 import org.nd4j.linalg.learning.config.Sgd;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 import org.deeplearning4j.examples.utilities.DataUtilities;
-import org.nd4j.linalg.schedule.ExponentialSchedule;
-import org.nd4j.linalg.schedule.ScheduleType;
-import org.nd4j.linalg.schedule.SigmoidSchedule;
+import org.nd4j.linalg.schedule.*;
 import org.deeplearning4j.nn.api.Updater;
 import org.deeplearning4j.nn.api.Updater;
 
@@ -97,24 +95,17 @@ public class TextClassification {
         String pathToVocab = "/home/jenkins/uncased_L-12_H-768_A-12/vocab.txt";
         BertWordPieceTokenizerFactory t = new BertWordPieceTokenizerFactory(new File(pathToVocab), true, true, StandardCharsets.UTF_8);
 
-//        ComputationGraphConfiguration config = new NeuralNetConfiguration.Builder()
-//            .seed(seed)
-//            .updater(new Adam(1e-4))
-//            .l2(1e-6)
-//            .weightInit(WeightInit.XAVIER)
-//            .graphBuilder()
-//
-//            .addInputs("input1", "input2")
-//            .addLayer("L1", new DenseLayer.Builder().nIn(3).nOut(4).build(), "input1")
-//            .addLayer("L2", new DenseLayer.Builder().nIn(3).nOut(4).build(), "input2")
-//            .addVertex("merge", new MergeVertex(), "L1", "L2")
-//            .addLayer("out", new OutputLayer.Builder().nIn(4+4).nOut(3).build(), "merge")
-//            .setOutputs("out")
-//            .build();
+
+        ISchedule lrSchedule = new MapSchedule.Builder(ScheduleType.EPOCH)
+            .add(0, 2e-3)
+            .add(1, 1e-3)
+            .add(3, 8e-4)
+            .add(5, 5e-4)
+            .add(7, 2e-4).build();
 
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
             .seed(seed)
-            .updater(new Adam(1e-3))
+            .updater(new Adam(lrSchedule))
             .l2(1e-5)
             .weightInit(WeightInit.XAVIER)
             .list()
