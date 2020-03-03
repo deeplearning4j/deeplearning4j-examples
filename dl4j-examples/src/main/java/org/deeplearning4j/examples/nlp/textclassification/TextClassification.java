@@ -96,25 +96,20 @@ public class TextClassification {
         BertWordPieceTokenizerFactory t = new BertWordPieceTokenizerFactory(new File(pathToVocab), true, true, StandardCharsets.UTF_8);
 
 
-        ISchedule lrSchedule = new MapSchedule.Builder(ScheduleType.EPOCH)
-            .add(0, 2e-3)
-            .add(1, 1e-3)
-            .add(3, 8e-4)
-            .add(5, 5e-4)
-            .add(7, 2e-4).build();
 
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
             .seed(seed)
-            .updater(new Adam(lrSchedule))
+            .updater(new Adam(1e-3))
             .l2(1e-5)
             .weightInit(WeightInit.XAVIER)
             .list()
             .setInputType(InputType.recurrent(1))
             .layer(0, new EmbeddingSequenceLayer.Builder().weightInit(new NormalDistribution(0, 1)).l2(0)
                 .hasBias(true).nIn(t.getVocab().size()).nOut(128).build())
-            .layer(new Bidirectional(new LSTM.Builder().nOut(256).activation(Activation.TANH).build()))
-            .layer(new Bidirectional(new LSTM.Builder().nOut(256).activation(Activation.TANH).build()))
-            .layer(new Bidirectional(new LSTM.Builder().nOut(256).activation(Activation.TANH).build()))
+            .layer(new Bidirectional(new LSTM.Builder().nOut(256)
+                .dropOut(0.75).activation(Activation.TANH).build()))
+            .layer(new Bidirectional(new LSTM.Builder().nOut(256)
+                .dropOut(0.75).activation(Activation.TANH).build()))
             .layer(new GlobalPoolingLayer(PoolingType.MAX))
             .layer(new OutputLayer.Builder().nOut(2).activation(Activation.SOFTMAX)
                 .lossFunction(LossFunctions.LossFunction.MCXENT).build())
