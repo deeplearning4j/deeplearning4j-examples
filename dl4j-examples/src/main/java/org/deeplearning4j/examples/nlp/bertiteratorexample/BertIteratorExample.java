@@ -135,13 +135,17 @@ public class BertIteratorExample {
             .list()
             // matching EmbeddingSequenceLayer outputs with Bidirectional LSTM inputs
             .setInputType(InputType.recurrent(1))
+//          // initialized weights with normal distribution, amount of inputs according to vocab size and off L2 for this layer
             .layer(0, new EmbeddingSequenceLayer.Builder().weightInit(new NormalDistribution(0, 1)).l2(0)
                 .hasBias(true).nIn(t.getVocab().size()).nOut(128).build())
+//           // two Bidirectional LSTM layers in a row with dropout and tanh as activation function
             .layer(new Bidirectional(new LSTM.Builder().nOut(256)
                 .dropOut(0.8).activation(Activation.TANH).build()))
             .layer(new Bidirectional(new LSTM.Builder().nOut(256)
                 .dropOut(0.8).activation(Activation.TANH).build()))
             .layer(new GlobalPoolingLayer(PoolingType.MAX))
+            // defining last layer with 2 outputs (2 classes - positive and negative),
+            // small dropout to avoid overfitting and MCXENT loss function
             .layer(new OutputLayer.Builder().nOut(2)
                 .dropOut(0.97).activation(Activation.SOFTMAX)
                 .lossFunction(LossFunctions.LossFunction.MCXENT).build())
@@ -187,6 +191,8 @@ public class BertIteratorExample {
 
             net.fit(train);
 
+
+            // Get and print accuracy, precision, recall & F1 and confusion matrix
             Evaluation eval = net.doEvaluation(test, new Evaluation[]{new Evaluation()})[0];
             System.out.println(eval.stats());
         }
@@ -222,6 +228,7 @@ public class BertIteratorExample {
         }
 
 
+        // Download Bert Base Uncased Vocab
         String vocabPath = DATA_PATH + "vocab.txt";
         File vocabFile = new File(vocabPath);
 
@@ -234,7 +241,7 @@ public class BertIteratorExample {
                     file.write(data, 0, byteContent);
                 }
             } catch (IOException e) {
-                // handles IO exceptions
+                System.out.println("Something went wrong getting Bert Base Vocabulary");
             }
 
         } else {
