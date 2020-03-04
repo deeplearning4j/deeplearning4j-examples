@@ -1,4 +1,19 @@
-package org.deeplearning4j.examples.nlp.textclassification;
+/*******************************************************************************
+ * Copyright (c) 2015-2020 Skymind, Inc.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Apache License, Version 2.0 which is available at
+ * https://www.apache.org/licenses/LICENSE-2.0.
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations
+ * under the License.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ ******************************************************************************/
+package org.deeplearning4j.examples.nlp.bertiteratorexample;
 
 
 import org.apache.commons.io.FileUtils;
@@ -6,7 +21,6 @@ import org.apache.commons.io.FilenameUtils;
 import org.deeplearning4j.api.storage.StatsStorage;
 import org.deeplearning4j.iterator.BertIterator;
 import org.deeplearning4j.iterator.provider.FileLabeledSentenceProvider;
-import org.deeplearning4j.nn.conf.ComputationGraphConfiguration;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
 import org.deeplearning4j.nn.conf.distribution.NormalDistribution;
@@ -25,34 +39,47 @@ import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.api.buffer.DataType;
 import org.nd4j.linalg.dataset.api.MultiDataSet;
 import org.nd4j.linalg.dataset.api.MultiDataSetPreProcessor;
-import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.learning.config.Adam;
-import org.nd4j.linalg.learning.config.Nadam;
-import org.nd4j.linalg.learning.config.Nesterovs;
-import org.nd4j.linalg.learning.config.Sgd;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 import org.deeplearning4j.examples.utilities.DataUtilities;
-import org.nd4j.linalg.schedule.*;
-import org.deeplearning4j.nn.api.Updater;
-import org.deeplearning4j.nn.api.Updater;
 
-
+import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
-public class TextClassification {
+
+/**
+ * @author andrewtuzhykov@gmail.com
+ */
+
+public class BertIteratorExample {
 
 
     /**
      * Data URL for downloading
      */
     public static final String DATA_URL = "http://ai.stanford.edu/~amaas/data/sentiment/aclImdb_v1.tar.gz";
+
+    // Bert Base Uncased Vocabulary
+    public static final String VOCAB_URL = "https://s3.amazonaws.com/models.huggingface.co/bert/bert-large-uncased-vocab.txt";
+
     /**
      * Location to save and extract the training/testing data
      */
     public static final String DATA_PATH = FilenameUtils.concat(System.getProperty("java.io.tmpdir"), "dl4j_w2vSentiment/");
+
+
+    /**
+     * Get BertIterator instance.
+     *
+     * @param isTraining specifies which dataset iterator we want to get: train or test.
+     * @param t          BertWordPieceTokenizerFactory initialized with provided vocab.
+     * @return BertIterator with specified parameters.
+     */
 
     public static BertIterator getBertDataSetIterator(boolean isTraining, BertWordPieceTokenizerFactory t) {
 
@@ -91,10 +118,13 @@ public class TextClassification {
         downloadData();
 
 
-        final int seed = 0;     //Seed for reproducibility
-        String pathToVocab = "/home/jenkins/uncased_L-12_H-768_A-12/vocab.txt";
-        BertWordPieceTokenizerFactory t = new BertWordPieceTokenizerFactory(new File(pathToVocab), true, true, StandardCharsets.UTF_8);
+        final int seed = 0;
+        //Seed for reproducibility
+        String pathToVocab = DATA_PATH + "vocab.txt";
+        // Path to vocab
 
+        // BertWordPieceTokenizerFactory initialized with given vocab
+        BertWordPieceTokenizerFactory t = new BertWordPieceTokenizerFactory(new File(pathToVocab), true, true, StandardCharsets.UTF_8);
 
 
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
@@ -103,21 +133,28 @@ public class TextClassification {
             .l2(1e-5)
             .weightInit(WeightInit.XAVIER)
             .list()
+            // matching EmbeddingSequenceLayer outputs with Bidirectional LSTM inputs
             .setInputType(InputType.recurrent(1))
             .layer(0, new EmbeddingSequenceLayer.Builder().weightInit(new NormalDistribution(0, 1)).l2(0)
                 .hasBias(true).nIn(t.getVocab().size()).nOut(128).build())
             .layer(new Bidirectional(new LSTM.Builder().nOut(256)
-                .dropOut(0.75).activation(Activation.TANH).build()))
+                .dropOut(0.8).activation(Activation.TANH).build()))
             .layer(new Bidirectional(new LSTM.Builder().nOut(256)
-                .dropOut(0.75).activation(Activation.TANH).build()))
+                .dropOut(0.8).activation(Activation.TANH).build()))
             .layer(new GlobalPoolingLayer(PoolingType.MAX))
-            .layer(new OutputLayer.Builder().nOut(2).activation(Activation.SOFTMAX)
+            .layer(new OutputLayer.Builder().nOut(2)
+                .dropOut(0.97).activation(Activation.SOFTMAX)
                 .lossFunction(LossFunctions.LossFunction.MCXENT).build())
             .build();
 
+
+        // Getting train and test BertIterators for both: test and train,
+        // changing argument isTraining: true to get train and false to get test respectively
         BertIterator train = getBertDataSetIterator(true, t);
         BertIterator test = getBertDataSetIterator(false, t);
 
+
+        // preprocessor for DataType matching
         MultiDataSetPreProcessor mdsPreprocessor = new MultiDataSetPreProcessor() {
             @Override
             public void preProcess(MultiDataSet multiDataSet) {
@@ -125,11 +162,11 @@ public class TextClassification {
             }
         };
 
-
+        // Applying preprocessor for both: train and test datasets
         train.setPreProcessor(mdsPreprocessor);
         test.setPreProcessor(mdsPreprocessor);
 
-
+        // initialize MultiLayerNetwork instance with described above configuration
         MultiLayerNetwork net = new MultiLayerNetwork(conf);
 
 
@@ -145,19 +182,14 @@ public class TextClassification {
         uiServer.attach(statsStorage);
 
 
-        for (int i = 1; i <= 10; i++) {
+        // Setting to train net for 19 epochs (note: previous net state persist after each iteration)
+        for (int i = 1; i <= 19; i++) {
 
             net.fit(train);
 
             Evaluation eval = net.doEvaluation(test, new Evaluation[]{new Evaluation()})[0];
             System.out.println(eval.stats());
         }
-
-        System.out.println("Training set evaluation");
-        Evaluation eval = net.doEvaluation(train, new Evaluation[]{new Evaluation()})[0];
-        System.out.println(eval.stats());
-
-        System.out.print(net.summary());
 
     }
 
@@ -188,6 +220,27 @@ public class TextClassification {
                 System.out.println("Data (extracted) already exists at " + extractedFile.getAbsolutePath());
             }
         }
+
+
+        String vocabPath = DATA_PATH + "vocab.txt";
+        File vocabFile = new File(vocabPath);
+
+        if (!vocabFile.exists()) {
+            try (BufferedInputStream inputStream = new BufferedInputStream(new URL(VOCAB_URL).openStream());
+                 FileOutputStream file = new FileOutputStream(DATA_PATH + "vocab.txt")) {
+                byte data[] = new byte[1024];
+                int byteContent;
+                while ((byteContent = inputStream.read(data, 0, 1024)) != -1) {
+                    file.write(data, 0, byteContent);
+                }
+            } catch (IOException e) {
+                // handles IO exceptions
+            }
+
+        } else {
+            System.out.println("Vocab file already exists at " + vocabFile.getAbsolutePath());
+        }
+
     }
 
 
