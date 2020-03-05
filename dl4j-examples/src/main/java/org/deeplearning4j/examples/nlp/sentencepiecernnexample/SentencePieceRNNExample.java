@@ -13,7 +13,7 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  ******************************************************************************/
-package org.deeplearning4j.examples.nlp.bertiteratorexample;
+package org.deeplearning4j.examples.nlp.sentencepiecernnexample;
 
 
 import org.apache.commons.io.FileUtils;
@@ -56,7 +56,13 @@ import java.util.*;
  * @author andrewtuzhykov@gmail.com
  */
 
-public class BertIteratorExample {
+    /**
+     * NOTE: You may download already trained defined below model for your own inference
+     *  https://dl4jdata.blob.core.windows.net/dl4j-examples/models/sentencepiece_rnn_example_model.zip
+     */
+
+
+public class SentencePieceRNNExample {
 
 
     /**
@@ -190,7 +196,6 @@ public class BertIteratorExample {
         for (int i = 1; i <= 19; i++) {
 
             net.fit(train);
-
 
             // Get and print accuracy, precision, recall & F1 and confusion matrix
             Evaluation eval = net.doEvaluation(test, new Evaluation[]{new Evaluation()})[0];
