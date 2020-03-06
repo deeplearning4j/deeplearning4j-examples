@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015-2020 Skymind, Inc.
+ * Copyright (c) Copyright (c) 2020 Konduit K.K.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Apache License, Version 2.0 which is available at
@@ -53,15 +53,41 @@ import java.util.*;
 
 
 /**
- * @author andrewtuzhykov@gmail.com
+ * Example: Given a movie review (raw text), classify that movie review as either positive or negative based on the words it contains.
+ * This is done by combining BertIterator and a current neural network model: embedding sequence layer with nIn = vocabulary size,
+ * two bidirectional LSTM layers, followed by global pooling layer and output with nOu = 2 (2 classes: positive and negative reviews).
+ * As far model is predisposed to overfitting we also add l2 regularization and dropout for certain layers.
+ * To prepare reviews we use BertIterator, which is MultiDataSetIterator for training BERT (Transformer) models.
+ * We congigure BertIterator for supervised sequence classification:
+ * 0. As tokenizer we use BertWordPieceTokenizerFactory with provided BERT BASE UNCASED vocabulary.
+ * 1. We handle length of sequence to fixed - trim longer sequences and pad shorter to 256 words.
+ * 2. Sentence provider get as a reviewFilesMap, connstructed from dataset, described below.
+ * 3. FeatureArrays configures what arrays should be included: <b>INDICES_MASK</b> means
+ * indices array and mask array only, no segment ID array; returns 1 feature array, 1 feature mask array (plus labels).
+ * 4. As task we specify BertIterator.Task.SEQ_CLASSIFICATION, which means sequence clasification.
+ * Training data is the "Large Movie Review Dataset" from http://ai.stanford.edu/~amaas/data/sentiment/
+ * This data set contains 25,000 training reviews + 25,000 testing reviews
+ * <p>
+ * Process:
+ * 0. Automatic on first run of example: Download data (movie reviews) + extract and download BERT-BASE UNCASED vocabulary file.
+ * 1. BertWordPieceTokenizerFactory initializing with provided vocab.
+ * 2. Configuring MiltiLayerNetwork.
+ * 3. Setting of BertIterator and getting train and test data with followed by preprocessor.
+ * 4. Train network
+ * <p>
+ * With the current configuration, gives approx. 86% accuracy after 19 epochs. Better performance may be possible with
+ * additional tuning.
+ * <p>
+ * NOTE: You may download already trained defined below model for your own inference
+ * https://dl4jdata.blob.core.windows.net/dl4j-examples/models/sentencepiece_rnn_example_model.zip
+ * <p>
+ * Recommended papers:
+ * 0. SentencePiece: A simple and language independent subword tokenizer and detokenizer for Neural Text Processing
+ * https://arxiv.org/abs/1808.06226
+ * 1. Attention Is All You Need
+ * https://arxiv.org/abs/1706.03762
+ * @author Andrii Tuzhykov
  */
-
-    /**
-     * NOTE: You may download already trained defined below model for your own inference
-     *  https://dl4jdata.blob.core.windows.net/dl4j-examples/models/sentencepiece_rnn_example_model.zip
-     */
-
-
 public class SentencePieceRNNExample {
 
 
@@ -69,8 +95,9 @@ public class SentencePieceRNNExample {
      * Data URL for downloading
      */
     public static final String DATA_URL = "http://ai.stanford.edu/~amaas/data/sentiment/aclImdb_v1.tar.gz";
-
-    // Bert Base Uncased Vocabulary
+    /**
+     * Bert Base Uncased Vocabulary URL
+     */
     public static final String VOCAB_URL = "https://s3.amazonaws.com/models.huggingface.co/bert/bert-large-uncased-vocab.txt";
 
     /**
@@ -79,46 +106,7 @@ public class SentencePieceRNNExample {
     public static final String DATA_PATH = FilenameUtils.concat(System.getProperty("java.io.tmpdir"), "dl4j_w2vSentiment/");
 
 
-    /**
-     * Get BertIterator instance.
-     *
-     * @param isTraining specifies which dataset iterator we want to get: train or test.
-     * @param t          BertWordPieceTokenizerFactory initialized with provided vocab.
-     * @return BertIterator with specified parameters.
-     */
-
-    public static BertIterator getBertDataSetIterator(boolean isTraining, BertWordPieceTokenizerFactory t) {
-
-        String path = FilenameUtils.concat(DATA_PATH, (isTraining ? "aclImdb/train/" : "aclImdb/test/"));
-        String positiveBaseDir = FilenameUtils.concat(path, "pos");
-        String negativeBaseDir = FilenameUtils.concat(path, "neg");
-        Random rng = new Random(42);
-
-        File filePositive = new File(positiveBaseDir);
-        File fileNegative = new File(negativeBaseDir);
-
-        Map<String, List<File>> reviewFilesMap = new HashMap<>();
-        reviewFilesMap.put("Positive", Arrays.asList(Objects.requireNonNull(filePositive.listFiles())));
-        reviewFilesMap.put("Negative", Arrays.asList(Objects.requireNonNull(fileNegative.listFiles())));
-
-
-        BertIterator b = BertIterator.builder()
-            .tokenizer(t)
-            .lengthHandling(BertIterator.LengthHandling.FIXED_LENGTH, 256)
-            .minibatchSize(32)
-            .sentenceProvider(new FileLabeledSentenceProvider(reviewFilesMap, rng))
-            .featureArrays(BertIterator.FeatureArrays.INDICES_MASK)
-            .vocabMap(t.getVocab())
-            .task(BertIterator.Task.SEQ_CLASSIFICATION)
-            .build();
-
-
-        return b;
-    }
-
-
     public static void main(String[] args) throws Exception {
-
 
         //Download and extract data
         downloadData();
@@ -132,7 +120,6 @@ public class SentencePieceRNNExample {
         // BertWordPieceTokenizerFactory initialized with given vocab
         BertWordPieceTokenizerFactory t = new BertWordPieceTokenizerFactory(new File(pathToVocab), true, true, StandardCharsets.UTF_8);
 
-
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
             .seed(seed)
             .updater(new Adam(1e-3))
@@ -141,10 +128,10 @@ public class SentencePieceRNNExample {
             .list()
             // matching EmbeddingSequenceLayer outputs with Bidirectional LSTM inputs
             .setInputType(InputType.recurrent(1))
-//          // initialized weights with normal distribution, amount of inputs according to vocab size and off L2 for this layer
+              // initialized weights with normal distribution, amount of inputs according to vocab size and off L2 for this layer
             .layer(0, new EmbeddingSequenceLayer.Builder().weightInit(new NormalDistribution(0, 1)).l2(0)
                 .hasBias(true).nIn(t.getVocab().size()).nOut(128).build())
-//           // two Bidirectional LSTM layers in a row with dropout and tanh as activation function
+               // two Bidirectional LSTM layers in a row with dropout and tanh as activation function
             .layer(new Bidirectional(new LSTM.Builder().nOut(256)
                 .dropOut(0.8).activation(Activation.TANH).build()))
             .layer(new Bidirectional(new LSTM.Builder().nOut(256)
@@ -157,14 +144,12 @@ public class SentencePieceRNNExample {
                 .lossFunction(LossFunctions.LossFunction.MCXENT).build())
             .build();
 
-
         // Getting train and test BertIterators for both: test and train,
         // changing argument isTraining: true to get train and false to get test respectively
         BertIterator train = getBertDataSetIterator(true, t);
         BertIterator test = getBertDataSetIterator(false, t);
 
-
-        // preprocessor for DataType matching
+        // Preprocessor for DataType matching; can be removed after 1.0.0-beta7 release.
         MultiDataSetPreProcessor mdsPreprocessor = new MultiDataSetPreProcessor() {
             @Override
             public void preProcess(MultiDataSet multiDataSet) {
@@ -192,16 +177,53 @@ public class SentencePieceRNNExample {
         uiServer.attach(statsStorage);
 
 
-        // Setting to train net for 19 epochs (note: previous net state persist after each iteration)
+        // Setting to train net for 19 epochs (note: previous net state persist after each epoch (i.e. cycle iteration))
         for (int i = 1; i <= 19; i++) {
 
             net.fit(train);
 
             // Get and print accuracy, precision, recall & F1 and confusion matrix
             Evaluation eval = net.doEvaluation(test, new Evaluation[]{new Evaluation()})[0];
+            System.out.println("===== Evaluation at training iteration " + i + " =====");
             System.out.println(eval.stats());
         }
 
+    }
+
+    /**
+     * Get BertIterator instance.
+     *
+     * @param isTraining specifies which dataset iterator we want to get: train or test.
+     * @param t          BertWordPieceTokenizerFactory initialized with provided vocab.
+     * @return BertIterator with specified parameters.
+     */
+    public static BertIterator getBertDataSetIterator(boolean isTraining, BertWordPieceTokenizerFactory t) {
+
+        String path = FilenameUtils.concat(DATA_PATH, (isTraining ? "aclImdb/train/" : "aclImdb/test/"));
+        String positiveBaseDir = FilenameUtils.concat(path, "pos");
+        String negativeBaseDir = FilenameUtils.concat(path, "neg");
+        Random rng = new Random(42);
+
+        File filePositive = new File(positiveBaseDir);
+        File fileNegative = new File(negativeBaseDir);
+
+        Map<String, List<File>> reviewFilesMap = new HashMap<>();
+        reviewFilesMap.put("Positive", Arrays.asList(Objects.requireNonNull(filePositive.listFiles())));
+        reviewFilesMap.put("Negative", Arrays.asList(Objects.requireNonNull(fileNegative.listFiles())));
+
+
+        BertIterator b = BertIterator.builder()
+            .tokenizer(t)
+            .lengthHandling(BertIterator.LengthHandling.FIXED_LENGTH, 256)
+            .minibatchSize(32)
+            .sentenceProvider(new FileLabeledSentenceProvider(reviewFilesMap, rng))
+            .featureArrays(BertIterator.FeatureArrays.INDICES_MASK)
+            .vocabMap(t.getVocab())
+            .task(BertIterator.Task.SEQ_CLASSIFICATION)
+            .build();
+
+
+        return b;
     }
 
     public static void downloadData() throws Exception {
@@ -254,7 +276,5 @@ public class SentencePieceRNNExample {
         }
 
     }
-
-
 }
 

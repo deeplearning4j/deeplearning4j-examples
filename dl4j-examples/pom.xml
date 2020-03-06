@@ -106,12 +106,6 @@
             <version>${dl4j.version}</version>
         </dependency>
 
-        <dependency>
-            <groupId>org.deeplearning4j</groupId>
-            <artifactId>deeplearning4j-cuda-10.0</artifactId>
-            <version>1.0.0-beta6</version>
-        </dependency>
-
         <!-- deeplearning4j-ui is used for visualization: see http://deeplearning4j.org/visualization -->
         <dependency>
             <groupId>org.deeplearning4j</groupId>
