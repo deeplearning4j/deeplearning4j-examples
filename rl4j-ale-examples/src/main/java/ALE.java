@@ -32,15 +32,15 @@ public class ALE {
     public static void main(String[] args) throws IOException {
 
         HistoryProcessor.Configuration ALE_HP = new HistoryProcessor.Configuration(
-                        4,       //History length
-                        84,      //resize width
-                        110,     //resize height
-                        84,      //crop width
-                        84,      //crop height
-                        0,       //cropping x offset
-                        0,       //cropping y offset
-                        4        //skip mod (one frame is picked every x
-                );
+                4,       //History length
+                84,      //resize width
+                110,     //resize height
+                84,      //crop width
+                84,      //crop height
+                0,       //cropping x offset
+                0,       //cropping y offset
+                4        //skip mod (one frame is picked every x
+        );
 
         QLearning.QLConfiguration ALE_QL =
                 new QLearning.QLConfiguration(
@@ -69,7 +69,7 @@ public class ALE {
         //setup the emulation environment through ALE, you will need a ROM file
         // set render to true to see the agent play (poorly). You can also see how slowly the data is generated and
         // understand why training would take a long time.
-        ALEMDP mdp = new ALEMDP("E:\\projects\\ArcadeLearningEnvironment\\pong.bin", false);
+        ALEMDP mdp = new ALEMDP("pong.bin", true);
 
         //setup the training
         QLearningDiscreteConv<ALEMDP.GameScreen> dql = new QLearningDiscreteConv<ALEMDP.GameScreen>(mdp, ALE_NET_QL, ALE_HP, ALE_QL);
