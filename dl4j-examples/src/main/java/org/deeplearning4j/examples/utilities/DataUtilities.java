@@ -19,11 +19,19 @@ package org.deeplearning4j.examples.utilities;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
+import org.apache.commons.lang.math.NumberUtils;
 import org.apache.http.HttpEntity;
+import org.apache.http.HttpHost;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.CredentialsProvider;
+import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.impl.client.HttpClients;
 
 import java.io.*;
 
@@ -48,15 +56,44 @@ public class DataUtilities {
     File file = new File(localPath);
     if (!file.exists()) {
       file.getParentFile().mkdirs();
-      HttpClientBuilder builder = HttpClientBuilder.create();
-      CloseableHttpClient client = builder.build();
+
+      String scheme = "http";
+      if(remoteUrl.toLowerCase().startsWith("https")){
+        scheme = "https";
+      }
+      String proxyHost = System.getProperty(scheme + ".proxyHost");
+      String proxyPort = System.getProperty(scheme + ".proxyPort");
+      String proxyUser = System.getProperty(scheme + ".proxyUser");
+      String proxyPass = System.getProperty(scheme + ".proxyPassword");
+
+      CloseableHttpClient client = null;
+      if (proxyHost == null || proxyHost.isEmpty() || !NumberUtils.isNumber(proxyPort)) {
+        HttpClientBuilder builder = HttpClientBuilder.create();
+        client = builder.build();
+      } else {
+        HttpHost proxy = new HttpHost(proxyHost, Integer.parseInt(proxyPort), scheme);
+        CredentialsProvider credsProvider = new BasicCredentialsProvider();
+        UsernamePasswordCredentials proxyCredentials = null;
+        if (proxyUser != null && proxyPass != null){
+          proxyCredentials = new UsernamePasswordCredentials(proxyUser, proxyPass);
+          credsProvider.setCredentials(
+            new AuthScope(proxy),
+            proxyCredentials);
+        }
+        RequestConfig config = RequestConfig.custom()
+          .setProxy(proxy)
+          .build();
+        client = HttpClients.custom()
+          .setDefaultCredentialsProvider(credsProvider)
+          .setDefaultRequestConfig(config)
+          .build();
+      }
       try (CloseableHttpResponse response = client.execute(new HttpGet(remoteUrl))) {
         HttpEntity entity = response.getEntity();
         if (entity != null) {
           try (FileOutputStream outstream = new FileOutputStream(file)) {
             entity.writeTo(outstream);
             outstream.flush();
-            outstream.close();
           }
         }
       }
