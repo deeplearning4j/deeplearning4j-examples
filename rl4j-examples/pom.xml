@@ -26,7 +26,6 @@
         <version>1.0.0-beta6</version>
     </parent>
 
-
     <name>Reinforcement Learning4j Examples</name>
 
     <repositories>
@@ -110,17 +109,13 @@
             <version>${rl4j.version}</version>
         </dependency>
 <!-- The Arcade Learning Environment (ALE) is under GPL license, so we cannot use it as a dependency of RL4J. -->
+<!--
         <dependency>
             <groupId>org.bytedeco</groupId>
             <artifactId>ale-platform</artifactId>
             <version>0.6.0-1.5</version>
         </dependency>
-
-        <dependency>
-            <groupId>org.deeplearning4j</groupId>
-            <artifactId>deeplearning4j-ui</artifactId>
-            <version>${dl4j.version}</version>
-        </dependency>
+-->
 
         <dependency>
             <groupId>org.deeplearning4j</groupId>
