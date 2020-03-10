@@ -17,56 +17,56 @@
 package org.deeplearning4j.examples.rl4j;
 
 import java.io.IOException;
+
 import org.deeplearning4j.rl4j.learning.HistoryProcessor;
+import org.deeplearning4j.rl4j.learning.configuration.QLearningConfiguration;
 import org.deeplearning4j.rl4j.learning.sync.qlearning.QLearning;
 import org.deeplearning4j.rl4j.learning.sync.qlearning.discrete.QLearningDiscreteConv;
 import org.deeplearning4j.rl4j.mdp.ale.ALEMDP;
+import org.deeplearning4j.rl4j.network.configuration.DQNDenseNetworkConfiguration;
 import org.deeplearning4j.rl4j.network.dqn.DQNFactoryStdConv;
 import org.deeplearning4j.rl4j.util.DataManager;
+import org.nd4j.linalg.learning.config.Adam;
 
 /**
  * @author saudet
- *
+ * <p>
  * Main example for DQN with The Arcade Learning Environment (ALE)
- *
  */
 public class ALE {
 
     public static HistoryProcessor.Configuration ALE_HP =
-            new HistoryProcessor.Configuration(
-                    4,       //History length
-                    84,      //resize width
-                    110,     //resize height
-                    84,      //crop width
-                    84,      //crop height
-                    0,       //cropping x offset
-                    0,       //cropping y offset
-                    4        //skip mod (one frame is picked every x
-            );
+        new HistoryProcessor.Configuration(
+            4,       //History length
+            84,      //resize width
+            110,     //resize height
+            84,      //crop width
+            84,      //crop height
+            0,       //cropping x offset
+            0,       //cropping y offset
+            4        //skip mod (one frame is picked every x
+        );
 
-    public static QLearning.QLConfiguration ALE_QL =
-            new QLearning.QLConfiguration(
-                    123L,      //Random seed
-                    10000,    //Max step By epoch
-                    8000000,  //Max step
-                    1000000,  //Max size of experience replay
-                    32,       //size of batches
-                    10000,    //target update (hard)
-                    500,      //num step noop warmup
-                    0.1,      //reward scaling
-                    0.99,     //gamma
-                    100.0,    //td-error clipping
-                    0.1,     //min epsilon
-                    100000,   //num step for eps greedy anneal
-                    true      //double-dqn
-            );
+    private static QLearningConfiguration ALE_QLEARNING_CONFIG = QLearningConfiguration.builder()
+        .seed(123L)
+        .maxEpochStep(10000)
+        .maxStep(8000000)
+        .expRepMaxSize(1000000)
+        .batchSize(32)
+        .targetDqnUpdateFreq(10000)
+        .updateStart(500)
+        .rewardFactor(0.1)
+        .gamma(0.99)
+        .errorClamp(100.0)
+        .minEpsilon(0.1)
+        .epsilonNbStep(100000)
+        .doubleDQN(true)
+        .build();
 
-    public static DQNFactoryStdConv.Configuration ALE_NET_QL =
-            new DQNFactoryStdConv.Configuration(
-                    0.00025, //learning rate
-                    0.000,   //l2 regularization
-                    null, null
-            );
+    public static DQNDenseNetworkConfiguration ALE_NET_CONFIG =
+        DQNDenseNetworkConfiguration.builder()
+            .updater(new Adam(0.00025))
+            .build();
 
     public static void main(String[] args) throws IOException {
 
@@ -81,7 +81,7 @@ public class ALE {
             System.out.println("To run this example, uncomment the \"ale-platform\" dependency in the pom.xml file.");
         }
         //setup the training
-        QLearningDiscreteConv<ALEMDP.GameScreen> dql = new QLearningDiscreteConv(mdp, ALE_NET_QL, ALE_HP, ALE_QL, manager);
+        QLearningDiscreteConv<ALEMDP.GameScreen> dql = new QLearningDiscreteConv(mdp, ALE_NET_CONFIG, ALE_HP, ALE_QLEARNING_CONFIG, manager);
 
         //start the training
         dql.train();

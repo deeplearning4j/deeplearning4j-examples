@@ -17,53 +17,54 @@
 package org.deeplearning4j.examples.rl4j;
 
 import java.io.IOException;
+
 import org.deeplearning4j.rl4j.learning.HistoryProcessor;
 import org.deeplearning4j.rl4j.learning.async.a3c.discrete.A3CDiscrete;
 import org.deeplearning4j.rl4j.learning.async.a3c.discrete.A3CDiscreteConv;
+import org.deeplearning4j.rl4j.learning.configuration.A3CLearningConfiguration;
 import org.deeplearning4j.rl4j.mdp.ale.ALEMDP;
 import org.deeplearning4j.rl4j.network.ac.ActorCriticFactoryCompGraphStdConv;
+import org.deeplearning4j.rl4j.network.configuration.ActorCriticNetworkConfiguration;
 import org.deeplearning4j.rl4j.util.DataManager;
 import org.nd4j.linalg.learning.config.Adam;
 
 /**
  * @author saudet
- *
+ * <p>
  * Main example for A3C with The Arcade Learning Environment (ALE)
- *
  */
 public class A3CALE {
 
     public static HistoryProcessor.Configuration ALE_HP =
-            new HistoryProcessor.Configuration(
-                    4,       //History length
-                    84,      //resize width
-                    110,     //resize height
-                    84,      //crop width
-                    84,      //crop height
-                    0,       //cropping x offset
-                    0,       //cropping y offset
-                    4        //skip mod (one frame is picked every x
-            );
+        new HistoryProcessor.Configuration(
+            4,       //History length
+            84,      //resize width
+            110,     //resize height
+            84,      //crop width
+            84,      //crop height
+            0,       //cropping x offset
+            0,       //cropping y offset
+            4        //skip mod (one frame is picked every x
+        );
 
-    public static A3CDiscrete.A3CConfiguration ALE_A3C =
-            new A3CDiscrete.A3CConfiguration(
-                    123L,            //Random seed
-                    10000,          //Max step By epoch
-                    8000000,        //Max step
-                    8,              //Number of threads
-                    32,             //t_max
-                    500,            //num step noop warmup
-                    0.1,            //reward scaling
-                    0.99,           //gamma
-                    10.0            //td-error clipping
-            );
+    public static A3CLearningConfiguration ALE_A3C =
+        A3CLearningConfiguration.builder()
+            .seed(123L)
+            .maxEpochStep(10000)
+            .maxStep(8000000)
+            .numThreads(8)
+            .nStep(32)
+            .rewardFactor(0.1)
+            .gamma(0.99)
+            .build();
 
-    public static final ActorCriticFactoryCompGraphStdConv.Configuration ALE_NET_A3C =
-            new ActorCriticFactoryCompGraphStdConv.Configuration(
-                    0.000,   //l2 regularization
-                    new Adam(0.00025), //learning rate
-                    null, false
-            );
+
+    public static final ActorCriticNetworkConfiguration ALE_NET_A3C =
+        ActorCriticNetworkConfiguration.builder()
+            .updater(new Adam(0.00025))
+            .useLSTM(false)
+            .build();
+
 
     public static void main(String[] args) throws IOException {
 

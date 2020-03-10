@@ -16,45 +16,46 @@
 
 package org.deeplearning4j.examples.rl4j;
 
-import java.io.IOException;
-
-import org.deeplearning4j.api.storage.StatsStorage;
-import org.deeplearning4j.api.storage.StatsStorageListener;
-import org.deeplearning4j.rl4j.space.Box;
-import org.deeplearning4j.rl4j.learning.async.AsyncLearning;
-import org.deeplearning4j.rl4j.learning.async.nstep.discrete.AsyncNStepQLearningDiscrete;
-import org.deeplearning4j.rl4j.learning.async.nstep.discrete.AsyncNStepQLearningDiscreteDense;
+import org.deeplearning4j.rl4j.learning.async.nstepq.discrete.AsyncNStepQLearningDiscreteDense;
+import org.deeplearning4j.rl4j.learning.configuration.AsyncQLearningConfiguration;
 import org.deeplearning4j.rl4j.mdp.gym.GymEnv;
-import org.deeplearning4j.rl4j.network.dqn.DQNFactoryStdDense;
+import org.deeplearning4j.rl4j.network.configuration.DQNDenseNetworkConfiguration;
 import org.deeplearning4j.rl4j.policy.DQNPolicy;
+import org.deeplearning4j.rl4j.space.Box;
 import org.deeplearning4j.rl4j.util.DataManager;
-import org.deeplearning4j.ui.api.UIServer;
-import org.deeplearning4j.ui.stats.StatsListener;
-import org.deeplearning4j.ui.storage.InMemoryStatsStorage;
 import org.nd4j.linalg.learning.config.Adam;
+
+import java.io.IOException;
 
 /**
  * @author rubenfiszel (ruben.fiszel@epfl.ch) on 8/18/16.
- *
+ * <p>
  * main example for Async NStep QLearning on cartpole
  */
 public class AsyncNStepCartpole {
 
-    public static AsyncNStepQLearningDiscrete.AsyncNStepQLConfiguration CARTPOLE_NSTEP =
-            new AsyncNStepQLearningDiscrete.AsyncNStepQLConfiguration(
-                    123L,     //Random seed
-                    200,     //Max step By epoch
-                    300000,  //Max step
-                    16,      //Number of threads
-                    5,       //t_max
-                    100,     //target update (hard)
-                    10,      //num step noop warmup
-                    0.01,    //reward scaling
-                    0.99,    //gamma
-                    100.0,   //td-error clipping
-                    0.1f,    //min epsilon
-                    9000     //num step for eps greedy anneal
-            );
+    public static AsyncQLearningConfiguration CARTPOLE_NSTEPQ_CONFIG =
+        AsyncQLearningConfiguration.builder()
+            .seed(123L)
+            .maxEpochStep(200)
+            .maxStep(300000)
+            .numThreads(16)
+            .nStep(5)
+            .targetDqnUpdateFreq(100)
+            .updateStart(10)
+            .rewardFactor(0.01)
+            .gamma(0.99)
+            .errorClamp(100.0)
+            .minEpsilon(0.1)
+            .epsilonNbStep(9000)
+            .build();
+
+    private static DQNDenseNetworkConfiguration CARTPOLE_NET_CONFIG = DQNDenseNetworkConfiguration.builder()
+        .l2(0.001)
+        .updater(new Adam(0.0005))
+        .numHiddenNodes(16)
+        .numLayers(3)
+        .build();
 
 
     public static void main(String[] args) throws IOException {
@@ -67,35 +68,23 @@ public class AsyncNStepCartpole {
         //record the training data in rl4j-data in a new folder
         DataManager manager = new DataManager(true);
 
-        StatsStorage statsStorage = new InMemoryStatsStorage();
-
-        DQNFactoryStdDense.Configuration DQN = DQNFactoryStdDense.Configuration.builder()
-            .l2(0.001)
-            .updater(new Adam(0.0005))
-            .numHiddenNodes(16)
-            .numLayer(3)
-            .listener(new StatsListener(statsStorage))
-            .build();
-
-        UIServer uiServer = UIServer.getInstance();
-        uiServer.attach(statsStorage);
 
         //define the mdp from gym (name, render)
         GymEnv mdp = null;
         try {
-        mdp = new GymEnv("CartPole-v0", false, false);
-        } catch (RuntimeException e){
+            mdp = new GymEnv("CartPole-v0", false, false);
+        } catch (RuntimeException e) {
             System.out.print("To run this example, download and start the gym-http-api repo found at https://github.com/openai/gym-http-api.");
         }
 
         //define the training
-        AsyncNStepQLearningDiscreteDense<Box> dql = new AsyncNStepQLearningDiscreteDense<Box>(mdp, DQN, CARTPOLE_NSTEP, manager);
+        AsyncNStepQLearningDiscreteDense<Box> dql = new AsyncNStepQLearningDiscreteDense<Box>(mdp, CARTPOLE_NET_CONFIG, CARTPOLE_NSTEPQ_CONFIG, manager);
 
         //train
         dql.train();
 
         //get the final policy
-        DQNPolicy<Box> pol = (DQNPolicy<Box>)dql.getPolicy();
+        DQNPolicy<Box> pol = (DQNPolicy<Box>) dql.getPolicy();
 
         //serialize and save (serialization showcase, but not required)
         pol.save("/tmp/pol1");

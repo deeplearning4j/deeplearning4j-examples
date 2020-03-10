@@ -16,8 +16,10 @@
 
 package org.deeplearning4j.examples.rl4j;
 
+import org.deeplearning4j.rl4j.learning.configuration.QLearningConfiguration;
 import org.deeplearning4j.rl4j.learning.sync.qlearning.QLearning;
 import org.deeplearning4j.rl4j.learning.sync.qlearning.discrete.QLearningDiscreteDense;
+import org.deeplearning4j.rl4j.network.configuration.DQNDenseNetworkConfiguration;
 import org.deeplearning4j.rl4j.network.dqn.DQNFactoryStdDense;
 import org.deeplearning4j.rl4j.policy.DQNPolicy;
 import org.deeplearning4j.rl4j.util.DataManager;
@@ -36,26 +38,26 @@ import java.util.logging.Logger;
 
 /**
  * Simple example for Malmo DQN w/ x,y,z position as input
+ *
  * @author howard-abrams (howard.abrams@ca.com) on 1/12/17.
  */
 public class Malmo {
-    public static QLearning.QLConfiguration MALMO_QL = new QLearning.QLConfiguration(123L, //Random seed
-                    200, //Max step By epoch
-                    200000, //Max step
-                    200000, //Max size of experience replay
-                    32, //size of batches
-                    50, //target update (hard)
-                    10, //num step noop warmup
-                    0.01, //reward scaling
-                    0.99, //gamma
-                    1.0, //td-error clipping
-                    0.15f, //min epsilon
-                    1000, //num step for eps greedy anneal
-                    true //double DQN
-    );
 
-    public static DQNFactoryStdDense.Configuration MALMO_NET = DQNFactoryStdDense.Configuration.builder().l2(0.00)
-                    .updater(new Adam(0.001)).numHiddenNodes(50).numLayer(3).build();
+    private static QLearningConfiguration MALMO_Q_LEARNING_CONFIG = QLearningConfiguration.builder()
+        .maxStep(200000)
+        .expRepMaxSize(200000)
+        .targetDqnUpdateFreq(50)
+        .minEpsilon(0.15)
+        .rewardFactor(0.1)
+        .epsilonNbStep(1000)
+        .doubleDQN(true)
+        .build();
+
+    private static DQNDenseNetworkConfiguration MALMO_NET_CONFIG = DQNDenseNetworkConfiguration.builder()
+        .updater(new Adam(0.001))
+        .numHiddenNodes(50)
+        .numLayers(3)
+        .build();
 
     public static void main(String[] args) throws IOException {
         try {
@@ -63,14 +65,14 @@ public class Malmo {
             loadMalmoCliffWalk();
         } catch (MalmoConnectionError e) {
             System.out.println(
-                            "To run this example, download and start Project Malmo found at https://github.com/Microsoft/malmo.");
+                "To run this example, download and start Project Malmo found at https://github.com/Microsoft/malmo.");
         }
     }
 
     private static MalmoEnv createMDP() {
         // Create action space comprised of just discrete north, south, east and west
         MalmoActionSpaceDiscrete actionSpace =
-                        new MalmoActionSpaceDiscrete("movenorth 1", "movesouth 1", "movewest 1", "moveeast 1");
+            new MalmoActionSpaceDiscrete("movenorth 1", "movesouth 1", "movewest 1", "moveeast 1");
 
         // Create a basic observation space that simply contains the x, y, z world position
         MalmoObservationSpace observationSpace = new MalmoObservationSpacePosition();
@@ -90,7 +92,7 @@ public class Malmo {
         MalmoEnv mdp = createMDP();
 
         // define the training
-        QLearningDiscreteDense<MalmoBox> dql = new QLearningDiscreteDense<MalmoBox>(mdp, MALMO_NET, MALMO_QL, manager);
+        QLearningDiscreteDense<MalmoBox> dql = new QLearningDiscreteDense<MalmoBox>(mdp, MALMO_NET_CONFIG, MALMO_Q_LEARNING_CONFIG, manager);
 
         // train
         dql.train();
