@@ -17,6 +17,8 @@
 package org.deeplearning4j.examples.rl4j;
 
 import java.io.IOException;
+
+import org.deeplearning4j.api.storage.StatsStorage;
 import org.deeplearning4j.rl4j.space.Box;
 import org.deeplearning4j.rl4j.learning.sync.qlearning.QLearning;
 import org.deeplearning4j.rl4j.learning.sync.qlearning.discrete.QLearningDiscreteDense;
@@ -25,6 +27,9 @@ import org.deeplearning4j.rl4j.network.dqn.DQNFactoryStdDense;
 import org.deeplearning4j.rl4j.policy.DQNPolicy;
 import org.deeplearning4j.rl4j.space.DiscreteSpace;
 import org.deeplearning4j.rl4j.util.DataManager;
+import org.deeplearning4j.ui.api.UIServer;
+import org.deeplearning4j.ui.stats.StatsListener;
+import org.deeplearning4j.ui.storage.InMemoryStatsStorage;
 import org.nd4j.linalg.learning.config.Adam;
 
 import java.util.logging.Logger;
@@ -39,27 +44,6 @@ import java.util.logging.Logger;
 public class Cartpole
 {
 
-    public static QLearning.QLConfiguration CARTPOLE_QL =
-            new QLearning.QLConfiguration(
-                    123,    //Random seed
-                    200,    //Max step By epoch
-                    150000, //Max step
-                    150000, //Max size of experience replay
-                    32,     //size of batches
-                    500,    //target update (hard)
-                    10,     //num step noop warmup
-                    0.01,   //reward scaling
-                    0.99,   //gamma
-                    1.0,    //td-error clipping
-                    0.1f,   //min epsilon
-                    1000,   //num step for eps greedy anneal
-                    true    //double DQN
-            );
-
-    public static DQNFactoryStdDense.Configuration CARTPOLE_NET =
-        DQNFactoryStdDense.Configuration.builder()
-            .l2(0.001).updater(new Adam(0.0005)).numHiddenNodes(16).numLayer(3).build();
-
     public static void main(String[] args) throws IOException {
         cartPole();
         loadCartpole();
@@ -70,6 +54,26 @@ public class Cartpole
         //record the training data in rl4j-data in a new folder (save)
         DataManager manager = new DataManager(true);
 
+        StatsStorage statsStorage = new InMemoryStatsStorage();
+
+        QLearning.QLConfiguration QLearningConfig = QLearning.QLConfiguration.builder()
+            .gamma(0.95)
+            .minEpsilon(0.01)
+            .epsilonNbStep(1000)
+            .build();
+
+        DQNFactoryStdDense.Configuration cartpoleNetConfig = DQNFactoryStdDense.Configuration.builder()
+            //.l2(0.001)
+            .updater(new Adam(0.001))
+            .numHiddenNodes(24)
+            .numLayer(3)
+            .listener(new StatsListener(statsStorage))
+            .build();
+
+
+        UIServer uiServer = UIServer.getInstance();
+        uiServer.attach(statsStorage);
+
         //define the mdp from gym (name, render)
         GymEnv<Box, Integer, DiscreteSpace> mdp = null;
         try {
@@ -78,7 +82,7 @@ public class Cartpole
             System.out.print("To run this example, download and start the gym-http-api repo found at https://github.com/openai/gym-http-api.");
         }
         //define the training
-        QLearningDiscreteDense<Box> dql = new QLearningDiscreteDense(mdp, CARTPOLE_NET, CARTPOLE_QL, manager);
+        QLearningDiscreteDense<Box> dql = new QLearningDiscreteDense(mdp, cartpoleNetConfig, QLearningConfig, manager);
 
         //train
         dql.train();

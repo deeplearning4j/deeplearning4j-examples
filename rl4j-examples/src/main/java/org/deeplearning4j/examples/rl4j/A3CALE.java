@@ -47,7 +47,7 @@ public class A3CALE {
 
     public static A3CDiscrete.A3CConfiguration ALE_A3C =
             new A3CDiscrete.A3CConfiguration(
-                    123,            //Random seed
+                    123L,            //Random seed
                     10000,          //Max step By epoch
                     8000000,        //Max step
                     8,              //Number of threads

@@ -44,7 +44,7 @@ import java.util.logging.Logger;
  * @author howard-abrams (howard.abrams@ca.com) on 1/12/17.
  */
 public class MalmoPixels {
-    public static QLearning.QLConfiguration MALMO_QL = new QLearning.QLConfiguration(123, //Random seed
+    public static QLearning.QLConfiguration MALMO_QL = new QLearning.QLConfiguration(123L, //Random seed
                     200, //Max step By epoch
                     100000, //Max step
                     50000, //Max size of experience replay

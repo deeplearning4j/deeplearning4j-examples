@@ -17,6 +17,9 @@
 package org.deeplearning4j.examples.rl4j;
 
 import java.io.IOException;
+
+import org.deeplearning4j.api.storage.StatsStorage;
+import org.deeplearning4j.api.storage.StatsStorageListener;
 import org.deeplearning4j.rl4j.space.Box;
 import org.deeplearning4j.rl4j.learning.async.AsyncLearning;
 import org.deeplearning4j.rl4j.learning.async.nstep.discrete.AsyncNStepQLearningDiscrete;
@@ -25,6 +28,9 @@ import org.deeplearning4j.rl4j.mdp.gym.GymEnv;
 import org.deeplearning4j.rl4j.network.dqn.DQNFactoryStdDense;
 import org.deeplearning4j.rl4j.policy.DQNPolicy;
 import org.deeplearning4j.rl4j.util.DataManager;
+import org.deeplearning4j.ui.api.UIServer;
+import org.deeplearning4j.ui.stats.StatsListener;
+import org.deeplearning4j.ui.storage.InMemoryStatsStorage;
 import org.nd4j.linalg.learning.config.Adam;
 
 /**
@@ -34,10 +40,9 @@ import org.nd4j.linalg.learning.config.Adam;
  */
 public class AsyncNStepCartpole {
 
-
     public static AsyncNStepQLearningDiscrete.AsyncNStepQLConfiguration CARTPOLE_NSTEP =
             new AsyncNStepQLearningDiscrete.AsyncNStepQLConfiguration(
-                    123,     //Random seed
+                    123L,     //Random seed
                     200,     //Max step By epoch
                     300000,  //Max step
                     16,      //Number of threads
@@ -52,11 +57,6 @@ public class AsyncNStepCartpole {
             );
 
 
-    public static DQNFactoryStdDense.Configuration CARTPOLE_NET_NSTEP =
-        DQNFactoryStdDense.Configuration.builder()
-        .l2(0.001).updater(new Adam(0.0005)).numHiddenNodes(16).numLayer(3).build();
-
-
     public static void main(String[] args) throws IOException {
         cartPole();
     }
@@ -66,6 +66,20 @@ public class AsyncNStepCartpole {
 
         //record the training data in rl4j-data in a new folder
         DataManager manager = new DataManager(true);
+
+        StatsStorage statsStorage = new InMemoryStatsStorage();
+
+        DQNFactoryStdDense.Configuration DQN = DQNFactoryStdDense.Configuration.builder()
+            .l2(0.001)
+            .updater(new Adam(0.0005))
+            .numHiddenNodes(16)
+            .numLayer(3)
+            .listener(new StatsListener(statsStorage))
+            .build();
+
+        UIServer uiServer = UIServer.getInstance();
+        uiServer.attach(statsStorage);
+
         //define the mdp from gym (name, render)
         GymEnv mdp = null;
         try {
@@ -75,7 +89,7 @@ public class AsyncNStepCartpole {
         }
 
         //define the training
-        AsyncNStepQLearningDiscreteDense<Box> dql = new AsyncNStepQLearningDiscreteDense<Box>(mdp, CARTPOLE_NET_NSTEP, CARTPOLE_NSTEP, manager);
+        AsyncNStepQLearningDiscreteDense<Box> dql = new AsyncNStepQLearningDiscreteDense<Box>(mdp, DQN, CARTPOLE_NSTEP, manager);
 
         //train
         dql.train();

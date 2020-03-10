@@ -46,7 +46,7 @@ public class ALE {
 
     public static QLearning.QLConfiguration ALE_QL =
             new QLearning.QLConfiguration(
-                    123,      //Random seed
+                    123L,      //Random seed
                     10000,    //Max step By epoch
                     8000000,  //Max step
                     1000000,  //Max size of experience replay
@@ -56,7 +56,7 @@ public class ALE {
                     0.1,      //reward scaling
                     0.99,     //gamma
                     100.0,    //td-error clipping
-                    0.1f,     //min epsilon
+                    0.1,     //min epsilon
                     100000,   //num step for eps greedy anneal
                     true      //double-dqn
             );
@@ -76,7 +76,7 @@ public class ALE {
         //setup the emulation environment through ALE, you will need a ROM file
         ALEMDP mdp = null;
         try {
-            mdp = new ALEMDP("pong.bin");
+            mdp = new ALEMDP("../../ALE/ROMS/Breakout.bin");
         } catch (UnsatisfiedLinkError e) {
             System.out.println("To run this example, uncomment the \"ale-platform\" dependency in the pom.xml file.");
         }

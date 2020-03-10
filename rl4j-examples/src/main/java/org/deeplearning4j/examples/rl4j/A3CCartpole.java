@@ -38,7 +38,7 @@ public class A3CCartpole {
 
     private static A3CDiscrete.A3CConfiguration CARTPOLE_A3C =
             new A3CDiscrete.A3CConfiguration(
-                    123,            //Random seed
+                    123L,            //Random seed
                     200,            //Max step By epoch
                     500000,         //Max step
                     16,              //Number of threads
