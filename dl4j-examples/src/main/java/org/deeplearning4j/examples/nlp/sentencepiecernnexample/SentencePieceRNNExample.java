@@ -59,7 +59,7 @@ import java.util.*;
  * As far model is predisposed to overfitting we also add l2 regularization and dropout for certain layers.
  * To prepare reviews we use BertIterator, which is MultiDataSetIterator for training BERT (Transformer) models.
  * We congigure BertIterator for supervised sequence classification:
- * 0. As tokenizer we use BertWordPieceTokenizerFactory with provided BERT BASE UNCASED vocabulary.
+ * 0. BertIterator and BertWordPieceTokenizer implement the Word Piece sub-word tokenization algorithm, with a vocabulary size of 30522 tokens.
  * 1. We handle length of sequence to fixed - trim longer sequences and pad shorter to 256 words.
  * 2. Sentence provider get as a reviewFilesMap, connstructed from dataset, described below.
  * 3. FeatureArrays configures what arrays should be included: <b>INDICES_MASK</b> means
@@ -86,6 +86,7 @@ import java.util.*;
  * https://arxiv.org/abs/1808.06226
  * 1. Attention Is All You Need
  * https://arxiv.org/abs/1706.03762
+ *
  * @author Andrii Tuzhykov
  */
 public class SentencePieceRNNExample {
@@ -128,10 +129,10 @@ public class SentencePieceRNNExample {
             .list()
             // matching EmbeddingSequenceLayer outputs with Bidirectional LSTM inputs
             .setInputType(InputType.recurrent(1))
-              // initialized weights with normal distribution, amount of inputs according to vocab size and off L2 for this layer
+            // initialized weights with normal distribution, amount of inputs according to vocab size and off L2 for this layer
             .layer(0, new EmbeddingSequenceLayer.Builder().weightInit(new NormalDistribution(0, 1)).l2(0)
                 .hasBias(true).nIn(t.getVocab().size()).nOut(128).build())
-               // two Bidirectional LSTM layers in a row with dropout and tanh as activation function
+            // two Bidirectional LSTM layers in a row with dropout and tanh as activation function
             .layer(new Bidirectional(new LSTM.Builder().nOut(256)
                 .dropOut(0.8).activation(Activation.TANH).build()))
             .layer(new Bidirectional(new LSTM.Builder().nOut(256)
@@ -165,7 +166,8 @@ public class SentencePieceRNNExample {
         MultiLayerNetwork net = new MultiLayerNetwork(conf);
 
 
-        //Initialize the user interface backend
+        /*
+        //Uncomment this section to run the example with the user interface
         UIServer uiServer = UIServer.getInstance();
 
         //Configure where the network information (gradients, activations, score vs. time etc) is to be stored
@@ -175,6 +177,9 @@ public class SentencePieceRNNExample {
         net.setListeners(new StatsListener(statsStorage, listenerFrequency), new ScoreIterationListener(50));
         //Attach the StatsStorage instance to the UI: this allows the contents of the StatsStorage to be visualized
         uiServer.attach(statsStorage);
+        */
+
+        net.setListeners(new ScoreIterationListener(50));
 
 
         // Setting to train net for 19 epochs (note: previous net state persist after each epoch (i.e. cycle iteration))
@@ -183,7 +188,7 @@ public class SentencePieceRNNExample {
             net.fit(train);
 
             // Get and print accuracy, precision, recall & F1 and confusion matrix
-            Evaluation eval = net.doEvaluation(test, new Evaluation[]{new Evaluation()})[0];
+            Evaluation eval = net.evaluate(test);
             System.out.println("===== Evaluation at training iteration " + i + " =====");
             System.out.println(eval.stats());
         }
