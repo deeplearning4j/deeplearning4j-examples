@@ -188,7 +188,7 @@ public class SentencePieceRNNExample {
             net.fit(train);
 
             // Get and print accuracy, precision, recall & F1 and confusion matrix
-            Evaluation eval = net.evaluate(test);
+            Evaluation eval = net.doEvaluation(test, new Evaluation[]{new Evaluation()})[0];
             System.out.println("===== Evaluation at training iteration " + i + " =====");
             System.out.println(eval.stats());
         }
