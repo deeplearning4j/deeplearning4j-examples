@@ -42,11 +42,11 @@ public class A3CCartpole {
                     200,            //Max step By epoch
                     500000,         //Max step
                     16,              //Number of threads
-                    5,              //t_max
+                    10,              //t_max
                     10,             //num step noop warmup
-                    0.01,           //reward scaling
+                    0.1,           //reward scaling
                     0.99,           //gamma
-                    10.0           //td-error clipping
+                    1.0           //td-error clipping
             );
 
 
