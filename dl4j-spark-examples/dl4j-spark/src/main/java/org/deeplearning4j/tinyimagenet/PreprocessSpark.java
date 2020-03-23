@@ -35,7 +35,7 @@ import org.deeplearning4j.spark.util.SparkUtils;
  * To get these image files, you have two options:
  *
  * Option 1: Direct download
- * Step 1: Download https://deeplearning4jblob.blob.core.windows.net/datasets/tinyimagenet_200_dl4j.v1.zip
+ * Step 1: Download https://dl4jdata.blob.core.windows.net/datasets/tinyimagenet_200_dl4j.v1.zip
  * Step 2: Extract files locally
  * Step 3: Copy contents (in their existing train/test subdirectories) to remote storage (for example, using Hadoop FS utils or similar)
  *
