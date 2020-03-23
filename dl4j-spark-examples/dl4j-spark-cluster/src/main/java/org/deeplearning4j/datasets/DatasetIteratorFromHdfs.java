@@ -22,7 +22,7 @@ import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 
 import java.util.List;
 /**
- * @Description: TODO
+ * DatasetIteratorFromHdfs implements the methods in the DataSetIterator interface, this class mainly provides iteration of the data set
  * @author wangfeng
  */
 public class DatasetIteratorFromHdfs  implements DataSetIterator {
