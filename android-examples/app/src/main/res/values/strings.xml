@@ -1,5 +1,3 @@
 <resources>
-    <string name="app_name">AndroidImageExperiment</string>
-    <string name="ImageText">Text for Image</string>
-    <string name="CustomViewText">Text for custom view.</string>
+    <string name="app_name">Android DL4j classifier</string>
 </resources>

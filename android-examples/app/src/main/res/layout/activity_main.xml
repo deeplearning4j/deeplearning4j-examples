@@ -7,8 +7,7 @@
     tools:context=".MainActivity">
 
     <view
-        class="com.example.androidimageexperiment.ScatterView"
-        id="@+id/custom-view-id"
+        class="com.example.androidDl4jClassifier.ScatterView"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         app:layout_constraintStart_toStartOf="parent"

@@ -1,4 +1,4 @@
-package com.example.androidimageexperiment;
+package com.example.androidDl4jClassifier;
 
 import org.junit.Test;
 

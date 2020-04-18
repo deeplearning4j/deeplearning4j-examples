@@ -1,4 +1,4 @@
-package com.example.androidimageexperiment;
+package com.example.androidDl4jClassifier;
 
 import android.content.Context;
 
@@ -22,6 +22,6 @@ public class ExampleInstrumentedTest {
         // Context of the app under test.
         Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
 
-        assertEquals("com.example.androidimageexperiment", appContext.getPackageName());
+        assertEquals("com.example.androidDl4jClassifier", appContext.getPackageName());
     }
 }
