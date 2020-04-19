@@ -42,7 +42,7 @@ public class ScatterView extends View {
 
     private final int nPointsPerAxis = 100;
     private INDArray xyGrid; //x,y grid to calculate the output image. Needs to be calculated once, then re-used.
-    private MultiLayerNetwork model;
+    INDArray modelOut = null;
 
     public ScatterView(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
@@ -74,30 +74,25 @@ public class ScatterView extends View {
         int h = this.getHeight();
         int w = this.getWidth();
 
-        if (null == data) {
-            canvas.drawColor(Color.rgb(32, 32, 32));
-            canvas.drawCircle(800, 500, 200, redPaint);
-            canvas.drawCircle(325, 900, 300, greenPaint);
-        } else {
-
-            //draw the nn predictions:
+        //draw the nn predictions:
+        if ((modelOut != null) && (null != xyGrid )){
             int halfRectHeight = h / nPointsPerAxis;
             int halfRectWidth = w / nPointsPerAxis;
-            INDArray modelOut = model.output(xyGrid);
-
             int nRows = xyGrid.rows();
 
             for (int i = 0; i< nRows; i++){
-            int  x =  (int)(xyGrid.getFloat(i, 0) * w);
-            int y = (int) (xyGrid.getFloat(i, 1)  * h);
-            float z = modelOut.getFloat(i, 0);
-            Paint p = (z >= 0.5f) ? lightGreenPaint : lightRedPaint;
-            canvas.drawRect(x-halfRectWidth, y-halfRectHeight, x+halfRectWidth, y+halfRectHeight, p);
-            //  }
+                int  x =  (int)(xyGrid.getFloat(i, 0) * w);
+                int y = (int) (xyGrid.getFloat(i, 1)  * h);
+                float z = modelOut.getFloat(i, 0);
+                Paint p = (z >= 0.5f) ? lightGreenPaint : lightRedPaint;
+                canvas.drawRect(x-halfRectWidth, y-halfRectHeight, x+halfRectWidth, y+halfRectHeight, p);
+                //  }
             }
+        }
 
+        //draw the data set if we have one.
+        if (null != data) {
 
-            //draw the data set
             for (float[] datum : data) {
                 int x = (int) (datum[1] * w);
                 int y = (int) (datum[2] * h);
@@ -173,11 +168,11 @@ public class ScatterView extends View {
 
     private void BuildNN(){
         int seed = 123;
-        double learningRate = 0.01;
+        double learningRate = 0.005;
         int numInputs = 2;
         int numOutputs = 2;
         int numHiddenNodes = 20;
-        int nEpochs = 200;
+        int nEpochs = 2000;
 
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
                 .seed(seed)
@@ -192,12 +187,18 @@ public class ScatterView extends View {
                         .nIn(numHiddenNodes).nOut(numOutputs).build())
                 .build();
 
-        model = new MultiLayerNetwork(conf);
+        MultiLayerNetwork model = new MultiLayerNetwork(conf);
         model.init();
         model.setListeners(new ScoreIterationListener(10));
 
         for(int i = 0; i<nEpochs; i++){
             model.fit(ds);
+            INDArray tmp = model.output(xyGrid);
+
+            this.post(() -> {
+                this.modelOut =  tmp; // update from within the UI thread.
+                this.invalidate(); // have the UI thread redraw at its own convenience.
+            });
         }
 
         Evaluation eval = new Evaluation(numOutputs);
