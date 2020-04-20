@@ -42,7 +42,7 @@ public class ScatterView extends View {
 
     private final int nPointsPerAxis = 100;
     private INDArray xyGrid; //x,y grid to calculate the output image. Needs to be calculated once, then re-used.
-    INDArray modelOut = null;
+    private INDArray modelOut = null;
 
     public ScatterView(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
