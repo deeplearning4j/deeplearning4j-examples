@@ -34,16 +34,16 @@ import org.nd4j.linalg.learning.config.Adam;
 public class A3CALE {
 
     public static HistoryProcessor.Configuration ALE_HP =
-            new HistoryProcessor.Configuration(
-                    4,       //History length
-                    84,      //resize width
-                    110,     //resize height
-                    84,      //crop width
-                    84,      //crop height
-                    0,       //cropping x offset
-                    0,       //cropping y offset
-                    4        //skip mod (one frame is picked every x
-            );
+        new HistoryProcessor.Configuration(
+            4,       //History length
+            152,      //resize width
+            194,     //resize height
+            152,      //crop width
+            194,      //crop height
+            8,       //cropping x offset
+            32,       //cropping y offset
+            4       //skip mod (one frame is picked every x
+        );
 
     public static A3CDiscrete.A3CConfiguration ALE_A3C =
             new A3CDiscrete.A3CConfiguration(
@@ -73,7 +73,7 @@ public class A3CALE {
         //setup the emulation environment through ALE, you will need a ROM file
         ALEMDP mdp = null;
         try {
-            mdp = new ALEMDP("pong.bin");
+            mdp = new ALEMDP("/home/bam4d/konduit/ALE/ROMS/pong.bin");
         } catch (UnsatisfiedLinkError e) {
             System.out.println("To run this example, uncomment the \"ale-platform\" dependency in the pom.xml file.");
         }
