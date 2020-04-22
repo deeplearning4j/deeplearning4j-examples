@@ -76,7 +76,7 @@ public class ALE {
         //setup the emulation environment through ALE, you will need a ROM file
         ALEMDP mdp = null;
         try {
-            mdp = new ALEMDP("/home/bam4d/konduit/ALE/ROMS/pong.bin");
+            mdp = new ALEMDP("pong.bin");
         } catch (UnsatisfiedLinkError e) {
             System.out.println("To run this example, uncomment the \"ale-platform\" dependency in the pom.xml file.");
         }
