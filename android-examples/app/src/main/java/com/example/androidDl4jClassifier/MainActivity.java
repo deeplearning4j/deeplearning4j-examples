@@ -23,6 +23,7 @@ public class MainActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             case R.id.action_linear:
                 // User chose linear dataset.
+                ScatterView view = findViewById(R.id.id_scatterview);
                 return true;
 
             case R.id.action_moon:
