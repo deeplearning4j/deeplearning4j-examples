@@ -21,7 +21,7 @@ public class ScatterView extends View implements OnTrainingUpdateEventListener{
 
     private INDArray modelOut = null; // nn output for the grid.
 
-    private TrainingTask task;
+    private final TrainingTask task;
 
     public ScatterView(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
@@ -37,7 +37,11 @@ public class ScatterView extends View implements OnTrainingUpdateEventListener{
 
         task = new TrainingTask();
         task.setListener(this);
-        task.executeTask();
+        showDataset("linear_data_train.csv");
+    }
+
+    public void showDataset(String filename)  {
+        task.executeTask(filename);
     }
 
     @Override

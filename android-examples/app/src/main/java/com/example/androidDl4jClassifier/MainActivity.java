@@ -20,18 +20,19 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+
+        ScatterView view = findViewById(R.id.id_scatterview);
         switch (item.getItemId()) {
             case R.id.action_linear:
-                // User chose linear dataset.
-                ScatterView view = findViewById(R.id.id_scatterview);
+                view.showDataset("linear_data_train.csv");
                 return true;
 
             case R.id.action_moon:
-                // User chose moon dataset.
+                view.showDataset("moon_data_train.csv");
                 return true;
 
             case R.id.action_saturn:
-                // User chose moon dataset.
+                view.showDataset("saturn_data_train.csv");
                 return true;
 
             default:

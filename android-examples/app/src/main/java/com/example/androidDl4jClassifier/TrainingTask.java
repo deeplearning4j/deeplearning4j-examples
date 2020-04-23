@@ -24,14 +24,14 @@ interface OnTrainingUpdateEventListener{
     void OnTrainingUpdate(INDArray modelOut);
 }
 
-// All the work is done in a worker thread whuch we encapsulate here.
+// All the work is done in a worker thread which we encapsulate here.
 // The android docs suggest we use AsynchTask, however that has been deprecated.
-//  But is unclear how a worker task that needs to update the UI should be implementd.
+//  But is unclear how a worker task that needs to update the UI should be implemented.
 // Hence we put everything related to the network training and threading in a separate class for now.
-public class TrainingTask {
+class TrainingTask {
 
     private Thread thread;
-    private INDArray xyGrid = null;; //x,y grid to calculate the output image. Needs to be calculated once, then re-used.
+    private INDArray xyGrid = null; //x,y grid to calculate the output image. Needs to be calculated once, then re-used.
     private DataSet ds;
     private float[][] data;
 
@@ -39,44 +39,49 @@ public class TrainingTask {
 
     private OnTrainingUpdateEventListener listener;
 
-    public TrainingTask() {
+    TrainingTask() {
         this.thread = null;
         this.data = null;
     }
 
-    public void setListener(OnTrainingUpdateEventListener listener) {
+    void setListener(OnTrainingUpdateEventListener listener) {
         this.listener = listener;
     }
 
-    public int getnPointsPerAxis() {
+    int getnPointsPerAxis() {
         return nPointsPerAxis;
     }
 
-    public DataSet getDs() {
-        return ds;
-    }
-
-    public float[][] getData() {
+    float[][] getData() {
         return data;
     }
 
-    public INDArray getXyGrid() { // As this is set only once, it can be freely accessed across threads.
+    INDArray getXyGrid() { // As this is set only once, it can be freely accessed across threads.
         return xyGrid;
     }
 
-    public void executeTask(){
-        this.thread = new Thread(new Runnable() {
-            @Override
-            public void run() {
+    void executeTask(String filename) {
+        if (this.thread != null){
+            if (this.thread.isAlive()){
+                this.thread.interrupt();
 
                 try {
-                    calcGrid();
-                    ReadCSV();
-                    BuildNN();
-
-                } catch (IOException e) {
+                    this.thread.join();
+                } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
+
+            }
+        }
+        this.thread = new Thread(() -> {
+
+            try {
+                calcGrid();
+                ReadCSV(filename);
+                BuildNN();
+
+            } catch (IOException e) {
+                e.printStackTrace();
             }
         });
         thread.start();
@@ -86,9 +91,9 @@ public class TrainingTask {
      * this is not the regular way to read a csv file into a data set with DL4j.
      * In this example we have put the data in the assets folder so that the demo works offline.
      */
-    public void ReadCSV() throws IOException {
+    private void ReadCSV(String filename) throws IOException {
         InputStreamReader is = new InputStreamReader(MainActivity.getInstance().getApplicationContext().getAssets()
-                .open("linear_data_train.csv"));
+                .open(filename));
 
         BufferedReader reader = new BufferedReader(is);
         ArrayList<String> rawSVC = new ArrayList<>();
@@ -150,7 +155,7 @@ public class TrainingTask {
     /**
      * The x,y grid to calculate the NN output. Only needs to be calculated once.
      */
-    public void calcGrid(){
+    private void calcGrid(){
         // x coordinates of the pixels for the NN.
         INDArray xPixels = Nd4j.linspace(0, 1.0, nPointsPerAxis, DataType.DOUBLE);
         // y coordinates of the pixels for the NN.
@@ -160,12 +165,12 @@ public class TrainingTask {
         xyGrid = Nd4j.vstack(mesh[0].ravel(), mesh[1].ravel()).transpose();
     }
 
-    public void BuildNN(){
+    private void BuildNN(){
         int seed = 123;
-        double learningRate = 0.005;
+        double learningRate = 0.1;
         int numInputs = 2;
         int numOutputs = 2;
-        int numHiddenNodes = 20;
+        int numHiddenNodes = 50;
         int nEpochs = 2000;
 
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
@@ -178,7 +183,7 @@ public class TrainingTask {
                         .build())
                 .layer(new OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD)
                         .activation(Activation.SOFTMAX)
-                        .nIn(numHiddenNodes).nOut(numOutputs).build())
+                        .nOut(numOutputs).build())
                 .build();
 
         MultiLayerNetwork model = new MultiLayerNetwork(conf);
