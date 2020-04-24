@@ -35,11 +35,11 @@ public class ALE {
     public static HistoryProcessor.Configuration ALE_HP =
         new HistoryProcessor.Configuration(
             4,       //History length
-            152,      //resize width
-            194,     //resize height
-            152,      //crop width
+            84,      //resize width
+            84,     //resize height
+            160,      //crop width
             194,      //crop height
-            8,       //cropping x offset
+            0,       //cropping x offset
             32,       //cropping y offset
             4       //skip mod (one frame is picked every x
         );
