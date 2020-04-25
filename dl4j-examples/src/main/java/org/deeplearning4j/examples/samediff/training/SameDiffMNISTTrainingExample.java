@@ -70,7 +70,7 @@ public class SameDiffMNISTTrainingExample {
         SDVariable z = sd.nn().linear("z", flat, wOut, bOut);
 
         // softmax crossentropy loss function
-        SDVariable loss = sd.loss().softmaxCrossEntropy("loss", label, z);
+        SDVariable loss = sd.loss().softmaxCrossEntropy("loss", label, z, null);
 
         //noinspection unused
         SDVariable out = sd.nn().softmax("out", z, 1);

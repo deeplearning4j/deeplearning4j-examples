@@ -83,7 +83,7 @@ public class DeepMojiAttentionLayer extends SameDiffLayer {
     public SDVariable defineLayer(SameDiff sd, SDVariable layerInput, Map<String, SDVariable> paramTable, SDVariable mask) {
         SDVariable weights = paramTable.get(DefaultParamInitializer.WEIGHT_KEY);
 
-        SDVariable logits = sd.tensorMmul(layerInput, weights, new int[][] { {2}, {0}});
+        SDVariable logits = sd.tensorMmul(layerInput, weights, new int[]{2}, new int[]{0});
         SDVariable reshapedLogits = sd.reshape(logits, layerInput.getShape()[0], layerInput.getShape()[1]);
         SDVariable ai = sd.math().exp(reshapedLogits);
         SDVariable aiSum = sd.sum(ai, 1);
