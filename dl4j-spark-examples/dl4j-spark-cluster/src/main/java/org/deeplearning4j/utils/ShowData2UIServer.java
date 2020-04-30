@@ -19,9 +19,10 @@ package org.deeplearning4j.utils;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IOUtils;
-import org.deeplearning4j.api.storage.StatsStorage;
+import org.deeplearning4j.core.storage.StatsStorage;
 import org.deeplearning4j.ui.api.UIServer;
-import org.deeplearning4j.ui.storage.FileStatsStorage;
+import org.deeplearning4j.ui.model.storage.FileStatsStorage;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;

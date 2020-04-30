@@ -18,11 +18,11 @@ package org.deeplearning4j.patent.utils.data;
 
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import org.apache.hadoop.conf.Configuration;
-import org.deeplearning4j.api.loader.DataSetLoader;
+import org.deeplearning4j.core.loader.DataSetLoader;
 import org.deeplearning4j.models.embeddings.wordvectors.WordVectors;
 import org.deeplearning4j.models.word2vec.StaticWord2Vec;
 import org.deeplearning4j.patent.utils.WordVectorProvider;
-import org.nd4j.api.loader.Source;
+import org.nd4j.common.loader.Source;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.compression.AbstractStorage;
 import org.nd4j.linalg.dataset.DataSet;

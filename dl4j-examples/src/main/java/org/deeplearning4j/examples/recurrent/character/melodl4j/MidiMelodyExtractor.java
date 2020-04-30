@@ -16,7 +16,7 @@
 
 package org.deeplearning4j.examples.recurrent.character.melodl4j;
 
-import org.nd4j.util.ArchiveUtils;
+import org.nd4j.common.util.ArchiveUtils;
 
 import javax.sound.midi.*;
 import java.io.File;

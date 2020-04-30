@@ -26,7 +26,7 @@ import org.apache.spark.api.java.JavaSparkContext;
 import org.datavec.api.io.labels.ParentPathLabelGenerator;
 import org.datavec.api.io.labels.PathLabelGenerator;
 import org.datavec.image.recordreader.ImageRecordReader;
-import org.deeplearning4j.api.loader.impl.RecordReaderFileBatchLoader;
+import org.deeplearning4j.core.loader.impl.RecordReaderFileBatchLoader;
 import org.deeplearning4j.datasets.fetchers.TinyImageNetFetcher;
 import org.deeplearning4j.datasets.iterator.impl.TinyImageNetDataSetIterator;
 import org.deeplearning4j.eval.Evaluation;
