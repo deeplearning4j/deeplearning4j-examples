@@ -24,7 +24,6 @@ import org.deeplearning4j.earlystopping.saver.LocalFileGraphSaver
 import org.deeplearning4j.earlystopping.scorecalc.DataSetLossCalculatorCG
 import org.deeplearning4j.earlystopping.termination.MaxEpochsTerminationCondition
 import org.deeplearning4j.earlystopping.trainer.EarlyStoppingGraphTrainer
-import org.deeplearning4j.examples.utils.{LoggingEarlyStoppingListener, ReflectionsHelper}
 import org.deeplearning4j.nn.conf.{GradientNormalization, NeuralNetConfiguration, Updater}
 import org.deeplearning4j.nn.conf.layers.{LSTM, RnnOutputLayer}
 import org.deeplearning4j.nn.graph.ComputationGraph
@@ -48,8 +47,6 @@ class Recommender(batchSize: Int = 50, featureSize: Int, nEpochs: Int, hiddenUni
     dataDirectory: String, sc: SparkContext) extends Serializable {
 
   val logger = LoggerFactory.getLogger(this.getClass)
-
-  ReflectionsHelper.registerUrlTypes()
 
   val tm = new ParameterAveragingTrainingMaster.Builder(5, 1)
     .averagingFrequency(averagingFrequency)
@@ -78,7 +75,6 @@ class Recommender(batchSize: Int = 50, featureSize: Int, nEpochs: Int, hiddenUni
     .addLayer("outputLayer", new RnnOutputLayer.Builder().activation(Activation.SOFTMAX)
       .lossFunction(LossFunctions.LossFunction.MCXENT).nIn(hiddenUnits).nOut(labelSize).build(), "secondLayer")
     .setOutputs("outputLayer")
-    .pretrain(false).backprop(true)
     .build()
 
   val sparkNet = new SparkComputationGraph(sc, conf, tm)

@@ -8,7 +8,7 @@ import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.api.ops.DynamicCustomOp;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.indexing.NDArrayIndex;
-import org.nd4j.resources.Downloader;
+import org.nd4j.common.resources.Downloader;
 
 import java.io.File;
 import java.io.IOException;
