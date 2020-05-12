@@ -24,7 +24,7 @@ Repository of Deeplearning4J neural net examples:
 - Convolutional Neural Nets
 - Recurrent Neural Nets
 - TSNE
-- Word2Vec & GloVe
+- Word2Vec
 - Anomaly Detection
 - User interface examples.
 
