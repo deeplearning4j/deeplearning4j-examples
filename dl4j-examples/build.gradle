@@ -26,7 +26,7 @@ mainClassName = 'org.deeplearning4j.examples.feedforward.mnist.MLPMnistSingleLay
 
 buildscript {
     ext {
-        dl4j_version = "1.0.0-beta6"
+        dl4j_version = "1.0.0-beta7"
         kotlin_version = "1.3.30"
     }
     repositories {

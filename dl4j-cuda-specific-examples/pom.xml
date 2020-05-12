@@ -24,12 +24,12 @@
     <parent>
         <groupId>org.deeplearning4j</groupId>
         <artifactId>deeplearning4j-examples-parent</artifactId>
-        <version>1.0.0-beta6</version>
+        <version>1.0.0-beta7</version>
     </parent>
 
     <name>DeepLearning4j CUDA special examples</name>
     <properties>
-      <nd4j.backend>nd4j-cuda-10.2</nd4j.backend>
+      <nd4j.backend>nd4j-cuda-10.2-platform</nd4j.backend>
     </properties>
 
     <repositories>
@@ -58,22 +58,17 @@
         <dependencies>
             <dependency>
                 <groupId>org.nd4j</groupId>
-                <artifactId>nd4j-cuda-9.2</artifactId>
+                <artifactId>nd4j-cuda-10.0-platform</artifactId>
                 <version>${nd4j.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.nd4j</groupId>
-                <artifactId>nd4j-cuda-10.0</artifactId>
+                <artifactId>nd4j-cuda-10.1-platform</artifactId>
                 <version>${nd4j.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.nd4j</groupId>
-                <artifactId>nd4j-cuda-10.1</artifactId>
-                <version>${nd4j.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.nd4j</groupId>
-                <artifactId>nd4j-cuda-10.2</artifactId>
+                <artifactId>nd4j-cuda-10.2-platform</artifactId>
                 <version>${nd4j.version}</version>
             </dependency>
       </dependencies>
