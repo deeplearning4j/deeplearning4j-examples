@@ -27,7 +27,7 @@
         <repository>
             <id>sonatype-nexus-staging</id>
             <name>Sonatype Nexus Staging</name>
-            <url>https://oss.sonatype.org/content/repositories/orgdeeplearning4j-1113/</url>
+            <url>https://oss.sonatype.org/content/repositories/orgdeeplearning4j-1114/</url>
         </repository>
     </repositories>
 
@@ -36,7 +36,7 @@
     <properties>
         <!-- Change the nd4j.backend property to nd4j-cuda-10.0-platform, nd4j-cuda-10.1-platform or nd4j-cuda-10.2-platform to use CUDA GPUs -->
         <nd4j.backend>nd4j-native-platform</nd4j.backend>
-<!--        <nd4j.backend>nd4j-cuda-10.2-platform</nd4j.backend>-->
+        <--<nd4j.backend>nd4j-cuda-10.2-platform</nd4j.backend>-->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <shadedClassifier>bin</shadedClassifier>
 
