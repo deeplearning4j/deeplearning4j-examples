@@ -23,12 +23,12 @@
     <!-- Group-ID, artifact ID and version of the project. You can modify these as you want -->
     <groupId>org.deeplearning4j</groupId>
     <artifactId>deeplearning4j-examples</artifactId>
-    <version>1.0.0-beta6</version>
+    <version>1.0.0-beta7</version>
 
     <!-- Properties Section. Change DL4J and ND4J versions here, if required -->
     <properties>
-        <dl4j.version>1.0.0-beta6</dl4j.version>
-        <nd4j.version>1.0.0-beta6</nd4j.version>
+        <dl4j.version>1.0.0-beta7</dl4j.version>
+        <nd4j.version>1.0.0-beta7</nd4j.version>
         <logback.version>1.2.3</logback.version>
         <java.version>1.8</java.version>
         <maven-shade-plugin.version>2.4.3</maven-shade-plugin.version>
@@ -49,7 +49,7 @@
         -->
         <dependency>
             <groupId>org.nd4j</groupId>
-            <artifactId>nd4j-native</artifactId>
+            <artifactId>nd4j-native-platform</artifactId>
             <version>${nd4j.version}</version>
         </dependency>
 
@@ -58,7 +58,7 @@
         <!--
         <dependency>
             <groupId>org.nd4j</groupId>
-            <artifactId>nd4j-cuda-9.2-platform</artifactId>
+            <artifactId>nd4j-cuda-10.2-platform</artifactId>
             <version>${nd4j.version}</version>
         </dependency>
         -->
@@ -68,7 +68,7 @@
         <!--
         <dependency>
             <groupId>org.deeplearning4j</groupId>
-            <artifactId>deeplearning4j-cuda-9.2</artifactId>
+            <artifactId>deeplearning4j-cuda-10.2</artifactId>
             <version>${dl4j.version}</version>
         </dependency>
         -->
