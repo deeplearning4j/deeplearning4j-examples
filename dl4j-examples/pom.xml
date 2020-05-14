@@ -19,16 +19,29 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>dl4j-examples</artifactId>
 
-    <parent>
-        <groupId>org.deeplearning4j</groupId>
-        <artifactId>deeplearning4j-examples-parent</artifactId>
-        <version>1.0.0-beta7</version>
-    </parent>
+    <groupId>org.deeplearning4j</groupId>                                       
+    <artifactId>dl4j-examples</artifactId>                         
+    <version>1.0.0-beta6</version>                                              
+    <name>Introduction to DL4J</name>                                     
+    <description>A set of examples introducing the DL4J framework</description>   
 
-    <name>DeepLearning4j Examples</name>
+    <properties>
+        <dl4j-master.version>1.0.0-SNAPSHOT</dl4j-master.version>
+        <!-- Change the nd4j.backend property to nd4j-cuda-X-platform to use CUDA GPUs -->
+        <!-- <nd4j.backend>nd4j-cuda-10.2-platform</nd4j.backend> -->           
+        <nd4j.backend>nd4j-native</nd4j.backend>
+        <java.version>1.8</java.version>
+        <maven-compiler-plugin.version>3.6.1</maven-compiler-plugin.version>
+        <maven.minimum.version>3.3.1</maven.minimum.version>
+        <exec-maven-plugin.version>1.4.0</exec-maven-plugin.version>
+        <maven-shade-plugin.version>2.4.3</maven-shade-plugin.version>
+        <jcommon.version>1.0.23</jcommon.version>
+        <jfreechart.version>1.0.13</jfreechart.version>
+        <logback.version>1.1.7</logback.version>
+    </properties>
 
+    <!-- Modified for using SNAPSHOT versions - added repositories section -->
     <repositories>
         <repository>
             <id>snapshots-repo</id>
@@ -38,124 +51,72 @@
             </releases>
             <snapshots>
                 <enabled>true</enabled>
+                <updatePolicy>daily</updatePolicy>  <!-- Optional, update daily -->
             </snapshots>
         </repository>
     </repositories>
-
-    <distributionManagement>
-        <snapshotRepository>
-            <id>sonatype-nexus-snapshots</id>
-            <name>Sonatype Nexus snapshot repository</name>
-            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-        </snapshotRepository>
-    </distributionManagement>
-
-    <dependencyManagement>
+	<dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>org.nd4j</groupId>
-                <artifactId>nd4j-native-platform</artifactId>
-                <version>${nd4j.version}</version>
+                <groupId>org.freemarker</groupId>
+                <artifactId>freemarker</artifactId>
+                <version>2.3.29</version>
             </dependency>
             <dependency>
-                <groupId>org.nd4j</groupId>
-                <artifactId>nd4j-cuda-10.0-platform</artifactId>
-                <version>${nd4j.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.nd4j</groupId>
-                <artifactId>nd4j-cuda-10.1-platform</artifactId>
-                <version>${nd4j.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.nd4j</groupId>
-                <artifactId>nd4j-cuda-10.2-platform</artifactId>
-                <version>${nd4j.version}</version>
+                <groupId>io.netty</groupId>
+                <artifactId>netty-common</artifactId>
+                <version>4.1.48.Final</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
-
+                                                                                
     <dependencies>
-        <!-- ND4J backend. You need one in every DL4J project. Normally define artifactId as either nd4j-native-platform or nd4j-cuda-X.X-platform to use CUDA GPUs (check parent pom for supported cuda versions) -->
         <dependency>
             <groupId>org.nd4j</groupId>
             <artifactId>${nd4j.backend}</artifactId>
-            <version>${nd4j.version}</version>
+            <version>${dl4j-master.version}</version>
         </dependency>
-
-        <!-- Core DL4J functionality -->
+        <dependency>
+            <groupId>org.datavec</groupId>
+            <artifactId>datavec-api</artifactId>
+            <version>${dl4j-master.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.datavec</groupId>
+            <artifactId>datavec-data-image</artifactId>
+            <version>${dl4j-master.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.datavec</groupId>
+            <artifactId>datavec-local</artifactId>
+            <version>${dl4j-master.version}</version>
+        </dependency>
         <dependency>
             <groupId>org.deeplearning4j</groupId>
-            <artifactId>deeplearning4j-nlp</artifactId>
-            <version>${dl4j.version}</version>
+            <artifactId>deeplearning4j-datasets</artifactId>
+            <version>${dl4j-master.version}</version>
         </dependency>
-
         <dependency>
             <groupId>org.deeplearning4j</groupId>
-            <artifactId>deeplearning4j-zoo</artifactId>
-            <version>${dl4j.version}</version>
+            <artifactId>deeplearning4j-core</artifactId>
+            <version>${dl4j-master.version}</version>
         </dependency>
-
-        <!-- deeplearning4j-ui is used for visualization: see http://deeplearning4j.org/visualization -->
         <dependency>
             <groupId>org.deeplearning4j</groupId>
             <artifactId>deeplearning4j-ui</artifactId>
-            <version>${dl4j.version}</version>
+            <version>${dl4j-master.version}</version>
         </dependency>
-
+        <dependency>
+            <groupId>org.deeplearning4j</groupId>
+            <artifactId>deeplearning4j-zoo</artifactId>
+            <version>${dl4j-master.version}</version>
+        </dependency>
         <!-- ParallelWrapper & ParallelInference live here -->
         <dependency>
             <groupId>org.deeplearning4j</groupId>
             <artifactId>deeplearning4j-parallel-wrapper</artifactId>
-            <version>${dl4j.version}</version>
+            <version>${dl4j-master.version}</version>
         </dependency>
-
-        <!-- Next 2: used for MapFileConversion Example. Note you need *both* together -->
-        <dependency>
-            <groupId>org.datavec</groupId>
-            <artifactId>datavec-hadoop</artifactId>
-            <version>${datavec.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.hadoop</groupId>
-            <artifactId>hadoop-common</artifactId>
-            <version>${hadoop.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>jdk.tools</groupId>
-                    <artifactId>jdk.tools</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>log4j</groupId>
-                    <artifactId>log4j</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.slf4j</groupId>
-                    <artifactId>slf4j-log4j12</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-
-
-        <!-- Arbiter - used for hyperparameter optimization (grid/random search) -->
-        <dependency>
-            <groupId>org.deeplearning4j</groupId>
-            <artifactId>arbiter-deeplearning4j</artifactId>
-            <version>${arbiter.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.deeplearning4j</groupId>
-            <artifactId>arbiter-ui</artifactId>
-            <version>${arbiter.version}</version>
-        </dependency>
-
-        <!-- datavec-data-codec: used only in video example for loading video data -->
-        <dependency>
-            <artifactId>datavec-data-codec</artifactId>
-            <groupId>org.datavec</groupId>
-            <version>${datavec.version}</version>
-        </dependency>
-
         <!-- Used in the feedforward/classification/MLP* and feedforward/regression/RegressionMathFunctions example -->
         <dependency>
             <groupId>jfree</groupId>
@@ -167,29 +128,84 @@
             <artifactId>jcommon</artifactId>
             <version>${jcommon.version}</version>
         </dependency>
-
         <!-- Used for downloading data in some of the examples -->
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
-            <version>4.3.6</version>
+            <version>4.3.5</version>
         </dependency>
-        <dependency>
-            <groupId>org.deeplearning4j.examples</groupId>
-            <artifactId>shared-utilities</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
             <version>${logback.version}</version>
         </dependency>
-
+        <dependency>
+            <groupId>org.datavec</groupId>
+            <artifactId>datavec-data-codec</artifactId>
+            <version>${dl4j-master.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.bytedeco</groupId>
+            <artifactId>javacv-platform</artifactId>
+            <version>1.5.2</version>
+        </dependency>
     </dependencies>
-
+    <!-- Maven Enforcer: Ensures user has an up to date version of Maven before building -->
     <build>
         <plugins>
+            <plugin>                                                            
+                <artifactId>maven-enforcer-plugin</artifactId>                  
+                <version>1.0.1</version>                                        
+                <executions>                                                    
+                    <execution>                                                 
+                        <id>enforce-default</id>                                
+                        <goals>                                                 
+                            <goal>enforce</goal>                                
+                        </goals>                                                
+                        <configuration>                                         
+                            <rules>                                             
+                                <requireMavenVersion>                           
+                                    <version>[${maven.minimum.version},)</version>
+                                    <message>********** Minimum Maven Version is ${maven.minimum.version}. Please upgrade Maven before continuing (run "mvn --version" to check). **********</message>
+                                </requireMavenVersion>                          
+                            </rules>                                            
+                        </configuration>                                        
+                    </execution>                                                
+                </executions>                                                   
+            </plugin>  
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>${maven-compiler-plugin.version}</version>
+                <configuration>
+                    <source>1.7</source>
+                    <target>1.7</target>
+                </configuration>
+            </plugin>
+            <plugin>                                                            
+                <groupId>com.lewisd</groupId>                                   
+                <artifactId>lint-maven-plugin</artifactId>                      
+                <version>0.0.11</version>                                       
+                <configuration>                                                 
+                    <failOnViolation>true</failOnViolation>                     
+                    <onlyRunRules>                                              
+                        <rule>DuplicateDep</rule>                               
+                        <rule>RedundantPluginVersion</rule>                     
+                        <!-- Rules incompatible with Java 9                     
+                        <rule>VersionProp</rule>                                
+                        <rule>DotVersionProperty</rule> -->                     
+                    </onlyRunRules>                                             
+                </configuration>                                                
+                <executions>                                                    
+                    <execution>                                                 
+                        <id>pom-lint</id>                                       
+                        <phase>validate</phase>                                 
+                        <goals>                                                 
+                            <goal>check</goal>                                  
+                        </goals>                                                
+                    </execution>                                                
+                </executions>                                                   
+            </plugin> 
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
@@ -224,9 +240,7 @@
                             </excludes>
                         </filter>
                     </filters>
-
                 </configuration>
-
                 <executions>
                     <execution>
                         <phase>package</phase>
@@ -246,7 +260,6 @@
                     </execution>
                 </executions>
             </plugin>
-
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -257,19 +270,33 @@
                 </configuration>
             </plugin>
         </plugins>
+        <pluginManagement>                                                      
+            <plugins>                                                           
+                <plugin>                                                        
+                    <groupId>org.eclipse.m2e</groupId>                          
+                    <artifactId>lifecycle-mapping</artifactId>                  
+                    <version>1.0.0</version>                                    
+                    <configuration>                                             
+                        <lifecycleMappingMetadata>                              
+                            <pluginExecutions>                                  
+                                <pluginExecution>                               
+                                    <pluginExecutionFilter>                     
+                                        <groupId>com.lewisd</groupId>           
+                                        <artifactId>lint-maven-plugin</artifactId>
+                                        <versionRange>[0.0.11,)</versionRange>  
+                                        <goals>                                 
+                                            <goal>check</goal>                  
+                                        </goals>                                
+                                    </pluginExecutionFilter>                    
+                                    <action>                                    
+                                        <ignore/>                               
+                                    </action>                                   
+                                </pluginExecution>                              
+                            </pluginExecutions>                                 
+                        </lifecycleMappingMetadata>                             
+                    </configuration>                                            
+                </plugin>                                                       
+            </plugins>                                                          
+        </pluginManagement>   
     </build>
-
-    <profiles>
-        <profile>
-            <id>OpenJFX</id>
-            <dependencies>
-                <dependency>
-                    <groupId>com.oracle</groupId>
-                    <artifactId>javafx</artifactId>
-                    <version>${javafx.version}</version>
-                </dependency>
-            </dependencies>
-        </profile>
-    </profiles>
-
 </project>

@@ -1,0 +1,28 @@
+========================Evaluation Metrics========================
+ # of classes:    2
+ Accuracy:        0.8452
+ Precision:       0.8577
+ Recall:          0.9198
+ F1 Score:        0.8877
+Precision, recall & F1: reported for positive class (class 1 - "1") only
+
+
+=========================Confusion Matrix=========================
+    0    1
+-----------
+  403  175 | 0 = 0
+   92 1055 | 1 = 1
+
+Confusion matrix format: Actual (rowClass) predicted as (columnClass) N times
+==================================================================
+
+Running inference on a single minibatch with sentence pairs as follows:
+	The broader Standard & Poor's 500 Index <.SPX> was 0.46 points lower, or 0.05 percent, at 997.02.	The technology-laced Nasdaq Composite Index .IXIC was up 7.42 points, or 0.45 percent, at 1,653.44.
+	Shares in BA were down 1.5 percent at 168 pence by 1420 GMT, off a low of 164p, in a slightly stronger overall London market.	Shares in BA were down three percent at 165-1/4 pence by 0933 GMT, off a low of 164 pence, in a stronger market.
+	Last year, Comcast signed 1.5 million new digital cable subscribers.	Comcast has about 21.3 million cable subscribers, many in the largest U.S. cities.
+	Revenue rose 3.9 percent, to $1.63 billion from $1.57 billion.	The McLean, Virginia-based company said newspaper revenue increased 5 percent to $1.46 billion.
+
+[[    0.9986,    0.0014], 
+ [    0.0005,    0.9995], 
+ [    0.9988,    0.0012], 
+ [    0.9741,    0.0259]]

@@ -1,60 +1,62 @@
-Deeplearning4J Examples
-=========================
+<pre>
+                                ########  ##       ##              ##                      
+                                ##     ## ##       ##    ##        ##                      
+                                ##     ## ##       ##    ##        ##                      
+                       **$**    ##     ## ##       ##    ##        ##    **$**             
+                                ##     ## ##       ######### ##    ##                      
+                                ##     ## ##             ##  ##    ##                      
+                                ########  ########       ##   ######                       
+              .   :::: :   :    :   :     : ::::  :     ::::    :::::  :::: ::::  :::::   .
+              .   :    :   :   : :  ::   :: :   : :     :       :   :  :    :   : :   :   . 
+              .   :     : :   :   : : : : : :   : :     :       :   :  :    :   : :   :   . 
+              .   :::    :    :   : :  :  : ::::  :     :::     :::::  :::  ::::  :   :   . 
+              .   :     : :   ::::: :     : :     :     :       :  :   :    :     :   :   . 
+              .   :    :   :  :   : :     : :     :     :       :   :  :    :     :   :   . 
+              .   :::: :   :  :   : :     : :     ::::: ::::    :    : :::: :     :::::   .   
+</pre>
 
-## NOTE: HOW to interpret these examples
+## Introduction  
+The **Eclipse DeeplearningJ** (DL4J) ecosystem is a set of projects intended to support all the needs of a JVM based deep learning application. This means starting with the raw data, loading and preprocessing it from wherever and whatever format it is in to building and tuning a wide variety of simple and complex deep learning networks. 
 
-## Data Loading
-In this repository, you may likely see custom [datasetiterators](https://github.com/eclipse/deeplearning4j/blob/master/nd4j/nd4j-backends/nd4j-api-parent/nd4j-api/src/main/java/org/nd4j/linalg/dataset/api/iterator/DataSetIterator.java) - these iterators are only for special examples and 1 off use cases. Consult the [gitter](https://gitter.im/deeplearning4j/deeplearning4j) if you are not sure how to proceed.
-Once you find a record reader for your use case, you then should use one of pre made iterators that knows how to interpret record reader output, either [RecordReaderDataSetIterator](https://deeplearning4j.org/api/latest/org/deeplearning4j/datasets/datavec/RecordReaderDataSetIterator.html) for normal data or [SequenceRecordReaderDataSetIterator](https://deeplearning4j.org/api/latest/org/deeplearning4j/datasets/datavec/SequenceRecordReaderDataSetIterator.html) for sequence data. For more on sequences, please see our [rnns page](http://deeplearning4j.org/usingrnns)
+The DL4J stack comprises of:
+- **DL4J**: High level API to build MultiLayerNetworks and ComputationGraphs with a variety of layers, including custom ones. Supports importing Keras models from h5, including tf.keras models (as of 1.0.0-beta7) and also supports distributed training on Apache Spark
+- **ND4J**: General purpose linear algebra library with over 500 mathematical, linear algebra and deep learning operations. ND4J is based on the highly-optimized C++ codebase LibND4J that provides CPU (AVX2/512) and GPU (CUDA) support and acceleration by libraries such as OpenBLAS, OneDNN (MKL-DNN), cuDNN, cuBLAS, etc
+- **SameDiff** : Part of the ND4J library, SameDiff is our automatic differentiation / deep learning framework. SameDiff uses a graph-based (define then run) approach, similar to TensorFlow graph mode. Eager graph (TensorFlow 2.x eager/PyTorch) graph execution is planned. SameDiff supports importing TensorFlow frozen model format .pb (protobuf) models. Import for ONNX, TensorFlow SavedModel and Keras models are planned. Deeplearning4j also has full SameDiff support for easily writing custom layers and loss functions.
+- **DataVec**: ETL for machine learning data in a wide variety of formats and files (HDFS, Spark, Images, Video, Audio, CSV, Excel etc)
+- **Arbiter**: Library for hyperparameter search
+- **LibND4J** : C++ library that underpins everything. For more information on how the JVM acceses native arrays and operations refer to [JavaCPP](https://github.com/bytedeco/javacpp)
 
+All projects in the DL4J ecosystem support Windows, Linux and Mac. Hardware support includes CUDA GPUs (10.0, 10.1, 10.2 except OSX), x86 CPU (x86_64, avx2, avx512), ARM CPU (arm, arm64, armhf) and PowerPC (ppc64le).
 
-We have special iterators for 1 off use cases where normal data does not quite exist, or sometimes it is legacy.
-99% of the time you should be using [datavec](https://deeplearning4j.org/datavec) and writing your own custom [record readers](https://deeplearning4j.org/api/latest/org/datavec/api/records/reader/RecordReader.html) if one of our pre provided ones is not suitable. If you are not sure what is available, please again consult the [gitter](https://gitter.im/deeplearning4j/deeplearning4j) - In general, you can find both [normal record readers](https://deeplearning4j.org/api/latest/org/datavec/api/records/reader/RecordReader.html) and [sequence record readers](https://deeplearning4j.org/api/latest/org/datavec/api/records/reader/SequenceRecordReader.html) in the datavec [javadoc](https://deeplearning4j.org/docs/latest/datavec-overview).
+## Prerequisites  
+This example repo consists of several separate Maven Java projects, each with their own pom files. Maven is a popular build automation tool for Java Projects. The contents of a "pom.xml" file dictate the configurations. Read more about how to configure Maven [here](https://deeplearning4j.konduit.ai/config/maven). Users can also refer to the [simple sample project provided](./mvn-project-template/pom.xml) to get started. Build tools are considered standard software engineering best practice. Besides this the complexities posed by the projects in the DL4J ecosystem make dependencies too difficult to manage manually. All the projects in the DL4J ecosystem can be used with other build tools like Gradle, SBT etc. More information on that can be found [here](https://deeplearning4j.konduit.ai/config/buildtools).  
 
+## Example Content  
+Projects are based on what functionality the included examples demonstrate to the user and not necessarily which library in the DL4J stack the functionality lives in. Examples in a project are in general separated into "quickstart" and "advanced". Each project README also lists all the examples it contains, with a recommended order to explore them in. 
 
-## Dependencies
+- [dl4j-examples](dl4j-examples/README.md)  
+This project contains a set of examples that demonstrate use of the high level DL4J API to build a variety of neural networks. Some these examples are end to end, in the sense they start with raw data, process it and then build and train neural networks on it.
 
-Note that this repository contains all dl4j examples for all modules. It will download about 1.5g of dependencies from maven central when you are first starting out. That being said, this makes it easier to get started without worrying about what to download. This examples repository is meant to be a reference point to get started with most common use cases.
-It is broken up in to modules. If you would like to just have a more minimal/simple, guide please go [here](http://www.dubs.tech/guides/maven-essentials/)
+- [tensorflow-keras-import-examples](tensorflow-keras-import-examples/README.md)  
+This project contains a set of examples that demonstrate how to import Keras h5 models and TensorFlow frozen pb models into the DL4J ecosystem. Once imported into DL4J these models can be treated like any other DL4J model - meaning you can continue to run training on them or modify them with the transfer learning API or simply run inference on them.
 
+- [dl4j-distributed-training-examples](dl4j-distributed-training-examples/README.md)  
+This project contains a set of examples that demonstrate how to do distributed training, inference and evaluation in DL4J on Apache Spark. DL4J distributed training employs a "hybrid" asynchronous SGD approach - further details can be found in the distributed deep learning documentation [here](https://deeplearning4j.konduit.ai/distributed-deep-learning/intro)
 
-Repository of Deeplearning4J neural net examples:
+- [cuda-specific-examples](cuda-specific-examples/README.md)  
+This project contains a set of examples that demonstrate how to leverage multiple GPUs for data-parallel training of neural networks for increased performance.
 
-- MLP Neural Nets
-- Convolutional Neural Nets
-- Recurrent Neural Nets
-- TSNE
-- Word2Vec
-- Anomaly Detection
-- User interface examples.
+- [samediff-examples](samediff-examples/README.md)  
+This projects contains a set of examples that demonstrate the SameDiff API. SameDiff (which is part of the ND4J library) can be used to build lower level auto-differentiating computation graphs. An analogue to the SameDiff API vs the DL4J API is the low level TensorFlow API vs the higher level of abstraction Keras API.
 
-DL4J-Examples is released under an Apache 2.0 license. By contributing code to this repository, you agree to make your contribution available under an Apache 2.0 license.
+- [data-pipeline-examples](data-pipeline-examples/README.md)  
+This project contains a set of examples that demonstrate how raw data in various formats can be loaded, split and preprocessed to build serializable (and hence reproducible) ETL pipelines.  
 
----
+- [nd4j-ndarray-examples](nd4j-ndarray-examples/README.md)  
+This project contains a set of examples that demonstrate how to manipulate NDArrays. The functionality of ND4J demonstrated here can be likened to NumPy.
 
-## Build and Run
+- [arbiter-examples](arbiter-examples/README.md)  
+This project contains a set of examples that demonstrate useage of the Arbiter library for hyperparameter tuning of Deeplearning4J neural networks.
 
-Use [Maven](https://maven.apache.org/) to build the examples.
-
-```
-mvn clean package
-```
-
-This downloads binaries for all platforms, but we can also append `-Djavacpp.platform=` with `android-arm`, `android-x86`, `linux-ppc64le`, `linux-x86_64`, `macosx-x86_64`, or `windows-x86_64` to get binaries for only one platform and produce much smaller archives.
-
-Run the `runexamples.sh` script to run the examples (requires [bash](https://www.gnu.org/software/bash/)). It will list the examples and prompt you for the one to run. Pass the `--all` argument to run all of them. (Other options are shown with `-h`).
-
-```
-./runexamples.sh [-h | --help]
-```
-
-
-## Documentation
-For more information, check out [deeplearning4j.org](http://deeplearning4j.org/) and its [JavaDoc](https://deeplearning4j.org/docs/latest/).
-
-`GradientsListenerExample.java` in dl4j-examples/src/main/java/org/deeplearning4j/examples/userInterface uses JavaFX. If you're using Java 8 or greater, it should run as is.  If you're using Java 7 or an earlier version, you should set JAVAFX_HOME to point to the root directory of the JavaFX 2.0 SDK.
-
-## Other Issues
-
-If you notice issues, please log them, and if you want to contribute, submit a pull request. Input is welcome here.
-
+## Feedback  
+While these set of examples don't cover all the functionality available in DL4J the intent is that it will cover the functionality required for most users - beginners and advanced.  File an issue [here](https://github.com/eclipse/deeplearning4j-examples/issues) if you have feedback. We **love** hearing from you. We are also available via our [discourse community channel](https://community.konduit.ai/t/welcome-to-discourse/7) for questions. Cheers!
