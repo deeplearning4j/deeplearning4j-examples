@@ -30,13 +30,13 @@ import org.deeplearning4j.patent.preprocessing.PatentLabelGenerator;
 import org.deeplearning4j.patent.utils.JCommanderUtils;
 import org.deeplearning4j.patent.utils.data.LoadDataSetsFunction;
 import org.deeplearning4j.util.ModelSerializer;
-import org.nd4j.api.loader.Loader;
-import org.nd4j.api.loader.LocalFileSourceFactory;
-import org.nd4j.base.Preconditions;
+import org.nd4j.common.base.Preconditions;
+import org.nd4j.common.loader.Loader;
+import org.nd4j.common.loader.LocalFileSourceFactory;
+import org.nd4j.common.util.MathUtils;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.nd4j.linalg.factory.Nd4j;
-import org.nd4j.linalg.util.MathUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

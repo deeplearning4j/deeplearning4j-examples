@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.deeplearning4j</groupId>
         <artifactId>deeplearning4j-examples-parent</artifactId>
-        <version>1.0.0-beta6</version>
+        <version>1.0.0-beta7</version>
     </parent>
     <groupId>org.deeplearning4j.examples</groupId>
     <artifactId>lstm-hdfs</artifactId>
@@ -29,7 +29,7 @@
     <url>http://maven.apache.org</url>
 
     <properties>
-        <dl4j.version>1.0.0-beta6</dl4j.version>
+        <dl4j.version>1.0.0-beta7</dl4j.version>
     </properties>
 
     <build>
@@ -88,7 +88,7 @@
             </dependency>
             <dependency>
                 <groupId>org.nd4j</groupId>
-                <artifactId>nd4j-cuda-9.2-platform</artifactId>
+                <artifactId>nd4j-cuda-10.2</artifactId>
                 <version>${nd4j.version}</version>
                 <scope>test</scope>
             </dependency>
@@ -153,7 +153,7 @@
         <!-- ND4J -->
         <dependency>
             <groupId>org.nd4j</groupId>
-            <artifactId>nd4j-native-platform</artifactId>
+            <artifactId>nd4j-native</artifactId>
             <version>${nd4j.version}</version>
         </dependency>
         <dependency>

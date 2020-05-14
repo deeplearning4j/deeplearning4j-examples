@@ -186,7 +186,7 @@ public class SameDiffTransferLearningExample {
                 SDVariable outputs = sd1.nn().softmax("Output", input);
 
                 // we need a loss to train on, the tensorflow model doesn't come with one
-                SDVariable loss = sd1.loss().softmaxCrossEntropy("Loss", labels, input);
+                SDVariable loss = sd1.loss().softmaxCrossEntropy("Loss", labels, input, null);
 
                 logits.close();
 

@@ -67,7 +67,7 @@ public class SameDiffTrainingExample {
         SDVariable softmax = sd.nn().softmax("softmax", z1);
 
         //Define loss function:
-        SDVariable diff = sd.f().squaredDifference(softmax, label);
+        SDVariable diff = sd.math.squaredDifference(softmax, label);
         SDVariable lossMse = diff.mean();
 
         sd.setLossVariables(lossMse);
