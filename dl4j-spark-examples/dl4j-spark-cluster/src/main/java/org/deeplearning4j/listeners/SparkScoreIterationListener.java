@@ -28,7 +28,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- *  @Description:TODO
+ *  In distributed training, there is a synchronization problem in the monitoring training process log.In order to solve this problem, this SparkScoreIterationListener extends BaseTrainingListener class.
  *  @author wangfeng
  */
 
