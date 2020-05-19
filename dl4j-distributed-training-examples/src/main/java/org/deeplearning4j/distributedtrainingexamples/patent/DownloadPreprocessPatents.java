@@ -99,7 +99,7 @@ public class DownloadPreprocessPatents {
     private int maxSequenceLength = 1000;
 
     @Parameter(names = {"--wordVectorsPath"})
-    private String wordVectorsPath = "wasbs://resources@deeplearning4jblob.blob.core.windows.net/wordvectors/GoogleNews-vectors-negative300.bin.gz";
+    private String wordVectorsPath = "wasbs://resources@dl4jdata.blob.core.windows.net/wordvectors/GoogleNews-vectors-negative300.bin.gz";
 
 
     public static void main(String[] args) throws Exception {

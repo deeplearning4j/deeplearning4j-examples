@@ -119,7 +119,7 @@ public class TrainPatentClassifier {
     private int totalExamplesTest = 10000;
 
     @Parameter(names = {"--wordVectorsPath"}, description = "Word vectors path")
-    private String wordVectorsPath = "wasbs://resources@deeplearning4jblob.blob.core.windows.net/wordvectors/GoogleNews-vectors-negative300.bin.gz";
+    private String wordVectorsPath = "wasbs://resources@dl4jdata.blob.core.windows.net/wordvectors/GoogleNews-vectors-negative300.bin.gz";
 
     @Parameter(names = {"--saveFrequencySec"}, description = "How often (in seconds) to save a copy of the parameters for later evaluation")
     private int saveFreqSec = 180;
