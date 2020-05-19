@@ -58,5 +58,7 @@ This project contains a set of examples that demonstrate how to manipulate NDArr
 - [arbiter-examples](arbiter-examples/README.md)  
 This project contains a set of examples that demonstrate useage of the Arbiter library for hyperparameter tuning of Deeplearning4J neural networks.
 
-## Feedback  
-While these set of examples don't cover all the functionality available in DL4J the intent is that it will cover the functionality required for most users - beginners and advanced.  File an issue [here](https://github.com/eclipse/deeplearning4j-examples/issues) if you have feedback. We **love** hearing from you. We are also available via our [discourse community channel](https://community.konduit.ai/t/welcome-to-discourse/7) for questions. Cheers!
+## Feedback & Contributions
+While these set of examples don't cover all the features available in DL4J the intent is to cover functionality required for most users - beginners and advanced.  File an issue [here](https://github.com/eclipse/deeplearning4j-examples/issues) if you have feedback or feature requests that are not covered here. We are also available via our [discourse community channel](https://community.konduit.ai/t/welcome-to-discourse/7) for questions.  
+We welcome contributions from the community. More information can be found [here](CONTRIBUTORS.md)  
+We **love** hearing from you. Cheers!

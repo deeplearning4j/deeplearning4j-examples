@@ -21,10 +21,10 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.deeplearning4j</groupId>                                       
     <artifactId>dl4j-cuda-specific-examples</artifactId>
-    <version>1.0.0-beta6</version>
+    <version>1.0.0-beta7</version>
     <name>DeepLearning4j CUDA special examples</name>
     <properties>
-      <dl4j-master.version>1.0.0-SNAPSHOT</dl4j-master.version>                  
+      <dl4j-master.version>1.0.0-beta7</dl4j-master.version>                  
       <nd4j.backend>nd4j-cuda-10.2</nd4j.backend>
       <java.version>1.8</java.version>                                        
       <exec-maven-plugin.version>1.4.0</exec-maven-plugin.version>            
@@ -32,32 +32,6 @@
       <jcommon.version>1.0.23</jcommon.version>                               
       <logback.version>1.1.7</logback.version>   
     </properties>
-
-    <repositories>
-        <repository>
-            <id>snapshots-repo</id>
-            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-            <releases>
-                <enabled>false</enabled>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-        </repository>
-    </repositories>
-
-    <distributionManagement>
-        <snapshotRepository>
-            <id>sonatype-nexus-snapshots</id>
-            <name>Sonatype Nexus snapshot repository</name>
-            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-        </snapshotRepository>
-        <repository>
-            <id>nexus-releases</id>
-            <name>Nexus Release Repository</name>
-            <url>http://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
-        </repository>
-    </distributionManagement>
 
     <dependencyManagement>
         <dependencies>

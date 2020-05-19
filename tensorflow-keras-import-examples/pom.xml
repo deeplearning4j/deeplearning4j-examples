@@ -22,12 +22,12 @@
 
     <groupId>org.deeplearning4j</groupId>                                       
     <artifactId>model-import-examples</artifactId>                         
-    <version>1.0.0-beta6</version>                                              
+    <version>1.0.0-beta7</version>                                              
     <name>model import examples</name>                                     
     <description>Loading models trained in keras or tensorflow</description>   
 
     <properties>
-        <dl4j-master.version>1.0.0-SNAPSHOT</dl4j-master.version>
+        <dl4j-master.version>1.0.0-beta7</dl4j-master.version>
         <!-- Change the nd4j.backend property to nd4j-cuda-X-platform to use CUDA GPUs -->
         <nd4j.backend>nd4j-native</nd4j.backend>
         <!-- <nd4j.backend>nd4j-cuda-10.2-platform</nd4j.backend> -->           
@@ -40,21 +40,6 @@
         <javacpp.version>1.5.2</javacpp.version>
         <tensorflow.version>1.15.0</tensorflow.version>
     </properties>
-
-    <!-- Modified for using SNAPSHOT versions - added repositories section -->
-    <repositories>
-        <repository>
-            <id>snapshots-repo</id>
-            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-            <releases>
-                <enabled>false</enabled>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-                <updatePolicy>daily</updatePolicy>  <!-- Optional, update daily -->
-            </snapshots>
-        </repository>
-    </repositories>
                                                                                 
     <dependencies>
         <dependency>

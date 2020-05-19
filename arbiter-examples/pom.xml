@@ -22,12 +22,12 @@
 
     <groupId>org.deeplearning4j</groupId>                                       
     <artifactId>examples-arbiter</artifactId>                         
-    <version>1.0.0-beta6</version>                                              
+    <version>1.0.0-beta7</version>                                              
     <name>Arbiter Examples</name>                                     
     <description>Working with Arbiter</description>   
 
     <properties>
-        <dl4j-master.version>1.0.0-SNAPSHOT</dl4j-master.version>
+        <dl4j-master.version>1.0.0-beta7</dl4j-master.version>
         <!-- Change the nd4j.backend property to nd4j-cuda-X-platform to use CUDA GPUs -->
 		<!-- <nd4j.backend>nd4j-cuda-10.2-platform</nd4j.backend> -->
         <nd4j.backend>nd4j-native</nd4j.backend>
@@ -36,21 +36,6 @@
         <maven.minimum.version>3.3.1</maven.minimum.version>
         <logback.version>1.1.7</logback.version>                                
     </properties>
-
-    <!-- Modified for using SNAPSHOT versions - added repositories section -->  
-    <repositories>                                                              
-        <repository>                                                            
-            <id>snapshots-repo</id>                                             
-            <url>https://oss.sonatype.org/content/repositories/snapshots</url>  
-            <releases>                                                          
-                <enabled>false</enabled>                                        
-            </releases>                                                         
-            <snapshots>                                                         
-                <enabled>true</enabled>                                         
-                <updatePolicy>daily</updatePolicy>  <!-- Optional, update daily -->
-            </snapshots>                                                        
-        </repository>                                                           
-    </repositories>                                                             
 
     <dependencies>                                                              
         <dependency>                                                            
