@@ -1,4 +1,5 @@
 /*******************************************************************************
+ * Copyright (c) 2020 Konduit K.K.
  * Copyright (c) 2015-2019 Skymind, Inc.
  *
  * This program and the accompanying materials are made available under the
