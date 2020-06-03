@@ -1,5 +1,6 @@
 /* *****************************************************************************
- * Copyright (c) 2020 Konduit, Inc.
+ * Copyright (c) 2015-2019 Skymind, Inc.
+ * Copyright (c) 2020 Konduit K.K.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Apache License, Version 2.0 which is available at
@@ -14,6 +15,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ******************************************************************************/
 
+package org.deeplearning4j.rl4j.examples.advanced.ale;
 import org.deeplearning4j.rl4j.learning.HistoryProcessor;
 import org.deeplearning4j.rl4j.mdp.ale.ALEMDP;
 import org.deeplearning4j.rl4j.policy.ACPolicy;
@@ -33,16 +35,16 @@ public class PlayALE {
         ACPolicy<ALEMDP.GameScreen> pol2 = ACPolicy.load("ale-a3c.model");
 
         //The training history processor used for data pre processing steps.
-        HistoryProcessor.Configuration ALE_HP = new HistoryProcessor.Configuration(
-                4,       //History length
-                84,      //resize width
-                110,     //resize height
-                84,      //crop width
-                84,      //crop height
-                0,       //cropping x offset
-                0,       //cropping y offset
-                4        //skip mod (one frame is picked every x
-        );
+        HistoryProcessor.Configuration ALE_HP = HistoryProcessor.Configuration.builder()
+            .historyLength(4)
+            .rescaledWidth(84)
+            .rescaledHeight(110)
+            .croppingWidth(84)
+            .croppingHeight(84)
+            .offsetX(0)
+            .offsetY(0)
+            .skipFrame(4)
+            .build();
 
         pol2.play(mdp, ALE_HP);
         mdp.close();

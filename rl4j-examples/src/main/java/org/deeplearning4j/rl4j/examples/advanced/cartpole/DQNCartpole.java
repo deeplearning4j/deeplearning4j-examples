@@ -1,5 +1,6 @@
 /* *****************************************************************************
  * Copyright (c) 2015-2019 Skymind, Inc.
+ * Copyright (c) 2020 Konduit K.K.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Apache License, Version 2.0 which is available at
@@ -13,13 +14,13 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  ******************************************************************************/
+package org.deeplearning4j.rl4j.examples.advanced.cartpole;
 
 import org.deeplearning4j.rl4j.learning.sync.qlearning.QLearning;
 import org.deeplearning4j.rl4j.learning.sync.qlearning.discrete.QLearningDiscreteDense;
 import org.deeplearning4j.rl4j.mdp.gym.GymEnv;
 import org.deeplearning4j.rl4j.network.dqn.DQNFactoryStdDense;
 import org.deeplearning4j.rl4j.policy.DQNPolicy;
-import org.deeplearning4j.rl4j.policy.Policy;
 import org.deeplearning4j.rl4j.space.ActionSpace;
 import org.deeplearning4j.rl4j.space.Box;
 import org.deeplearning4j.rl4j.space.DiscreteSpace;
@@ -28,13 +29,11 @@ import org.nd4j.linalg.learning.config.RmsProp;
 import java.util.logging.Logger;
 
 /**
- * @author rubenfiszel (ruben.fiszel@epfl.ch) on 8/11/16.
- *
  * Cartpole DQN
  * This example shows the basic rl4j classes implementing the 2013 article by Mnih et al. from deepmind.
  * https://arxiv.org/pdf/1312.5602.pdf
  */
-public class Cartpole
+public class DQNCartpole
 {
     private static String envID = "CartPole-v1";
 
@@ -86,7 +85,7 @@ public class Cartpole
     }
 
     // pass in a generic policy and endID to allow access from other samples in this package..
-    static void loadCartpole(Policy<Box, Integer> pol, String envID) {
+    static void loadCartpole(DQNPolicy<Box> pol, String envID) {
         //use the trained agent on a new similar mdp (but render it this time)
 
         //define the mdp from gym (name, render)
