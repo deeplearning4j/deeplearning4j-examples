@@ -4,7 +4,7 @@ This project contains a set of examples that demonstrate how to use reinforcemen
 
 The examples in this project along with a short summary are listed below. This is also the recommended order to explore them in.
 
-[Go back](../README.md) to the main repository page to explore other features/functionality of the **Eclipse DeeplearningJ** ecosystem. File an issue [here](https://github.com/eclipse/deeplearning4j-examples/issues) to request new features.
+[Go back](../README.md) to the main repository page to explore other features/functionality of the **Eclipse Deeplearning4J** ecosystem. File an issue [here](https://github.com/eclipse/deeplearning4j-examples/issues) to request new features.
 
 ## Quickstart
 There is no quickstart with RL4J at the moment. All examples require you to have some reinforcement learning experience to fully understand them.
