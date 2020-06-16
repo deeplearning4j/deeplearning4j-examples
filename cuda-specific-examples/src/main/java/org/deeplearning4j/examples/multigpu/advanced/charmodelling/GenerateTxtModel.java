@@ -58,9 +58,7 @@ import java.util.Random;
 	from Project Gutenberg. Training on other text sources should be relatively easy to implement.
 
     For more details on RNNs in DL4J, see the following:
-    http://deeplearning4j.org/usingrnns
-    http://deeplearning4j.org/lstm
-    http://deeplearning4j.org/recurrentnetwork
+    https://deeplearning4j.konduit.ai/models/recurrent
  */
 public class GenerateTxtModel {
 	public static void main( String[] args ) throws Exception {

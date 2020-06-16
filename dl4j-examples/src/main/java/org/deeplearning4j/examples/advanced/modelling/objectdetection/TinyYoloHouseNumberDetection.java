@@ -70,7 +70,7 @@ import static org.bytedeco.opencv.global.opencv_imgproc.*;
  * - YOLO: Real-Time Object Detection: https://pjreddie.com/darknet/yolo/ <br>
  * - The Street View House Numbers (SVHN) Dataset: http://ufldl.stanford.edu/housenumbers/ <br>
  * <p>
- * Please note, cuDNN should be used to obtain reasonable performance: https://deeplearning4j.org/cudnn
+ * Please note, cuDNN should be used to obtain reasonable performance: https://deeplearning4j.konduit.ai/config/backends/config-cudnn#using-deeplearning-4-j-with-cudnn
  *
  * @author saudet
  */

@@ -94,7 +94,7 @@ public class ImdbReviewClassificationRNN {
         int truncateReviewsToLength = 256;  //Truncate reviews with length (# words) greater than this
         final int seed = 0;     //Seed for reproducibility
 
-        Nd4j.getMemoryManager().setAutoGcWindow(10000);  //https://deeplearning4j.org/workspaces
+        Nd4j.getMemoryManager().setAutoGcWindow(10000);  //https://deeplearning4j.konduit.ai/config/config-memory/config-workspaces#garbage-collector
 
         //Set up network configuration
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()

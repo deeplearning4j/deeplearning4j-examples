@@ -49,9 +49,9 @@ public class AdditionModelWithSeq2Seq {
 
         This example is build using a computation graph with RNN layers.
         Refer here for more details on computation graphs in dl4j
-            https://deeplearning4j.org/compgraph
+            https://deeplearning4j.konduit.ai/models/computationgraph
         And here for RNNs
-            https://deeplearning4j.org/usingrnns
+            https://deeplearning4j.konduit.ai/models/recurrent
 
         There are two RNN layers to this computation graph. The inputs to them are as follows,
         During training:

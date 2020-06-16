@@ -166,7 +166,7 @@ Trace where data from each example comes from and get metadata on prediction err
 Train a MultiLayerNetwork where the errors come from an external source, instead of using an Output layer and a labels array.
 
 ##### TransferLearning
-Demonstrates use of the dl4j transfer learning API which allows users to construct a model based off an existing model by modifying the architecture, freezing certain parts selectively and then fine tuning parameters. Read the documentation for the Transfer Learning API at [https://deeplearning4j.org/transfer-learning](https://deeplearning4j.org/transfer-learning).
+Demonstrates use of the dl4j transfer learning API which allows users to construct a model based off an existing model by modifying the architecture, freezing certain parts selectively and then fine tuning parameters. Read the documentation for the Transfer Learning API at [https://deeplearning4j.konduit.ai/tuning-and-training/transfer-learning](https://deeplearning4j.konduit.ai/tuning-and-training/transfer-learning).
 * [EditLastLayerOthersFrozen.java](./src/main/java/org/deeplearning4j/examples/advanced/features/transferlearning/editlastlayer/EditLastLayerOthersFrozen.java)
 Modifies just the last layer in vgg16, freezes the rest and trains the network on the flower dataset.
 * [FeaturizedPreSave.java](./src/main/java/org/deeplearning4j/examples/advanced/features/transferlearning/editlastlayer/presave/FeaturizedPreSave.java) & [FitFromFeaturized.java](./src/main/java/org/deeplearning4j/examples/advanced/features/transferlearning/editlastlayer/presave/FitFromFeaturized.java)

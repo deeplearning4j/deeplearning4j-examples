@@ -64,7 +64,7 @@
         -->
 
         <!-- Optional, but recommended: if you use CUDA, also use CuDNN. To use this, CuDNN must also be installed -->
-        <!-- See: https://deeplearning4j.org/cudnn -->
+        <!-- See: https://deeplearning4j.konduit.ai/config/backends/config-cudnn#using-deeplearning-4-j-with-cudnn -->
         <!--
         <dependency>
             <groupId>org.deeplearning4j</groupId>

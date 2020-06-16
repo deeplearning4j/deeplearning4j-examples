@@ -15,7 +15,7 @@ Number of classes: 398
 Number of documents/examples (after preprocessing): approx. 5.7 million (training set) plus approx. 170000 (test set)
 
 Dataset size: approx. 86 GB (zip format), 464 GB raw text. Note the example performs preprocessing from the compressed ZIP format.
-Requires an additional 20GB of storage space for preprocessing  
+Requires an additional 20GB of storage space for preprocessing
 
 **Neural Network**: a CNN classifier for text classification. Approximately 600,000 parameters
 
@@ -70,7 +70,7 @@ MASTER_IP=...
 AZURE_STORAGE_ACCT=...
 AZURE_STORAGE_ACCT_KEY=...
 AZURE_CONTAINER_ZIPS=patentzips
-AZURE_CONTAINER_PREPROC=patentExamplePreproc 
+AZURE_CONTAINER_PREPROC=patentExamplePreproc
 ```
 
 Note that some clusters may have the master already configured.
@@ -93,7 +93,7 @@ is pointed to the same value for ```AZURE_CONTAINER_PREPROC```.
 **Alternatively to setting storage account**
 
 You can set the storage account credentials in your Hadoop core-site.xml file. See "Configuring Credentials" in this guide for details: [https://hadoop.apache.org/docs/current/hadoop-azure/index.html](https://hadoop.apache.org/docs/current/hadoop-azure/index.html)
- 
+
 
 **Second: Run the Script**
 
@@ -108,7 +108,7 @@ After preprocessing is complete, you will have:
     2. For HTTP access (if enabled): ```https://AZURE_STORAGE_ACCT.blob.core.windows.net/AZURE_CONTAINER_ZIPS/```
 2. Preprocessed training and test data (with default sequence length of 1000 and minibatch size of 32)
    1. For Spark access: ```wasbs://AZURE_CONTAINER_PREPROC@AZURE_STORAGE_ACCT.blob.core.windows.net/seqLength1000_mb32/```
-   2. For HTTP access (if enabled): ```https://AZURE_STORAGE_ACCT.blob.core.windows.net/AZURE_CONTAINER_PREPROC/```  
+   2. For HTTP access (if enabled): ```https://AZURE_STORAGE_ACCT.blob.core.windows.net/AZURE_CONTAINER_PREPROC/```
 
 Note that the preprocessed directory will have ```train``` and ```test``` subdirectories.
 The format of the files in those train/test directories is a custom format designed to be loaded
@@ -131,7 +131,7 @@ Set the following required arguments to the same values used for the preprocessi
 MASTER_IP=...
 AZURE_STORAGE_ACCT=...
 AZURE_STORAGE_ACCT_KEY=...
-AZURE_CONTAINER_PREPROC=patentExamplePreproc 
+AZURE_CONTAINER_PREPROC=patentExamplePreproc
 ```
 
 The following configuration options also need to be set:
@@ -142,7 +142,7 @@ LOCAL_SAVE_DIR
 
 Your network mask should be set to the network used for spark communication. For example, [10.0.0.0/16]
 See the following links for further details:
-* [DL4J Distributed Training - Netmask](https://deeplearning4j.org/distributed#netmask)
+* [DL4J Distributed Training - Netmask](https://deeplearning4j.konduit.ai/distributed-deep-learning/parameter-server#netmask)
 * [How to Find the IP Address, Subnet Mask & Gateway of a Computer](https://yourbusiness.azcentral.com/ip-address-subnet-mask-gateway-computer-14563.html)
 * [What is a Subnet Mask](https://www.iplocation.net/subnet-mask)
 

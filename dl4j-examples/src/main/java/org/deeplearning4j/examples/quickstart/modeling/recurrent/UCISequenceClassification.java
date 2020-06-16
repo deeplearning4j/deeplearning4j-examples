@@ -75,7 +75,7 @@ import java.util.Random;
  *
  * 2. Load the training data using CSVSequenceRecordReader (to load/parse the CSV files) and SequenceRecordReaderDataSetIterator
  *    (to convert it to DataSet objects, ready to train)
- *    For more details on this step, see: http://deeplearning4j.org/usingrnns#data
+ *    For more details on this step, see: https://deeplearning4j.konduit.ai/models/recurrent#data-for-rnns
  *
  * 3. Normalize the data. The raw data contain values that are too large for effective training, and need to be normalized.
  *    Normalization is conducted using NormalizerStandardize, based on statistics (mean, st.dev) collected on the training

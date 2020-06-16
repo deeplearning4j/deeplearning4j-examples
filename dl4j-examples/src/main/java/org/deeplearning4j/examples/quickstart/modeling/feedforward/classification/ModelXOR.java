@@ -112,11 +112,9 @@ public class ModelXOR {
             .updater(new Sgd(0.1))
             .seed(seed)
             .biasInit(0) // init the bias with 0 - empirical value, too
-            // from "http://deeplearning4j.org/architecture": The networks can
-            // process the input more quickly and more accurately by ingesting
+            // The networks can process the input more quickly and more accurately by ingesting
             // minibatches 5-10 elements at a time in parallel.
-            // this example runs better without, because the dataset is smaller than
-            // the mini batch size
+            // This example runs better without, because the dataset is smaller than the mini batch size
             .miniBatch(false)
             .list()
             .layer(new DenseLayer.Builder()

@@ -38,7 +38,7 @@ import java.util.Random;
 /**
  * This example is almost identical to the LSTMCharModellingExample, except that it utilizes the ComputationGraph
  * architecture instead of MultiLayerNetwork architecture. See the javadoc in that example for details.
- * For more details on the ComputationGraph architecture, see http://deeplearning4j.org/compgraph
+ * For more details on the ComputationGraph architecture, see https://deeplearning4j.konduit.ai/models/computationgraph
  *
  * In addition to the use of the ComputationGraph a, this version has skip connections between the first and output layers,
  * in order to show how this configuration is done. In practice, this means we have the following types of connections:

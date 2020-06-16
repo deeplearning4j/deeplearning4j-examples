@@ -53,7 +53,7 @@ import java.util.concurrent.TimeUnit;
  * have the minimum test set loss
  * This is an over-simplified example, but the principles used here should apply in more realistic cases.
  *
- * For further details on early stopping, see http://deeplearning4j.org/earlystopping.html
+ * For further details on early stopping, see https://deeplearning4j.konduit.ai/getting-started/tutorials/early-stopping
  *
  * @author Alex Black
  */

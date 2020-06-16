@@ -78,7 +78,7 @@ import java.io.BufferedOutputStream;
  * a larger network, better selection of hyperparameters, and more epochs.
  *
  * For further details on DL4J's Spark implementation, see the "Distributed Deep Learning" pages at:
- * https://deeplearning4j.org/docs/latest/
+ * https://deeplearning4j.konduit.ai/distributed-deep-learning/intro
  *
  * A local (single machine) version of this example is available in TrainLocal
  *
@@ -145,7 +145,7 @@ public class TrainSpark {
         //Set up TrainingMaster for gradient sharing training
         VoidConfiguration voidConfiguration = VoidConfiguration.builder()
             .unicastPort(port)                          // Should be open for IN/OUT communications on all Spark nodes
-            .networkMask(networkMask)                   // Local network mask - for example, 10.0.0.0/16 - see https://deeplearning4j.org/docs/latest/deeplearning4j-scaleout-parameter-server
+            .networkMask(networkMask)                   // Local network mask - for example, 10.0.0.0/16 - see https://deeplearning4j.konduit.ai/distributed-deep-learning/parameter-server#netmask
             .controllerAddress(masterIP)                // IP address of the master/driver node
             .meshBuildMode(MeshBuildMode.PLAIN)
             .build();

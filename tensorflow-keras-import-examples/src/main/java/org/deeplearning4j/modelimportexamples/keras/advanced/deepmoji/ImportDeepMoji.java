@@ -49,6 +49,7 @@ public class ImportDeepMoji {
         File directory = new File(DATA_PATH);
         if(!directory.exists()) directory.mkdir();
 
+        // TODO: fix link
         String modelUrl = "http://blob.deeplearning4j.org/models/deepmoji.h5";
         String downloadPath = DATA_PATH + "deepmoji_model.h5";
         File cachedKerasFile = new File(downloadPath);

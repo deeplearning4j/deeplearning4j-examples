@@ -31,7 +31,7 @@ NUM_NODES=...                                   #Number of nodes in the cluster
 SPARKSUBMIT=/opt/spark/bin/spark-submit
 MASTER_PORT=7077                                #Port for the spark master. Default is 7077
 MINIBATCH=32                                    #Minibatch size for preprocessed datasets
-    # For memory config, see https://deeplearning4j.org/memory
+    # For memory config, see https://deeplearning4j.konduit.ai/config/config-memory
 JAVA_HEAP_MEM=10G
 OFFHEAP_MEM_JAVACPP=20G
 OFFHEAP_JAVACPP_MAX_PHYS=30G

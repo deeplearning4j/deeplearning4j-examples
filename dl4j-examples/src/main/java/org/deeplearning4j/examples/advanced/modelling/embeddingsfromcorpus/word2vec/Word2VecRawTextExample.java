@@ -34,7 +34,7 @@ import java.util.Collection;
  * Created by agibsonccc on 10/9/14.
  *
  * Neural net that processes text into wordvectors. See below url for an in-depth explanation.
- * https://deeplearning4j.org/word2vec.html
+ * https://deeplearning4j.konduit.ai/language-processing/word2vec
  */
 public class Word2VecRawTextExample {
 
