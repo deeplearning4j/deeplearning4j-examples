@@ -1,0 +1,16 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/action_linear"
+        android:orderInCategory="100"
+        android:title="@string/action_linear"
+        app:showAsAction="never" />
+    <item
+        android:orderInCategory="101"
+        android:id="@+id/action_moon"
+        android:title="@string/action_moon" />
+    <item
+        android:orderInCategory="102"
+        android:id="@+id/action_saturn"
+        android:title="@string/action_saturn" />
+</menu>
