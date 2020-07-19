@@ -17,6 +17,7 @@
 
 package org.deeplearning4j.examples.advanced.modelling.embeddingsfromcorpus.word2vec;
 
+import org.deeplearning4j.models.embeddings.loader.WordVectorSerializer;
 import org.deeplearning4j.models.word2vec.Word2Vec;
 import org.deeplearning4j.examples.utils.DownloaderUtility;
 import org.deeplearning4j.text.sentenceiterator.BasicLineIterator;
@@ -77,7 +78,8 @@ public class Word2VecRawTextExample {
         vec.fit();
 
         log.info("Writing word vectors to text file....");
-
+        WordVectorSerializer.writeWord2VecModel(vec, "pathToSaveModel.txt");
+        
         // Prints out the closest 10 words to "day". An example on what to do with these Word Vectors.
         log.info("Closest Words:");
         Collection<String> lst = vec.wordsNearestSum("day", 10);
