@@ -21,27 +21,27 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>org.deeplearning4j</groupId>                                       
-    <artifactId>model-import-examples</artifactId>                         
-    <version>1.0.0-beta7</version>                                              
-    <name>model import examples</name>                                     
-    <description>Loading models trained in keras or tensorflow</description>   
+    <groupId>org.deeplearning4j</groupId>
+    <artifactId>model-import-examples</artifactId>
+    <version>1.0.0-beta7</version>
+    <name>model import examples</name>
+    <description>Loading models trained in keras or tensorflow</description>
 
     <properties>
         <dl4j-master.version>1.0.0-beta7</dl4j-master.version>
         <!-- Change the nd4j.backend property to nd4j-cuda-X-platform to use CUDA GPUs -->
         <nd4j.backend>nd4j-native</nd4j.backend>
-        <!-- <nd4j.backend>nd4j-cuda-10.2-platform</nd4j.backend> -->           
+        <!-- <nd4j.backend>nd4j-cuda-10.2-platform</nd4j.backend> -->
         <java.version>1.8</java.version>
         <maven-compiler-plugin.version>3.6.1</maven-compiler-plugin.version>
         <maven.minimum.version>3.3.1</maven.minimum.version>
         <exec-maven-plugin.version>1.4.0</exec-maven-plugin.version>
         <maven-shade-plugin.version>2.4.3</maven-shade-plugin.version>
-        <logback.version>1.1.7</logback.version>                                
+        <logback.version>1.1.7</logback.version>
         <javacpp.version>1.5.2</javacpp.version>
         <tensorflow.version>1.15.0</tensorflow.version>
     </properties>
-                                                                                
+
     <dependencies>
         <dependency>
             <groupId>org.nd4j</groupId>
@@ -83,59 +83,59 @@
     <!-- Maven Enforcer: Ensures user has an up to date version of Maven before building -->
     <build>
         <plugins>
-            <plugin>                                                            
-                <artifactId>maven-enforcer-plugin</artifactId>                  
-                <version>1.0.1</version>                                        
-                <executions>                                                    
-                    <execution>                                                 
-                        <id>enforce-default</id>                                
-                        <goals>                                                 
-                            <goal>enforce</goal>                                
-                        </goals>                                                
-                        <configuration>                                         
-                            <rules>                                             
-                                <requireMavenVersion>                           
+            <plugin>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <version>1.0.1</version>
+                <executions>
+                    <execution>
+                        <id>enforce-default</id>
+                        <goals>
+                            <goal>enforce</goal>
+                        </goals>
+                        <configuration>
+                            <rules>
+                                <requireMavenVersion>
                                     <version>[${maven.minimum.version},)</version>
                                     <message>********** Minimum Maven Version is ${maven.minimum.version}. Please upgrade Maven before continuing (run "mvn --version" to check). **********</message>
-                                </requireMavenVersion>                          
-                            </rules>                                            
-                        </configuration>                                        
-                    </execution>                                                
-                </executions>                                                   
-            </plugin>  
+                                </requireMavenVersion>
+                            </rules>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>${maven-compiler-plugin.version}</version>
                 <configuration>
-                    <source>1.7</source>
-                    <target>1.7</target>
+                    <source>${java.version}</source>
+                    <target>${java.version}</target>
                 </configuration>
             </plugin>
-            <plugin>                                                            
-                <groupId>com.lewisd</groupId>                                   
-                <artifactId>lint-maven-plugin</artifactId>                      
-                <version>0.0.11</version>                                       
-                <configuration>                                                 
-                    <failOnViolation>true</failOnViolation>                     
-                    <onlyRunRules>                                              
-                        <rule>DuplicateDep</rule>                               
-                        <rule>RedundantPluginVersion</rule>                     
-                        <!-- Rules incompatible with Java 9                     
-                        <rule>VersionProp</rule>                                
-                        <rule>DotVersionProperty</rule> -->                     
-                    </onlyRunRules>                                             
-                </configuration>                                                
-                <executions>                                                    
-                    <execution>                                                 
-                        <id>pom-lint</id>                                       
-                        <phase>validate</phase>                                 
-                        <goals>                                                 
-                            <goal>check</goal>                                  
-                        </goals>                                                
-                    </execution>                                                
-                </executions>                                                   
-            </plugin> 
+            <plugin>
+                <groupId>com.lewisd</groupId>
+                <artifactId>lint-maven-plugin</artifactId>
+                <version>0.0.11</version>
+                <configuration>
+                    <failOnViolation>true</failOnViolation>
+                    <onlyRunRules>
+                        <rule>DuplicateDep</rule>
+                        <rule>RedundantPluginVersion</rule>
+                        <!-- Rules incompatible with Java 9
+                        <rule>VersionProp</rule>
+                        <rule>DotVersionProperty</rule> -->
+                    </onlyRunRules>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>pom-lint</id>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
@@ -190,43 +190,34 @@
                     </execution>
                 </executions>
             </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.5.1</version>
-                <configuration>
-                    <source>${java.version}</source>
-                    <target>${java.version}</target>
-                </configuration>
-            </plugin>
         </plugins>
-        <pluginManagement>                                                      
-            <plugins>                                                           
-                <plugin>                                                        
-                    <groupId>org.eclipse.m2e</groupId>                          
-                    <artifactId>lifecycle-mapping</artifactId>                  
-                    <version>1.0.0</version>                                    
-                    <configuration>                                             
-                        <lifecycleMappingMetadata>                              
-                            <pluginExecutions>                                  
-                                <pluginExecution>                               
-                                    <pluginExecutionFilter>                     
-                                        <groupId>com.lewisd</groupId>           
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.eclipse.m2e</groupId>
+                    <artifactId>lifecycle-mapping</artifactId>
+                    <version>1.0.0</version>
+                    <configuration>
+                        <lifecycleMappingMetadata>
+                            <pluginExecutions>
+                                <pluginExecution>
+                                    <pluginExecutionFilter>
+                                        <groupId>com.lewisd</groupId>
                                         <artifactId>lint-maven-plugin</artifactId>
-                                        <versionRange>[0.0.11,)</versionRange>  
-                                        <goals>                                 
-                                            <goal>check</goal>                  
-                                        </goals>                                
-                                    </pluginExecutionFilter>                    
-                                    <action>                                    
-                                        <ignore/>                               
-                                    </action>                                   
-                                </pluginExecution>                              
-                            </pluginExecutions>                                 
-                        </lifecycleMappingMetadata>                             
-                    </configuration>                                            
-                </plugin>                                                       
-            </plugins>                                                          
-        </pluginManagement>   
+                                        <versionRange>[0.0.11,)</versionRange>
+                                        <goals>
+                                            <goal>check</goal>
+                                        </goals>
+                                    </pluginExecutionFilter>
+                                    <action>
+                                        <ignore/>
+                                    </action>
+                                </pluginExecution>
+                            </pluginExecutions>
+                        </lifecycleMappingMetadata>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
     </build>
 </project>
