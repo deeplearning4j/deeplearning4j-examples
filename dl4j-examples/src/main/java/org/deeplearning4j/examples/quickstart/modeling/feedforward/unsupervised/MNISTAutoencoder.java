@@ -74,6 +74,7 @@ public class MNISTAutoencoder {
                 .layer(new DenseLayer.Builder().nIn(10).nOut(250)
                         .build())
                 .layer(new OutputLayer.Builder().nIn(250).nOut(784)
+                        .activation(Activation.LEAKYRELU)
                         .lossFunction(LossFunctions.LossFunction.MSE)
                         .build())
                 .build();
