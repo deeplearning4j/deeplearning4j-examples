@@ -28,26 +28,21 @@ graph-tmp/
 pom.xml.releaseBackup
 
 dependency-reduced-pom.xml
-*.ser
 application.home_IS_UNDEFINEiD
 README.md~
 *.png
 *.bin
 *.releaseBackup
-*.png
-*.bin
 *.out
 *~
 .pydevproject
 release.properties
 .idea/
-*.iml
 *.prefs
 *.settings/*
 model-saver-*
 mnist-pretrain-dbn.bin-*
 deeplearning4j-scaleout/deeplearning4j-aws/src/main/java/org/deeplearning4j/aws/ec2/provision/Ec2CommandRunner.java.settings/
-*.log
 .project
 .classpath
 .settings/
