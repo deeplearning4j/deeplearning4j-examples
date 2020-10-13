@@ -62,104 +62,141 @@ public class DenseNetBuilder {
         return model;
     }
 
+    public int getGrowthRate() {
+        return growthRate;
+    }
+
     public String initLayer(int kernel, int stride, int padding, int channels) {
-        String init = "initConv";
-        String initPool = "initPool";
-        conf.addLayer(init, new ConvolutionLayer.Builder()
+        ConvolutionLayer convolutionLayer = new ConvolutionLayer.Builder()
+            .name("initConv")
             .kernelSize(kernel, kernel)
             .stride(stride, stride)
             .padding(padding, padding)
             .nIn(channels)
             .nOut(growthRate * 2)
-            .build(), "input");
-        conf.addLayer(initPool, new Pooling2D.Builder(SubsamplingLayer.PoolingType.MAX)
-            .kernelSize(2, 2)
+            .build();
+        SubsamplingLayer subsamplingLayer = new Pooling2D.Builder(SubsamplingLayer.PoolingType.MAX)
+            .name("initPool")
+            .kernelSize(3, 3)
             .padding(0, 0)
-            .build(), init);
-        return initPool;
+            .build();
+
+        conf.addLayer(convolutionLayer.getLayerName(), convolutionLayer, "input");
+        conf.addLayer(subsamplingLayer.getLayerName(), subsamplingLayer, convolutionLayer.getLayerName());
+
+        return subsamplingLayer.getLayerName();
     }
 
-    public String addTransitionLayer(String transitionName, int numIn, String... previousBlock) {
-        String bnName = "bn_" + transitionName;
-        String convName = "conv_" + transitionName;
-        String poolName = "pool_" + transitionName;
-
-        conf.addLayer(bnName, new BatchNormalization.Builder()
-            .build(), previousBlock);
-        conf.addLayer(convName, new ConvolutionLayer.Builder()
+    public String addTransitionLayer(String name, long numIn, List<String> previousLayers) {
+        BatchNormalization bnLayer = new BatchNormalization.Builder()
+            .name(String.format("%s_%s", name, "bn"))
+            .build();
+        ConvolutionLayer layer1x1 = new ConvolutionLayer.Builder()
+            .name(String.format("%s_%s", name, "conv"))
             .kernelSize(1, 1)
             .stride(1, 1)
             .padding(0, 0)
             .nOut(numIn / 2)
-            .build(), bnName);
-        conf.addLayer(poolName, new Pooling2D.Builder(SubsamplingLayer.PoolingType.AVG)
+            .build();
+        SubsamplingLayer subsamplingLayer = new Pooling2D.Builder(SubsamplingLayer.PoolingType.AVG)
+            .name(String.format("%s_%s", name, "pool"))
             .kernelSize(2, 2)
             .padding(0, 0)
-            .build(), convName);
-        ;
+            .build();
 
-        return poolName;
+        conf.addLayer(bnLayer.getLayerName(), bnLayer, previousLayers.toArray(String[]::new));
+        conf.addLayer(layer1x1.getLayerName(), layer1x1, bnLayer.getLayerName());
+        conf.addLayer(subsamplingLayer.getLayerName(), subsamplingLayer, layer1x1.getLayerName());
+
+        return subsamplingLayer.getLayerName();
     }
 
-    private String[] addDenseLayer(boolean firstLayerInBlock, String layerName, String... previousLayers) {
-        String bnName = "bn1_" + layerName;
-        String convName = "conv1_" + layerName;
-        String bnName2 = "bn2_" + layerName;
-        String convName2 = "conv2_" + layerName;
-
-        if (useBottleNeck) {
-            conf.addLayer(bnName, new BatchNormalization.Builder()
-                .build(), previousLayers);
-            conf.addLayer(convName, new ConvolutionLayer.Builder()
-                .kernelSize(1, 1)
-                .stride(1, 1)
-                .padding(0, 0)
-                .nOut(growthRate * 2)
-                .build(), bnName);
-        }
-
-        conf.addLayer(bnName2, new BatchNormalization.Builder()
-            .build(), useBottleNeck ? new String[]{convName} : previousLayers);
-        conf.addLayer(convName2, new ConvolutionLayer.Builder()
+    private ConvolutionLayer addDenseLayer(String name, String... previousLayers) {
+        BatchNormalization bnLayer1 = new BatchNormalization.Builder()
+            .name(String.format("%s_%s", name, "bn1"))
+            .build();
+        ConvolutionLayer layer1x1 = new ConvolutionLayer.Builder()
+            .name(String.format("%s_%s", name, "con1x1"))
+            .kernelSize(1, 1)
+            .stride(1, 1)
+            .padding(0, 0)
+            .nOut(growthRate * 4)
+            .build();
+        BatchNormalization bnLayer2 = new BatchNormalization.Builder()
+            .name(String.format("%s_%s", name, "bn2"))
+            .build();
+        ConvolutionLayer layer3x3 = new ConvolutionLayer.Builder()
+            .name(String.format("%s_%s", name, "con3x3"))
             .kernelSize(3, 3)
             .stride(1, 1)
             .padding(1, 1)
             .nOut(growthRate)
-            .build(), bnName2);
+            .build();
 
-        return firstLayerInBlock ? new String[]{convName2} : increaseArray(convName2, previousLayers);
-    }
-
-    public String[] addDenseBlock(int numLayers, boolean first, String blockName, String[] previousLayer) {
-        String layerName = blockName + "_lay" + numLayers;
-        String[] layersInput = addDenseLayer(first, layerName, previousLayer);
-        --numLayers;
-        if (numLayers > 0) {
-            layersInput = addDenseBlock(numLayers, false, blockName, layersInput);
+        if (useBottleNeck) {
+            conf.addLayer(bnLayer1.getLayerName(), bnLayer1, previousLayers);
+            conf.addLayer(layer1x1.getLayerName(), layer1x1, bnLayer1.getLayerName());
+            conf.addLayer(bnLayer2.getLayerName(), bnLayer2, layer1x1.getLayerName());
+        } else {
+            conf.addLayer(bnLayer2.getLayerName(), bnLayer2, previousLayers);
         }
-        return first ? increaseArray(previousLayer[0], layersInput) : layersInput;
+        conf.addLayer(layer3x3.getLayerName(), layer3x3, bnLayer2.getLayerName());
+
+        return layer3x3;
     }
 
-    public void addOutputLayer(int height, int width, int numIn, int numLabels, String... previousLayer) {
-        conf.addLayer("lastBatch", new BatchNormalization.Builder()
-            .build(), previousLayer);
-        conf.addLayer("GAP", new GlobalPoolingLayer.Builder()
+    protected List<String> buildDenseBlock(String blockName, int numLayers, String lastLayerName) {
+        List<ConvolutionLayer> layers = new ArrayList<>();
+        for (int i = 0; i < numLayers; ++i) {
+            layers.add(addDenseLayer(String.format("%s_%s", blockName, i), increaseArray(lastLayerName, getLayerNames(layers))));
+        }
+        List<String> names = new ArrayList<>(Arrays.asList(getLayerNames(layers)));
+        names.add(lastLayerName);
+        return names;
+    }
+
+    public void addOutputLayer(int numIn, int numLabels, String... previousLayer) {
+        GlobalPoolingLayer globalPoolingLayer = new GlobalPoolingLayer.Builder()
+            .name("outputGPL")
             .poolingType(PoolingType.AVG)
-            .build(), "lastBatch");
-        conf.addLayer("dense", new DenseLayer.Builder()
-            .nIn(numIn)
-            .nOut(1024)
-            .build(), "GAP");
-        conf.addLayer("output", new OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD)
+            .collapseDimensions(false)
+            .build();
+        BatchNormalization bn2 = new BatchNormalization.Builder()
+            .name("outputBn")
+            .build();
+        ConvolutionLayer convolutionLayer2 = new ConvolutionLayer.Builder()
+            .name("outputConv")
+            .kernelSize(1, 1)
+            .stride(1, 1)
+            .padding(0, 0)
+            .nOut(numIn * 2)
+            .build();
+        OutputLayer outputLayer = new OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD)
+            .name("output")
             .nOut(numLabels)
             .activation(Activation.SOFTMAX)
-            .build(), "dense");
+            .build();
+
+        conf.addLayer(globalPoolingLayer.getLayerName(), globalPoolingLayer, previousLayer);
+        conf.addLayer(bn2.getLayerName(), bn2, globalPoolingLayer.getLayerName());
+        conf.addLayer(convolutionLayer2.getLayerName(), convolutionLayer2, bn2.getLayerName());
+        conf.addLayer(outputLayer.getLayerName(), outputLayer, convolutionLayer2.getLayerName());
     }
 
-    private String[] increaseArray(String newLayer, String... theArray) {
+    private String[] increaseArray(String newLayer, String[] theArray) {
         String[] newArray = new String[theArray.length + 1];
         System.arraycopy(theArray, 0, newArray, 0, theArray.length);
         newArray[theArray.length] = newLayer;
         return newArray;
+    }
+
+    protected String[] getLayerNames(List<ConvolutionLayer> theArray) {
+        List<String> names = new ArrayList<>();
+        if (theArray != null) {
+            for (ConvolutionLayer convolutionLayer : theArray) {
+                names.add(convolutionLayer.getLayerName());
+            }
+        }
+        return names.toArray(String[]::new);
     }
 }

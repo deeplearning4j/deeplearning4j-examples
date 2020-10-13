@@ -66,7 +66,7 @@ public class DenseNetMain {
     private static final int height = 227;
     private static final int width = 227;
     private static final int channels = 3;
-    private static final int batchSize = 10;
+    private static final int batchSize = 32;
     private static final int outputNum = 4;
     private static final int numEpochs = 1000;
     private static final double splitTrainTest = 0.8;

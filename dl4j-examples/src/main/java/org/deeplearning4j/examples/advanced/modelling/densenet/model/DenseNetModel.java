@@ -32,17 +32,24 @@ public class DenseNetModel {
 
     public ComputationGraph buildNetwork(long seed, int channels, int numLabels, int width, int height) {
 
-        DenseNetBuilder denseNetModel = new DenseNetBuilder(height, width, channels, seed, 12, false); //227x227x3
+        DenseNetBuilder denseNetModel = new DenseNetBuilder(height, width, channels, seed, 12, true); //227x227x3
 
-        String init = denseNetModel.initLayer(7, 2, 1, channels); //56x56x24
-        String[] block1 = denseNetModel.addDenseBlock(6, true, "db1", new String[]{init});
-        String trans1 = denseNetModel.addTransitionLayer("tr1", 96, block1); //28x28x48
-        String[] block2 = denseNetModel.addDenseBlock(12, true, "db2", new String[]{trans1});
-        String trans2 = denseNetModel.addTransitionLayer("tr2", 192, block2); //14x14x96
-        String[] block3 = denseNetModel.addDenseBlock(24, true, "db3", new String[]{trans2});
-        String trans3 = denseNetModel.addTransitionLayer("tr3", 384, block3); //7x7x192
-        String[] block4 = denseNetModel.addDenseBlock(16, true, "db4", new String[]{trans3});
-        denseNetModel.addOutputLayer(7, 7, 384, numLabels, block4);
+        int l1 = 6, l2 = 12, l3 = 24, l4 = 16;
+
+        int nIn1 = l1 * denseNetModel.getGrowthRate() + 2 * denseNetModel.getGrowthRate();
+        int nIn2 = l2 * denseNetModel.getGrowthRate() + nIn1 / 2;
+        int nIn3 = l3 * denseNetModel.getGrowthRate() + nIn2 / 2;
+        int nIn4 = l4 * denseNetModel.getGrowthRate() + nIn3 / 2;
+
+        String init = denseNetModel.initLayer(5, 2, 1, channels);
+        List<String> block1 = denseNetModel.buildDenseBlock("b1", l1, init);
+        String trans1 = denseNetModel.addTransitionLayer("t1", nIn1, block1);
+        List<String> block2 = denseNetModel.buildDenseBlock("b2", l2, trans1);
+        String trans2 = denseNetModel.addTransitionLayer("t2", nIn2, block2);
+        List<String> block3 = denseNetModel.buildDenseBlock("b3", l3, trans2);
+        String trans3 = denseNetModel.addTransitionLayer("t3", nIn3, block3);
+        List<String> block4 = denseNetModel.buildDenseBlock("b4", l4, trans3);
+        denseNetModel.addOutputLayer(nIn4, numLabels, block4.toArray(String[]::new));
 
         return denseNetModel.getModel();
     }
