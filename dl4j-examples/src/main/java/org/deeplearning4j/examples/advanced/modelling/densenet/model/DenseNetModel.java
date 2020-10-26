@@ -19,6 +19,8 @@ package org.deeplearning4j.examples.advanced.modelling.densenet.model;
 
 import org.deeplearning4j.nn.graph.ComputationGraph;
 
+import java.util.List;
+
 public class DenseNetModel {
 
     private static DenseNetModel instance;
@@ -49,7 +51,7 @@ public class DenseNetModel {
         List<String> block3 = denseNetModel.buildDenseBlock("b3", l3, trans2);
         String trans3 = denseNetModel.addTransitionLayer("t3", nIn3, block3);
         List<String> block4 = denseNetModel.buildDenseBlock("b4", l4, trans3);
-        denseNetModel.addOutputLayer(nIn4, numLabels, block4.toArray(String[]::new));
+        denseNetModel.addOutputLayer(nIn4, numLabels, block4.toArray(new String[block4.size()]));
 
         return denseNetModel.getModel();
     }

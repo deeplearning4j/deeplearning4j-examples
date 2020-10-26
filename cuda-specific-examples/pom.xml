@@ -20,18 +20,19 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>org.deeplearning4j</groupId>                                       
+    <groupId>org.deeplearning4j</groupId>
     <artifactId>dl4j-cuda-specific-examples</artifactId>
     <version>1.0.0-beta7</version>
     <name>DeepLearning4j CUDA special examples</name>
     <properties>
-      <dl4j-master.version>1.0.0-beta7</dl4j-master.version>                  
+      <dl4j-master.version>1.0.0-beta7</dl4j-master.version>
       <nd4j.backend>nd4j-cuda-10.2</nd4j.backend>
-      <java.version>1.8</java.version>                                        
-      <exec-maven-plugin.version>1.4.0</exec-maven-plugin.version>            
-      <maven-shade-plugin.version>2.4.3</maven-shade-plugin.version>          
-      <jcommon.version>1.0.23</jcommon.version>                               
-      <logback.version>1.1.7</logback.version>   
+      <java.version>1.8</java.version>
+      <exec-maven-plugin.version>1.4.0</exec-maven-plugin.version>
+      <maven-shade-plugin.version>2.4.3</maven-shade-plugin.version>
+      <jcommon.version>1.0.23</jcommon.version>
+      <logback.version>1.1.7</logback.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
     <dependencyManagement>

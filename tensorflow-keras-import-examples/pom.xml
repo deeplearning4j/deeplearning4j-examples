@@ -40,6 +40,7 @@
         <logback.version>1.1.7</logback.version>
         <javacpp.version>1.5.2</javacpp.version>
         <tensorflow.version>1.15.0</tensorflow.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
     <dependencies>
