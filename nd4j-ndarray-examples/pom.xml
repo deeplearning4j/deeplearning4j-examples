@@ -36,6 +36,7 @@
         <maven-compiler-plugin.version>3.6.1</maven-compiler-plugin.version>
         <maven.minimum.version>3.3.1</maven.minimum.version>
         <logback.version>1.1.7</logback.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
     <dependencies>

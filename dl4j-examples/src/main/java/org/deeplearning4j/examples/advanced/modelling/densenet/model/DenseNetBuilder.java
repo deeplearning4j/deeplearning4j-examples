@@ -31,6 +31,10 @@ import org.nd4j.linalg.lossfunctions.LossFunctions;
 import org.nd4j.linalg.schedule.ScheduleType;
 import org.nd4j.linalg.schedule.StepSchedule;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 public class DenseNetBuilder {
 
     private ComputationGraphConfiguration.GraphBuilder conf;
@@ -104,7 +108,7 @@ public class DenseNetBuilder {
             .padding(0, 0)
             .build();
 
-        conf.addLayer(bnLayer.getLayerName(), bnLayer, previousLayers.toArray(String[]::new));
+        conf.addLayer(bnLayer.getLayerName(), bnLayer, previousLayers.toArray(new String[1]));
         conf.addLayer(layer1x1.getLayerName(), layer1x1, bnLayer.getLayerName());
         conf.addLayer(subsamplingLayer.getLayerName(), subsamplingLayer, layer1x1.getLayerName());
 
@@ -197,6 +201,6 @@ public class DenseNetBuilder {
                 names.add(convolutionLayer.getLayerName());
             }
         }
-        return names.toArray(String[]::new);
+        return names.toArray(new String[names.size()]);
     }
 }
