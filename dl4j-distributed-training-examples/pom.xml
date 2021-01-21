@@ -47,7 +47,7 @@
         <azure.storage.version>2.0.0</azure.storage.version>
         <spark.version>2.1.0</spark.version>
         <aws.sdk.version>1.11.109</aws.sdk.version>
-        <jackson.version>2.5.1</jackson.version>
+        <jackson.version>2.12.1</jackson.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
