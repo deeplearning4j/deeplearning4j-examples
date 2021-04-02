@@ -47,7 +47,9 @@ jobs:
           cmake --version
           protoc --version
           for folder in `ls`; do
+            cd "$folder"
             mvn clean test
+            cd ..
           done
 
 
