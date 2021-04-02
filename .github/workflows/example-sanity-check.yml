@@ -38,7 +38,9 @@ jobs:
           mvn --version
           for folder in `ls`; do
             cd "$folder"
-            mvn clean test
+            if test -f "pom.xml"; then
+               mvn clean test
+            fi
             cd ..
           done
 
