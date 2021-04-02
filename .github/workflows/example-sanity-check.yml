@@ -42,10 +42,11 @@ jobs:
                if test -f "pom.xml"; then
                   mvn clean test
                fi
+               cd ..
              fi
         
            
-            cd ..
+           
           done
 
 
