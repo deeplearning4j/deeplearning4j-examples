@@ -28,7 +28,7 @@
     <description>Loading raw data and processing it before training</description>
 
     <properties>
-        <dl4j-master.version>1.0.0-beta7</dl4j-master.version>
+        <dl4j-master.version>1.0.0-SNAPSHOT</dl4j-master.version>
         <!-- Change the nd4j.backend property to nd4j-cuda-X-platform to use CUDA GPUs -->
 		<!-- <nd4j.backend>nd4j-cuda-10.2-platform</nd4j.backend> -->
         <nd4j.backend>nd4j-native</nd4j.backend>
@@ -76,7 +76,7 @@
         <dependency>
             <groupId>org.datavec</groupId>
             <artifactId>datavec-spark_${scala.binary.version}</artifactId>
-            <version>1.0.0_spark_2-SNAPSHOT</version>
+            <version>1.0.0-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.datavec</groupId>

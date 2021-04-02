@@ -8,11 +8,11 @@
     <artifactId>rl4j-examples</artifactId>
     <version>1.0.0-beta7</version>
     <properties>
-        <nd4j.version>1.0.0-beta7</nd4j.version>
-        <rl4j.version>1.0.0-beta7</rl4j.version>
+        <nd4j.version>1.0.0-SNAPSHOT</nd4j.version>
+        <rl4j.version>1.0.0-SNAPSHOT</rl4j.version>
         <logback.version>1.1.7</logback.version>
         <java.version>1.8</java.version>
-        <maven-compiler-plugin.version>3.6.1</maven-compiler-plugin.version>
+        <maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
         <maven.minimum.version>3.3.1</maven.minimum.version>
         <nd4j.backend>nd4j-native-platform</nd4j.backend>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
