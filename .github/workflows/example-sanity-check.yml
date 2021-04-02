@@ -37,7 +37,7 @@ jobs:
         run: |
           mvn --version
           for folder in `ls`; do
-             if [[ -d "folder" ]]; then
+             if [[ -d "$folder" ]]; then
                cd "$folder"
                if test -f "pom.xml"; then
                   mvn clean test
