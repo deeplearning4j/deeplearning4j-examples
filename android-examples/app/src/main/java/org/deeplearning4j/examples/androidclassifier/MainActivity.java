@@ -1,10 +1,11 @@
-package com.example.androidDl4jClassifier;
+package org.deeplearning4j.examples.androidclassifier;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import com.example.androidclassifier.R;
 
 
 public class MainActivity extends AppCompatActivity {

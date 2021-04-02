@@ -1,4 +1,4 @@
-package com.example.androidDl4jClassifier;
+package org.deeplearning4j.examples.androidclassifier;
 
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;

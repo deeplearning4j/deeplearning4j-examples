@@ -1,4 +1,4 @@
-package com.example.androidDl4jClassifier;
+package org.deeplearning4j.examples.androidclassifier;
 
 import android.content.Context;
 import android.graphics.Canvas;

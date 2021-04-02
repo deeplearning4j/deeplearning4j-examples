@@ -41,6 +41,7 @@
         <javacpp.version>1.5.5</javacpp.version>
         <tensorflow.version>1.15.5</tensorflow.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <junit.version>5.8.0-M1</junit.version>
     </properties>
 
     <repositories>
@@ -89,6 +90,28 @@
             <artifactId>deeplearning4j-zoo</artifactId>
             <version>${dl4j-master.version}</version>
         </dependency>
+
+        <dependency>
+            <groupId>org.nd4j</groupId>
+            <artifactId>samediff-import-tensorflow</artifactId>
+            <version>${dl4j-master.version}</version>
+        </dependency>
+
+        <!-- Test dependency. Ignore for your own application. -->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <version>${junit.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <version>${junit.version}</version>
+            <scope>test</scope>
+        </dependency>
+
     </dependencies>
 
     <!-- Maven Enforcer: Ensures user has an up to date version of Maven before building -->

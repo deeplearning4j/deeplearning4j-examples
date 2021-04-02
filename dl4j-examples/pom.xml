@@ -41,6 +41,9 @@
         <jfreechart.version>1.0.13</jfreechart.version>
         <logback.version>1.1.7</logback.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <junit.version>5.8.0-M1</junit.version>
+        <javacv.version>1.5.5</javacv.version>
+
     </properties>
 
 	<dependencyManagement>
@@ -135,8 +138,25 @@
         <dependency>
             <groupId>org.bytedeco</groupId>
             <artifactId>javacv-platform</artifactId>
-            <version>1.5.2</version>
+            <version>${javacv.version}</version>
         </dependency>
+
+        <!-- Test dependency. Ignore for your own application. -->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <version>${junit.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <version>${junit.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+
     </dependencies>
     <!-- Maven Enforcer: Ensures user has an up to date version of Maven before building -->
     <build>

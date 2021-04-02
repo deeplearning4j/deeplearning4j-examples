@@ -9,10 +9,12 @@ import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.api.ops.impl.image.ResizeBilinear;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.indexing.NDArrayIndex;
+import org.nd4j.samediff.frameworkimport.tensorflow.importer.TensorflowFrameworkImporter;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.util.Collections;
 
 /**
  * This example shows the ability to import and use Tensorflow models, specifically mobilenet, and use them for inference.
@@ -24,8 +26,12 @@ public class ImportMobileNetExample {
         // download and extract a tensorflow frozen model file (usually a .pb file)
         File modelFile = downloadModel();
 
+        //new tensorflow import api
+        TensorflowFrameworkImporter tensorflowFrameworkImporter = new TensorflowFrameworkImporter();
+
         // import the frozen model into a SameDiff instance
-        SameDiff sd = SameDiff.importFrozenTF(modelFile);
+        //note: this uses the new tensorflow import api
+        SameDiff sd = tensorflowFrameworkImporter.runImport(modelFile.getAbsolutePath(), Collections.emptyMap());
 
         System.out.println(sd.summary());
 

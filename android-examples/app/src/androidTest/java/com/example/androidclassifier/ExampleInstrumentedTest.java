@@ -1,4 +1,4 @@
-package com.example.androidDl4jClassifier;
+package com.example.androidclassifier;
 
 import android.content.Context;
 
