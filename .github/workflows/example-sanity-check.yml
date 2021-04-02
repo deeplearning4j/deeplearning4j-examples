@@ -36,8 +36,6 @@ jobs:
           GITHUB_TOKEN:  ${{ secrets.GITHUB_TOKEN }}
         run: |
           mvn --version
-          cmake --version
-          protoc --version
           for folder in `ls`; do
             cd "$folder"
             mvn clean test
