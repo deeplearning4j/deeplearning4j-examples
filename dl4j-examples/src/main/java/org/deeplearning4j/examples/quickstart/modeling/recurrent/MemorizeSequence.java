@@ -20,6 +20,7 @@ package org.deeplearning4j.examples.quickstart.modeling.recurrent;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration.ListBuilder;
+import org.deeplearning4j.nn.conf.Updater;
 import org.deeplearning4j.nn.conf.layers.LSTM;
 import org.deeplearning4j.nn.conf.layers.RnnOutputLayer;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
@@ -27,7 +28,7 @@ import org.deeplearning4j.nn.weights.WeightInit;
 import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
 import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.api.ndarray.INDArray;
-import org.nd4j.linalg.api.ops.impl.indexaccum.IMax;
+import org.nd4j.linalg.api.ops.impl.indexaccum.custom.ArgMax;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.learning.config.RmsProp;
@@ -147,7 +148,7 @@ public class MemorizeSequence {
                 // first process the last output of the network to a concrete
                 // neuron, the neuron with the highest output has the highest
                 // chance to get chosen
-                int sampledCharacterIdx = Nd4j.getExecutioner().exec(new IMax(output, 1)).getInt(0);
+                int sampledCharacterIdx = Nd4j.getExecutioner().exec(new ArgMax(output, 1))[0].getInt(0);
 
                 // print the chosen output
                 System.out.print(LEARNSTRING_CHARS_LIST.get(sampledCharacterIdx));

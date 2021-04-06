@@ -36,7 +36,7 @@ import org.jfree.data.xy.*;
 import org.jfree.ui.RectangleEdge;
 import org.jfree.ui.RectangleInsets;
 import org.nd4j.linalg.api.ndarray.INDArray;
-import org.nd4j.linalg.api.ops.impl.indexaccum.IMax;
+import org.nd4j.linalg.api.ops.impl.indexaccum.custom.ArgMax;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.nd4j.linalg.factory.Nd4j;
@@ -142,7 +142,7 @@ public class PlotUtil {
 
         XYSeries[] series = new XYSeries[nClasses];
         for (int i = 0; i < series.length; i++) series[i] = new XYSeries("Class " + i);
-        INDArray argMax = Nd4j.getExecutioner().exec(new IMax(labels, 1));
+        INDArray argMax = Nd4j.getExecutioner().exec(new ArgMax(labels, 1))[0];
         for (int i = 0; i < nRows; i++) {
             int classIdx = (int) argMax.getDouble(i);
             series[classIdx].add(features.getDouble(i, 0), features.getDouble(i, 1));
