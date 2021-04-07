@@ -25,8 +25,8 @@
     <version>1.0.0-beta7</version>
     <name>DeepLearning4j CUDA special examples</name>
     <properties>
-      <dl4j-master.version>1.0.0-SNAPSHOT</dl4j-master.version>
-      <nd4j.backend>nd4j-cuda-11.2</nd4j.backend>
+      <dl4j-master.version>1.0.0-beta7</dl4j-master.version>
+      <nd4j.backend>nd4j-cuda-10.2</nd4j.backend>
       <java.version>1.8</java.version>
       <exec-maven-plugin.version>1.4.0</exec-maven-plugin.version>
       <maven-shade-plugin.version>2.4.3</maven-shade-plugin.version>
@@ -39,12 +39,12 @@
         <dependencies>
             <dependency>
                 <groupId>org.nd4j</groupId>
-                <artifactId>nd4j-cuda-11.2</artifactId>
+                <artifactId>nd4j-cuda-10.2</artifactId>
                 <version>${dl4j-master.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.nd4j</groupId>
-                <artifactId>nd4j-cuda-11.2</artifactId>
+                <artifactId>nd4j-cuda-10.2</artifactId>
                 <version>${dl4j-master.version}</version>
             </dependency>
             <dependency>
