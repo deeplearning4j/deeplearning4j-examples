@@ -9,7 +9,7 @@
   ~
   ~ Unless required by applicable law or agreed to in writing, software
   ~ distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
-  ~ WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+  ~ WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See theDenseNetBuilder
   ~ License for the specific language governing permissions and limitations
   ~ under the License.
   ~
@@ -22,79 +22,29 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.deeplearning4j</groupId>
-    <artifactId>dl4j-distributed-training-examples</artifactId>
+    <artifactId>dl4j-examples</artifactId>
     <version>1.0.0-beta7</version>
-    <name>Introduction to Distributed Training with DL4J</name>
-    <description>A set of examples introducing distributed training with the DL4J framework</description>
+    <name>Introduction to DL4J</name>
+    <description>A set of examples introducing the DL4J framework</description>
 
     <properties>
-        <dl4j-master.version>1.0.0-SNAPSHOT</dl4j-master.version>
+        <dl4j-master.version>1.0.0-beta7</dl4j-master.version>
         <!-- Change the nd4j.backend property to nd4j-cuda-X-platform to use CUDA GPUs -->
         <!-- <nd4j.backend>nd4j-cuda-10.2-platform</nd4j.backend> -->
         <nd4j.backend>nd4j-native</nd4j.backend>
         <java.version>1.8</java.version>
-        <shadedClassifier>bin</shadedClassifier>
-        <scala.binary.version>2.11</scala.binary.version>
-        <maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
+        <maven-compiler-plugin.version>3.6.1</maven-compiler-plugin.version>
         <maven.minimum.version>3.3.1</maven.minimum.version>
         <exec-maven-plugin.version>1.4.0</exec-maven-plugin.version>
         <maven-shade-plugin.version>2.4.3</maven-shade-plugin.version>
         <jcommon.version>1.0.23</jcommon.version>
         <jfreechart.version>1.0.13</jfreechart.version>
         <logback.version>1.1.7</logback.version>
-        <jcommander.version>1.27</jcommander.version>
-        <azure.hadoop.version>2.7.4</azure.hadoop.version>
-        <azure.storage.version>2.0.0</azure.storage.version>
-        <spark.version>2.1.0</spark.version>
-        <aws.sdk.version>1.11.109</aws.sdk.version>
-        <jackson.version>2.5.1</jackson.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
-    <dependencyManagement>
+	<dependencyManagement>
         <dependencies>
-            <dependency>
-                <!-- Force Jackson versions to match Spark. This usually only matters for Spark local, not Spark submit -->
-                <groupId>com.fasterxml.jackson.core</groupId>
-                <artifactId>jackson-core</artifactId>
-                <version>${jackson.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.fasterxml.jackson.core</groupId>
-                <artifactId>jackson-databind</artifactId>
-                <version>${jackson.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.fasterxml.jackson.core</groupId>
-                <artifactId>jackson-annotations</artifactId>
-                <version>${jackson.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.fasterxml.jackson.module</groupId>
-                <artifactId>jackson-module-scala_${scala.binary.version}</artifactId>
-                <version>${jackson.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.fasterxml.jackson.datatype</groupId>
-                <artifactId>jackson-datatype-jdk8</artifactId>
-                <version>${jackson.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.fasterxml.jackson.datatype</groupId>
-                <artifactId>jackson-datatype-jsr310</artifactId>
-                <version>${jackson.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.datavec</groupId>
-                <artifactId>datavec-spark_${scala.binary.version}</artifactId>
-                <version>1.0.0-beta7_spark_2</version>
-            </dependency>
-            <dependency>
-                <groupId>org.deeplearning4j</groupId>
-                <artifactId>deeplearning4j-ui</artifactId>
-                <version>${dl4j-master.version}</version>
-            </dependency>
             <dependency>
                 <groupId>org.freemarker</groupId>
                 <artifactId>freemarker</artifactId>
@@ -103,16 +53,21 @@
             <dependency>
                 <groupId>io.netty</groupId>
                 <artifactId>netty-common</artifactId>
-                <version>4.1.42.Final</version>
+                <version>4.1.48.Final</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
 
     <dependencies>
         <dependency>
-            <groupId>org.apache.spark</groupId>
-            <artifactId>spark-core_${scala.binary.version}</artifactId>
-            <version>${spark.version}</version>
+            <groupId>org.deeplearning4j</groupId>
+            <artifactId>dl4j-spark_2.11</artifactId>
+            <version>${dl4j-master.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.deeplearning4j</groupId>
+            <artifactId>dl4j-spark-parameterserver_2.11</artifactId>
+            <version>${dl4j-master.version}</version>
         </dependency>
         <dependency>
             <groupId>org.nd4j</groupId>
@@ -121,28 +76,32 @@
         </dependency>
         <dependency>
             <groupId>org.datavec</groupId>
-            <artifactId>datavec-spark_${scala.binary.version}</artifactId>
+            <artifactId>datavec-api</artifactId>
+            <version>${dl4j-master.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.datavec</groupId>
+            <artifactId>datavec-data-image</artifactId>
+            <version>${dl4j-master.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.datavec</groupId>
+            <artifactId>datavec-local</artifactId>
             <version>${dl4j-master.version}</version>
         </dependency>
         <dependency>
             <groupId>org.deeplearning4j</groupId>
-            <artifactId>dl4j-spark_${scala.binary.version}</artifactId>
+            <artifactId>deeplearning4j-datasets</artifactId>
             <version>${dl4j-master.version}</version>
         </dependency>
         <dependency>
             <groupId>org.deeplearning4j</groupId>
-            <artifactId>dl4j-spark-parameterserver_${scala.binary.version}</artifactId>
+            <artifactId>deeplearning4j-core</artifactId>
             <version>${dl4j-master.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.beust</groupId>
-            <artifactId>jcommander</artifactId>
-            <version>${jcommander.version}</version>
-        </dependency>
-        <!-- Used for patent classification example -->
-        <dependency>
             <groupId>org.deeplearning4j</groupId>
-            <artifactId>deeplearning4j-nlp</artifactId>
+            <artifactId>deeplearning4j-ui</artifactId>
             <version>${dl4j-master.version}</version>
         </dependency>
         <dependency>
@@ -150,39 +109,106 @@
             <artifactId>deeplearning4j-zoo</artifactId>
             <version>${dl4j-master.version}</version>
         </dependency>
-        <!-- Used for patent classification example -->
+        <!-- ParallelWrapper & ParallelInference live here -->
         <dependency>
-            <groupId>org.apache.hadoop</groupId>
-            <artifactId>hadoop-azure</artifactId>
-            <version>${azure.hadoop.version}</version>
+            <groupId>org.deeplearning4j</groupId>
+            <artifactId>deeplearning4j-parallel-wrapper</artifactId>
+            <version>${dl4j-master.version}</version>
         </dependency>
-        <!-- Used for patent classification example -->
+        <!-- Used in the feedforward/classification/MLP* and feedforward/regression/RegressionMathFunctions example -->
         <dependency>
-            <groupId>com.microsoft.azure</groupId>
-            <artifactId>azure-storage</artifactId>
-            <version>${azure.storage.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.amazonaws</groupId>
-            <artifactId>aws-java-sdk-emr</artifactId>
-            <version>${aws.sdk.version}</version>
-            <scope>provided</scope>
+            <groupId>jfree</groupId>
+            <artifactId>jfreechart</artifactId>
+            <version>${jfreechart.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.amazonaws</groupId>
-            <artifactId>aws-java-sdk-s3</artifactId>
-            <version>${aws.sdk.version}</version>
-            <scope>provided</scope>
+            <groupId>org.jfree</groupId>
+            <artifactId>jcommon</artifactId>
+            <version>${jcommon.version}</version>
+        </dependency>
+        <!-- Used for downloading data in some of the examples -->
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+            <version>4.3.5</version>
+        </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>${logback.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.datavec</groupId>
+            <artifactId>datavec-data-codec</artifactId>
+            <version>${dl4j-master.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.bytedeco</groupId>
+            <artifactId>javacv-platform</artifactId>
+            <version>1.5.3</version>
         </dependency>
         <dependency>
             <groupId>org.jsoup</groupId>
             <artifactId>jsoup</artifactId>
-            <version>1.10.2</version>
+            <version>1.12.1</version>
         </dependency>
     </dependencies>
-
+    <!-- Maven Enforcer: Ensures user has an up to date version of Maven before building -->
     <build>
         <plugins>
+            <plugin>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <version>1.0.1</version>
+                <executions>
+                    <execution>
+                        <id>enforce-default</id>
+                        <goals>
+                            <goal>enforce</goal>
+                        </goals>
+                        <configuration>
+                            <rules>
+                                <requireMavenVersion>
+                                    <version>[${maven.minimum.version},)</version>
+                                    <message>********** Minimum Maven Version is ${maven.minimum.version}. Please upgrade Maven before continuing (run "mvn --version" to check). **********</message>
+                                </requireMavenVersion>
+                            </rules>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>${maven-compiler-plugin.version}</version>
+                <configuration>
+                    <source>${java.version}</source>
+                    <target>${java.version}</target>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>com.lewisd</groupId>
+                <artifactId>lint-maven-plugin</artifactId>
+                <version>0.0.11</version>
+                <configuration>
+                    <failOnViolation>true</failOnViolation>
+                    <onlyRunRules>
+                        <rule>DuplicateDep</rule>
+                        <rule>RedundantPluginVersion</rule>
+                        <!-- Rules incompatible with Java 9
+                        <rule>VersionProp</rule>
+                        <rule>DotVersionProperty</rule> -->
+                    </onlyRunRules>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>pom-lint</id>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
@@ -237,16 +263,34 @@
                     </execution>
                 </executions>
             </plugin>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.5.1</version>
-                <configuration>
-                    <source>${java.version}</source>
-                    <target>${java.version}</target>
-                </configuration>
-            </plugin>
         </plugins>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.eclipse.m2e</groupId>
+                    <artifactId>lifecycle-mapping</artifactId>
+                    <version>1.0.0</version>
+                    <configuration>
+                        <lifecycleMappingMetadata>
+                            <pluginExecutions>
+                                <pluginExecution>
+                                    <pluginExecutionFilter>
+                                        <groupId>com.lewisd</groupId>
+                                        <artifactId>lint-maven-plugin</artifactId>
+                                        <versionRange>[0.0.11,)</versionRange>
+                                        <goals>
+                                            <goal>check</goal>
+                                        </goals>
+                                    </pluginExecutionFilter>
+                                    <action>
+                                        <ignore/>
+                                    </action>
+                                </pluginExecution>
+                            </pluginExecutions>
+                        </lifecycleMappingMetadata>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
     </build>
 </project>
