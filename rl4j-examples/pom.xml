@@ -20,6 +20,15 @@
 
 
     <repositories>
+
+        <repository>
+            <id>orgdeeplearning4j-1137</id>
+            <url>https://oss.sonatype.org/content/repositories/orgdeeplearning4j-1137</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+        </repository>
+
         <repository>
             <id>sonatype-nexus-snapshots</id>
             <name>Sonatype Nexus Snapshots</name>
