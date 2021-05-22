@@ -50,7 +50,7 @@
     <repositories>
         <repository>
             <id>orgdeeplearning4j-1138</id>
-            <url>https://oss.sonatype.org/content/repositories/orgdeeplearning4j-1138</url>
+            <url>https://oss.sonatype.org/content/repositories/orgdeeplearning4j-1157</url>
             <releases>
                 <enabled>true</enabled>
             </releases>
@@ -143,7 +143,7 @@
             <artifactId>logback-classic</artifactId>
             <version>${logback.version}</version>
         </dependency>
-  
+
         <dependency>
             <groupId>org.bytedeco</groupId>
             <artifactId>javacv-platform</artifactId>
