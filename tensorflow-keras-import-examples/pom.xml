@@ -46,13 +46,12 @@
 
     <repositories>
         <repository>
-            <id>orgdeeplearning4j-1138</id>
-            <url>https://oss.sonatype.org/content/repositories/orgdeeplearning4j-1138</url>
+            <id>orgdeeplearning4j-1165</id>
+            <url>https://oss.sonatype.org/content/repositories/orgdeeplearning4j-1165</url>
             <releases>
                 <enabled>true</enabled>
             </releases>
         </repository>
-
 
         <repository>
             <id>OSS Sonatype</id>

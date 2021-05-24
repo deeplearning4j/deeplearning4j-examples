@@ -49,8 +49,8 @@
 
     <repositories>
         <repository>
-            <id>orgdeeplearning4j-1138</id>
-            <url>https://oss.sonatype.org/content/repositories/orgdeeplearning4j-1157</url>
+            <id>orgdeeplearning4j-1165</id>
+            <url>https://oss.sonatype.org/content/repositories/orgdeeplearning4j-1165</url>
             <releases>
                 <enabled>true</enabled>
             </releases>
@@ -70,9 +70,6 @@
             </snapshots>
         </repository>
     </repositories>
-
-
-
 
     <dependencies>
         <dependency>
@@ -163,6 +160,12 @@
             <artifactId>junit-jupiter-api</artifactId>
             <version>${junit.version}</version>
             <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.bytedeco</groupId>
+            <artifactId>cuda-platform-redist</artifactId>
+            <version>11.2-8.1-1.5.5</version>
         </dependency>
 
 
