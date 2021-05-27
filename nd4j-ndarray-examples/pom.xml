@@ -29,14 +29,6 @@
 
     <repositories>
         <repository>
-            <id>orgdeeplearning4j-1165</id>
-            <url>https://oss.sonatype.org/content/repositories/orgdeeplearning4j-1165</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-        </repository>
-
-        <repository>
             <id>sonatype-nexus-snapshots</id>
             <name>Sonatype Nexus Snapshots</name>
             <url>https://oss.sonatype.org/content/repositories/snapshots</url>
@@ -104,36 +96,20 @@
     <!-- Maven Enforcer: Ensures user has an up to date version of Maven before building -->
     <build>
         <plugins>
+
             <plugin>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>${maven-surefire-plugin.version}</version>
+                <version>3.0.0-M5</version>
                 <inherited>true</inherited>
                 <dependencies>
                     <dependency>
                         <groupId>org.apache.maven.surefire</groupId>
                         <artifactId>surefire-junit-platform</artifactId>
-                        <version>${maven-surefire-plugin.version}</version>
+                        <version>3.0.0-M5</version>
                     </dependency>
                 </dependencies>
-                <configuration>
-                    <trimStackTrace>false</trimStackTrace>
-                    <forkNode implementation="org.apache.maven.plugin.surefire.extensions.SurefireForkNodeFactory"/>
-                    <reuseForks>false</reuseForks>
-                    <environmentVariables>
-                        <OMP_NUM_THREADS>1</OMP_NUM_THREADS>
-                    </environmentVariables>
-                    <classpathDependencyExcludes>
-                        <classpathDependencyExclude>org.junit:junit</classpathDependencyExclude>
-                        <classpathDependencyExclude>com.google.android:android
-                        </classpathDependencyExclude>
-                    </classpathDependencyExcludes>
-                    <useSystemClassLoader>true</useSystemClassLoader>
-                    <useManifestOnlyJar>false</useManifestOnlyJar>
-                    <forkCount>0</forkCount>
-                    <threadCount>1</threadCount>
-                    <perCoreThreadCount>false</perCoreThreadCount>
-                </configuration>
             </plugin>
+
             <plugin>
                 <artifactId>maven-enforcer-plugin</artifactId>
                 <version>1.0.1</version>

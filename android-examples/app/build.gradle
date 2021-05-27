@@ -27,7 +27,7 @@ android {
 }
 
 dependencies {
-    def dl4jVersion = '1.0.0-SNAPSHOT'
+    def dl4jVersion = '1.0.0-M1'
     def openblasVersion = '0.3.10-1.5.5'
     def opencvVersion = '4.5.1-1.5.5'
     def leptonicaVersion = '1.80.0-1.5.5'

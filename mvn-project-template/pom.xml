@@ -24,7 +24,7 @@
     <!-- Group-ID, artifact ID and version of the project. You can modify these as you want -->
     <groupId>org.deeplearning4j</groupId>
     <artifactId>deeplearning4j-example-sample</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>1.0.0-M1</version>
 
     <!-- Properties Section. Change ND4J versions here, if required -->
     <properties>
@@ -56,23 +56,11 @@
 
         <!-- CUDA: to use GPU for training (CUDA) instead of CPU, uncomment this, and remove nd4j-native-platform -->
         <!-- Requires CUDA to be installed to use. Change the version (8.0, 9.0, 9.1) to change the CUDA version -->
-        <!--
-        <dependency>
-            <groupId>org.nd4j</groupId>
-            <artifactId>nd4j-cuda-9.2-platform</artifactId>
-            <version>${dl4j-master.version}</version>
-        </dependency>
-        -->
+
 
         <!-- Optional, but recommended: if you use CUDA, also use CuDNN. To use this, CuDNN must also be installed -->
         <!-- See: https://deeplearning4j.konduit.ai/config/backends/config-cudnn#using-deeplearning-4-j-with-cudnn -->
-        <!--
-        <dependency>
-            <groupId>org.deeplearning4j</groupId>
-            <artifactId>deeplearning4j-cuda-9.2</artifactId>
-            <version>${dl4j-master.version}</version>
-        </dependency>
-        -->
+
 
         <dependency>
             <groupId>ch.qos.logback</groupId>

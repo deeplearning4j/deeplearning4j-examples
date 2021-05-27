@@ -23,12 +23,12 @@
 
     <groupId>org.deeplearning4j</groupId>
     <artifactId>samediff-examples</artifactId>
-    <version>1.0.0-beta7</version>
+    <version>1.0.0-M1</version>
     <name>Quickstart to SameDiff</name>
     <description>A set of beginner examples introducing the SameDiff framework</description>
 
     <properties>
-        <dl4j-master.version>1.0.0-beta7</dl4j-master.version>
+        <dl4j-master.version>1.0.0-M1</dl4j-master.version>
         <!-- Change the nd4j.backend property to nd4j-cuda-X-platform to use CUDA GPUs -->
         <!-- <nd4j.backend>nd4j-cuda-10.2-platform</nd4j.backend> -->
         <nd4j.backend>nd4j-native</nd4j.backend>
@@ -46,15 +46,6 @@
     </properties>
 
     <repositories>
-        <repository>
-            <id>orgdeeplearning4j-1165</id>
-            <url>https://oss.sonatype.org/content/repositories/orgdeeplearning4j-1165</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-        </repository>
-
-
         <repository>
             <id>sonatype-nexus-snapshots</id>
             <name>Sonatype Nexus Snapshots</name>
@@ -150,6 +141,19 @@
     <!-- Maven Enforcer: Ensures user has an up to date version of Maven before building -->
     <build>
         <plugins>
+            <plugin>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.0.0-M5</version>
+                <inherited>true</inherited>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.apache.maven.surefire</groupId>
+                        <artifactId>surefire-junit-platform</artifactId>
+                        <version>3.0.0-M5</version>
+                    </dependency>
+                </dependencies>
+            </plugin>
+
             <plugin>
                 <artifactId>maven-enforcer-plugin</artifactId>
                 <version>1.0.1</version>

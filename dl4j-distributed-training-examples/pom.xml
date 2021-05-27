@@ -23,7 +23,7 @@
 
     <groupId>org.deeplearning4j</groupId>
     <artifactId>dl4j-distributed-training-examples</artifactId>
-    <version>1.0.0-beta7</version>
+    <version>1.0.0-M1</version>
     <name>Introduction to Distributed Training with DL4J</name>
     <description>A set of examples introducing distributed training with the DL4J framework</description>
 
@@ -53,14 +53,6 @@
 
     <repositories>
         <repository>
-            <id>orgdeeplearning4j-1165</id>
-            <url>https://oss.sonatype.org/content/repositories/orgdeeplearning4j-1165</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-        </repository>
-
-        <repository>
             <id>sonatype-nexus-snapshots</id>
             <name>Sonatype Nexus Snapshots</name>
             <url>https://oss.sonatype.org/content/repositories/snapshots</url>
@@ -73,6 +65,7 @@
             </snapshots>
         </repository>
     </repositories>
+
 
 
     <dependencies>
@@ -150,6 +143,19 @@
 
     <build>
         <plugins>
+            <plugin>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.0.0-M5</version>
+                <inherited>true</inherited>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.apache.maven.surefire</groupId>
+                        <artifactId>surefire-junit-platform</artifactId>
+                        <version>3.0.0-M5</version>
+                    </dependency>
+                </dependencies>
+            </plugin>
+
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
