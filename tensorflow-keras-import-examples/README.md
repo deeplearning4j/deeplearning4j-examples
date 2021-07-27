@@ -1,6 +1,6 @@
 ##  Eclipse Deeplearning4j: Model Import
 
-The DL4J supports models created in the popular Python Tensorflow and Keras frameworks. As of 1.0.0-M1, Keras models (including tf.keras) can be imported into Deeplearning. TensorFlow frozen format models can be imported into SameDiff.
+The DL4J supports models created in the popular Python Tensorflow and Keras frameworks. As of 1.0.0-M1.1, Keras models (including tf.keras) can be imported into Deeplearning. TensorFlow frozen format models can be imported into SameDiff.
 
 Models in Tensorflow have to be converted to "frozen" pbs (protobuf). More information on freezing Tensorflow models can be found [here](https://github.com/tensorflow/tensorflow/blob/master/tensorflow/python/tools/freeze_graph.py#L15) for Tensorflow 1.X and [here](https://leimao.github.io/blog/Save-Load-Inference-From-TF2-Frozen-Graph/) for Tensorflow 2.X. Keras models have to be saved in h5 format. More information can be found [here](https://keras.io/getting-started/faq/#how-can-i-save-a-keras-model). Importing both Keras 1 and Keras 2 models are supported. Of note - importing models saved with tf.keras is also supported. Currently general TensorFlow operations within Keras models (i.e., those not part of the tf.keras API) are currently importable but support inference only. Full training is supported for anything that is part of the Keras API.
 

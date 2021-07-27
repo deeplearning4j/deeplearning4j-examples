@@ -23,12 +23,12 @@
 
     <groupId>org.deeplearning4j</groupId>
     <artifactId>data-pipeline-examples</artifactId>
-    <version>1.0.0-M1</version>
+    <version>1.0.0-M1.1</version>
     <name>Building a data pipeline prior to modeling</name>
     <description>Loading raw data and processing it before training</description>
 
     <properties>
-        <dl4j-master.version>1.0.0-M1</dl4j-master.version>
+        <dl4j-master.version>1.0.0-M1.1</dl4j-master.version>
         <!-- Change the nd4j.backend property to nd4j-cuda-X-platform to use CUDA GPUs -->
 		<!-- <nd4j.backend>nd4j-cuda-10.2-platform</nd4j.backend> -->
         <nd4j.backend>nd4j-native</nd4j.backend>
