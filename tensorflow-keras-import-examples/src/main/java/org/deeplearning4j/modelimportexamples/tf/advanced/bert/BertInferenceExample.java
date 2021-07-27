@@ -35,6 +35,8 @@ import org.nd4j.linalg.dataset.api.iterator.MultiDataSetIterator;
 import org.nd4j.linalg.learning.config.Sgd;
 import org.nd4j.common.primitives.Pair;
 import org.nd4j.common.resources.Downloader;
+import org.nd4j.samediff.frameworkimport.tensorflow.importer.TensorflowFrameworkImporter;
+
 import java.io.File;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
@@ -56,7 +58,9 @@ import java.util.*;
  * <p>
  * Similar to all tensorflow models the frozen pb is imported into a SameDiff graph. In the case of BERT the graph has to be
  * preprocessed (removing unneeded nodes etc) before inference can be carried out on it. More details with code below.
+ * @deprecated "Note this example uses an older TF import API that will be going away. Please consider using the newer import api."
  */
+@Deprecated()
 public class BertInferenceExample {
 
     public static String bertModelPath;

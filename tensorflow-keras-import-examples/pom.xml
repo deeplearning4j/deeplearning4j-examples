@@ -22,42 +22,43 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.deeplearning4j</groupId>
-    <artifactId>samediff-examples</artifactId>
-    <version>1.0.0-beta7</version>
-    <name>Quickstart to SameDiff</name>
-    <description>A set of beginner examples introducing the SameDiff framework</description>
+    <artifactId>model-import-examples</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+    <name>model import examples</name>
+    <description>Loading models trained in keras or tensorflow</description>
 
     <properties>
-        <dl4j-master.version>1.0.0-beta7</dl4j-master.version>
+        <dl4j-master.version>1.0.0-M1.1</dl4j-master.version>
         <!-- Change the nd4j.backend property to nd4j-cuda-X-platform to use CUDA GPUs -->
+        <nd4j.backend>nd4j-native</nd4j.backend>
         <!-- <nd4j.backend>nd4j-cuda-10.2-platform</nd4j.backend> -->
-        <nd4j.backend>nd4j-native-platform</nd4j.backend>
         <java.version>1.8</java.version>
         <maven-compiler-plugin.version>3.6.1</maven-compiler-plugin.version>
         <maven.minimum.version>3.3.1</maven.minimum.version>
         <exec-maven-plugin.version>1.4.0</exec-maven-plugin.version>
         <maven-shade-plugin.version>2.4.3</maven-shade-plugin.version>
-        <jcommon.version>1.0.23</jcommon.version>
-        <jfreechart.version>1.0.13</jfreechart.version>
         <logback.version>1.1.7</logback.version>
+        <javacpp.version>1.5.5</javacpp.version>
+        <tensorflow.version>1.15.5</tensorflow.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <junit.version>5.8.0-M1</junit.version>
     </properties>
 
+    <repositories>
+        <repository>
+            <id>sonatype-nexus-snapshots</id>
+            <name>Sonatype Nexus Snapshots</name>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+                <updatePolicy>daily</updatePolicy>  <!-- Optional, update daily -->
+            </snapshots>
+        </repository>
+    </repositories>
 
-	<dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>org.freemarker</groupId>
-                <artifactId>freemarker</artifactId>
-                <version>2.3.29</version>
-            </dependency>
-            <dependency>
-                <groupId>io.netty</groupId>
-                <artifactId>netty-common</artifactId>
-                <version>4.1.42.Final</version>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
 
     <dependencies>
         <dependency>
@@ -66,77 +67,76 @@
             <version>${dl4j-master.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.nd4j</groupId>
-            <artifactId>nd4j-tensorflow</artifactId>
+            <groupId>org.deeplearning4j</groupId>
+            <artifactId>deeplearning4j-core</artifactId>
             <version>${dl4j-master.version}</version>
         </dependency>
-        <!--<dependency>
-            <groupId>org.datavec</groupId>
-            <artifactId>datavec-api</artifactId>
-            <version>${dl4j-master.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.datavec</groupId>
-            <artifactId>datavec-data-image</artifactId>
-            <version>${dl4j-master.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.datavec</groupId>
-            <artifactId>datavec-local</artifactId>
-            <version>${dl4j-master.version}</version>
-        </dependency>-->
         <dependency>
             <groupId>org.deeplearning4j</groupId>
             <artifactId>deeplearning4j-nlp</artifactId>
             <version>${dl4j-master.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.deeplearning4j</groupId>
-            <artifactId>deeplearning4j-zoo</artifactId>
+            <groupId>org.nd4j</groupId>
+            <artifactId>nd4j-tensorflow</artifactId>
             <version>${dl4j-master.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.deeplearning4j</groupId>
-            <artifactId>deeplearning4j-datasets</artifactId>
-            <version>${dl4j-master.version}</version>
+            <groupId>org.bytedeco</groupId>
+            <artifactId>tensorflow-platform</artifactId>
+            <version>${tensorflow.version}-${javacpp.version}</version>
         </dependency>
-        <dependency>
-            <groupId>org.deeplearning4j</groupId>
-            <artifactId>deeplearning4j-core</artifactId>
-            <version>${dl4j-master.version}</version>
-        </dependency>
-        <!--<dependency>
-            <groupId>org.deeplearning4j</groupId>
-            <artifactId>deeplearning4j-ui</artifactId>
-            <version>${dl4j-master.version}</version>
-        </dependency>-->
-        <!-- Used in the feedforward/classification/MLP* and feedforward/regression/RegressionMathFunctions example -->
-        <!--<dependency>
-            <groupId>jfree</groupId>
-            <artifactId>jfreechart</artifactId>
-            <version>${jfreechart.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.jfree</groupId>
-            <artifactId>jcommon</artifactId>
-            <version>${jcommon.version}</version>
-        </dependency>-->
-        <!-- Used for downloading data in some of the examples -->
-        <!--<dependency>
-            <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpclient</artifactId>
-            <version>4.3.5</version>
-        </dependency>-->
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
             <version>${logback.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.deeplearning4j</groupId>
+            <artifactId>deeplearning4j-zoo</artifactId>
+            <version>${dl4j-master.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.nd4j</groupId>
+            <artifactId>samediff-import-tensorflow</artifactId>
+            <version>${dl4j-master.version}</version>
+        </dependency>
+
+        <!-- Test dependency. Ignore for your own application. -->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <version>${junit.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <version>${junit.version}</version>
+            <scope>test</scope>
+        </dependency>
+
     </dependencies>
 
     <!-- Maven Enforcer: Ensures user has an up to date version of Maven before building -->
     <build>
         <plugins>
+
+            <plugin>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.0.0-M5</version>
+                <inherited>true</inherited>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.apache.maven.surefire</groupId>
+                        <artifactId>surefire-junit-platform</artifactId>
+                        <version>3.0.0-M5</version>
+                    </dependency>
+                </dependencies>
+            </plugin>
+
             <plugin>
                 <artifactId>maven-enforcer-plugin</artifactId>
                 <version>1.0.1</version>

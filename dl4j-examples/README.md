@@ -6,6 +6,8 @@ The pom file in this project can be used as a template for a user's own project.
 
 [Go back](../README.md) to the main repository page to explore other features/functionality of the **Eclipse Deeplearning4J** ecosystem. File an issue [here](https://github.com/eclipse/deeplearning4j-examples/issues) to request new features.
 
+
+
 ### QUICKSTART
 
 #### Modeling Examples

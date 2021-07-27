@@ -1,80 +1,97 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  ~ Copyright (c) 2020 Konduit K.K.
-  ~ Copyright (c) 2015-2019 Skymind, Inc.
-  ~
-  ~ This program and the accompanying materials are made available under the
-  ~ terms of the Apache License, Version 2.0 which is available at
-  ~ https://www.apache.org/licenses/LICENSE-2.0.
-  ~
-  ~ Unless required by applicable law or agreed to in writing, software
-  ~ distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
-  ~ WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
-  ~ License for the specific language governing permissions and limitations
-  ~ under the License.
-  ~
-  ~ SPDX-License-Identifier: Apache-2.0
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
-
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.deeplearning4j</groupId>
-    <artifactId>nd4j-ndarray-examples</artifactId>
-    <version>1.0.0-beta7</version>
-    <name>ND4J Examples operating on ndarrays</name>
-    <description>Working with NDArrays</description>
-
+    <artifactId>rl4j-examples</artifactId>
+    <version>1.0.0-M1.1</version>
     <properties>
-        <dl4j-master.version>1.0.0-beta7</dl4j-master.version>
-        <!-- Change the nd4j.backend property to nd4j-cuda-X-platform to use CUDA GPUs -->
-        <!-- <nd4j.backend>nd4j-cuda-10.2-platform</nd4j.backend> -->
-        <nd4j.backend>nd4j-native</nd4j.backend>
-        <java.version>1.8</java.version>
-        <maven-compiler-plugin.version>3.6.1</maven-compiler-plugin.version>
-        <maven.minimum.version>3.3.1</maven.minimum.version>
+        <nd4j.version>1.0.0-M1.1</nd4j.version>
+        <rl4j.version>1.0.0-M1.1</rl4j.version>
         <logback.version>1.1.7</logback.version>
+        <java.version>1.8</java.version>
+        <maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
+        <maven.minimum.version>3.3.1</maven.minimum.version>
+        <nd4j.backend>nd4j-native</nd4j.backend>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
+
+    <repositories>
+        <repository>
+            <id>sonatype-nexus-snapshots</id>
+            <name>Sonatype Nexus Snapshots</name>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+                <updatePolicy>daily</updatePolicy>  <!-- Optional, update daily -->
+            </snapshots>
+        </repository>
+    </repositories>
+
+
     <dependencies>
+        <!-- ND4J backend. You need one in every DL4J project. Normally define artifactId as either nd4j-native-platform or nd4j-cuda-X.X-platform to use CUDA GPUs (check parent pom for supported cuda versions) -->
         <dependency>
             <groupId>org.nd4j</groupId>
             <artifactId>${nd4j.backend}</artifactId>
-            <version>${dl4j-master.version}</version>
+            <version>${nd4j.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.deeplearning4j</groupId>
+            <artifactId>rl4j-core</artifactId>
+            <version>${rl4j.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.deeplearning4j</groupId>
+            <artifactId>rl4j-gym</artifactId>
+            <version>${rl4j.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.deeplearning4j</groupId>
+            <artifactId>rl4j-ale</artifactId>
+            <version>${rl4j.version}</version>
+        </dependency>
+        <!-- The Arcade Learning Environment (ALE) is under GPL license, so we cannot use it as a dependency of RL4J. -->
+        <dependency>
+            <groupId>org.bytedeco</groupId>
+            <artifactId>ale-platform</artifactId>
+            <version>0.6.0-1.5.2</version>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <version>5.4.2</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
             <version>${logback.version}</version>
         </dependency>
-        <dependency>
-            <groupId>org.deeplearning4j</groupId>
-            <artifactId>deeplearning4j-utility-iterators</artifactId>
-            <version>${dl4j-master.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.deeplearning4j</groupId>
-            <artifactId>rl4j-core</artifactId>
-            <version>${dl4j-master.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.deeplearning4j</groupId>
-            <artifactId>rl4j-gym</artifactId>
-            <version>${dl4j-master.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.deeplearning4j</groupId>
-            <artifactId>rl4j-ale</artifactId>
-            <version>${dl4j-master.version}</version>
-        </dependency>
     </dependencies>
-
-    <!-- Maven Enforcer: Ensures user has an up to date version of Maven before building -->
     <build>
         <plugins>
+
+            <plugin>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.0.0-M5</version>
+                <inherited>true</inherited>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.apache.maven.surefire</groupId>
+                        <artifactId>surefire-junit-platform</artifactId>
+                        <version>3.0.0-M5</version>
+                    </dependency>
+                </dependencies>
+            </plugin>
+
             <plugin>
                 <artifactId>maven-enforcer-plugin</artifactId>
                 <version>1.0.1</version>

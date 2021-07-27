@@ -24,7 +24,7 @@ We do not monitor the github issues of this repository very often.
 The **Eclipse Deeplearning4J** (DL4J) ecosystem is a set of projects intended to support all the needs of a JVM based deep learning application. This means starting with the raw data, loading and preprocessing it from wherever and whatever format it is in to building and tuning a wide variety of simple and complex deep learning networks.
 
 The DL4J stack comprises of:
-- **DL4J**: High level API to build MultiLayerNetworks and ComputationGraphs with a variety of layers, including custom ones. Supports importing Keras models from h5, including tf.keras models (as of 1.0.0-beta7) and also supports distributed training on Apache Spark
+- **DL4J**: High level API to build MultiLayerNetworks and ComputationGraphs with a variety of layers, including custom ones. Supports importing Keras models from h5, including tf.keras models (as of 1.0.0-M1.1) and also supports distributed training on Apache Spark
 - **ND4J**: General purpose linear algebra library with over 500 mathematical, linear algebra and deep learning operations. ND4J is based on the highly-optimized C++ codebase LibND4J that provides CPU (AVX2/512) and GPU (CUDA) support and acceleration by libraries such as OpenBLAS, OneDNN (MKL-DNN), cuDNN, cuBLAS, etc
 - **SameDiff** : Part of the ND4J library, SameDiff is our automatic differentiation / deep learning framework. SameDiff uses a graph-based (define then run) approach, similar to TensorFlow graph mode. Eager graph (TensorFlow 2.x eager/PyTorch) graph execution is planned. SameDiff supports importing TensorFlow frozen model format .pb (protobuf) models. Import for ONNX, TensorFlow SavedModel and Keras models are planned. Deeplearning4j also has full SameDiff support for easily writing custom layers and loss functions.
 - **DataVec**: ETL for machine learning data in a wide variety of formats and files (HDFS, Spark, Images, Video, Audio, CSV, Excel etc)
@@ -39,6 +39,17 @@ This example repo consists of several separate Maven Java projects, each with th
 Users can also refer to the [simple sample project provided](./mvn-project-template/pom.xml) to get started with a clean project from scratch.
 
 Build tools are considered standard software engineering best practice. Besides this the complexities posed by the projects in the DL4J ecosystem make dependencies too difficult to manage manually. All the projects in the DL4J ecosystem can be used with other build tools like Gradle, SBT etc. More information on that can be found [here](https://deeplearning4j.konduit.ai/config/buildtools).
+
+## Support
+
+For help with the examples, please go to our [support forum](https://community.konduit.ai/)
+
+Note for users of 1.0.0-beta7 and prior, some examples and modules have been removed to reflect
+changes in the framework's direction. Please see and comment on our post [here](https://community.konduit.ai/t/upcoming-removal-of-modules-and-roadmap-changes/1240)
+
+If you would like a workaround for something you may be missing,
+please feel free to post on the forums, and we will do what we can to help you.
+
 
 ## Example Content
 Projects are based on what functionality the included examples demonstrate to the user and not necessarily which library in the DL4J stack the functionality lives in.
@@ -68,9 +79,6 @@ This project contains a set of examples that demonstrate how raw data in various
 
 - [nd4j-ndarray-examples](nd4j-ndarray-examples/README.md)
 This project contains a set of examples that demonstrate how to manipulate NDArrays. The functionality of ND4J demonstrated here can be likened to NumPy.
-
-- [arbiter-examples](arbiter-examples/README.md)
-This project contains a set of examples that demonstrate usage of the Arbiter library for hyperparameter tuning of Deeplearning4J neural networks.
 
 - [rl4j-examples](rl4j-examples/README.md)
 This project contains examples of using RL4J, the reinforcement learning library in DL4J.

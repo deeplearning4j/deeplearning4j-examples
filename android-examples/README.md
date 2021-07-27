@@ -8,14 +8,6 @@ The build configuration for Android can be found in [app/build.gradle](./app/bui
 
 [Go back](../README.md) to the main repository page to explore other features/functionality of the **Eclipse Deeplearning4J** ecosystem. File an issue [here](https://github.com/eclipse/deeplearning4j-examples/issues) to request new features.
 
-# Known Issues
-Due to an unfortunately timed change, the 1.0.0-beta7 release doesn't work well with most Android devices. For this reason, this example project uses the SNAPSHOT version.
-
-Again unfortunately, gradle has issues retrieving SNAPSHOT versions when combined with classifiers, which are used here to retrieve only the android specific backend dependencies.
-
-If you want to run this example locally, you will therefore need to have Maven installed in order to download those specific dependencies.
-
-Once you have installed Maven, you will need to run the following commands from the command line to download the correct android backend files:
 
 ```
 mvn dependency:get -DremoteRepositories=snapshots::::https://oss.sonatype.org/content/repositories/snapshots -Dartifact=org.nd4j:nd4j-native:1.0.0-SNAPSHOT:jar:android-arm

@@ -4,12 +4,12 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    tools:context="org.deeplearning4j.examples.androidclassifier.MainActivity">
 
 
     <view
         android:id="@+id/id_scatterview"
-        class="com.example.androidDl4jClassifier.ScatterView"
+        class="org.deeplearning4j.examples.androidclassifier.ScatterView"
         android:layout_width="fill_parent"
         android:layout_height="0dp"
         app:layout_constraintBottom_toBottomOf="parent"

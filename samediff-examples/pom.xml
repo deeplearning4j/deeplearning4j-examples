@@ -23,12 +23,12 @@
 
     <groupId>org.deeplearning4j</groupId>
     <artifactId>samediff-examples</artifactId>
-    <version>1.0.0-beta7</version>
+    <version>1.0.0-M1.1</version>
     <name>Quickstart to SameDiff</name>
     <description>A set of beginner examples introducing the SameDiff framework</description>
 
     <properties>
-        <dl4j-master.version>1.0.0-beta7</dl4j-master.version>
+        <dl4j-master.version>1.0.0-M1.1</dl4j-master.version>
         <!-- Change the nd4j.backend property to nd4j-cuda-X-platform to use CUDA GPUs -->
         <!-- <nd4j.backend>nd4j-cuda-10.2-platform</nd4j.backend> -->
         <nd4j.backend>nd4j-native</nd4j.backend>
@@ -41,23 +41,31 @@
         <jfreechart.version>1.0.13</jfreechart.version>
         <logback.version>1.1.7</logback.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <junit.version>5.8.0-M1</junit.version>
+
     </properties>
 
+    <repositories>
+        <repository>
+            <id>orgdeeplearning4j-1177</id>
+            <url>https://oss.sonatype.org/content/repositories/orgdeeplearning4j-1177</url>
+        </repository>
 
-	<dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>org.freemarker</groupId>
-                <artifactId>freemarker</artifactId>
-                <version>2.3.29</version>
-            </dependency>
-            <dependency>
-                <groupId>io.netty</groupId>
-                <artifactId>netty-common</artifactId>
-                <version>4.1.42.Final</version>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
+        <repository>
+            <id>sonatype-nexus-snapshots</id>
+            <name>Sonatype Nexus Snapshots</name>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+                <updatePolicy>daily</updatePolicy>  <!-- Optional, update daily -->
+            </snapshots>
+        </repository>
+    </repositories>
+
+
 
     <dependencies>
         <dependency>
@@ -117,11 +125,40 @@
             <artifactId>logback-classic</artifactId>
             <version>${logback.version}</version>
         </dependency>
+
+
+        <!-- Test dependency. Ignore for your own application. -->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <version>${junit.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <version>${junit.version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <!-- Maven Enforcer: Ensures user has an up to date version of Maven before building -->
     <build>
         <plugins>
+            <plugin>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.0.0-M5</version>
+                <inherited>true</inherited>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.apache.maven.surefire</groupId>
+                        <artifactId>surefire-junit-platform</artifactId>
+                        <version>3.0.0-M5</version>
+                    </dependency>
+                </dependencies>
+            </plugin>
+
             <plugin>
                 <artifactId>maven-enforcer-plugin</artifactId>
                 <version>1.0.1</version>

@@ -11,7 +11,7 @@ android {
         versionCode 1
         versionName "1.0"
 
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+       testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
@@ -27,10 +27,10 @@ android {
 }
 
 dependencies {
-    def dl4jVersion = '1.0.0-beta7'
-    def openblasVersion = '0.3.9-1.5.3'
-    def opencvVersion = '4.3.0-1.5.3'
-    def leptonicaVersion = '1.79.0-1.5.3'
+    def dl4jVersion = '1.0.0-M1.1'
+    def openblasVersion = '0.3.10-1.5.5'
+    def opencvVersion = '4.5.1-1.5.5'
+    def leptonicaVersion = '1.80.0-1.5.5'
 
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
@@ -45,13 +45,14 @@ dependencies {
         exclude group: 'org.bytedeco', module: 'leptonica-platform'
         exclude group: 'org.bytedeco', module: 'hdf5-platform'
         exclude group: 'org.nd4j', module: 'nd4j-base64'
+        exclude group: 'org.nd4j', module: 'nd4j-api'
     }
 
     implementation  group: 'org.nd4j', name: 'nd4j-native', version: dl4jVersion
-    implementation  group: 'org.nd4j', name: 'nd4j-native', version: dl4jVersion, classifier: "android-arm"
-    implementation  group: 'org.nd4j', name: 'nd4j-native', version: dl4jVersion, classifier: "android-arm64"
-    implementation  group: 'org.nd4j', name: 'nd4j-native', version: dl4jVersion, classifier: "android-x86"
-    implementation  group: 'org.nd4j', name: 'nd4j-native', version: dl4jVersion, classifier: "android-x86_64"
+    implementation  group: 'org.nd4j', name: 'nd4j-native', version:  dl4jVersion, classifier: "android-arm"
+    implementation  group: 'org.nd4j', name: 'nd4j-native', version:  dl4jVersion, classifier: "android-arm64"
+    implementation  group: 'org.nd4j', name: 'nd4j-native', version:  dl4jVersion, classifier: "android-x86"
+    implementation  group: 'org.nd4j', name: 'nd4j-native', version:  dl4jVersion, classifier: "android-x86_64"
     implementation  group: 'org.bytedeco', name: 'openblas', version: openblasVersion
     implementation  group: 'org.bytedeco', name: 'openblas', version: openblasVersion, classifier: "android-arm"
     implementation  group: 'org.bytedeco', name: 'openblas', version: openblasVersion, classifier: "android-arm64"
