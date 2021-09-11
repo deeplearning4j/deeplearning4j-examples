@@ -1,10 +1,16 @@
+///usr/bin/env jbang "$0" "$@" ; exit $?
+//DEPS org.deeplearning4j:deeplearning4j-core:1.0.0-M1.1
+//DEPS org.deeplearning4j:deeplearning4j-utility-iterators/1.0.0-M1.1
+//DEPS org.nd4j:nd4j-native:1.0.0-M1.1
 /* *****************************************************************************
- * Copyright (c) 2020 Konduit K.K.
- * Copyright (c) 2015-2019 Skymind, Inc.
+ *
+ *
  *
  * This program and the accompanying materials are made available under the
  * terms of the Apache License, Version 2.0 which is available at
  * https://www.apache.org/licenses/LICENSE-2.0.
+ *  See the NOTICE file distributed with this work for additional
+ *  information regarding copyright ownership.
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
