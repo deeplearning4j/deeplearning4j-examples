@@ -34,7 +34,7 @@ information regarding copyright ownership.
     <properties>
         <dl4j-master.version>1.0.0-M1.1</dl4j-master.version>
         <!-- Change the nd4j.backend property to nd4j-cuda-X-platform to use CUDA GPUs -->
-		<!-- <nd4j.backend>nd4j-cuda-10.2-platform</nd4j.backend> -->
+        <!-- <nd4j.backend>nd4j-cuda-10.2-platform</nd4j.backend> -->
         <nd4j.backend>nd4j-native</nd4j.backend>
         <java.version>1.8</java.version>
         <maven-compiler-plugin.version>3.6.1</maven-compiler-plugin.version>
@@ -43,7 +43,10 @@ information regarding copyright ownership.
         <maven-shade-plugin.version>2.4.3</maven-shade-plugin.version>
         <logback.version>1.1.7</logback.version>
         <scala.binary.version>2.11</scala.binary.version>
-        <spark.version>2.4.3</spark.version>
+        <spark.version>2.4.8</spark.version>
+        <tablesaw.version>0.38.5</tablesaw.version>
+        <!-- Note: tablesaw needs a newer version of guava -->
+        <guava.version>30.0-jre</guava.version>
     </properties>
 
     <repositories>
@@ -61,6 +64,16 @@ information regarding copyright ownership.
         </repository>
     </repositories>
 
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>com.google.guava</groupId>
+                <artifactId>guava</artifactId>
+                <version>${guava.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <dependencies>
         <dependency>
@@ -81,7 +94,7 @@ information regarding copyright ownership.
         <dependency>
             <groupId>org.datavec</groupId>
             <artifactId>datavec-spark_${scala.binary.version}</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
+            <version>${dl4j-master.version}</version>
         </dependency>
         <dependency>
             <groupId>org.datavec</groupId>
@@ -102,12 +115,12 @@ information regarding copyright ownership.
             <groupId>org.deeplearning4j</groupId>
             <artifactId>deeplearning4j-ui</artifactId>
             <version>${dl4j-master.version}</version>
-			<exclusions>
-			  <exclusion>
-			    <groupId>net.jpountz.lz4</groupId>
-			    <artifactId>lz4</artifactId>
-			  </exclusion>
-			</exclusions>
+            <exclusions>
+                <exclusion>
+                    <groupId>net.jpountz.lz4</groupId>
+                    <artifactId>lz4</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.apache.spark</groupId>
@@ -138,6 +151,16 @@ information regarding copyright ownership.
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
             <version>4.3.5</version>
+        </dependency>
+        <dependency>
+            <groupId>tech.tablesaw</groupId>
+            <artifactId>tablesaw-core</artifactId>
+            <version>${tablesaw.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>${guava.version}</version>
         </dependency>
     </dependencies>
 
