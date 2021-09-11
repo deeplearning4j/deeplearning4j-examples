@@ -1,10 +1,12 @@
 /* *****************************************************************************
- * Copyright (c) 2020 Konduit K.K.
- * Copyright (c) 2015-2019 Skymind, Inc.
+ *
+ *
  *
  * This program and the accompanying materials are made available under the
  * terms of the Apache License, Version 2.0 which is available at
  * https://www.apache.org/licenses/LICENSE-2.0.
+ *  See the NOTICE file distributed with this work for additional
+ *  information regarding copyright ownership.
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
@@ -29,7 +31,7 @@ import org.slf4j.Logger;
 /**
  * This example shows how to use memory Workspaces with ND4j for cyclic workloads. Only advanced users with very unusual workloads need to delve into this.
  * For the most part users needn't concern themselves with how DL4J reuses memory internally to increase performance.
- * 
+ *
  * Background:
  *
  * ND4j Workspace is a memory chunk, allocated once, and reused over in over.
