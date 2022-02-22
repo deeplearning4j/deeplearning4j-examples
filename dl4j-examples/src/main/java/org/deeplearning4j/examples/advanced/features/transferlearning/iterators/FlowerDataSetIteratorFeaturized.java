@@ -20,8 +20,8 @@
 package org.deeplearning4j.examples.advanced.features.transferlearning.iterators;
 
 import org.deeplearning4j.examples.advanced.features.transferlearning.editlastlayer.presave.FeaturizedPreSave;
-import org.deeplearning4j.nn.modelimport.keras.exceptions.InvalidKerasConfigurationException;
-import org.deeplearning4j.nn.modelimport.keras.exceptions.UnsupportedKerasConfigurationException;
+import org.deeplearning4j.frameworkimport.keras.keras.exceptions.InvalidKerasConfigurationException;
+import org.deeplearning4j.frameworkimport.keras.keras.exceptions.UnsupportedKerasConfigurationException;
 import org.nd4j.linalg.dataset.AsyncDataSetIterator;
 import org.nd4j.linalg.dataset.ExistingMiniBatchDataSetIterator;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
@@ -39,7 +39,7 @@ public class FlowerDataSetIteratorFeaturized {
 
     private static String featureExtractorLayer = FeaturizedPreSave.featurizeExtractionLayer;
 
-    public static DataSetIterator trainIterator() throws UnsupportedKerasConfigurationException, IOException, InvalidKerasConfigurationException {
+    public static DataSetIterator trainIterator() throws  IOException {
         runFeaturize();
         DataSetIterator existingTrainingData = new ExistingMiniBatchDataSetIterator(new File("trainFolder"),"flowers-"+featureExtractorLayer+"-train-%d.bin");
         DataSetIterator asyncTrainIter = new AsyncDataSetIterator(existingTrainingData);
@@ -51,7 +51,7 @@ public class FlowerDataSetIteratorFeaturized {
         return asyncTestIter;
     }
 
-    private static void runFeaturize() throws InvalidKerasConfigurationException, IOException, UnsupportedKerasConfigurationException {
+    private static void runFeaturize() throws IOException {
         File trainDir = new File("trainFolder","flowers-"+featureExtractorLayer+"-train-0.bin");
         if (!trainDir.isFile()) {
             log.info("\n\tFEATURIZED DATA NOT FOUND. \n\t\tRUNNING \"FeaturizedPreSave\" first to do presave of featurized data");

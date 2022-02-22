@@ -19,7 +19,7 @@
 
 package org.deeplearning4j.examples.quickstart.modeling.feedforward.regression;
 
-import org.deeplearning4j.datasets.iterator.impl.ListDataSetIterator;
+import org.deeplearning4j.datasets.iterator.utilty.ListDataSetIterator;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
 import org.deeplearning4j.nn.conf.layers.DenseLayer;
 import org.deeplearning4j.nn.conf.layers.OutputLayer;
@@ -44,7 +44,7 @@ import java.util.Random;
  */
 @SuppressWarnings({"DuplicatedCode", "FieldCanBeLocal"})
 public class SumModel {
-    //Random number generator seed, for reproducability
+    //Random number generator seed, for reproduceability
     public static final int seed = 12345;
     //Number of epochs (full passes of the data)
     public static final int nEpochs = 200;
