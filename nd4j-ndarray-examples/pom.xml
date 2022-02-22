@@ -51,6 +51,13 @@ information regarding copyright ownership.
                 <enabled>true</enabled>
             </releases>
         </repository>
+        <repository>
+            <id>M2</id>
+            <url>https://s01.oss.sonatype.org/content/repositories/orgdeeplearning4j-1022</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+        </repository>
     </repositories>
 
 
