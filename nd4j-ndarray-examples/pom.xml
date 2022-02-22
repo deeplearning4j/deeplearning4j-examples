@@ -87,6 +87,12 @@ information regarding copyright ownership.
             <version>${dl4j-master.version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>org.deeplearning4j</groupId>
+            <artifactId>resources</artifactId>
+            <version>${dl4j-master.version}</version>
+        </dependency>
+
         <!-- Test dependency. Ignore for your own application. -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>

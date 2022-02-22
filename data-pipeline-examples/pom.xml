@@ -84,6 +84,13 @@ information regarding copyright ownership.
 
     <dependencies>
         <dependency>
+            <groupId>org.deeplearning4j</groupId>
+            <artifactId>resources</artifactId>
+            <version>${dl4j-master.version}</version>
+        </dependency>
+
+
+        <dependency>
             <groupId>org.nd4j</groupId>
             <artifactId>${nd4j.backend}</artifactId>
             <version>${dl4j-master.version}</version>

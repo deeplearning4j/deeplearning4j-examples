@@ -38,7 +38,7 @@ information regarding copyright ownership.
         <nd4j.backend>nd4j-native</nd4j.backend>
         <java.version>1.8</java.version>
         <shadedClassifier>bin</shadedClassifier>
-        <scala.binary.version>2.11</scala.binary.version>
+        <scala.binary.version>2.12</scala.binary.version>
         <maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
         <maven.minimum.version>3.3.1</maven.minimum.version>
         <exec-maven-plugin.version>1.4.0</exec-maven-plugin.version>
@@ -49,7 +49,7 @@ information regarding copyright ownership.
         <jcommander.version>1.27</jcommander.version>
         <azure.hadoop.version>2.7.4</azure.hadoop.version>
         <azure.storage.version>2.0.0</azure.storage.version>
-        <spark.version>2.1.0</spark.version>
+        <spark.version>2.4.8</spark.version>
         <aws.sdk.version>1.11.109</aws.sdk.version>
         <jackson.version>2.5.1</jackson.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -80,6 +80,12 @@ information regarding copyright ownership.
 
 
     <dependencies>
+        <dependency>
+            <groupId>org.deeplearning4j</groupId>
+            <artifactId>resources</artifactId>
+            <version>${dl4j-master.version}</version>
+        </dependency>
+
         <dependency>
             <groupId>org.apache.spark</groupId>
             <artifactId>spark-core_${scala.binary.version}</artifactId>
