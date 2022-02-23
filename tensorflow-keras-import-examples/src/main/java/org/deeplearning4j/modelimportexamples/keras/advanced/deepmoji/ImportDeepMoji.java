@@ -22,8 +22,6 @@ package org.deeplearning4j.modelimportexamples.keras.advanced.deepmoji;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.deeplearning4j.nn.graph.ComputationGraph;
-import org.deeplearning4j.nn.modelimport.keras.KerasLayer;
-import org.deeplearning4j.nn.modelimport.keras.KerasModelImport;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
 
