@@ -22,6 +22,7 @@ import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.api.ops.DynamicCustomOp;
 import org.nd4j.linalg.api.ops.impl.layers.convolution.Conv2D;
 import org.nd4j.linalg.api.ops.impl.layers.convolution.config.Conv2DConfig;
+import org.nd4j.linalg.api.ops.impl.layers.convolution.config.PaddingMode;
 import org.nd4j.linalg.dataset.api.MultiDataSet;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.nd4j.linalg.factory.Nd4j;
@@ -134,7 +135,7 @@ public class MobileNetTransferLearningExample {
 
                 // We know the needed config by getting and printing the convolution config earlier
                 SDVariable output = sd1.cnn().conv2d(input, w, b, Conv2DConfig.builder()
-                    .kH(1).kW(1).isSameMode(true).dataFormat("NHWC").build());
+                    .kH(1).kW(1).paddingMode(PaddingMode.SAME).dataFormat("NHWC").build());
 
                 logits.close();
 
