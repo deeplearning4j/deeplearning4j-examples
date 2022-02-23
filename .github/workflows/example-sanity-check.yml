@@ -25,8 +25,7 @@ jobs:
         run: |
           mvn --version
           for folder in `ls`; do
-             if [[ -d "$folder" ] && [ "$folder" != "mvn-project-template" ] ]; then
-               
+             if  [ -d "$folder" ] && [ "$folder" != "mvn-project-template" ]; then
                cd "$folder"
                if test -f "pom.xml"; then
                   mvn clean test
