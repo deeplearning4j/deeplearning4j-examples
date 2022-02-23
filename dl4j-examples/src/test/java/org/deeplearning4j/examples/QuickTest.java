@@ -11,8 +11,8 @@ public class QuickTest {
         LeNetMNIST.main(new String[]{});
         System.out.println("Ending LenetMNIST");
         System.out.println("Beginning VaeMNISTAnomaly");
-        VaeMNISTAnomaly.main(new String[]{});
-        System.out.println("Beginning VaeMNISTAnomaly");
+        //VaeMNISTAnomaly.main(new String[]{});
+        //System.out.println("Beginning VaeMNISTAnomaly");
 
     }
 
