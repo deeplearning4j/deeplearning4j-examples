@@ -1,7 +1,7 @@
 ///usr/bin/env jbang "$0" "$@" ; exit $?
-//DEPS org.deeplearning4j:deeplearning4j-core:1.0.0-M1.1
-//DEPS org.deeplearning4j:deeplearning4j-utility-iterators/1.0.0-M1.1
-//DEPS org.nd4j:nd4j-native:1.0.0-M1.1
+//DEPS org.deeplearning4j:deeplearning4j-core:1.0.0-M2
+//DEPS org.deeplearning4j:deeplearning4j-utility-iterators/1.0.0-M2
+//DEPS org.nd4j:nd4j-native:1.0.0-M2
 /* *****************************************************************************
  *
  *
