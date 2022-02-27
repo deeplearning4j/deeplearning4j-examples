@@ -19,7 +19,7 @@
 
 package org.deeplearning4j.examples.quickstart.modeling.feedforward.regression;
 
-import org.deeplearning4j.datasets.iterator.impl.ListDataSetIterator;
+import org.deeplearning4j.datasets.iterator.utilty.ListDataSetIterator;
 import org.deeplearning4j.examples.quickstart.modeling.feedforward.regression.mathfunctions.MathFunction;
 import org.deeplearning4j.examples.quickstart.modeling.feedforward.regression.mathfunctions.SinXDivXMathFunction;
 import org.nd4j.linalg.activations.Activation;

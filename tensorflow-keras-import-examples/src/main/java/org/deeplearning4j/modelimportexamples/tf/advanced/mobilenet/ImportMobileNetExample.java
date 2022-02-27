@@ -29,11 +29,6 @@ public class ImportMobileNetExample {
         //new tensorflow import api
         TensorflowFrameworkImporter tensorflowFrameworkImporter = new TensorflowFrameworkImporter();
 
-        // import the frozen model into a SameDiff instance
-        //note: this uses the new tensorflow import api
-        SameDiff sd = tensorflowFrameworkImporter.runImport(modelFile.getAbsolutePath(), Collections.emptyMap());
-
-        System.out.println(sd.summary());
 
         System.out.println("\n\n");
 
@@ -42,6 +37,10 @@ public class ImportMobileNetExample {
 
         // preprocess image with inception preprocessing
         INDArray preprocessedImage = inceptionPreprocessing(testImage, 224, 224);
+
+        SameDiff sd = tensorflowFrameworkImporter.runImport(modelFile.getAbsolutePath(), Collections.singletonMap("input",preprocessedImage),false);
+        System.out.println(sd.summary());
+
 
         // Input and output names are found by looking at sd.summary() (printed earlyer).
         // The input variable is the output of no ops, and the output variable is the input of no ops.
@@ -72,7 +71,9 @@ public class ImportMobileNetExample {
     static File downloadModel() throws Exception{
         String dataDir = FilenameUtils.concat(System.getProperty("user.home"), "dl4j-examples-data/tf_resnet");
         String modelFile = FilenameUtils.concat(dataDir, "mobilenet_v2_1.0_224.tgz");
-
+        File modelFile2 = new File(modelFile);
+        if(!modelFile2.exists())
+            modelFile2.getParentFile().mkdirs();
         File frozenFile = new File(FilenameUtils.concat(dataDir, "mobilenet_v2_1.0_224_frozen.pb"));
 
         if(frozenFile.exists()){
@@ -104,7 +105,6 @@ public class ImportMobileNetExample {
     @SuppressWarnings("SameParameterValue")
     private static INDArray inceptionPreprocessing(INDArray img, int height, int width){
         // add batch dimension
-        img = Nd4j.expandDims(img, 0);
 
         // change to channels-last
         img = img.permute(0, 2, 3, 1);

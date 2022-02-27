@@ -23,8 +23,6 @@ import org.deeplearning4j.examples.advanced.features.transferlearning.iterators.
 import org.deeplearning4j.nn.conf.distribution.NormalDistribution;
 import org.deeplearning4j.nn.conf.layers.OutputLayer;
 import org.deeplearning4j.nn.graph.ComputationGraph;
-import org.deeplearning4j.nn.modelimport.keras.exceptions.InvalidKerasConfigurationException;
-import org.deeplearning4j.nn.modelimport.keras.exceptions.UnsupportedKerasConfigurationException;
 import org.deeplearning4j.nn.transferlearning.FineTuneConfiguration;
 import org.deeplearning4j.nn.transferlearning.TransferLearning;
 import org.deeplearning4j.nn.transferlearning.TransferLearningHelper;
@@ -61,7 +59,7 @@ public class FitFromFeaturized {
     protected static final int numClasses = 5;
     protected static final int nEpochs = 3;
 
-    public static void main(String [] args) throws IOException, InvalidKerasConfigurationException, UnsupportedKerasConfigurationException {
+    public static void main(String [] args) throws IOException {
 
         //Import vgg
         //Note that the model imported does not have an output layer (check printed summary)

@@ -32,7 +32,7 @@ information regarding copyright ownership.
     <description>Loading models trained in keras or tensorflow</description>
 
     <properties>
-        <dl4j-master.version>1.0.0-M1.1</dl4j-master.version>
+        <dl4j-master.version>1.0.0-M2</dl4j-master.version>
         <!-- Change the nd4j.backend property to nd4j-cuda-X-platform to use CUDA GPUs -->
         <nd4j.backend>nd4j-native</nd4j.backend>
         <!-- <nd4j.backend>nd4j-cuda-10.2-platform</nd4j.backend> -->
@@ -42,7 +42,7 @@ information regarding copyright ownership.
         <exec-maven-plugin.version>1.4.0</exec-maven-plugin.version>
         <maven-shade-plugin.version>2.4.3</maven-shade-plugin.version>
         <logback.version>1.1.7</logback.version>
-        <javacpp.version>1.5.5</javacpp.version>
+        <javacpp.version>1.5.7</javacpp.version>
         <tensorflow.version>1.15.5</tensorflow.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <junit.version>5.8.0-M1</junit.version>
@@ -61,10 +61,37 @@ information regarding copyright ownership.
                 <updatePolicy>daily</updatePolicy>  <!-- Optional, update daily -->
             </snapshots>
         </repository>
+         <repository>
+            <id>M2</id>
+            <url>https://s01.oss.sonatype.org/content/repositories/orgdeeplearning4j-1019</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+        </repository>
+<repository>
+            <id>M2-1</id>
+            <url>https://s01.oss.sonatype.org/content/repositories/orgdeeplearning4j-1032</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+        </repository>
+   <repository>
+            <id>M2-2</id>
+            <url>https://s01.oss.sonatype.org/content/repositories/orgdeeplearning4j-1034</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+        </repository>
     </repositories>
 
 
     <dependencies>
+        <dependency>
+            <groupId>org.deeplearning4j</groupId>
+            <artifactId>resources</artifactId>
+            <version>${dl4j-master.version}</version>
+        </dependency>
+
         <dependency>
             <groupId>org.nd4j</groupId>
             <artifactId>${nd4j.backend}</artifactId>

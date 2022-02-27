@@ -27,18 +27,18 @@ information regarding copyright ownership.
 
     <groupId>org.deeplearning4j</groupId>
     <artifactId>dl4j-distributed-training-examples</artifactId>
-    <version>1.0.0-M1.1</version>
+    <version>1.0.0-M2</version>
     <name>Introduction to Distributed Training with DL4J</name>
     <description>A set of examples introducing distributed training with the DL4J framework</description>
 
     <properties>
-        <dl4j-master.version>1.0.0-M1.1</dl4j-master.version>
+        <dl4j-master.version>1.0.0-M2</dl4j-master.version>
         <!-- Change the nd4j.backend property to nd4j-cuda-X-platform to use CUDA GPUs -->
         <!-- <nd4j.backend>nd4j-cuda-10.2-platform</nd4j.backend> -->
         <nd4j.backend>nd4j-native</nd4j.backend>
         <java.version>1.8</java.version>
         <shadedClassifier>bin</shadedClassifier>
-        <scala.binary.version>2.11</scala.binary.version>
+        <scala.binary.version>2.12</scala.binary.version>
         <maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
         <maven.minimum.version>3.3.1</maven.minimum.version>
         <exec-maven-plugin.version>1.4.0</exec-maven-plugin.version>
@@ -49,7 +49,7 @@ information regarding copyright ownership.
         <jcommander.version>1.27</jcommander.version>
         <azure.hadoop.version>2.7.4</azure.hadoop.version>
         <azure.storage.version>2.0.0</azure.storage.version>
-        <spark.version>2.1.0</spark.version>
+        <spark.version>2.4.8</spark.version>
         <aws.sdk.version>1.11.109</aws.sdk.version>
         <jackson.version>2.5.1</jackson.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -68,11 +68,38 @@ information regarding copyright ownership.
                 <updatePolicy>daily</updatePolicy>  <!-- Optional, update daily -->
             </snapshots>
         </repository>
+         <repository>
+            <id>M2</id>
+            <url>https://s01.oss.sonatype.org/content/repositories/orgdeeplearning4j-1019</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+        </repository>
+<repository>
+            <id>M2-1</id>
+            <url>https://s01.oss.sonatype.org/content/repositories/orgdeeplearning4j-1032</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+        </repository>
+   <repository>
+            <id>M2-2</id>
+            <url>https://s01.oss.sonatype.org/content/repositories/orgdeeplearning4j-1034</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+        </repository>
     </repositories>
 
 
 
     <dependencies>
+        <dependency>
+            <groupId>org.deeplearning4j</groupId>
+            <artifactId>resources</artifactId>
+            <version>${dl4j-master.version}</version>
+        </dependency>
+
         <dependency>
             <groupId>org.apache.spark</groupId>
             <artifactId>spark-core_${scala.binary.version}</artifactId>

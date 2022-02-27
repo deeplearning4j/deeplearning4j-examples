@@ -36,7 +36,7 @@ EXECUTOR_MEMORY=12G
 MASTER_PORT=7077                                # Port for the spark master. Default is 7077
 MINIBATCH=32                                    # Minibatch size for preprocessed datasets
 SCRIPTDIR=$(dirname "$0")
-JARFILE=${SCRIPTDIR}/../target/dl4j-spark-1.0.0-M1.1-bin.jar
+JARFILE=${SCRIPTDIR}/../target/dl4j-spark-1.0.0-M2-bin.jar
 
 #Memory
 OFFHEAP_MEM_JAVACPP=20G         # Maximum amount of off-heap memory
