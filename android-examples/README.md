@@ -6,7 +6,7 @@ The neural networks shown in this example are the same as are used in the [Moon]
 
 The build configuration for Android can be found in [app/build.gradle](./app/build.gradle).
 
-[Go back](../README.md) to the main repository page to explore other features/functionality of the **Eclipse Deeplearning4J** ecosystem. File an issue [here](https://github.com/eclipse/deeplearning4j-examples/issues) to request new features.
+[Go back](../README.md) to the main repository page to explore other features/functionality of the **Eclipse Deeplearning4J** ecosystem. File an issue [here](https://github.com/eclipse/deeplearning4j/issues) to request new features.
 
 
 ```

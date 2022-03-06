@@ -22,13 +22,17 @@ information regarding copyright ownership.
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 29
-    buildToolsVersion "29.0.3"
-
+    packagingOptions {
+        exclude 'META-INF/native-image/**/**.json'
+        exclude 'META-INF/native-image/*.json'
+        pickFirst 'nd4j-native.properties'
+    }
     defaultConfig {
+        compileSdkVersion 30
+
         applicationId "com.example.androidDl4jClassifier"
-        minSdkVersion 29
-        targetSdkVersion 29
+        minSdkVersion 30
+        targetSdkVersion 30
         versionCode 1
         versionName "1.0"
 
@@ -47,11 +51,27 @@ android {
     }
 }
 
+configurations {
+    javacpp
+}
+
+task javacppExtract(type: Copy) {
+    dependsOn configurations.javacpp
+
+    from { configurations.javacpp.collect { zipTree(it) } }
+    include "lib/**"
+    into "$buildDir/javacpp/"
+    android.sourceSets.main.jniLibs.srcDirs += ["$buildDir/javacpp/lib/"]
+
+    tasks.getByName('preBuild').dependsOn javacppExtract
+}
+
+
 dependencies {
     def dl4jVersion = '1.0.0-M2'
-    def openblasVersion = '0.3.10-1.5.5'
-    def opencvVersion = '4.5.1-1.5.5'
-    def leptonicaVersion = '1.80.0-1.5.5'
+    def openblasVersion = '0.3.19-1.5.7'
+    def opencvVersion = '4.5.5-1.5.7'
+    def leptonicaVersion = '1.82.0-1.5.7'
 
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 

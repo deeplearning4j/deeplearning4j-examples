@@ -25,13 +25,14 @@ information regarding copyright ownership.
 
     <application
         android:allowBackup="true"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@mipmap/ic_launcher"0
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
+        android:extractNativeLibs="true"
         android:theme="@style/Theme.AppCompat.Light.DarkActionBar"
         android:fullBackupContent="@xml/backup_descriptor">
-        <activity android:name="com.example.org.deeplearning4j.examples.androidclassifier.MainActivity">
+        <activity android:name="org.deeplearning4j.examples.androidclassifier.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

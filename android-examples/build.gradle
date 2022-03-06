@@ -29,7 +29,7 @@ buildscript {
 
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:4.0.0'
+        classpath 'com.android.tools.build:gradle:7.1.2'
 
 
         // NOTE: Do not place your application dependencies here; they belong
@@ -42,7 +42,7 @@ allprojects {
         google()
         jcenter()
         mavenLocal()
-        maven { url "https://oss.sonatype.org/content/repositories/snapshots" }
+        maven { url "https://s01.oss.sonatype.org/content/repositories/snapshots" }
     }
 }
 
