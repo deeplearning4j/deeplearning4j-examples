@@ -32,7 +32,7 @@ information regarding copyright ownership.
     <description>A set of examples introducing the DL4J framework</description>
 
     <properties>
-        <dl4j-master.version>1.0.0-M2</dl4j-master.version>
+        <dl4j-master.version>1.0.0-M2.1</dl4j-master.version>
         <!-- Change the nd4j.backend property to nd4j-cuda-X-platform to use CUDA GPUs -->
         <!-- <nd4j.backend>nd4j-cuda-10.2-platform</nd4j.backend> -->
         <nd4j.backend>nd4j-native</nd4j.backend>
