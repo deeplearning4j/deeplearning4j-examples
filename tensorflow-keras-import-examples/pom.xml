@@ -62,22 +62,8 @@ information regarding copyright ownership.
             </snapshots>
         </repository>
          <repository>
-            <id>M2</id>
-            <url>https://s01.oss.sonatype.org/content/repositories/orgdeeplearning4j-1019</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-        </repository>
-<repository>
-            <id>M2-1</id>
-            <url>https://s01.oss.sonatype.org/content/repositories/orgdeeplearning4j-1032</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-        </repository>
-   <repository>
             <id>M2-2</id>
-            <url>https://s01.oss.sonatype.org/content/repositories/orgdeeplearning4j-1034</url>
+            <url>https://s01.oss.sonatype.org/content/repositories/orgdeeplearning4j-1040</url>
             <releases>
                 <enabled>true</enabled>
             </releases>
