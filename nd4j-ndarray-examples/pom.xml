@@ -44,16 +44,16 @@ information regarding copyright ownership.
                 <updatePolicy>daily</updatePolicy>  <!-- Optional, update daily -->
             </snapshots>
         </repository>
-        <repository>
-            <id>M2</id>
-            <url>https://s01.oss.sonatype.org/content/repositories/orgdeeplearning4j-1019</url>
+         <repository>
+            <id>M2-2</id>
+            <url>https://s01.oss.sonatype.org/content/repositories/orgdeeplearning4j-1040</url>
             <releases>
                 <enabled>true</enabled>
             </releases>
         </repository>
         <repository>
-            <id>M2-1</id>
-            <url>https://s01.oss.sonatype.org/content/repositories/orgdeeplearning4j-1030</url>
+            <id>M2-3</id>
+            <url>https://s01.oss.sonatype.org/content/repositories/orgdeeplearning4j-1049</url>
             <releases>
                 <enabled>true</enabled>
             </releases>
