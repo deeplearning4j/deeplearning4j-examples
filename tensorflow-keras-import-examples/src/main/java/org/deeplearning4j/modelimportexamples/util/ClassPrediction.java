@@ -20,9 +20,6 @@
 
 package org.deeplearning4j.modelimportexamples.util;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-
 import java.util.Objects;
 
 public class ClassPrediction {
