@@ -2,7 +2,7 @@ package org.deeplearning4j.modelimportexamples.tf.advanced.mobilenet;
 
 import org.apache.commons.io.FilenameUtils;
 import org.datavec.image.loader.ImageLoader;
-import org.deeplearning4j.zoo.util.imagenet.ImageNetLabels;
+import org.deeplearning4j.modelimportexamples.util.imagenet.ImageNetLabels;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.common.resources.Downloader;
 import org.nd4j.linalg.api.ndarray.INDArray;
