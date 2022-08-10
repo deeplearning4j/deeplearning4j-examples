@@ -50,10 +50,6 @@ information regarding copyright ownership.
     </properties>
 
     <repositories>
-        <repository>
-            <id>orgdeeplearning4j-1177</id>
-            <url>https://oss.sonatype.org/content/repositories/orgdeeplearning4j-1177</url>
-        </repository>
 
         <repository>
             <id>sonatype-nexus-snapshots</id>
