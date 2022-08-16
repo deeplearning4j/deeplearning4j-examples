@@ -49,10 +49,12 @@ import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
 import org.deeplearning4j.util.ModelSerializer;
 import org.deeplearning4j.zoo.model.TinyYOLO;
 import org.nd4j.linalg.activations.Activation;
+import org.nd4j.linalg.api.memory.enums.DebugMode;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.api.preprocessor.ImagePreProcessingScaler;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.learning.config.Adam;
+import org.nd4j.linalg.profiler.ProfilerConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -122,18 +124,17 @@ public class TinyYoloHouseNumberDetection {
         File trainDir = fetcher.getDataSetPath(DataSetType.TRAIN);
         File testDir = fetcher.getDataSetPath(DataSetType.TEST);
 
-
         log.info("Load data...");
 
         FileSplit trainData = new FileSplit(trainDir, NativeImageLoader.ALLOWED_FORMATS, rng);
         FileSplit testData = new FileSplit(testDir, NativeImageLoader.ALLOWED_FORMATS, rng);
 
         ObjectDetectionRecordReader recordReaderTrain = new ObjectDetectionRecordReader(height, width, nChannels,
-                        gridHeight, gridWidth, new SvhnLabelProvider(trainDir));
+                gridHeight, gridWidth, new SvhnLabelProvider(trainDir));
         recordReaderTrain.initialize(trainData);
 
         ObjectDetectionRecordReader recordReaderTest = new ObjectDetectionRecordReader(height, width, nChannels,
-                        gridHeight, gridWidth, new SvhnLabelProvider(testDir));
+                gridHeight, gridWidth, new SvhnLabelProvider(testDir));
         recordReaderTest.initialize(testData);
 
         // ObjectDetectionRecordReader performs regression, so we need to specify it here
@@ -210,7 +211,7 @@ public class TinyYoloHouseNumberDetection {
         CanvasFrame frame = new CanvasFrame("HouseNumberDetection");
         OpenCVFrameConverter.ToMat converter = new OpenCVFrameConverter.ToMat();
         org.deeplearning4j.nn.layers.objdetect.Yolo2OutputLayer yout =
-                        (org.deeplearning4j.nn.layers.objdetect.Yolo2OutputLayer)model.getOutputLayer(0);
+                (org.deeplearning4j.nn.layers.objdetect.Yolo2OutputLayer)model.getOutputLayer(0);
         List<String> labels = train.getLabels();
         test.setCollectMetaData(true);
         Scalar[] colormap = {RED,BLUE,GREEN,CYAN,YELLOW,MAGENTA,ORANGE,PINK,LIGHTBLUE,VIOLET};
