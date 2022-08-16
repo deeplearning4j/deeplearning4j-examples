@@ -32,7 +32,7 @@ information regarding copyright ownership.
 
     <!-- Properties Section. Change ND4J versions here, if required -->
     <properties>
-        <dl4j-master.version>1.0.0-M2</dl4j-master.version>
+        <dl4j-master.version>1.0.0-M2.1</dl4j-master.version>
         <logback.version>1.2.3</logback.version>
         <java.version>1.8</java.version>
         <maven-shade-plugin.version>2.4.3</maven-shade-plugin.version>
