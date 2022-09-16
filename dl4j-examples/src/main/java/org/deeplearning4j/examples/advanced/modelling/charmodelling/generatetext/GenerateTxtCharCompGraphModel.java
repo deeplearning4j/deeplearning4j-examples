@@ -55,7 +55,7 @@ public class GenerateTxtCharCompGraphModel {
 
     @SuppressWarnings("ConstantConditions")
     public static void main(String[] args ) throws Exception {
-        int lstmLayerSize = 200;					//Number of units in each LSTM layer
+        int lstmLayerSize = 77;					//Number of units in each LSTM layer
         int miniBatchSize = 32;						//Size of mini batch to use when  training
         int exampleLength = 1000;					//Length of each training example sequence to use. This could certainly be increased
         int tbpttLength = 50;                       //Length for truncated backpropagation through time. i.e., do parameter updates ever 50 characters
@@ -90,18 +90,20 @@ public class GenerateTxtCharCompGraphModel {
             //Output layer, name "outputlayer" with inputs from the two layers called "first" and "second"
             .addLayer("outputLayer", new RnnOutputLayer.Builder(LossFunctions.LossFunction.MCXENT)
                 .activation(Activation.SOFTMAX)
-                .nIn(2*lstmLayerSize).nOut(nOut).build(),"first","second")
+                .nIn(lstmLayerSize).nOut(lstmLayerSize).build(),"second")
             .setOutputs("outputLayer")  //List the output. For a ComputationGraph with multiple outputs, this also defines the input array orders
-            .backpropType(BackpropType.TruncatedBPTT).tBPTTForwardLength(tbpttLength).tBPTTBackwardLength(tbpttLength)
+            .backpropType(BackpropType.TruncatedBPTT)
+                .tBPTTForwardLength(tbpttLength).tBPTTBackwardLength(tbpttLength)
             .build();
 
         ComputationGraph net = new ComputationGraph(conf);
         net.init();
         net.setListeners(new ScoreIterationListener(1));
+        System.out.println(net.summary());
 
         //Print the  number of parameters in the network (and for each layer)
         long totalNumParams = 0;
-        for( int i=0; i<net.getNumLayers(); i++ ){
+        for( int i = 0; i < net.getNumLayers(); i++) {
             long nParams = net.getLayer(i).numParams();
             System.out.println("Number of parameters in layer " + i + ": " + nParams);
             totalNumParams += nParams;
@@ -110,16 +112,18 @@ public class GenerateTxtCharCompGraphModel {
 
         //Do training, and then generate and print samples from network
         int miniBatchNumber = 0;
-        for( int i=0; i<numEpochs; i++ ){
+        for( int i = 0; i < numEpochs; i++) {
             while(iter.hasNext()){
                 DataSet ds = iter.next();
+                System.out.println("Input shape " + ds.getFeatures().shapeInfoToString());
+                System.out.println("Labels " + ds.getLabels().shapeInfoToString());
                 net.fit(ds);
                 if(++miniBatchNumber % generateSamplesEveryNMinibatches == 0){
                     System.out.println("--------------------");
                     System.out.println("Completed " + miniBatchNumber + " minibatches of size " + miniBatchSize + "x" + exampleLength + " characters" );
                     System.out.println("Sampling characters from network given initialization \"" + (generationInitialization == null ? "" : generationInitialization) + "\"");
                     String[] samples = sampleCharactersFromNetwork(generationInitialization,net,iter,rng,nCharactersToSample,nSamplesToGenerate);
-                    for( int j=0; j<samples.length; j++ ){
+                    for( int j = 0; j < samples.length; j++) {
                         System.out.println("----- Sample " + j + " -----");
                         System.out.println(samples[j]);
                         System.out.println();
@@ -135,7 +139,7 @@ public class GenerateTxtCharCompGraphModel {
 
     /** Generate a sample from the network, given an (optional, possibly null) initialization. Initialization
      * can be used to 'prime' the RNN with a sequence you want to extend/continue.<br>
-     * Note that the initalization is used for all samples
+     * Note that the initialization is used for all samples
      * @param initialization String, may be null. If null, select a random character as initialization for all samples
      * @param charactersToSample Number of characters to sample from network (excluding initialization)
      * @param net MultiLayerNetwork with one or more LSTM/RNN layers and a softmax output layer
@@ -151,9 +155,9 @@ public class GenerateTxtCharCompGraphModel {
         //Create input for initialization
         INDArray initializationInput = Nd4j.zeros(numSamples, iter.inputColumns(), initialization.length());
         char[] init = initialization.toCharArray();
-        for( int i=0; i<init.length; i++ ){
+        for( int i=0; i<init.length; i++) {
             int idx = iter.convertCharacterToIndex(init[i]);
-            for( int j=0; j<numSamples; j++ ){
+            for( int j = 0; j<numSamples; j++ ){
                 initializationInput.putScalar(new int[]{j,idx,i}, 1.0f);
             }
         }
@@ -167,13 +171,13 @@ public class GenerateTxtCharCompGraphModel {
         INDArray output = net.rnnTimeStep(initializationInput)[0];
         output = output.tensorAlongDimension((int)output.size(2)-1,1,0);	//Gets the last time step output
 
-        for( int i=0; i<charactersToSample; i++ ){
+        for( int i = 0; i < charactersToSample; i++ ){
             //Set up next input (single time step) by sampling from previous output
             INDArray nextInput = Nd4j.zeros(numSamples,iter.inputColumns());
             //Output is a probability distribution. Sample from this for each example we want to generate, and add it to the new input
             for( int s=0; s<numSamples; s++ ){
                 double[] outputProbDistribution = new double[iter.totalOutcomes()];
-                for( int j=0; j<outputProbDistribution.length; j++ ) outputProbDistribution[j] = output.getDouble(s,j);
+                for( int j = 0; j < outputProbDistribution.length; j++) outputProbDistribution[j] = output.getDouble(s,j);
                 int sampledCharacterIdx = GenerateTxtModel.sampleFromDistribution(outputProbDistribution,rng);
 
                 nextInput.putScalar(new int[]{s,sampledCharacterIdx}, 1.0f);		//Prepare next time step input
