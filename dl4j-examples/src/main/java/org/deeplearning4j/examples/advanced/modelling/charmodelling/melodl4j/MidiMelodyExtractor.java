@@ -17,7 +17,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ******************************************************************************/
 
-package org.deeplearning4j.examples.wip.advanced.modelling.melodl4j;
+package org.deeplearning4j.examples.advanced.modelling.charmodelling.melodl4j;
 
 import org.nd4j.common.util.ArchiveUtils;
 
