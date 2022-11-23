@@ -45,13 +45,13 @@ See http://www.asimovinstitute.org/analyzing-deep-learning-tools-music/, and htt
 14.  The program quanticizes tempos into 32 possible durations: 1*d, 2*d, 3*d, .... 32*d, where d is 1/8th the duration of the average note. Assuming the average note is a quarter note, the smallest possible duration for notes and rests is typically a 1/32nd note.
 15.  The longest duration for a note or a rest is four times the duration of the average note. Typically, this means that notes longer than a whole note are truncated to be a whole note in length.
 16.  No attempt is made to learn the characteristics of different instruments (e.g. pianos versus violins).
-17.  <tt>MelodyModelingExample.java</tt> is the neural network code that composes melodies. It's closely based on LSTMCharModellingExample.java by Alex Black.
+17.  <tt>MelodyModelingExample.java</tt> is the neural network code that composes melodies. It's based on GenerateTxtModel.java by Alex Black.
 18.  At the end of each learning epoch, <tt>MelodyModelingExample.java</tt> plays 15 seconds of the last melody generated. As learning progresses you can hear the compositions getting better.
 19.  Before exiting, <tt>MelodyModelingExample.java</tt> writes the generated melodies to a specified file (in reverse order, so that the highest quality melodies tend to be at the start of the file).
 20.  The melody strings composed by the neural network sometimes have invalid syntax (especially at the beginning of training). For example, in a valid melody string, each pitch character is followed by a duration character. PlayMelodyStrings.java will ignore invalid characters in melody strings.
 21.  You can download some MIDI files from [http://truthsite.org/music/bach-midi.zip](http://truthsite.org/music/bach-midi.zip), [http://truthsite.org/music/pop-midi.zip](http://truthsite.org/music/pop-midi.zip), from [http://musedata.org](http://musedata.org), or from the huge Lakh MIDI Dataset at [http://colinraffel.com/projects/lmd/](http://colinraffel.com/projects/lmd/).
-22.  By default MidiMelodyExtractor.java downloads and extracts MIDI files from bach-midi.zip into bach-midi/ in your temporary directory.  It then extracts melodies into bach-midi.zip.txt in your temporary directory.
-23.  By default, MelodyModelingExample.java learns bach melodies.
+22.  By default MidiMelodyExtractor.java downloads and extracts MIDI files from bach-midi.zip into bach-midi/ into your temporary directory.  It then extracts melodies into bach-midi.zip.txt in your temporary directory.
+23.  By default, MelodyModelingExample.java learns bach melodies, but you can change it by modifying MelodyModelingExxample.midiFileZipFileUrlPath to point to a different zip file.
 
 * * *
 
