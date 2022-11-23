@@ -4,13 +4,13 @@
 
 MELODL4J is a java package in dl4j-examples for extracting melodies from MIDI, feeding them to a LSTM neural network, and composing music using deep learning.
 
-You train the network on a set of sample melodies. The neural network learns to generate new melodies similar to the input melodies.
+You train the network on a set of MIDI files. The program extracts melody strings from the MIDI files and feeds the melody strings to a LSTON network that learns to generate new melodies similar to the input melodies.  The package contains classes for converting from MIDI to melody strings and from melody strings to MIDI, and for doing that on a set of MIDI files.
 
-During network training, it plays melodies at the end of each training epoch. "Deep humming". At the end of training, it outputs all melodies to a file. There's a utility for listening to the generated melodies.
+During network training, MelodyModelingExample.java plays melodies at the end of each training epoch. "Deep humming". At the end of training, it outputs all melodies to a file. There's a utility for listening to the generated melodies.
 
-Listen: http://truthsite.org/music/melodies-like-pop.mp3, http://truthsite.org/music/melodies-like-bach.mp3, and http://truthsite.org/music/melodies-like-the-beatles.mp3 are examples of melodies created by the neural network (eight melodies each).
+Listen: http://truthsite.org/music/melodies-like-bach.mp3, http://truthsite.org/music/melodies-like-pop.mp3, and http://truthsite.org/music/melodies-like-the-beatles.mp3 are examples of melodies created by the neural network (eight melodies each).
 
-The neural network was trained on melodies extracted from midi files at http://truthsite.org/music/pop-midi.zip, http://truthsite.org/music/bach-midi.zip, and http://colinraffel.com/projects/lmd/.
+The neural network was trained on melodies extracted from midi files at http://truthsite.org/music/bach-midi.zip, http://truthsite.org/music/pop-midi.zip, and http://colinraffel.com/projects/lmd/.
 
 The LSTM neural network is based on the LSTMCharModellingExample class by Alex Black in deeplearning4j.
 
