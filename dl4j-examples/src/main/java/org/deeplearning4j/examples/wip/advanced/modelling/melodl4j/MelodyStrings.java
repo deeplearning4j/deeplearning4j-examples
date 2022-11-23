@@ -35,27 +35,32 @@ public class MelodyStrings {
     public static final char lowestPitchGapChar = 'A';
     public static final char REST_CHAR = ' ';
 
-    // We allow pitch gaps between -12 and +12, inclusive.
-    // If you want to change the allowed gap, you will have to change the characters in PITCH_GAP_CHARS_NEGATIVE and  PITCH_GAP_CHARS_POSITIVE
-
-    public static int MAX_POSITIVE_PITCH_GAP = 12;
-    // The order of characters below is intended to simplify the learning of pitch gaps, because increasing
-    // characters correspond to increasing pitch gaps.  The string must end with 'A'.
-    public static final String PITCH_GAP_CHARS_NEGATIVE = "LKJIHGFEDCBA"; // "L" indicates delta=-1. "K" indicates -2,...
-
-    public static final char FIRST_PITCH_CHAR_NEGATIVE =  PITCH_GAP_CHARS_NEGATIVE.charAt(0);
+    // As written now, it allows pitch gaps between -12 and +12, inclusive.
+    // If you want to change the allowed gap, you will have to change the characters in PITCH_GAP_CHARS_POSITIVE
+    // and PITCH_GAP_CHARS_NEGATIVE
 
     // There are thirteen chars in pitchGapCharsPositive because the first one ('M') indicates a zero pitch gap.
-    public static final String PITCH_GAP_CHARS_POSITIVE = "MNOPQRSTUVWXY"; // "M" indicates delta=0. "N" indicates 1, ...
-    public static final char ZERO_PITCH_DELTA_CHAR = 'M';
-    public static final char MAX_POSITIVE_PITCH_DELTA_CHAR = 'Y';
+    // "M" indicates delta=0. "N" indicates delta=1, 'O' indicates delta=2, etc.
+    public static final String PITCH_GAP_CHARS_POSITIVE = "MNOPQRSTUVWXY";
+
+    public static int MAX_POSITIVE_PITCH_GAP = PITCH_GAP_CHARS_POSITIVE.length()-1; // -1 because the first char is for zero.
+    public static final char ZERO_PITCH_DELTA_CHAR = PITCH_GAP_CHARS_POSITIVE.charAt(0);
+    public static final char MAX_POSITIVE_PITCH_DELTA_CHAR = PITCH_GAP_CHARS_POSITIVE.charAt(PITCH_GAP_CHARS_POSITIVE.length()-1);
+
+    // The order of characters below is intended to simplify the learning of pitch gaps, because increasing
+    // characters correspond to increasing pitch gaps.  (Whether this convention simplifies learning pitches
+    // depends on which learning algorithm is used.) The string must end with 'A'.
+    // "L" indicates delta=-1. "K" indicates delta = -2, 'J' indicates delta = -3, etc.
+    public static final String PITCH_GAP_CHARS_NEGATIVE = "LKJIHGFEDCBA";
+
+    public static final char FIRST_PITCH_CHAR_NEGATIVE =  PITCH_GAP_CHARS_NEGATIVE.charAt(0);
 
     // durationDeltaParts determines how short durations can get. The shortest duration is 1/durationDeltaParts
     // as long as the average note length in the piece.
     public static int durationDeltaParts = 8;
     public static final String DURATION_CHARS = "]^_`abcdefghijklmnopqrstuvwxyz{|"; // 32 divisions, in ASCII order
 
-    public static final char FIRST_DURATION_CHAR = ']';
+    public static final char FIRST_DURATION_CHAR = DURATION_CHARS.charAt(0);
     public static final String allValidCharacters = getValidCharacters();
     // 13+13+1+32 = 59 possible characters.
     // ']' indicates the smallest pitch duration allowed (typically a 1/32 note or so).
