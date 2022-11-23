@@ -1,10 +1,15 @@
 package org.deeplearning4j.examples.wip.advanced.modelling.melodl4j;
 
 import java.io.*;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Sanity checks on the Midi-to-String and the String-to-Midi conversions.
+ *
+ * The method testConversion converts a midi file to a melody strings then converts
+ * that string back into MIDI and plays the result on your computer speakers.
+ */
 public class TestMelodyConversion {
     private static List<String> convertFileToStrings(File file) throws IOException {
         final List<String> strings = new ArrayList<>();
@@ -23,9 +28,9 @@ public class TestMelodyConversion {
     }
 
     /**
-     * Plays converts midi file to melody strings and then plays back the melody strings.
+     * Converts midi file to melody strings and then plays back the melody strings.
      * This tests that the conversions from MIDI to strings and from strings back to MIDI
-     * preserve melodies.
+     * preserve melodies.  The sounds you hear should sound like recognizable melodies.
      * @param file
      * @throws Exception
      */
