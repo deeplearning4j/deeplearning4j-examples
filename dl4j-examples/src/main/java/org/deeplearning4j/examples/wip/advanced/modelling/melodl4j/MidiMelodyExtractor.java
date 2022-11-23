@@ -87,14 +87,7 @@ public class MidiMelodyExtractor {
     public static double maxProportionOfRepeatsOfPreviousNote = 0.333;
     public final static String tmpDirPath = System.getProperty("java.io.tmpdir");
     private final static String subDirectoryName = "bach-midi";
-    public final static String midiImageSubdirectory = "midi-images";
     //.....
-    public final static File imageDirectoryFile = new File(tmpDirPath + "/" + midiImageSubdirectory);
-
-    static {
-        imageDirectoryFile.mkdir();
-    }
-
     private static final String DEFAULT_OUTPUT_DIRECTORY_PATH = tmpDirPath; // System.getProperty("user.home"); // d:/tmp
     private static boolean extractMelodyFromPolyphonicNoteList = true; // If false, polyphonic note lists are skipped and not turned into melodies
     //...
@@ -614,10 +607,10 @@ public class MidiMelodyExtractor {
         return 0;
     }
 
-    public static void processRecursively(File file, PrintStream analysisPrintStream, PrintStream melodiesPrintStream) {
+    public static void processRecursively(File file, PrintStream melodiesPrintStream) {
         if (file.isDirectory()) {
             for (File child : file.listFiles()) {
-                processRecursively(child, analysisPrintStream, melodiesPrintStream);
+                processRecursively(child, melodiesPrintStream);
             }
         } else {
             String nameLowerCase = file.getName().toLowerCase();
@@ -625,7 +618,6 @@ public class MidiMelodyExtractor {
                 try {
                     MidiMelodyExtractor midiFeatures = new MidiMelodyExtractor(file);
                     melodiesPrintStream.println(MelodyStrings.COMMENT_STRING + file.getAbsolutePath());
-                    midiFeatures.printAnalysis(analysisPrintStream);
                     midiFeatures.printMelodies(melodiesPrintStream);
                     countMidiFiles++;
                 } catch (Throwable thr) {
@@ -636,14 +628,12 @@ public class MidiMelodyExtractor {
         }
     }
 
-    public static void processDirectoryAndWriteMelodyAndAnalysisFiles(String inputDirectoryPathLocal, String outputAnalysisFilePath, String outputMelodiesFilePath) {
-        System.out.println("Processing " + inputDirectoryPathLocal);
+    public static void processDirectoryAndWriteMelodyFile(File inputDirectoryFile, File outputMelodiesFile) {
+        System.out.println("Processing " + inputDirectoryFile);
         long startTime = System.currentTimeMillis();
         try {
-            PrintStream analysisPrintStream = new PrintStream(new FileOutputStream(outputAnalysisFilePath));
-            PrintStream melodiesPrintStream = new PrintStream(new FileOutputStream(outputMelodiesFilePath));
-            processRecursively(new File(inputDirectoryPathLocal), analysisPrintStream, melodiesPrintStream);
-            analysisPrintStream.close();
+            PrintStream melodiesPrintStream = new PrintStream(new FileOutputStream(outputMelodiesFile));
+            processRecursively(inputDirectoryFile, melodiesPrintStream);
             melodiesPrintStream.close();
 
         } catch (IOException exc) {
@@ -659,7 +649,7 @@ public class MidiMelodyExtractor {
         System.out.println(countMelodiesRejectedDueTooFewDistinctPitches + " melodies rejected due to too few distinct pitches");
         System.out.println(countMelodiesRejectedDueTooManyRepeatsOfPreviousNote + " melodies rejected due to too many repeated pitches");
         System.out.println(totalCountPolyphonicNoteLists + " polyphonic note lists, " + totalCountMonophonicNoteLists + " monophonic note lists");
-        System.out.println(totalCountOfMelodies + " melodies written to " + outputMelodiesFilePath);
+        System.out.println(totalCountOfMelodies + " melodies written to " + outputMelodiesFile.getAbsolutePath());
         System.out.println(countOfNotesSkippedToTheirBeingShort + " notes skipped from being too short");
         System.out.println(countOfNotesTruncatedDueToLooseOverlapping + " notes truncated due to loose overlapping");
         System.out.println(countOfShortenedNotes + " notes shortened due to overlapping less than maximumProportionOfOverlapBeforeNotesAreConsideredInHarmony");
@@ -688,13 +678,13 @@ public class MidiMelodyExtractor {
      *                       Downloads zip file to specified directoryNameInTmpDirectory from truthsite.org/music/ and unzips it.
      *                       If the directory already exists, this method does nothing.
      */
-    public static void checkForDirectoryAndTryToDownloadToTmpDirAndUnzip(String directoryName) {
+    public static File checkForDirectoryAndTryToDownloadToTmpDirAndUnzip(String directoryName) {
         String outputDirectoryPath = tmpDirPath + "/" + directoryName;
-        File directory = new File(outputDirectoryPath);
-        if (!directory.exists() || directoryIsEmpty(directory)) {
-            String lastName = directory.getName();
+        File outputDirectoryFile = new File(outputDirectoryPath);
+        if (!outputDirectoryFile.exists() || directoryIsEmpty(outputDirectoryFile)) {
+            String lastName = outputDirectoryFile.getName();
             String zipFileName = lastName + ".zip";
-            String urlPath = "http://truthsite.org/music/" + zipFileName;
+            String urlPath = "http://waliberals.org/truthsite.org/music/" + zipFileName;
             String outputZipFilePath = tmpDirPath + "/" + zipFileName;
             try {
                 PlayMelodyStrings.copyURLContentsToFile(new URL(urlPath), new File(outputZipFilePath));
@@ -702,27 +692,27 @@ public class MidiMelodyExtractor {
                 System.err.println("Unable to download zip file from " + urlPath + " into " + tmpDirPath);
                 System.exit(1);
             }
-            directory.mkdir(); // It may already exist but be empty.
-            if (!directory.exists()) {
-                System.err.println("Could not create " + directory);
+            outputDirectoryFile.mkdir(); // It may already exist but be empty.
+            if (!outputDirectoryFile.exists()) {
+                System.err.println("Could not create " + outputDirectoryFile);
                 System.exit(1);
             }
             try {
                 ArchiveUtils.unzipFileTo(outputZipFilePath, outputDirectoryPath);
             } catch (IOException e) {
-                directory.delete();
+                outputDirectoryFile.delete();
                 System.err.println("Unable to unzip file from " + outputZipFilePath + " into " + tmpDirPath + " due to " + e.getMessage());
                 System.exit(1);
             }
         }
+        return outputDirectoryFile;
     }
-
 
     public static void main(String[] args) {
         long startTime = System.currentTimeMillis();
         checkForDirectoryAndTryToDownloadToTmpDirAndUnzip(subDirectoryName);
-        processDirectoryAndWriteMelodyAndAnalysisFiles(tmpDirPath + "/" + subDirectoryName, DEFAULT_OUTPUT_DIRECTORY_PATH + "/analysis.txt",
-            DEFAULT_OUTPUT_DIRECTORY_PATH + "/melodies.txt");
+        processDirectoryAndWriteMelodyFile(new File(tmpDirPath + "/" + subDirectoryName),
+                new File(DEFAULT_OUTPUT_DIRECTORY_PATH + "/melodies.txt"));
 //        processDirectoryAndWriteMelodyAndAnalysisFiles("D:/Music/MIDI/pop/Beatles","d:/tmp/analysis-beatles.txt","d:/tmp/beatles-melodies-input.txt");
         double seconds = 0.001 * (System.currentTimeMillis() - startTime);
         System.out.println(seconds + " seconds");

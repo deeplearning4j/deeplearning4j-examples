@@ -19,6 +19,8 @@
 
 package org.deeplearning4j.examples.wip.advanced.modelling.melodl4j;
 
+import org.apache.arrow.flatbuf.Int;
+
 import javax.sound.midi.*;
 import java.io.*;
 import java.net.URL;
@@ -298,54 +300,22 @@ public class PlayMelodyStrings {
         }
     }
 
-    // return -1 if it's not a duration
-    private static int getDurationInTicks(char ch, int resolutionDelta) {
-        int indexOf = MelodyStrings.durationChars.indexOf(ch);
-        return indexOf < 0 ? -1 : resolutionDelta * (1 + indexOf);
-    }
-
-    // return -1 if it's not a pitch
-    private static int getPitchDelta(char ch) {
-        int index = MelodyStrings.noteGapCharsPositive.indexOf(ch);
-        if (index >= 0) {
-            return index;
-        }
-        index = MelodyStrings.noteGapCharsNegative.indexOf(ch);
-        if (index < 0) {
-            return -1;
-        }
-        return -(index + 1);
-    }
-
-    private static boolean isDurationChar(char ch) {
-        return ch != 'R' && MelodyStrings.durationChars.indexOf(ch) >= 0;
-    }
-
-    private static boolean isPitchChar(char ch) {
-        return ch != 'R' && !isDurationChar(ch);
-    }
-
     /*
      * If the melody string contains a tab, the instrument used and start pitch will be obtained from the header before the tab.
      * Otherwise, it will use startPitch 55 and Acoustic Grand Piano (instrument number 0)
      */
-    public static void playMelody(String melody, double secondsToPlay) throws Exception {
+    public static void playMelody(final String melody, final double secondsToPlay) throws Exception {
         int startPitch = 55;
         int instrumentNumber = 0; // Acoustic Grand Piano
-//        int separatorIndex = melody.indexOf(Midi2Slices.SEPARATOR);
-//        if (separatorIndex>0) {
-//            String [] parts = melody.substring(0, separatorIndex).split(":",4);
-//            melody = melody.substring(separatorIndex+1);
-//            //return firstPitch + ":" + firstInstrument + ":" + resolution + " " + result.toString();
-//            startPitch = Integer.parseInt(parts[0]);
-//            instrumentNumber = Integer.parseInt(parts[1]);
-//            String forPath="";
-//            if (parts.length>3) {
-//                forPath = " for " + parts[3];
-//            }
-//            System.out.println("Using startPitch = " + startPitch + ", instrument = " + instrumentNumber + forPath);
-//        }
         playMelody(melody, startPitch, instrumentNumber, secondsToPlay);
+    }
+    public static void playMelodies(final List<String>melodies, final double secondsToPlay) throws Exception {
+        int startPitch = 55;
+        int instrumentNumber = 0; // Acoustic Grand Piano
+        for(String melody:melodies) {
+            playMelody(melody, startPitch, instrumentNumber, secondsToPlay);
+            try {Thread.sleep(1000);} catch (InterruptedException exc) {Thread.interrupted();}
+        }
     }
 
     public static List<Note> createNoteSequence(String melody, int instrumentNumber, int startNote) {
@@ -360,10 +330,10 @@ public class PlayMelodyStrings {
         int index = 0; //getIndexOfFirstPitchDuration(line);
         List<Note> ns = new ArrayList<>();
         long tick = 0;
-        if (isDurationChar(melody.charAt(index))) {
+        if (MelodyStrings.isDurationChar(melody.charAt(index))) {
             //  Note(int pitch, long startTick, int instrument, int channel, int velocity)
             Note note = new Note(startNote, tick, instrumentNumber, channel, velocity);
-            long duration = getDurationInTicks(melody.charAt(index), resolutionDelta);
+            long duration = MelodyStrings.getDurationInTicks(melody.charAt(index), resolutionDelta);
             note.setEndTick(tick + duration);
             ns.add(note);
             index++;
@@ -376,15 +346,15 @@ public class PlayMelodyStrings {
             if (ch == 'R') {
                 index++;
                 ch = melody.charAt(index);
-                if (isDurationChar(ch)) {
-                    tick += getDurationInTicks(ch, resolutionDelta);
+                if (MelodyStrings.isDurationChar(ch)) {
+                    tick += MelodyStrings.getDurationInTicks(ch, resolutionDelta);
                     index++;
                 } else {
                     System.out.print('R'); // Badly formed melody string
                 }
-            } else if (isPitchChar(ch)) {
+            } else if (MelodyStrings.isPitchChar(ch)) {
                 index++;
-                int pitchDelta = getPitchDelta(ch);
+                int pitchDelta = MelodyStrings.getPitchDelta(ch);
                 lastRawNote += pitchDelta;
                 while (lastRawNote < 30) {
                     System.out.print('<');
@@ -395,8 +365,8 @@ public class PlayMelodyStrings {
                     lastRawNote -= 12; // This is a hack to prevent melodies from becoming inaudible
                 }
                 ch = melody.charAt(index);
-                if (isDurationChar(ch)) {
-                    noteDurationInTicks = getDurationInTicks(ch, resolutionDelta);
+                if (MelodyStrings.isDurationChar(ch)) {
+                    noteDurationInTicks = MelodyStrings.getDurationInTicks(ch, resolutionDelta);
                     index++;
                 } else {
                     System.out.print('D'); // Badly formed melody string
