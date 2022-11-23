@@ -7,8 +7,8 @@ import java.util.List;
 /**
  * Sanity checks on the Midi-to-String and the String-to-Midi conversions.
  *
- * The method testConversion converts a midi file to a melody strings then converts
- * that string back into MIDI and plays the result on your computer speakers.
+ * The method testConversion converts a midi file to melody strings then converts
+ * those strings back into MIDI and plays the results on your computer speakers.
  */
 public class TestMelodyConversion {
     private static List<String> convertFileToStrings(File file) throws IOException {
