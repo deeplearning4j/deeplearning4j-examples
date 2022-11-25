@@ -44,6 +44,7 @@ import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -73,7 +74,11 @@ public class MelodyModelingExample {
 
     //final static String symbolicMelodiesInputFilePath = "D:/tmp/bach-melodies.txt";
     //final static String composedMelodiesOutputFilePath = tmpDir + "/bach-composition.txt"; // You can listen to these melodies by running PlayMelodyStrings.java against this file.
-
+    final static NumberFormat numberFormat = NumberFormat.getNumberInstance();
+    static {
+        numberFormat.setMinimumFractionDigits(1);
+        numberFormat.setMaximumFractionDigits(1);
+    }
     //....
     public static void main(String[] args) throws Exception {
         String loadNetworkPath = null; //"/tmp/MelodyModel-bach.zip"; //null;
@@ -166,6 +171,7 @@ public class MelodyModelingExample {
         // order, so that the best melodies are at the start of the file.
         //Do training, and then generate and print samples from network
         int miniBatchNumber = 0;
+        long lastTime = System.currentTimeMillis();
         for (int epoch = 0; epoch < numEpochs; epoch++) {
             System.out.println("Starting epoch " + epoch);
             while (iter.hasNext()) {
@@ -188,12 +194,19 @@ public class MelodyModelingExample {
                 }
             }
             iter.reset();    //Reset iterator for another epoch
+            final double secondsForEpoch = 0.001 * (System.currentTimeMillis() - startTime);
+            final long now = System.currentTimeMillis();
             if (melodies.size() > 0) {
                 String melody = melodies.get(melodies.size() - 1);
                 int seconds = 25;
                 System.out.println("\nFirst " + seconds + " seconds of " + melody);
                 PlayMelodyStrings.playMelody(melody, seconds);
             }
+            double seconds = 0.001*(now - lastTime);
+            lastTime = now;
+            System.out.println("\nEpoch " + epoch + " time in seconds: " + numberFormat.format(seconds));
+            // 531.9 for GPU GTX 1070
+            // 821.4 for CPU i7-6700K @ 4GHZ
         }
         int indexOfLastPeriod = inputSymbolicMelodiesFilename.lastIndexOf('.');
         String saveFileName = inputSymbolicMelodiesFilename.substring(0, indexOfLastPeriod > 0 ? indexOfLastPeriod : inputSymbolicMelodiesFilename.length());
@@ -205,9 +218,7 @@ public class MelodyModelingExample {
             printWriter.println(melodies.get(i));
         }
         printWriter.close();
-        double seconds = 0.001 * (System.currentTimeMillis() - startTime);
 
-        System.out.println("\n\nExample complete in " + seconds + " seconds");
         System.exit(0);
     }
 
