@@ -19,10 +19,16 @@
 
 package org.deeplearning4j.examples.advanced.modelling.charmodelling.melodl4j;
 
-import org.apache.arrow.flatbuf.Int;
-
 import javax.sound.midi.*;
-import java.io.*;
+import javax.swing.JFileChooser;
+import javax.swing.filechooser.FileFilter;
+import java.io.BufferedReader;
+import java.io.BufferedInputStream;
+import java.io.InputStreamReader;
+import java.io.IOException;
+import java.io.FileOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.net.URL;
 import java.text.NumberFormat;
 import java.util.*;
@@ -30,21 +36,24 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /*
- *  This plays melody strings using your operating system's software synthesizer.
+ *  This plays melody strings using your operating system's MIDI synthesizer.
  *  There's a public static method for playing melody strings in files and
  *  another method for playing melody strings passed in as java.lang.Strings.
  *
- *  The format for the melody strings is determined by Midi2MelodyStrings.java.
+ *  If you run main, it will open a JFileChooser pointing to the midi-learning subdirectory of your home directory,
+ *  prompting you to choose a txt file (typically starting with prefix "composition-").
+ *
+ *  The format for the melody strings is determined by MelodyStrings.java and MidiMelodyExtractor.java.
  *
  *  In a valid melody string, each pitch or rest character should be followed by
- *  a duration. But during learning some of the melody strings are invalid syntax.
+ *  a duration. But during learning, some melody strings have invalid syntax.
  *  This class will ignore invalid characters in the melody strings.
  *
  * @author Donald A. Smith
  */
 public class PlayMelodyStrings {
     private static Random random = new Random();
-    private final static String tempDir = System.getProperty("java.io.tmpdir");
+    private final static String tmpDir = System.getProperty("java.io.tmpdir");
     private static Map<String, Integer> instrumentsByName = new HashMap<>();
 
     private static Pattern INSTRUMENT_PATTERN = Pattern.compile(".*Instrument = (\\d+).*");
@@ -199,27 +208,40 @@ public class PlayMelodyStrings {
         numberFormat.setMaximumFractionDigits(1);
     }
 
+    private static List<String> readStringsFromFile(String filePath) throws IOException {
+        BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(filePath)));
+        List<String> result = new ArrayList<>();
+        while (true) {
+            String line=reader.readLine();
+            if (line==null) {
+                break;
+            }
+            line=line.trim();
+            if (line.length()<20 || line.startsWith("---") || line.startsWith("#")) {
+                continue;
+            }
+            result.add(line);
+        }
+        reader.close();
+        return result;
+    }
+
     //-----------------------------------------------
     public static void playMelodies(String inFilepath, double secondsToPlay) throws IOException, MidiUnavailableException, InvalidMidiDataException {
         playMelodies(inFilepath, 0, secondsToPlay);
     }
 
-    /* Plays midi file through the system's midi sequencer.
+    /* Plays midi file through the system's midi sequencer, starting from the last line in the file.
      *  @param inFilepath points to a local file containing symbolic melodies
      *  @param instrumentName : See the list in Midi2MelodyStrings.java. If null, defaults to "Acoustic Grand Piano".
      *  @param secondsToPlay -- seconds after which to stop the music playback.
      */
     public static void playMelodies(String inFilepath, int instrumentNumber, double secondsToPlay) throws IOException, MidiUnavailableException, InvalidMidiDataException {
         System.out.println("Playing melodies from " + inFilepath);
-        BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(inFilepath)));
-        int lineNumber = 0;
+        List<String>  lines = readStringsFromFile(inFilepath);
         int startNote = 45;
-        while (true) {
-            String line = reader.readLine();
-            if (line == null) {
-                break;
-            }
-            lineNumber++;
+        for(int lineNumber=lines.size()-1;lineNumber>=0;lineNumber--) {
+            String line = lines.get(lineNumber);
             line = line.trim();
             if (line.equals("")) {
                 continue;
@@ -235,7 +257,6 @@ public class PlayMelodyStrings {
             playMelody(line, startNote, instrumentNumber, secondsToPlay);
             sleep(2000); // so there's a noticeable gap between melodies
         }
-        reader.close();
         System.exit(0);
     }
 
@@ -394,19 +415,23 @@ public class PlayMelodyStrings {
         sequencer.setSequence(sequence);
         long tickLength = sequencer.getTickLength();
         //JOptionPane.showMessageDialog(null, "Click enter to abort.");
-        long startTime = System.currentTimeMillis();
+        long startTimeInMilliseconds = System.currentTimeMillis();
         sequencer.setTickPosition(0);
         sequencer.open();
         sequencer.setTempoFactor(3.5f);
         sequencer.start();
+        System.out.println();
         while (sequencer.getTickPosition() < tickLength) {
-            sleep(50);
-            long now = System.currentTimeMillis();
-            if (now - startTime > secondsToPlay * 1000) {
+            sleep(1000);
+            long nowInMilliseconds = System.currentTimeMillis();
+            long secondsPlayed = (nowInMilliseconds - startTimeInMilliseconds)/1000;
+            System.out.print(secondsPlayed + " ");
+            if (secondsPlayed >= secondsToPlay) {
                 sequencer.stop();
-                tickLength = 0;
+                break;
             }
-        }
+        } // while
+        System.out.println();
     }
 
     public static void playSequence(Sequence sequence, double tempoFactor) throws MidiUnavailableException, InvalidMidiDataException {
@@ -441,7 +466,7 @@ public class PlayMelodyStrings {
         }
         soundBackLoaded = true;
         final String filename = "GeneralUser_GS_SoftSynth.sf2";  // FreeFont.sf2   Airfont_340.dls
-        final String soundBankLocation = tempDir + "/" + filename;
+        final String soundBankLocation = tmpDir + "/" + filename;
         File file = new File(soundBankLocation);
         try {
             if (!file.exists()) {
@@ -461,19 +486,27 @@ public class PlayMelodyStrings {
     }
 
     private static String getPathToExampleMelodiesFile() throws Exception {
-        String filename = "bach-composition-2018-02-10.txt"; // These melodies were composed by MelodyModelingExample.java.
-        //filename = "composed-in-the-style-of-pop.txt";
-        String fileLocation = tempDir + "/" + filename;
-        File file = new File(fileLocation);
-        if (!file.exists()) {
-            copyURLContentsToFile(new URL("http://truthsite.org/music/" + filename), file);
-            System.out.println("Melody file downloaded to " + file.getAbsolutePath());
-        } else {
-            System.out.println("Using existing melody file at " + file.getAbsolutePath());
-        }
-        return fileLocation;
-    }
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setCurrentDirectory(new File(MelodyModelingExample.homeMidiDir));
+        fileChooser.setFileFilter(new FileFilter(){
+            @Override
+            public boolean accept(File f) {
+                final String name = f.getName().toLowerCase();
+                return name.endsWith("txt");
+            }
 
+            @Override
+            public String getDescription() {
+                return "txt files containing MIDI melody strings";
+            }
+        });
+        if (fileChooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
+            return fileChooser.getSelectedFile().getAbsolutePath();
+        } else {
+            System.exit(1);
+            return null;
+        }
+    }
     public static void copyURLContentsToFile(URL url, File file) throws IOException {
         final int blockSize = 256;
         BufferedInputStream bis = new BufferedInputStream(url.openStream(), blockSize);
@@ -503,7 +536,7 @@ public class PlayMelodyStrings {
 
     //-----------------------------------
     public static void main(String[] args) {
-//        String filename="beatles-melodies-input.txt";
+//        String filename="composition-bach-midi.zip-1669841367457.txt";
 //        MelodyModelingExample.makeSureFileIsInTmpDir(filename);
 //        args = new String[] {MelodyModelingExample.tmpDir + "/" + filename};
         try {
