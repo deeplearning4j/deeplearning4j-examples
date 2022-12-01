@@ -29,13 +29,11 @@ import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
 import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
 import org.deeplearning4j.util.ModelSerializer;
-import org.nd4j.common.util.ArchiveUtils;
 import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.learning.config.Adam;
-import org.nd4j.linalg.learning.config.RmsProp;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 
 import javax.sound.midi.InvalidMidiDataException;
@@ -44,74 +42,127 @@ import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.text.NumberFormat;
-import java.util.ArrayList;
-import java.util.List;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Random;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 /**
- * LSTM  Symbolic melody modelling example, to compose music from symbolic melodies extracted from MIDI.
- * LSTM logic is based closely on LSTMCharModellingExample.java.
- * See the README file in this directory for documentation.
+ * LSTM symbolic melody modelling example, to compose music from symbolic melodies extracted from MIDI.
+ * See the README file in this directory for documentation about how MIDI melodies are extracted.
  *
- * @author Alex Black, Donald A. Smith.
+ * @author Donald A. Smith, Alex Black
  */
 public class MelodyModelingExample {
-    // If you want to change the MIDI files used in learning, create a zip file containing your MIDI
-    // files and replace the following path.  For example, you might use something like:
-    //final static String midiFileZipFileUrlPath = "file:d:/music/midi/classical-midi.zip";
-    final static String midiFileZipFileUrlPath = "http://waliberals.org/truthsite/music/bach-midi.zip";
 
-    // For example "bach-midi.txt"
-    final static String inputSymbolicMelodiesFilename = getMelodiesFileNameFromURLPath(midiFileZipFileUrlPath);
+    // By default, the program will read midi files from the following zip files
+    private final static String midiFileZipFileUrlPath = "http://waliberals.org/truthsite/music/bach-midi.zip";
+    // You can also try one of the following:
+    // private final static String midiFileZipFileUrlPath = "http://waliberals.org/truthsite/music/pop-midi.zip"
+    // private final static String midiFileZipFileUrlPath = "http://waliberals.org/truthsite/music/abba-midi.zip"
+    // private final static String midiFileZipFileUrlPath = "http://waliberals.org/truthsite/music/beatles-midi.zip"
 
-    // Examples:  bach-melodies-input.txt, beatles-melodies-input.txt ,  pop-melodies-input.txt (large)
-    final static String tmpDir = System.getProperty("java.io.tmpdir");
-    final static String inputSymbolicMelodiesFilePath = tmpDir + "/" + inputSymbolicMelodiesFilename;  // Point to melodies created by MidiMelodyExtractor.java
-    final static String composedMelodiesOutputFilePath = tmpDir + "/composition.txt"; // You can listen to these melodies by running PlayMelodyStrings.java against this file.
+    // To use your own collection of MIDI files, create a zip file containing your MIDI files and replace
+    // midiFileZipFileUrlPath.  For example, you might use something like:
+    //    final static String midiFileZipFileUrlPath = "file:d:/Music/MIDI/classicalguitar.zip";
 
-    //final static String symbolicMelodiesInputFilePath = "D:/tmp/bach-melodies.txt";
-    //final static String composedMelodiesOutputFilePath = tmpDir + "/bach-composition.txt"; // You can listen to these melodies by running PlayMelodyStrings.java against this file.
+    // You may want to tweak these hyper-parameters
+    final static int miniBatchSize = 32;     // Size of mini batch to use when training
+    final static  int lstmLayerSize = 200;   // Number of units in each LSTM layer
+    final static int exampleLength = 500;    // Length of each training example sequence to use.
+    final static int tbpttLength = 0; // 50; // Length for truncated backpropagation through time:
+    //   do parameter updates every tbpttLength characters.
+    // If tbpttLength is 0 or >= exampleLength, it won't use truncated backpropagation. In that case,
+    // you may want to lower exampleLength and/or lstmLayerSize, since it will run more slowly, though
+    // my benchmarks below suggest that truncated backpropagation isn't necessarily slower.
+
+    /*
+# lstmLayerSize = 200, exampleLength = 600, miniBatchSize = 32, tbpttLength = 0
+9.2 seconds per iteration: score at iteration 0 is 2435.521023841802
+6.6 seconds per iteration: score at iteration 10 is 2060.653114635395
+6.8 seconds per iteration: score at iteration 20 is 2060.789222324116
+6.7 seconds per iteration: score at iteration 30 is 2054.3339468764043
+
+# lstmLayerSize = 200, exampleLength = 600, miniBatchSize = 32, tbpttLength = 50
+Starting epoch 0
+9.3 seconds per iteration: score at iteration 0 is 2435.521023841802
+6.7 seconds per iteration: score at iteration 10 is 2060.653114635395
+
+# lstmLayerSize = 200, exampleLength = 700, miniBatchSize = 32, tbpttLength = 0
+Starting epoch 0
+10.6 seconds per iteration: score at iteration 0 is 2837.448025794927
+7.7 seconds per iteration: score at iteration 10 is 2421.8974427957933
+7.7 seconds per iteration: score at iteration 20 is 2371.3229664935416
+     */
+    final static int numEpochs = 50;      //Total number of training epochs
+    final static int generateSamplesEveryNMinibatches = 100;  //How frequently to generate samples from the network? 1000 characters / 50 tbptt length: 20 parameter updates per minibatch
+    final static int nSamplesToGenerateForCompositionFile = 8;             //Number of samples to generate after each training epoch
+    final static int nCharactersToSample = 300;           //Length of each sample to generate
+
+    // You probably don't want to change the following variables.
+    private final static String inputSymbolicMelodiesFilenamePrefix = getMelodiesFileNamePrefixFromURLPath(midiFileZipFileUrlPath);
+
+    private final static String inputSymbolicMelodiesFilename =  inputSymbolicMelodiesFilenamePrefix + ".txt";
+    // For example, "bach-midi.txt"
+
+    public final static String tmpMidiDir = System.getProperty("java.io.tmpdir") + "/midi-learning";
+    public final static String homeDir = System.getProperty("user.home");
+    public final static String homeMidiDir = homeDir + "/midi-learning";
+
+    static {
+        File workDirFile = new File(homeMidiDir);
+        if (!workDirFile.exists()) {
+            workDirFile.mkdirs();
+        }
+        if (!workDirFile.isDirectory()) {
+            throw new IllegalStateException(homeDir + " is not a directory");
+        }
+        File tmpMidiDirFile = new File(tmpMidiDir);
+        if (!tmpMidiDirFile.exists()) {
+            tmpMidiDirFile.mkdirs();
+        }
+        if (!tmpMidiDirFile.isDirectory()) {
+            throw new IllegalStateException(tmpMidiDir + " is not a directory");
+        }
+        System.out.println("tmpMidiDir for downloaded MIDI files = " + tmpMidiDir);
+        System.out.println("homeMidiDir for compositions = " + homeMidiDir);
+        System.out.println("inputSymbolicMelodiesFilenamePrefix = " + inputSymbolicMelodiesFilenamePrefix);
+    }
+    private final static String inputSymbolicMelodiesFilePath = tmpMidiDir + "/" + inputSymbolicMelodiesFilename;  // Point to melodies created by MidiMelodyExtractor.java
+    // You can listen to these melodies by running PlayMelodyStrings.java against this file.
+
+    final static long startTimeMls = System.currentTimeMillis();
+
     final static NumberFormat numberFormat = NumberFormat.getNumberInstance();
     static {
         numberFormat.setMinimumFractionDigits(1);
         numberFormat.setMaximumFractionDigits(1);
     }
+
     //....
     public static void main(String[] args) throws Exception {
         String loadNetworkPath = null; //"/tmp/MelodyModel-bach.zip"; //null;
         String generationInitialization = null;        //Optional character initialization; a random character is used if null
+        // Above is Used to 'prime' the LSTM with a character sequence to continue/complete.
+        // Initialization characters must all be in CharacterIterator.getMinimalCharacterSet() by default
         if (args.length == 2) {
             loadNetworkPath = args[0];
             generationInitialization = args[1];
         }
+        makeMelodyStringsFileFromMidiIfNecessary();
 
-        makeMidiStringFileIfNecessary();
+        final Random rng = new Random(startTimeMls); // so that it varies across runs.
 
-        int lstmLayerSize = 200;                    //Number of units in each LSTM layer
-        int miniBatchSize = 32;                     //Size of mini batch to use when training
-        int exampleLength = 500; //1000; 		    //Length of each training example sequence to use.
-        int tbpttLength = 50;                       //Length for truncated backpropagation through time. i.e., do parameter updates ever 50 characters
-        int numEpochs = 50;                            //Total number of training epochs
-        int generateSamplesEveryNMinibatches = 20;  //How frequently to generate samples from the network? 1000 characters / 50 tbptt length: 20 parameter updates per minibatch
-        int nSamplesToGenerate = 10;                //Number of samples to generate after each training epoch
-        int nCharactersToSample = 300;                //Length of each sample to generate
-
-        // Above is Used to 'prime' the LSTM with a character sequence to continue/complete.
-        // Initialization characters must all be in CharacterIterator.getMinimalCharacterSet() by default
-        Random rng = new Random(12345);
-        long startTime = System.currentTimeMillis();
-
-        System.out.println("Using " + tmpDir + " as the temporary directory");
         //Get a DataSetIterator that handles vectorization of text into something we can use to train
         // our LSTM network.
         CharacterIterator iter = getMidiIterator(miniBatchSize, exampleLength);
 
         if (loadNetworkPath != null) {
             MultiLayerNetwork net = MultiLayerNetwork.load(new File(loadNetworkPath), true);
-            String[] samples = sampleCharactersFromNetwork(generationInitialization, net, iter, rng, nCharactersToSample, nSamplesToGenerate);
+            String[] samples = sampleCharactersFromNetwork(generationInitialization, net, iter, rng, nCharactersToSample, nSamplesToGenerateForCompositionFile);
             for (String melody : samples) {
                 System.out.println(melody);
                 PlayMelodyStrings.playMelody(melody, 10);
@@ -122,40 +173,63 @@ public class MelodyModelingExample {
 
         int nOut = iter.totalOutcomes();
 
+        int layerIndex = 0;
         //Set up network configuration:
-        MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
+        MultiLayerConfiguration.Builder builder = new NeuralNetConfiguration.Builder()
             //.updater(new RmsProp(0.1))
             .updater(new Adam(0.005))
-            .seed(System.currentTimeMillis()) // So each run generates new melodies
+           //.updater(new Adam(new StepSchedule(ScheduleType.EPOCH, 5e-3, 0.65, 1)))
+            .seed(12345) // For repeatability
+            //.seed(System.currentTimeMillis()) // So each run generates new melodies
             .l2(0.0001)
             .weightInit(WeightInit.XAVIER)
             .list()
-            .layer(0, new LSTM.Builder().nIn(iter.inputColumns()).nOut(lstmLayerSize)
+            .layer(layerIndex++, new LSTM.Builder().nIn(iter.inputColumns()).nOut(lstmLayerSize)
                 .activation(Activation.TANH).build())
-            .layer(1, new LSTM.Builder().nIn(lstmLayerSize).nOut(lstmLayerSize)
+            .layer(layerIndex++, new LSTM.Builder().nIn(lstmLayerSize).nOut(lstmLayerSize)
                 .activation(Activation.TANH).build())
-//            .layer(2, new LSTM.Builder().nIn(lstmLayerSize).nOut(lstmLayerSize)
-//                .activation(Activation.TANH).build())
-            .layer(2, new RnnOutputLayer.Builder(LossFunctions.LossFunction.MCXENT).activation(Activation.SOFTMAX)        //MCXENT + softmax for classification
+            .layer(layerIndex++, new LSTM.Builder().nIn(lstmLayerSize).nOut(lstmLayerSize)
+                .activation(Activation.TANH).build())
+            .layer(layerIndex++, new RnnOutputLayer.Builder(LossFunctions.LossFunction.MCXENT).activation(Activation.SOFTMAX)        //MCXENT + softmax for classification
                 .nIn(lstmLayerSize).nOut(nOut).build())
-            .backpropType(BackpropType.TruncatedBPTT).tBPTTForwardLength(tbpttLength).tBPTTBackwardLength(tbpttLength)
-            .build();
-
-        learn(miniBatchSize, exampleLength, numEpochs, generateSamplesEveryNMinibatches, nSamplesToGenerate, nCharactersToSample, generationInitialization, rng, startTime, iter, conf);
+            .backpropType(BackpropType.Standard);
+            if (tbpttLength>0 && tbpttLength < exampleLength) {
+                builder = builder.tBPTTForwardLength(tbpttLength).tBPTTBackwardLength(tbpttLength);
+             }
+        learn(numEpochs, nSamplesToGenerateForCompositionFile, nCharactersToSample, generationInitialization, rng, iter, builder.build());
     }
 
     private static void save(CharacterIterator iter) throws IOException {
-        FileOutputStream fos = new FileOutputStream("/tmp/midi-character-iterator.jobj");
+        FileOutputStream fos = new FileOutputStream("/tmp/midi-character-iterator.obj");
         ObjectOutputStream oos = new ObjectOutputStream(fos);
         oos.writeObject(iter);
         oos.close();
     }
 
-    private static void learn(int miniBatchSize, int exampleLength, int numEpochs, int generateSamplesEveryNMinibatches, int nSamplesToGenerate, int nCharactersToSample, String generationInitialization, Random rng, long startTime, CharacterIterator iter, MultiLayerConfiguration conf) throws Exception {
+    private static String getElapsedTimeString(final long startMls, final long endMls) {
+        return numberFormat.format(0.001*(endMls-startMls));
+    }
+
+    private static String getTotalElapsedTimeString() {
+        return getElapsedTimeString(startTimeMls, System.currentTimeMillis());
+    }
+
+    public static String getDateTimeString() {
+        LocalDateTime localDateTime = LocalDateTime.now();
+        String tmp = localDateTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME); //2022-11-30T15:32:00.9035925
+        tmp = tmp.replace("T", "--");
+        tmp = tmp.replace(':','-');
+        int periodIndex = tmp.indexOf(".");
+        if (periodIndex>0) {
+            tmp = tmp.substring(0,periodIndex);
+        }
+        return tmp;
+    }
+    private static void learn(int numEpochs, int nSamplesToGenerate, int nCharactersToSample, String generationInitialization, Random rng,  CharacterIterator iter, MultiLayerConfiguration conf) throws Exception {
         MultiLayerNetwork net = new MultiLayerNetwork(conf);
         net.init();
         //  GradientsListener listener2 = new GradientsListener(net,80);
-        net.setListeners(/*listener2,*/ new ScoreIterationListener(100));
+        net.setListeners(/*listener2,*/ new MidiScoreIterationListener(10));
 
         //Print the  number of parameters in the network (and for each layer)
         Layer[] layers = net.getLayers();
@@ -167,65 +241,65 @@ public class MelodyModelingExample {
         }
         System.out.println("Total number of network parameters: " + totalNumParams);
 
-        List<String> melodies = new ArrayList<>(); // Later we print them out in reverse
         // order, so that the best melodies are at the start of the file.
         //Do training, and then generate and print samples from network
         int miniBatchNumber = 0;
-        long lastTime = System.currentTimeMillis();
+        long lastTimeInMls = System.currentTimeMillis();
+
+        final String composedMelodiesOutputFilePath = homeDir + "/midi-learning/composition-"
+                + inputSymbolicMelodiesFilenamePrefix + "-" + getDateTimeString() + ".txt";
+        final PrintWriter compositionPrintWriter = new PrintWriter(composedMelodiesOutputFilePath);
+        System.out.println("Writing compositions to " + composedMelodiesOutputFilePath);
+        String configString =  "# lstmLayerSize = " + lstmLayerSize +
+            ", exampleLength = " + exampleLength +
+            ", miniBatchSize = " + miniBatchSize +
+            ", tbpttLength = " + tbpttLength;
+        System.out.println(configString);
+        compositionPrintWriter.println(configString);
+        compositionPrintWriter.flush();
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+            @Override
+            public void run() {
+                compositionPrintWriter.close();
+            }
+        });
         for (int epoch = 0; epoch < numEpochs; epoch++) {
             System.out.println("Starting epoch " + epoch);
             while (iter.hasNext()) {
                 DataSet ds = iter.next();
                 net.fit(ds);
                 if (++miniBatchNumber % generateSamplesEveryNMinibatches == 0) {
-                    System.out.println("---------- epoch " + epoch + " --------------");
-                    System.out.println("Completed " + miniBatchNumber + " minibatches of size " + miniBatchSize + "x" + exampleLength + " characters");
-                    System.out.println("Sampling characters from network given initialization \"" + (generationInitialization == null ? "" : generationInitialization) + "\"");
+                    System.out.println("At epoch " + epoch + ", minibatch " + miniBatchNumber + ", total elapsed time = " + getTotalElapsedTimeString());
                     String[] samples = sampleCharactersFromNetwork(generationInitialization, net, iter, rng, nCharactersToSample, nSamplesToGenerate);
                     for (int j = 0; j < samples.length; j++) {
-                        System.out.println("----- Sample " + j + " ----- of epoch " + epoch);
-                        System.out.println(samples[j]);
-                        melodies.add(samples[j]);
-                        System.out.println();
+                        compositionPrintWriter.println(samples[j]);
                     }
+                    compositionPrintWriter.flush();
+                    int seconds = 25;
+                    PlayMelodyStrings.playMelody(samples[0], seconds);
                 }
                 if (miniBatchNumber == 0) {
                     // save(iter); System.exit(0);
                 }
             }
             iter.reset();    //Reset iterator for another epoch
-            final double secondsForEpoch = 0.001 * (System.currentTimeMillis() - startTime);
             final long now = System.currentTimeMillis();
-            if (melodies.size() > 0) {
-                String melody = melodies.get(melodies.size() - 1);
-                int seconds = 25;
-                System.out.println("\nFirst " + seconds + " seconds of " + melody);
-                PlayMelodyStrings.playMelody(melody, seconds);
-            }
-            double seconds = 0.001*(now - lastTime);
-            lastTime = now;
-            System.out.println("\nEpoch " + epoch + " time in seconds: " + numberFormat.format(seconds));
+            System.out.println("Finished epoch " + epoch + " time in seconds: " +getElapsedTimeString(lastTimeInMls,now)
+              + ", totalTime = " + getTotalElapsedTimeString()  + " seconds");
+            lastTimeInMls = now;
             // 531.9 for GPU GTX 1070
             // 821.4 for CPU i7-6700K @ 4GHZ
         }
         int indexOfLastPeriod = inputSymbolicMelodiesFilename.lastIndexOf('.');
-        String saveFileName = inputSymbolicMelodiesFilename.substring(0, indexOfLastPeriod > 0 ? indexOfLastPeriod : inputSymbolicMelodiesFilename.length());
-        ModelSerializer.writeModel(net, "/tmp/" + saveFileName + ".zip", false);
-
-        // Write all melodies to the output file, in reverse order (so that the best melodies are at the start of the file).
-        PrintWriter printWriter = new PrintWriter(composedMelodiesOutputFilePath);
-        for (int i = melodies.size() - 1; i >= 0; i--) {
-            printWriter.println(melodies.get(i));
-        }
-        printWriter.close();
-
+        ModelSerializer.writeModel(net, tmpMidiDir + "/" + inputSymbolicMelodiesFilenamePrefix + ".zip", false);
+        compositionPrintWriter.close();
         System.exit(0);
     }
 
-    public static File makeSureFileIsInTmpDir(String urlString) throws IOException {
+    public static File makeSureFileIsInTmpMidiDir(String urlString) throws IOException {
         final URL url = new URL(urlString);
         final String filename = urlString.substring(1+urlString.lastIndexOf("/"));
-        final File f = new File(tmpDir + "/" + filename);
+        final File f = new File(tmpMidiDir + "/" + filename);
         if (f.exists()) {
             System.out.println("Using existing " + f.getAbsolutePath());
         } else {
@@ -255,22 +329,22 @@ public class MelodyModelingExample {
                     Files.createDirectories(resolvedPath);
                 } else {
                     Files.createDirectories(resolvedPath.getParent());
-                    Files.copy(zipIn, resolvedPath);
+                    Files.copy(zipIn,resolvedPath, StandardCopyOption.REPLACE_EXISTING);
                 }
             }
         }
         is.close();
     }
-    private static void makeMidiStringFileIfNecessary() throws IOException, InvalidMidiDataException {
+    private static void makeMelodyStringsFileFromMidiIfNecessary() throws IOException, InvalidMidiDataException {
         final File inputMelodiesFile = new File(inputSymbolicMelodiesFilePath);
         if (inputMelodiesFile.exists() && inputMelodiesFile.length()>1000) {
             System.out.println("Using existing " + inputSymbolicMelodiesFilePath);
             return;
         }
-        final File midiZipFile = makeSureFileIsInTmpDir(midiFileZipFileUrlPath);
+        final File midiZipFile = makeSureFileIsInTmpMidiDir(midiFileZipFileUrlPath);
         final String midiZipFileName = midiZipFile.getName();
         final String midiZipFileNameWithoutSuffix = midiZipFileName.substring(0,midiZipFileName.lastIndexOf("."));
-        final File outputDirectoryFile  = new File(tmpDir,midiZipFileNameWithoutSuffix);
+        final File outputDirectoryFile  = new File(tmpMidiDir,midiZipFileNameWithoutSuffix);
         final String outputDirectoryPath = outputDirectoryFile.getAbsolutePath();
         if (!outputDirectoryFile.exists()) {
             outputDirectoryFile.mkdir();
@@ -377,13 +451,16 @@ public class MelodyModelingExample {
         //Should be extremely unlikely to happen if distribution is a valid probability distribution
         throw new IllegalArgumentException("Distribution is invalid? d=" + d + ", sum=" + sum);
     }
-    private static String getMelodiesFileNameFromURLPath(String midiFileZipFileUrlPath) {
+    private static String getMelodiesFileNamePrefixFromURLPath(String midiFileZipFileUrlPath) {
         if (!(midiFileZipFileUrlPath.endsWith(".zip") || midiFileZipFileUrlPath.endsWith(".ZIP"))) {
             throw new IllegalStateException("zipFilePath must end with .zip");
         }
         midiFileZipFileUrlPath = midiFileZipFileUrlPath.replace('\\','/');
-        String fileName = midiFileZipFileUrlPath.substring(midiFileZipFileUrlPath.lastIndexOf("/") + 1);
-        return fileName + ".txt";
+        int lastIndexOfSlash = midiFileZipFileUrlPath.lastIndexOf("/");
+        if (lastIndexOfSlash > 0) {
+            midiFileZipFileUrlPath = midiFileZipFileUrlPath.substring(1+lastIndexOfSlash);
+        }
+        return midiFileZipFileUrlPath.substring(0,midiFileZipFileUrlPath.length()-4); // Omit trailing ".zip"
     }
 }
 
