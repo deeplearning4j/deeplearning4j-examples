@@ -80,7 +80,7 @@ public class TestMelodyConversion {
         }
         try {
             sanityCheck1();
-            File midiFile = MelodyModelingExample.makeSureFileIsInTmpDir(urlPath);
+            File midiFile = MelodyModelingExample.makeSureFileIsInTmpMidiDir(urlPath);
             testConversion(midiFile);
         } catch (Exception exc) {
             exc.printStackTrace();
