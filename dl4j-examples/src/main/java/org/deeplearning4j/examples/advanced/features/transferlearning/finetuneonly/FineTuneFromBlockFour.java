@@ -17,6 +17,9 @@
  * SPDX-License-Identifier: Apache-2.0
  ******************************************************************************/
 
+ // Fine-tune last few blocks of a pretrained model while freezing early layers.
+// Provides more adaptation than last-layer editing but avoids full retraining.
+
 package org.deeplearning4j.examples.advanced.features.transferlearning.finetuneonly;
 
 import org.deeplearning4j.examples.advanced.features.transferlearning.iterators.FlowerDataSetIterator;

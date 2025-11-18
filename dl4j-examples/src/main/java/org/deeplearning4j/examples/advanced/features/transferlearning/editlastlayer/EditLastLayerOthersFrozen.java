@@ -17,6 +17,9 @@
  * SPDX-License-Identifier: Apache-2.0
  ******************************************************************************/
 
+ // Transfer learning example: replace only the final classification layer of VGG16.
+// All earlier layers are frozen for extremely fast training on a new dataset.
+
 package org.deeplearning4j.examples.advanced.features.transferlearning.editlastlayer;
 
 import org.deeplearning4j.examples.advanced.features.transferlearning.iterators.FlowerDataSetIterator;
@@ -65,6 +68,8 @@ public class EditLastLayerOthersFrozen {
         //Import vgg
         //Note that the model imported does not have an output layer (check printed summary)
         //  nor any training related configs (model from keras was imported with only weights and json)
+        // Remove the original output layer and attach a new one for 5 flower classes
+
         log.info("\n\nLoading org.deeplearning4j.transferlearning.vgg16...\n\n");
         ZooModel zooModel = VGG16.builder().build();
         ComputationGraph vgg16 = (ComputationGraph) zooModel.initPretrained();
@@ -91,6 +96,8 @@ public class EditLastLayerOthersFrozen {
                 "fc2")
             .build();
         log.info(vgg16Transfer.summary());
+        
+        // Train only the new output layer; frozen layers are not updated
 
         //Dataset iterators
         FlowerDataSetIterator.setup(batchSize,trainPerc);
