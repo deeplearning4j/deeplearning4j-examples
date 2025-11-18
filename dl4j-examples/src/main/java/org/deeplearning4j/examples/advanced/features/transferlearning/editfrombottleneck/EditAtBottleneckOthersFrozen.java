@@ -17,6 +17,9 @@
  * SPDX-License-Identifier: Apache-2.0
  ******************************************************************************/
 
+ // Transfer learning example: modify architecture at the bottleneck layer.
+// Earlier layers remain frozen; mid-level layers can be added/edited.
+
 package org.deeplearning4j.examples.advanced.features.transferlearning.editfrombottleneck;
 
 import org.deeplearning4j.examples.advanced.features.transferlearning.iterators.FlowerDataSetIterator;
@@ -140,6 +143,8 @@ public class EditAtBottleneckOthersFrozen {
         //      2. in place with the TransferLearningHelper constructor which will take a model, and a specific vertexname
         //              and freeze it and the vertices on the path from an input to it (as seen in the FeaturizePreSave class)
         //The saved model can be "fine-tuned" further as in the class "FitFromFeaturized"
+        // Insert/remove vertices to customize part of the model
+
         File locationToSave = new File("MyComputationGraph.zip");
         boolean saveUpdater = false;
         vgg16Transfer.save(locationToSave, saveUpdater);

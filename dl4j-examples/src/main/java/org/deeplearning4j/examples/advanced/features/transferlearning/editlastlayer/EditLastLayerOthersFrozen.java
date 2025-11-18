@@ -17,6 +17,9 @@
  * SPDX-License-Identifier: Apache-2.0
  ******************************************************************************/
 
+ // Transfer learning example: replace only the final classification layer of VGG16.
+// All earlier layers are frozen for extremely fast training on a new dataset.
+
 package org.deeplearning4j.examples.advanced.features.transferlearning.editlastlayer;
 
 import org.deeplearning4j.examples.advanced.features.transferlearning.iterators.FlowerDataSetIterator;
@@ -73,6 +76,8 @@ public class EditLastLayerOthersFrozen {
         //Decide on a fine tune configuration to use.
         //In cases where there already exists a setting the fine tune setting will
         //  override the setting for all layers that are not "frozen".
+        // Remove the original output layer and attach a new one for 5 flower classes
+
         FineTuneConfiguration fineTuneConf = new FineTuneConfiguration.Builder()
             .updater(new Nesterovs(5e-5))
             .seed(seed)
@@ -93,6 +98,8 @@ public class EditLastLayerOthersFrozen {
         log.info(vgg16Transfer.summary());
 
         //Dataset iterators
+        // Train only the new output layer; frozen layers are not updated
+
         FlowerDataSetIterator.setup(batchSize,trainPerc);
         DataSetIterator trainIter = FlowerDataSetIterator.trainIterator();
         DataSetIterator testIter = FlowerDataSetIterator.testIterator();
