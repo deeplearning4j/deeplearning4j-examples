@@ -43,7 +43,7 @@ information regarding copyright ownership.
         <maven-shade-plugin.version>2.4.3</maven-shade-plugin.version>
         <logback.version>1.1.7</logback.version>
         <scala.binary.version>2.12</scala.binary.version>
-        <spark.version>2.4.8</spark.version>
+        <spark.version>3.4.0</spark.version>
         <tablesaw.version>0.38.5</tablesaw.version>
         <!-- Note: tablesaw needs a newer version of guava -->
         <guava.version>30.0-jre</guava.version>
