@@ -27,6 +27,33 @@ To help judge the extent to which generated melodies mimic existing melodies in 
 See http://www.asimovinstitute.org/analyzing-deep-learning-tools-music/, and https://github.com/tensorflow/magenta for some previous work in music generation via deep learning. I found out recently that MELODL4J is similar to magenta: both extract monophonic melodies from MIDI -- and both have a class named NoteSequence! -- but MELODL4J was developed independently and uses different techniques.
 * * *
 
+## Prerequisites
+
+- Java 8 or later
+- Maven installed
+- Internet connection to download MIDI datasets
+- Audio output enabled for melody playback
+- Enough memory for training larger LSTM models
+
+## Quick Start
+
+1. Run `MidiMelodyExtractor.java` to extract melody strings from MIDI files.
+2. Run `MelodyModelingExample.java` to train the LSTM network.
+3. Listen to generated melodies after each epoch.
+4. Review the generated melody output file after training.
+
+## Main Classes
+
+- `MidiMelodyExtractor.java` – Extracts symbolic melodies from MIDI files
+- `MelodyModelingExample.java` – Trains the LSTM model
+- `PlayMelodyStrings.java` – Converts melody strings back into MIDI and plays them
+- `NoteSequence.java` – Represents note sequences internally
+
+## How to Run
+
+```bash
+mvn -q exec:java -Dexec.mainClass="org.deeplearning4j.examples.advanced.modelling.charmodelling.melodl4j.MelodyModelingExample"
+
 ### Overview of methodology, simplifications, and tricks
 
 1.  <tt>MidiMelodyExtractor.java</tt> parses MIDI files and outputs melodies in symbolic form.
@@ -54,6 +81,15 @@ See http://www.asimovinstitute.org/analyzing-deep-learning-tools-music/, and htt
 23.  By default, MelodyModelingExample.java learns bach melodies, but you can change it by modifying MelodyModelingExxample.midiFileZipFileUrlPath to point to a different zip file.
 
 * * *
+
+## Expected Output
+
+During training, you should see:
+- MIDI files being downloaded and extracted
+- Melody extraction statistics
+- Network training progress
+- Generated melodies after each epoch
+- Output file containing generated melodies
 
 ### Possible directions for improvement
 
