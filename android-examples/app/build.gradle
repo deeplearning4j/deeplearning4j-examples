@@ -46,8 +46,8 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
     }
 }
 
@@ -68,7 +68,7 @@ task javacppExtract(type: Copy) {
 
 
 dependencies {
-    def dl4jVersion = '1.0.0-M2'
+    def dl4jVersion = '1.0.0-SNAPSHOT'
     def openblasVersion = '0.3.19-1.5.7'
     def opencvVersion = '4.5.5-1.5.7'
     def leptonicaVersion = '1.82.0-1.5.7'
@@ -81,19 +81,17 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
 
-    implementation(group: 'org.deeplearning4j', name: 'deeplearning4j-core', version: dl4jVersion) {
+    implementation(group: 'org.eclipse.deeplearning4j', name: 'deeplearning4j-core', version: dl4jVersion) {
         exclude group: 'org.bytedeco', module: 'opencv-platform'
         exclude group: 'org.bytedeco', module: 'leptonica-platform'
         exclude group: 'org.bytedeco', module: 'hdf5-platform'
-        exclude group: 'org.nd4j', module: 'nd4j-base64'
-        exclude group: 'org.nd4j', module: 'nd4j-api'
     }
 
-    implementation  group: 'org.nd4j', name: 'nd4j-native', version: dl4jVersion
-    implementation  group: 'org.nd4j', name: 'nd4j-native', version:  dl4jVersion, classifier: "android-arm"
-    implementation  group: 'org.nd4j', name: 'nd4j-native', version:  dl4jVersion, classifier: "android-arm64"
-    implementation  group: 'org.nd4j', name: 'nd4j-native', version:  dl4jVersion, classifier: "android-x86"
-    implementation  group: 'org.nd4j', name: 'nd4j-native', version:  dl4jVersion, classifier: "android-x86_64"
+    implementation  group: 'org.eclipse.deeplearning4j', name: 'nd4j-native', version: dl4jVersion
+    implementation  group: 'org.eclipse.deeplearning4j', name: 'nd4j-native', version:  dl4jVersion, classifier: "android-arm"
+    implementation  group: 'org.eclipse.deeplearning4j', name: 'nd4j-native', version:  dl4jVersion, classifier: "android-arm64"
+    implementation  group: 'org.eclipse.deeplearning4j', name: 'nd4j-native', version:  dl4jVersion, classifier: "android-x86"
+    implementation  group: 'org.eclipse.deeplearning4j', name: 'nd4j-native', version:  dl4jVersion, classifier: "android-x86_64"
     implementation  group: 'org.bytedeco', name: 'openblas', version: openblasVersion
     implementation  group: 'org.bytedeco', name: 'openblas', version: openblasVersion, classifier: "android-arm"
     implementation  group: 'org.bytedeco', name: 'openblas', version: openblasVersion, classifier: "android-arm64"

@@ -54,6 +54,12 @@ The same as above with minor modifications
 Classify the CIFAR dataset
 * [CenterLossLeNetMNIST.java](./src/main/java/org/deeplearning4j/examples/quickstart/modeling/convolution/CenterLossLeNetMNIST.java)
 Train an embedding using the center loss model, on MNIST
+* [DeconvolutionUpsamplingExample.java](./src/main/java/org/deeplearning4j/examples/quickstart/modeling/convolution/DeconvolutionUpsamplingExample.java)
+**(NEW)** Deconvolution and upsampling layers for autoencoders and GANs
+* [DepthwiseSeparableConvMNIST.java](./src/main/java/org/deeplearning4j/examples/quickstart/modeling/convolution/DepthwiseSeparableConvMNIST.java)
+**(NEW)** MobileNet-style depthwise separable convolutions on MNIST
+* [LocallyConnectedPReLUExample.java](./src/main/java/org/deeplearning4j/examples/quickstart/modeling/convolution/LocallyConnectedPReLUExample.java)
+**(NEW)** LocallyConnected2D and PReLU layers
 
 ##### Recurrent Neural Networks
 * [UCISequenceClassification.java](./src/main/java/org/deeplearning4j/examples/quickstart/modeling/recurrent/UCISequenceClassification.java)
@@ -73,6 +79,24 @@ Unsupervised anomaly detection on MNIST using a variational autoencoder
 * [VaeMNIST2dPlots.java](./src/main/java/org/deeplearning4j/examples/quickstart/modeling/variationalautoencoder/VaeMNIST2dPlots.java)
 Train a variational autoencoder on MNIST and plot MNIST digit reconstructions vs. the latent space as well as the latent space values for the MNIST test set as training progresses
 
+
+##### New in 1.0.0
+* [EvaluationMetricsExample.java](./src/main/java/org/deeplearning4j/examples/quickstart/modeling/evaluation/EvaluationMetricsExample.java)
+**(NEW)** Complete evaluation API reference (accuracy, F1, ROC, regression metrics)
+* [WeightInitExample.java](./src/main/java/org/deeplearning4j/examples/quickstart/modeling/initialization/WeightInitExample.java)
+**(NEW)** Weight initialization strategies (Xavier, He, Lecun, etc.)
+* [TrainingListenersExample.java](./src/main/java/org/deeplearning4j/examples/quickstart/modeling/listeners/TrainingListenersExample.java)
+**(NEW)** Training listeners and checkpointing
+* [LayerNormExample.java](./src/main/java/org/deeplearning4j/examples/quickstart/modeling/normalization/LayerNormExample.java)
+**(NEW)** Layer normalization on MNIST
+* [GroupNormExample.java](./src/main/java/org/deeplearning4j/examples/quickstart/modeling/normalization/GroupNormExample.java)
+**(NEW)** Group normalization on MNIST
+* [NewOptimizersExample.java](./src/main/java/org/deeplearning4j/examples/quickstart/modeling/optimization/NewOptimizersExample.java)
+**(NEW)** AdaBelief and Adam8bit optimizers
+* [ModelSerializationExample.java](./src/main/java/org/deeplearning4j/examples/quickstart/modeling/serialization/ModelSerializationExample.java)
+**(NEW)** Complete model save/load API reference
+* [DataPipelineExample.java](./src/main/java/org/deeplearning4j/examples/quickstart/datapipeline/DataPipelineExample.java)
+**(NEW)** DataVec ETL pipeline API reference
 
 #### Features
 
@@ -136,6 +160,14 @@ Anomaly detection on sequence sensor data
 * [TrainLotteryModelSeqPrediction.java](./src/main/java/org/deeplearning4j/examples/advanced/modelling/sequenceprediction/TrainLotteryModelSeqPrediction.java)
 Model trained on a synthetic dataset that attempts to uncover the contrived pattern.
 
+
+##### New Architectures (NEW)
+* [SelfAttentionMNIST.java](./src/main/java/org/deeplearning4j/examples/advanced/modelling/attention/SelfAttentionMNIST.java)
+**(NEW)** Self-attention mechanism for MNIST classification
+* [CapsNetMNIST.java](./src/main/java/org/deeplearning4j/examples/advanced/modelling/capsulenet/CapsNetMNIST.java)
+**(NEW)** Capsule network (CapsNet) architecture for MNIST
+* [EmbeddingLayerExample.java](./src/main/java/org/deeplearning4j/examples/advanced/modelling/embeddingnet/EmbeddingLayerExample.java)
+**(NEW)** EmbeddingLayer and EmbeddingSequenceLayer for NLP and recommendation systems
 
 ##### Specific Models and Special Architectures
 * [AlphaGoZeroTrainer.java](./src/main/java/org/deeplearning4j/examples/advanced/modelling/alphagozero/AlphaGoZeroTrainer.java)

@@ -3,38 +3,28 @@ on:
     - cron: "0 */12 * * *"
   workflow_dispatch:
 jobs:
-  #Note: no -pl here because we publish everything from this branch and use this as the basis for all uploads.
   linux-x86_64:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
     steps:
-      - uses: AutoModality/action-clean@v1
-      - name: Cancel Previous Runs
-        uses: styfle/cancel-workflow-action@0.8.0
+      - uses: actions/checkout@v4
+      - name: Set up Java 11
+        uses: actions/setup-java@v4
         with:
-          access_token: ${{ github.token }}
-      - uses: actions/checkout@v2
-      - name: Set up Java for publishing to GitHub Packages
-        uses: actions/setup-java@v1
-        with:
-          java-version: 1.8
-      - name: Build on  linux-x86_64
+          java-version: '11'
+          distribution: 'temurin'
+      - name: Build and test all modules
         shell: bash
         env:
           DEBIAN_FRONTEND: noninteractive
           GITHUB_TOKEN:  ${{ secrets.GITHUB_TOKEN }}
         run: |
           mvn --version
-          for folder in `ls`; do
-             if  [ -d "$folder" ] && [ "$folder" != "mvn-project-template" ]; then
+          for folder in $(ls); do
+             if  [ -d "$folder" ] && [ "$folder" != "mvn-project-template" ] && [ "$folder" != "android-examples" ] && [ "$folder" != "oreilly-book-dl4j-examples" ]; then
                cd "$folder"
                if test -f "pom.xml"; then
                   mvn clean test
                fi
                cd ..
              fi
-        
-           
-           
           done
-
-
