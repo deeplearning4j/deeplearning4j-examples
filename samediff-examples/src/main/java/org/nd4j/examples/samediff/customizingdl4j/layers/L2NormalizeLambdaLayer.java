@@ -33,7 +33,7 @@ import org.nd4j.autodiff.samediff.SameDiff;
  */
 public class L2NormalizeLambdaLayer extends SameDiffLambdaLayer {
 
-    private int[] dimensions;
+    private long[] dimensions;
 
     /**
      *
@@ -42,7 +42,7 @@ public class L2NormalizeLambdaLayer extends SameDiffLambdaLayer {
      *                   For RNNs, this would also be dimension 1 (to normalize each time step separately)
      *                   For CNNs, this would be dimensions 1, 2 and 3
      */
-    public L2NormalizeLambdaLayer(int... dimensions){
+    public L2NormalizeLambdaLayer(long... dimensions){
         this.dimensions = dimensions;
     }
 
@@ -60,11 +60,11 @@ public class L2NormalizeLambdaLayer extends SameDiffLambdaLayer {
     }
 
     //Getters and setters for JSON serialization
-    public int[] getDimensions(){
+    public long[] getDimensions(){
         return dimensions;
     }
 
-    public void setDimensions(int[] dimensions){
+    public void setDimensions(long[] dimensions){
         this.dimensions = dimensions;
     }
 }

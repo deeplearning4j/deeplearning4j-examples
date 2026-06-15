@@ -26,24 +26,39 @@ information regarding copyright ownership.
     <modelVersion>4.0.0</modelVersion>
 
     <!-- Group-ID, artifact ID and version of the project. You can modify these as you want -->
-    <groupId>org.deeplearning4j</groupId>
+    <groupId>org.eclipse.deeplearning4j</groupId>
     <artifactId>deeplearning4j-example-sample</artifactId>
-    <version>1.0.0-M2</version>
+    <version>1.0.0-SNAPSHOT</version>
 
     <!-- Properties Section. Change ND4J versions here, if required -->
     <properties>
-        <dl4j-master.version>1.0.0-M2.1</dl4j-master.version>
+        <dl4j-master.version>1.0.0-SNAPSHOT</dl4j-master.version>
         <logback.version>1.2.3</logback.version>
-        <java.version>1.8</java.version>
+        <java.version>11</java.version>
         <maven-shade-plugin.version>2.4.3</maven-shade-plugin.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
 
+    <repositories>
+        <repository>
+            <id>sonatype-nexus-snapshots</id>
+            <name>Sonatype Nexus Snapshots</name>
+            <url>https://central.sonatype.com/repository/maven-snapshots/</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+                <updatePolicy>daily</updatePolicy>
+            </snapshots>
+        </repository>
+    </repositories>
+
     <dependencies>
         <!-- deeplearning4j-core: contains main functionality and neural networks -->
         <dependency>
-            <groupId>org.deeplearning4j</groupId>
+            <groupId>org.eclipse.deeplearning4j</groupId>
             <artifactId>deeplearning4j-core</artifactId>
             <version>${dl4j-master.version}</version>
         </dependency>
@@ -53,13 +68,13 @@ information regarding copyright ownership.
         will occur. "nd4j-native-platform" is for CPUs only (for running on all operating systems).
         -->
         <dependency>
-            <groupId>org.nd4j</groupId>
+            <groupId>org.eclipse.deeplearning4j</groupId>
             <artifactId>nd4j-native</artifactId>
             <version>${dl4j-master.version}</version>
         </dependency>
 
-        <!-- CUDA: to use GPU for training (CUDA) instead of CPU, uncomment this, and remove nd4j-native-platform -->
-        <!-- Requires CUDA to be installed to use. Change the version (8.0, 9.0, 9.1) to change the CUDA version -->
+        <!-- CUDA: to use GPU for training (CUDA) instead of CPU, change nd4j-native to nd4j-cuda-12.9-platform -->
+        <!-- Requires CUDA 12.9 to be installed to use -->
 
 
         <!-- Optional, but recommended: if you use CUDA, also use CuDNN. To use this, CuDNN must also be installed -->
@@ -83,8 +98,7 @@ information regarding copyright ownership.
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.5.1</version>
                 <configuration>
-                    <source>${java.version}</source>
-                    <target>${java.version}</target>
+                    <release>${java.version}</release>
                 </configuration>
             </plugin>
 

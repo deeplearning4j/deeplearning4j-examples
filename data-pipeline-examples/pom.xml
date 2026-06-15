@@ -25,19 +25,19 @@ information regarding copyright ownership.
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>org.deeplearning4j</groupId>
+    <groupId>org.eclipse.deeplearning4j</groupId>
     <artifactId>data-pipeline-examples</artifactId>
-    <version>1.0.0-M2</version>
+    <version>1.0.0-SNAPSHOT</version>
     <name>Building a data pipeline prior to modeling</name>
     <description>Loading raw data and processing it before training</description>
 
     <properties>
-        <dl4j-master.version>1.0.0-M2.1</dl4j-master.version>
-        <!-- Change the nd4j.backend property to nd4j-cuda-X-platform to use CUDA GPUs -->
-        <!-- <nd4j.backend>nd4j-cuda-10.2-platform</nd4j.backend> -->
+        <dl4j-master.version>1.0.0-SNAPSHOT</dl4j-master.version>
+        <!-- Change the nd4j.backend property to nd4j-cuda-12.9-platform to use CUDA GPUs -->
+        <!-- <nd4j.backend>nd4j-cuda-12.9-platform</nd4j.backend> -->
         <nd4j.backend>nd4j-native</nd4j.backend>
-        <java.version>1.8</java.version>
-        <maven-compiler-plugin.version>3.6.1</maven-compiler-plugin.version>
+        <java.version>11</java.version>
+        <maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
         <maven.minimum.version>3.3.1</maven.minimum.version>
         <exec-maven-plugin.version>1.4.0</exec-maven-plugin.version>
         <maven-shade-plugin.version>2.4.3</maven-shade-plugin.version>
@@ -53,7 +53,7 @@ information regarding copyright ownership.
         <repository>
             <id>sonatype-nexus-snapshots</id>
             <name>Sonatype Nexus Snapshots</name>
-            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+            <url>https://central.sonatype.com/repository/maven-snapshots/</url>
             <releases>
                 <enabled>false</enabled>
             </releases>
@@ -80,49 +80,49 @@ information regarding copyright ownership.
 
     <dependencies>
         <dependency>
-            <groupId>org.deeplearning4j</groupId>
+            <groupId>org.eclipse.deeplearning4j</groupId>
             <artifactId>resources</artifactId>
             <version>${dl4j-master.version}</version>
         </dependency>
 
 
         <dependency>
-            <groupId>org.nd4j</groupId>
+            <groupId>org.eclipse.deeplearning4j</groupId>
             <artifactId>${nd4j.backend}</artifactId>
             <version>${dl4j-master.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.datavec</groupId>
+            <groupId>org.eclipse.deeplearning4j</groupId>
             <artifactId>datavec-api</artifactId>
             <version>${dl4j-master.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.datavec</groupId>
+            <groupId>org.eclipse.deeplearning4j</groupId>
             <artifactId>datavec-data-image</artifactId>
             <version>${dl4j-master.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.datavec</groupId>
+            <groupId>org.eclipse.deeplearning4j</groupId>
             <artifactId>datavec-spark_${scala.binary.version}</artifactId>
             <version>${dl4j-master.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.datavec</groupId>
+            <groupId>org.eclipse.deeplearning4j</groupId>
             <artifactId>datavec-local</artifactId>
             <version>${dl4j-master.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.deeplearning4j</groupId>
+            <groupId>org.eclipse.deeplearning4j</groupId>
             <artifactId>deeplearning4j-datasets</artifactId>
             <version>${dl4j-master.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.deeplearning4j</groupId>
+            <groupId>org.eclipse.deeplearning4j</groupId>
             <artifactId>deeplearning4j-core</artifactId>
             <version>${dl4j-master.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.deeplearning4j</groupId>
+            <groupId>org.eclipse.deeplearning4j</groupId>
             <artifactId>deeplearning4j-ui</artifactId>
             <version>${dl4j-master.version}</version>
             <exclusions>
@@ -216,8 +216,7 @@ information regarding copyright ownership.
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>${maven-compiler-plugin.version}</version>
                 <configuration>
-                    <source>${java.version}</source>
-                    <target>${java.version}</target>
+                    <release>${java.version}</release>
                 </configuration>
             </plugin>
 
