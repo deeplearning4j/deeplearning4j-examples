@@ -4,8 +4,8 @@
 
 package org.nd4j.examples.samediff.advanced.generation;
 
-import org.eclipse.deeplearning4j.llm.batch.ContinuousBatchScheduler;
-import org.eclipse.deeplearning4j.llm.batch.ChunkedPrefillEngine;
+import org.eclipse.deeplearning4j.llm.generation.ContinuousBatchScheduler;
+import org.eclipse.deeplearning4j.llm.generation.ChunkedPrefillEngine;
 import org.eclipse.deeplearning4j.llm.generation.SamplingConfig;
 import org.nd4j.autodiff.samediff.SDVariable;
 import org.nd4j.autodiff.samediff.SameDiff;
@@ -51,19 +51,28 @@ public class ContinuousBatchingExample {
         // ================================================================
         System.out.println("\n=== 2. ContinuousBatchScheduler ===");
 
-        ContinuousBatchScheduler scheduler = ContinuousBatchScheduler.builder()
-                .model(sd)
-                .maxBatchSize(8)
-                .maxSeqLen(2048)
-                .prefillChunkSize(512)
-                .build();
+        int maxBatchSize = 8;
+        ContinuousBatchScheduler scheduler = new ContinuousBatchScheduler(maxBatchSize);
 
         System.out.println("  Max batch size:    " + scheduler.getMaxBatchSize());
-        System.out.println("  Max seq length:    " + scheduler.getMaxSeqLen());
-        System.out.println("  Prefill chunk:     " + scheduler.getPrefillChunkSize());
         System.out.println("  Free slots:        " + scheduler.getFreeSlotCount());
         System.out.println("  Active count:      " + scheduler.getActiveCount());
         System.out.println("  Waiting count:     " + scheduler.getWaitingCount());
+        System.out.println("  Has work:          " + scheduler.hasWork());
+
+        // Submit requests and schedule them into slots
+        int[] promptTokens1 = {1, 100, 200, 300};
+        int[] promptTokens2 = {1, 50, 150};
+        int slotId1 = scheduler.submit(promptTokens1, 200);
+        int slotId2 = scheduler.submit(promptTokens2, 150);
+        System.out.println("\n  Submitted request 1 (4 tokens, max 200 gen) -> slot " + slotId1);
+        System.out.println("  Submitted request 2 (3 tokens, max 150 gen) -> slot " + slotId2);
+        System.out.println("  Waiting count after submit: " + scheduler.getWaitingCount());
+
+        java.util.List<ContinuousBatchScheduler.SlotAssignment> scheduled = scheduler.scheduleNewRequests();
+        System.out.println("  Scheduled " + scheduled.size() + " request(s) into prefill slots");
+        System.out.println("  Active count:  " + scheduler.getActiveCount());
+        System.out.println("  Free slots:    " + scheduler.getFreeSlotCount());
 
         // ================================================================
         // 3. Per-request SamplingConfig
@@ -72,10 +81,10 @@ public class ContinuousBatchingExample {
 
         SamplingConfig[] configs = {
                 SamplingConfig.greedy(),
-                SamplingConfig.topK(50),
-                SamplingConfig.topP(0.9),
+                SamplingConfig.builder().topK(50).doSample(true).build(),
+                SamplingConfig.builder().topP(0.9).doSample(true).build(),
                 SamplingConfig.precise(),
-                SamplingConfig.builder().temperature(1.0).topK(100).topP(0.95).build()
+                SamplingConfig.builder().temperature(1.0).topK(100).topP(0.95).doSample(true).build()
         };
 
         String[] labels = {"Greedy", "TopK-50", "TopP-0.9", "Precise", "Creative"};
@@ -90,12 +99,10 @@ public class ContinuousBatchingExample {
         // ================================================================
         System.out.println("\n=== 4. ChunkedPrefillEngine ===");
 
-        ChunkedPrefillEngine prefillEngine = ChunkedPrefillEngine.builder()
-                .model(sd)
-                .chunkSize(512)
-                .build();
+        ChunkedPrefillEngine prefillEngine = new ChunkedPrefillEngine(sd, 512);
 
         System.out.println("  Chunk size: " + prefillEngine.getChunkSize());
+        System.out.println("  Model set:  " + (prefillEngine.getModel() != null));
 
         // Show how long prompts are chunked
         int[] promptLengths = {100, 512, 1024, 2048, 4096, 8192};

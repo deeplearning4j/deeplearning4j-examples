@@ -97,20 +97,14 @@ public class MoEAndSSMOpsExample {
             SDVariable gateWeight = sd.placeHolder("gate_w",   DataType.FLOAT, dModel, numExperts);
 
             // moeGate: linear projection -> top-k selection -> softmax weighting
-            SDVariable[] gateOut = sd.nn().moeGate(
-                    new String[]{"routerLogits", "expertIndices", "expertWeights"},
-                    input,
-                    gateWeight,
-                    numExperts,
-                    topK);
+            // Returns a single SDVariable containing the router logits / gate scores.
+            SDVariable gateOut = sd.nn().moeGate("routerLogits", input, gateWeight, numExperts, topK);
 
             System.out.println("  Input shape:           [" + batchSeq + ", " + dModel + "] (batch*seq tokens)");
             System.out.println("  Gate weight shape:     [" + dModel + ", " + numExperts + "]");
             System.out.println("  numExperts:            " + numExperts);
             System.out.println("  topK:                  " + topK);
-            System.out.println("  Output[0] routerLogits:   [" + batchSeq + ", " + numExperts + "] - raw scores");
-            System.out.println("  Output[1] expertIndices:  [" + batchSeq + ", " + topK + "] - which experts");
-            System.out.println("  Output[2] expertWeights:  [" + batchSeq + ", " + topK + "] - softmax weights");
+            System.out.println("  Output routerLogits:  [" + batchSeq + ", " + numExperts + "] - raw gate scores");
             System.out.println("  Each token routes to " + topK + " of " + numExperts + " experts.");
             System.out.println("  Active params per token: " + topK + "/" + numExperts + " x expert_size");
         }
@@ -145,8 +139,9 @@ public class MoEAndSSMOpsExample {
             SDVariable expertWeights = sd.placeHolder("moe_exp",  DataType.FLOAT,
                     numExperts, dModel, expertHiddenDim);
 
-            SDVariable moeOut = sd.nn().mixtureOfExperts(
-                    "moeOut",
+            // mixtureOfExperts returns SDVariable[] (multiple outputs).
+            SDVariable[] moeResult = sd.nn().mixtureOfExperts(
+                    new String[]{"moeOut"},
                     input,
                     gateWeights,
                     expertWeights,
@@ -230,47 +225,53 @@ public class MoEAndSSMOpsExample {
             // selectivity of Mamba1.
             //
             // Mamba2 SSM block inputs:
-            //   input:  [batch, seqLen, dModel] - input sequence
-            //   A:      [numHeads] or [dState]   - diagonal state matrix (log-scale)
-            //   B:      [batch, seqLen, dState]  - input projection (selective)
-            //   C:      [batch, seqLen, dState]  - output projection (selective)
-            //   D:      [numHeads] or [dModel]   - skip connection scalar
-            //   deltaT: [batch, seqLen, numHeads] - time step (selective)
+            //   input:    [batch, seqLen, dModel] - input sequence
+            //   A:        [numHeads] or [dState]   - diagonal state matrix (log-scale)
+            //   B:        [batch, seqLen, dState]  - input projection (selective)
+            //   C:        [batch, seqLen, dState]  - output projection (selective)
+            //   D:        [numHeads] or [dModel]   - skip connection scalar
+            //
+            // Additional integer parameters:
+            //   numHeads:  number of SSM heads (multi-head formulation)
+            //   dState:    size of the recurrent state per head
+            //   chunkSize: sequence chunk size for block-parallel scan
             //
             // These correspond to the parameterization in the Mamba2 paper where:
             //   - A controls how much state to retain (recurrence weight)
             //   - B gates how much new input x enters the state
             //   - C gates how much state to read into the output
-            //   - delta discretizes the continuous-time SSM
+            // Note: deltaT (time step) is handled internally; it is NOT a separate input.
 
             SameDiff sd = SameDiff.create();
 
             int batch = 2, seqLen = 64, dModel = 128, dState = 64, numHeads = 8;
+            int chunkSize = 16; // block size for chunk-parallel scan
 
-            SDVariable input  = sd.placeHolder("m2_in",    DataType.FLOAT, batch, seqLen, dModel);
-            SDVariable A      = sd.placeHolder("m2_A",     DataType.FLOAT, numHeads);        // per-head state decay
-            SDVariable B      = sd.placeHolder("m2_B",     DataType.FLOAT, batch, seqLen, dState);  // input gate
-            SDVariable C      = sd.placeHolder("m2_C",     DataType.FLOAT, batch, seqLen, dState);  // output gate
-            SDVariable D      = sd.placeHolder("m2_D",     DataType.FLOAT, numHeads);        // skip connection
-            SDVariable deltaT = sd.placeHolder("m2_delta", DataType.FLOAT, batch, seqLen, numHeads); // time step
+            SDVariable input = sd.placeHolder("m2_in", DataType.FLOAT, batch, seqLen, dModel);
+            SDVariable A     = sd.placeHolder("m2_A",  DataType.FLOAT, numHeads);               // per-head state decay
+            SDVariable B     = sd.placeHolder("m2_B",  DataType.FLOAT, batch, seqLen, dState);  // input gate
+            SDVariable C     = sd.placeHolder("m2_C",  DataType.FLOAT, batch, seqLen, dState);  // output gate
+            SDVariable D     = sd.placeHolder("m2_D",  DataType.FLOAT, numHeads);               // skip connection
 
-            SDVariable mamba2Out = sd.nn().mamba2SSM(
-                    "mamba2Out",
+            // mamba2Ssm returns SDVariable[] (multiple outputs).
+            SDVariable[] mamba2Out = sd.nn().mamba2Ssm(
+                    new String[]{"mamba2Out"},
                     input,
                     A,
                     B,
                     C,
                     D,
-                    deltaT);
+                    numHeads,
+                    dState,
+                    chunkSize);
 
             // Execute with random inputs
             Map<String, INDArray> inputs = new HashMap<>();
-            inputs.put("m2_in",    Nd4j.randn(DataType.FLOAT, batch, seqLen, dModel).mul(0.1));
-            inputs.put("m2_A",     Nd4j.randn(DataType.FLOAT, numHeads).mul(-0.1));  // negative => stable decay
-            inputs.put("m2_B",     Nd4j.randn(DataType.FLOAT, batch, seqLen, dState).mul(0.1));
-            inputs.put("m2_C",     Nd4j.randn(DataType.FLOAT, batch, seqLen, dState).mul(0.1));
-            inputs.put("m2_D",     Nd4j.ones( DataType.FLOAT, numHeads));
-            inputs.put("m2_delta", Nd4j.rand( DataType.FLOAT, batch, seqLen, numHeads).add(0.001)); // positive
+            inputs.put("m2_in", Nd4j.randn(DataType.FLOAT, batch, seqLen, dModel).mul(0.1));
+            inputs.put("m2_A",  Nd4j.randn(DataType.FLOAT, numHeads).mul(-0.1));  // negative => stable decay
+            inputs.put("m2_B",  Nd4j.randn(DataType.FLOAT, batch, seqLen, dState).mul(0.1));
+            inputs.put("m2_C",  Nd4j.randn(DataType.FLOAT, batch, seqLen, dState).mul(0.1));
+            inputs.put("m2_D",  Nd4j.ones( DataType.FLOAT, numHeads));
 
             Map<String, INDArray> result = sd.output(inputs, "mamba2Out");
 
@@ -283,8 +284,7 @@ public class MoEAndSSMOpsExample {
                     + "  selective output gating");
             System.out.println("  D (skip): " + Arrays.toString(inputs.get("m2_D").shape())
                     + "  direct skip connection weight");
-            System.out.println("  deltaT: " + Arrays.toString(inputs.get("m2_delta").shape())
-                    + "  per-token time step");
+            System.out.println("  numHeads: " + numHeads + "  dState: " + dState + "  chunkSize: " + chunkSize);
             System.out.println("  Output:  " + result.get("mamba2Out").shapeInfoToString());
             System.out.println();
             System.out.println("  Mamba2 advantages over Mamba1:");
@@ -336,30 +336,36 @@ public class MoEAndSSMOpsExample {
             SDVariable normGamma1 = sd.var("g1", Nd4j.ones(DataType.FLOAT, dModel));
             SDVariable normGamma2 = sd.var("g2", Nd4j.ones(DataType.FLOAT, dModel));
 
+            int chunkSize = 8; // block size for chunk-parallel scan
+
             // SSM sub-block
-            SDVariable A      = sd.var("A",     Nd4j.randn(DataType.FLOAT, numHeads).mul(-0.1));
-            SDVariable B      = sd.placeHolder("B", DataType.FLOAT, batch, seqLen, dState);
-            SDVariable C      = sd.placeHolder("C", DataType.FLOAT, batch, seqLen, dState);
-            SDVariable D      = sd.var("D",     Nd4j.ones(DataType.FLOAT, numHeads));
-            SDVariable delta  = sd.placeHolder("delta", DataType.FLOAT, batch, seqLen, numHeads);
+            SDVariable A = sd.var("A", Nd4j.randn(DataType.FLOAT, numHeads).mul(-0.1));
+            SDVariable B = sd.placeHolder("B", DataType.FLOAT, batch, seqLen, dState);
+            SDVariable C = sd.placeHolder("C", DataType.FLOAT, batch, seqLen, dState);
+            SDVariable D = sd.var("D", Nd4j.ones(DataType.FLOAT, numHeads));
 
             SDVariable norm1 = sd.nn().rmsNorm("norm1", x, normGamma1, 1e-5);
-            SDVariable ssmOut = sd.nn().mamba2SSM("ssmOut", norm1, A, B, C, D, delta);
-            SDVariable res1 = x.add("res1", ssmOut);
+            // mamba2Ssm returns SDVariable[]; use first element as the primary output.
+            SDVariable[] ssmResults = sd.nn().mamba2Ssm(
+                    new String[]{"ssmOut"},
+                    norm1, A, B, C, D,
+                    numHeads, dState, chunkSize);
+            SDVariable res1 = x.add("res1", ssmResults[0]);
 
             // MoE sub-block
             SDVariable norm2      = sd.nn().rmsNorm("norm2", res1, normGamma2, 1e-5);
             SDVariable flatNorm2  = norm2.reshape(batch * seqLen, dModel);
             SDVariable gateWeight = sd.var("gateW", Nd4j.randn(DataType.FLOAT, dModel, numExperts).mul(0.02));
             SDVariable expertW    = sd.var("expertW", Nd4j.randn(DataType.FLOAT, numExperts, dModel, expertHiddenDim).mul(0.02));
-            SDVariable moeOut     = sd.nn().mixtureOfExperts("moeOut", flatNorm2, gateWeight, expertW, numExperts, topK);
-            SDVariable output     = res1.add("hybridOut", moeOut.reshape(batch, seqLen, dModel));
+            // mixtureOfExperts returns SDVariable[]; use first element as the primary output.
+            SDVariable[] moeResults = sd.nn().mixtureOfExperts(
+                    new String[]{"moeOut"}, flatNorm2, gateWeight, expertW, numExperts, topK);
+            SDVariable output = res1.add("hybridOut", moeResults[0].reshape(batch, seqLen, dModel));
 
             Map<String, INDArray> inputs = new HashMap<>();
             inputs.put("hybrid_in", Nd4j.randn(DataType.FLOAT, batch, seqLen, dModel).mul(0.1));
             inputs.put("B",         Nd4j.randn(DataType.FLOAT, batch, seqLen, dState).mul(0.1));
             inputs.put("C",         Nd4j.randn(DataType.FLOAT, batch, seqLen, dState).mul(0.1));
-            inputs.put("delta",     Nd4j.rand( DataType.FLOAT, batch, seqLen, numHeads).add(0.001));
 
             Map<String, INDArray> result = sd.output(inputs, "hybridOut");
             System.out.println("\n  Hybrid block output: " + result.get("hybridOut").shapeInfoToString());

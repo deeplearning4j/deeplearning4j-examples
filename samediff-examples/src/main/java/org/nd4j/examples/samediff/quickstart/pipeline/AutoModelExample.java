@@ -85,15 +85,17 @@ public class AutoModelExample {
 
         LoadConfig config = LoadConfig.builder()
                 .cacheConvertedModel(true)
-                .deviceId(0)
-                .memoryMapped(true)
-                .validateOnLoad(true)
+                .device("0")
+                .useMmap(true)
+                .convertToFloat32(false)
+                .dequantize(false)
                 .build();
 
-        System.out.println("  cacheConvertedModel: " + config.isCacheConvertedModel());
-        System.out.println("  deviceId:            " + config.getDeviceId());
-        System.out.println("  memoryMapped:        " + config.isMemoryMapped());
-        System.out.println("  validateOnLoad:      " + config.isValidateOnLoad());
+        System.out.println("  cacheConvertedModel: " + config.cacheConvertedModel());
+        System.out.println("  device:              " + config.getDevice());
+        System.out.println("  useMmap:             " + config.useMmap());
+        System.out.println("  convertToFloat32:    " + config.convertToFloat32());
+        System.out.println("  dequantize:          " + config.dequantize());
 
         SameDiff loadedWithConfig = AutoModel.fromPretrained(tmpFile.getAbsolutePath(), config);
         INDArray configOutput = loadedWithConfig.outputSingle(placeholders, "output");
@@ -106,10 +108,11 @@ public class AutoModelExample {
         System.out.println("\n=== 5. ModelFormat values ===");
 
         for (ModelFormat fmt : ModelFormat.values()) {
-            System.out.println("  " + fmt.name() + " (ordinal=" + fmt.ordinal() + ")");
+            System.out.println("  " + fmt.name() + " (ext=" + fmt.getExtension()
+                    + ", " + fmt.getDescription() + ")");
         }
 
-        ModelFormat detected = AutoModel.detectFormat(tmpFile.getAbsolutePath());
+        ModelFormat detected = ModelFormat.fromFilename(tmpFile.getName());
         System.out.println("  Detected format for saved .sdz: " + detected);
 
         // ================================================================

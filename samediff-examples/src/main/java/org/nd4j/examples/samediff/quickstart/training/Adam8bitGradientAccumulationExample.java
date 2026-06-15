@@ -86,7 +86,7 @@ public class Adam8bitGradientAccumulationExample {
                     .blockSize(2048)   // INT8 quantization block granularity
                     .build();
 
-            System.out.println("  Learning rate:  " + adam8bit.getLearningRate(0));
+            System.out.println("  Learning rate:  " + adam8bit.getLearningRate(0, 0));
             System.out.println("  Beta1:          " + adam8bit.getBeta1());
             System.out.println("  Beta2:          " + adam8bit.getBeta2());
             System.out.println("  Block size:     " + adam8bit.getBlockSize());

@@ -152,7 +152,10 @@ public class TransformerOpsAdvancedExample {
                     query,
                     key,
                     value,
-                    numKvHeads);   // number of KV heads (query heads inferred from Q shape)
+                    1.0 / Math.sqrt(headDim),  // scale = 1/sqrt(headDim)
+                    true,                       // isCausal
+                    numHeads,                   // total query heads
+                    numKvHeads);                // KV heads
 
             System.out.println("  groupedQueryAttention: general GQA kernel");
             System.out.println("  numKvHeads: " + numKvHeads + " (each KV head serves "
@@ -184,29 +187,27 @@ public class TransformerOpsAdvancedExample {
             SDVariable query = sd.placeHolder("rope_q", DataType.FLOAT, batch, seqLen, numHeads, headDim);
             SDVariable key   = sd.placeHolder("rope_k", DataType.FLOAT, batch, seqLen, numHeads, headDim);
 
-            // Precomputed RoPE cache: shape [maxSeqLen, headDim/2, 2]
-            //   [:, :, 0] = cos values
-            //   [:, :, 1] = sin values
-            // Typically computed once at model load time and reused.
+            // RoPE parameters:
+            //   headDim   - dimension of each attention head
+            //   startPos  - starting position in the sequence (0 for full prefill)
+            //   maxSeqLen - maximum sequence length for frequency precomputation
+            //   freqBase  - base frequency (10000.0 standard; YaRN/LongRoPE modify this)
+            //   freqScale - frequency scaling factor (1.0 = no scaling)
             int maxSeqLen = 2048;
-            SDVariable ropeCache = sd.placeHolder("ropeCache", DataType.FLOAT, maxSeqLen, headDim / 2, 2);
 
             // Apply RoPE to Q and K (start position = 0 for full prefill)
-            SDVariable rQ = sd.nn().rope("rope_q_out", query, ropeCache, 0);
-            SDVariable rK = sd.nn().rope("rope_k_out", key,   ropeCache, 0);
+            SDVariable rQ = sd.nn().rope("rope_q_out", query, headDim, 0, maxSeqLen, 10000.0, 1.0);
+            SDVariable rK = sd.nn().rope("rope_k_out", key,   headDim, 0, maxSeqLen, 10000.0, 1.0);
 
             INDArray qData  = Nd4j.randn(DataType.FLOAT, batch, seqLen, numHeads, headDim).mul(0.1);
             INDArray kData  = Nd4j.randn(DataType.FLOAT, batch, seqLen, numHeads, headDim).mul(0.1);
-            INDArray cache  = Nd4j.randn(DataType.FLOAT, maxSeqLen, headDim / 2, 2);
 
             Map<String, INDArray> inputs = new HashMap<>();
             inputs.put("rope_q", qData);
             inputs.put("rope_k", kData);
-            inputs.put("ropeCache", cache);
 
             Map<String, INDArray> result = sd.output(inputs, "rope_q_out", "rope_k_out");
             System.out.println("  Input Q shape:        " + Arrays.toString(qData.shape()));
-            System.out.println("  RoPE cache shape:     " + Arrays.toString(cache.shape()));
             System.out.println("  Output Q (rotated):   " + result.get("rope_q_out").shapeInfoToString());
             System.out.println("  Output K (rotated):   " + result.get("rope_k_out").shapeInfoToString());
             System.out.println("  RoPE: position encoded via rotation in headDim/2 complex planes");
@@ -337,10 +338,10 @@ public class TransformerOpsAdvancedExample {
             SDVariable newKey = sd.placeHolder("newKey", DataType.FLOAT, batch, 1, numKvHeads, headDim);
             SDVariable newVal = sd.placeHolder("newVal", DataType.FLOAT, batch, 1, numKvHeads, headDim);
 
-            // Current decode position (e.g., token 42 in the sequence)
-            SDVariable position = sd.placeHolder("position", DataType.INT, batch);
+            // Current decode position as a plain int (e.g., token 42 in the sequence)
+            int startPos = 42;
 
-            // kvCacheUpdate writes newKey/newValue into cache at `position`
+            // kvCacheUpdate writes newKey/newValue into cache at `startPos`
             // and returns the updated cache (or the input unchanged, depending on impl).
             SDVariable[] updatedKv = sd.nn().kvCacheUpdate(
                     new String[]{"kCacheUpdated", "vCacheUpdated"},
@@ -348,7 +349,7 @@ public class TransformerOpsAdvancedExample {
                     vCache,
                     newKey,
                     newVal,
-                    position);
+                    startPos);
 
             System.out.println("  Cache shape:     " + Arrays.toString(new long[]{batch, maxSeqLen, numKvHeads, headDim}));
             System.out.println("  New key shape:   " + Arrays.toString(new long[]{batch, 1, numKvHeads, headDim}));
@@ -398,9 +399,6 @@ public class TransformerOpsAdvancedExample {
             SDVariable wUp   = sd.var("Wup",   Nd4j.randn(DataType.FLOAT, dModel, ffnDim).mul(0.02));
             SDVariable wDown = sd.var("Wdown",  Nd4j.randn(DataType.FLOAT, ffnDim, dModel).mul(0.02));
 
-            // RoPE cache
-            SDVariable ropeCache = sd.placeHolder("ropeCache", DataType.FLOAT, seqLen, headDim / 2, 2);
-
             // ---- Attention sub-block ----
             SDVariable xNorm = sd.nn().rmsNorm("attnNorm", x, attnGamma, 1e-5);
             SDVariable flat  = xNorm.reshape(batch * seqLen, dModel);
@@ -409,8 +407,9 @@ public class TransformerOpsAdvancedExample {
             SDVariable k = sd.linalg().mmul("Kproj", flat, wK).reshape(batch, seqLen, numKvHeads, headDim);
             SDVariable v = sd.linalg().mmul("Vproj", flat, wV).reshape(batch, seqLen, numKvHeads, headDim);
 
-            SDVariable qR = sd.nn().rope("qRoPE", q, ropeCache, 0);
-            SDVariable kR = sd.nn().rope("kRoPE", k, ropeCache, 0);
+            // RoPE: computes cos/sin internally from headDim, startPos, maxSeqLen, freqBase, freqScale
+            SDVariable qR = sd.nn().rope("qRoPE", q, headDim, 0, seqLen, 10000.0, 1.0);
+            SDVariable kR = sd.nn().rope("kRoPE", k, headDim, 0, seqLen, 10000.0, 1.0);
 
             double scale = 1.0 / Math.sqrt(headDim);
             SDVariable attn = sd.nn().flashAttention("attn", qR, kR, v, scale, true, numHeads, numKvHeads);
@@ -432,10 +431,8 @@ public class TransformerOpsAdvancedExample {
 
             // Execute
             INDArray hiddenData = Nd4j.randn(DataType.FLOAT, batch, seqLen, dModel);
-            INDArray ropeCacheData = Nd4j.randn(DataType.FLOAT, seqLen, headDim / 2, 2);
             Map<String, INDArray> inputs = new HashMap<>();
             inputs.put("hidden", hiddenData);
-            inputs.put("ropeCache", ropeCacheData);
 
             Map<String, INDArray> result = sd.output(inputs, "blockOut");
             System.out.println("  Block output shape: " + result.get("blockOut").shapeInfoToString());

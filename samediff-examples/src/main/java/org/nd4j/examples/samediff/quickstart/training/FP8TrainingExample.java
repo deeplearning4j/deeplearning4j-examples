@@ -226,30 +226,36 @@ public class FP8TrainingExample {
             SDVariable output = sd.nn().softmax("output", hidden.mmul(w2).add(b2));
             sd.loss().softmaxCrossEntropy("loss", label, output, null);
 
-            // FP8 training configuration.
-            // The training framework automatically:
-            //   1. Casts eligible ops to FP8 during forward/backward
-            //   2. Tracks per-tensor amax values for scaling
-            //   3. Applies loss scaling to prevent underflow
-            //   4. Keeps master weights in FP32 for optimizer updates
+            // FP8TrainingConfig is constructed here for illustration — it controls
+            // the FP8 format choice, amax history, and per-tensor vs per-channel scaling.
+            // NOTE: FP8TrainingConfig is consumed directly at the op/kernel level (e.g.,
+            // passed to individual FP8-aware ops); it is NOT yet wired into the
+            // TrainingConfig.Builder API. Use .mixedPrecision() + .lossScaling() in the
+            // builder to enable mixed-precision loss-scaled training through SameDiff.
             FP8TrainingConfig fp8Cfg = FP8TrainingConfig.builder()
                     .useE4M3ForForward(true)
                     .perTensorScaling(true)
                     .amaxHistoryLength(16)
                     .build();
 
+            System.out.println("  FP8TrainingConfig (op-level):");
+            System.out.println("    E4M3 for forward:   " + fp8Cfg.isUseE4M3ForForward());
+            System.out.println("    Per-tensor scaling: " + fp8Cfg.isPerTensorScaling());
+            System.out.println("    Amax history:       " + fp8Cfg.getAmaxHistoryLength());
+
+            // TrainingConfig uses .mixedPrecision() for FP16 mixed-precision mode and
+            // .lossScaling() for dynamic loss scaling — both are supported in the builder.
             TrainingConfig trainConfig = TrainingConfig.builder()
                     .updater(new Adam(1e-4))
                     .dataSetFeatureMapping("input")
                     .dataSetLabelMapping("label")
-                    .fp8Training(fp8Cfg)                               // attach FP8 config
+                    .mixedPrecision()                                  // FP16 mixed precision
                     .lossScaling(LossScaleConfig.dynamicScaling())     // dynamic loss scaling
                     .build();
 
             sd.setTrainingConfig(trainConfig);
 
-            System.out.println("  FP8 config attached: " + (trainConfig.getFp8TrainingConfig() != null));
-            System.out.println("  Loss scaling:        " + trainConfig.isLossScalingEnabled());
+            System.out.println("  Loss scaling enabled: " + trainConfig.isLossScalingEnabled());
             System.out.println("  Compute format:      FLOAT8 (E4M3FN) for forward");
             System.out.println("                       FLOAT8_E5M2 for backward");
             System.out.println("  Master weights:      FP32 (unchanged by FP8)");

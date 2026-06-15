@@ -20,9 +20,10 @@
 package org.nd4j.examples.samediff.advanced.evaluation;
 
 import org.eclipse.deeplearning4j.llm.eval.EvalConfig;
-import org.eclipse.deeplearning4j.llm.eval.EvalResults;
+import org.eclipse.deeplearning4j.llm.eval.EvalResult;
 import org.eclipse.deeplearning4j.llm.eval.EvalRunner;
 import org.eclipse.deeplearning4j.llm.eval.PerplexityEvaluator;
+import org.eclipse.deeplearning4j.llm.eval.benchmark.BenchmarkTask;
 import org.eclipse.deeplearning4j.llm.eval.benchmark.ArcBenchmark;
 import org.eclipse.deeplearning4j.llm.eval.benchmark.Gsm8kBenchmark;
 import org.eclipse.deeplearning4j.llm.eval.benchmark.HellaSwagBenchmark;
@@ -46,7 +47,7 @@ import java.util.List;
  * Topics covered:
  *   1. EvalConfig: wiring a model to the evaluation harness
  *   2. Standard benchmarks: MMLU, ARC, GSM8K, HellaSwag, TruthfulQA, WinoGrande
- *   3. Running the evaluation harness: EvalRunner.run()
+ *   3. Running the evaluation harness: EvalRunner.evaluateAll()
  *   4. Inspecting results: per-benchmark accuracy, overall score
  *   5. Perplexity evaluation: measuring language model quality on custom text
  *   6. Generation metrics: BLEU, ROUGE, Exact Match
@@ -85,10 +86,10 @@ import java.util.List;
  *     Standard: 5-shot.
  *
  * Key classes:
- *   - EvalConfig:           model + tokenizer + benchmark list + shot count config
- *   - EvalRunner:           executes the full evaluation pipeline
- *   - EvalResults:          results container with per-benchmark scores
- *   - PerplexityEvaluator:  computes perplexity on a text corpus
+ *   - EvalConfig:           shared settings (numFewShot, maxSamples, maxNewTokens, batchSize)
+ *   - EvalRunner:           executes the evaluation pipeline (instance, with TextGenerator)
+ *   - EvalResult:           per-benchmark result (accuracy, summary, metric scores)
+ *   - PerplexityEvaluator:  static methods for computing perplexity on a text corpus
  *   - BleuMetric:           BLEU score for generation quality
  *   - RougeMetric:          ROUGE-L / ROUGE-N for summarization quality
  *   - ExactMatchMetric:     exact string match for QA tasks
@@ -128,23 +129,25 @@ public class LLMEvalBenchmarkExample {
             //
             // Per-benchmark shot counts can override the global default.
 
+            // EvalConfig accepts numFewShot, maxSamples, maxNewTokens, batchSize.
+            // Model and tokenizer are passed directly to EvalRunner, not EvalConfig.
+            // Benchmark instances are passed directly to EvalRunner.evaluate/evaluateAll.
+            List<BenchmarkTask> benchmarkList = Arrays.asList(
+                    new MMLUBenchmark(),                // 57 subjects, 4-choice
+                    new ArcBenchmark(),                 // science reasoning
+                    new Gsm8kBenchmark(),               // math word problems
+                    new HellaSwagBenchmark(),           // commonsense NLI
+                    new TruthfulQABenchmark(),          // hallucination test
+                    new WinograndeBenchmark());         // pronoun resolution
+
             EvalConfig evalConfig = EvalConfig.builder()
-                    .model(sd)
-                    .tokenizer(tokenizer)
                     .numFewShot(5)                              // global default: 5-shot
-                    .benchmarks(Arrays.asList(
-                            new MMLUBenchmark(),                // 57 subjects, 4-choice
-                            new ArcBenchmark(),                 // science reasoning
-                            new Gsm8kBenchmark(),               // math word problems
-                            new HellaSwagBenchmark(),           // commonsense NLI
-                            new TruthfulQABenchmark(),          // hallucination test
-                            new WinograndeBenchmark()))         // pronoun resolution
                     .build();
 
-            System.out.println("  Benchmarks configured: " + evalConfig.getBenchmarks().size());
+            System.out.println("  Benchmarks configured: " + benchmarkList.size());
             System.out.println("  Default few-shot:      " + evalConfig.getNumFewShot());
-            System.out.println("  Model:                 " + (evalConfig.getModel() != null ? "set" : "null"));
-            System.out.println("  Tokenizer:             " + (evalConfig.getTokenizer() != null ? "set" : "null (placeholder)"));
+            System.out.println("  Model:                 " + (sd != null ? "set" : "null"));
+            System.out.println("  Tokenizer:             " + (tokenizer != null ? "set" : "null (placeholder)"));
         }
 
         // ============================================================
@@ -152,58 +155,43 @@ public class LLMEvalBenchmarkExample {
         // ============================================================
         System.out.println("\n=== 2. Individual Benchmark Configurations ===");
         {
-            // Each benchmark can be configured independently.
-            // numShot on a benchmark overrides the EvalConfig global default.
+            // Each benchmark is constructed with its no-arg constructor.
+            // Shot count and other properties are configured via EvalConfig or
+            // accessed via the BenchmarkTask interface (defaultFewShot(), name(), etc.).
 
-            MMLUBenchmark mmlu = MMLUBenchmark.builder()
-                    .numShot(5)          // 5-shot is standard for MMLU
-                    .subjects(null)      // null = all 57 subjects; or List.of("mathematics", "law")
-                    .build();
+            MMLUBenchmark mmlu = new MMLUBenchmark();
             System.out.println("  MMLU:");
-            System.out.println("    Shots:     " + mmlu.getNumShot());
-            System.out.println("    Subjects:  " + (mmlu.getSubjects() == null ? "all 57" : mmlu.getSubjects()));
-            System.out.println("    Task type: multiple-choice (A/B/C/D)");
-            System.out.println("    Scoring:   accuracy (fraction of correct answers)");
+            System.out.println("    Default few-shot: " + mmlu.defaultFewShot());
+            System.out.println("    Task type:        multiple-choice (A/B/C/D), 57 subjects");
+            System.out.println("    Scoring:          accuracy (fraction of correct answers)");
 
-            ArcBenchmark arc = ArcBenchmark.builder()
-                    .numShot(25)              // 25-shot is standard for ARC
-                    .useChallengeSet(true)    // false = ARC-Easy, true = ARC-Challenge (harder)
-                    .build();
+            ArcBenchmark arc = new ArcBenchmark();
             System.out.println("\n  ARC:");
-            System.out.println("    Shots:         " + arc.getNumShot());
-            System.out.println("    Challenge set: " + arc.isUseChallengeSet());
-            System.out.println("    Task type:     multiple-choice science questions");
+            System.out.println("    Default few-shot: " + arc.defaultFewShot());
+            System.out.println("    Task type:        multiple-choice science questions");
+            System.out.println("    Subsets:          ARC-Easy and ARC-Challenge (adversarially filtered)");
 
-            Gsm8kBenchmark gsm8k = Gsm8kBenchmark.builder()
-                    .numShot(5)
-                    .useChainOfThought(true)  // chain-of-thought prompting improves GSM8K significantly
-                    .build();
+            Gsm8kBenchmark gsm8k = new Gsm8kBenchmark();
             System.out.println("\n  GSM8K:");
-            System.out.println("    Shots:            " + gsm8k.getNumShot());
-            System.out.println("    Chain of thought: " + gsm8k.isUseChainOfThought());
+            System.out.println("    Default few-shot: " + gsm8k.defaultFewShot());
             System.out.println("    Task type:        free-form math answer generation");
             System.out.println("    Scoring:          exact match on final numeric answer");
+            System.out.println("    Note:             chain-of-thought prompting improves results significantly");
 
-            HellaSwagBenchmark hellaswag = HellaSwagBenchmark.builder()
-                    .numShot(10)
-                    .build();
+            HellaSwagBenchmark hellaswag = new HellaSwagBenchmark();
             System.out.println("\n  HellaSwag:");
-            System.out.println("    Shots:     " + hellaswag.getNumShot());
-            System.out.println("    Task type: 4-way sentence completion");
+            System.out.println("    Default few-shot: " + hellaswag.defaultFewShot());
+            System.out.println("    Task type:        4-way sentence completion (commonsense NLI)");
 
-            TruthfulQABenchmark truthfulqa = TruthfulQABenchmark.builder()
-                    .numShot(0)          // 0-shot is standard for TruthfulQA
-                    .build();
+            TruthfulQABenchmark truthfulqa = new TruthfulQABenchmark();
             System.out.println("\n  TruthfulQA:");
-            System.out.println("    Shots:     " + truthfulqa.getNumShot());
-            System.out.println("    Task type: factual accuracy vs plausible hallucination");
+            System.out.println("    Default few-shot: " + truthfulqa.defaultFewShot());
+            System.out.println("    Task type:        factual accuracy vs plausible hallucination");
 
-            WinograndeBenchmark winogrande = WinograndeBenchmark.builder()
-                    .numShot(5)
-                    .build();
+            WinograndeBenchmark winogrande = new WinograndeBenchmark();
             System.out.println("\n  WinoGrande:");
-            System.out.println("    Shots:     " + winogrande.getNumShot());
-            System.out.println("    Task type: 2-way pronoun resolution");
+            System.out.println("    Default few-shot: " + winogrande.defaultFewShot());
+            System.out.println("    Task type:        2-way pronoun resolution");
         }
 
         // ============================================================
@@ -211,57 +199,80 @@ public class LLMEvalBenchmarkExample {
         // ============================================================
         System.out.println("\n=== 3. EvalRunner ===");
         {
+            // EvalConfig controls shared settings: numFewShot, maxSamples, maxNewTokens, batchSize.
+            // Model and tokenizer are passed to EvalRunner directly, not through EvalConfig.
+            // Benchmark instances are also passed directly to EvalRunner.
             EvalConfig config = EvalConfig.builder()
-                    .model(sd)
-                    .tokenizer(tokenizer)
                     .numFewShot(5)
-                    .benchmarks(Arrays.asList(
-                            new MMLUBenchmark(),
-                            new ArcBenchmark(),
-                            new Gsm8kBenchmark()))
                     .build();
 
-            // EvalRunner.run(config) executes all benchmarks sequentially.
+            // EvalRunner is instantiated and then its instance methods are called.
+            // evaluate(TextGenerator, BenchmarkTask)        - single benchmark
+            // evaluateAll(TextGenerator, List<BenchmarkTask>) - multiple benchmarks
+            //
             // For each benchmark it:
             //   1. Loads the benchmark dataset
             //   2. Constructs N-shot prompts for each question
             //   3. Runs model inference (tokenize -> forward pass -> decode)
             //   4. Scores the outputs (accuracy for MCQ, exact match for math)
-            //   5. Accumulates results into EvalResults
+            //   5. Returns EvalResult (singular) with scores and sample details
             //
             // NOTE: This call requires a real model and tokenizer to produce
             // meaningful results. With a stub model, results will be random/empty.
-            System.out.println("  EvalRunner.run(config) executes all configured benchmarks.");
-            System.out.println("  (with a real model, this would run inference on each question)");
+            System.out.println("  EvalRunner evaluates benchmarks via instance methods.");
+            System.out.println("  (with a real model and tokenizer, this would run inference on each question)");
             System.out.println();
             System.out.println("  Usage:");
-            System.out.println("    EvalResults results = EvalRunner.run(config);");
-            System.out.println("    double mmlAccuracy   = results.getAccuracy(\"mmlu\");");
-            System.out.println("    double arcAccuracy   = results.getAccuracy(\"arc\");");
-            System.out.println("    double gsm8kAccuracy = results.getAccuracy(\"gsm8k\");");
-            System.out.println("    double overall       = results.getOverallScore();");
+            System.out.println("    EvalRunner runner = new EvalRunner();");
+            System.out.println("    List<BenchmarkTask> tasks = Arrays.asList(new MMLUBenchmark(), ...);");
+            System.out.println("    Map<String, EvalResult> results = runner.evaluateAll(textGenerator, tasks, config);");
+            System.out.println("    EvalResult mmluResult = results.get(\"mmlu\");");
+            System.out.println("    double accuracy = mmluResult.accuracy();");
+            System.out.println("    System.out.println(mmluResult.summary());");
 
-            EvalResults stubResults = EvalResults.empty();
-            System.out.println("\n  EvalResults.empty() stub created.");
+            // Stub EvalResult using builder for illustration (no real inference performed)
+            EvalResult stubResult = EvalResult.builder()
+                    .benchmarkName("stub")
+                    .primaryScore(0.0)
+                    .totalSamples(0)
+                    .correctSamples(0)
+                    .build();
+            System.out.println("\n  EvalResult stub created (benchmarkName=" + stubResult.getBenchmarkName()
+                    + ", primaryScore=" + stubResult.getPrimaryScore() + ")");
         }
 
         // ============================================================
         // 4. INSPECTING EVAL RESULTS
         // ============================================================
-        System.out.println("\n=== 4. EvalResults API ===");
+        System.out.println("\n=== 4. EvalResult API ===");
         {
-            EvalResults stubResults = EvalResults.empty();
+            // EvalResult (singular) is returned per-benchmark by EvalRunner.
+            // Use EvalRunner.evaluateAll() to get a Map<String, EvalResult>.
+            EvalResult stubResult = EvalResult.builder()
+                    .benchmarkName("stub")
+                    .primaryScore(0.0)
+                    .totalSamples(0)
+                    .correctSamples(0)
+                    .build();
 
-            System.out.println("  EvalResults methods:");
-            System.out.println("    results.getAccuracy(\"mmlu\")        - MMLU accuracy [0,1]");
-            System.out.println("    results.getAccuracy(\"arc\")         - ARC accuracy [0,1]");
-            System.out.println("    results.getAccuracy(\"gsm8k\")       - GSM8K accuracy [0,1]");
-            System.out.println("    results.getAccuracy(\"hellaswag\")   - HellaSwag accuracy [0,1]");
-            System.out.println("    results.getAccuracy(\"truthfulqa\")  - TruthfulQA accuracy [0,1]");
-            System.out.println("    results.getAccuracy(\"winogrande\")  - WinoGrande accuracy [0,1]");
-            System.out.println("    results.getOverallScore()          - average across all benchmarks");
-            System.out.println("    results.getBenchmarkNames()        - list of evaluated benchmarks");
-            System.out.println("    results.toSummaryString()          - formatted table output");
+            System.out.println("  EvalResult methods (per benchmark):");
+            System.out.println("    result.accuracy()            - accuracy [0,1]");
+            System.out.println("    result.getBenchmarkName()    - name of this benchmark");
+            System.out.println("    result.getPrimaryScore()     - primary metric score");
+            System.out.println("    result.getMetricScores()     - map of metric name -> score");
+            System.out.println("    result.getCategoryScores()   - map of category -> score");
+            System.out.println("    result.getTotalSamples()     - number of samples evaluated");
+            System.out.println("    result.getCorrectSamples()   - number of correct answers");
+            System.out.println("    result.getEvaluationTimeMs() - wall clock time for evaluation");
+            System.out.println("    result.getSampleResults()    - list of per-sample results");
+            System.out.println("    result.summary()             - formatted summary string");
+            System.out.println("    result.writeJson(file)       - persist results to JSON file");
+            System.out.println();
+            System.out.println("  Usage with evaluateAll:");
+            System.out.println("    Map<String, EvalResult> results = runner.evaluateAll(textGen, tasks);");
+            System.out.println("    double mmlAccuracy   = results.get(\"mmlu\").accuracy();");
+            System.out.println("    double arcAccuracy   = results.get(\"arc\").accuracy();");
+            System.out.println("    double gsm8kAccuracy = results.get(\"gsm8k\").accuracy():");
             System.out.println();
 
             // Typical results from open LLMs (approximate, for reference)
@@ -300,20 +311,28 @@ public class LLMEvalBenchmarkExample {
             //   - Evaluating domain adaptation (lower = better domain fit)
             //   - Measuring quantization quality loss (higher PPL = degraded model)
 
-            PerplexityEvaluator pplEval = PerplexityEvaluator.builder()
-                    .model(sd)
-                    .tokenizer(tokenizer)
-                    .strideLength(512)   // sliding window stride (< maxSeqLen for full coverage)
-                    .build();
+            // PerplexityEvaluator has only static methods — no builder, no instance creation.
+            // Signatures:
+            //   PerplexityEvaluator.evaluate(SameDiff model, Tokenizer tokenizer,
+            //                                String text, int stride, int maxSeq)
+            //   PerplexityEvaluator.evaluateWikiText2(SameDiff model, Tokenizer tokenizer,
+            //                                         int stride, int maxSeq)
+            //
+            // stride: sliding window stride (should be < maxSeq for full token coverage)
+            // maxSeq: max sequence length of the model (e.g. 2048 for LLaMA)
 
-            System.out.println("  PerplexityEvaluator configured:");
-            System.out.println("    strideLength: " + pplEval.getStrideLength());
-            System.out.println("    (stride < maxSeqLen: overlapping windows for full text coverage)");
+            System.out.println("  PerplexityEvaluator uses static methods only:");
+            System.out.println("    int stride = 512;   // overlapping windows for full coverage");
+            System.out.println("    int maxSeq = 2048;  // model's max context length");
+            System.out.println("    (stride < maxSeqLen ensures all tokens are evaluated)");
             System.out.println();
             System.out.println("  Usage:");
             System.out.println("    String text = Files.readString(Path.of(\"wikitext2.txt\"));");
-            System.out.println("    double ppl  = pplEval.evaluate(text);");
+            System.out.println("    double ppl  = PerplexityEvaluator.evaluate(model, tokenizer, text, 512, 2048);");
             System.out.println("    System.out.println(\"Perplexity: \" + ppl);");
+            System.out.println();
+            System.out.println("  WikiText-2 convenience method:");
+            System.out.println("    double ppl = PerplexityEvaluator.evaluateWikiText2(model, tokenizer, 512, 2048);");
             System.out.println();
             System.out.println("  Standard corpora for PPL benchmarking:");
             System.out.println("    WikiText-2    - clean Wikipedia articles");
@@ -335,27 +354,20 @@ public class LLMEvalBenchmarkExample {
             //   Limitation: penalizes valid paraphrases (exact n-gram match only).
             //   Standard for: machine translation, text generation.
 
-            BleuMetric bleu = BleuMetric.builder()
-                    .maxNgram(4)           // BLEU-4 (standard; covers 1-, 2-, 3-, 4-grams)
-                    .smoothing(true)       // Chen-Cherry smoothing (better for short texts)
-                    .build();
+            // BleuMetric: no-arg constructor (BLEU-1), or BleuMetric(int maxNgram) for BLEU-N.
+            // score(String hypothesis, List<String> references) computes BLEU for one hypothesis.
+            BleuMetric bleu = new BleuMetric(4);  // BLEU-4 (standard)
 
-            List<String> hypotheses = Arrays.asList(
-                    "The cat sat on the mat",
-                    "The quick brown fox jumped"
-            );
-            List<String> references = Arrays.asList(
-                    "The cat is sitting on the mat",
-                    "A quick brown fox jumped over the fence"
-            );
+            String hypothesis0 = "The cat sat on the mat";
+            List<String> refs0 = Arrays.asList("The cat is sitting on the mat");
 
-            double bleuScore = bleu.compute(hypotheses, references);
+            double bleuScore = bleu.score(hypothesis0, refs0);
             System.out.println("  BLEU-4 example:");
-            System.out.println("    hypothesis[0]: \"" + hypotheses.get(0) + "\"");
-            System.out.println("    reference[0]:  \"" + references.get(0) + "\"");
+            System.out.println("    hypothesis: \"" + hypothesis0 + "\"");
+            System.out.println("    reference:  \"" + refs0.get(0) + "\"");
             System.out.println("    BLEU-4 score:  " + bleuScore);
-            System.out.println("    Max n-gram:    " + bleu.getMaxNgram());
-            System.out.println("    Smoothing:     " + bleu.isSmoothing());
+            System.out.println("    BLEU measures n-gram precision (standard BLEU-4: 1- to 4-gram)");
+            System.out.println("    Note: use BleuMetric(maxNgram) to set n-gram order");
 
             // --- ROUGE ---
             // ROUGE (Recall-Oriented Understudy for Gisting Evaluation):
@@ -365,14 +377,18 @@ public class LLMEvalBenchmarkExample {
             //   ROUGE-L: longest common subsequence (order-aware, more flexible)
             //   Standard for: summarization evaluation.
 
-            RougeMetric rouge = RougeMetric.builder()
-                    .variant(RougeMetric.Variant.ROUGE_L)   // LCS-based (most common)
-                    .build();
+            // RougeMetric: RougeMetric(), RougeMetric(RougeType), or RougeMetric(RougeType, ScoreType).
+            // RougeMetric.RougeType values: ROUGE_1, ROUGE_2, ROUGE_L
+            // score(String hypothesis, List<String> references) computes ROUGE for one hypothesis.
+            RougeMetric rouge = new RougeMetric(RougeMetric.RougeType.ROUGE_L);  // LCS-based (most common)
 
-            double rougeScore = rouge.compute(hypotheses, references);
+            double rougeScore = rouge.score(hypothesis0, refs0);
             System.out.println("\n  ROUGE-L example:");
+            System.out.println("    hypothesis: \"" + hypothesis0 + "\"");
+            System.out.println("    reference:  \"" + refs0.get(0) + "\"");
             System.out.println("    ROUGE-L score: " + rougeScore);
-            System.out.println("    Variant:       " + rouge.getVariant());
+            System.out.println("    Variant:       ROUGE_L (longest common subsequence)");
+            System.out.println("    Available:     ROUGE_1 (unigram), ROUGE_2 (bigram), ROUGE_L (LCS)");
             System.out.println("    Use ROUGE for: summarization, abstractive generation");
 
             // --- Exact Match ---
@@ -381,14 +397,19 @@ public class LLMEvalBenchmarkExample {
             //   Normalization: lowercase, strip punctuation, collapse whitespace.
             //   Standard for: extractive QA (SQuAD), GSM8K math answers.
 
+            // ExactMatchMetric: score(String hypothesis, List<String> references).
+            // Returns 1.0 if hypothesis exactly matches any reference (after normalization), else 0.0.
+            // normalize() lowercases, strips punctuation, collapses whitespace.
             ExactMatchMetric em = new ExactMatchMetric();
-            List<String> predicted = Arrays.asList("Paris", "42", "Abraham Lincoln");
-            List<String> gold      = Arrays.asList("Paris", "43", "Abraham Lincoln");
-            double emScore = em.compute(predicted, gold);
+            double emParis   = em.score("Paris",           Arrays.asList("Paris"));    // match
+            double em42      = em.score("42",              Arrays.asList("43"));       // no match
+            double emLincoln = em.score("Abraham Lincoln", Arrays.asList("Abraham Lincoln")); // match
+            double emScore   = (emParis + em42 + emLincoln) / 3.0;
             System.out.println("\n  Exact Match example:");
-            System.out.println("    predicted: " + predicted);
-            System.out.println("    gold:      " + gold);
-            System.out.println("    EM score:  " + emScore + "  (2/3 correct: Paris and Lincoln match, 42 != 43)");
+            System.out.println("    score(\"Paris\",           [\"Paris\"]):           " + emParis);
+            System.out.println("    score(\"42\",              [\"43\"]):              " + em42);
+            System.out.println("    score(\"Abraham Lincoln\", [\"Abraham Lincoln\"]): " + emLincoln);
+            System.out.println("    Average EM over 3 samples: " + emScore + "  (2/3 correct)");
         }
 
         // ============================================================
@@ -404,37 +425,44 @@ public class LLMEvalBenchmarkExample {
             // This section shows how to configure and conceptually run all three.
 
             System.out.println("  Step 1: Academic benchmarks");
+
+            // Construct benchmark tasks — each knows its dataset, prompt format, and metric
+            BenchmarkTask[] benchmarks = {
+                    new MMLUBenchmark(),
+                    new ArcBenchmark(),
+                    new Gsm8kBenchmark(),
+                    new HellaSwagBenchmark(),
+                    new TruthfulQABenchmark(),
+                    new WinograndeBenchmark()
+            };
+
+            // EvalConfig controls shared settings across all benchmarks
             EvalConfig fullConfig = EvalConfig.builder()
-                    .model(sd)
-                    .tokenizer(tokenizer)
                     .numFewShot(5)
-                    .benchmarks(Arrays.asList(
-                            MMLUBenchmark.builder().numShot(5).build(),
-                            ArcBenchmark.builder().numShot(25).useChallengeSet(true).build(),
-                            Gsm8kBenchmark.builder().numShot(5).useChainOfThought(true).build(),
-                            HellaSwagBenchmark.builder().numShot(10).build(),
-                            TruthfulQABenchmark.builder().numShot(0).build(),
-                            WinograndeBenchmark.builder().numShot(5).build()))
+                    .maxSamples(100)
+                    .maxNewTokens(256)
+                    .batchSize(4)
                     .build();
 
-            System.out.println("    Configured " + fullConfig.getBenchmarks().size() + " benchmarks");
-            System.out.println("    // EvalResults results = EvalRunner.run(fullConfig);");
-            System.out.println("    // System.out.println(results.toSummaryString());");
+            System.out.println("    Configured " + benchmarks.length + " benchmarks");
+            for (BenchmarkTask b : benchmarks) {
+                System.out.println("      " + b.name() + " — metric: " + b.primaryMetric().name()
+                        + ", defaultFewShot=" + b.defaultFewShot());
+            }
+            System.out.println("    numFewShot=" + fullConfig.getNumFewShot()
+                    + " maxSamples=" + fullConfig.getMaxSamples());
+            System.out.println("    // EvalRunner.run(benchmarks, pipeline, fullConfig);");
 
             System.out.println("\n  Step 2: Perplexity on WikiText-2");
-            PerplexityEvaluator ppl = PerplexityEvaluator.builder()
-                    .model(sd)
-                    .tokenizer(tokenizer)
-                    .strideLength(512)
-                    .build();
-            System.out.println("    // String wikiText = Files.readString(Path.of(\"wikitext2.txt\"));");
-            System.out.println("    // double wikiPPL  = ppl.evaluate(wikiText);");
-            System.out.println("    // System.out.println(\"WikiText-2 PPL: \" + wikiPPL);");
+            // PerplexityEvaluator provides static methods for computing perplexity
+            // on any text corpus given a SameDiff model and tokenizer.
+            // PerplexityEvaluator.evaluate(model, tokenizer, text, strideLen, maxSeqLen)
+            // PerplexityEvaluator.evaluateWikiText2(model, tokenizer, stride, maxSeq)
+            System.out.println("    PerplexityEvaluator.evaluate(model, tokenizer, text, 512, 2048)");
+            System.out.println("    PerplexityEvaluator.evaluateWikiText2(model, tokenizer, 512, 2048)");
 
             System.out.println("\n  Step 3: Generation metrics (e.g., CNN/DailyMail summarization)");
-            RougeMetric rouge2 = RougeMetric.builder()
-                    .variant(RougeMetric.Variant.ROUGE_2)
-                    .build();
+            RougeMetric rouge2 = new RougeMetric(RougeMetric.RougeType.ROUGE_2);
             System.out.println("    // double rougeScore = rouge.compute(summaries, references);");
             System.out.println("    // System.out.println(\"ROUGE-2: \" + rougeScore);");
 

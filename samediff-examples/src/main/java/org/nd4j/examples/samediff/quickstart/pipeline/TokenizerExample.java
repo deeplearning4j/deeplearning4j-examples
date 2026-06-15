@@ -6,7 +6,6 @@ package org.nd4j.examples.samediff.quickstart.pipeline;
 
 import org.eclipse.deeplearning4j.llm.tokenizer.Encoding;
 import org.eclipse.deeplearning4j.llm.tokenizer.HuggingFaceTokenizer;
-import org.eclipse.deeplearning4j.llm.tokenizer.Tokenizer;
 import org.eclipse.deeplearning4j.llm.tokenizer.ChatTemplate;
 
 import java.io.File;
@@ -53,7 +52,7 @@ public class TokenizerExample {
         tmpFile.deleteOnExit();
         Files.write(tmpFile.toPath(), TOKENIZER_JSON.getBytes(StandardCharsets.UTF_8));
 
-        Tokenizer tokenizer = HuggingFaceTokenizer.fromFile(tmpFile.getAbsolutePath());
+        HuggingFaceTokenizer tokenizer = HuggingFaceTokenizer.fromFile(tmpFile.getAbsolutePath());
         System.out.println("  Tokenizer loaded from: " + tmpFile.getName());
         System.out.println("  Vocab size: " + tokenizer.getVocabSize());
 
@@ -97,13 +96,13 @@ public class TokenizerExample {
 
         // Look up individual tokens
         for (int id = 0; id < Math.min(15, tokenizer.getVocabSize()); id++) {
-            String token = tokenizer.idToToken(id);
-            int backId = tokenizer.tokenToId(token);
+            String token = tokenizer.getToken(id);
+            Integer backId = tokenizer.getTokenId(token);
             System.out.println("  ID " + id + " -> \"" + token + "\" -> ID " + backId);
         }
 
         // Unknown token
-        int unkId = tokenizer.tokenToId("DOES_NOT_EXIST");
+        Integer unkId = tokenizer.getTokenId("DOES_NOT_EXIST");
         System.out.println("  Unknown token ID: " + unkId);
 
         // Special tokens

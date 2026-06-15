@@ -101,41 +101,41 @@ public class LLMGenerationPipelineExample {
                 .decoder(sd)
                 .samplingConfig(greedy)
                 .maxNewTokens(200)
-                .maxSequenceLength(4096)
+                .maxKvCacheLength(4096)
                 .build();
 
-        System.out.println("  maxNewTokens:     " + config.getMaxNewTokens());
-        System.out.println("  maxSequenceLength:" + config.getMaxSequenceLength());
-        System.out.println("  decoder set:      " + (config.getDecoder() != null));
-        System.out.println("  samplingConfig:   temp=" + config.getSamplingConfig().getTemperature());
+        System.out.println("  maxNewTokens:      " + config.getMaxNewTokens());
+        System.out.println("  maxKvCacheLength:  " + config.getMaxKvCacheLength());
+        System.out.println("  decoder set:       " + (config.getDecoder() != null));
+        System.out.println("  samplingConfig:    temp=" + config.getSamplingConfig().getTemperature());
 
         // Config with speculative decoding parameters
         GenerationPipelineConfig specConfig = GenerationPipelineConfig.builder()
                 .decoder(sd)
                 .samplingConfig(precise)
                 .maxNewTokens(500)
-                .maxSequenceLength(8192)
-                .speculativeNumTokens(5)
+                .maxKvCacheLength(8192)
+                .maxSpeculativeTokens(5)
                 .build();
 
         System.out.println("\n  Speculative config:");
-        System.out.println("    maxNewTokens:         " + specConfig.getMaxNewTokens());
-        System.out.println("    maxSequenceLength:    " + specConfig.getMaxSequenceLength());
-        System.out.println("    speculativeNumTokens: " + specConfig.getSpeculativeNumTokens());
+        System.out.println("    maxNewTokens:          " + specConfig.getMaxNewTokens());
+        System.out.println("    maxKvCacheLength:      " + specConfig.getMaxKvCacheLength());
+        System.out.println("    maxSpeculativeTokens:  " + specConfig.getMaxSpeculativeTokens());
 
-        // Config with batch support
-        GenerationPipelineConfig batchConfig = GenerationPipelineConfig.builder()
+        // Config with creative sampling and prefill settings
+        GenerationPipelineConfig creativeConfig = GenerationPipelineConfig.builder()
                 .decoder(sd)
                 .samplingConfig(creative)
                 .maxNewTokens(300)
-                .maxSequenceLength(2048)
-                .batchSize(8)
+                .maxKvCacheLength(2048)
+                .maxPrefillLength(1024)
                 .build();
 
-        System.out.println("\n  Batch config:");
-        System.out.println("    batchSize:      " + batchConfig.getBatchSize());
-        System.out.println("    samplingConfig: temp=" + batchConfig.getSamplingConfig().getTemperature()
-                + " topK=" + batchConfig.getSamplingConfig().getTopK());
+        System.out.println("\n  Creative config:");
+        System.out.println("    maxPrefillLength: " + creativeConfig.getMaxPrefillLength());
+        System.out.println("    samplingConfig:   temp=" + creativeConfig.getSamplingConfig().getTemperature()
+                + " topK=" + creativeConfig.getSamplingConfig().getTopK());
 
         // ================================================================
         // 4. Sampling strategy comparison
