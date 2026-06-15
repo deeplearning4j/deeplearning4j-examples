@@ -20,7 +20,7 @@ jobs:
         run: |
           mvn --version
           for folder in $(ls); do
-             if  [ -d "$folder" ] && [ "$folder" != "mvn-project-template" ] && [ "$folder" != "android-examples" ] && [ "$folder" != "oreilly-book-dl4j-examples" ]; then
+             if  [ -d "$folder" ] && [ "$folder" != "mvn-project-template" ] && [ "$folder" != "android-examples" ] && [ "$folder" != "oreilly-book-dl4j-examples" ] && [ "$folder" != "python4j-examples" ]; then
                cd "$folder"
                if test -f "pom.xml"; then
                   mvn clean test

@@ -81,19 +81,19 @@ Train a variational autoencoder on MNIST and plot MNIST digit reconstructions vs
 
 
 ##### New in 1.0.0
-* [EvaluationMetricsExample.java](./src/main/java/org/deeplearning4j/examples/quickstart/modeling/evaluation/EvaluationMetricsExample.java)
+* [EvaluationMetricsExample.java](./src/main/java/org/deeplearning4j/examples/quickstart/features/evaluation/EvaluationMetricsExample.java)
 **(NEW)** Complete evaluation API reference (accuracy, F1, ROC, regression metrics)
-* [WeightInitExample.java](./src/main/java/org/deeplearning4j/examples/quickstart/modeling/initialization/WeightInitExample.java)
+* [WeightInitExample.java](./src/main/java/org/deeplearning4j/examples/quickstart/features/initialization/WeightInitExample.java)
 **(NEW)** Weight initialization strategies (Xavier, He, Lecun, etc.)
-* [TrainingListenersExample.java](./src/main/java/org/deeplearning4j/examples/quickstart/modeling/listeners/TrainingListenersExample.java)
+* [TrainingListenersExample.java](./src/main/java/org/deeplearning4j/examples/quickstart/features/listeners/TrainingListenersExample.java)
 **(NEW)** Training listeners and checkpointing
-* [LayerNormExample.java](./src/main/java/org/deeplearning4j/examples/quickstart/modeling/normalization/LayerNormExample.java)
+* [LayerNormExample.java](./src/main/java/org/deeplearning4j/examples/quickstart/features/normalization/LayerNormExample.java)
 **(NEW)** Layer normalization on MNIST
-* [GroupNormExample.java](./src/main/java/org/deeplearning4j/examples/quickstart/modeling/normalization/GroupNormExample.java)
+* [GroupNormExample.java](./src/main/java/org/deeplearning4j/examples/quickstart/features/normalization/GroupNormExample.java)
 **(NEW)** Group normalization on MNIST
-* [NewOptimizersExample.java](./src/main/java/org/deeplearning4j/examples/quickstart/modeling/optimization/NewOptimizersExample.java)
+* [NewOptimizersExample.java](./src/main/java/org/deeplearning4j/examples/quickstart/features/optimization/NewOptimizersExample.java)
 **(NEW)** AdaBelief and Adam8bit optimizers
-* [ModelSerializationExample.java](./src/main/java/org/deeplearning4j/examples/quickstart/modeling/serialization/ModelSerializationExample.java)
+* [ModelSerializationExample.java](./src/main/java/org/deeplearning4j/examples/quickstart/features/serialization/ModelSerializationExample.java)
 **(NEW)** Complete model save/load API reference
 * [DataPipelineExample.java](./src/main/java/org/deeplearning4j/examples/quickstart/datapipeline/DataPipelineExample.java)
 **(NEW)** DataVec ETL pipeline API reference
@@ -124,57 +124,57 @@ Basic TSNE
 #### Modeling Examples
 
 ##### Computer Vision
-* [TinyYoloHouseNumberDetection.java](./src/main/java/org/deeplearning4j/examples/advanced/modelling/objectdetection/TinyYoloHouseNumberDetection.java)
+* [TinyYoloHouseNumberDetection.java](./src/main/java/org/deeplearning4j/examples/advanced/modeling/objectdetection/TinyYoloHouseNumberDetection.java)
 Transfer learning from a Tiny YOLO model pretrained on ImageNet and Pascal VOC to perform object detection with bounding boxes on The Street View House Numbers Dataset.
-* [NeuralStyleTransfer.java](./src/main/java/org/deeplearning4j/examples/advanced/modelling/styletransfer/NeuralStyleTransfer.java)
+* [NeuralStyleTransfer.java](./src/main/java/org/deeplearning4j/examples/advanced/modeling/styletransfer/NeuralStyleTransfer.java)
 Neural Style Transfer Algorithm
-* [MultiDigitNumberRecognition.java](./src/main/java/org/deeplearning4j/examples/advanced/modelling/captcharecognition/MultiDigitNumberRecognition.java)
+* [MultiDigitNumberRecognition.java](./src/main/java/org/deeplearning4j/examples/advanced/modeling/captcharecognition/MultiDigitNumberRecognition.java)
 Captcha recognition
 
 ##### Natural Language Processing
 
 ###### Text Classification
 With pretrained word2vec:
-* [ImdbReviewClassificationRNN.java](./src/main/java/org/deeplearning4j/examples/advanced/modelling/textclassification/pretrainedword2vec/ImdbReviewClassificationRNN.java)
+* [ImdbReviewClassificationRNN.java](./src/main/java/org/deeplearning4j/examples/advanced/modeling/textclassification/pretrainedword2vec/ImdbReviewClassificationRNN.java)
 Sentiment Classification on the IMDB dataset with a RNN model
-* [ImdbReviewClassificationCNN.java](./src/main/java/org/deeplearning4j/examples/advanced/modelling/textclassification/pretrainedword2vec/ImdbReviewClassificationCNN.java)
+* [ImdbReviewClassificationCNN.java](./src/main/java/org/deeplearning4j/examples/advanced/modeling/textclassification/pretrainedword2vec/ImdbReviewClassificationCNN.java)
 Sentiment Classification on the IMDB dataset with a CNN model
 
 ###### Generating Embeddings:
-* [Paragraph Vectors](./src/main/java/org/deeplearning4j/examples/advanced/modelling/embeddingsfromcorpus/paragraphvectors)
-* [Sequence Vectors](./src/main/java/org/deeplearning4j/examples/advanced/modelling/embeddingsfromcorpus/sequencevectors)
-* [Word2Vec](./src/main/java/org/deeplearning4j/examples/advanced/modelling/embeddingsfromcorpus/word2vec)
+* [Paragraph Vectors](./src/main/java/org/deeplearning4j/examples/advanced/modeling/embeddingsfromcorpus/paragraphvectors)
+* [Sequence Vectors](./src/main/java/org/deeplearning4j/examples/advanced/modeling/embeddingsfromcorpus/sequencevectors)
+* [Word2Vec](./src/main/java/org/deeplearning4j/examples/advanced/modeling/embeddingsfromcorpus/word2vec)
 
 Modeling with a word2vec model trained on a custom corpus:
-* [PrepareWordVector.java](./src/main/java/org/deeplearning4j/examples/advanced/modelling/textclassification/customcorpusword2vec/PrepareWordVector.java), [TrainNews.java](./src/main/java/org/deeplearning4j/examples/advanced/modelling/textclassification/customcorpusword2vec/TrainNews.java)
+* [PrepareWordVector.java](./src/main/java/org/deeplearning4j/examples/advanced/modeling/textclassification/customcorpusword2vec/PrepareWordVector.java), [TrainNews.java](./src/main/java/org/deeplearning4j/examples/advanced/modeling/textclassification/customcorpusword2vec/TrainNews.java)
 Sentence classification using a word2vec model training on a custom corpus
 
 
 ###### Char Modelling
-* [GenerateTxtModel.java](./src/main/java/org/deeplearning4j/examples/advanced/modelling/charmodelling/generatetext/GenerateTxtModel.java) & [GenerateTxtCharCompGraphModel.java](./src/main/java/org/deeplearning4j/examples/advanced/modelling/charmodelling/generatetext/GenerateTxtCharCompGraphModel.java)
+* [GenerateTxtModel.java](./src/main/java/org/deeplearning4j/examples/advanced/modeling/charmodeling/generatetext/GenerateTxtModel.java) & [GenerateTxtCharCompGraphModel.java](./src/main/java/org/deeplearning4j/examples/advanced/modeling/charmodeling/generatetext/GenerateTxtCharCompGraphModel.java)
 MultiLayerNetwork and ComputationGraph versions of a model that is trained to "write Shakespeare" one character at a time, inspired by Andrej Karpathy's now famous blog post.
 
 ##### Other Sequence Modeling Examples
-* [SequenceAnomalyDetection.java](./src/main/java/org/deeplearning4j/examples/advanced/modelling/sequenceanomalydetection/SequenceAnomalyDetection.java)
+* [SequenceAnomalyDetection.java](./src/main/java/org/deeplearning4j/examples/advanced/modeling/sequenceanomalydetection/SequenceAnomalyDetection.java)
 Anomaly detection on sequence sensor data
-* [TrainLotteryModelSeqPrediction.java](./src/main/java/org/deeplearning4j/examples/advanced/modelling/sequenceprediction/TrainLotteryModelSeqPrediction.java)
+* [TrainLotteryModelSeqPrediction.java](./src/main/java/org/deeplearning4j/examples/advanced/modeling/sequenceprediction/TrainLotteryModelSeqPrediction.java)
 Model trained on a synthetic dataset that attempts to uncover the contrived pattern.
 
 
 ##### New Architectures (NEW)
-* [SelfAttentionMNIST.java](./src/main/java/org/deeplearning4j/examples/advanced/modelling/attention/SelfAttentionMNIST.java)
+* [SelfAttentionMNIST.java](./src/main/java/org/deeplearning4j/examples/advanced/modeling/attention/SelfAttentionMNIST.java)
 **(NEW)** Self-attention mechanism for MNIST classification
-* [CapsNetMNIST.java](./src/main/java/org/deeplearning4j/examples/advanced/modelling/capsulenet/CapsNetMNIST.java)
+* [CapsNetMNIST.java](./src/main/java/org/deeplearning4j/examples/advanced/modeling/capsulenet/CapsNetMNIST.java)
 **(NEW)** Capsule network (CapsNet) architecture for MNIST
-* [EmbeddingLayerExample.java](./src/main/java/org/deeplearning4j/examples/advanced/modelling/embeddingnet/EmbeddingLayerExample.java)
+* [EmbeddingLayerExample.java](./src/main/java/org/deeplearning4j/examples/advanced/modeling/embeddingnet/EmbeddingLayerExample.java)
 **(NEW)** EmbeddingLayer and EmbeddingSequenceLayer for NLP and recommendation systems
 
 ##### Specific Models and Special Architectures
-* [AlphaGoZeroTrainer.java](./src/main/java/org/deeplearning4j/examples/advanced/modelling/alphagozero/AlphaGoZeroTrainer.java)
+* [AlphaGoZeroTrainer.java](./src/main/java/org/deeplearning4j/examples/advanced/modeling/alphagozero/AlphaGoZeroTrainer.java)
 Train AlphaGo Zero model on dummy data.
-* [DenseNetMain.java](./src/main/java/org/deeplearning4j/examples/advanced/modelling/densenet/DenseNetMain.java)
+* [DenseNetMain.java](./src/main/java/org/deeplearning4j/examples/advanced/modeling/densenet/DenseNetMain.java)
 Builds dense net to classify a small set of animal images. Augments the dataset with transforms like blur etc.
-* [AdditionModelWithSeq2Seq.java](./src/main/java/org/deeplearning4j/examples/advanced/modelling/seq2seq/AdditionModelWithSeq2Seq.java)
+* [AdditionModelWithSeq2Seq.java](./src/main/java/org/deeplearning4j/examples/advanced/modeling/seq2seq/AdditionModelWithSeq2Seq.java)
 A seq2seq model that learns to add
 
 #### Features

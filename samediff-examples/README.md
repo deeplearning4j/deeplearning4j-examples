@@ -29,22 +29,28 @@ Implementing a basic custom listener that records variable values during trainin
 SameDiff graph optimization passes
 
 ### LLM / Text Generation (NEW)
-* [QwenTextGenerationExample.java](./src/main/java/org/nd4j/examples/samediff/quickstart/modeling/QwenTextGenerationExample.java)
+* [QwenTextGenerationExample.java](./src/main/java/org/nd4j/examples/samediff/quickstart/modeling/llm/QwenTextGenerationExample.java)
 Full Qwen LLM pipeline: download GGUF from HuggingFace, import into SameDiff, tokenize with HuggingFace tokenizer, generate text with sampling strategies and chat templates
-* [GGMLImportExportExample.java](./src/main/java/org/nd4j/examples/samediff/quickstart/modeling/GGMLImportExportExample.java)
+* [GGMLImportExportExample.java](./src/main/java/org/nd4j/examples/samediff/quickstart/modeling/llm/GGMLImportExportExample.java)
 GGML/GGUF format detection, model import, export, low-level GGUF I/O, quantization/dequantization
 
 ### Vision-Language Models (NEW)
-* [SmolDoclingVLMExample.java](./src/main/java/org/nd4j/examples/samediff/quickstart/modeling/SmolDoclingVLMExample.java)
+* [SmolDoclingVLMExample.java](./src/main/java/org/nd4j/examples/samediff/quickstart/modeling/vlm/SmolDoclingVLMExample.java)
 SmolDocling 256M VLM for document understanding -- OCR, table extraction, markdown conversion from scanned pages/PDFs
-* [VideoVLMExample.java](./src/main/java/org/nd4j/examples/samediff/quickstart/modeling/VideoVLMExample.java)
+* [VideoVLMExample.java](./src/main/java/org/nd4j/examples/samediff/quickstart/modeling/vlm/VideoVLMExample.java)
 Video VLM preprocessing pipeline -- frame extraction, temporal sampling, video-to-text
 
 ### Audio (NEW)
-* [WhisperSpeechToTextExample.java](./src/main/java/org/nd4j/examples/samediff/quickstart/modeling/WhisperSpeechToTextExample.java)
+* [WhisperSpeechToTextExample.java](./src/main/java/org/nd4j/examples/samediff/quickstart/modeling/audio/WhisperSpeechToTextExample.java)
 OpenAI Whisper speech-to-text: model download, transcription, mel spectrogram extraction, audio preprocessing, tokenizer inspection
-* [TtsTrainingPipelineExample.java](./src/main/java/org/nd4j/examples/samediff/quickstart/modeling/TtsTrainingPipelineExample.java)
+* [TtsTrainingPipelineExample.java](./src/main/java/org/nd4j/examples/samediff/quickstart/modeling/audio/TtsTrainingPipelineExample.java)
 Text-to-speech training pipeline with SameDiff and the DL4J audio processing stack
+
+### Pipeline: Model Loading & Tokenization (NEW)
+* [AutoModelExample.java](./src/main/java/org/nd4j/examples/samediff/quickstart/pipeline/AutoModelExample.java)
+AutoModel.fromPretrained() for GGUF/SafeTensors/ONNX/SDZ model loading, LoadConfig, OmniHub integration
+* [TokenizerExample.java](./src/main/java/org/nd4j/examples/samediff/quickstart/pipeline/TokenizerExample.java)
+HuggingFaceTokenizer: encode/decode, batch encoding, vocab operations, chat template formatting
 
 ### SameDiff Operations (NEW)
 * [SameDiffOpsExample.java](./src/main/java/org/nd4j/examples/samediff/quickstart/operations/SameDiffOpsExample.java)
@@ -55,6 +61,10 @@ SameDiff operations namespace overview
 `sd.rnn()` namespace -- LSTM, GRU, SRU cells
 * [TransformerOpsExample.java](./src/main/java/org/nd4j/examples/samediff/quickstart/operations/TransformerOpsExample.java)
 `sd.nn()` namespace -- Multi-head attention, RoPE, RMS norm, KV cache management
+* [TransformerOpsAdvancedExample.java](./src/main/java/org/nd4j/examples/samediff/quickstart/operations/TransformerOpsAdvancedExample.java)
+FlashAttention, Grouped Query Attention, RoPE, Fused RoPE -- advanced transformer ops
+* [MoEAndSSMOpsExample.java](./src/main/java/org/nd4j/examples/samediff/quickstart/operations/MoEAndSSMOpsExample.java)
+Mixture of Experts (MoE) and Mamba-2 State Space Model (SSM) ops
 * [LossOpsExample.java](./src/main/java/org/nd4j/examples/samediff/quickstart/operations/LossOpsExample.java)
 `sd.loss()` namespace -- cross-entropy, MSE, hinge, Huber, cosine distance, etc.
 * [LinalgOpsExample.java](./src/main/java/org/nd4j/examples/samediff/quickstart/operations/LinalgOpsExample.java)
@@ -75,6 +85,10 @@ Advanced PEFT (Parameter-Efficient Fine-Tuning) method configurations
 Specialized PEFT methods
 * [MixedPrecisionTrainingExample.java](./src/main/java/org/nd4j/examples/samediff/quickstart/training/MixedPrecisionTrainingExample.java)
 FP16/BF16 mixed precision training API reference
+* [FP8TrainingExample.java](./src/main/java/org/nd4j/examples/samediff/quickstart/training/FP8TrainingExample.java)
+FP8 (E4M3/E5M2) mixed precision training with per-tensor scaling
+* [Adam8bitGradientAccumulationExample.java](./src/main/java/org/nd4j/examples/samediff/quickstart/training/Adam8bitGradientAccumulationExample.java)
+8-bit Adam optimizer and gradient accumulation for memory-efficient training
 * [KnowledgeDistillationExample.java](./src/main/java/org/nd4j/examples/samediff/quickstart/training/KnowledgeDistillationExample.java)
 Knowledge distillation (teacher-student training)
 * [KnowledgeDistillationConfigExample.java](./src/main/java/org/nd4j/examples/samediff/quickstart/training/KnowledgeDistillationConfigExample.java)
@@ -105,6 +119,14 @@ Diagnostics, debugging, and plan introspection tools
 ### Advanced: LLM Generation Pipeline (NEW)
 * [LLMGenerationPipelineExample.java](./src/main/java/org/nd4j/examples/samediff/advanced/generation/LLMGenerationPipelineExample.java)
 Complete API reference for GenerationPipeline, SamplingConfig, KV cache, streaming generation, vision-language embeddings
+* [SpeculativeDecodingExample.java](./src/main/java/org/nd4j/examples/samediff/advanced/generation/SpeculativeDecodingExample.java)
+Speculative decoding: NgramSpeculator, DraftModelSpeculator, SpeculativeDecodeLoop, acceptance rate tuning
+* [ContinuousBatchingExample.java](./src/main/java/org/nd4j/examples/samediff/advanced/generation/ContinuousBatchingExample.java)
+Continuous batching: ContinuousBatchScheduler, ChunkedPrefillEngine, slot management, throughput optimization
+
+### Advanced: LLM Evaluation (NEW)
+* [LLMEvalBenchmarkExample.java](./src/main/java/org/nd4j/examples/samediff/advanced/evaluation/LLMEvalBenchmarkExample.java)
+LLM evaluation harness: MMLU, ARC, GSM8K, HellaSwag, TruthfulQA, Winogrande benchmarks, custom datasets, metrics
 
 ### Custom DL4J Layers and Vertices
 DL4J has supported custom layers for a long time. Using SameDiff layers has some advantages described [here](src/main/java/org/nd4j/examples/samediff/customizingdl4j/README.md).

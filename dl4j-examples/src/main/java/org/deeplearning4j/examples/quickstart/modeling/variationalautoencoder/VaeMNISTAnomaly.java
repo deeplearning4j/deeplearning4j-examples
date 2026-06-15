@@ -91,7 +91,7 @@ public class VaeMNISTAnomaly {
                 .encoderLayerSizes(256, 256)                    //2 encoder layers, each of size 256
                 .decoderLayerSizes(256, 256)                    //2 decoder layers, each of size 256
                 .pzxActivationFunction(Activation.IDENTITY)     //p(z|data) activation function
-                //Bernoulli reconstruction distribution + sigmoid activation - for modelling binary data (or data in range 0 to 1)
+                //Bernoulli reconstruction distribution + sigmoid activation - for modeling binary data (or data in range 0 to 1)
                 .reconstructionDistribution(new BernoulliReconstructionDistribution(Activation.SIGMOID))
                 .nIn(28 * 28)                                   //Input size: 28x28
                 .nOut(32)                                       //Size of the latent variable space: p(z|x) - 32 values

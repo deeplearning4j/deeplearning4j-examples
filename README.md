@@ -135,15 +135,15 @@ Examples are separated into "quickstart" and "advanced" within each project. Bel
 - [VaeMNISTAnomaly](dl4j-examples/src/main/java/org/deeplearning4j/examples/quickstart/modeling/variationalautoencoder/VaeMNISTAnomaly.java) -- Unsupervised anomaly detection on MNIST
 - [VaeMNIST2dPlots](dl4j-examples/src/main/java/org/deeplearning4j/examples/quickstart/modeling/variationalautoencoder/VaeMNIST2dPlots.java) -- VAE latent space visualization
 
-#### Quickstart: New in 1.0.0
+#### Quickstart: New Features (1.0.0)
 
-- [EvaluationMetricsExample](dl4j-examples/src/main/java/org/deeplearning4j/examples/quickstart/modeling/evaluation/EvaluationMetricsExample.java) -- **NEW** Complete evaluation API reference (accuracy, F1, ROC, regression metrics)
-- [WeightInitExample](dl4j-examples/src/main/java/org/deeplearning4j/examples/quickstart/modeling/initialization/WeightInitExample.java) -- **NEW** Weight initialization strategies (Xavier, He, Lecun, etc.)
-- [TrainingListenersExample](dl4j-examples/src/main/java/org/deeplearning4j/examples/quickstart/modeling/listeners/TrainingListenersExample.java) -- **NEW** Training listeners and checkpointing
-- [LayerNormExample](dl4j-examples/src/main/java/org/deeplearning4j/examples/quickstart/modeling/normalization/LayerNormExample.java) -- **NEW** Layer normalization on MNIST
-- [GroupNormExample](dl4j-examples/src/main/java/org/deeplearning4j/examples/quickstart/modeling/normalization/GroupNormExample.java) -- **NEW** Group normalization on MNIST
-- [NewOptimizersExample](dl4j-examples/src/main/java/org/deeplearning4j/examples/quickstart/modeling/optimization/NewOptimizersExample.java) -- **NEW** AdaBelief and Adam8bit optimizers
-- [ModelSerializationExample](dl4j-examples/src/main/java/org/deeplearning4j/examples/quickstart/modeling/serialization/ModelSerializationExample.java) -- **NEW** Complete model save/load API reference
+- [EvaluationMetricsExample](dl4j-examples/src/main/java/org/deeplearning4j/examples/quickstart/features/evaluation/EvaluationMetricsExample.java) -- **NEW** Complete evaluation API reference (accuracy, F1, ROC, regression metrics)
+- [WeightInitExample](dl4j-examples/src/main/java/org/deeplearning4j/examples/quickstart/features/initialization/WeightInitExample.java) -- **NEW** Weight initialization strategies (Xavier, He, Lecun, etc.)
+- [TrainingListenersExample](dl4j-examples/src/main/java/org/deeplearning4j/examples/quickstart/features/listeners/TrainingListenersExample.java) -- **NEW** Training listeners and checkpointing
+- [LayerNormExample](dl4j-examples/src/main/java/org/deeplearning4j/examples/quickstart/features/normalization/LayerNormExample.java) -- **NEW** Layer normalization on MNIST
+- [GroupNormExample](dl4j-examples/src/main/java/org/deeplearning4j/examples/quickstart/features/normalization/GroupNormExample.java) -- **NEW** Group normalization on MNIST
+- [NewOptimizersExample](dl4j-examples/src/main/java/org/deeplearning4j/examples/quickstart/features/optimization/NewOptimizersExample.java) -- **NEW** AdaBelief and Adam8bit optimizers
+- [ModelSerializationExample](dl4j-examples/src/main/java/org/deeplearning4j/examples/quickstart/features/serialization/ModelSerializationExample.java) -- **NEW** Complete model save/load API reference
 - [DataPipelineExample](dl4j-examples/src/main/java/org/deeplearning4j/examples/quickstart/datapipeline/DataPipelineExample.java) -- **NEW** DataVec ETL pipeline API reference
 
 #### Quickstart: Features
@@ -159,29 +159,29 @@ Examples are separated into "quickstart" and "advanced" within each project. Bel
 
 #### Advanced: Computer Vision
 
-- [TinyYoloHouseNumberDetection](dl4j-examples/src/main/java/org/deeplearning4j/examples/advanced/modelling/objectdetection/TinyYoloHouseNumberDetection.java) -- Object detection with bounding boxes via transfer learning
-- [NeuralStyleTransfer](dl4j-examples/src/main/java/org/deeplearning4j/examples/advanced/modelling/styletransfer/NeuralStyleTransfer.java) -- Neural style transfer
-- [MultiDigitNumberRecognition](dl4j-examples/src/main/java/org/deeplearning4j/examples/advanced/modelling/captcharecognition/MultiDigitNumberRecognition.java) -- Captcha recognition
-- [DenseNetMain](dl4j-examples/src/main/java/org/deeplearning4j/examples/advanced/modelling/densenet/DenseNetMain.java) -- DenseNet for animal image classification
-- [SelfAttentionMNIST](dl4j-examples/src/main/java/org/deeplearning4j/examples/advanced/modelling/attention/SelfAttentionMNIST.java) -- **NEW** Self-attention mechanism for MNIST
-- [CapsNetMNIST](dl4j-examples/src/main/java/org/deeplearning4j/examples/advanced/modelling/capsulenet/CapsNetMNIST.java) -- **NEW** Capsule network for MNIST
+- [TinyYoloHouseNumberDetection](dl4j-examples/src/main/java/org/deeplearning4j/examples/advanced/modeling/objectdetection/TinyYoloHouseNumberDetection.java) -- Object detection with bounding boxes via transfer learning
+- [NeuralStyleTransfer](dl4j-examples/src/main/java/org/deeplearning4j/examples/advanced/modeling/styletransfer/NeuralStyleTransfer.java) -- Neural style transfer
+- [MultiDigitNumberRecognition](dl4j-examples/src/main/java/org/deeplearning4j/examples/advanced/modeling/captcharecognition/MultiDigitNumberRecognition.java) -- Captcha recognition
+- [DenseNetMain](dl4j-examples/src/main/java/org/deeplearning4j/examples/advanced/modeling/densenet/DenseNetMain.java) -- DenseNet for animal image classification
+- [SelfAttentionMNIST](dl4j-examples/src/main/java/org/deeplearning4j/examples/advanced/modeling/attention/SelfAttentionMNIST.java) -- **NEW** Self-attention mechanism for MNIST
+- [CapsNetMNIST](dl4j-examples/src/main/java/org/deeplearning4j/examples/advanced/modeling/capsulenet/CapsNetMNIST.java) -- **NEW** Capsule network for MNIST
 
 #### Advanced: Natural Language Processing
 
-- [ImdbReviewClassificationRNN](dl4j-examples/src/main/java/org/deeplearning4j/examples/advanced/modelling/textclassification/pretrainedword2vec/ImdbReviewClassificationRNN.java) -- Sentiment classification with RNN
-- [ImdbReviewClassificationCNN](dl4j-examples/src/main/java/org/deeplearning4j/examples/advanced/modelling/textclassification/pretrainedword2vec/ImdbReviewClassificationCNN.java) -- Sentiment classification with CNN
-- [Paragraph Vectors](dl4j-examples/src/main/java/org/deeplearning4j/examples/advanced/modelling/embeddingsfromcorpus/paragraphvectors/) -- Paragraph vector embedding examples
-- [Sequence Vectors](dl4j-examples/src/main/java/org/deeplearning4j/examples/advanced/modelling/embeddingsfromcorpus/sequencevectors/) -- Sequence vector examples
-- [Word2Vec](dl4j-examples/src/main/java/org/deeplearning4j/examples/advanced/modelling/embeddingsfromcorpus/word2vec/) -- Word2Vec training and uptraining
-- [GenerateTxtModel](dl4j-examples/src/main/java/org/deeplearning4j/examples/advanced/modelling/charmodelling/generatetext/GenerateTxtModel.java) -- Character-level text generation ("write Shakespeare")
-- [EmbeddingLayerExample](dl4j-examples/src/main/java/org/deeplearning4j/examples/advanced/modelling/embeddingnet/EmbeddingLayerExample.java) -- **NEW** EmbeddingLayer and EmbeddingSequenceLayer
+- [ImdbReviewClassificationRNN](dl4j-examples/src/main/java/org/deeplearning4j/examples/advanced/modeling/textclassification/pretrainedword2vec/ImdbReviewClassificationRNN.java) -- Sentiment classification with RNN
+- [ImdbReviewClassificationCNN](dl4j-examples/src/main/java/org/deeplearning4j/examples/advanced/modeling/textclassification/pretrainedword2vec/ImdbReviewClassificationCNN.java) -- Sentiment classification with CNN
+- [Paragraph Vectors](dl4j-examples/src/main/java/org/deeplearning4j/examples/advanced/modeling/embeddingsfromcorpus/paragraphvectors/) -- Paragraph vector embedding examples
+- [Sequence Vectors](dl4j-examples/src/main/java/org/deeplearning4j/examples/advanced/modeling/embeddingsfromcorpus/sequencevectors/) -- Sequence vector examples
+- [Word2Vec](dl4j-examples/src/main/java/org/deeplearning4j/examples/advanced/modeling/embeddingsfromcorpus/word2vec/) -- Word2Vec training and uptraining
+- [GenerateTxtModel](dl4j-examples/src/main/java/org/deeplearning4j/examples/advanced/modeling/charmodeling/generatetext/GenerateTxtModel.java) -- Character-level text generation ("write Shakespeare")
+- [EmbeddingLayerExample](dl4j-examples/src/main/java/org/deeplearning4j/examples/advanced/modeling/embeddingnet/EmbeddingLayerExample.java) -- **NEW** EmbeddingLayer and EmbeddingSequenceLayer
 
 #### Advanced: Sequence Models & Special Architectures
 
-- [SequenceAnomalyDetection](dl4j-examples/src/main/java/org/deeplearning4j/examples/advanced/modelling/sequenceanomalydetection/SequenceAnomalyDetection.java) -- Anomaly detection on sensor data
-- [TrainLotteryModelSeqPrediction](dl4j-examples/src/main/java/org/deeplearning4j/examples/advanced/modelling/sequenceprediction/TrainLotteryModelSeqPrediction.java) -- Sequence prediction on synthetic data
-- [AlphaGoZeroTrainer](dl4j-examples/src/main/java/org/deeplearning4j/examples/advanced/modelling/alphagozero/AlphaGoZeroTrainer.java) -- AlphaGo Zero model training
-- [AdditionModelWithSeq2Seq](dl4j-examples/src/main/java/org/deeplearning4j/examples/advanced/modelling/seq2seq/AdditionModelWithSeq2Seq.java) -- Seq2seq model that learns addition
+- [SequenceAnomalyDetection](dl4j-examples/src/main/java/org/deeplearning4j/examples/advanced/modeling/sequenceanomalydetection/SequenceAnomalyDetection.java) -- Anomaly detection on sensor data
+- [TrainLotteryModelSeqPrediction](dl4j-examples/src/main/java/org/deeplearning4j/examples/advanced/modeling/sequenceprediction/TrainLotteryModelSeqPrediction.java) -- Sequence prediction on synthetic data
+- [AlphaGoZeroTrainer](dl4j-examples/src/main/java/org/deeplearning4j/examples/advanced/modeling/alphagozero/AlphaGoZeroTrainer.java) -- AlphaGo Zero model training
+- [AdditionModelWithSeq2Seq](dl4j-examples/src/main/java/org/deeplearning4j/examples/advanced/modeling/seq2seq/AdditionModelWithSeq2Seq.java) -- Seq2seq model that learns addition
 
 #### Advanced: Features
 
@@ -211,18 +211,23 @@ Examples are separated into "quickstart" and "advanced" within each project. Bel
 
 #### Quickstart: LLM / Text Generation (NEW)
 
-- [QwenTextGenerationExample](samediff-examples/src/main/java/org/nd4j/examples/samediff/quickstart/modeling/QwenTextGenerationExample.java) -- **NEW** Full Qwen LLM pipeline: download GGUF, import to SameDiff, tokenize, generate text with sampling strategies and chat templates
-- [GGMLImportExportExample](samediff-examples/src/main/java/org/nd4j/examples/samediff/quickstart/modeling/GGMLImportExportExample.java) -- **NEW** GGML/GGUF format detection, import, export, quantization/dequantization
+- [QwenTextGenerationExample](samediff-examples/src/main/java/org/nd4j/examples/samediff/quickstart/modeling/llm/QwenTextGenerationExample.java) -- **NEW** Full Qwen LLM pipeline: download GGUF, import to SameDiff, tokenize, generate text with sampling strategies and chat templates
+- [GGMLImportExportExample](samediff-examples/src/main/java/org/nd4j/examples/samediff/quickstart/modeling/llm/GGMLImportExportExample.java) -- **NEW** GGML/GGUF format detection, import, export, quantization/dequantization
+
+#### Quickstart: Pipeline (NEW)
+
+- [AutoModelExample](samediff-examples/src/main/java/org/nd4j/examples/samediff/quickstart/pipeline/AutoModelExample.java) -- **NEW** AutoModel.fromPretrained() for GGUF/SafeTensors/ONNX/SDZ model loading, LoadConfig, OmniHub integration
+- [TokenizerExample](samediff-examples/src/main/java/org/nd4j/examples/samediff/quickstart/pipeline/TokenizerExample.java) -- **NEW** HuggingFaceTokenizer: encode/decode, batch encoding, vocab operations, chat template formatting
 
 #### Quickstart: Vision-Language Models (NEW)
 
-- [SmolDoclingVLMExample](samediff-examples/src/main/java/org/nd4j/examples/samediff/quickstart/modeling/SmolDoclingVLMExample.java) -- **NEW** SmolDocling 256M VLM for document understanding (OCR, table extraction, markdown conversion)
-- [VideoVLMExample](samediff-examples/src/main/java/org/nd4j/examples/samediff/quickstart/modeling/VideoVLMExample.java) -- **NEW** Video VLM preprocessing pipeline (frame extraction, temporal sampling)
+- [SmolDoclingVLMExample](samediff-examples/src/main/java/org/nd4j/examples/samediff/quickstart/modeling/vlm/SmolDoclingVLMExample.java) -- **NEW** SmolDocling 256M VLM for document understanding (OCR, table extraction, markdown conversion)
+- [VideoVLMExample](samediff-examples/src/main/java/org/nd4j/examples/samediff/quickstart/modeling/vlm/VideoVLMExample.java) -- **NEW** Video VLM preprocessing pipeline (frame extraction, temporal sampling)
 
 #### Quickstart: Audio (NEW)
 
-- [WhisperSpeechToTextExample](samediff-examples/src/main/java/org/nd4j/examples/samediff/quickstart/modeling/WhisperSpeechToTextExample.java) -- **NEW** OpenAI Whisper speech-to-text: model download, transcription, mel spectrogram, audio preprocessing
-- [TtsTrainingPipelineExample](samediff-examples/src/main/java/org/nd4j/examples/samediff/quickstart/modeling/TtsTrainingPipelineExample.java) -- **NEW** Text-to-speech training pipeline
+- [WhisperSpeechToTextExample](samediff-examples/src/main/java/org/nd4j/examples/samediff/quickstart/modeling/audio/WhisperSpeechToTextExample.java) -- **NEW** OpenAI Whisper speech-to-text: model download, transcription, mel spectrogram, audio preprocessing
+- [TtsTrainingPipelineExample](samediff-examples/src/main/java/org/nd4j/examples/samediff/quickstart/modeling/audio/TtsTrainingPipelineExample.java) -- **NEW** Text-to-speech training pipeline
 
 #### Quickstart: SameDiff Operations (NEW)
 
@@ -235,6 +240,8 @@ Examples are separated into "quickstart" and "advanced" within each project. Bel
 - [ImageOpsExample](samediff-examples/src/main/java/org/nd4j/examples/samediff/quickstart/operations/ImageOpsExample.java) -- **NEW** sd.image() -- Resize, crop, pad, color space conversion
 - [AudioOpsExample](samediff-examples/src/main/java/org/nd4j/examples/samediff/quickstart/operations/AudioOpsExample.java) -- **NEW** sd.audio() -- STFT, mel spectrogram, MFCC
 - [SignalMathBitwiseOpsExample](samediff-examples/src/main/java/org/nd4j/examples/samediff/quickstart/operations/SignalMathBitwiseOpsExample.java) -- **NEW** Signal processing, math, bitwise, and random operations
+- [TransformerOpsAdvancedExample](samediff-examples/src/main/java/org/nd4j/examples/samediff/quickstart/operations/TransformerOpsAdvancedExample.java) -- **NEW** FlashAttention, GQA, RoPE, Fused RoPE, LLaMA-style transformer block
+- [MoEAndSSMOpsExample](samediff-examples/src/main/java/org/nd4j/examples/samediff/quickstart/operations/MoEAndSSMOpsExample.java) -- **NEW** Mixture of Experts and Mamba-2 SSM ops
 
 #### Quickstart: Training & Fine-Tuning (NEW)
 
@@ -242,6 +249,8 @@ Examples are separated into "quickstart" and "advanced" within each project. Bel
 - [AdvancedPEFTConfigExample](samediff-examples/src/main/java/org/nd4j/examples/samediff/quickstart/training/AdvancedPEFTConfigExample.java) -- **NEW** Advanced PEFT (Parameter-Efficient Fine-Tuning) configurations
 - [SpecializedPEFTConfigExample](samediff-examples/src/main/java/org/nd4j/examples/samediff/quickstart/training/SpecializedPEFTConfigExample.java) -- **NEW** Specialized PEFT methods
 - [MixedPrecisionTrainingExample](samediff-examples/src/main/java/org/nd4j/examples/samediff/quickstart/training/MixedPrecisionTrainingExample.java) -- **NEW** FP16/BF16 mixed precision training
+- [FP8TrainingExample](samediff-examples/src/main/java/org/nd4j/examples/samediff/quickstart/training/FP8TrainingExample.java) -- **NEW** FP8 (E4M3/E5M2) mixed precision training with per-tensor scaling
+- [Adam8bitGradientAccumulationExample](samediff-examples/src/main/java/org/nd4j/examples/samediff/quickstart/training/Adam8bitGradientAccumulationExample.java) -- **NEW** 8-bit Adam optimizer and gradient accumulation
 - [KnowledgeDistillationExample](samediff-examples/src/main/java/org/nd4j/examples/samediff/quickstart/training/KnowledgeDistillationExample.java) -- **NEW** Knowledge distillation (teacher-student)
 - [KnowledgeDistillationConfigExample](samediff-examples/src/main/java/org/nd4j/examples/samediff/quickstart/training/KnowledgeDistillationConfigExample.java) -- **NEW** Distillation configuration options
 - [TransferLearningAndFreezingExample](samediff-examples/src/main/java/org/nd4j/examples/samediff/quickstart/training/TransferLearningAndFreezingExample.java) -- **NEW** Transfer learning, variable freezing, PeftModel
@@ -261,6 +270,12 @@ Examples are separated into "quickstart" and "advanced" within each project. Bel
 #### Advanced: LLM Generation Pipeline (NEW)
 
 - [LLMGenerationPipelineExample](samediff-examples/src/main/java/org/nd4j/examples/samediff/advanced/generation/LLMGenerationPipelineExample.java) -- **NEW** Complete API reference for GenerationPipeline, SamplingConfig, KV cache, streaming generation
+- [SpeculativeDecodingExample](samediff-examples/src/main/java/org/nd4j/examples/samediff/advanced/generation/SpeculativeDecodingExample.java) -- **NEW** Speculative decoding: NgramSpeculator, DraftModelSpeculator, acceptance rate tuning
+- [ContinuousBatchingExample](samediff-examples/src/main/java/org/nd4j/examples/samediff/advanced/generation/ContinuousBatchingExample.java) -- **NEW** Continuous batching: ContinuousBatchScheduler, ChunkedPrefillEngine, slot management
+
+#### Advanced: LLM Evaluation (NEW)
+
+- [LLMEvalBenchmarkExample](samediff-examples/src/main/java/org/nd4j/examples/samediff/advanced/evaluation/LLMEvalBenchmarkExample.java) -- **NEW** LLM evaluation harness: MMLU, ARC, GSM8K, HellaSwag, TruthfulQA, Winogrande benchmarks
 
 #### Custom DL4J Layers with SameDiff
 
@@ -354,6 +369,13 @@ Examples are separated into "quickstart" and "advanced" within each project. Bel
 
 - [SVMLightExample](data-pipeline-examples/src/main/java/org/deeplearning4j/datapipelineexamples/formats/svmlight/SVMLightExample.java) -- MNIST in SVMLight format
 - [ImagePipelineExample](data-pipeline-examples/src/main/java/org/deeplearning4j/datapipelineexamples/formats/image/ImagePipelineExample.java) -- Image pipeline with augmentation transforms
+
+---
+
+### [python4j-examples](python4j-examples/) -- Python4j: Java-Python Interop (NEW)
+
+- [Python4jBasicsExample](python4j-examples/src/main/java/org/eclipse/deeplearning4j/examples/python4j/Python4jBasicsExample.java) -- **NEW** Execute Python from Java: PythonExecutioner, PythonGIL, typed variables (INT/FLOAT/STR/LIST/DICT), PythonObject API
+- [NumpyBridgeExample](python4j-examples/src/main/java/org/eclipse/deeplearning4j/examples/python4j/NumpyBridgeExample.java) -- **NEW** Zero-copy INDArray to NumPy bridge: pass tensors between Java and Python without copies
 
 ---
 
