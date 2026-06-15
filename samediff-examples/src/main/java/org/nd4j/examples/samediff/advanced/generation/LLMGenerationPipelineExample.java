@@ -1,226 +1,230 @@
-/* *****************************************************************************
- *
- *
- *
- * This program and the accompanying materials are made available under the
- * terms of the Apache License, Version 2.0 which is available at
- * https://www.apache.org/licenses/LICENSE-2.0.
- *  See the NOTICE file distributed with this work for additional
- *  information regarding copyright ownership.
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations
- * under the License.
- *
- * SPDX-License-Identifier: Apache-2.0
- ******************************************************************************/
+/*
+ *  SPDX-License-Identifier: Apache-2.0
+ */
 
 package org.nd4j.examples.samediff.advanced.generation;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.eclipse.deeplearning4j.llm.generation.GenerationPipelineConfig;
+import org.eclipse.deeplearning4j.llm.generation.SamplingConfig;
+import org.nd4j.autodiff.samediff.SDVariable;
+import org.nd4j.autodiff.samediff.SameDiff;
+import org.nd4j.linalg.api.buffer.DataType;
+import org.nd4j.linalg.api.ndarray.INDArray;
+import org.nd4j.linalg.factory.Nd4j;
+
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
- * LLM Text Generation Pipeline Example.
- *
- * This example documents the SameDiff LLM generation pipeline (samediff-llm module),
- * which provides high-level APIs for autoregressive text generation with
- * decoder-only Transformer models loaded into SameDiff.
- *
- * <h3>Key Components:</h3>
- *
- * <b>GenerationPipeline</b> — Main generation engine.
- * <pre>
- * GenerationPipeline pipeline = GenerationPipeline.create(config);
- *
- * // Simple text generation
- * GenerationResult result = pipeline.generate("What is deep learning?");
- * GenerationResult result = pipeline.generate("prompt", maxNewTokens);
- *
- * // Streaming (token-by-token callback)
- * pipeline.generateStream("prompt", token -> System.out.print(token));
- * pipeline.generateStream("prompt", maxNewTokens, tokenCallback, stopCallback);
- *
- * // Vision-language (with image embeddings)
- * GenerationResult result = pipeline.generate(prefillEmbeddings, promptTokenIds);
- *
- * // Token embedding
- * INDArray embeddings = pipeline.embedTokens(tokenIds);
- *
- * pipeline.close(); // implements AutoCloseable
- * </pre>
- *
- * <b>GenerationPipelineConfig</b> — Configuration builder.
- * <pre>
- * GenerationPipelineConfig config = GenerationPipelineConfig.builder()
- *     .modelPath("/path/to/model.sdz")
- *     .tokenizerPath("/path/to/tokenizer.json")
- *     .maxSequenceLength(4096)
- *     .batchSize(1)
- *     .kvCacheStrategy(KVCacheStrategy.PAGED)
- *     .dspCompilationMode(DspCompilationMode.REDUCE_OVERHEAD)
- *     .tensorParallelConfig(TensorParallelConfig.create(2, 0))
- *     .build();
- * </pre>
- *
- * <b>SamplingConfig</b> — Token sampling strategy.
- * <pre>
- * // Greedy decoding (deterministic)
- * SamplingConfig greedy = SamplingConfig.greedy();
- *
- * // Top-k sampling
- * SamplingConfig topK = SamplingConfig.topK(50);
- *
- * // Top-p (nucleus) sampling
- * SamplingConfig topP = SamplingConfig.topP(0.9);
- *
- * // Temperature-scaled sampling with top-k and top-p
- * SamplingConfig custom = SamplingConfig.builder()
- *     .temperature(0.7)
- *     .topK(40)
- *     .topP(0.95)
- *     .repetitionPenalty(1.1)
- *     .build();
- * </pre>
- *
- * <b>KV Cache Strategies</b>:
- * <ul>
- *   <li>STATIC — Fixed-size cache, fastest but wastes memory for short sequences</li>
- *   <li>PAGED — PagedAttention (vLLM-style), efficient for variable lengths</li>
- *   <li>QUANTIZED — Quantized KV cache for reduced memory</li>
- *   <li>PREFIX — Prefix caching for shared prompt prefixes</li>
- * </ul>
- *
- * <h3>Speculative Decoding:</h3>
- * <pre>
- * // Use a small draft model to propose tokens, verified by the large model.
- * // Reduces latency by generating multiple tokens per forward pass.
- * GenerationPipelineConfig config = GenerationPipelineConfig.builder()
- *     .modelPath("large-model.sdz")
- *     .speculativeModelPath("draft-model.sdz")
- *     .speculativeNumTokens(5)
- *     .build();
- * </pre>
- *
- * <h3>Tensor Parallelism:</h3>
- * <pre>
- * // Split model across multiple GPUs for models that don't fit in one GPU.
- * TensorParallelConfig tp = TensorParallelConfig.create(numGpus, rank);
- * tp = tp.withDeviceIds(0, 1, 2, 3);
- * </pre>
- *
- * <h3>Vision-Language Models (VLM):</h3>
- * <pre>
- * // VisionLanguageModel supports image + text generation.
- * VisionLanguageModel vlm = VisionLanguageModel.fromDirectory(modelDir);
- * VisionLanguageModel vlm = VisionLanguageModel.loadSmolDocling(modelDir);
- *
- * // Generate text from image
- * String text = vlm.generate(image, "Describe this image");
- * String text = vlm.generate(image, "prompt", maxNewTokens);
- *
- * // Batch / multi-page generation
- * GenerationResult[] results = vlm.generateBatch(images, "prompt", maxNewTokens);
- * String doc = vlm.generateDocument(pageImages, "OCR this document", maxNewTokens);
- *
- * // Tiled image processing (for high-res images)
- * GenerationResult[] tiled = vlm.generatePagesTiled(pageSplitResults, ...);
- * </pre>
- *
- * <h3>Multi-Model Pipeline:</h3>
- * <pre>
- * // Chain multiple models in sequence (summarizer → classifier → etc.)
- * MultiModelPipeline pipeline = new MultiModelPipeline(config);
- * pipeline.registerModel("classifier", ModelType.CLASSIFIER, classifierModel);
- * PipelineResult result = pipeline.execute(stages, inputText);
- * </pre>
- *
- * <h3>Token Sampling Operations (sd.nn()):</h3>
- * At the SameDiff op level, autoregressive sampling is available via:
- * <pre>
- * // Single-op token sampling
- * SDVariable nextToken = sd.nn.tokenSample(logits);
- * SDVariable nextToken = sd.nn.tokenSample(logits, temperature, topK, topP);
- * </pre>
- *
- * NOTE: This example requires a model to be loaded. Use the OmniHub examples
- * to download models from HuggingFace first.
+ * Demonstrates the LLM generation pipeline APIs by constructing real SamplingConfig
+ * objects, building GenerationPipelineConfig with a SameDiff model, and showing
+ * how the pipeline configuration connects models, tokenizers, and sampling strategies.
  */
 public class LLMGenerationPipelineExample {
-    private static final Logger log = LoggerFactory.getLogger(LLMGenerationPipelineExample.class);
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
 
-        log.info("=== LLM Generation Pipeline API Reference ===");
-        log.info("");
+        // ================================================================
+        // 1. SamplingConfig presets and custom configs
+        // ================================================================
+        System.out.println("=== 1. SamplingConfig presets ===");
 
-        // =====================================================================
-        // 1. GenerationPipeline usage
-        // =====================================================================
-        log.info("--- 1. GenerationPipeline ---");
-        log.info("  GenerationPipeline pipeline = GenerationPipeline.create(config);");
-        log.info("  GenerationResult result = pipeline.generate(\"prompt\");");
-        log.info("  pipeline.generateStream(\"prompt\", token -> System.out.print(token));");
-        log.info("");
+        SamplingConfig greedy = SamplingConfig.greedy();
+        SamplingConfig precise = SamplingConfig.precise();
+        SamplingConfig creative = SamplingConfig.creative();
+        SamplingConfig defaults = SamplingConfig.defaultConfig();
+        SamplingConfig llamaCpp = SamplingConfig.llamaCppDefaults();
 
-        // =====================================================================
-        // 2. SamplingConfig presets
-        // =====================================================================
-        log.info("--- 2. SamplingConfig presets ---");
-        log.info("  SamplingConfig.greedy()          → deterministic, argmax");
-        log.info("  SamplingConfig.topK(50)          → top-k sampling");
-        log.info("  SamplingConfig.topP(0.9)         → nucleus sampling");
-        log.info("  SamplingConfig.builder()");
-        log.info("    .temperature(0.7)");
-        log.info("    .topK(40)");
-        log.info("    .topP(0.95)");
-        log.info("    .repetitionPenalty(1.1)");
-        log.info("    .build()");
-        log.info("");
+        SamplingConfig[] presets = {greedy, precise, creative, defaults, llamaCpp};
+        String[] names = {"greedy", "precise", "creative", "defaultConfig", "llamaCppDefaults"};
 
-        // =====================================================================
-        // 3. KV Cache strategies
-        // =====================================================================
-        log.info("--- 3. KV Cache strategies ---");
-        log.info("  STATIC     — fixed-size, fastest for fixed-length");
-        log.info("  PAGED      — PagedAttention (vLLM-style), memory efficient");
-        log.info("  QUANTIZED  — reduced precision KV cache");
-        log.info("  PREFIX     — share prefix across requests");
-        log.info("");
+        System.out.printf("  %-18s %-8s %-6s %-6s %-6s %-10s%n",
+                "Preset", "temp", "topK", "topP", "doSamp", "repPenalty");
+        System.out.println("  " + "-".repeat(60));
+        for (int i = 0; i < presets.length; i++) {
+            SamplingConfig c = presets[i];
+            System.out.printf("  %-18s %-8.2f %-6d %-6.2f %-6s %-10.2f%n",
+                    names[i],
+                    c.getTemperature(),
+                    c.getTopK(),
+                    c.getTopP(),
+                    c.isDoSample(),
+                    c.getRepetitionPenalty());
+        }
 
-        // =====================================================================
-        // 4. Speculative decoding
-        // =====================================================================
-        log.info("--- 4. Speculative decoding ---");
-        log.info("  Uses a small draft model to propose multiple tokens,");
-        log.info("  verified in a single forward pass of the large model.");
-        log.info("  Can reduce latency 2-3x with well-matched draft models.");
-        log.info("");
+        // Custom config via builder
+        SamplingConfig custom = SamplingConfig.builder()
+                .temperature(0.7)
+                .topK(40)
+                .topP(0.95)
+                .repetitionPenalty(1.1)
+                .doSample(true)
+                .build();
 
-        // =====================================================================
-        // 5. Tensor & Pipeline parallelism
-        // =====================================================================
-        log.info("--- 5. Parallelism ---");
-        log.info("  TensorParallelConfig.create(numGpus, rank)");
-        log.info("    Splits layers across GPUs (column/row parallel linear)");
-        log.info("  PipelineParallelRunner");
-        log.info("    Splits model stages across devices");
-        log.info("  DistributedDataParallelTrainer");
-        log.info("    DDP training across multiple GPUs/nodes");
-        log.info("");
+        System.out.println("\n  Custom: temp=" + custom.getTemperature()
+                + " topK=" + custom.getTopK()
+                + " topP=" + custom.getTopP()
+                + " repPenalty=" + custom.getRepetitionPenalty()
+                + " doSample=" + custom.isDoSample());
 
-        // =====================================================================
-        // 6. VLM (Vision-Language) pipeline
-        // =====================================================================
-        log.info("--- 6. VisionLanguageModel ---");
-        log.info("  VisionLanguageModel.fromDirectory(dir)");
-        log.info("  vlm.generate(image, \"prompt\")");
-        log.info("  vlm.generateBatch(images, \"prompt\", maxTokens)");
-        log.info("  vlm.generateDocument(pageImages, \"prompt\", maxTokens)");
-        log.info("");
+        // ================================================================
+        // 2. Build a SameDiff model for pipeline config
+        // ================================================================
+        System.out.println("\n=== 2. Build model for pipeline ===");
 
-        log.info("**************** LLM Generation Pipeline Example finished ********************");
+        SameDiff sd = SameDiff.create();
+        SDVariable input = sd.placeHolder("input", DataType.FLOAT, -1, 32);
+        SDVariable w1 = sd.var("w1", Nd4j.randn(DataType.FLOAT, 32, 64).muli(0.05));
+        SDVariable b1 = sd.var("b1", Nd4j.zeros(DataType.FLOAT, 64));
+        SDVariable hidden = sd.nn().gelu("hidden", input.mmul(w1).add(b1));
+        SDVariable w2 = sd.var("w2", Nd4j.randn(DataType.FLOAT, 64, 32).muli(0.05));
+        SDVariable output = sd.nn().softmax("output", hidden.mmul(w2), -1);
+
+        // Verify model works
+        INDArray testInput = Nd4j.rand(DataType.FLOAT, 2, 32);
+        Map<String, INDArray> ph = new HashMap<>();
+        ph.put("input", testInput);
+        INDArray testOutput = sd.outputSingle(ph, "output");
+
+        System.out.println("  Model: [?,32] -> GELU(64) -> softmax(32)");
+        System.out.println("  Variables: " + sd.variableNames().size());
+        System.out.println("  Output shape: " + Arrays.toString(testOutput.shape()));
+        System.out.println("  Output row 0 sum: " + testOutput.getRow(0).sumNumber());
+
+        // ================================================================
+        // 3. GenerationPipelineConfig
+        // ================================================================
+        System.out.println("\n=== 3. GenerationPipelineConfig ===");
+
+        GenerationPipelineConfig config = GenerationPipelineConfig.builder()
+                .decoder(sd)
+                .samplingConfig(greedy)
+                .maxNewTokens(200)
+                .maxSequenceLength(4096)
+                .build();
+
+        System.out.println("  maxNewTokens:     " + config.getMaxNewTokens());
+        System.out.println("  maxSequenceLength:" + config.getMaxSequenceLength());
+        System.out.println("  decoder set:      " + (config.getDecoder() != null));
+        System.out.println("  samplingConfig:   temp=" + config.getSamplingConfig().getTemperature());
+
+        // Config with speculative decoding parameters
+        GenerationPipelineConfig specConfig = GenerationPipelineConfig.builder()
+                .decoder(sd)
+                .samplingConfig(precise)
+                .maxNewTokens(500)
+                .maxSequenceLength(8192)
+                .speculativeNumTokens(5)
+                .build();
+
+        System.out.println("\n  Speculative config:");
+        System.out.println("    maxNewTokens:         " + specConfig.getMaxNewTokens());
+        System.out.println("    maxSequenceLength:    " + specConfig.getMaxSequenceLength());
+        System.out.println("    speculativeNumTokens: " + specConfig.getSpeculativeNumTokens());
+
+        // Config with batch support
+        GenerationPipelineConfig batchConfig = GenerationPipelineConfig.builder()
+                .decoder(sd)
+                .samplingConfig(creative)
+                .maxNewTokens(300)
+                .maxSequenceLength(2048)
+                .batchSize(8)
+                .build();
+
+        System.out.println("\n  Batch config:");
+        System.out.println("    batchSize:      " + batchConfig.getBatchSize());
+        System.out.println("    samplingConfig: temp=" + batchConfig.getSamplingConfig().getTemperature()
+                + " topK=" + batchConfig.getSamplingConfig().getTopK());
+
+        // ================================================================
+        // 4. Sampling strategy comparison
+        // ================================================================
+        System.out.println("\n=== 4. Sampling strategy comparison ===");
+
+        // Simulate how different temperatures affect a logit distribution
+        INDArray logits = Nd4j.create(new double[]{2.0, 1.0, 0.5, 0.1, -0.5, -1.0});
+        System.out.println("  Raw logits: " + logits);
+
+        double[] temps = {0.1, 0.5, 0.7, 1.0, 1.5, 2.0};
+        for (double temp : temps) {
+            INDArray scaled = logits.div(Math.max(temp, 1e-8));
+            INDArray expScaled = Nd4j.math().exp(scaled);
+            INDArray probs = expScaled.div(expScaled.sumNumber());
+            double maxProb = probs.maxNumber().doubleValue();
+            double entropy = 0;
+            for (int i = 0; i < probs.length(); i++) {
+                double p = probs.getDouble(i);
+                if (p > 0) entropy -= p * Math.log(p);
+            }
+            System.out.printf("  temp=%.1f: max_prob=%.4f entropy=%.3f probs=%s%n",
+                    temp, maxProb, entropy, probs);
+        }
+
+        // ================================================================
+        // 5. Top-K filtering demonstration
+        // ================================================================
+        System.out.println("\n=== 5. Top-K filtering ===");
+
+        INDArray probDist = Nd4j.create(new double[]{0.3, 0.25, 0.15, 0.12, 0.08, 0.05, 0.03, 0.02});
+        System.out.println("  Full distribution: " + probDist);
+
+        int[] topKValues = {1, 3, 5, 8};
+        for (int k : topKValues) {
+            // Simulate top-k: zero out everything below top-k, renormalize
+            INDArray sorted = probDist.dup();
+            double[] vals = new double[(int) sorted.length()];
+            for (int i = 0; i < sorted.length(); i++) vals[i] = sorted.getDouble(i);
+            Arrays.sort(vals);
+            double threshold = vals[vals.length - k];
+            INDArray filtered = probDist.dup();
+            for (int i = 0; i < filtered.length(); i++) {
+                if (filtered.getDouble(i) < threshold) filtered.putScalar(i, 0);
+            }
+            double sum = filtered.sumNumber().doubleValue();
+            if (sum > 0) filtered.divi(sum);
+            System.out.printf("  topK=%d: %s (sum=%.2f)%n", k, filtered, filtered.sumNumber());
+        }
+
+        // ================================================================
+        // 6. Top-P (nucleus) filtering demonstration
+        // ================================================================
+        System.out.println("\n=== 6. Top-P nucleus sampling ===");
+
+        double[] topPValues = {0.5, 0.8, 0.9, 0.95, 1.0};
+        for (double p : topPValues) {
+            // Simulate nucleus sampling: keep smallest set of tokens whose cumulative prob >= p
+            double cumProb = 0;
+            int tokensKept = 0;
+            for (int i = 0; i < probDist.length(); i++) {
+                cumProb += probDist.getDouble(i);
+                tokensKept++;
+                if (cumProb >= p) break;
+            }
+            System.out.printf("  topP=%.2f: keep %d of %d tokens (cum_prob=%.3f)%n",
+                    p, tokensKept, probDist.length(), cumProb);
+        }
+
+        // ================================================================
+        // 7. Model variable summary
+        // ================================================================
+        System.out.println("\n=== 7. Model variable summary ===");
+
+        long totalParams = 0;
+        for (String varName : sd.variableNames()) {
+            SDVariable v = sd.getVariable(varName);
+            INDArray arr = v.getArr();
+            if (arr != null) {
+                long numParams = arr.length();
+                totalParams += numParams;
+                System.out.println("  " + varName + ": " + Arrays.toString(arr.shape())
+                        + " (" + numParams + " params, " + arr.dataType() + ")");
+            }
+        }
+        System.out.println("  Total parameters: " + totalParams);
+        System.out.printf("  Estimated size (FP32): %.2f KB%n", totalParams * 4.0 / 1024);
+        System.out.printf("  Estimated size (FP16): %.2f KB%n", totalParams * 2.0 / 1024);
+
+        System.out.println("\nLLMGenerationPipelineExample complete.");
     }
 }

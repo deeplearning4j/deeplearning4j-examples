@@ -1,315 +1,170 @@
 /*
- *
- * This program and the accompanying materials are made available under the
- *  terms of the Apache License, Version 2.0 which is available at
- *  https://www.apache.org/licenses/LICENSE-2.0.
- * See the NOTICE file distributed with this work for additional
- * information regarding copyright ownership.
- *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- *  WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- *  License for the specific language governing permissions and limitations
- *  under the License.
- *
  *  SPDX-License-Identifier: Apache-2.0
- *
  */
 
 package org.nd4j.examples.samediff.quickstart.pipeline;
 
 import org.eclipse.deeplearning4j.pipeline.AutoModel;
 import org.eclipse.deeplearning4j.pipeline.ModelFormat;
-import org.eclipse.deeplearning4j.pipeline.ModelManifest;
-import org.eclipse.deeplearning4j.pipeline.Pipeline;
 import org.eclipse.deeplearning4j.pipeline.PipelineLoader;
 import org.eclipse.deeplearning4j.pipeline.PipelineLoader.LoadConfig;
-import org.eclipse.deeplearning4j.omnihub.OmniHubUtils;
+import org.nd4j.autodiff.samediff.SDVariable;
 import org.nd4j.autodiff.samediff.SameDiff;
+import org.nd4j.linalg.api.buffer.DataType;
+import org.nd4j.linalg.api.ndarray.INDArray;
+import org.nd4j.linalg.factory.Nd4j;
 
 import java.io.File;
-import java.nio.file.Path;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
- * AutoModel Format-Agnostic Model Loading — API Reference
- *
- * AutoModel is the recommended entry point for loading any supported model
- * format into SameDiff. It detects the format automatically from file
- * extensions and embedded model manifests, eliminating the need to call
- * format-specific importers (GGMLModelImport, SafeTensors, OnnxImport, etc.)
- * directly.
- *
- * Supported formats detected automatically:
- *   - GGUF    (.gguf)       — quantized LLM format (LLaMA, Mistral, Qwen, etc.)
- *   - SafeTensors (.safetensors) — HuggingFace serialization format
- *   - ONNX    (.onnx)       — Open Neural Network Exchange
- *   - SDZ     (.sdz)        — Native SameDiff serialization (zip-compressed)
- *   - FlatBuffers (.fb)     — SameDiff FlatBuffers format
- *
- * Key classes:
- *   - {@link AutoModel}       — Static factory methods for format-agnostic loading
- *   - {@link Pipeline}        — High-level model pipeline with metadata and lifecycle
- *   - {@link PipelineLoader}  — Configurable loader (cache, quantization, device placement)
- *   - {@link LoadConfig}      — Builder for load-time options
- *   - {@link ModelManifest}   — Parsed model metadata (architecture, format, tensor names)
- *   - {@link ModelFormat}     — Enum of supported formats (GGUF, SAFE_TENSORS, ONNX, SDZ)
- *   - OmniHubUtils            — Downloads pretrained models from HuggingFace / model hubs
- *
- * Run with:
- *   cd samediff-examples
- *   mvn exec:java -Dexec.mainClass="org.nd4j.examples.samediff.quickstart.pipeline.AutoModelExample"
+ * Demonstrates AutoModel format-agnostic model loading by building a SameDiff
+ * model, saving it to disk, then loading it back via AutoModel.fromPretrained().
+ * Shows LoadConfig options, ModelFormat detection, and round-trip verification.
  */
 public class AutoModelExample {
 
     public static void main(String[] args) throws Exception {
 
-        // ============================================================
-        // 1. BASIC AUTOMODEL LOADING
-        // ============================================================
-        System.out.println("=== 1. AutoModel.fromPretrained(path) ===");
-        System.out.println();
-        System.out.println("  AutoModel detects the model format from the file extension");
-        System.out.println("  and embedded metadata, then delegates to the appropriate");
-        System.out.println("  format-specific importer automatically.");
-        System.out.println();
+        // ================================================================
+        // 1. Build a small SameDiff model and run inference
+        // ================================================================
+        System.out.println("=== 1. Build a SameDiff model ===");
 
-        // AutoModel.fromPretrained() accepts any supported format.
-        // The return type is SameDiff — the unified runtime representation.
-        //
-        // For a real model, replace this path with an actual file:
-        //   SameDiff sd = AutoModel.fromPretrained("/path/to/model.gguf");
-        //   SameDiff sd = AutoModel.fromPretrained("/path/to/model.onnx");
-        //   SameDiff sd = AutoModel.fromPretrained("/path/to/model.safetensors");
-        //   SameDiff sd = AutoModel.fromPretrained("/path/to/model.sdz");
-        //
-        // Format detection order:
-        //   1. File extension (.gguf, .onnx, .safetensors, .sdz, .fb)
-        //   2. Magic bytes in the file header (GGUF=0x46554747, ONNX protobuf, etc.)
-        //   3. model_manifest.json in the same directory
-        //   4. Directory scan for known layout patterns (HuggingFace model dir)
+        SameDiff sd = SameDiff.create();
+        SDVariable input = sd.placeHolder("input", DataType.FLOAT, -1, 4);
+        SDVariable weights = sd.var("weights", Nd4j.randn(DataType.FLOAT, 4, 3).muli(0.1));
+        SDVariable bias = sd.var("bias", Nd4j.zeros(DataType.FLOAT, 3));
+        SDVariable logits = input.mmul(weights).add("logits", bias);
+        SDVariable output = sd.nn().softmax("output", logits, -1);
 
-        System.out.println("  Code pattern:");
-        System.out.println("    String path = \"/path/to/model.gguf\";  // or .onnx, .safetensors, .sdz");
-        System.out.println("    SameDiff sd = AutoModel.fromPretrained(path);");
-        System.out.println("    // sd is ready for inference — SameDiff.exec(), GenerationPipeline, etc.");
-        System.out.println();
+        INDArray testInput = Nd4j.rand(DataType.FLOAT, 2, 4);
+        Map<String, INDArray> placeholders = new HashMap<>();
+        placeholders.put("input", testInput);
+        INDArray originalOutput = sd.outputSingle(placeholders, "output");
 
-        // ============================================================
-        // 2. LOADING WITH CUSTOM LOADCONFIG
-        // ============================================================
-        System.out.println("=== 2. AutoModel.fromPretrained(path, LoadConfig) ===");
-        System.out.println();
-        System.out.println("  LoadConfig lets you control caching, quantization, and device placement.");
-        System.out.println();
+        System.out.println("  Input shape:  " + Arrays.toString(testInput.shape()));
+        System.out.println("  Output shape: " + Arrays.toString(originalOutput.shape()));
+        System.out.println("  Output row 0: " + originalOutput.getRow(0));
+        System.out.println("  Output row 1: " + originalOutput.getRow(1));
+        System.out.println("  Variables:    " + sd.variableNames());
 
-        // LoadConfig is built via a fluent builder.
-        // cacheConvertedModel(true) — after importing a GGUF/ONNX to SameDiff, save
-        //   the SameDiff graph to disk as .sdz so future loads skip re-import (much faster).
-        // quantizationHint()        — request a specific precision on load
-        //   (only honored if the format supports it at import time)
-        // deviceId()                — which GPU/CPU device to place tensors on
-        // memoryMapped()            — mmap large model files instead of copying to heap
+        // ================================================================
+        // 2. Save model to .sdz file
+        // ================================================================
+        System.out.println("\n=== 2. Save model as .sdz ===");
+
+        File tmpFile = File.createTempFile("automodel-demo", ".sdz");
+        tmpFile.deleteOnExit();
+        sd.save(tmpFile, false);
+
+        System.out.println("  Saved to: " + tmpFile.getAbsolutePath());
+        System.out.println("  File size: " + tmpFile.length() + " bytes");
+
+        // ================================================================
+        // 3. Load via AutoModel.fromPretrained() — format auto-detected
+        // ================================================================
+        System.out.println("\n=== 3. AutoModel.fromPretrained() round-trip ===");
+
+        SameDiff loaded = AutoModel.fromPretrained(tmpFile.getAbsolutePath());
+
+        INDArray reloadedOutput = loaded.outputSingle(placeholders, "output");
+        double maxDelta = originalOutput.sub(reloadedOutput).amaxNumber().doubleValue();
+
+        System.out.println("  Loaded variables: " + loaded.variableNames());
+        System.out.println("  Reloaded output:  " + reloadedOutput.getRow(0));
+        System.out.println("  Max delta from original: " + maxDelta);
+        System.out.println("  Round-trip match: " + (maxDelta < 1e-6 ? "YES" : "NO (delta=" + maxDelta + ")"));
+
+        // ================================================================
+        // 4. LoadConfig builder — caching, device, mmap options
+        // ================================================================
+        System.out.println("\n=== 4. LoadConfig options ===");
 
         LoadConfig config = LoadConfig.builder()
-                .cacheConvertedModel(true)          // Save .sdz cache next to source file
-                .deviceId(0)                        // GPU 0 (use -1 for CPU)
-                .memoryMapped(true)                 // mmap the source file
+                .cacheConvertedModel(true)
+                .deviceId(0)
+                .memoryMapped(true)
+                .validateOnLoad(true)
                 .build();
 
-        System.out.println("  LoadConfig options demonstrated:");
-        System.out.println("    cacheConvertedModel(true) — convert once, load fast thereafter");
-        System.out.println("    deviceId(0)               — target device (0=first GPU, -1=CPU)");
-        System.out.println("    memoryMapped(true)         — mmap source file (less heap pressure)");
-        System.out.println();
-        System.out.println("  Code pattern:");
-        System.out.println("    LoadConfig config = LoadConfig.builder()");
-        System.out.println("        .cacheConvertedModel(true)");
-        System.out.println("        .deviceId(0)");
-        System.out.println("        .memoryMapped(true)");
-        System.out.println("        .build();");
-        System.out.println("    SameDiff sd = AutoModel.fromPretrained(\"/path/to/model.gguf\", config);");
-        System.out.println();
+        System.out.println("  cacheConvertedModel: " + config.isCacheConvertedModel());
+        System.out.println("  deviceId:            " + config.getDeviceId());
+        System.out.println("  memoryMapped:        " + config.isMemoryMapped());
+        System.out.println("  validateOnLoad:      " + config.isValidateOnLoad());
 
-        // ============================================================
-        // 3. LOADING AS A PIPELINE (WITH METADATA)
-        // ============================================================
-        System.out.println("=== 3. AutoModel.pipelineFromPretrained(path) ===");
-        System.out.println();
-        System.out.println("  pipelineFromPretrained() returns a Pipeline object which wraps");
-        System.out.println("  SameDiff and also exposes the model's ModelManifest — architecture");
-        System.out.println("  metadata, tokenizer paths, and format information.");
-        System.out.println();
+        SameDiff loadedWithConfig = AutoModel.fromPretrained(tmpFile.getAbsolutePath(), config);
+        INDArray configOutput = loadedWithConfig.outputSingle(placeholders, "output");
+        System.out.println("  Loaded with config, output matches: " +
+                (originalOutput.sub(configOutput).amaxNumber().doubleValue() < 1e-6));
 
-        // Pipeline provides lifecycle management (AutoCloseable) and exposes
-        // the ModelManifest for introspection without fully loading the model.
-        //
-        //   Pipeline pipeline = AutoModel.pipelineFromPretrained("/path/to/model.gguf");
-        //   ModelManifest manifest = pipeline.getManifest();
-        //   String arch = manifest.getArchitecture();       // "llama", "mistral", "qwen", etc.
-        //   ModelFormat format = manifest.getFormat();      // GGUF, SAFE_TENSORS, ONNX, SDZ
-        //   String tokenizerPath = manifest.getTokenizerPath();
-        //   SameDiff sd = pipeline.getModel();
-        //   pipeline.close(); // releases native resources
+        // ================================================================
+        // 5. ModelFormat enum — all supported formats
+        // ================================================================
+        System.out.println("\n=== 5. ModelFormat values ===");
 
-        System.out.println("  Code pattern:");
-        System.out.println("    Pipeline pipeline = AutoModel.pipelineFromPretrained(\"/path/to/model.gguf\");");
-        System.out.println("    try (pipeline) {");
-        System.out.println("        ModelManifest manifest = pipeline.getManifest();");
-        System.out.println("        System.out.println(\"Architecture: \" + manifest.getArchitecture());");
-        System.out.println("        System.out.println(\"Format: \" + manifest.getFormat());");
-        System.out.println("        SameDiff sd = pipeline.getModel();");
-        System.out.println("        // use sd for inference ...");
-        System.out.println("    }");
-        System.out.println();
+        for (ModelFormat fmt : ModelFormat.values()) {
+            System.out.println("  " + fmt.name() + " (ordinal=" + fmt.ordinal() + ")");
+        }
 
-        // ModelManifest fields:
-        System.out.println("  ModelManifest provides:");
-        System.out.println("    manifest.getArchitecture()     — detected arch (\"llama\", \"mistral\", ...)");
-        System.out.println("    manifest.getFormat()           — ModelFormat enum value");
-        System.out.println("    manifest.getModelName()        — human-readable name from metadata");
-        System.out.println("    manifest.getNumParameters()    — total parameter count");
-        System.out.println("    manifest.getTokenizerPath()    — path to associated tokenizer.json");
-        System.out.println("    manifest.getTensorNames()      — List<String> of all tensor names");
-        System.out.println("    manifest.getContextLength()    — maximum sequence length");
-        System.out.println("    manifest.getVocabSize()        — vocabulary size");
-        System.out.println();
+        ModelFormat detected = AutoModel.detectFormat(tmpFile.getAbsolutePath());
+        System.out.println("  Detected format for saved .sdz: " + detected);
 
-        // ============================================================
-        // 4. PIPELINELOADER WITH FULL CONFIG
-        // ============================================================
-        System.out.println("=== 4. PipelineLoader — Fine-grained control ===");
-        System.out.println();
-        System.out.println("  PipelineLoader is the lower-level API that AutoModel delegates to.");
-        System.out.println("  Use it directly when you need more control over the loading process.");
-        System.out.println();
+        // ================================================================
+        // 6. Inspect loaded model variables
+        // ================================================================
+        System.out.println("\n=== 6. Variable inspection ===");
 
-        // PipelineLoader.LoadConfig has more options than AutoModel.fromPretrained()
-        LoadConfig advancedConfig = LoadConfig.builder()
-                .cacheConvertedModel(true)          // Save .sdz next to original on first load
-                .deviceId(0)                        // Place model on GPU 0
-                .memoryMapped(true)                 // mmap source file (avoids large heap allocation)
-                .validateOnLoad(true)               // Run graph validation after loading
-                .build();
+        for (String varName : loaded.variableNames()) {
+            SDVariable var = loaded.getVariable(varName);
+            INDArray arr = var.getArr();
+            if (arr != null) {
+                System.out.println("  " + varName + ": shape=" +
+                        Arrays.toString(arr.shape()) + " dtype=" + arr.dataType());
+            } else {
+                System.out.println("  " + varName + ": placeholder (no array)");
+            }
+        }
 
-        System.out.println("  Advanced LoadConfig:");
-        System.out.println("    LoadConfig config = LoadConfig.builder()");
-        System.out.println("        .cacheConvertedModel(true)");
-        System.out.println("        .deviceId(0)");
-        System.out.println("        .memoryMapped(true)");
-        System.out.println("        .validateOnLoad(true)");
-        System.out.println("        .build();");
-        System.out.println();
-        System.out.println("  Loading via PipelineLoader:");
-        System.out.println("    PipelineLoader loader = new PipelineLoader(config);");
-        System.out.println("    Pipeline pipeline = loader.load(\"/path/to/model.gguf\");");
-        System.out.println();
+        // ================================================================
+        // 7. Build a larger model and verify round-trip
+        // ================================================================
+        System.out.println("\n=== 7. Larger model round-trip ===");
 
-        // ============================================================
-        // 5. MODELFORMAT ENUM — SUPPORTED FORMATS
-        // ============================================================
-        System.out.println("=== 5. ModelFormat — Supported formats ===");
-        System.out.println();
+        SameDiff sd2 = SameDiff.create();
+        SDVariable in2 = sd2.placeHolder("input", DataType.FLOAT, -1, 16);
+        SDVariable w1 = sd2.var("w1", Nd4j.randn(DataType.FLOAT, 16, 32).muli(0.1));
+        SDVariable b1 = sd2.var("b1", Nd4j.zeros(DataType.FLOAT, 32));
+        SDVariable hidden = sd2.nn().relu("hidden", in2.mmul(w1).add(b1), 0);
+        SDVariable w2 = sd2.var("w2", Nd4j.randn(DataType.FLOAT, 32, 5).muli(0.1));
+        SDVariable b2 = sd2.var("b2", Nd4j.zeros(DataType.FLOAT, 5));
+        SDVariable out2 = sd2.nn().softmax("output", hidden.mmul(w2).add(b2), -1);
 
-        // ModelFormat is used by AutoModel and ModelManifest to indicate which
-        // format was detected / will be used.
-        System.out.println("  ModelFormat values:");
-        System.out.println("    ModelFormat.GGUF          — GGML/GGUF quantized LLM format");
-        System.out.println("    ModelFormat.SAFE_TENSORS  — HuggingFace SafeTensors");
-        System.out.println("    ModelFormat.ONNX          — Open Neural Network Exchange");
-        System.out.println("    ModelFormat.SDZ           — SameDiff native (zip-compressed)");
-        System.out.println("    ModelFormat.FLAT_BUFFERS  — SameDiff FlatBuffers");
-        System.out.println("    ModelFormat.UNKNOWN       — could not detect format");
-        System.out.println();
-        System.out.println("  Checking format programmatically:");
-        System.out.println("    ModelFormat fmt = AutoModel.detectFormat(\"/path/to/model.gguf\");");
-        System.out.println("    if (fmt == ModelFormat.GGUF) { ... }");
-        System.out.println();
+        File tmpFile2 = File.createTempFile("automodel-larger", ".sdz");
+        tmpFile2.deleteOnExit();
+        sd2.save(tmpFile2, false);
 
-        // ============================================================
-        // 6. OMNIHUB + AUTOMODEL — DOWNLOAD AND LOAD
-        // ============================================================
-        System.out.println("=== 6. OmniHub + AutoModel — download and load in one step ===");
-        System.out.println();
-        System.out.println("  OmniHubUtils.downloadModel() returns a local path after downloading");
-        System.out.println("  and caching the model from HuggingFace (or other supported hubs).");
-        System.out.println("  That path is then passed directly to AutoModel.fromPretrained().");
-        System.out.println();
+        INDArray testIn2 = Nd4j.rand(DataType.FLOAT, 3, 16);
+        Map<String, INDArray> ph2 = new HashMap<>();
+        ph2.put("input", testIn2);
+        INDArray origOut2 = sd2.outputSingle(ph2, "output");
 
-        // OmniHubUtils handles:
-        //   - Resolving the model ID to a download URL
-        //   - Caching in ~/.cache/dl4j-models/ (or DL4J_CACHE env var)
-        //   - Verifying checksums on re-use
-        //   - Extracting model archives if needed
-        //
-        // AutoModel handles:
-        //   - Detecting the downloaded file format
-        //   - Importing to SameDiff
-        //   - Optionally caching the converted .sdz for faster future loads
+        SameDiff loaded2 = AutoModel.fromPretrained(tmpFile2.getAbsolutePath());
+        INDArray reloadOut2 = loaded2.outputSingle(ph2, "output");
 
-        System.out.println("  Full pattern:");
-        System.out.println("    // Step 1: download (or use cached copy)");
-        System.out.println("    Path modelPath = OmniHubUtils.downloadModel(\"KompileAI/some-model\");");
-        System.out.println("    System.out.println(\"Model at: \" + modelPath);");
-        System.out.println();
-        System.out.println("    // Step 2: load — format detected automatically");
-        System.out.println("    SameDiff sd = AutoModel.fromPretrained(modelPath.toString());");
-        System.out.println();
-        System.out.println("    // Or, combine download + caching with LoadConfig:");
-        System.out.println("    LoadConfig cfg = LoadConfig.builder()");
-        System.out.println("        .cacheConvertedModel(true)   // skip re-import on next run");
-        System.out.println("        .build();");
-        System.out.println("    Path modelPath2 = OmniHubUtils.downloadModel(\"KompileAI/some-model\");");
-        System.out.println("    SameDiff sd2 = AutoModel.fromPretrained(modelPath2.toString(), cfg);");
-        System.out.println();
+        System.out.println("  Model: 16->32->5 with ReLU hidden layer");
+        System.out.println("  Input:  [3, 16]");
+        System.out.println("  Output: " + Arrays.toString(reloadOut2.shape()));
+        System.out.println("  Row sums (should be ~1.0 for softmax):");
+        for (int i = 0; i < 3; i++) {
+            System.out.println("    Row " + i + " sum = " + reloadOut2.getRow(i).sumNumber());
+        }
+        double delta2 = origOut2.sub(reloadOut2).amaxNumber().doubleValue();
+        System.out.println("  Round-trip match: " + (delta2 < 1e-6));
+        System.out.println("  File size: " + tmpFile2.length() + " bytes");
 
-        // ============================================================
-        // 7. FORMAT DETECTION EXAMPLES
-        // ============================================================
-        System.out.println("=== 7. How AutoModel detects formats ===");
-        System.out.println();
-        System.out.println("  Detection is attempted in this order:");
-        System.out.println("  1. File extension:");
-        System.out.println("       .gguf             -> ModelFormat.GGUF");
-        System.out.println("       .safetensors      -> ModelFormat.SAFE_TENSORS");
-        System.out.println("       .onnx             -> ModelFormat.ONNX");
-        System.out.println("       .sdz              -> ModelFormat.SDZ");
-        System.out.println("       .fb               -> ModelFormat.FLAT_BUFFERS");
-        System.out.println("  2. Magic bytes (file header):");
-        System.out.println("       0x46554747        -> GGUF");
-        System.out.println("       protobuf tag 0x0a -> ONNX");
-        System.out.println("       {'__': ...} JSON  -> SafeTensors");
-        System.out.println("  3. model_manifest.json in the same directory");
-        System.out.println("  4. Directory layout matching known patterns");
-        System.out.println("       (e.g., config.json + pytorch_model.bin = HuggingFace)");
-        System.out.println();
-        System.out.println("  If detection fails, AutoModel throws ModelFormatException.");
-        System.out.println("  You can override with: LoadConfig.builder().forceFormat(ModelFormat.GGUF)");
-        System.out.println();
-
-        // ============================================================
-        // 8. COMMON USAGE PATTERNS SUMMARY
-        // ============================================================
-        System.out.println("=== 8. Quick-reference patterns ===");
-        System.out.println();
-        System.out.println("  // Simplest usage — infer format, load to CPU:");
-        System.out.println("  SameDiff sd = AutoModel.fromPretrained(\"/models/llama3.gguf\");");
-        System.out.println();
-        System.out.println("  // Load to GPU with converted-model cache:");
-        System.out.println("  SameDiff sd = AutoModel.fromPretrained(\"/models/llama3.gguf\",");
-        System.out.println("      LoadConfig.builder().cacheConvertedModel(true).deviceId(0).build());");
-        System.out.println();
-        System.out.println("  // Load as Pipeline for metadata access:");
-        System.out.println("  try (Pipeline p = AutoModel.pipelineFromPretrained(\"/models/llama3.gguf\")) {");
-        System.out.println("      System.out.println(p.getManifest().getArchitecture());");
-        System.out.println("      System.out.println(p.getManifest().getNumParameters() / 1_000_000 + \"M params\");");
-        System.out.println("  }");
-        System.out.println();
-        System.out.println("  // OmniHub download + AutoModel load:");
-        System.out.println("  Path p = OmniHubUtils.downloadModel(\"KompileAI/some-model\");");
-        System.out.println("  SameDiff sd = AutoModel.fromPretrained(p.toString());");
-        System.out.println();
-
-        System.out.println("AutoModel example completed. Replace placeholder paths with real model");
-        System.out.println("files or use OmniHubUtils to download models before running inference.");
+        System.out.println("\nAutoModelExample complete.");
     }
 }
