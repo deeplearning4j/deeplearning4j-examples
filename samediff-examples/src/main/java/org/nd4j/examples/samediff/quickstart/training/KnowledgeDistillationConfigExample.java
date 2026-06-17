@@ -213,7 +213,7 @@ public class KnowledgeDistillationConfigExample {
         log.info("  Effective temperature during training:");
         for (double progress : new double[]{0.0, 0.25, 0.5, 0.75, 1.0}) {
             double effectiveT = annealedKD.getEffectiveTemperature(progress);
-            log.info("    Progress {:.0f}%: T = {:.2f}", progress * 100, effectiveT);
+            log.info("    Progress {}%: T = {}", String.format("%.0f", progress * 100), String.format("%.2f", effectiveT));
         }
 
         // =====================================================================

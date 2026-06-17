@@ -343,7 +343,7 @@ public class LRScheduleConfigExample {
                              3 * totalSteps / 4, totalSteps - 1};
         log.info("  {}:", name);
         for (int step : sampleSteps) {
-            log.info("    step {:6d}: {}", step, schedule.valueAt(step, 0));
+            log.info("    step {}: {}", String.format("%6d", step), schedule.valueAt(step, 0));
         }
     }
 }
