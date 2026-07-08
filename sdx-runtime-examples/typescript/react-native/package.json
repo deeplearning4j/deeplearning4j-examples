@@ -1,0 +1,27 @@
+{
+  "name": "sdx-runtime-react-native-end-to-end",
+  "version": "0.1.0",
+  "private": true,
+  "description": "End-to-end SDX runtime example for React Native: TurboModule spec + SdxSession class + useSdxModel hook over a JNI/ObjC++ bridge to the sdx* C ABI",
+  "license": "Apache-2.0",
+  "main": "src/index.ts",
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "codegenConfig": {
+    "name": "SdxRuntimeSpec",
+    "type": "modules",
+    "jsSrcsDir": "src",
+    "android": {
+      "javaPackageName": "org.nd4j.sdx.rn"
+    }
+  },
+  "peerDependencies": {
+    "react": ">=17.0.2",
+    "react-native": ">=0.70.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.2.0",
+    "typescript": "^5.5.4"
+  }
+}

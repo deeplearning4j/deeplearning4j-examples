@@ -1,0 +1,18 @@
+[package]
+name = "sdx-runtime-end-to-end"
+version = "0.1.0"
+edition = "2021"
+description = "End-to-end SDX runtime example: load a .sdz and run it through the sdx* C ABI from pure Rust (no JVM)"
+license = "Apache-2.0"
+
+[[bin]]
+name = "end_to_end"
+path = "src/main.rs"
+
+[dependencies]
+# The SDX Rust wrapper crate. This path assumes a sibling `deeplearning4j`
+# checkout next to this examples repository; when building against an unpacked
+# SDK package instead, point it at <sdk>/wrappers/rust.
+# Add features = ["standalone"] to link the JVM-free libsdx_cpu runtime.
+sdx-runtime = { path = "../../../deeplearning4j/libnd4j/include/dsp/runtime/bindings/rust", features = ["ndarray"] }
+ndarray = "0.16"

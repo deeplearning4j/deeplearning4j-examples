@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<!--
+  SPDX-License-Identifier: Apache-2.0
+
+  Browser demo for the SDX runtime on WebAssembly. Serve this directory
+  (e.g. `npx serve .`) after building sdx_runtime_wasm.{js,wasm} with
+  ./build-wasm.sh and `npm run build` (which compiles src/ into dist/).
+  The page fetches ../..//models/mlp.sdz, writes it into MEMFS, and runs the
+  same canonical walkthrough as the Node entry point, logging each step.
+-->
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>SDX Runtime — WebAssembly end-to-end</title>
+  <style>
+    body { background: #101418; color: #d7e1ea; font-family: monospace; margin: 0; }
+    h1 { color: #7fd4ff; font-size: 18px; padding: 12px; margin: 0; }
+    #log { padding: 0 12px 24px; font-size: 12px; line-height: 18px; white-space: pre-wrap; }
+  </style>
+</head>
+<body>
+  <h1>SDX Runtime — WebAssembly end-to-end</h1>
+  <div id="log"></div>
+  <script src="./sdx_runtime_wasm.js"></script>
+  <script type="module">
+    import {
+      SdxRuntime, phaseName, backendName,
+    } from './dist/sdx-wasm.js';
+
+    const logEl = document.getElementById('log');
+    const log = (line) => { logEl.textContent += line + '\n'; };
+
+    const CANONICAL_X = Float32Array.from([0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8]);
+    const EXPECTED_PROBS = Float32Array.from([
+      0.44481823, 0.3220363, 0.23314552, 0.4567148, 0.31961477, 0.22367041]);
+    const linspace = (a, b, n) =>
+      Float32Array.from({ length: n }, (_, i) => a + ((b - a) * i) / (n - 1));
+    const WEIGHTS = {
+      w1: { data: linspace(-1, 1, 32), dims: [4, 8] },
+      b1: { data: linspace(0, 0.7, 8), dims: [8] },
+      w2: { data: linspace(1, -1, 24), dims: [8, 3] },
+      b2: { data: linspace(-0.1, 0.1, 3), dims: [3] },
+    };
+
+    (async () => {
+      try {
+        log('== Instantiate wasm module, fetch mlp.sdz ==');
+        const module = await createSdxModule();
+        const runtime = SdxRuntime.create(module);
+        log(`ABI version: ${runtime.abiVersion()}`);
+
+        const bytes = new Uint8Array(await (await fetch('../../models/mlp.sdz')).arrayBuffer());
+        const model = runtime.loadBundle('mlp.sdz', bytes);
+        const ctx = model.createContext(['probs']);
+
+        const names = ctx.inputNames();
+        log(`Inputs: [${names.join(', ')}]`);
+        ctx.markInputPlaceholder('x');
+
+        const runOnce = (step) => {
+          const x = { data: CANONICAL_X.map((v) => v * step), dims: [2, 4] };
+          const [probs] = ctx.run({ ...WEIGHTS, x }, [[2, 3]]);
+          const p = probs.data;
+          let line = `run ${step}: phase=${phaseName(ctx.planPhase())} execCount=${ctx.executionCount()}`;
+          if (step === 1) {
+            const maxDiff = Math.max(...EXPECTED_PROBS.map((e, i) => Math.abs(p[i] - e)));
+            line += `  canonical match: ${maxDiff <= 1e-4}`;
+          }
+          log(line);
+        };
+
+        for (let s = 1; s <= 3; s++) runOnce(s);
+        ctx.freezeShapes();
+        log(`After freeze: ${phaseName(ctx.planPhase())}`);
+        for (let s = 4; s <= 6; s++) runOnce(s);
+
+        const r = ctx.executionReport();
+        log(`report: backend=${backendName(r.appliedBackend)} phase=${phaseName(r.planPhase)} ` +
+            `count=${r.executionCount} time=${(r.executionTimeNs / 1e6).toFixed(3)}ms`);
+
+        ctx.dispose(); model.dispose(); runtime.dispose();
+        log('');
+        log('SUCCESS: SDX C ABI outputs verified in the browser.');
+      } catch (e) {
+        log(`FAILURE: ${e.message}`);
+      }
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,66 @@
+// SDX runtime React Native bridge — Android library module.
+//
+// Consumes the SDX runtime shared library from src/main/jniLibs/<abi>/
+// (copy libsdx_cpu.so from the SDK's sdx-runtime-*.aar / android package) and
+// builds the small JNI shim (src/main/cpp) against dsp_runtime_c.h.
+
+buildscript {
+    repositories {
+        google()
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:8.5.0'
+        classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.24'
+    }
+}
+
+apply plugin: 'com.android.library'
+apply plugin: 'kotlin-android'
+
+android {
+    namespace 'org.nd4j.sdx.rn'
+    compileSdk 34
+
+    defaultConfig {
+        minSdk 27
+        targetSdk 34
+
+        externalNativeBuild {
+            cmake {
+                cppFlags '-std=c++17'
+                // Override to an unpacked SDK's include/ when not using a
+                // sibling deeplearning4j checkout:
+                //   arguments '-DSDX_INCLUDE_DIR=/path/to/sdk/include'
+            }
+        }
+        ndk {
+            abiFilters 'arm64-v8a'
+        }
+    }
+
+    externalNativeBuild {
+        cmake {
+            path 'src/main/cpp/CMakeLists.txt'
+            version '3.22.1'
+        }
+    }
+
+    packagingOptions {
+        jniLibs {
+            pickFirsts += ['**/libsdx_cpu.so', '**/libnd4jcpu.so', '**/libc++_shared.so']
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
+    }
+    kotlinOptions {
+        jvmTarget = '11'
+    }
+}
+
+dependencies {
+    implementation 'com.facebook.react:react-native:+'
+}

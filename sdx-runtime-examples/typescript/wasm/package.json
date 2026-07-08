@@ -1,0 +1,18 @@
+{
+  "name": "sdx-runtime-wasm-end-to-end",
+  "version": "0.1.0",
+  "private": true,
+  "description": "End-to-end SDX runtime example for WebAssembly: onnxruntime-web-style TypeScript wrapper over an Emscripten-compiled sdx runtime, with a JS reference ABI that verifies the heap marshaling",
+  "license": "Apache-2.0",
+  "type": "commonjs",
+  "scripts": {
+    "build": "tsc",
+    "start": "npm run build && node dist/end_to_end.js",
+    "start:mock": "npm run build && node dist/end_to_end.js --mock",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@types/node": "^22.5.0",
+    "typescript": "^5.5.4"
+  }
+}
