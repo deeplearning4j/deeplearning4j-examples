@@ -5,7 +5,7 @@
 package org.nd4j.examples.samediff.advanced.generation;
 
 import org.eclipse.deeplearning4j.llm.generation.GenerationPipelineConfig;
-import org.eclipse.deeplearning4j.llm.generation.SamplingConfig;
+import org.eclipse.deeplearning4j.llm.generation.sampling.SamplingConfig;
 import org.nd4j.autodiff.samediff.SDVariable;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.linalg.api.buffer.DataType;

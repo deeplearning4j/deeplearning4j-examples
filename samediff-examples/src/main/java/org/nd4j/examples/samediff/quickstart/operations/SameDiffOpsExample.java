@@ -260,9 +260,9 @@ public class SameDiffOpsExample {
         placeholders.put("x", Nd4j.randn(2, 64));
 
         // Execute and get multiple outputs
-        Map<String, INDArray> results = sd.output(placeholders, "rmsNorm:0");
+        Map<String, INDArray> results = sd.output(placeholders, rmsNormed.name());
         log.info("RMSNorm output shape: {}", java.util.Arrays.toString(
-                results.values().iterator().next().shape()));
+                results.get(rmsNormed.name()).shape()));
 
         log.info("**************** SameDiff Ops Example finished ********************");
     }

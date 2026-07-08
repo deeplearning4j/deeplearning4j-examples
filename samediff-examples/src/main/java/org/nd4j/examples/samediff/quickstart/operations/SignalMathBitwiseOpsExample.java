@@ -112,7 +112,9 @@ public class SignalMathBitwiseOpsExample {
         System.out.println("\n=== Discrete Fourier Transform ===");
         {
             SameDiff sd = SameDiff.create();
-            SDVariable signal = sd.placeHolder("signal", DataType.FLOAT, -1, 256);
+            // DFT requires last dimension = 2 for [real, imag] complex representation.
+            // Shape: [batch, nSamples, 2] where dim1=nSamples is the transform axis.
+            SDVariable signal = sd.placeHolder("signal", DataType.FLOAT, -1, 256, 2);
 
             // Full parameters: axis, inverse, onesided
             SDVariable fft = sd.signal().dft("fft", signal, -2, false, false);
@@ -126,7 +128,8 @@ public class SignalMathBitwiseOpsExample {
             // Default: axis=-2, inverse=false, onesided=false
             SDVariable fftDefault = sd.signal().dft("fftDefault", signal);
 
-            INDArray signalData = Nd4j.randn(DataType.FLOAT, 1, 256);
+            // Complex input: [batch, nSamples, 2] where last dim holds [real, imag]
+            INDArray signalData = Nd4j.randn(DataType.FLOAT, 1, 256, 2);
             Map<String, INDArray> result = sd.output(
                     Collections.singletonMap("signal", signalData), "fft", "rfft");
             System.out.println("  Full FFT shape:    " + result.get("fft").shapeInfoToString());
@@ -263,19 +266,21 @@ public class SignalMathBitwiseOpsExample {
             SDVariable embeddings = sd.var("embeddings",
                     Nd4j.randn(DataType.FLOAT, vocabSize, embDim).mul(0.02));
 
-            // Lookup indices
-            SDVariable indices = sd.placeHolder("indices", DataType.INT, -1, -1);
+            // Lookup indices — use flat 1D indices; embedding_lookup shape-FN uses
+            // indicesShapeInfo[1] (first dim only), so 2D indices cause gather→output
+            // shape mismatch.  1D [numIdx] → gather [numIdx, embDim] matches correctly.
+            SDVariable indices = sd.placeHolder("indices", DataType.INT, -1);
 
             // embeddingLookup(table, indices, partitionMode)
             SDVariable looked = sd.math().embeddingLookup("embedded",
                     embeddings, new SDVariable[]{indices},
                     org.nd4j.enums.PartitionMode.MOD);
 
-            INDArray idxData = Nd4j.createFromArray(new int[][]{{5, 10, 15}, {20, 25, 30}});
+            INDArray idxData = Nd4j.createFromArray(new int[]{5, 10, 15, 20, 25, 30});
             Map<String, INDArray> result = sd.output(
                     Collections.singletonMap("indices", idxData), "embedded");
             System.out.println("  Embedding lookup shape: " + result.get("embedded").shapeInfoToString());
-            System.out.println("  Input indices: [2, 3] -> Output: [2, 3, 64]");
+            System.out.println("  Input indices: [6] -> Output: [6, 64]");
         }
 
         // ============================================================

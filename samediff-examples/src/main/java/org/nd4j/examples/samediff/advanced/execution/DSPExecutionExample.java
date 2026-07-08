@@ -22,6 +22,7 @@ package org.nd4j.examples.samediff.advanced.execution;
 import org.nd4j.autodiff.samediff.SDVariable;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.autodiff.samediff.TrainingConfig;
+import org.nd4j.autodiff.samediff.execution.DspHandle;
 import org.nd4j.linalg.api.buffer.DataType;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
@@ -136,7 +137,30 @@ public class DSPExecutionExample {
         }
 
         // =====================================================================
-        // 5. Save and load the model
+        // 5. DspHandle introspection (available after any sd.output() call)
+        // =====================================================================
+        log.info("=== DspHandle plan inspection ===");
+        // sd.dsp() returns the live plan handle for the CURRENT shape key.
+        // Always call AFTER at least one sd.outputSingle() / sd.output().
+        DspHandle dsp = sd.dsp();
+        log.info("  isCompiled()      = {}", dsp.isCompiled());
+        log.info("  totalSlots()      = {} operation slots in plan", dsp.totalSlots());
+        log.info("  numExternalInputs = {} (placeholders wired into plan)", dsp.numExternalInputs());
+        log.info("  executeCount()    = {} total graph executions", dsp.executeCount());
+        log.info("  planPhase()       = {} (0=SLOT_BY_SLOT 1=SHAPES_FROZEN 2=REPLAYING)", dsp.planPhase());
+        // On CPU, plan may stay at SHAPES_FROZEN (phase=1) because CUDA graph
+        // capture requires GPU. On CUDA, after enough stable executions the plan
+        // advances to REPLAYING (phase=2) for lowest-latency replay.
+        log.info("  numSegments()     = {}", dsp.numSegments());
+        for (int i = 0; i < dsp.numSegments(); i++) {
+            log.info("    segment[{}]: phase={} capturable={} backend={}",
+                    i, dsp.segmentExecutionPhase(i),
+                    dsp.isSegmentCapturable(i),
+                    dsp.segmentBackendName(i));
+        }
+
+        // =====================================================================
+        // 6. Save and load the model
         // =====================================================================
         log.info("=== Model serialization ===");
 

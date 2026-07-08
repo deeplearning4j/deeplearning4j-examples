@@ -241,11 +241,12 @@ public class ImageOpsExample {
             SDVariable image = sd.placeHolder("image", DataType.FLOAT, -1, 64, 64, 3);
 
             // Extract 8x8 patches with stride 8 (non-overlapping)
+            // extractImagePatches API takes exactly 2-element arrays: [kH, kW], [sH, sW], [rH, rW]
             SDVariable patches = sd.image().extractImagePatches("patches", image,
-                    new int[]{1, 8, 8, 1},   // kSizes: [1, kH, kW, 1]
-                    new int[]{1, 8, 8, 1},   // strides: [1, sH, sW, 1]
-                    new int[]{1, 1, 1, 1},   // rates (dilation): [1, rH, rW, 1]
-                    true);                    // sameMode
+                    new int[]{8, 8},   // kSizes: [kH, kW]
+                    new int[]{8, 8},   // strides: [sH, sW]
+                    new int[]{1, 1},   // rates (dilation): [rH, rW]
+                    true);             // sameMode
 
             INDArray imageData = Nd4j.rand(DataType.FLOAT, 1, 64, 64, 3);
             Map<String, INDArray> result = sd.output(

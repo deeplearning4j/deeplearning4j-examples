@@ -196,7 +196,7 @@ public class CNNOpsExample {
             int inCh = 16, outCh = 8, h = 14, w = 14;
 
             SDVariable input = sd.placeHolder("input", DataType.FLOAT, batch, inCh, h, w);
-            SDVariable weights = sd.var("weights", Nd4j.randn(DataType.FLOAT, 4, 4, inCh, outCh).muli(0.1));
+            SDVariable weights = sd.var("weights", Nd4j.randn(DataType.FLOAT, 4, 4, outCh, inCh).muli(0.1));
             SDVariable bias = sd.var("bias", Nd4j.zeros(DataType.FLOAT, outCh));
 
             // Transposed conv with stride 2 => doubles spatial dims
@@ -353,21 +353,23 @@ public class CNNOpsExample {
             SDVariable d2s = sd.cnn().depthToSpace("d2s", input2, 2, DataFormat.NCHW);
 
             // --- Space to Batch ---
-            SDVariable input3 = sd.placeHolder("input_s2b", DataType.FLOAT, batch, 1, 4, 4);
+            // spaceToBatch has no dataFormat param; always expects NHWC [N, H, W, C].
+            // Use NHWC [batch, H=4, W=4, C=1] so H%blockH==0 and W%blockW==0.
+            SDVariable input3 = sd.placeHolder("input_s2b", DataType.FLOAT, batch, 4, 4, 1);
             SDVariable s2b = sd.cnn().spaceToBatch("s2b", input3,
-                    new int[]{2, 2},   // block sizes
+                    new int[]{2, 2},   // block sizes [blockH, blockW]
                     new int[]{0, 0},   // padding top
                     new int[]{0, 0});  // padding bottom
 
             java.util.Map<String, INDArray> ph = new java.util.HashMap<>();
             ph.put("input_s2d", Nd4j.randn(DataType.FLOAT, batch, 3, 8, 8));
             ph.put("input_d2s", Nd4j.randn(DataType.FLOAT, batch, 12, 4, 4));
-            ph.put("input_s2b", Nd4j.randn(DataType.FLOAT, batch, 1, 4, 4));
+            ph.put("input_s2b", Nd4j.randn(DataType.FLOAT, batch, 4, 4, 1));
 
             Map<String, INDArray> result = sd.output(ph, "s2d", "d2s", "s2b");
             System.out.println("  SpaceToDepth [2,3,8,8] block=2 -> " + java.util.Arrays.toString(result.get("s2d").shape()));
             System.out.println("  DepthToSpace [2,12,4,4] block=2 -> " + java.util.Arrays.toString(result.get("d2s").shape()));
-            System.out.println("  SpaceToBatch [2,1,4,4] block=[2,2] -> " + java.util.Arrays.toString(result.get("s2b").shape()));
+            System.out.println("  SpaceToBatch NHWC [2,4,4,1] block=[2,2] -> " + java.util.Arrays.toString(result.get("s2b").shape()));
         }
 
         // ============================================================
@@ -379,8 +381,9 @@ public class CNNOpsExample {
             int inCh = 8, h = 7, w = 7;
             SDVariable input = sd.placeHolder("input", DataType.FLOAT, batch, inCh, h, w);
 
-            // Uniform 2x upsampling
-            SDVariable up2x = sd.cnn().upsampling2d("up2x", input, 2);
+            // Uniform 2x upsampling (must pass scaleH, scaleW, nchw explicitly;
+            // the single-arg overload only adds 1 INT_ARG but C++ needs 3)
+            SDVariable up2x = sd.cnn().upsampling2d("up2x", input, 2, 2, true);
 
             // Non-uniform upsampling (different H/W scale)
             SDVariable upHW = sd.cnn().upsampling2d("upHW", input, 3, 4, true); // scaleH=3, scaleW=4, nchw=true

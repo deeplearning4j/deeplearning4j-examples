@@ -40,7 +40,7 @@ import org.nd4j.linalg.api.buffer.DataType;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.api.ops.impl.transforms.custom.FakeQuantWithMinMaxVars;
 import org.nd4j.linalg.dataset.DataSet;
-import org.nd4j.linalg.dataset.api.iterator.SingletonDataSetIterator;
+import org.nd4j.linalg.dataset.adapter.SingletonDataSetIterator;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.learning.BlockQuantizationUtils;
 import org.nd4j.linalg.learning.config.Adam;
@@ -1413,15 +1413,20 @@ public class GraphOptimizerQuantizedTrainingExample {
             log.info("      {}: {}", String.format("%2d", i + 1), passes.get(i).getClass().getSimpleName());
         }
 
-        // Apply graph optimization
-        SameDiff optimizedSd = GraphOptimizer.optimize(rawSd, "output");
+        // Apply graph optimization. BOTH "output" and "loss" are required outputs here:
+        // this graph is about to be TRAINED, and dead-code elimination prunes everything
+        // unreachable from the required outputs — optimizing with just "output" would
+        // silently strip the loss branch the training loop needs.
+        SameDiff optimizedSd = GraphOptimizer.optimize(rawSd, "output", "loss");
         int optimizedOps = optimizedSd.getOps().size();
         log.info("    Graph: {} → {} ops ({} eliminated)",
                 rawOps, optimizedOps, rawOps - optimizedOps);
 
-        // Apply FP16 quantization to the optimized graph
-        int quantized = QuantizationOptimizations.QuantizeConstantsToFP16.quantizeAllToHalf(optimizedSd);
-        log.info("    Quantization: {} weight arrays → FP16", quantized);
+        // NOTE: weights stay FLOAT through training. The FP16 weight pre-cast
+        // (QuantizeConstantsToFP16) is a DEPLOYMENT optimization — applied after
+        // training in STAGE 4 below. Backprop ops require uniform dtypes, so a graph
+        // with HALF weights and FLOAT activations cannot be fit(); the "quantized"
+        // part of quantized TRAINING is the 8-bit optimizer state (Adam8bit).
 
         // Show remaining ops after optimization
         log.info("    Optimized ops:");
@@ -1432,6 +1437,7 @@ public class GraphOptimizerQuantizedTrainingExample {
 
         // STAGE 2: Configure quantized training
         log.info("\n  STAGE 2: Quantized Training");
+        optimizedSd.setLossVariables("loss");
         optimizedSd.setTrainingConfig(TrainingConfig.builder()
                 .updater(Adam8bit.builder()
                         .learningRate(1e-3)
@@ -1518,13 +1524,29 @@ public class GraphOptimizerQuantizedTrainingExample {
             log.info("\n  DSP not available on this backend: {}", e.getMessage());
         }
 
-        // Summary of the three-stage pipeline
-        log.info("\n  Three-stage pipeline effect:");
-        log.info("    Stage 1 (GraphOptimizer): {} → {} ops, {} arrays → FP16",
-                rawOps, optimizedOps, quantized);
-        log.info("    Stage 2 (Quantized Training): Adam8bit (4x state reduction) + mixed precision");
+        // STAGE 4: Post-training FP16 quantization for deployment.
+        // Now that training is done, halve the weight memory for inference and
+        // verify the quantized model still produces equivalent outputs.
+        log.info("\n  STAGE 4: Post-training FP16 quantization (deployment)");
+        Map<String, INDArray> parityPh = new HashMap<>();
+        parityPh.put("input", ds.getFeatures());
+        INDArray beforeQuant = optimizedSd.output(parityPh, "output").get("output").dup();
+
+        int quantized = QuantizationOptimizations.QuantizeConstantsToFP16.quantizeAllToHalf(optimizedSd);
+        log.info("    Quantization: {} weight arrays → FP16", quantized);
+
+        INDArray afterQuant = optimizedSd.output(parityPh, "output").get("output");
+        double quantDiff = beforeQuant.sub(afterQuant.castTo(DataType.FLOAT)).amaxNumber().doubleValue();
+        log.info("    FP32-trained vs FP16-deployed max diff: {}", String.format("%.6f", quantDiff));
+
+        // Summary of the pipeline
+        log.info("\n  Four-stage pipeline effect:");
+        log.info("    Stage 1 (GraphOptimizer): {} → {} ops", rawOps, optimizedOps);
+        log.info("    Stage 2 (Quantized Training): Adam8bit (4x optimizer-state reduction)");
         log.info("    Stage 3 (DSP): dispatch optimization, warmup→steady {}x speedup",
                 String.format("%.2f", warmupAvg / steadyAvg));
+        log.info("    Stage 4 (Deployment): {} weight arrays → FP16, output max diff {}",
+                quantized, String.format("%.6f", quantDiff));
 
         log.info("");
     }

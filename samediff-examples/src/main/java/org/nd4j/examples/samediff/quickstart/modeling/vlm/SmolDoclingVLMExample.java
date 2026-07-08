@@ -22,32 +22,27 @@ import org.eclipse.deeplearning4j.llm.config.PreprocessorConfig;
 import org.eclipse.deeplearning4j.llm.generation.GenerationPipeline;
 import org.eclipse.deeplearning4j.llm.generation.GenerationPipelineConfig;
 import org.eclipse.deeplearning4j.llm.generation.GenerationResult;
-import org.eclipse.deeplearning4j.llm.generation.KvCacheStrategy;
-import org.eclipse.deeplearning4j.llm.generation.SamplingConfig;
-import org.eclipse.deeplearning4j.llm.tokenizer.ChatTemplate;
+import org.eclipse.deeplearning4j.llm.generation.sampling.SamplingConfig;
 import org.eclipse.deeplearning4j.llm.tokenizer.HuggingFaceTokenizer;
 import org.eclipse.deeplearning4j.llm.tokenizer.Tokenizer;
 import org.eclipse.deeplearning4j.vlm.data.VLMModelDownloader;
 import org.eclipse.deeplearning4j.vlm.data.VLMModelDownloader.VLMModel;
-import org.eclipse.deeplearning4j.vlm.model.EmbeddingMerger;
-import org.eclipse.deeplearning4j.vlm.model.OnnxModelCache;
+import org.eclipse.deeplearning4j.vlm.model.encoder.EmbeddingMerger;
+import org.eclipse.deeplearning4j.vlm.model.encoder.VisionEncoder;
+import org.eclipse.deeplearning4j.vlm.model.encoder.VisionEncoderUtils;
+import org.eclipse.deeplearning4j.vlm.model.loading.OnnxModelCache;
 import org.eclipse.deeplearning4j.vlm.preprocessing.ImagePromptBuilder;
 import org.eclipse.deeplearning4j.vlm.preprocessing.ImageTiler;
 import org.eclipse.deeplearning4j.vlm.preprocessing.VLMImagePreprocessor;
 import org.nd4j.autodiff.samediff.SameDiff;
-import org.nd4j.linalg.api.buffer.DataType;
 import org.nd4j.linalg.api.ndarray.INDArray;
-import org.nd4j.linalg.factory.Nd4j;
 
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
 
 /**
  * SmolDocling Vision-Language Model (VLM) — Document Understanding Example
@@ -60,7 +55,7 @@ import java.util.Map;
  *   1. Download ONNX model components (vision encoder, decoder, embed tokens, tokenizer)
  *   2. Import ONNX models into SameDiff graphs
  *   3. Preprocess an input image (resize, normalize, tile)
- *   4. Encode image tiles through the vision encoder
+ *   4. Encode image tiles through the vision encoder (pixel_values + pixel_attention_mask)
  *   5. Merge vision embeddings with text prompt embeddings
  *   6. Run autoregressive text generation via GenerationPipeline
  *
@@ -75,6 +70,8 @@ import java.util.Map;
  *   - {@link OnnxModelCache} — Imports ONNX to SameDiff with SDZ caching
  *   - {@link VLMImagePreprocessor} — Resize, normalize, pad images for the vision encoder
  *   - {@link ImageTiler} — Split large images into tiles for multi-frame encoding
+ *   - {@link VisionEncoder} — Runs per-frame SigLIP forward pass (feeds both pixel_values
+ *     and pixel_attention_mask from the tiling content regions)
  *   - {@link EmbeddingMerger} — Splice vision embeddings into text embedding sequences
  *   - {@link ImagePromptBuilder} — Build prompt strings with tile grid tokens
  *   - {@link GenerationPipeline} — Autoregressive text generation with KV cache
@@ -86,7 +83,7 @@ import java.util.Map;
  *
  * Run with:
  *   cd samediff-examples
- *   mvn exec:java -Dexec.mainClass="org.nd4j.examples.samediff.quickstart.modeling.SmolDoclingVLMExample"
+ *   mvn exec:java -Dexec.mainClass="org.nd4j.examples.samediff.quickstart.modeling.vlm.SmolDoclingVLMExample"
  */
 public class SmolDoclingVLMExample {
 
@@ -108,7 +105,7 @@ public class SmolDoclingVLMExample {
         File decoderFile = VLMModelDownloader.download(VLMModel.SMOLDOCLING_DECODER).getModelFile();
         File embedTokensFile = VLMModelDownloader.download(VLMModel.SMOLDOCLING_EMBED_TOKENS).getModelFile();
         File visionEncoderFile = VLMModelDownloader.download(VLMModel.SMOLDOCLING_VISION_ENCODER).getModelFile();
-        File tokenizerDir = VLMModelDownloader.download(VLMModel.SMOLDOCLING_TOKENIZER).getModelFile();
+        File tokenizerFile = VLMModelDownloader.download(VLMModel.SMOLDOCLING_TOKENIZER).getModelFile();
         File preprocessorConfigFile = VLMModelDownloader.download(VLMModel.SMOLDOCLING_PREPROCESSOR_CONFIG).getModelFile();
 
         long downloadMs = System.currentTimeMillis() - t0;
@@ -117,23 +114,24 @@ public class SmolDoclingVLMExample {
         // ============================================================
         // 2. IMPORT ONNX MODELS INTO SAMEDIFF
         // ============================================================
-        System.out.println("\n=== 2. Importing ONNX → SameDiff ===");
+        System.out.println("\n=== 2. Importing ONNX -> SameDiff ===");
 
         // OnnxModelCache imports ONNX files and caches the SameDiff result as .sdz
         // files alongside the originals. Subsequent loads skip ONNX parsing entirely.
         long t1 = System.currentTimeMillis();
         SameDiff decoder = OnnxModelCache.importWithCache(decoderFile.getAbsolutePath());
         SameDiff embedTokens = OnnxModelCache.importWithCache(embedTokensFile.getAbsolutePath());
-        SameDiff visionEncoder = OnnxModelCache.importWithCache(visionEncoderFile.getAbsolutePath());
+        SameDiff visionEncoderSd = OnnxModelCache.importWithCache(visionEncoderFile.getAbsolutePath());
         long importMs = System.currentTimeMillis() - t1;
 
         System.out.println("  Import time: " + importMs + "ms");
         System.out.println("  Decoder:        " + decoder.ops().length + " ops");
         System.out.println("  Embed tokens:   " + embedTokens.ops().length + " ops");
-        System.out.println("  Vision encoder: " + visionEncoder.ops().length + " ops");
+        System.out.println("  Vision encoder: " + visionEncoderSd.ops().length + " ops");
+        System.out.println("  Vision encoder inputs: " + visionEncoderSd.inputs());
 
-        // Load the tokenizer
-        Tokenizer tokenizer = HuggingFaceTokenizer.fromDirectory(tokenizerDir);
+        // Load the tokenizer — the downloader returns the tokenizer.json file itself
+        Tokenizer tokenizer = HuggingFaceTokenizer.fromFile(tokenizerFile);
         System.out.println("  Tokenizer vocab: " + tokenizer.getVocabSize() + " tokens");
 
         // ============================================================
@@ -147,45 +145,48 @@ public class SmolDoclingVLMExample {
 
         // Load the preprocessor config (normalization mean/std, target resolution)
         PreprocessorConfig ppConfig = PreprocessorConfig.fromFile(preprocessorConfigFile);
-        VLMImagePreprocessor preprocessor = VLMImagePreprocessor.fromConfig(ppConfig);
+        int tileSize = ppConfig.getTargetHeight();   // 512 for SmolDocling
+        System.out.println("  Tile size from preprocessor_config.json: " + tileSize);
 
         // Split the image into tiles for multi-frame encoding.
         // Large images are divided into a grid of tiles (e.g., 2x2), each processed
         // independently through the vision encoder then concatenated.
         ImageTiler.SplitImageResult tileResult = ImageTiler.splitImageForVLM(
-                testImage, ppConfig.getTargetHeight());
+                testImage, tileSize);
 
+        int frames = tileResult.getTotalFrames();
         System.out.println("  Tile grid: " + tileResult.numRows + "x" + tileResult.numCols
-                + " (" + tileResult.frames.size() + " tiles)");
+                + " (" + frames + " frames total including global)");
 
-        // Preprocess each tile: resize to target resolution, normalize pixel values
-        List<INDArray> preprocessedFrames = new ArrayList<INDArray>();
-        for (BufferedImage frame : tileResult.frames) {
-            preprocessedFrames.add(preprocessor.preprocess(frame));
-        }
-        System.out.println("  Preprocessed frame shape: " + Arrays.toString(preprocessedFrames.get(0).shape()));
+        // Normalize all frames into one [1, frames, 3, tileSize, tileSize] tensor.
+        // VisionEncoderUtils.preprocessFrames handles resize + normalize for each frame.
+        VLMImagePreprocessor preprocessor = VLMImagePreprocessor.fromConfig(ppConfig);
+        INDArray imageInput = VisionEncoderUtils.preprocessFrames(tileResult.frames, preprocessor, tileSize);
+        preprocessor.shutdown();
+        System.out.println("  Preprocessed image tensor shape: " + Arrays.toString(imageInput.shape()));
 
         // ============================================================
         // 4. VISION ENCODING
         // ============================================================
         System.out.println("\n=== 4. Vision Encoding ===");
+        System.out.println("  Vision encoder inputs: " + visionEncoderSd.inputs());
 
-        // Run each preprocessed tile through the SigLIP vision encoder.
-        // Input:  [1, 3, 384, 384] per tile (RGB normalized)
-        // Output: [1, numPatches, 1152] per tile (patch embeddings)
-        String visionInput = visionEncoder.inputs().get(0);
-        String visionOutput = visionEncoder.outputs().get(0);
+        // Run all tiles through the SigLIP vision encoder using VisionEncoder.
+        // VisionEncoder feeds BOTH pixel_values ([1,3,tileSize,tileSize] per frame) AND
+        // pixel_attention_mask ([1,tileSize,tileSize] per frame, derived from the content
+        // region of each tile) — this is the correct multi-input API.
+        //
+        // Input:  imageInput [1, frames, 3, tileSize, tileSize]
+        // Output: [1, frames * numPatches, hidden] per tile (patch embeddings concatenated)
+        VisionEncoder visionEncoder = VisionEncoder.builder()
+                .model(visionEncoderSd)
+                .targetSize(tileSize)
+                .build();
 
         long t2 = System.currentTimeMillis();
-        List<INDArray> encodedFrames = new ArrayList<INDArray>();
-        for (INDArray frame : preprocessedFrames) {
-            Map<String, INDArray> visionResult = visionEncoder.output(
-                    java.util.Collections.singletonMap(visionInput, frame), visionOutput);
-            encodedFrames.add(visionResult.get(visionOutput));
-        }
-
-        // Concatenate all tile embeddings along the sequence dimension
-        INDArray visionEmbeddings = Nd4j.concat(1, encodedFrames.toArray(new INDArray[0]));
+        VisionEncoder.Result visionResult = visionEncoder.encode(imageInput, frames, tileResult);
+        imageInput.close();
+        INDArray visionEmbeddings = visionResult.getEmbeddings();
         long visionMs = System.currentTimeMillis() - t2;
 
         System.out.println("  Vision encoding time: " + visionMs + "ms");
@@ -197,67 +198,64 @@ public class SmolDoclingVLMExample {
         // ============================================================
         System.out.println("\n=== 5. Building Merged Embeddings ===");
 
-        // Build the prompt string with image tile grid tokens.
-        // ImagePromptBuilder creates the correct <row_X_col_Y> token pattern
-        // that tells the model about the spatial layout of image tiles.
-        String prompt = ImagePromptBuilder.buildImagePromptString(
-                tileResult.numRows, tileResult.numCols, (int) visionEmbeddings.shape()[1]);
-
-        // Encode the prompt text into token IDs
-        int[] promptTokenIds = tokenizer.encode(prompt, false).getIds();
-        System.out.println("  Prompt tokens: " + promptTokenIds.length);
-
-        // Look up text embeddings for the prompt tokens
-        INDArray inputIds = Nd4j.createFromArray(promptTokenIds)
-                .reshape(1, promptTokenIds.length).castTo(DataType.INT64);
-        String embedInput = embedTokens.inputs().get(0);
-        String embedOutput = embedTokens.outputs().get(0);
-        Map<String, INDArray> embedResult = embedTokens.output(
-                java.util.Collections.singletonMap(embedInput, inputIds), embedOutput);
-        INDArray textEmbeddings = embedResult.get(embedOutput);
-
-        System.out.println("  Text embeddings shape: " + Arrays.toString(textEmbeddings.shape()));
-
-        // Merge vision and text embeddings.
-        // EmbeddingMerger replaces <image> token positions in the text embedding
-        // sequence with the corresponding vision encoder outputs.
-        Integer imageTokenId = tokenizer.getTokenId("<image>");
+        // Resolve the <image> token ID from the tokenizer
+        int imageTokenId = ImagePromptBuilder.resolveImageTokenId(tokenizer);
         System.out.println("  <image> token ID: " + imageTokenId);
 
-        INDArray mergedEmbeddings = EmbeddingMerger.mergeEmbeddings(
-                textEmbeddings, visionEmbeddings, promptTokenIds, imageTokenId);
-        System.out.println("  Merged embeddings shape: " + Arrays.toString(mergedEmbeddings.shape()));
+        // Build the prompt string with image tile grid tokens.
+        // seqPerFrame is the number of vision tokens per frame (not total).
+        // ImagePromptBuilder creates the correct <row_X_col_Y> token pattern
+        // that tells the model about the spatial layout of image tiles.
+        int seqPerFrame = (int) (visionEmbeddings.size(1) / frames);
+        String imagePrompt = ImagePromptBuilder.buildImagePromptString(
+                tileResult.numRows, tileResult.numCols, seqPerFrame);
+        // Idefics3 / SmolDocling chat format: User: <image-tokens> task instruction
+        String chatPrompt = "<|im_start|>User:" + imagePrompt
+                + "Convert this page to docling.<end_of_utterance>\nAssistant:";
 
-        long hiddenSize = mergedEmbeddings.shape()[2];
-        System.out.println("  Hidden size: " + hiddenSize);
+        // Encode the prompt text into token IDs
+        int[] promptTokenIds = tokenizer.encode(chatPrompt, false).getIds();
+        System.out.println("  Prompt tokens: " + promptTokenIds.length);
 
-        // ============================================================
-        // 6. TEXT GENERATION WITH GENERATIONPIPELINE
-        // ============================================================
-        System.out.println("\n=== 6. Generating Text from Image ===");
-
-        // Build the generation pipeline with the decoder and tokenizer.
-        // For VLM, we provide pre-computed merged embeddings rather than a text prompt.
+        // Look up text embeddings for the prompt tokens via the generation pipeline's
+        // embedTokens helper (avoids duplicating the embed_tokens forward pass).
+        // We create the pipeline first so we can reuse embedTokens.
         GenerationPipelineConfig pipelineConfig = GenerationPipelineConfig.builder()
                 .decoder(decoder)
                 .embedTokens(embedTokens)
                 .tokenizer(tokenizer)
                 .samplingConfig(SamplingConfig.greedy())    // Deterministic for document OCR
                 .maxNewTokens(100)                          // Max output tokens
-                .hiddenSize(hiddenSize)                     // Must match merged embedding dim
-                .kvCacheStrategy(KvCacheStrategy.STATIC)    // Pre-allocated KV cache
                 .build();
 
         GenerationResult result;
         try (GenerationPipeline pipeline = GenerationPipeline.create(pipelineConfig)) {
-            System.out.println("  Pipeline created with auto-discovered I/O config");
+            System.out.println("  Pipeline created");
+
+            INDArray textEmbeddings = pipeline.embedTokens(promptTokenIds);
+            System.out.println("  Text embeddings shape: " + Arrays.toString(textEmbeddings.shape()));
+
+            // Merge vision and text embeddings.
+            // EmbeddingMerger replaces <image> token positions in the text embedding
+            // sequence with the corresponding vision encoder outputs.
+            INDArray mergedEmbeddings = EmbeddingMerger.mergeEmbeddings(
+                    textEmbeddings, visionEmbeddings, promptTokenIds, imageTokenId);
+            System.out.println("  Merged embeddings shape: " + Arrays.toString(mergedEmbeddings.shape()));
+
+            long hiddenSize = mergedEmbeddings.shape()[2];
+            System.out.println("  Hidden size: " + hiddenSize);
+
+            // ============================================================
+            // 6. TEXT GENERATION WITH GENERATIONPIPELINE
+            // ============================================================
+            System.out.println("\n=== 6. Generating Text from Image ===");
 
             // Generate text from the merged vision+text embeddings.
             // The pipeline handles:
             //   - Prefill: process all input embeddings through the decoder
             //   - Decode: autoregressive generation one token at a time
             //   - KV cache: cache key/value tensors to avoid recomputation
-            result = pipeline.generate(mergedEmbeddings, promptTokenIds);
+            result = pipeline.generate(mergedEmbeddings, promptTokenIds, 100);
         }
 
         // ============================================================
@@ -279,13 +277,14 @@ public class SmolDoclingVLMExample {
         // ============================================================
         System.out.println("\n=== 8. VLM Pipeline Summary ===");
         System.out.println("  Full VLM pipeline stages:");
-        System.out.println("    1. Image → ImageTiler.splitImageForVLM()       → tiles");
-        System.out.println("    2. Tiles → VLMImagePreprocessor.preprocess()    → normalized tensors");
-        System.out.println("    3. Tensors → Vision encoder forward pass        → vision embeddings");
-        System.out.println("    4. Prompt → tokenizer.encode()                  → token IDs");
-        System.out.println("    5. Token IDs → embed_tokens forward pass        → text embeddings");
-        System.out.println("    6. EmbeddingMerger.mergeEmbeddings()            → merged embeddings");
-        System.out.println("    7. Merged → GenerationPipeline.generate()       → output text");
+        System.out.println("    1. Image -> ImageTiler.splitImageForVLM()              -> SplitImageResult (frames + content regions)");
+        System.out.println("    2. Frames -> VisionEncoderUtils.preprocessFrames()     -> [1, frames, 3, H, W] tensor");
+        System.out.println("    3. Tensor -> VisionEncoder.encode(imageInput, frames)  -> vision embeddings [1, frames*patches, hidden]");
+        System.out.println("       (feeds pixel_values + pixel_attention_mask per frame using content regions)");
+        System.out.println("    4. Prompt -> tokenizer.encode()                        -> token IDs");
+        System.out.println("    5. Token IDs -> pipeline.embedTokens()                 -> text embeddings");
+        System.out.println("    6. EmbeddingMerger.mergeEmbeddings()                   -> merged embeddings");
+        System.out.println("    7. Merged -> GenerationPipeline.generate()             -> output text");
         System.out.println();
         System.out.println("  For simpler usage, VisionLanguageModel wraps all these steps:");
         System.out.println("    VisionLanguageModel vlm = VisionLanguageModel.fromOnnx(");

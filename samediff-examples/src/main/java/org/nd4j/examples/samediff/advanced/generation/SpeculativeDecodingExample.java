@@ -19,9 +19,9 @@
 package org.nd4j.examples.samediff.advanced.generation;
 
 import org.eclipse.deeplearning4j.llm.generation.GenerationPipelineConfig;
-import org.eclipse.deeplearning4j.llm.generation.NgramSpeculator;
-import org.eclipse.deeplearning4j.llm.generation.SamplingConfig;
-import org.eclipse.deeplearning4j.llm.generation.SpeculativeDecodeLoop;
+import org.eclipse.deeplearning4j.llm.generation.sampling.SamplingConfig;
+import org.eclipse.deeplearning4j.llm.generation.speculative.NgramSpeculator;
+import org.eclipse.deeplearning4j.llm.generation.speculative.SpeculativeDecodeLoop;
 
 import java.util.ArrayList;
 import java.util.Arrays;

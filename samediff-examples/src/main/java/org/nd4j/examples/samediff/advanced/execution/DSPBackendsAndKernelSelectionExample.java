@@ -19,6 +19,8 @@
 
 package org.nd4j.examples.samediff.advanced.execution;
 
+import org.eclipse.deeplearning4j.model.benchmark.BenchmarkConfig;
+import org.eclipse.deeplearning4j.model.benchmark.BenchmarkConfigApplier;
 import org.nd4j.autodiff.samediff.SDVariable;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.autodiff.samediff.execution.*;
@@ -138,6 +140,34 @@ public class DSPBackendsAndKernelSelectionExample {
         log.info("Output shape: {}", Arrays.toString(result.shape()));
 
         // =====================================================================
+        // 2b. LIVE segment backend inspection
+        // =====================================================================
+        // Run a few more times to let the plan progress past warmup.
+        // On CPU, AUTO maps to EMULATED_REPLAY — segmentBackendName() returns "emulated_replay".
+        // On CUDA without Triton: returns "cuda_graphs".
+        // On CUDA with Triton: returns "triton", "nvrtc", or "cuda_graphs" per segment.
+        for (int i = 0; i < 3; i++) {
+            ph.put("input", Nd4j.randn(8, 64));
+            sd.outputSingle(ph, "output");
+        }
+        DspHandle dspLive = sd.dsp();
+        if (dspLive.isCompiled()) {
+            log.info("\nLive segment backend inspection (after {} executions):", dspLive.executeCount());
+            int numSegs = dspLive.numSegments();
+            for (int s = 0; s < numSegs; s++) {
+                log.info("  Segment {}: backend='{}', phase={}, replays={}, capturable={}",
+                        s, dspLive.segmentBackendName(s),
+                        dspLive.segmentExecutionPhase(s),
+                        dspLive.segmentReplayCount(s),
+                        dspLive.isSegmentCapturable(s));
+            }
+            log.info("  planPhase={} (0=SLOT_BY_SLOT, 1=SHAPES_FROZEN, 2=REPLAYING)",
+                    dspLive.planPhase());
+        } else {
+            log.info("Plan not yet compiled — run sd.output() first");
+        }
+
+        // =====================================================================
         // 3. Explicit DSP Compilation
         // =====================================================================
         log.info("\n=== 3. Explicit DSP Compilation ===");
@@ -182,6 +212,52 @@ public class DSPBackendsAndKernelSelectionExample {
         log.info("");
         log.info("WARNING: After freezing, all inputs must have the same shape.");
         log.info("Passing a different shape will cause an error, not recompilation.");
+
+        // =====================================================================
+        // 4b. BenchmarkConfig Production Presets
+        // =====================================================================
+        log.info("\n=== 4b. BenchmarkConfig Production Presets ===");
+        log.info("BenchmarkConfig provides tested, named execution configurations.");
+        log.info("Use BenchmarkConfigApplier.apply(config) to activate one.");
+        log.info("");
+
+        // CPU presets — all work on CPU machines; GPU presets require CUDA.
+        BenchmarkConfig cpuSlotBySlot = BenchmarkConfig.cpuSlotBySlot();
+        log.info("cpuSlotBySlot: mode={}, tritonSectionFusion={}",
+                cpuSlotBySlot.getExecutionMode(), cpuSlotBySlot.isTritonSectionFusion());
+
+        BenchmarkConfig cpuCascade = BenchmarkConfig.cpuCascade();
+        log.info("cpuCascade:    mode={}, tritonSectionFusion={}",
+                cpuCascade.getExecutionMode(), cpuCascade.isTritonSectionFusion());
+
+        BenchmarkConfig cpuOpenVino = BenchmarkConfig.cpuOpenVino();
+        log.info("cpuOpenVino:   mode={}, tritonSectionFusion={}",
+                cpuOpenVino.getExecutionMode(), cpuOpenVino.isTritonSectionFusion());
+
+        BenchmarkConfig optimal = BenchmarkConfig.optimal();
+        log.info("optimal:       mode={}, tritonSectionFusion={}, tritonIncludeTypes={}",
+                optimal.getExecutionMode(), optimal.isTritonSectionFusion(),
+                optimal.getTritonIncludeTypes());
+
+        // Apply the cpuCascade preset to the Nd4j environment.
+        // This wires all DSP system properties to match the preset,
+        // exactly as run-benchmark.sh --config SLOT_BY_SLOT would do.
+        BenchmarkConfigApplier.apply(cpuCascade);
+        log.info("Applied cpuCascade preset via BenchmarkConfigApplier.apply()");
+        log.info("  (sets nd4j.dsp.* system properties to match the preset config)");
+
+        // Reset to AUTO so the rest of the example runs in default mode.
+        BenchmarkConfigApplier.apply(BenchmarkConfig.optimal());
+        log.info("Reset to optimal preset.");
+        log.info("");
+        log.info("CRITICAL RULE — why hardcoding SLOT_BY_SLOT as a workaround is BANNED:");
+        log.info("  Calling sd.setGraphExecutionMode(GraphExecutionMode.SLOT_BY_SLOT)");
+        log.info("  prevents DSP from advancing through its lifecycle:");
+        log.info("    SLOT_BY_SLOT -> SHAPES_FROZEN -> REPLAYING");
+        log.info("  This destroys CUDA graph capture/replay and causes 5-10x perf regression.");
+        log.info("  SLOT_BY_SLOT mode is ONLY legal via BenchmarkConfigApplier as a measurement");
+        log.info("  baseline. If a bug appears during capture/replay, FIX the capture/replay code");
+        log.info("  — do NOT force SLOT_BY_SLOT to hide the bug.");
 
         // =====================================================================
         // 5. KernelSelectionConfig — Per-Op Engine Selection

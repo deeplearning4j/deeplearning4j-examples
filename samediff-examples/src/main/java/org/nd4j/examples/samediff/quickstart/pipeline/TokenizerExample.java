@@ -21,8 +21,12 @@ import java.util.List;
  */
 public class TokenizerExample {
 
-    // A minimal valid BPE tokenizer.json with a small vocabulary.
+    // A minimal VALID byte-level BPE tokenizer.json with a small vocabulary.
     // This lets the example run without downloading any model files.
+    // Rules the native tokenizers library enforces:
+    //   - every merge is a PAIR "A B" where A, B and the concatenation AB all exist in vocab
+    //   - with a ByteLevel pre-tokenizer, a space is the byte-level symbol "Ġ" (Ġ),
+    //     so the vocab holds "Ġ" / "Ġw" rather than a raw " " entry
     private static final String TOKENIZER_JSON =
             "{\"version\":\"1.0\",\"truncation\":null,\"padding\":null," +
             "\"added_tokens\":[" +
@@ -37,9 +41,9 @@ public class TokenizerExample {
             "\"continuing_subword_prefix\":null,\"end_of_word_suffix\":null," +
             "\"fuse_unk\":false,\"byte_fallback\":false," +
             "\"vocab\":{\"<s>\":0,\"</s>\":1," +
-            "\"H\":2,\"e\":3,\"l\":4,\"o\":5,\" \":6,\"w\":7,\"r\":8,\"d\":9,\"!\":10," +
-            "\"he\":11,\"ll\":12,\"wo\":13,\"rld\":14}," +
-            "\"merges\":[\"h e\",\"l l\",\"w o\",\"r l d\"]}}";
+            "\"H\":2,\"e\":3,\"l\":4,\"o\":5,\"\\u0120\":6,\"w\":7,\"r\":8,\"d\":9,\"!\":10," +
+            "\"He\":11,\"ll\":12,\"\\u0120w\":13,\"or\":14,\"ld\":15}," +
+            "\"merges\":[\"H e\",\"l l\",\"\\u0120 w\",\"o r\",\"l d\"]}}";
 
     public static void main(String[] args) throws Exception {
 

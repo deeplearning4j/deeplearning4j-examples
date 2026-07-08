@@ -204,25 +204,39 @@ public class DSPDiskCacheAndTritonExample {
         log.info("Triton available: {}", tritonAvailable);
 
         if (tritonAvailable) {
-            // Export all cached Triton kernels to a portable bundle
+            // Export all cached Triton kernels to a portable bundle.
             // This bundle contains compiled PTX/AMDGCN and can be imported
             // on another machine with the same GPU architecture.
+            // NOTE: exportCache throws IllegalStateException on CPU (no GPU kernel cache).
+            // Wrap in try-catch so the example runs on CPU without crashing.
             Path exportPath = Paths.get(System.getProperty("java.io.tmpdir"), "triton-cache.tkcache");
-            int numExported = TritonCacheManager.exportCache(exportPath);
-            log.info("Exported {} Triton kernel entries to {}", numExported, exportPath);
+            try {
+                int numExported = TritonCacheManager.exportCache(exportPath);
+                log.info("Exported {} Triton kernel entries to {}", numExported, exportPath);
 
-            // Inspect a bundle without importing
-            String manifest = TritonCacheManager.inspectBundle(exportPath);
-            log.info("Bundle manifest (JSON): {}", manifest);
+                // Inspect a bundle without importing
+                String manifest = TritonCacheManager.inspectBundle(exportPath);
+                log.info("Bundle manifest (JSON): {}", manifest);
 
-            // Import a bundle (validates GPU architecture compatibility)
-            int numImported = TritonCacheManager.importCache(exportPath);
-            log.info("Imported {} Triton kernel entries", numImported);
+                // Import a bundle (validates GPU architecture compatibility)
+                int numImported = TritonCacheManager.importCache(exportPath);
+                log.info("Imported {} Triton kernel entries", numImported);
 
-            // Import with architecture validation skipped (cross-platform deployment)
-            // Returns -2 if architecture is incompatible (when validation is on)
-            // int imported = TritonCacheManager.importCache(exportPath, false);
-            log.info("  importCache(path, false) — skip architecture validation");
+                // Import with architecture validation skipped (cross-platform deployment)
+                // Returns -2 if architecture is incompatible (when validateArch=true)
+                // int imported = TritonCacheManager.importCache(exportPath, false);
+                log.info("  importCache(path, false) — skip architecture validation");
+            } catch (IllegalStateException | IllegalArgumentException e) {
+                // On CPU (or when no Triton kernels have been compiled yet),
+                // exportCache returns error code -1 and throws. This is expected.
+                log.info("Triton cache export not available on this platform: {}", e.getMessage());
+                log.info("  (Triton support is compiled in, but kernel cache requires GPU execution first)");
+                log.info("  On CUDA with compiled Triton kernels, this would export a portable bundle.");
+                log.info("  TritonCacheManager.exportCache(Path) → int (entries exported)");
+                log.info("  TritonCacheManager.importCache(Path) → int (entries imported)");
+                log.info("  TritonCacheManager.importCache(Path, validateArch) → int (-2 = arch mismatch)");
+                log.info("  TritonCacheManager.inspectBundle(Path) → String (JSON manifest)");
+            }
         } else {
             log.info("Triton not available — showing API reference only");
             log.info("  TritonCacheManager.exportCache(Path) → int (entries exported)");

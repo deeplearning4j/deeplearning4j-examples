@@ -141,6 +141,11 @@ public class DistillationTrainingPipelineExample {
         // Named hidden for feature matching
         SDVariable h1 = sd.nn.relu("t_feat1", input.mmul(w1).add(b1), 0);
 
+        // Projection to 64-dim for feature matching with the student's s_feat1 (also 64-dim)
+        SDVariable wProj = sd.var("t_wproj", Nd4j.randn(DataType.FLOAT, 512, 64).muli(0.02));
+        SDVariable bProj = sd.var("t_bproj", Nd4j.zeros(DataType.FLOAT, 64));
+        sd.nn.relu("t_feat_small", h1.mmul(wProj).add(bProj), 0);
+
         SDVariable w2 = sd.var("t_w2", Nd4j.randn(DataType.FLOAT, 512, 256).muli(0.02));
         SDVariable b2 = sd.var("t_b2", Nd4j.zeros(DataType.FLOAT, 256));
         SDVariable h2 = sd.nn.relu("t_feat2", h1.mmul(w2).add(b2), 0);
@@ -275,7 +280,7 @@ public class DistillationTrainingPipelineExample {
         // so the trainer uses the no-projection path and both are passed raw.
         // For an exact match demo we use the same-dim variables (both relu outputs).
         Map<String, String> featureMappings = new LinkedHashMap<>();
-        featureMappings.put("s_feat1", "t_feat1");  // student [batch,64] → teacher [batch,512]
+        featureMappings.put("s_feat1", "t_feat_small");  // student [batch,64] → teacher projection [batch,64]
 
         DistillationConfig featureConfig = DistillationConfig.featureKD(featureMappings);
 

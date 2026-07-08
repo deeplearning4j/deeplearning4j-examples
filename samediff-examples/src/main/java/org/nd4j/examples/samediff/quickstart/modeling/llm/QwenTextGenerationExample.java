@@ -25,7 +25,7 @@ import org.eclipse.deeplearning4j.llm.data.LLMModelDownloader.QuantType;
 import org.eclipse.deeplearning4j.llm.generation.GenerationPipeline;
 import org.eclipse.deeplearning4j.llm.generation.GenerationPipelineConfig;
 import org.eclipse.deeplearning4j.llm.generation.GenerationResult;
-import org.eclipse.deeplearning4j.llm.generation.SamplingConfig;
+import org.eclipse.deeplearning4j.llm.generation.sampling.SamplingConfig;
 import org.eclipse.deeplearning4j.llm.tokenizer.ChatTemplate;
 import org.eclipse.deeplearning4j.llm.tokenizer.Encoding;
 import org.eclipse.deeplearning4j.llm.tokenizer.HuggingFaceTokenizer;

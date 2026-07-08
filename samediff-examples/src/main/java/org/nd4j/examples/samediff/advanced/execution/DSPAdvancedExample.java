@@ -21,6 +21,7 @@ package org.nd4j.examples.samediff.advanced.execution;
 
 import org.nd4j.autodiff.samediff.SDVariable;
 import org.nd4j.autodiff.samediff.SameDiff;
+import org.nd4j.autodiff.samediff.execution.DspHandle;
 import org.nd4j.linalg.api.buffer.DataType;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
@@ -243,6 +244,33 @@ public class DSPAdvancedExample {
         ph.put("input", Nd4j.randn(32, 128));
         result = sd.outputSingle(ph, "output");
         log.info("  Output shape: {}", java.util.Arrays.toString(result.shape()));
+
+        // =====================================================================
+        // 5. DspHandle live introspection (real API calls, not just docs)
+        // =====================================================================
+        log.info("=== DspHandle introspection (sd.dsp()) ===");
+        // sd.dsp() is valid only after at least one sd.output() call.
+        DspHandle dsp = sd.dsp();
+        log.info("  isCompiled()      = {}", dsp.isCompiled());
+        log.info("  totalSlots()      = {}", dsp.totalSlots());
+        log.info("  numExternalInputs = {}", dsp.numExternalInputs());
+        log.info("  executeCount()    = {}", dsp.executeCount());
+        log.info("  planPhase()       = {} (0=SLOT_BY_SLOT 1=SHAPES_FROZEN 2=REPLAYING)", dsp.planPhase());
+        log.info("  frozenExecCount() = {}", dsp.frozenExecCount());
+        log.info("  numSegments()     = {}", dsp.numSegments());
+        if (dsp.isCompiled()) {
+            log.info("  planSummary() summary (first 200 chars): {}",
+                    dsp.planSummary().substring(0, Math.min(200, dsp.planSummary().length())));
+        }
+        // firstNaNSlot returns -1 when no NaN found (healthy)
+        int nanSlot = dsp.firstNaNSlot();
+        log.info("  firstNaNSlot()    = {} ({})", nanSlot, nanSlot < 0 ? "no NaN — healthy" : "NaN detected");
+        // Buffer coloring: memory reuse between non-overlapping slots
+        log.info("  bufferColoringApplied() = {}", dsp.bufferColoringApplied());
+        if (dsp.bufferColoringApplied()) {
+            log.info("  bufferColoringNumColors()  = {}", dsp.bufferColoringNumColors());
+            log.info("  bufferColoringBytesSaved() = {} bytes", dsp.bufferColoringBytesSaved());
+        }
 
         log.info("**************** DSP Advanced Example finished ********************");
     }

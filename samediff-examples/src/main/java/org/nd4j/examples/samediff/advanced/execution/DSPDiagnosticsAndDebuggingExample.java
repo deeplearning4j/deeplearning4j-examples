@@ -123,9 +123,7 @@ public class DSPDiagnosticsAndDebuggingExample {
         log.info("  MULTI_DEVICE    (1<<15) — multi-device placement");
         log.info("  GRAPH_REPLAY    (1<<16) — graph replay lifecycle");
         log.info("  SEGMENT_BUCKETS (1<<17) — segment bucketing");
-        log.info("  LIFECYCLE       (1<<18) — plan lifecycle events");
-        log.info("  COLORING        (1<<19) — buffer coloring optimization");
-        log.info("  NONE=0, ALL=0xFFFFF");
+        log.info("  NONE=0, ALL=0x3FFFF (18 categories, bits 0–17)");
 
         // Enable specific categories
         int categories = DspDiagnostics.COMPILE | DspDiagnostics.EXECUTE | DspDiagnostics.TIMING;

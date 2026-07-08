@@ -10,12 +10,14 @@ import org.eclipse.deeplearning4j.pipeline.PipelineLoader;
 import org.eclipse.deeplearning4j.pipeline.PipelineLoader.LoadConfig;
 import org.nd4j.autodiff.samediff.SDVariable;
 import org.nd4j.autodiff.samediff.SameDiff;
+import org.nd4j.autodiff.samediff.serde.SDZSerializer;
 import org.nd4j.linalg.api.buffer.DataType;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
 
 import java.io.File;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -58,7 +60,9 @@ public class AutoModelExample {
 
         File tmpFile = File.createTempFile("automodel-demo", ".sdz");
         tmpFile.deleteOnExit();
-        sd.save(tmpFile, false);
+        // .sdz is the zip-based SDZ format — write it with SDZSerializer. (SameDiff.save()
+        // writes the FlatBuffers .sdnb format, which AutoModel would not read as a .sdz.)
+        SDZSerializer.save(sd, tmpFile, false, Collections.emptyMap());
 
         System.out.println("  Saved to: " + tmpFile.getAbsolutePath());
         System.out.println("  File size: " + tmpFile.length() + " bytes");
@@ -147,7 +151,7 @@ public class AutoModelExample {
 
         File tmpFile2 = File.createTempFile("automodel-larger", ".sdz");
         tmpFile2.deleteOnExit();
-        sd2.save(tmpFile2, false);
+        SDZSerializer.save(sd2, tmpFile2, false, Collections.emptyMap());
 
         INDArray testIn2 = Nd4j.rand(DataType.FLOAT, 3, 16);
         Map<String, INDArray> ph2 = new HashMap<>();

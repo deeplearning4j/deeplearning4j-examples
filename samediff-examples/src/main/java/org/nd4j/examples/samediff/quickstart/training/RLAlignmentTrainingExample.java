@@ -21,7 +21,6 @@ package org.nd4j.examples.samediff.quickstart.training;
 
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.autodiff.samediff.SDVariable;
-import org.nd4j.autodiff.samediff.TrainingConfig;
 import org.nd4j.autodiff.samediff.config.DAPOConfig;
 import org.nd4j.autodiff.samediff.execution.DspHandle;
 import org.nd4j.autodiff.samediff.execution.PlanPhase;
@@ -47,7 +46,6 @@ import org.nd4j.autodiff.samediff.training.PreferencePair;
 import org.nd4j.autodiff.samediff.training.RLAlignmentPipeline;
 import org.nd4j.autodiff.samediff.training.TrainingResult;
 import org.nd4j.linalg.api.buffer.DataType;
-import org.nd4j.linalg.learning.config.Adam;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
 import org.slf4j.Logger;
@@ -109,24 +107,23 @@ public class RLAlignmentTrainingExample {
         log.info("=== RL Alignment Training Example ===");
         log.info("VOCAB_SIZE={}, BATCH_SIZE={}, SEQ_LEN={}", VOCAB_SIZE, BATCH_SIZE, SEQ_LEN);
 
-        // Section 1: build shared policy and reference models
-        SameDiff policyModel    = buildMLP("policy");
-        SameDiff referenceModel = buildMLP("reference");
+        // Each section gets its own fresh policy/reference pair so that one trainer's
+        // loss-graph nodes don't leak into another trainer's backward pass.
 
         // Section 2: DPO
-        demoDPO(policyModel, referenceModel);
+        demoDPO(buildMLP("dpo_policy"), buildMLP("dpo_reference"));
 
         // Section 3: GRPO
-        demoGRPO(policyModel, referenceModel);
+        demoGRPO(buildMLP("grpo_policy"), buildMLP("grpo_reference"));
 
         // Section 4: PPO
-        demoPPO(policyModel, referenceModel);
+        demoPPO(buildMLP("ppo_policy"), buildMLP("ppo_reference"));
 
         // Section 5: KTO
-        demoKTO(policyModel, referenceModel);
+        demoKTO(buildMLP("kto_policy"), buildMLP("kto_reference"));
 
         // Section 6: ORPO
-        demoORPO(policyModel);
+        demoORPO(buildMLP("orpo_policy"));
 
         // Section 7-10: config-only overviews
         demoSimPOConfig();
@@ -141,7 +138,7 @@ public class RLAlignmentTrainingExample {
         demoRLPipelineConfig();
 
         // Section 13: RLAlignmentPipeline
-        demoRLAlignmentPipeline(policyModel, referenceModel);
+        demoRLAlignmentPipeline(buildMLP("pipeline_policy"), buildMLP("pipeline_reference"));
 
         // Section 14: Comparison table
         printComparisonTable();
@@ -196,6 +193,7 @@ public class RLAlignmentTrainingExample {
 
         // --- 2a. Standard DPO ---
         DPOConfig dpoConfig = DPOConfig.standard(LOGIT_VAR, CHOSEN_VAR, REJECTED_VAR);
+        dpoConfig.setLogits2D(true);  // toy MLP produces 2D logits [batch, vocab]
         log.info("DPO config: beta={}, variant={}", dpoConfig.getBeta(), dpoConfig.getVariant());
 
         DPOTrainer dpoTrainer = new DPOTrainer(policyModel, referenceModel, dpoConfig);
@@ -210,17 +208,21 @@ public class RLAlignmentTrainingExample {
         log.info("DPO (STANDARD) trainStep loss: {}", String.format("%.6f", dpoLoss));
 
         // --- 2b. IPO variant ---
+        // IPO needs its own fresh models: sharing policyModel would conflict because
+        // buildLossGraph already added _dpo_* placeholders for the standard trainer.
+        SameDiff ipoPolicyModel    = buildMLP("ipo_policy");
+        SameDiff ipoReferenceModel = buildMLP("ipo_reference");
         DPOConfig ipoConfig = DPOConfig.builder()
                 .policyLogitVariable(LOGIT_VAR)
                 .chosenVariable(CHOSEN_VAR)
                 .rejectedVariable(REJECTED_VAR)
                 .beta(0.1)
                 .variant(DPOConfig.DPOVariant.IPO)
+                .logits2D(true)  // toy MLP produces 2D logits [batch, vocab]
                 .build();
         log.info("IPO config: beta={}, variant={}", ipoConfig.getBeta(), ipoConfig.getVariant());
 
-        // Use the same policy/reference pair; IPO only changes the loss formula.
-        DPOTrainer ipoTrainer = new DPOTrainer(policyModel, referenceModel, ipoConfig);
+        DPOTrainer ipoTrainer = new DPOTrainer(ipoPolicyModel, ipoReferenceModel, ipoConfig);
         double ipoLoss = ipoTrainer.trainStep(dpoInputs);
         log.info("DPO (IPO) trainStep loss: {}", String.format("%.6f", ipoLoss));
 
@@ -250,6 +252,7 @@ public class RLAlignmentTrainingExample {
                 .clipEpsilon(0.2)
                 .klPenalty(0.01)
                 .maxNewTokens(SEQ_LEN)
+                .logits2D(true)  // toy MLP produces 2D logits [batch, vocab]
                 .build();
 
         log.info("GRPO config: groupSize={}, clipEpsilon={}, klPenalty={}, maxNewTokens={}",
@@ -310,6 +313,7 @@ public class RLAlignmentTrainingExample {
                 .ppoEpochs(2)
                 .gaeLambda(0.95)
                 .maxNewTokens(SEQ_LEN)
+                .logits2D(true)  // toy MLP produces 2D logits [batch, vocab]
                 .build();
 
         log.info("PPO config: clipEpsilon={}, valueLossCoeff={}, entropyCoeff={}, ppoEpochs={}, gaeLambda={}",
@@ -374,6 +378,7 @@ public class RLAlignmentTrainingExample {
                 .betaDesirable(0.1)
                 .betaUndesirable(0.1)
                 .lossAversion(1.5)       // penalise undesirable responses 1.5x harder
+                .logits2D(true)  // toy MLP produces 2D logits [batch, vocab]
                 .build();
 
         log.info("KTO config: betaD={}, betaU={}, lossAversion={}",
@@ -401,6 +406,7 @@ public class RLAlignmentTrainingExample {
 
         // ORPO does NOT require a reference model.
         ORPOConfig orpoConfig = ORPOConfig.standard(LOGIT_VAR, CHOSEN_VAR, REJECTED_VAR);
+        orpoConfig.setLogits2D(true);  // toy MLP produces 2D logits [batch, vocab]
         log.info("ORPO config: orpoLambda={}, useReferenceModel={}",
                 orpoConfig.getOrpoLambda(), orpoConfig.isUseReferenceModel());
 
@@ -612,6 +618,7 @@ public class RLAlignmentTrainingExample {
 
         // Build a DPO config and a pipeline-level config.
         DPOConfig dpoConfig = DPOConfig.standard(LOGIT_VAR, CHOSEN_VAR, REJECTED_VAR);
+        dpoConfig.setLogits2D(true);  // toy MLP produces 2D logits [batch, vocab]
         RLPipelineConfig pipelineConfig = RLPipelineConfig.builder()
                 .numEpochs(1)
                 .learningRate(5e-7)
@@ -707,19 +714,16 @@ public class RLAlignmentTrainingExample {
         SameDiff policyModel    = buildMLP("dsp_policy");
         SameDiff referenceModel = buildMLP("dsp_reference");
 
-        // Configure the policy model with a typical RL alignment learning rate.
-        TrainingConfig trainingConfig = TrainingConfig.builder()
-                .updater(new Adam(5e-7))
-                .minimize(true)
-                .build();
-        policyModel.setTrainingConfig(trainingConfig);
-
         // DSP is enabled by default — log its state before training begins.
         log.info("DSP state: dspAutoCompileEnabled={}, dspNativeAutoCompileEnabled={}",
                 policyModel.isDspAutoCompileEnabled(),
                 policyModel.isDspNativeAutoCompileEnabled());
 
+        // The RLAlignmentTrainer manages its own Adam updater via dpoConfig.learningRate.
+        // (TrainingConfig is not needed here — setting it would require a DataSet feature mapping.)
         DPOConfig dpoConfig = DPOConfig.standard(LOGIT_VAR, CHOSEN_VAR, REJECTED_VAR);
+        dpoConfig.setLogits2D(true);     // toy MLP produces 2D logits [batch, vocab]
+        dpoConfig.setLearningRate(5e-7); // learning rate for the trainer's internal Adam updater
         DPOTrainer trainer  = new DPOTrainer(policyModel, referenceModel, dpoConfig);
 
         log.info("Running 10 DPO training steps with DSP plan tracking...");

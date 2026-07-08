@@ -4,9 +4,9 @@
 
 package org.nd4j.examples.samediff.advanced.generation;
 
-import org.eclipse.deeplearning4j.llm.generation.ContinuousBatchScheduler;
+import org.eclipse.deeplearning4j.llm.generation.batch.ContinuousBatchScheduler;
 import org.eclipse.deeplearning4j.llm.generation.ChunkedPrefillEngine;
-import org.eclipse.deeplearning4j.llm.generation.SamplingConfig;
+import org.eclipse.deeplearning4j.llm.generation.sampling.SamplingConfig;
 import org.nd4j.autodiff.samediff.SDVariable;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.linalg.api.buffer.DataType;

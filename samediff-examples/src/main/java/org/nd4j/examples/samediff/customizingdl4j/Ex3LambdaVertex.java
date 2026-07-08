@@ -22,6 +22,8 @@ package org.nd4j.examples.samediff.customizingdl4j;
 import org.apache.commons.io.FileUtils;
 import org.deeplearning4j.datasets.iterator.impl.MnistDataSetIterator;
 import org.deeplearning4j.gradientcheck.GradientCheckUtil;
+import org.deeplearning4j.gradientcheck.GraphConfig;
+import org.deeplearning4j.gradientcheck.PrintMode;
 import org.deeplearning4j.nn.conf.ComputationGraphConfiguration;
 import org.deeplearning4j.nn.conf.ConvolutionMode;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
@@ -161,12 +163,12 @@ public class Ex3LambdaVertex {
         double min_absolute_error = 1e-8;                                                      //Minimum absolute error, to avoid failures on 0 vs 1e-30, for example.
 
 
-        boolean gradOk = GradientCheckUtil.checkGradients(new GradientCheckUtil.GraphConfig()
+        boolean gradOk = GradientCheckUtil.checkGradients(new GraphConfig()
                 .net(net)
                 .epsilon(gradient_check_epsilon)
                 .maxRelError(max_relative_error)
                 .minAbsoluteError(min_absolute_error)
-                .print(print ? GradientCheckUtil.PrintMode.ALL : GradientCheckUtil.PrintMode.FAILURES_ONLY)
+                .print(print ? PrintMode.ALL : PrintMode.FAILURES_ONLY)
                 .exitOnFirstError(return_on_first_failure)
                 .inputs(new INDArray[]{testFeatures})
                 .labels(new INDArray[]{testLabels}));

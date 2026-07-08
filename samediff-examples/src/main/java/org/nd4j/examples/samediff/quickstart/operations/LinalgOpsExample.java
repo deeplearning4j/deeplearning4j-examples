@@ -162,21 +162,35 @@ public class LinalgOpsExample {
         // ============================================================
         System.out.println("\n=== Eigendecomposition ===");
         {
-            SameDiff sd = SameDiff.create();
-            // Symmetric matrix for real eigenvalues
+            // Symmetric positive-definite matrix (real eigenvalues)
+            // [[2,1],[1,3]]: eigenvalues = (5 ± sqrt(5)) / 2 ≈ 3.618, 1.382
             INDArray matrix = Nd4j.createFromArray(new double[][]{
                     {2, 1},
                     {1, 3}
             });
 
+            // The SameDiff eig API builds a differentiable eigendecomposition graph.
+            // Outputs encode complex numbers as real/imag pairs:
+            //   eigenvalues  shape [n, 2]:    [:, 0]=real,    [:, 1]=imag
+            //   eigenvectors shape [n, n, 2]: [..., 0]=real,  [..., 1]=imag
+            SameDiff sd = SameDiff.create();
             SDVariable a = sd.constant("A", matrix);
             SDVariable[] eigResult = sd.linalg().eig(new String[]{"eigenvalues", "eigenvectors"}, a);
-
-            Map<String, INDArray> result = sd.output(Collections.emptyMap(),
-                    "eigenvalues", "eigenvectors");
             System.out.println("  Matrix: [[2,1],[1,3]]");
-            System.out.println("  Eigenvalues: " + result.get("eigenvalues"));
-            System.out.println("  Eigenvectors: " + result.get("eigenvectors"));
+            System.out.println("  SameDiff eig graph vars: "
+                    + eigResult[0].name() + " shape=" + java.util.Arrays.toString(eigResult[0].getShape())
+                    + ", " + eigResult[1].name() + " shape=" + java.util.Arrays.toString(eigResult[1].getShape()));
+
+            // Execute the eigendecomposition and print the results.
+            // Eigenvalues are in [:, 0] (real) and [:, 1] (imaginary).
+            // For a real symmetric matrix all imaginary parts are zero.
+            Map<String, INDArray> res = sd.output(Collections.emptyMap(), "eigenvalues", "eigenvectors");
+            INDArray vals = res.get("eigenvalues");
+            INDArray vecs = res.get("eigenvectors");
+            System.out.println("  Eigenvalues (real parts): λ0=" + vals.getDouble(0, 0)
+                    + ", λ1=" + vals.getDouble(1, 0));
+            System.out.println("  Expected: λ1≈3.618, λ2≈1.382  [for [[2,1],[1,3]]]");
+            System.out.println("  Eigenvectors shape: " + java.util.Arrays.toString(vecs.shape()));
         }
 
         // ============================================================

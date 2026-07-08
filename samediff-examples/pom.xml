@@ -46,6 +46,8 @@ information regarding copyright ownership.
         <logback.version>1.1.7</logback.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <junit.version>5.8.0-M1</junit.version>
+        <!-- Platform classifier for the native tokenizers library; change for other OS/arch -->
+        <javacpp.platform>linux-x86_64</javacpp.platform>
 
     </properties>
 
@@ -75,6 +77,31 @@ information regarding copyright ownership.
             <groupId>org.eclipse.deeplearning4j</groupId>
             <artifactId>${nd4j.backend}</artifactId>
             <version>${dl4j-master.version}</version>
+        </dependency>
+        <!-- PDF page rendering for the SmolDocling document-conversion pipeline example -->
+        <dependency>
+            <groupId>org.apache.pdfbox</groupId>
+            <artifactId>pdfbox</artifactId>
+            <version>2.0.29</version>
+        </dependency>
+        <!-- Lombok annotations (@Slf4j) used by some training examples -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.18.36</version>
+            <scope>provided</scope>
+        </dependency>
+        <!-- Native HuggingFace tokenizers (Rust JNI) required by the samediff-llm Tokenizer API -->
+        <dependency>
+            <groupId>org.eclipse.deeplearning4j</groupId>
+            <artifactId>tokenizers-native</artifactId>
+            <version>${dl4j-master.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.deeplearning4j</groupId>
+            <artifactId>tokenizers-native</artifactId>
+            <version>${dl4j-master.version}</version>
+            <classifier>${javacpp.platform}</classifier>
         </dependency>
         <!--<dependency>
             <groupId>org.eclipse.deeplearning4j</groupId>

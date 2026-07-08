@@ -779,12 +779,15 @@ public class QLoRAAndAdvancedAdaptersExample {
 
         for (int step = 0; step < 10; step++) {
             long t0 = System.currentTimeMillis();
-            sd.fit(new SingletonDataSetIterator(ds));
+            sd.fit(new SingletonDataSetIterator(ds), 1);
             long elapsedMs = System.currentTimeMillis() - t0;
 
             DspHandle dsp = sd.dsp();
             boolean compiled   = dsp != null && dsp.isCompiled();
-            PlanPhase phase    = dsp != null ? dsp.planPhase() : null;
+            // planPhase() returns the PlanPhase ordinal from the native side
+            PlanPhase phase    = dsp != null && dsp.planPhase() >= 0
+                    && dsp.planPhase() < PlanPhase.values().length
+                    ? PlanPhase.values()[dsp.planPhase()] : null;
             String  phaseName  = phase != null ? phase.name() : "N/A";
             long    replayed   = dsp != null ? dsp.lastExecSegmentsReplayed()  : -1L;
             long    slotBySlot = dsp != null ? dsp.lastExecSegmentsSlotBySlot(): -1L;
@@ -827,17 +830,17 @@ public class QLoRAAndAdvancedAdaptersExample {
         // Layer 1: 128 -> 256
         SDVariable w1 = sd.var("layer1.weight", Nd4j.randn(DataType.FLOAT, 256, 128).muli(0.01));
         SDVariable b1 = sd.var("layer1.bias",   Nd4j.zeros(DataType.FLOAT, 256));
-        SDVariable h1 = sd.nn.relu(sd.mmul(input, w1.t()).add(b1), 0);
+        SDVariable h1 = sd.nn.relu(sd.mmul(input, sd.transpose(w1)).add(b1), 0);
 
         // Layer 2: 256 -> 64
         SDVariable w2 = sd.var("layer2.weight", Nd4j.randn(DataType.FLOAT, 64, 256).muli(0.01));
         SDVariable b2 = sd.var("layer2.bias",   Nd4j.zeros(DataType.FLOAT, 64));
-        SDVariable h2 = sd.nn.relu(sd.mmul(h1, w2.t()).add(b2), 0);
+        SDVariable h2 = sd.nn.relu(sd.mmul(h1, sd.transpose(w2)).add(b2), 0);
 
         // Layer 3: 64 -> 10 (logits)
         SDVariable w3 = sd.var("layer3.weight", Nd4j.randn(DataType.FLOAT, 10, 64).muli(0.01));
         SDVariable b3 = sd.var("layer3.bias",   Nd4j.zeros(DataType.FLOAT, 10));
-        SDVariable logits = sd.mmul(h2, w3.t()).add(b3);
+        SDVariable logits = sd.mmul(h2, sd.transpose(w3)).add(b3);
         logits.rename("logits");
 
         // Cross-entropy loss

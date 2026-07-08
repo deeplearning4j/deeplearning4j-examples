@@ -376,9 +376,12 @@ public class GGMLImportExportExample {
             original.var("lm_head.weight",
                     Nd4j.randn(DataType.FLOAT, 64, 500).muli(0.02));
 
+            // Count only weight arrays. The GGUF importer also adds input placeholders
+            // (input_ids, position_ids, ...) which have no array — skip those.
             int originalParams = 0;
             for (String name : original.variableNames()) {
-                originalParams += (int) original.getVariable(name).getArr().length();
+                INDArray arr = original.getVariable(name).getArr();
+                if (arr != null) originalParams += (int) arr.length();
             }
             System.out.println("  Original model: " + originalParams + " parameters");
 
@@ -391,7 +394,8 @@ public class GGMLImportExportExample {
             SameDiff imported = GGMLModelImport.importModel(rtFile);
             int importedParams = 0;
             for (String name : imported.variableNames()) {
-                importedParams += (int) imported.getVariable(name).getArr().length();
+                INDArray arr = imported.getVariable(name).getArr();
+                if (arr != null) importedParams += (int) arr.length();
             }
             System.out.println("  Imported model: " + importedParams + " parameters");
             System.out.println("  Round-trip preserved: " + (originalParams == importedParams));

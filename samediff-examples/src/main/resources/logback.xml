@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Logging defaults for the samediff-examples module.
+
+  Without this file logback falls back to a DEBUG root logger, which floods
+  example output with framework internals (GGUF tensor tables, DSP plan
+  structure dumps — tens of MB per run). Examples should read like their
+  System.out narration; INFO keeps the framework's high-signal lines
+  (model loading, DSP lifecycle, generation perf) visible.
+
+  To debug the framework itself, flip org.nd4j to DEBUG or use the DSP
+  diagnostics properties (-Dnd4j.dsp.diagnostics=... -Dnd4j.dsp.diagnostics.level=full),
+  which are purpose-built and category-scoped.
+-->
+<configuration>
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} %-5level %logger{24} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <logger name="org.nd4j" level="INFO"/>
+    <logger name="org.eclipse.deeplearning4j" level="INFO"/>
+    <logger name="org.deeplearning4j" level="INFO"/>
+
+    <root level="INFO">
+        <appender-ref ref="STDOUT"/>
+    </root>
+</configuration>

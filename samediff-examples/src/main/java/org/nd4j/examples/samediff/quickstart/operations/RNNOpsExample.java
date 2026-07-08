@@ -232,8 +232,9 @@ public class RNNOpsExample {
                     Nd4j.randn(DataType.FLOAT, inSize, 3 * numUnits).muli(0.1));
             SDVariable Wh = sd.var("gru_Wh",
                     Nd4j.randn(DataType.FLOAT, numUnits, 3 * numUnits).muli(0.1));
+            // gru op expects flat bias [3*nOut] (reset+update+candidate), NOT [2, 3*nOut]
             SDVariable biases = sd.var("gru_biases",
-                    Nd4j.zeros(DataType.FLOAT, 2, 3 * numUnits));
+                    Nd4j.zeros(DataType.FLOAT, 3 * numUnits));
 
             // gru processes full sequence, returns last hidden state
             SDVariable gruOut = sd.rnn().gru("gru_out", x, hLast, Wx, Wh, biases);
@@ -254,13 +255,13 @@ public class RNNOpsExample {
         {
             SameDiff sd = SameDiff.create();
 
-            // SRU input: [seqLen, batch, inSize]
-            SDVariable x = sd.placeHolder("x", DataType.FLOAT, seqLen, batch, inSize);
+            // SRU C++ op expects input in [bS, inSize, time] (batch-major, features-major)
+            SDVariable x = sd.placeHolder("x", DataType.FLOAT, batch, inSize, seqLen);
             SDVariable initialC = sd.placeHolder("initialC", DataType.FLOAT, batch, inSize);
 
-            // SRU weights: [inSize, 3*inSize]
+            // SRU weights: [3*inSize, inSize]  (C++ expects [3*inSize, inSize])
             SDVariable weights = sd.var("sru_w",
-                    Nd4j.randn(DataType.FLOAT, inSize, 3 * inSize).muli(0.1));
+                    Nd4j.randn(DataType.FLOAT, 3 * inSize, inSize).muli(0.1));
             // SRU bias: [2*inSize]
             SDVariable bias = sd.var("sru_b", Nd4j.zeros(DataType.FLOAT, 2 * inSize));
 
@@ -272,7 +273,7 @@ public class RNNOpsExample {
             SDVariable sruOut = sd.rnn().sru("sru_out", x, initialC, sruWeights);
 
             Map<String, INDArray> ph = new HashMap<>();
-            ph.put("x", Nd4j.randn(DataType.FLOAT, seqLen, batch, inSize));
+            ph.put("x", Nd4j.randn(DataType.FLOAT, batch, inSize, seqLen));
             ph.put("initialC", Nd4j.zeros(DataType.FLOAT, batch, inSize));
 
             INDArray result = sd.output(ph, "sru_out").get("sru_out");
@@ -357,7 +358,8 @@ public class RNNOpsExample {
             Map<String, INDArray> ph = new HashMap<>();
             ph.put("input", Nd4j.randn(DataType.FLOAT, batch, seqLen, inSize));
 
-            INDArray lastHidden = sd.output(ph, layer2Out[0].name()).get(layer2Out[0].name());
+            Map<String, INDArray> outputs = sd.output(ph, layer2Out[0].name());
+            INDArray lastHidden = outputs.get(layer2Out[0].name());
             System.out.println("  Layer 1: LSTM(" + inSize + " -> " + hidden1 + ") full sequence");
             System.out.println("  Layer 2: LSTM(" + hidden1 + " -> " + hidden2 + ") last hidden only");
             System.out.println("  Final output: " + java.util.Arrays.toString(lastHidden.shape()));
