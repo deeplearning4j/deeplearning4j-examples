@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <RootNamespace>Nd4j.Examples.Sdx</RootNamespace>
     <AssemblyName>SdxEndToEnd</AssemblyName>
     <Nullable>enable</Nullable>
@@ -16,7 +16,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <!-- SDX graph-execution ABI wrapper (dsp_runtime_c.h) -->
     <Compile Include="$(SdxWrapperDir)/SdxRuntime.cs" Link="SdxRuntime.cs" />
+    <!-- SDX LLM ABI wrapper (sdx_llm_c.h) — AOT-compiled LLM/VLM/STT C ABI -->
+    <Compile Include="$(SdxWrapperDir)/SdxLlmRuntime.cs" Link="SdxLlmRuntime.cs" />
   </ItemGroup>
 
   <!-- Microsoft.ML.OnnxRuntime.Managed: the managed-only ORT package that ships

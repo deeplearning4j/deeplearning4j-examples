@@ -9,10 +9,24 @@ license = "Apache-2.0"
 name = "end_to_end"
 path = "src/main.rs"
 
+# LLM/VLM/STT end-to-end example using the AOT libsdx_llm C ABI.
+# Build and run:
+#
+#   export SDX_LLM_AOT_HOME=/tmp/sdx-cpu-v8
+#   SDX_LLM_LIB_DIR=$SDX_LLM_AOT_HOME/lib \
+#     LD_LIBRARY_PATH=$SDX_LLM_AOT_HOME/lib \
+#     cargo run --release --bin llm
+#
+[[bin]]
+name = "llm"
+path = "src/bin/llm.rs"
+
 [dependencies]
 # The SDX Rust wrapper crate. This path assumes a sibling `deeplearning4j`
 # checkout next to this examples repository; when building against an unpacked
 # SDK package instead, point it at <sdk>/wrappers/rust.
 # Add features = ["standalone"] to link the JVM-free libsdx_cpu runtime.
-sdx-runtime = { path = "../../../deeplearning4j/libnd4j/include/dsp/runtime/bindings/rust", features = ["ndarray"] }
+# The `llm` feature wires in sdx_runtime::llm (libsdx_llm.so); it is kept
+# here alongside `ndarray` so both binaries (end_to_end, llm) are covered.
+sdx-runtime = { path = "../../../deeplearning4j/libnd4j/include/dsp/runtime/bindings/rust", features = ["ndarray", "llm"] }
 ndarray = "0.16"

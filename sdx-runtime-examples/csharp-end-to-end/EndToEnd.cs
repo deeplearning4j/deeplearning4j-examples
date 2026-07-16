@@ -59,7 +59,7 @@ public record ExecutionReport(
 public sealed class SdxSession
 {
     private static readonly string[] BackendNames =
-        { "AUTO", "SLOT_BY_SLOT", "CUDA_GRAPHS", "NVRTC", "PTX", "TRITON", "MLX", "ARM_HYBRID", "NNAPI" };
+        { "AUTO", "SLOT_BY_SLOT", "CUDA_GRAPHS", "NVRTC", "PTX", "TRITON", "MLX", "ARM_HYBRID", "NNAPI", "HIP_GRAPHS", "LEVEL_ZERO", "VULKAN", "METAL", "TPU", "HEXAGON" };
 
     private static readonly string[] PhaseNames =
         { "SLOT_BY_SLOT (warmup)", "SHAPES_FROZEN", "REPLAYING", "REPLAY_BLOCKED" };
@@ -320,6 +320,11 @@ public static class EndToEnd
 
     public static int Main(string[] args)
     {
+        // Dispatch: "llm" as first arg routes to the LLM end-to-end example.
+        // Usage: dotnet run -- llm [model.gguf] [tokenizer.json]
+        if (args.Length > 0 && args[0].Equals("llm", StringComparison.OrdinalIgnoreCase))
+            return LlmEndToEnd.Run(args[1..]);
+
         var modelPath = args.Length > 0
             ? args[0]
             : Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "../../../../models/mlp.sdz"));

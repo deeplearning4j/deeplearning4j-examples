@@ -61,10 +61,16 @@
             <version>${dl4j-master.version}</version>
         </dependency>
 
-        <!-- JNA: the example declares the sdx* C ABI itself to demonstrate
-             that ANY language/FFI can bind dsp_runtime_c.h directly. For
-             production Java use, prefer the packaged wrapper shipped in the
-             SDK under wrappers/java (org.nd4j.dsp.runtime.SdxRuntime). -->
+        <!-- SDX Java wrapper: org.nd4j.dsp.runtime.SdxRuntime + SdxLlm.
+             Canonical source: nd4j/nd4j-backends/nd4j-backend-impls/nd4j-sdx.
+             Install locally with: mvn -Psdx install -pl :nd4j-sdx-preset,:nd4j-sdx -DskipTests -->
+        <dependency>
+            <groupId>org.eclipse.deeplearning4j</groupId>
+            <artifactId>nd4j-sdx</artifactId>
+            <version>${dl4j-master.version}</version>
+        </dependency>
+
+        <!-- JNA (transitive from nd4j-sdx, listed explicitly for clarity) -->
         <dependency>
             <groupId>net.java.dev.jna</groupId>
             <artifactId>jna</artifactId>

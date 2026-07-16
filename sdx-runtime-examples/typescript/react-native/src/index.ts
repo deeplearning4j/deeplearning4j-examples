@@ -58,6 +58,12 @@ export const BACKEND_NAMES: readonly string[] = [
   'MLX',
   'ARM_HYBRID',
   'NNAPI',
+  'HIP_GRAPHS',
+  'LEVEL_ZERO',
+  'VULKAN',
+  'METAL',
+  'TPU',
+  'HEXAGON',
 ] as const;
 
 /** Stringify a plan phase number, falling back to `"? (n)"` for unknowns. */

@@ -63,7 +63,8 @@ export const PLAN_PHASE_NAMES: ReadonlyArray<string> = [
 
 export const BACKEND_NAMES: ReadonlyArray<string> = [
   'AUTO', 'SLOT_BY_SLOT', 'CUDA_GRAPHS', 'NVRTC', 'PTX', 'TRITON',
-  'MLX', 'ARM_HYBRID', 'NNAPI',
+  'MLX', 'ARM_HYBRID', 'NNAPI', 'HIP_GRAPHS', 'LEVEL_ZERO', 'VULKAN',
+  'METAL', 'TPU', 'HEXAGON',
 ];
 
 export const phaseName   = (p: number): string => PLAN_PHASE_NAMES[p]  ?? `UNKNOWN(${p})`;

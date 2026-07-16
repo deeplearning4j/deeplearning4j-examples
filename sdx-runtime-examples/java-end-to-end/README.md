@@ -105,7 +105,8 @@ mvn -q compile exec:java -Dexec.mainClass=org.nd4j.examples.sdx.GenerateExampleM
 
 ```
 src/main/java/org/nd4j/examples/sdx/
-├── SdxRuntimeEndToEndExample.java   — main walkthrough (reads like ORT client code)
+├── SdxRuntimeEndToEndExample.java   — SameDiff graph execution walkthrough
+├── LlmEndToEnd.java                 — LLM generation walkthrough (libsdx_llm.so)
 ├── GenerateExampleModel.java        — builds models/mlp.sdz for non-JVM examples
 └── client/                          — reusable client library
     ├── SdxEnvironment.java          — runtime + session factory (AutoCloseable)
@@ -113,5 +114,73 @@ src/main/java/org/nd4j/examples/sdx/
     ├── SdxTensor.java               — float32 tensor with shape
     ├── SdxSessionOptions.java       — backend / GPU / JIT configuration builder
     ├── SdxExecutionReport.java      — execution telemetry POJO
-    └── SdxAbi.java                  — package-private JNA binding (dsp_runtime_c.h)
+    ├── SdxAbi.java                  — package-private JNA binding (dsp_runtime_c.h)
+    ├── SdxLlmEnvironment.java       — LLM runtime factory (AutoCloseable)
+    ├── SdxLlmModel.java             — LLM model: generate / tokenize / info
+    └── SdxLlmAbi.java               — package-private JNA binding (sdx_llm_c.h)
 ```
+
+---
+
+## LLM / VLM / STT example (`LlmEndToEnd`)
+
+Demonstrates the SDX LLM C ABI (`sdx_llm_c.h`) — the GraalVM native-image
+compiled LLM library — from Java via JNA.  **No `samediff-llm.jar` or ND4J on
+the classpath** — the library is JVM-free.  The point is embedding the AOT
+library from a JVM host app.
+
+### LLM client API summary
+
+| SDX class | ONNX Runtime analogue | Purpose |
+|---|---|---|
+| `SdxLlmEnvironment` | `OrtEnvironment` | GraalVM isolate + runtime; factory for models |
+| `SdxLlmModel` | `InferenceSession` | Loaded model; `generate()`, `tokenize()`, `infoJson()` |
+
+### Canonical usage
+
+```java
+try (SdxLlmEnvironment env = SdxLlmEnvironment.create()) {
+    try (SdxLlmModel model = env.loadModel(modelPath, tokenizerPath, null)) {
+        String text = model.generate(
+            "The capital of France is",
+            "{\"maxNewTokens\":8,\"sampling\":{\"preset\":\"greedy\"}}");
+        System.out.println(text);  // " Paris."
+        System.out.println(model.lastResultJson());  // tok/s, finish reason, …
+    }
+}
+```
+
+### Threading
+
+The runtime handle is bound to the OS thread that created it.  **Create, use,
+and destroy from one thread.**  For concurrent generation, use one
+`SdxLlmEnvironment` per thread — models are not shared across runtimes.
+
+### Side-loaded natives (CRITICAL)
+
+`libsdx_llm.so` resolves its side-loaded natives (libnd4jcpu, …) relative to
+the host executable using the `SDX_NATIVE_LIB_DIR` environment variable.  A JVM
+**cannot** set process environment after the JVM starts, so the runner must
+export this **before** launching:
+
+```bash
+export SDX_LLM_AOT_HOME=/tmp/sdx-cpu-v8
+export SDX_NATIVE_LIB_DIR=$SDX_LLM_AOT_HOME/lib
+```
+
+If `SDX_LLM_AOT_HOME` is set but `SDX_NATIVE_LIB_DIR` is not, the wrapper
+prints a warning at construction time.
+
+### Run
+
+```bash
+export SDX_LLM_AOT_HOME=/tmp/sdx-cpu-v8
+export SDX_NATIVE_LIB_DIR=$SDX_LLM_AOT_HOME/lib
+
+/home/agibsonccc/dev-apps/mvn/bin/mvn -q compile exec:java \
+  -Dexec.mainClass=org.nd4j.examples.sdx.LlmEndToEnd \
+  -Dexec.args="$HOME/.cache/dl4j-llm-models/Qwen3.5-0.8B-Q4_K_M.gguf \
+               $HOME/.cache/dl4j-llm-models/qwen35-0.8B-tokenizer.json"
+```
+
+First run: 1–3 min (GGUF import + DSP warmup). Subsequent runs reuse the plan cache.

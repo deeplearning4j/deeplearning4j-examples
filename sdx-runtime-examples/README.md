@@ -13,7 +13,10 @@ an `SdxRuntime`, loads a model, and runs inference.
 | C#       | `csharp/BasicUsage.cs`      |
 | Swift    | `swift/BasicUsage.swift`    |
 
-These examples target SDX Runtime ABI version 1.
+These examples target SDX Runtime ABI version 1. Backend selectors mirror the
+native execution modes, including HIP graph replay (`9`) and Vulkan command-
+buffer replay (`11`), with strict selection available through each wrapper's
+model/session options.
 
 ## End-to-end examples (one directory per language)
 
@@ -62,3 +65,52 @@ standalone runtime.
 For the language binding source code (wrapper libraries), see
 `libnd4j/include/dsp/runtime/bindings/` in the main
 [deeplearning4j](https://github.com/eclipse/deeplearning4j) repository.
+
+## LLM / VLM / STT examples (AOT package, `sdx_llm_c.h`)
+
+The SDX AOT package (`sdx-aot-<version>-<platform>-<variant>-aot.zip`,
+ADR 0109 in the main repository) adds a second C ABI on top of graph
+execution: `lib/libsdx_llm.so` exposes the full Java LLM stack with **no JVM**
+— GGUF loading, tokenization, autoregressive generation
+(`sdxLlm*`), SmolDocling document extraction (`sdxVlmExtract`) and Whisper
+speech-to-text (`sdxAudioTranscribe`) — plus the `bin/sdx-llm` CLI
+(`generate` / `import` GGUF→SDZ / `tokenize` / `info` / `vlm` / `transcribe`).
+
+Each end-to-end project now also ships an idiomatic wrapper for that ABI and
+a runnable LLM example (tokenize round-trip, greedy generation with a
+canonical-text check, generation stats DTO, optional `--vlm`/`--transcribe`):
+
+| Language | LLM entry point | Run |
+|----------|-----------------|-----|
+| Java | `LlmEndToEnd` + `SdxLlmEnvironment`/`SdxLlmModel` (JNA) | `mvn -q compile exec:java -Dexec.mainClass=org.nd4j.examples.sdx.LlmEndToEnd` |
+| Kotlin | `LlmEndToEnd.kt` + `SdxLlmRuntime.kt` (JNA, data classes, `use {}`) | `gradle llmRun` |
+| Python | `llm_example.py` + `sdx_llm.py` (ctypes, context managers, frozen `GenerateStats`) | `python3 llm_example.py` |
+| Rust | `src/bin/llm.rs` + `src/sdx_llm.rs` (`Drop` RAII, `#[non_exhaustive]` `LlmError`) | `cargo run --release --bin llm` |
+| C# | `EndToEnd llm` + `SdxLlmRuntime.cs` (P/Invoke, `NativeLibrary` resolver, records) | `dotnet run -- llm` |
+| Swift | `SdxLlmExample` + `SdxLlm.swift` over a `CSdxLlm` shim | `swift run SdxLlmExample` |
+| TypeScript / Node.js | `src/llm_example.ts` + `src/sdx_llm.ts` (koffi) | `npm run start:llm` |
+
+The AOT package also ships the canonical language wrappers under `wrappers/`
+(same tree as the C SDK packages), including the `sdx_llm` modules these
+examples use — the examples prefer `$SDX_LLM_AOT_HOME/wrappers/<language>`
+and fall back to the main-repo checkout.
+
+AOT packages come in **optimized-math spins** per platform (base, `-avx2`,
+`-avx512`, `-onednn-*`, `-armcompute`, `-cudnn`, …) — the spin's tuned native
+math library is what `lib/` carries, so picking the right package for your
+hardware is how you opt into optimized math; the wrappers and examples are
+spin-agnostic. `SDX_NATIVE_LIB_DIR` can also point at a different spin's
+`lib/` explicitly.
+
+Resolution: set `SDX_LLM_AOT_HOME` to the unpacked AOT package; wrappers load
+`$SDX_LLM_AOT_HOME/lib/libsdx_llm.so`. The library side-loads its native
+dependencies relative to the **host executable**, so `SDX_NATIVE_LIB_DIR`
+must point at `$SDX_LLM_AOT_HOME/lib` — Python/Rust/C#/Node/Swift wrappers set
+it automatically before the first load; on the JVM (Java/Kotlin) export it in
+the environment before launching. A runtime handle is bound to the OS thread
+that created it (one runtime per thread for concurrency).
+
+React Native and WebAssembly are intentionally not covered: GraalVM
+native-image has no Android/iOS target (on-device stays with the JVM-free C
+runtime `libsdx`), and `libsdx_llm` is a native shared library rather than a
+wasm module (browsers go through `serving/`) — see those READMEs.

@@ -1,0 +1,12 @@
+# Generated gRPC stubs — generate with:
+#   python3 -m grpc_tools.protoc -I. --python_out=. --grpc_python_out=. sdx_serving.proto
+sdx_serving_pb2.py
+sdx_serving_pb2_grpc.py
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# NPZ test artifacts
+*.npz

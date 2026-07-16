@@ -30,10 +30,11 @@ package org.nd4j.examples.sdx.client;
  */
 public final class SdxExecutionReport {
 
-    /** Symbolic names for the {@code SdxBackend} enum (indices 0–8). */
+    /** Symbolic names for the {@code SdxBackend} enum (indices 0–14). */
     public static final String[] BACKEND_NAMES = {
             "AUTO", "SLOT_BY_SLOT", "CUDA_GRAPHS", "NVRTC", "PTX", "TRITON",
-            "MLX", "ARM_HYBRID", "NNAPI"
+            "MLX", "ARM_HYBRID", "NNAPI", "HIP_GRAPHS", "LEVEL_ZERO",
+            "VULKAN", "METAL", "TPU", "HEXAGON"
     };
 
     /** Symbolic names for the DSP plan phase (indices 0–3). */

@@ -53,7 +53,8 @@ export const PLAN_PHASE_NAMES = [
   'SLOT_BY_SLOT (warmup)', 'SHAPES_FROZEN', 'REPLAYING', 'REPLAY_BLOCKED'] as const;
 export const BACKEND_NAMES = [
   'AUTO', 'SLOT_BY_SLOT', 'CUDA_GRAPHS', 'NVRTC', 'PTX', 'TRITON',
-  'MLX', 'ARM_HYBRID', 'NNAPI'] as const;
+  'MLX', 'ARM_HYBRID', 'NNAPI', 'HIP_GRAPHS', 'LEVEL_ZERO', 'VULKAN',
+  'METAL', 'TPU', 'HEXAGON'] as const;
 
 export const phaseName = (p: number): string => PLAN_PHASE_NAMES[p] ?? `? (${p})`;
 export const backendName = (b: number): string => BACKEND_NAMES[b] ?? `? (${b})`;

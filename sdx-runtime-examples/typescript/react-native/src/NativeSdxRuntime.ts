@@ -36,7 +36,7 @@ import { TurboModuleRegistry } from 'react-native';
 export interface SdxExecutionReport {
   /** 0 = SDX_STATUS_OK */
   statusCode: number;
-  /** Requested backend enum (0=AUTO … 8=NNAPI — see BACKEND_NAMES). */
+  /** Requested backend enum (0=AUTO … 14=HEXAGON — see BACKEND_NAMES). */
   requestedBackend: number;
   /** Actually selected backend enum. */
   appliedBackend: number;

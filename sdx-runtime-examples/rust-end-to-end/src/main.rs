@@ -54,9 +54,10 @@ const PLAN_PHASE_NAMES: [&str; 4] = [
 ];
 
 /// Backend names (index = backend code from the ABI).
-const BACKEND_NAMES: [&str; 9] = [
+const BACKEND_NAMES: [&str; 15] = [
     "AUTO", "SLOT_BY_SLOT", "CUDA_GRAPHS", "NVRTC",
     "PTX", "TRITON", "MLX", "ARM_HYBRID", "NNAPI",
+    "HIP_GRAPHS", "LEVEL_ZERO", "VULKAN", "METAL", "TPU", "HEXAGON",
 ];
 
 fn phase_name(code: i32) -> &'static str {

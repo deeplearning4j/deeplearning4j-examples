@@ -88,6 +88,77 @@ KotlinSdxRuntime.create().use { runtime ->
 }
 ```
 
+---
+
+## LLM example (`LlmEndToEnd.kt` / `gradle llmRun`)
+
+Demonstrates the SDX LLM C ABI (`sdx_llm_c.h`) — the GraalVM native-image
+compiled LLM library — from Kotlin via JNA.  **No `samediff-llm` or ND4J on
+the classpath** — the library is JVM-free.  The POINT of this example is
+embedding the AOT library from a Kotlin/JVM host.
+
+### Kotlin LLM idioms used
+
+* `SdxLlmRuntime.create().use { … }` — `use {}` resource chain
+* `data class LlmResultStats` — camelCase fields, `summary()` method
+* `enum class LlmStatus` — typed status codes instead of bare `Int`
+* `model.generate(…)` / `model.tokenize(…)` / `model.detokenize(…)`
+* `model.lastResultStats()` — parses JSON into typed `LlmResultStats`
+* `runCatching {}` for the error path
+* Top-level `vlmExtract()` / `audioTranscribe()` helpers
+
+### Threading
+
+The runtime handle is bound to the OS thread that created it.  Create, use, and
+destroy from **one thread**.
+
+### Side-loaded natives (CRITICAL for JVM)
+
+`libsdx_llm.so` resolves its side-loaded natives relative to the host executable
+via `SDX_NATIVE_LIB_DIR`. A JVM **cannot** set process environment after start.
+Export before launching Gradle:
+
+```bash
+export SDX_LLM_AOT_HOME=/tmp/sdx-cpu-v8
+export SDX_NATIVE_LIB_DIR=$SDX_LLM_AOT_HOME/lib
+```
+
+### Run
+
+```bash
+export SDX_LLM_AOT_HOME=/tmp/sdx-cpu-v8
+export SDX_NATIVE_LIB_DIR=$SDX_LLM_AOT_HOME/lib
+
+gradle llmRun --args="${HOME}/.cache/dl4j-llm-models/Qwen3.5-0.8B-Q4_K_M.gguf \
+                       ${HOME}/.cache/dl4j-llm-models/qwen35-0.8B-tokenizer.json"
+```
+
+### Key LLM APIs
+
+```kotlin
+SdxLlmRuntime.create().use { runtime ->
+    runtime.loadModel(modelPath, tokenizerPath).use { model ->
+
+        // Greedy generation
+        val text = model.generate(
+            prompt = "The capital of France is",
+            optionsJson = """{"maxNewTokens":8,"sampling":{"preset":"greedy"}}""",
+        )
+        println(text)  // " Paris."
+
+        // Typed stats
+        val stats: LlmResultStats = model.lastResultStats()
+        println(stats.summary())
+
+        // Tokenization round-trip
+        val ids: IntArray = model.tokenize("Hello world")
+        val back: String  = model.detokenize(ids)
+    }
+}
+```
+
+---
+
 ## Model contract (`models/mlp.sdz`)
 
 | Input name | Shape   | dtype  | Role        |

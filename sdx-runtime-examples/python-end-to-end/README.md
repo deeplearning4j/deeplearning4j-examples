@@ -61,6 +61,93 @@ version conflicts.  If you must use conda, install a matching libstdc++ first:
 conda install -c conda-forge libstdcxx-ng
 ```
 
+---
+
+## LLM/VLM/STT example — `sdx_llm.py` + `llm_example.py`
+
+Demonstrates the SDX LLM surface (AOT `libsdx_llm`, no JVM) through the
+`sdx_llm` ctypes wrapper:
+
+| Step | What it demonstrates |
+|------|----------------------|
+| 1 | `SdxLlmRuntime` / `SdxLlmModel` creation via context managers |
+| 2 | Model info JSON via `model.info()` |
+| 3 | `model.tokenize()` / `model.detokenize()` round-trip |
+| 4 | `model.generate()` with greedy sampling |
+| 5 | `GenerateStats` frozen dataclass from `model.last_result()` |
+| 6 | Canonical output assertion: generated text contains `" Paris."` |
+| 7 | Optional VLM document extraction (`--vlm`) |
+| 8 | Optional Whisper STT transcription (`--transcribe`) |
+
+### Quick start
+
+```bash
+# 1. Unpack the AOT SDK and point to it:
+export SDX_LLM_AOT_HOME=/path/to/sdx-aot-package
+
+# 2. Override model paths if needed (defaults use ~/.cache/dl4j-llm-models/):
+# export SDX_LLM_MODEL_PATH=/path/to/model.gguf
+# export SDX_LLM_TOKENIZER=/path/to/tokenizer.json
+
+/usr/bin/python3 llm_example.py [--vlm] [--transcribe]
+```
+
+Use the **system Python** (`/usr/bin/python3`) to avoid `libstdc++` conflicts.
+
+### LLM wrapper API reference
+
+| Name | Type | Description |
+|------|------|-------------|
+| `SdxLlmRuntime` | class | Runtime lifecycle; `load_model()`, context manager; `abi_version()` |
+| `SdxLlmModel`   | class | Model handle; `generate()`, `tokenize()`, `detokenize()`, `info()`, `last_result()` |
+| `GenerateStats` | frozen dataclass | Post-generate telemetry (`prompt_tokens`, `tokens_per_sec`, `finish_reason`, …) |
+| `LlmStatus`     | constants | Status code values and names (`OK`, `MODEL_LOAD_FAILED`, …) |
+| `SdxLlmError`   | exception | Raised on non-OK status; carries `.op`, `.status`, `.detail` |
+| `vlm_extract`   | function | Module-level VLM extraction (SmolDocling) |
+| `audio_transcribe` | function | Module-level Whisper STT |
+
+#### `SdxLlmRuntime`
+
+```python
+with SdxLlmRuntime() as rt:
+    print(rt.abi_version())           # integer ABI version
+    model = rt.load_model(
+        model_path,
+        tokenizer_path,               # optional; None = try model dir
+        '{"maxNewTokens":128}',       # optional per-load options JSON
+    )
+    # or use as context manager:
+    with rt.load_model(model_path, tokenizer_path) as model:
+        text = model.generate("Hello")
+```
+
+#### `SdxLlmModel`
+
+```python
+text  = model.generate(prompt, options_json='{"maxNewTokens":64}')
+stats = model.last_result()          # GenerateStats dataclass
+info  = model.info()                 # dict from sdxLlmInfoJson
+ids   = model.tokenize("hello")      # List[int]
+text  = model.detokenize(ids)        # str
+```
+
+#### `GenerateStats` (frozen dataclass)
+
+```python
+print(stats.prompt_tokens)    # int
+print(stats.generated_tokens) # int
+print(stats.tokens_per_sec)   # float
+print(stats.finish_reason)    # str  — e.g. "max_length", "eos"
+```
+
+#### Threading
+
+A `SdxLlmRuntime` is bound to the OS thread that created it.  For concurrent
+generation create one `SdxLlmRuntime` per thread.  Do **not** share a runtime
+across threads.
+
+---
+
 ## SDK wrapper API reference
 
 The `sdx_runtime` module exposes a layered API:

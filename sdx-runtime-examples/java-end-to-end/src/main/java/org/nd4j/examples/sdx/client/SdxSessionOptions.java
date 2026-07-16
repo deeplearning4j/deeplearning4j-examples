@@ -49,6 +49,12 @@ public final class SdxSessionOptions {
         public static final int MLX          = 6;
         public static final int ARM_HYBRID   = 7;
         public static final int NNAPI        = 8;
+        public static final int HIP_GRAPHS   = 9;
+        public static final int LEVEL_ZERO   = 10;
+        public static final int VULKAN       = 11;
+        public static final int METAL        = 12;
+        public static final int TPU          = 13;
+        public static final int HEXAGON      = 14;
         private SdxBackend() {}
     }
 

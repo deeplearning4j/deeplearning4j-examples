@@ -86,6 +86,129 @@ Library resolution order: `SDX_RUNTIME_LIBRARY` > `SDX_RUNTIME_HOME/lib/`
 (prefers `libsdx_cpu` over `libnd4jcpu`) > `~/.javacpp/cache/` (dev convenience,
 picks up a library extracted by a prior ND4J JVM process).
 
+---
+
+## LLM AOT example (`start:llm`)
+
+A second example in this package wraps `sdx_llm_c.h` (libsdx_llm — GraalVM AOT
+native-image, no JVM) via the same koffi FFI library.
+
+### Source layout additions
+
+```
+src/
+  sdx_llm.ts     — SdxLlmRuntime / SdxLlmModel classes + resolveLibsdxLlm()
+  llm_example.ts — end-to-end walkthrough: load, tokenize, generate, stats, errors
+```
+
+### API at a glance
+
+```typescript
+import { SdxLlmRuntime } from './sdx_llm';
+
+// All methods are async — FFI calls run on a dedicated Worker thread with
+// 128 MB stack (required by the GraalVM isolate).
+const rt = await SdxLlmRuntime.create();   // spawns Worker, calls sdxLlmCreateRuntime
+console.log('ABI version:', rt.abiVersion);  // must be 1
+
+const model = await rt.loadModel(
+  '~/.cache/dl4j-llm-models/Qwen3.5-0.8B-Q4_K_M.gguf',
+  '~/.cache/dl4j-llm-models/qwen35-0.8B-tokenizer.json',
+  JSON.stringify({ maxNewTokens: 8, sampling: { preset: 'greedy' } }),
+);
+
+const text = await model.generate('The capital of France is');
+console.log(text);   // " Paris."
+
+const stats = await model.lastResultStats();
+console.log(stats?.generatedTokens, 'tokens,', stats?.tokensPerSecond, 'tok/s');
+
+// Tokenize / detokenize
+const ids = await model.tokenize('hello world', false);    // Int32Array
+const rt2 = await model.detokenize(ids, true);
+
+// VLM and STT (stateless — use the runtime directly):
+const extracted  = await rt.vlmExtract(vmPath, imgPath, null, '{"format":"markdown"}');
+const transcript = await rt.audioTranscribe(whisperPath, audioPath);
+
+// Dispose in reverse order:
+await model.dispose();
+await rt.dispose();
+```
+
+### Run
+
+```bash
+SDX_LLM_AOT_HOME=/tmp/sdx-cpu-v8 \
+npm run start:llm -- \
+  ~/.cache/dl4j-llm-models/Qwen3.5-0.8B-Q4_K_M.gguf \
+  ~/.cache/dl4j-llm-models/qwen35-0.8B-tokenizer.json
+```
+
+`SdxLlmRuntime.create()` automatically sets `process.env.SDX_NATIVE_LIB_DIR` from
+`SDX_LLM_AOT_HOME/lib` when `SDX_NATIVE_LIB_DIR` is not already set.  This
+ensures `libsdx_llm` finds its side-loaded native companions.
+
+> **Worker thread** — `sdx_llm.ts` runs all koffi FFI calls on a dedicated
+> `worker_threads.Worker` with `resourceLimits.stackSizeMb = 128`.  The GraalVM
+> isolate needs ≥64 MB of OS stack during `sdxLlmCreateRuntime`; Node's main
+> thread only has 8 MB.  The Worker provides the required stack automatically —
+> no `--stack-size` flag needed.  All public methods on `SdxLlmRuntime` and
+> `SdxLlmModel` return `Promise` (async).
+
+CPU generation with Qwen3.5-0.8B takes ~1–3 minutes on first run (GGUF import +
+plan compilation).  Subsequent calls on the same model reuse the compiled plan.
+
+### Library resolution
+
+| Source | How to set |
+|---|---|
+| Explicit path | `SDX_LLM_LIBRARY=/path/to/libsdx_llm.so` |
+| Unpacked AOT SDK | `SDX_LLM_AOT_HOME=/path/to/sdk` (preferred) |
+
+### Expected output
+
+```
+== Step 1: create the LLM runtime ==
+Library     : /tmp/sdx-cpu-v8/lib/libsdx_llm.so
+ABI version : 1
+
+== Step 2: load model (Qwen3.5-0.8B-Q4_K_M.gguf) ==
+tokenizer   : /path/to/qwen35-0.8B-tokenizer.json
+options     : {"maxNewTokens":8,"sampling":{"preset":"greedy"}}
+Loading… (CPU import + warmup takes ~1–3 min on first run)
+Model loaded successfully.
+
+== Step 3: model info JSON ==
+info: {"variables":2380,"inputs":"_causal_mask,actual_sequence_length,…
+
+== Step 4: tokenize / detokenize ==
+tokenize("The capital of France is") → 5 tokens: [760,6511,314,9338,369]
+detokenize → "The capital of France is"
+Round-trip contains original: true
+
+== Step 5: text generation ==
+prompt  : "The capital of France is"
+options : {"maxNewTokens":8,"sampling":{"preset":"greedy"}}
+output  : " Paris."
+PASS: generated text contains "Paris".
+
+== Step 6: generation statistics ==
+  prompt tokens    = 5
+  new tokens       = 8
+  generation time  = ~2400 ms
+  tok/s            = ~3.4
+  finish reason    = MAX_TOKENS
+
+== Step 7: error-path demonstration ==
+Loading a bogus path throws: sdxLlmLoadModel("/definitely/not/a/model.gguf") failed; IOException: Model file not found…
+Error path: PASS.
+
+SUCCESS: SDX LLM AOT C ABI verified from TypeScript/Node.js (no JVM).
+```
+
+---
+
 ## Requirements
 
 - Node 18+ (koffi ships prebuilt binaries for common platforms)

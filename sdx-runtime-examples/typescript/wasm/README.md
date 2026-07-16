@@ -7,6 +7,16 @@ walkthrough as every other language example (input-contract discovery,
 placeholder marking, warmup, `freezeShapes` → replay, execution-report
 telemetry, canonical output verification, error path).
 
+## LLM / VLM / STT via the AOT SDK
+
+`libsdx_llm` is a **native shared library** produced by GraalVM native-image;
+it cannot be compiled to WebAssembly.  Browser-side LLM use goes through a
+server: run the AOT SDK's `sdx-llm` CLI or start the gRPC/REST server in
+`../../serving/`, then call it from the browser over HTTP/fetch.  The wasm
+example in this directory covers only the graph-execution C ABI (`dsp_runtime_c.h`).
+
+---
+
 ## Status — read this first
 
 The **wrapper and its heap marshaling are verified**; the **wasm build of the

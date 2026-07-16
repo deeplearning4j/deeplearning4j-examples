@@ -76,6 +76,70 @@ Loading a bogus path raised: sdxLoadBundle failed: ...
 SUCCESS: SDX C ABI outputs verified from pure C# (no JVM).
 ```
 
+---
+
+## LLM / VLM / STT example (`dotnet run -- llm`)
+
+Demonstrates the SDX LLM C ABI (`sdx_llm_c.h`) — the GraalVM native-image
+compiled LLM library — from C# via P/Invoke.  **No JVM** in the process.  The
+POINT of this example is embedding the AOT library from a pure .NET app.
+
+### C# LLM idioms used
+
+* `using var runtime = SdxLlmRuntime.Create()` — `IDisposable`, using-declarations
+* `using var model = runtime.LoadModel(...)` — nested disposal in reverse order
+* `record LlmResultStats(...)` — value equality, auto-`ToString` from the compiler
+* `#nullable enable` throughout; no unsafe blocks required
+* `NativeLibrary.SetDllImportResolver` — honours `SDX_LLM_AOT_HOME`
+* `Environment.SetEnvironmentVariable("SDX_NATIVE_LIB_DIR", …)` — C# **can** do
+  this (unlike JVM); done automatically in `SdxLlmRuntime.Create()`
+
+### Architecture
+
+```
+LlmEndToEnd.cs   (example layer)
+  └─ LlmEndToEnd.Run()   — lifecycle walkthrough; dispatched via "llm" arg
+
+SdxLlmRuntime.cs  (SDK wrapper — dependency-free, included via Compile Include)
+  └─ SdxLlmRuntime       — create/destroy runtime, LoadModel
+  └─ SdxLlmModel         — Generate, Tokenize, Detokenize, InfoJson, LastResultStats
+  └─ LlmResultStats      — record DTO (promptTokens, newTokens, tokensPerSec, …)
+  └─ SdxLlmHelpers       — VlmExtract, AudioTranscribe (stateless top-level helpers)
+  └─ SdxLlmNative        — P/Invoke declarations (internal)
+```
+
+### Side-loaded natives (C# can fix this automatically)
+
+`libsdx_llm.so` resolves its side-loaded natives via `SDX_NATIVE_LIB_DIR`.
+**Unlike JVM wrappers**, `SdxLlmRuntime.Create()` calls
+`Environment.SetEnvironmentVariable("SDX_NATIVE_LIB_DIR", …)` before the first
+P/Invoke when `SDX_LLM_AOT_HOME` is set — no manual pre-export needed.
+
+### Run
+
+```bash
+export SDX_LLM_AOT_HOME=/tmp/sdx-cpu-v8
+dotnet run -- llm \
+  $HOME/.cache/dl4j-llm-models/Qwen3.5-0.8B-Q4_K_M.gguf \
+  $HOME/.cache/dl4j-llm-models/qwen35-0.8B-tokenizer.json
+```
+
+### Expected LLM output (abridged)
+
+```
+=== SDX LLM C# end-to-end ===
+...
+== Step 5: generate (greedy, 8 tokens) ==
+Prompt: "The capital of France is"
+Output : " Paris. The capital of Italy"
+...
+Contains "Paris": YES ✓
+...
+SUCCESS: SDX LLM C ABI verified from C# (.NET, no JVM, no samediff-llm).
+```
+
+---
+
 ## Conventions followed
 
 - [.NET Framework Design Guidelines — Dispose Pattern](https://learn.microsoft.com/en-us/dotnet/standard/design-guidelines/dispose-pattern)

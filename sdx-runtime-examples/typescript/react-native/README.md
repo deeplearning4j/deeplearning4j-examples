@@ -76,7 +76,7 @@ await session.close();             // always close to free native handles
 ```ts
 import { PLAN_PHASE_NAMES, BACKEND_NAMES, phaseName, backendName } from 'sdx-runtime-react-native';
 // 0=SLOT_BY_SLOT,1=SHAPES_FROZEN,2=REPLAYING,3=REPLAY_BLOCKED
-// 0=AUTO,1=SLOT_BY_SLOT,2=CUDA_GRAPHS,...,8=NNAPI
+// 0=AUTO,1=SLOT_BY_SLOT,2=CUDA_GRAPHS,...,9=HIP_GRAPHS,11=VULKAN,...,14=HEXAGON
 ```
 
 ## Android integration
@@ -119,6 +119,20 @@ npm install --no-save react@18 react-native@0.74 @types/react@18 typescript@5.5
 npx tsc --noEmit   # must print nothing (zero errors)
 rm -rf node_modules package-lock.json
 ```
+
+## LLM / VLM / STT via the AOT SDK
+
+The `libsdx_llm` AOT library (`sdx_llm_c.h`) targets **desktop and server platforms
+only**.  GraalVM native-image has no Android or iOS target, so the `.so`/`.dylib`
+it produces cannot be embedded in a mobile app bundle.
+
+On-device LLM/VLM/STT inference stays with the JVM-free C runtime (`libsdx`):
+link `libnd4jcpu.so` (ARM64) and use `dsp_runtime_c.h` as shown in the existing
+`android/src/main/cpp/sdx_jni.cpp` shim.  For server-side generation, the AOT SDK
+can serve requests over HTTP (see `../../serving/`) and the React Native app hits
+it like any other REST endpoint.
+
+---
 
 ## Notes on JNI name mangling
 

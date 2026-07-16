@@ -47,3 +47,15 @@ kotlin {
 application {
     mainClass.set("org.nd4j.examples.sdx.EndToEndKt")
 }
+
+// ── Secondary entry: LLM end-to-end example ───────────────────────────────────
+// Usage:
+//   export SDX_LLM_AOT_HOME=/tmp/sdx-cpu-v8
+//   export SDX_NATIVE_LIB_DIR=$SDX_LLM_AOT_HOME/lib
+//   gradle llmRun --args="path/to/model.gguf path/to/tokenizer.json"
+tasks.register<JavaExec>("llmRun") {
+    group = "application"
+    description = "Run the SDX LLM end-to-end example (requires libsdx_llm.so)"
+    classpath = sourceSets["main"].runtimeClasspath
+    mainClass.set("org.nd4j.examples.sdx.LlmEndToEndKt")
+}
