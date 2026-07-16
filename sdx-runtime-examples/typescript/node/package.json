@@ -1,0 +1,20 @@
+{
+  "name": "sdx-runtime-node-end-to-end",
+  "version": "0.1.0",
+  "private": true,
+  "description": "End-to-end SDX runtime example: load a .sdz and run it through the sdx* C ABI from TypeScript on Node.js (no JVM)",
+  "license": "Apache-2.0",
+  "type": "commonjs",
+  "scripts": {
+    "build": "tsc",
+    "start": "npm run build && node dist/end_to_end.js",
+    "start:llm": "npm run build && node dist/llm_example.js"
+  },
+  "dependencies": {
+    "koffi": "^2.9.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.5.0",
+    "typescript": "^5.5.4"
+  }
+}

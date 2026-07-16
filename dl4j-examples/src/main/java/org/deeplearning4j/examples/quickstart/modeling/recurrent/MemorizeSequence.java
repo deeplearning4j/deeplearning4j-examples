@@ -25,7 +25,7 @@ package org.deeplearning4j.examples.quickstart.modeling.recurrent;
 
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
-import org.deeplearning4j.nn.conf.NeuralNetConfiguration.ListBuilder;
+import org.deeplearning4j.nn.conf.ListBuilder;
 import org.deeplearning4j.nn.conf.Updater;
 import org.deeplearning4j.nn.conf.layers.LSTM;
 import org.deeplearning4j.nn.conf.layers.RnnOutputLayer;
@@ -160,7 +160,7 @@ public class MemorizeSequence {
                 // first process the last output of the network to a concrete
                 // neuron, the neuron with the highest output has the highest
                 // chance to get chosen
-                int sampledCharacterIdx = Nd4j.getExecutioner().exec(new ArgMax(new INDArray[]{output},false,new int[]{1}))[0].getInt(0);
+                int sampledCharacterIdx = Nd4j.getExecutioner().exec(new ArgMax(new INDArray[]{output},false,new long[]{1}))[0].getInt(0);
 
                 // print the chosen output
                 System.out.print(LEARNSTRING_CHARS_LIST.get(sampledCharacterIdx));

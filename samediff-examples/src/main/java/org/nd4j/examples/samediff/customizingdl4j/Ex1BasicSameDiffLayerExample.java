@@ -21,7 +21,7 @@ package org.nd4j.examples.samediff.customizingdl4j;
 
 import org.apache.commons.io.FileUtils;
 import org.deeplearning4j.datasets.iterator.impl.MnistDataSetIterator;
-import org.deeplearning4j.eval.Evaluation;
+import org.nd4j.evaluation.classification.Evaluation;
 import org.deeplearning4j.gradientcheck.GradientCheckUtil;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;

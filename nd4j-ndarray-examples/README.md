@@ -33,6 +33,8 @@ Even more operations like add row/col etc
 Examples to help NumPy users get acquainted with ND4J
 
 ## Advanced
+* [GpuDeviceFailoverExample.java](./src/main/java/org/nd4j/examples/advanced/devicemanagement/GpuDeviceFailoverExample.java)
+GPU device failover and multi-device memory management with DeviceMemoryManager: device registration and memory caps, routing policies, allocation tracking, memory-pressure callbacks, and OOM failover (GPU -> other GPU -> CPU -> surfaced OOM). Runs on any machine via the built-in memory-simulation mode; on real GPUs the CUDA allocator engages the same selection automatically, bounded by Nd4j.getEnvironment().setMaxDeviceMemory(bytes)
 * [MultiClassLogitExample.java](./src/main/java/org/nd4j/examples/advanced/lowlevelmodeling/MultiClassLogitExample.java)
 Multiclass logistic regression from scratch with ND4J
 * [WorkspacesExample.java](./src/main/java/org/nd4j/examples/advanced/memoryoptimization/WorkspacesExample.java)

@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ /* ******************************************************************************
+  ~  *
+  ~  * This program and the accompanying materials are made available under the
+  ~  * terms of the Apache License, Version 2.0 which is available at
+  ~  * https://www.apache.org/licenses/LICENSE-2.0.
+  ~  *
+  ~  *  See the NOTICE file distributed with this work for additional
+  ~  *  information regarding copyright ownership.
+  ~  * Unless required by applicable law or agreed to in writing, software
+  ~  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+  ~  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+  ~  * License for the specific language governing permissions and limitations
+  ~  * under the License.
+  ~  *
+  ~  * SPDX-License-Identifier: Apache-2.0
+  ~  ******************************************************************************/
+  -->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>org.eclipse.deeplearning4j</groupId>
+    <artifactId>sdx-runtime-java-end-to-end</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+    <packaging>jar</packaging>
+
+    <name>sdx-runtime-java-end-to-end</name>
+    <description>
+        End-to-end example of the SDX runtime C ABI (dsp_runtime_c.h): build a
+        SameDiff model, save it as .sdz, then load and execute it through the
+        exported sdx* symbols — the same route every non-JVM language binding
+        takes — including input-contract discovery, shape freezing, and
+        execution-report telemetry.
+    </description>
+
+    <properties>
+        <dl4j-master.version>1.0.0-SNAPSHOT</dl4j-master.version>
+        <!-- Change to nd4j-cuda-12.9 to run against the CUDA backend -->
+        <nd4j.backend>nd4j-native</nd4j.backend>
+        <maven.compiler.source>11</maven.compiler.source>
+        <maven.compiler.target>11</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <exec-maven-plugin.version>1.4.0</exec-maven-plugin.version>
+        <logback.version>1.4.14</logback.version>
+        <jna.version>5.14.0</jna.version>
+        <!-- Default main; override with -Dexec.mainClass=... (e.g. GenerateExampleModel) -->
+        <exec.mainClass>org.nd4j.examples.sdx.SdxRuntimeEndToEndExample</exec.mainClass>
+    </properties>
+
+    <dependencies>
+        <!-- ND4J backend: used to BUILD the model, produce the .sdz, and
+             compute the reference outputs. Its packaged native library also
+             exports the sdx* C ABI that this example binds via JNA. -->
+        <dependency>
+            <groupId>org.eclipse.deeplearning4j</groupId>
+            <artifactId>${nd4j.backend}</artifactId>
+            <version>${dl4j-master.version}</version>
+        </dependency>
+
+        <!-- SDX Java wrapper: org.nd4j.dsp.runtime.SdxRuntime + SdxLlm.
+             Canonical source: nd4j/nd4j-backends/nd4j-backend-impls/nd4j-sdx.
+             Install locally with: mvn -Psdx install -pl :nd4j-sdx-preset,:nd4j-sdx -DskipTests -->
+        <dependency>
+            <groupId>org.eclipse.deeplearning4j</groupId>
+            <artifactId>nd4j-sdx</artifactId>
+            <version>${dl4j-master.version}</version>
+        </dependency>
+
+        <!-- JNA (transitive from nd4j-sdx, listed explicitly for clarity) -->
+        <dependency>
+            <groupId>net.java.dev.jna</groupId>
+            <artifactId>jna</artifactId>
+            <version>${jna.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>${logback.version}</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>${exec-maven-plugin.version}</version>
+                <configuration>
+                    <mainClass>${exec.mainClass}</mainClass>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>

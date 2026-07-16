@@ -1,0 +1,33 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <RootNamespace>Nd4j.Examples.Sdx</RootNamespace>
+    <AssemblyName>SdxEndToEnd</AssemblyName>
+    <Nullable>enable</Nullable>
+    <LangVersion>10</LangVersion>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+    <!-- Location of the SDX C# wrapper source (SdxRuntime.cs). The default
+         assumes a sibling `deeplearning4j` checkout next to this examples
+         repository; when building against an unpacked SDK package, override:
+           dotnet run -p:SdxWrapperDir=/path/to/sdk/wrappers/csharp -->
+    <SdxWrapperDir Condition="'$(SdxWrapperDir)' == ''">../../../deeplearning4j/libnd4j/include/dsp/runtime/bindings/csharp</SdxWrapperDir>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- SDX graph-execution ABI wrapper (dsp_runtime_c.h) -->
+    <Compile Include="$(SdxWrapperDir)/SdxRuntime.cs" Link="SdxRuntime.cs" />
+    <!-- SDX LLM ABI wrapper (sdx_llm_c.h) — AOT-compiled LLM/VLM/STT C ABI -->
+    <Compile Include="$(SdxWrapperDir)/SdxLlmRuntime.cs" Link="SdxLlmRuntime.cs" />
+  </ItemGroup>
+
+  <!-- Microsoft.ML.OnnxRuntime.Managed: the managed-only ORT package that ships
+       DenseTensor<T> (namespace Microsoft.ML.OnnxRuntime.Tensors) without pulling
+       in any native inference DLLs. Example layer only — SdxRuntime.cs stays
+       dependency-free. -->
+  <ItemGroup>
+    <PackageReference Include="Microsoft.ML.OnnxRuntime.Managed" Version="1.27.0" />
+  </ItemGroup>
+
+</Project>

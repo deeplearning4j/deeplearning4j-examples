@@ -84,10 +84,12 @@ public class Nd4jEx2_CreatingINDArrays {
         System.out.println("\nN(0,1) random array:");
         System.out.println(gaussianMeanZeroUnitVariance);
 
-        //We can make things repeatable using RNG seed:
+        //We can make things repeatable by setting the RNG seed before each call:
         long rngSeed = 12345;
-        INDArray uniformRandom2 = Nd4j.rand(rngSeed, shape_long);
-        INDArray uniformRandom3 = Nd4j.rand(rngSeed, shape_long);
+        Nd4j.getRandom().setSeed(rngSeed);
+        INDArray uniformRandom2 = Nd4j.rand(shape_long);
+        Nd4j.getRandom().setSeed(rngSeed);
+        INDArray uniformRandom3 = Nd4j.rand(shape_long);
         System.out.println("\nUniform random arrays with same fixed seed:");
         System.out.println(uniformRandom2);
         System.out.println();

@@ -144,7 +144,7 @@ public class PlotUtil {
 
         XYSeries[] series = new XYSeries[nClasses];
         for (int i = 0; i < series.length; i++) series[i] = new XYSeries("Class " + i);
-        INDArray argMax = Nd4j.getExecutioner().exec(new ArgMax(new INDArray[]{labels},false,new int[]{1}))[0];
+        INDArray argMax = Nd4j.getExecutioner().exec(new ArgMax(new INDArray[]{labels},false,new long[]{1}))[0];
         for (int i = 0; i < nRows; i++) {
             int classIdx = (int) argMax.getDouble(i);
             series[classIdx].add(features.getDouble(i, 0), features.getDouble(i, 1));
